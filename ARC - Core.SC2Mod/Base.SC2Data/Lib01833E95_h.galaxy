@@ -1,0 +1,165 @@
+include "TriggerLibs/natives"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Additional Features
+//--------------------------------------------------------------------------------------------------
+// Constants
+const int lib01833E95_gv_aF_Meme_TextTagIndex = 15;
+const int lib01833E95_gv_aF_Meme_Size = 50;
+const string lib01833E95_gv_aF_Meme_PlayerNormal = "m_pepe";
+const string lib01833E95_gv_aF_Meme_PlayerSelected = "m_pepeH";
+const string lib01833E95_gv_aF_Meme_EnemyNormal = "m_troll";
+const int lib01833E95_gv_tW_WaitingListLength = 50;
+const int lib01833E95_gv_tW_MaxUsersSaved = 200;
+const string lib01833E95_gv_tW_CommandSection = "Commands";
+
+// Structures
+struct lib01833E95_gs_TW_UserSave {
+    unit lv_pCurrentUnit;
+    string lv_pUser;
+    int lv_pKillStack;
+    int lv_pStartingKills;
+};
+
+struct lib01833E95_gs_TW_UserDiedLog {
+    string lv_pUser;
+    string lv_pUnitType;
+    int lv_pKills;
+};
+
+// Variable Declarations
+int lib01833E95_gv_aF_TychusPlayer;
+int[4][3] lib01833E95_gv_aF_TopBarIcons;
+int lib01833E95_gv_aF_TopBarIconsDialog;
+int lib01833E95_gv_aF_ScoreButton;
+int lib01833E95_gv_aF_Score_KillGraph;
+int[3] lib01833E95_gv_aF_Score_PieCharts;
+bool[3] lib01833E95_gv_aF_Score_GraphVisible;
+int[2] lib01833E95_gv_aF_Score_FinalButton;
+int[2] lib01833E95_gv_aF_Score_FinalButtonLabel;
+int lib01833E95_gv_aF_KillNumbers;
+fixed lib01833E95_gv_aF_MissionTime;
+bool lib01833E95_gv_aF_MemeActive;
+playergroup lib01833E95_gv_aF_SlimUI_PlayerGroup;
+int[5][3] lib01833E95_gv_aF_TopbarButton;
+text lib01833E95_gv_tW_Color;
+string[lib01833E95_gv_tW_WaitingListLength + 1] lib01833E95_gv_tW_WaitingListName;
+int[lib01833E95_gv_tW_WaitingListLength + 1] lib01833E95_gv_tW_WaitingListPlayer;
+playergroup lib01833E95_gv_tW_PlayerUG;
+unitgroup lib01833E95_gv_tW_JoinedUnits;
+lib01833E95_gs_TW_UserSave[lib01833E95_gv_tW_MaxUsersSaved + 1] lib01833E95_gv_tW_Users;
+lib01833E95_gs_TW_UserDiedLog[lib01833E95_gv_tW_MaxUsersSaved + 1] lib01833E95_gv_tW_UserDiedLog;
+timer lib01833E95_gv_tW_Timer;
+bool lib01833E95_gv_tW_TwitchIntegrationActive;
+bank[3] lib01833E95_gv_tW_Bank;
+int lib01833E95_gv_tW_MaxUnitsSpawn;
+int lib01833E95_gv_tW_MaxUnitsHeroicSpawn;
+timer lib01833E95_gv_tW_KillTimer;
+
+// Function Declarations
+void lib01833E95_gf_AF_SetTychusSquadMember (unit lp_unit, int lp_squadIndex, string lp_squadInstance);
+string lib01833E95_gf_AF_GetTychusSquadInstance (unit lp_unit);
+int lib01833E95_gf_AF_GetTychusSquadIndex ();
+void lib01833E95_gf_AF_Tychus_InitHeroTechLimit (int lp_pPlayer);
+text lib01833E95_gf_CU_PrestigeBriefFormatTooltip (int lp_player);
+void lib01833E95_gf_AF_MutatorIconsCreate (int lp_pDialog);
+void lib01833E95_gf_AF_MasteryInfoCreate (int lp_pDialog, int lp_pPlayer);
+void lib01833E95_gf_AF_AttachTextTagImage (unit lp_pUnit, string lp_pImageName, int lp_pHeight, int lp_pWidth);
+bool lib01833E95_gf_AF_UnitHasHead (unit lp_pUnit);
+void lib01833E95_gf_InitBlizzconChallenge ();
+unit lib01833E95_gf_CM_PlayerGetGlobalCaster (int lp_player);
+unit lib01833E95_gf_AF_GetHeroUnit (int lp_pPlayer);
+string lib01833E95_gf_AF_GetAbility (int lp_pPlayer, int lp_pButtonIndex);
+fixed lib01833E95_gf_AF_GetCooldown (int lp_pPlayer, int lp_pButtonIndex);
+fixed lib01833E95_gf_AF_GetCharges (int lp_pPlayer, int lp_pButtonIndex);
+string lib01833E95_gf_AF_GetButtonText (int lp_pPlayer, int lp_pButtonIndex);
+bool lib01833E95_gf_AF_AbilityHasCooldownAndEnergyCost (int lp_pPlayer, int lp_pButtonIndex);
+bool lib01833E95_gf_AF_AbilityIsAvailable (int lp_pPlayer, int lp_pButtonIndex);
+fixed lib01833E95_gf_AF_EnergyCostofAbility (string lp_pAbility);
+string lib01833E95_gf_AF_GetButton (int lp_pPlayer, int lp_pButtonIndex);
+void lib01833E95_gf_TW_AssignUnit (unit lp_pUnit, string lp_pString);
+void lib01833E95_gf_TW_DeassignUnit (unit lp_pUnit, int lp_pNumber);
+int lib01833E95_gf_TW_NextInWaitingList (int lp_pPlayer);
+text lib01833E95_gf_TW_GetUserScore ();
+point lib01833E95_gf_TW_RandomWaveSpawnPoint ();
+void lib01833E95_gf_TW_SetUp (int lp_pPlayer, bank lp_pBank);
+void lib01833E95_gf_TW_ActionCycle (int lp_pPlayer);
+void lib01833E95_gf_TW_SpawnUnitsfromString (string lp_pUnitSpawnCommand, int lp_pPlayer, string lp_pViever);
+void lib01833E95_gf_TW_GiveResourcesfromString (string lp_pResourceCommand, int lp_pPlayer, string lp_pViever);
+void lib01833E95_gf_TW_EnableMutatorfromString (string lp_pMutatorName, string lp_pViever);
+void lib01833E95_gf_TW_JointheArmyfromString (string lp_pViever, int lp_pPlayer);
+void lib01833E95_gf_TW_SendWave (string lp_pViever, int lp_pPlayer, string lp_pMessage);
+int lib01833E95_gf_K2_GetKaraxPlayer ();
+void lib01833E95_gf_K2_MasteryNameFix (int lp_player);
+text lib01833E95_gf_K2_PlayerMasteryName (string lp_masteryUpgrade);
+text lib01833E95_gf_K2_PlayerMasteryTooltip (string lp_masteryUpgrade);
+bool lib01833E95_gf_AF_MyAcc (int lp_pPlayer);
+
+// Trigger Declarations
+trigger lib01833E95_gt_AF_Init;
+trigger lib01833E95_gt_AF_ButtonClicked;
+trigger lib01833E95_gt_AF_HeroPurchased;
+trigger lib01833E95_gt_AF_EnableHeroicUnload;
+trigger lib01833E95_gt_AF_UnloadHeroic;
+trigger lib01833E95_gt_AF_Outlaws;
+trigger lib01833E95_gt_AF_OutlawDeath;
+trigger lib01833E95_gt_AF_OutlawPurchase;
+trigger lib01833E95_gt_AF_Score;
+trigger lib01833E95_gt_AF_Score_GraphsandCharts;
+trigger lib01833E95_gt_AF_Score_SwitchButtonCreate;
+trigger lib01833E95_gt_AF_Score_QuitButtonCreate;
+trigger lib01833E95_gt_AF_Score_FinalButtonClicked;
+trigger lib01833E95_gt_AF_MissionEnds;
+trigger lib01833E95_gt_AF_Meme_Init;
+trigger lib01833E95_gt_AF_Meme_UnitSelected;
+trigger lib01833E95_gt_AF_Meme_UnitDeselected;
+trigger lib01833E95_gt_AF_Meme_UnitDies;
+trigger lib01833E95_gt_AF_Meme_UnitRemoved;
+trigger lib01833E95_gt_AF_Meme_UnitCreated;
+trigger lib01833E95_gt_AF_Meme_UnitRevived;
+trigger lib01833E95_gt_AF_Meme_OwnerChanged;
+trigger lib01833E95_gt_AF_Meme_PartsPickedUp;
+trigger lib01833E95_gt_AF_Meme_Nuke;
+trigger lib01833E95_gt_AF_BlizzconChallengeInit;
+trigger lib01833E95_gt_AF_BlizzconChallengeExecute;
+trigger lib01833E95_gt_AF_SlimUI;
+trigger lib01833E95_gt_AF_SlimUI_Delayed;
+trigger lib01833E95_gt_AF_TopBarNotificationsEnableDisable;
+trigger lib01833E95_gt_AF_TopBarNotificationsInitialization;
+trigger lib01833E95_gt_AF_TopBarClicked;
+trigger lib01833E95_gt_AF_MouseEntersTopBar;
+trigger lib01833E95_gt_AF_MouseExitsTopBar;
+trigger lib01833E95_gt_AF_Nikara;
+trigger lib01833E95_gt_AF_GiveNikaraWeaponRevived;
+trigger lib01833E95_gt_AF_GiveNikaraWeaponCreated;
+trigger lib01833E95_gt_TW_UnitDies;
+trigger lib01833E95_gt_TW_UnitCreated;
+trigger lib01833E95_gt_TW_UnitRevived;
+trigger lib01833E95_gt_TW_UnitOwnerChanges;
+trigger lib01833E95_gt_TW_Numbers;
+trigger lib01833E95_gt_TW_NumbersDamage;
+trigger lib01833E95_gt_TW_SpawnLimit;
+trigger lib01833E95_gt_TW_SoundEmoteLimitSet;
+trigger lib01833E95_gt_K2_Karax20;
+trigger lib01833E95_gt_K2_Init;
+trigger lib01833E95_gt_K2_CarrierUpgrade;
+trigger lib01833E95_gt_K2_NexusCreated;
+trigger lib01833E95_gt_K2_CannonPhased;
+trigger lib01833E95_gt_K2_PylonCreated;
+trigger lib01833E95_gt_K2_EnhancedTargetingImp;
+trigger lib01833E95_gt_K2_ImprovedReconstruction;
+trigger lib01833E95_gt_K2_GatewayTrainStart;
+trigger lib01833E95_gt_K2_GatewayTrainStop;
+trigger lib01833E95_gt_K2_RepairDroneCreated;
+trigger lib01833E95_gt_K2_RepairDroneUpdatePosition;
+trigger lib01833E95_gt_K2_ImprovedShadowCannon;
+trigger lib01833E95_gt_K2_ImprovedReclamation;
+trigger lib01833E95_gt_K2_StructureAttackUpgrade;
+trigger lib01833E95_gt_K2_StructureArmorUpgrade;
+trigger lib01833E95_gt_K2_ChronoWaveSwitch;
+trigger lib01833E95_gt_K2_CommanderMasteryClicked;
+trigger lib01833E95_gt_AF_BileLauncherBombardment;
+
+// Library Initialization
+void lib01833E95_InitVariables ();
+
