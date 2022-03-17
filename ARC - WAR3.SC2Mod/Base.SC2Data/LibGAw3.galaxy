@@ -1,0 +1,1539 @@
+include "TriggerLibs/NativeLib"
+
+include "LibGAw3_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: WarCraft III
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libGAw3_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Variable Initialization
+bool libGAw3_InitVariables_completed = false;
+
+void libGAw3_InitVariables () {
+    if (libGAw3_InitVariables_completed) {
+        return;
+    }
+
+    libGAw3_InitVariables_completed = true;
+
+    libGAw3_gv_delayedActivateBehaviorSet = "0 ";
+}
+
+// Custom Script
+//--------------------------------------------------------------------------------------------------
+// Custom Script: CustomScript
+//--------------------------------------------------------------------------------------------------
+unit GAw3_Core_EventItemPowerUp;
+bool GAw3_Core_useTODSound=true;
+string GAw3_EffectAtkType(string eid){
+    string key;
+    string kind;
+    if(CatalogEntryScope(c_gameCatalogEffect, eid) != "CEffectDamage"){return "";}
+    key=CatalogReferenceGet("Effect,"+eid+",Alert",c_playerAny);
+    kind=CatalogReferenceGet("Effect,"+eid+",Kind",c_playerAny);
+    if(kind=="Spell"){return "spells";}
+    return key;
+}
+string GAw3_WeaponAtkType(string id){
+    string eid=CatalogReferenceGet("Weapon,"+id+",DisplayEffect",c_playerAny);
+    return GAw3_EffectAtkType(eid);
+}
+void GAw3_TriggerAddEventUnitDamageAbsorbed (trigger t, unit u, string inBehavior){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitDamageAbsorbed(t,ur,inBehavior);
+}
+void GAw3_AddEventUnitCreated(trigger t,unit u,string creatorAbil,string creatorBehavior){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitCreated(t,ur,creatorAbil,creatorBehavior);
+}
+void GAw3_AddEventUnitProperty(trigger t,unit u,int p){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitProperty(t,ur,p);
+}
+void GAw3_AddEventUnitBehaviorChange(trigger t,unit u,string behavior,int inChangeType){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitBehaviorChange(t,ur,behavior,inChangeType);
+}
+void GAw3_AddEventUnitDamaged(trigger t,unit u,int inDamageType,int inDamageFatal,string inEffect){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitDamaged(t,ur,inDamageType,inDamageFatal,inEffect);
+}
+void GAw3_AddEventUnitStartedAttack2(trigger t,unit u,string weapon){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitStartedAttack2(t,ur,weapon);
+}
+void GAw3_AddEventUnitAbility(trigger t, unit u, abilcmd a, int stage, bool includeSharedAbils){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitAbility(t,ur,a,stage,includeSharedAbils);
+}
+void GAw3_TriggerAddEventUnitChangeOwner (trigger t, unit u){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitChangeOwner(t,ur);
+}
+void GAw3_TriggerAddEventUnitOrder (trigger t, unit u, abilcmd a){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitOrder(t,ur,a);
+}
+void GAw3_TriggerAddEventUnitSelected (trigger t, unit u, int player, bool state){
+    unitref ur=UnitRefFromUnit(u);
+    TriggerAddEventUnitSelected(t,ur,player,state);
+}
+void GAw3_SetUnitBehaviorCount(unit u,string behavior,int amount){
+    int count=(amount-UnitBehaviorCount(u,behavior));
+    if (count==0){return;}
+    if (count>0){UnitBehaviorAdd(u,behavior,u,count);}
+    else{UnitBehaviorRemove(u,behavior,count*-1);}
+}
+void GAw3_SetUnitAtt(unit u,string att,int amount){
+    GAw3_SetUnitBehaviorCount(u,att,amount);
+}
+void GAw3_UnitPrimaryAttSet(unit u,string att){
+    UnitBehaviorRemove(u,"MainAttStr",0);
+    UnitBehaviorRemove(u,"MainAttAgi",0);
+    UnitBehaviorRemove(u,"MainAttInt",0);
+    UnitBehaviorAdd(u,att,u,1);
+}
+string GAw3_UnitTypePrimaryAttGet(string type){
+    return UserDataGetGameLink("HeroBalance",type,"Primary",1);
+}
+void GAw3_UpdateHeroData(unit u){
+    int level;
+    string id;
+    int STR;
+    int AGI;
+    int INT;
+    fixed STRplus;
+    fixed AGIplus;
+    fixed INTplus;
+    int S;
+    int A;
+    int I;
+    if(!UnitIsValid(u)){return;}
+    level=UnitXPGetCurrentLevel(u,"AHer")-1;
+    id=UnitGetType(u);
+    STR=UserDataGetInt("HeroBalance",id,"STR",1);
+    AGI=UserDataGetInt("HeroBalance",id,"AGI",1);
+    INT=UserDataGetInt("HeroBalance",id,"INT",1);
+    STRplus=UserDataGetFixed("HeroBalance",id,"STRplus",1);
+    AGIplus=UserDataGetFixed("HeroBalance",id,"AGIplus",1);
+    INTplus=UserDataGetFixed("HeroBalance",id,"INTplus",1);
+    S=STR+FloorI(STRplus*level+0.001);
+    A=AGI+FloorI(AGIplus*level+0.001);
+    I=INT+FloorI(INTplus*level+0.001);
+    GAw3_SetUnitAtt(u,"Str",S);
+    GAw3_SetUnitAtt(u,"Agi",A);
+    GAw3_SetUnitAtt(u,"Int",I);
+}
+//entry can't be raw number, can't contain space.
+typedef string entryset;
+entryset GAw3_EntrySetEmpty(){return "0 ";};
+bool GAw3_EntrySetHasEntry(entryset set, string entry){
+    return StringContains(set,entry,c_stringAnywhere,c_stringCase);
+}
+entryset GAw3_EntrySetAdd(entryset set, string entry){
+    int c=0;
+    string head;
+    string body;
+    if(!GAw3_EntrySetHasEntry(set,entry))
+        {
+            head=StringWord(set,1);
+            body=StringReplaceWord(set,head,"",1,c_stringCase);
+            body=body+entry+" ";
+            c=StringToInt(head);
+            c+=1;
+            set=IntToString(c)+body;
+        }
+    return set;
+}
+entryset GAw3_EntrySetAddIgnore(entryset set, string entry){
+    int c=0;
+    string head;
+    string body;
+    head=StringWord(set,1);
+    body=StringReplaceWord(set,head,"",1,c_stringCase);
+    body=body+entry+" ";
+    c=StringToInt(head);
+    c+=1;
+    set=IntToString(c)+body;
+    return set;
+}
+entryset GAw3_EntrySetRemove(entryset set, string entry){
+    int c=0;
+    string head;
+    string body;
+    if(GAw3_EntrySetHasEntry(set,entry))
+        {
+            head=StringWord(set,1);
+            body=StringReplaceWord(set,head,"",1,c_stringCase);
+            body=StringReplaceWord(body,entry+" ","",1,c_stringCase);
+            c=StringToInt(head);
+            c-=1;
+            set=IntToString(c)+body;
+        }
+    return set;
+}
+string GAw3_EntrySetEntry(entryset set, int inIndex){
+    return StringWord(set,inIndex+1);
+}
+int GAw3_EntrySetCount(entryset set){
+    return StringToInt(StringWord(set,1));
+}
+string GAw3_EntrySetRandomEntry(entryset set){
+    return GAw3_EntrySetEntry(set,RandomInt(1,GAw3_EntrySetCount(set)));
+}
+
+void libGAw3_InitCustomScript () {
+}
+
+// Presets
+// Functions
+actor GAw3_CreateModelAtPoint (string lp_model, point lp_position) {
+    // Variable Declarations
+    actor lv_a;
+
+    // Variable Initialization
+
+    // Implementation
+    ActorCreate(null, "War3_TriggerEffect", (lp_model), null, "null");
+    lv_a = libNtve_gf_ActorLastCreated();
+    ActorSend(lv_a, libNtve_gf_ActorMsg1("SetPositionH", libNtve_gf_ConvertXYToString(PointGetX(lp_position), PointGetY(lp_position))));
+    ActorSend(lv_a, libNtve_gf_SetHeight(PointGetHeight(lp_position)));
+    return lv_a;
+}
+
+actor War3_AttachModelToUnit (unit lp_unit, string lp_model, string lp_attachPoint) {
+    // Variable Declarations
+    actorscope lv_scope;
+    actor lv_a;
+
+    // Variable Initialization
+
+    // Implementation
+    lv_scope = ActorScopeFromUnit(lp_unit);
+    ActorCreate(lv_scope, "SiteHosted", lp_attachPoint, "", "");
+    lv_a = libNtve_gf_ActorLastCreated();
+    ActorCreate(lv_scope, "War3_TriggerEffectHostedInheritVisibility", (lp_model), "", "");
+    lv_a = libNtve_gf_ActorLastCreated();
+    return lv_a;
+}
+
+string libGAw3_gf_ItemTypeOfUnit (string lp_u) {
+    // Variable Declarations
+    string lv_item;
+
+    // Variable Initialization
+    lv_item = CatalogFieldValueGet(c_gameCatalogUnit, lp_u, "Item", c_playerAny);
+
+    // Implementation
+    if ((CatalogEntryIsValid(c_gameCatalogItem, lv_item) == true)) {
+        return (lv_item);
+    }
+
+    return null;
+}
+
+unitgroup libGAw3_gf_ActiveSubgroupUnits (int lp_player) {
+    // Variable Declarations
+    unitgroup lv_ug;
+
+    // Variable Initialization
+    lv_ug = UnitGroupSelected(lp_player);
+
+    // Implementation
+    if ((UnitGroupCount(lv_ug, c_unitCountAll) > 0)) {
+        lv_ug = UnitSubgroupSelected(lp_player);
+    }
+
+    return lv_ug;
+}
+
+void libGAw3_gf_ActiveSubgroupUnit (unit lp_unit, int lp_player) {
+    // Variable Declarations
+    unitgroup lv_ug;
+
+    // Variable Initialization
+    lv_ug = UnitGroupSelected(lp_player);
+
+    // Implementation
+    UnitClearSelection(lp_player);
+    UnitSelect(lp_unit, lp_player, true);
+    UnitGroupSelect(lv_ug, lp_player, true);
+}
+
+fixed libGAw3_gf_UnitTypeDeathDelay (string lp_unitType) {
+    // Implementation
+    return StringToFixed(CatalogFieldValueGet(c_gameCatalogUnit, lp_unitType, "ReviveDelay", c_playerAny));
+}
+
+void libGAw3_gf_AnyUnitBehaviorActivateCountPreplaced (trigger t, string lp_behavior) {
+    // Implementation
+    TriggerAddEventUnitBehaviorChange(t, null, lp_behavior, c_unitBehaviorChangeActivate);
+    libGAw3_gv_delayedActivateBehaviorSet = GAw3_EntrySetAdd(libGAw3_gv_delayedActivateBehaviorSet,lp_behavior);
+}
+
+void libGAw3_gf__DeathRemove (unit lp_unit) {
+    // Variable Declarations
+    string lv_uT;
+    fixed lv_delay;
+
+    // Variable Initialization
+    lv_uT = UnitGetType(lp_unit);
+    lv_delay = libGAw3_gf_UnitTypeDeathDelay(lv_uT);
+
+    // Implementation
+    UnitSetOwner(lp_unit, 0, false);
+    libNtve_gf_ShowHideUnit(lp_unit, false);
+    Wait(6.0, c_timeGame);
+    if ((UnitIsValid(lp_unit) == true)) {
+        UnitRemove(lp_unit);
+    }
+
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Delayed  Activate Behaviors
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_DelayedActivateBehaviors_Func (bool testConds, bool runActions) {
+    playergroup auto9EF28ABC_g;
+    int auto9EF28ABC_p;
+    string auto8C1EEC81_s;
+    int auto8C1EEC81_i;
+    int auto8C1EEC81_c;
+    playergroup autoE72BAF42_g;
+    int autoE72BAF42_p;
+    string autoB3C79540_s;
+    int autoB3C79540_i;
+    int autoB3C79540_c;
+
+    // Variable Declarations
+    string lv_buff;
+    int lv_p;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto9EF28ABC_g = PlayerGroupAll(); 
+    auto9EF28ABC_p = 1;
+    for ( ; auto9EF28ABC_p <= PlayerGroupCount(auto9EF28ABC_g) ; auto9EF28ABC_p += BoolToInt(lv_p == PlayerGroupPlayer(auto9EF28ABC_g, auto9EF28ABC_p)) ) {
+        lv_p = PlayerGroupPlayer(auto9EF28ABC_g, auto9EF28ABC_p);
+        auto8C1EEC81_s=libGAw3_gv_delayedActivateBehaviorSet;
+        auto8C1EEC81_i=1;
+        auto8C1EEC81_c=GAw3_EntrySetCount(libGAw3_gv_delayedActivateBehaviorSet);
+        for(;auto8C1EEC81_i<=auto8C1EEC81_c;auto8C1EEC81_i+=1){
+            lv_buff=GAw3_EntrySetEntry(auto8C1EEC81_s,auto8C1EEC81_i);
+            TechTreeBehaviorAllow(lv_p, lv_buff, false);
+        }
+    }
+    Wait(0.125, c_timeGame);
+    autoE72BAF42_g = PlayerGroupAll(); 
+    autoE72BAF42_p = 1;
+    for ( ; autoE72BAF42_p <= PlayerGroupCount(autoE72BAF42_g) ; autoE72BAF42_p += BoolToInt(lv_p == PlayerGroupPlayer(autoE72BAF42_g, autoE72BAF42_p)) ) {
+        lv_p = PlayerGroupPlayer(autoE72BAF42_g, autoE72BAF42_p);
+        autoB3C79540_s=libGAw3_gv_delayedActivateBehaviorSet;
+        autoB3C79540_i=1;
+        autoB3C79540_c=GAw3_EntrySetCount(libGAw3_gv_delayedActivateBehaviorSet);
+        for(;autoB3C79540_i<=autoB3C79540_c;autoB3C79540_i+=1){
+            lv_buff=GAw3_EntrySetEntry(autoB3C79540_s,autoB3C79540_i);
+            TechTreeBehaviorAllow(lv_p, lv_buff, true);
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_DelayedActivateBehaviors_Init () {
+    libGAw3_gt_DelayedActivateBehaviors = TriggerCreate("libGAw3_gt_DelayedActivateBehaviors_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_HERO_SKILL
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_HERO_SKILL_Func (bool testConds, bool runActions) {
+    int auto3FA70E8E_ae;
+    int auto3FA70E8E_ai;
+
+    // Variable Declarations
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, ("EVENT_PLAYER_HERO_SKILL" + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto3FA70E8E_ae = lv_c;
+    auto3FA70E8E_ai = 1;
+    lv_i = 1;
+    for ( ; ( (auto3FA70E8E_ai >= 0 && lv_i <= auto3FA70E8E_ae) || (auto3FA70E8E_ai <= 0 && lv_i >= auto3FA70E8E_ae) ) ; lv_i += auto3FA70E8E_ai ) {
+        lv_trig = DataTableGetTrigger(true, ("EVENT_PLAYER_HERO_SKILL" + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_HERO_SKILL_Init () {
+    libGAw3_gt_EVENT_PLAYER_HERO_SKILL = TriggerCreate("libGAw3_gt_EVENT_PLAYER_HERO_SKILL_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_HERO_SKILL, false);
+    TriggerAddEventUnitAbility(libGAw3_gt_EVENT_PLAYER_HERO_SKILL, null, AbilityCommand("HamgLearn", 255), c_unitAbilStageExecute, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_UNIT_CHANGE_OWNER
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_UNIT_CHANGE_OWNER_Func (bool testConds, bool runActions) {
+    int autoCB994BCE_ae;
+    int autoCB994BCE_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_UNIT_CHANGE_OWNER";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoCB994BCE_ae = lv_c;
+    autoCB994BCE_ai = 1;
+    lv_i = 1;
+    for ( ; ( (autoCB994BCE_ai >= 0 && lv_i <= autoCB994BCE_ae) || (autoCB994BCE_ai <= 0 && lv_i >= autoCB994BCE_ae) ) ; lv_i += autoCB994BCE_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_UNIT_CHANGE_OWNER_Init () {
+    libGAw3_gt_EVENT_PLAYER_UNIT_CHANGE_OWNER = TriggerCreate("libGAw3_gt_EVENT_PLAYER_UNIT_CHANGE_OWNER_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_UNIT_CHANGE_OWNER, false);
+    TriggerAddEventUnitChangeOwner(libGAw3_gt_EVENT_PLAYER_UNIT_CHANGE_OWNER, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_UNIT_DROP_ITEM
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_UNIT_DROP_ITEM_Func (bool testConds, bool runActions) {
+    int auto37C7B10C_ae;
+    int auto37C7B10C_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_UNIT_DROP_ITEM";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto37C7B10C_ae = lv_c;
+    auto37C7B10C_ai = 1;
+    lv_i = 1;
+    for ( ; ( (auto37C7B10C_ai >= 0 && lv_i <= auto37C7B10C_ae) || (auto37C7B10C_ai <= 0 && lv_i >= auto37C7B10C_ae) ) ; lv_i += auto37C7B10C_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_UNIT_DROP_ITEM_Init () {
+    libGAw3_gt_EVENT_PLAYER_UNIT_DROP_ITEM = TriggerCreate("libGAw3_gt_EVENT_PLAYER_UNIT_DROP_ITEM_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_UNIT_DROP_ITEM, false);
+    TriggerAddEventUnitInventoryChange(libGAw3_gt_EVENT_PLAYER_UNIT_DROP_ITEM, null, c_unitInventoryChangeDrops, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_UNIT_PICKUP_ITEM
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_UNIT_PICKUP_ITEM_Func (bool testConds, bool runActions) {
+    int auto327DDD55_ae;
+    int auto327DDD55_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_UNIT_PICKUP_ITEM";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto327DDD55_ae = lv_c;
+    auto327DDD55_ai = 1;
+    lv_i = 1;
+    for ( ; ( (auto327DDD55_ai >= 0 && lv_i <= auto327DDD55_ae) || (auto327DDD55_ai <= 0 && lv_i >= auto327DDD55_ae) ) ; lv_i += auto327DDD55_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_UNIT_PICKUP_ITEM_Init () {
+    libGAw3_gt_EVENT_PLAYER_UNIT_PICKUP_ITEM = TriggerCreate("libGAw3_gt_EVENT_PLAYER_UNIT_PICKUP_ITEM_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_UNIT_PICKUP_ITEM, false);
+    TriggerAddEventUnitInventoryChange(libGAw3_gt_EVENT_PLAYER_UNIT_PICKUP_ITEM, null, c_unitInventoryChangePicksUp, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_UNIT_USE_ITEM
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEM_Func (bool testConds, bool runActions) {
+    int autoB399DBD2_ae;
+    int autoB399DBD2_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_UNIT_USE_ITEM";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoB399DBD2_ae = lv_c;
+    autoB399DBD2_ai = 1;
+    lv_i = 1;
+    for ( ; ( (autoB399DBD2_ai >= 0 && lv_i <= autoB399DBD2_ae) || (autoB399DBD2_ai <= 0 && lv_i >= autoB399DBD2_ae) ) ; lv_i += autoB399DBD2_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEM_Init () {
+    libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEM = TriggerCreate("libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEM_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEM, false);
+    TriggerAddEventUnitInventoryChange(libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEM, null, c_unitInventoryChangeUses, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_UNIT_USE_ITEM (Power_Up)(Needs Improve!)
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEMPower_UpNeedsImprove_Func (bool testConds, bool runActions) {
+    int auto9BE3F3C0_ae;
+    int auto9BE3F3C0_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_UNIT_USE_ITEM";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GAw3_Core_EventItemPowerUp=EventUnitPowerupUnit ();
+    auto9BE3F3C0_ae = lv_c;
+    auto9BE3F3C0_ai = 1;
+    lv_i = 1;
+    for ( ; ( (auto9BE3F3C0_ai >= 0 && lv_i <= auto9BE3F3C0_ae) || (auto9BE3F3C0_ai <= 0 && lv_i >= auto9BE3F3C0_ae) ) ; lv_i += auto9BE3F3C0_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    Wait(0.0, c_timeGame);
+    GAw3_Core_EventItemPowerUp=null;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEMPower_UpNeedsImprove_Init () {
+    libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEMPower_UpNeedsImprove = TriggerCreate("libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEMPower_UpNeedsImprove_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEMPower_UpNeedsImprove, false);
+    TriggerAddEventUnitPowerup(libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEMPower_UpNeedsImprove, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_UNIT_SELL_ITEM
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_UNIT_SELL_ITEM_Func (bool testConds, bool runActions) {
+    int autoDE20ABD7_ae;
+    int autoDE20ABD7_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_UNIT_SELL_ITEM";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitFilterMatch(EventUnitProgressUnit(), 1, UnitFilter((1 << c_targetFilterItem), 0, 0, 0)) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoDE20ABD7_ae = lv_c;
+    autoDE20ABD7_ai = 1;
+    lv_i = 1;
+    for ( ; ( (autoDE20ABD7_ai >= 0 && lv_i <= autoDE20ABD7_ae) || (autoDE20ABD7_ai <= 0 && lv_i >= autoDE20ABD7_ae) ) ; lv_i += autoDE20ABD7_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_UNIT_SELL_ITEM_Init () {
+    libGAw3_gt_EVENT_PLAYER_UNIT_SELL_ITEM = TriggerCreate("libGAw3_gt_EVENT_PLAYER_UNIT_SELL_ITEM_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_UNIT_SELL_ITEM, false);
+    TriggerAddEventUnitTrainProgress(libGAw3_gt_EVENT_PLAYER_UNIT_SELL_ITEM, null, c_unitProgressStageComplete);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_UNIT_PAWN_ITEM
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_UNIT_PAWN_ITEM_Func (bool testConds, bool runActions) {
+    int auto43520F87_ae;
+    int auto43520F87_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_UNIT_PAWN_ITEM";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto43520F87_ae = lv_c;
+    auto43520F87_ai = 1;
+    lv_i = 1;
+    for ( ; ( (auto43520F87_ai >= 0 && lv_i <= auto43520F87_ae) || (auto43520F87_ai <= 0 && lv_i >= auto43520F87_ae) ) ; lv_i += auto43520F87_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_UNIT_PAWN_ITEM_Init () {
+    libGAw3_gt_EVENT_PLAYER_UNIT_PAWN_ITEM = TriggerCreate("libGAw3_gt_EVENT_PLAYER_UNIT_PAWN_ITEM_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_UNIT_PAWN_ITEM, false);
+    TriggerAddEventUnitInventoryChange(libGAw3_gt_EVENT_PLAYER_UNIT_PAWN_ITEM, null, c_unitInventoryChangeSells, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_UNIT_SELL
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_UNIT_SELL_Func (bool testConds, bool runActions) {
+    int auto1C0E63FF_ae;
+    int auto1C0E63FF_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+    unit lv_uNIT;
+    unit lv_sHOP;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_UNIT_SELL";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+    lv_uNIT = EventUnitProgressUnit();
+    lv_sHOP = EventUnit();
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitHasBehavior(lv_uNIT, "War3_Unit") == true))) {
+            return false;
+        }
+
+        if (!((UnitAgent(lv_sHOP, UnitGetOwner(lv_uNIT)) != lv_sHOP))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto1C0E63FF_ae = lv_c;
+    auto1C0E63FF_ai = 1;
+    lv_i = 1;
+    for ( ; ( (auto1C0E63FF_ai >= 0 && lv_i <= auto1C0E63FF_ae) || (auto1C0E63FF_ai <= 0 && lv_i >= auto1C0E63FF_ae) ) ; lv_i += auto1C0E63FF_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_UNIT_SELL_Init () {
+    libGAw3_gt_EVENT_PLAYER_UNIT_SELL = TriggerCreate("libGAw3_gt_EVENT_PLAYER_UNIT_SELL_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_UNIT_SELL, false);
+    TriggerAddEventUnitTrainProgress(libGAw3_gt_EVENT_PLAYER_UNIT_SELL, null, c_unitProgressStageComplete);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_HERO_LEVEL
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_HERO_LEVEL_Func (bool testConds, bool runActions) {
+    int auto874622CD_ae;
+    int auto874622CD_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_HERO_LEVEL";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto874622CD_ae = lv_c;
+    auto874622CD_ai = 1;
+    lv_i = 1;
+    for ( ; ( (auto874622CD_ai >= 0 && lv_i <= auto874622CD_ae) || (auto874622CD_ai <= 0 && lv_i >= auto874622CD_ae) ) ; lv_i += auto874622CD_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_HERO_LEVEL_Init () {
+    libGAw3_gt_EVENT_PLAYER_HERO_LEVEL = TriggerCreate("libGAw3_gt_EVENT_PLAYER_HERO_LEVEL_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_HERO_LEVEL, false);
+    TriggerAddEventUnitGainLevel(libGAw3_gt_EVENT_PLAYER_HERO_LEVEL, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: EVENT_PLAYER_UNIT_DEATH
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_EVENT_PLAYER_UNIT_DEATH_Func (bool testConds, bool runActions) {
+    int auto96C9B076_ae;
+    int auto96C9B076_ai;
+
+    // Variable Declarations
+    string lv_event;
+    int lv_p;
+    int lv_c;
+    int lv_i;
+    trigger lv_trig;
+
+    // Variable Initialization
+    lv_event = "EVENT_PLAYER_UNIT_DEATH";
+    lv_p = EventPlayer();
+    lv_c = DataTableGetInt(true, (lv_event + "_Player_" + IntToString(lv_p) + "_TrigCount"));
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitHasBehavior2(EventUnit(), "War3_Unit") == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto96C9B076_ae = lv_c;
+    auto96C9B076_ai = 1;
+    lv_i = 1;
+    for ( ; ( (auto96C9B076_ai >= 0 && lv_i <= auto96C9B076_ae) || (auto96C9B076_ai <= 0 && lv_i >= auto96C9B076_ae) ) ; lv_i += auto96C9B076_ai ) {
+        lv_trig = DataTableGetTrigger(true, (lv_event + "_Player_" + IntToString(lv_p) + "_Trig_" + IntToString(lv_i)));
+        if ((TriggerIsEnabled(lv_trig) == true)) {
+            TriggerExecute(lv_trig, true, false);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_EVENT_PLAYER_UNIT_DEATH_Init () {
+    libGAw3_gt_EVENT_PLAYER_UNIT_DEATH = TriggerCreate("libGAw3_gt_EVENT_PLAYER_UNIT_DEATH_Func");
+    TriggerEnable(libGAw3_gt_EVENT_PLAYER_UNIT_DEATH, false);
+    TriggerAddEventUnitDied(libGAw3_gt_EVENT_PLAYER_UNIT_DEATH, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Game Init
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_GameInit_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(libGAw3_gt_UI, true, false);
+    TriggerExecute(libGAw3_gt_GameSpeed, true, false);
+    TriggerExecute(libGAw3_gt_TOD, true, false);
+    TriggerExecute(libGAw3_gt_Trade, true, false);
+    TriggerExecute(libGAw3_gt_NeutralTooltipInit, true, false);
+    TriggerExecute(libGAw3_gt_PrePlacedHeroInit, true, false);
+    TriggerExecute(libGAw3_gt_DelayedActivateBehaviors, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_GameInit_Init () {
+    libGAw3_gt_GameInit = TriggerCreate("libGAw3_gt_GameInit_Func");
+    TriggerAddEventMapInit(libGAw3_gt_GameInit);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Game Speed
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_GameSpeed_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GameSetSpeedValue(c_gameSpeedNormal);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_GameSpeed_Init () {
+    libGAw3_gt_GameSpeed = TriggerCreate("libGAw3_gt_GameSpeed_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: TOD
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_TOD_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GameTimeOfDayPause(false);
+    GameTimeOfDaySetLength(480.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_TOD_Init () {
+    libGAw3_gt_TOD = TriggerCreate("libGAw3_gt_TOD_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Trade
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_Trade_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    playergroup lv_allPlayers;
+    int lv_pa;
+    int lv_pb;
+
+    // Variable Initialization
+    lv_allPlayers = PlayerGroupAll();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UISetResourceTradeCountdownTime(0);
+    UISetResourceTradingMajorStep(c_resourceTypeTerrazine, 200);
+    UISetResourceTradingMajorStep(c_resourceTypeCustom, 100);
+    Wait(0.0625, c_timeGame);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_Trade_Init () {
+    libGAw3_gt_Trade = TriggerCreate("libGAw3_gt_Trade_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: UI
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_UI_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UISetCommandAllowed(PlayerGroupAll(), c_uiCommandAllowInfoPanel, true);
+    HelpPanelEnableTechTreeButton(PlayerGroupAll(), false);
+    HelpPanelEnableTechGlossaryButton(PlayerGroupAll(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_UI_Init () {
+    libGAw3_gt_UI = TriggerCreate("libGAw3_gt_UI_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Caster Remove Response
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_CasterRemoveResponse_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+
+    // Variable Initialization
+    lv_unit = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsValid(lv_unit) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libGAw3_gf__DeathRemove(lv_unit);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_CasterRemoveResponse_Init () {
+    libGAw3_gt_CasterRemoveResponse = TriggerCreate("libGAw3_gt_CasterRemoveResponse_Func");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_CasterRemoveResponse, c_playerAny, "UnitRemoveTriggerRequest");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Target Remove Response
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_TargetRemoveResponse_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+
+    // Variable Initialization
+    lv_unit = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsValid(lv_unit) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libGAw3_gf__DeathRemove(lv_unit);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_TargetRemoveResponse_Init () {
+    libGAw3_gt_TargetRemoveResponse = TriggerCreate("libGAw3_gt_TargetRemoveResponse_Func");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_TargetRemoveResponse, c_playerAny, "TargetRemoveTriggerRequest");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hero Timed Life Remove Response
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_HeroTimedLifeRemoveResponse_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+
+    // Variable Initialization
+    lv_unit = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsValid(lv_unit) == true))) {
+            return false;
+        }
+
+        if (!((UnitTypeTestFlag(UnitGetType(lv_unit), c_unitFlagHero) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libGAw3_gf__DeathRemove(lv_unit);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_HeroTimedLifeRemoveResponse_Init () {
+    libGAw3_gt_HeroTimedLifeRemoveResponse = TriggerCreate("libGAw3_gt_HeroTimedLifeRemoveResponse_Func");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_HeroTimedLifeRemoveResponse, c_playerAny, "TimedLifeFate");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hero Death Message
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_HeroDeathMessage_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_u;
+    string lv_uT;
+    int lv_p;
+    color lv_color;
+    playergroup lv_ally;
+    text lv_prop;
+    text lv_name;
+    int lv_level;
+    text lv_text;
+
+    // Variable Initialization
+    lv_u = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_uT = EventPlayerEffectUsedUnitType(c_effectUnitCaster);
+    lv_p = EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster);
+    lv_color = libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lv_p, false));
+    lv_ally = PlayerGroupAlliance(c_playerGroupAlly, lv_p);
+    lv_prop = StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_uT, "Subtitle", lv_p));
+    lv_name = StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_uT, "Name", lv_p));
+    lv_level = UnitLevel(lv_u);
+    TextExpressionSetToken("Param/Expression/lib_GAw3_EE11EABC", "Prop", TextWithColor(lv_prop, lv_color));
+    TextExpressionSetToken("Param/Expression/lib_GAw3_EE11EABC", "Name", lv_name);
+    TextExpressionSetToken("Param/Expression/lib_GAw3_EE11EABC", "Level", IntToText(lv_level));
+    lv_text = TextExpressionAssemble("Param/Expression/lib_GAw3_EE11EABC");
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(lv_ally, c_messageAreaDebug, lv_text);
+    UIDisplayMessage(PlayerGroupSingle(lv_p), c_messageAreaDebug, lv_text);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_HeroDeathMessage_Init () {
+    libGAw3_gt_HeroDeathMessage = TriggerCreate("libGAw3_gt_HeroDeathMessage_Func");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_HeroDeathMessage, c_playerAny, "HeroDeathAlertSet");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hero Altar Revive Message
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_HeroAltarReviveMessage_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_u;
+    int lv_player;
+    string lv_uT;
+
+    // Variable Initialization
+    lv_u = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+    lv_player = UnitGetOwner(lv_u);
+    lv_uT = UnitGetType(lv_u);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIAlertUnit("ReviveComplete", lv_player, StringExternal("Alert/Text/ReviveComplete"), (CatalogFieldValueGet(c_gameCatalogActor, lv_uT, "HeroIcon", lv_player)), lv_u);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_HeroAltarReviveMessage_Init () {
+    libGAw3_gt_HeroAltarReviveMessage = TriggerCreate("libGAw3_gt_HeroAltarReviveMessage_Func");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_HeroAltarReviveMessage, c_playerAny, "Aawa");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_HeroAltarReviveMessage, c_playerAny, "Arev");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Pre-PlacedHeroInit
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_PrePlacedHeroInit_Func (bool testConds, bool runActions) {
+    unitgroup auto794234F5_g;
+    int auto794234F5_u;
+
+    // Variable Declarations
+    unit lv_u;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto794234F5_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterHeroic), 0, 0, 0), 0);
+    auto794234F5_u = 1;
+    for ( ; auto794234F5_u <= UnitGroupCount(auto794234F5_g, c_unitCountAll) ; auto794234F5_u += BoolToInt(lv_u == UnitGroupUnit(auto794234F5_g, auto794234F5_u)) ) {
+        lv_u = UnitGroupUnit(auto794234F5_g, auto794234F5_u);
+        if ((UnitHasBehavior2(lv_u, "AHer") == true)) {
+            GAw3_UnitPrimaryAttSet(lv_u, GAw3_UnitTypePrimaryAttGet(UnitGetType(lv_u)));
+            GAw3_UpdateHeroData(lv_u);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_PrePlacedHeroInit_Init () {
+    libGAw3_gt_PrePlacedHeroInit = TriggerCreate("libGAw3_gt_PrePlacedHeroInit_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: HeroInitPrimary
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_HeroInitPrimary_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_u;
+
+    // Variable Initialization
+    lv_u = EventUnit();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GAw3_UnitPrimaryAttSet(lv_u, GAw3_UnitTypePrimaryAttGet(UnitGetType(lv_u)));
+    GAw3_UpdateHeroData(lv_u);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_HeroInitPrimary_Init () {
+    libGAw3_gt_HeroInitPrimary = TriggerCreate("libGAw3_gt_HeroInitPrimary_Func");
+    TriggerAddEventUnitBehaviorChange(libGAw3_gt_HeroInitPrimary, null, "AHer", c_unitBehaviorChangeCreate);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: HeroGainLevel
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_HeroGainLevel_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_u;
+
+    // Variable Initialization
+    lv_u = EventUnit();
+
+    // Conditions
+    if (testConds) {
+        if (!((EventUnitBehavior() != "VeterancyReviveCount"))) {
+            return false;
+        }
+
+        if (!((EventUnitBehavior() == "AHer"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreateEffectUnit(lv_u, "EVENT_PLAYER_HERO_LEVEL", lv_u);
+    GAw3_UpdateHeroData(lv_u);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_HeroGainLevel_Init () {
+    libGAw3_gt_HeroGainLevel = TriggerCreate("libGAw3_gt_HeroGainLevel_Func");
+    TriggerAddEventUnitBehaviorChange(libGAw3_gt_HeroGainLevel, null, "AHer", c_unitBehaviorChangeAny);
+    TriggerAddEventUnitGainLevel(libGAw3_gt_HeroGainLevel, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: HeroLossLevel
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_HeroLossLevel_Func (bool testConds, bool runActions) {
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    GAw3_UpdateHeroData(EventPlayerEffectUsedUnit(c_effectUnitCaster));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_HeroLossLevel_Init () {
+    libGAw3_gt_HeroLossLevel = TriggerCreate("libGAw3_gt_HeroLossLevel_Func");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_HeroLossLevel, c_playerAny, "LevelLossEvent");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Neutral Tooltip Init
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_NeutralTooltipInit_Func (bool testConds, bool runActions) {
+    unitgroup autoC3F319C7_g;
+    int autoC3F319C7_u;
+    unitgroup auto6504218D_g;
+    int auto6504218D_u;
+
+    // Variable Declarations
+    unit lv_u;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoC3F319C7_g = UnitGroup(null, 15, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoC3F319C7_u = 1;
+    for ( ; autoC3F319C7_u <= UnitGroupCount(autoC3F319C7_g, c_unitCountAll) ; autoC3F319C7_u += BoolToInt(lv_u == UnitGroupUnit(autoC3F319C7_g, autoC3F319C7_u)) ) {
+        lv_u = UnitGroupUnit(autoC3F319C7_g, autoC3F319C7_u);
+        UnitSetState(lv_u, c_unitStateTooltipable, true);
+    }
+    auto6504218D_g = UnitGroup(null, 13, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto6504218D_u = 1;
+    for ( ; auto6504218D_u <= UnitGroupCount(auto6504218D_g, c_unitCountAll) ; auto6504218D_u += BoolToInt(lv_u == UnitGroupUnit(auto6504218D_g, auto6504218D_u)) ) {
+        lv_u = UnitGroupUnit(auto6504218D_g, auto6504218D_u);
+        UnitSetState(lv_u, c_unitStateTooltipable, true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_NeutralTooltipInit_Init () {
+    libGAw3_gt_NeutralTooltipInit = TriggerCreate("libGAw3_gt_NeutralTooltipInit_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ChangeOwerToCreep
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_ChangeOwerToCreep_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_u;
+
+    // Variable Initialization
+    lv_u = EventUnit();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetState(lv_u, c_unitStateTooltipable, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_ChangeOwerToCreep_Init () {
+    libGAw3_gt_ChangeOwerToCreep = TriggerCreate("libGAw3_gt_ChangeOwerToCreep_Func");
+    TriggerAddEventUnitBehaviorChange(libGAw3_gt_ChangeOwerToCreep, null, "CreepUnitTriggerNotice", c_unitBehaviorChangeActivate);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ChangeOwerFromCreep
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_ChangeOwerFromCreep_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_u;
+
+    // Variable Initialization
+    lv_u = EventUnit();
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsValid(lv_u) == true))) {
+            return false;
+        }
+
+        if (!((UnitGetOwner(lv_u) != 15))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetState(lv_u, c_unitStateTooltipable, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_ChangeOwerFromCreep_Init () {
+    libGAw3_gt_ChangeOwerFromCreep = TriggerCreate("libGAw3_gt_ChangeOwerFromCreep_Func");
+    TriggerAddEventUnitBehaviorChange(libGAw3_gt_ChangeOwerFromCreep, null, "CreepUnitTriggerNotice", c_unitBehaviorChangeDeactivate);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: hgry1 - Gryphon Rider W1 - Spill Damage
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_hgry1GryphonRiderW1SpillDamage_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_caster;
+    unit lv_target;
+
+    // Variable Initialization
+    lv_caster = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_target = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorAdd(lv_caster, "hgry1DamgeLossStack", lv_caster, 1);
+    UnitDamage(lv_caster, "hgry1", lv_target, 0.0);
+    Wait(0.0, c_timeGame);
+    UnitBehaviorRemove(lv_caster, "hgry1DamgeLossStack", c_unitBehaviorCountAll);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_hgry1GryphonRiderW1SpillDamage_Init () {
+    libGAw3_gt_hgry1GryphonRiderW1SpillDamage = TriggerCreate("libGAw3_gt_hgry1GryphonRiderW1SpillDamage_Func");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_hgry1GryphonRiderW1SpillDamage, c_playerAny, "hgry1Splash");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: esen1 - Huntress W1 - Half Damage
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_esen1HuntressW1HalfDamage_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_caster;
+    unit lv_target;
+
+    // Variable Initialization
+    lv_caster = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_target = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsAlive(lv_target) == true))) {
+            return false;
+        }
+
+        if (!((UnitIsAlive(lv_caster) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorAdd(lv_caster, "TriggerHalfDamage", lv_caster, 1);
+    UnitDamage(lv_caster, "esen1", lv_target, 0.0);
+    Wait(0.0, c_timeGame);
+    UnitBehaviorRemove(lv_caster, "TriggerHalfDamage", c_unitBehaviorCountAll);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_esen1HuntressW1HalfDamage_Init () {
+    libGAw3_gt_esen1HuntressW1HalfDamage = TriggerCreate("libGAw3_gt_esen1HuntressW1HalfDamage_Func");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_esen1HuntressW1HalfDamage, c_playerAny, "esen1ImpactSet2");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: esen1 - Huntress W1 - Quarter Damage
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_gt_esen1HuntressW1QuarterDamage_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_caster;
+    unit lv_target;
+
+    // Variable Initialization
+    lv_caster = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_target = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsAlive(lv_target) == true))) {
+            return false;
+        }
+
+        if (!((UnitIsAlive(lv_caster) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorAdd(lv_caster, "TriggerQuarterDamage", lv_caster, 1);
+    UnitDamage(lv_caster, "esen1", lv_target, 0.0);
+    Wait(0.0, c_timeGame);
+    UnitBehaviorRemove(lv_caster, "TriggerQuarterDamage", c_unitBehaviorCountAll);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGAw3_gt_esen1HuntressW1QuarterDamage_Init () {
+    libGAw3_gt_esen1HuntressW1QuarterDamage = TriggerCreate("libGAw3_gt_esen1HuntressW1QuarterDamage_Func");
+    TriggerAddEventPlayerEffectUsed(libGAw3_gt_esen1HuntressW1QuarterDamage, c_playerAny, "esen1ImpactSet3");
+}
+
+void libGAw3_InitTriggers () {
+    libGAw3_gt_DelayedActivateBehaviors_Init();
+    libGAw3_gt_EVENT_PLAYER_HERO_SKILL_Init();
+    libGAw3_gt_EVENT_PLAYER_UNIT_CHANGE_OWNER_Init();
+    libGAw3_gt_EVENT_PLAYER_UNIT_DROP_ITEM_Init();
+    libGAw3_gt_EVENT_PLAYER_UNIT_PICKUP_ITEM_Init();
+    libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEM_Init();
+    libGAw3_gt_EVENT_PLAYER_UNIT_USE_ITEMPower_UpNeedsImprove_Init();
+    libGAw3_gt_EVENT_PLAYER_UNIT_SELL_ITEM_Init();
+    libGAw3_gt_EVENT_PLAYER_UNIT_PAWN_ITEM_Init();
+    libGAw3_gt_EVENT_PLAYER_UNIT_SELL_Init();
+    libGAw3_gt_EVENT_PLAYER_HERO_LEVEL_Init();
+    libGAw3_gt_EVENT_PLAYER_UNIT_DEATH_Init();
+    libGAw3_gt_GameInit_Init();
+    libGAw3_gt_GameSpeed_Init();
+    libGAw3_gt_TOD_Init();
+    libGAw3_gt_Trade_Init();
+    libGAw3_gt_UI_Init();
+    libGAw3_gt_CasterRemoveResponse_Init();
+    libGAw3_gt_TargetRemoveResponse_Init();
+    libGAw3_gt_HeroTimedLifeRemoveResponse_Init();
+    libGAw3_gt_HeroDeathMessage_Init();
+    libGAw3_gt_HeroAltarReviveMessage_Init();
+    libGAw3_gt_PrePlacedHeroInit_Init();
+    libGAw3_gt_HeroInitPrimary_Init();
+    libGAw3_gt_HeroGainLevel_Init();
+    libGAw3_gt_HeroLossLevel_Init();
+    libGAw3_gt_NeutralTooltipInit_Init();
+    libGAw3_gt_ChangeOwerToCreep_Init();
+    libGAw3_gt_ChangeOwerFromCreep_Init();
+    libGAw3_gt_hgry1GryphonRiderW1SpillDamage_Init();
+    libGAw3_gt_esen1HuntressW1HalfDamage_Init();
+    libGAw3_gt_esen1HuntressW1QuarterDamage_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libGAw3_InitLib_completed = false;
+
+void libGAw3_InitLib () {
+    if (libGAw3_InitLib_completed) {
+        return;
+    }
+
+    libGAw3_InitLib_completed = true;
+
+    libGAw3_InitLibraries();
+    libGAw3_InitVariables();
+    libGAw3_InitCustomScript();
+    libGAw3_InitTriggers();
+}
+
