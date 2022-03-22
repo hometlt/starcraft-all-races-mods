@@ -23,15 +23,11 @@ void libNHbr_InitVariables () {
     libNHbr_InitVariables_completed = true;
 
     libNHbr_gv_hybridBuildControllerRange = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogAbil, ("NHbrMinionBuild@Main"), "Range", c_playerAny);
-    for (init_i = 0; init_i <= libNHbr_gv_bALMaxEnginePlayerCount; init_i += 1) {
+    for (init_i = 0; init_i <= libNHbr_gv_mAX_PLAYERS; init_i += 1) {
         libNHbr_gv_hybridNetworkNewPowerSourceUnitGroup[init_i] = UnitGroupEmpty();
     }
-    for (init_i = 0; init_i <= libNHbr_gv_bALMaxEnginePlayerCount; init_i += 1) {
+    for (init_i = 0; init_i <= libNHbr_gv_mAX_PLAYERS; init_i += 1) {
         libNHbr_gv_hybridTeleportUnitGroup[init_i] = UnitGroupEmpty();
-    }
-    libNHbr_gv_mapHybridPlayers = PlayerGroupEmpty();
-    for (init_i = 0; init_i <= libNHbr_gv_bALMaxEnginePlayerCount; init_i += 1) {
-        libNHbr_gv_playerGroupFromPlayer[init_i] = PlayerGroupEmpty();
     }
 }
 
@@ -410,18 +406,9 @@ fixed libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime (string lp_upgrade, stri
 // Trigger: Initialize Network Hybrid Race
 //--------------------------------------------------------------------------------------------------
 bool libNHbr_gt_InitializeNetworkHybridRace_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    int lv_itPlayer;
-
     // Automatic Variable Declarations
     playergroup autoB09074D1_g;
     int autoB09074D1_var;
-    const int autoD4020DB7_ae = libNHbr_gv_bALMaxEnginePlayerCount;
-    const int autoD4020DB7_ai = 1;
-    playergroup auto9382FAFA_g;
-    playergroup auto641B0087_g;
-
-    // Variable Initialization
 
     // Actions
     if (!runActions) {
@@ -434,52 +421,27 @@ bool libNHbr_gt_InitializeNetworkHybridRace_Func (bool testConds, bool runAction
         autoB09074D1_var = PlayerGroupNextPlayer(autoB09074D1_g, autoB09074D1_var);
         if (autoB09074D1_var < 0) { break; }
         if ((PlayerRace(autoB09074D1_var) == "NHbr")) {
-            PlayerGroupAdd(libNHbr_gv_mapHybridPlayers, autoB09074D1_var);
+            TechTreeUpgradeAddLevel(autoB09074D1_var, "NHbrSpray", 1);
         }
 
-    }
-    lv_itPlayer = 0;
-    for ( ; ( (autoD4020DB7_ai >= 0 && lv_itPlayer <= autoD4020DB7_ae) || (autoD4020DB7_ai < 0 && lv_itPlayer >= autoD4020DB7_ae) ) ; lv_itPlayer += autoD4020DB7_ai ) {
-        libNHbr_gv_playerGroupFromPlayer[lv_itPlayer] = PlayerGroupSingle(lv_itPlayer);
     }
     UnitEventSetNullVariableInvalid(true);
-    if ((PlayerGroupCount(libNHbr_gv_mapHybridPlayers) > 0)) {
-        auto9382FAFA_g = libNHbr_gv_mapHybridPlayers;
-        lv_itPlayer = -1;
-        while (true) {
-            lv_itPlayer = PlayerGroupNextPlayer(auto9382FAFA_g, lv_itPlayer);
-            if (lv_itPlayer < 0) { break; }
-            libNtve_gf_HideGameUI(false, libNHbr_gv_playerGroupFromPlayer[lv_itPlayer]);
-            PlayerSetRace(lv_itPlayer, "Neut");
-        }
-        auto641B0087_g = libNHbr_gv_mapHybridPlayers;
-        lv_itPlayer = -1;
-        while (true) {
-            lv_itPlayer = PlayerGroupNextPlayer(auto641B0087_g, lv_itPlayer);
-            if (lv_itPlayer < 0) { break; }
-            PlayerSetRace(lv_itPlayer, "NHbr");
-            PlayerSetCommander(lv_itPlayer, "NHbr");
-            TechTreeUpgradeAddLevel(lv_itPlayer, "NHbrSpray", 1);
-            libNtve_gf_HideGameUI(true, libNHbr_gv_playerGroupFromPlayer[lv_itPlayer]);
-        }
-        TriggerExecute(libNHbr_gt_HybridTimeScaleBuffInitialization, true, false);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted, true);
-        TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted, true);
-        TriggerExecute(libNHbr_gt_HybridNetworkPowerSourceUnitTypeInitialization, true, false);
-        TriggerEnable(libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator, true);
-        TriggerEnable(libNHbr_gt_HybridReaverUpgradeToAdvancedReaver, true);
-        TriggerExecute(libNHbr_gt_HybridTeleportOverrideTPTime, true, false);
-    }
-
+    TriggerExecute(libNHbr_gt_HybridTimeScaleBuffInitialization, true, false);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted, true);
+    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted, true);
+    TriggerExecute(libNHbr_gt_HybridNetworkPowerSourceUnitTypeInitialization, true, false);
+    TriggerEnable(libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator, true);
+    TriggerEnable(libNHbr_gt_HybridReaverUpgradeToAdvancedReaver, true);
+    TriggerExecute(libNHbr_gt_HybridTeleportOverrideTPTime, true, false);
     return true;
 }
 
@@ -1257,7 +1219,7 @@ bool libNHbr_gt_HybridTeleportOverrideTPTime_Func (bool testConds, bool runActio
     int lv_itField;
 
     // Automatic Variable Declarations
-    const int auto8BCE7581_ae = libNHbr_gv_bALMaxEnginePlayerCount;
+    const int auto8BCE7581_ae = libNHbr_gv_mAX_PLAYERS;
     const int auto8BCE7581_ai = 1;
     const int auto64725B5B_ae = 29;
     const int auto64725B5B_ai = 1;
@@ -1366,7 +1328,7 @@ bool libNHbr_gt_HybridTeleportTurnTargetingOrderOn_Func (bool testConds, bool ru
     else {
     }
     if ((lv_order != null)) {
-        UISetTargetingOrder(libNHbr_gv_playerGroupFromPlayer[lv_player], libNHbr_gv_hybridTeleportUnitGroup[lv_player], lv_order, false);
+        UISetTargetingOrder(PlayerGroupSingle(lv_player), libNHbr_gv_hybridTeleportUnitGroup[lv_player], lv_order, false);
         auto2686AFCA_g = libNHbr_gv_hybridNetworkNewPowerSourceUnitGroup[lv_player];
         auto2686AFCA_u = UnitGroupCount(auto2686AFCA_g, c_unitCountAll);
         for (;; auto2686AFCA_u -= 1) {
@@ -1794,7 +1756,7 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted_Func (bool testCond
 
     // Conditions
     if (testConds) {
-        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(EventUnit()), "Race", c_playerAny)) == "NHbr"))) {
+        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_targetStructure), "Race", c_playerAny)) == "NHbr"))) {
             return false;
         }
 
@@ -1879,7 +1841,7 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted_Func (bool testCo
 
     // Conditions
     if (testConds) {
-        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(EventUnit()), "Race", c_playerAny)) == "NHbr"))) {
+        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_targetStructure), "Race", c_playerAny)) == "NHbr"))) {
             return false;
         }
 
@@ -1949,7 +1911,7 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(EventUnit()), "Race", c_playerAny)) == "NHbr"))) {
+        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_targetStructure), "Race", c_playerAny)) == "NHbr"))) {
             return false;
         }
 
@@ -2182,7 +2144,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(EventUnit()), "Race", c_playerAny)) == "NHbr"))) {
+        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_structure), "Race", c_playerAny)) == "NHbr"))) {
             return false;
         }
 
@@ -2223,7 +2185,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(EventUnit()), "Race", c_playerAny)) == "NHbr"))) {
+        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_structure), "Race", c_playerAny)) == "NHbr"))) {
             return false;
         }
 
@@ -2275,7 +2237,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted_Func (bool testConds
 
     // Conditions
     if (testConds) {
-        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(EventUnit()), "Race", c_playerAny)) == "NHbr"))) {
+        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_structure), "Race", c_playerAny)) == "NHbr"))) {
             return false;
         }
 
@@ -2366,7 +2328,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(EventUnit()), "Race", c_playerAny)) == "NHbr"))) {
+        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_structure), "Race", c_playerAny)) == "NHbr"))) {
             return false;
         }
 
@@ -2407,7 +2369,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(EventUnit()), "Race", c_playerAny)) == "NHbr"))) {
+        if (!(((CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_structure), "Race", c_playerAny)) == "NHbr"))) {
             return false;
         }
 

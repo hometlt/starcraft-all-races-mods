@@ -1,6 +1,7 @@
 include "TriggerLibs/NativeLib"
 include "LibNHbr"
 include "Lib2772A861"
+include "Lib00B4CE4B"
 include "Lib3A92A4CE_h"
 include "LibCD897A7E_h"
 
@@ -70,6 +71,7 @@ string lib3BE10C68_gf_GetPlayerRaceChoice (int lp_player) {
     lv_randomRaces[6] = "Keir";
     lv_randomRaces[7] = "NHbr";
     lv_randomRaces[8] = "ued";
+    lv_randomRaces[9] = "Dragon";
     auto048C1C23_val = lib3BE10C68_gv_raceChoices[lp_player];
     if (auto048C1C23_val == lib3BE10C68_ge_RaceChoice_Protoss) {
         lv_race = "Prot";
@@ -95,14 +97,25 @@ string lib3BE10C68_gf_GetPlayerRaceChoice (int lp_player) {
     else if (auto048C1C23_val == lib3BE10C68_ge_RaceChoice_Hybrids) {
         lv_race = "NHbr";
     }
+    else if (auto048C1C23_val == lib3BE10C68_ge_RaceChoice_Dragon) {
+        lv_race = "Dragon";
+    }
     else if (auto048C1C23_val == lib3BE10C68_ge_RaceChoice_RandomKoprulu) {
         lv_race = lv_randomRaces[RandomInt(1, 3)];
     }
     else if (auto048C1C23_val == lib3BE10C68_ge_RaceChoice_RandomScion) {
         lv_race = lv_randomRaces[RandomInt(4, 6)];
     }
+    else if (auto048C1C23_val == lib3BE10C68_ge_RaceChoice_RandomOther) {
+        lv_race = lv_randomRaces[RandomInt(7, 9)];
+    }
     else if (auto048C1C23_val == lib3BE10C68_ge_RaceChoice_Random) {
         if ((lib3BE10C68_gv_acceptedSpecified == true)) {
+            if ((lib3BE10C68_gv_acceptedDragon == true)) {
+                lv_racesCount += 1;
+                lv_randomRaces[lv_racesCount] = "Dragon";
+            }
+
             if ((lib3BE10C68_gv_acceptedGenetron == true)) {
                 lv_racesCount += 1;
                 lv_randomRaces[lv_racesCount] = "Gen";
@@ -146,7 +159,7 @@ string lib3BE10C68_gf_GetPlayerRaceChoice (int lp_player) {
             lv_race = lv_randomRaces[RandomInt(1, lv_racesCount)];
         }
         else {
-            lv_race = lv_randomRaces[RandomInt(1, 8)];
+            lv_race = lv_randomRaces[RandomInt(1, 9)];
         }
     }
     else {
@@ -156,15 +169,48 @@ string lib3BE10C68_gf_GetPlayerRaceChoice (int lp_player) {
 
 void lib3BE10C68_gf_ApplyWorkersAlliance (int lp_player, int lp_preset) {
     // Variable Declarations
+    string lv_type;
     unitgroup lv_workers;
 
     // Automatic Variable Declarations
+    string auto93CBBFA5_val;
     int autoD54BDDD5_val;
 
     // Variable Initialization
     lv_workers = UnitGroupEmpty();
 
     // Implementation
+    auto93CBBFA5_val = PlayerRace(lp_player);
+    if (auto93CBBFA5_val == "Terr") {
+        lv_type = "SCV";
+    }
+    else if (auto93CBBFA5_val == "Prot") {
+        lv_type = "Probe";
+    }
+    else if (auto93CBBFA5_val == "Zerg") {
+        lv_type = "Drone";
+    }
+    else if (auto93CBBFA5_val == "Keir") {
+        lv_type = "Converter";
+    }
+    else if (auto93CBBFA5_val == "Gen") {
+        lv_type = "ACR";
+    }
+    else if (auto93CBBFA5_val == "Xayi") {
+        lv_type = "Scavenger";
+    }
+    else if (auto93CBBFA5_val == "ued") {
+        lv_type = "Salvager";
+    }
+    else if (auto93CBBFA5_val == "NHbr") {
+        lv_type = "NHbrMinion";
+    }
+    else if (auto93CBBFA5_val == "Dragon") {
+        lv_type = "Plodder";
+    }
+    else {
+    }
+    lv_workers = UnitGroup(lv_type, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
     autoD54BDDD5_val = lp_preset;
     if (autoD54BDDD5_val == lib3BE10C68_ge_WorkersAlliance_All) {
         libNtve_gf_ReplaceUnit(UnitGroupUnit(lv_workers, 1), "Drone", libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
@@ -175,7 +221,23 @@ void lib3BE10C68_gf_ApplyWorkersAlliance (int lp_player, int lp_preset) {
         libNtve_gf_ReplaceUnit(UnitGroupUnit(lv_workers, 6), "Converter", libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
         libNtve_gf_ReplaceUnit(UnitGroupUnit(lv_workers, 7), "NHbrMinion", libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
         libNtve_gf_ReplaceUnit(UnitGroupUnit(lv_workers, 8), "Salvager", libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
-        libNtve_gf_ReplaceUnit(UnitGroupUnit(lv_workers, 9), "Beacon", libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
+        libNtve_gf_ReplaceUnit(UnitGroupUnit(lv_workers, 9), "Plodder", libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
+        libNtve_gf_ReplaceUnit(UnitGroupUnit(lv_workers, 10), "Beacon", libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
+        if ((lib3BE10C68_gv_uED_Players == false)) {
+            lib3BE10C68_gv_uED_Players = true;
+            TriggerExecute(lib2772A861_gt_InitializeUEDRace, true, false);
+        }
+
+        if ((lib3BE10C68_gv_hybrids_Players == false)) {
+            lib3BE10C68_gv_hybrids_Players = true;
+            TriggerExecute(libNHbr_gt_InitializeNetworkHybridRace, true, false);
+        }
+
+        if ((lib3BE10C68_gv_dragon_Players == false)) {
+            lib3BE10C68_gv_dragon_Players = true;
+            TriggerExecute(lib00B4CE4B_gt_InitializeDragonsRace, true, false);
+        }
+
     }
     else if (autoD54BDDD5_val == lib3BE10C68_ge_WorkersAlliance_Scion) {
         libNtve_gf_ReplaceUnit(UnitGroupUnit(lv_workers, 1), "Converter", libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
@@ -331,7 +393,10 @@ bool lib3BE10C68_gf_IsRandomRaceChoice (int lp_player) {
 
     // Implementation
     autoD1C45702_val = lib3BE10C68_gv_raceChoices[lp_player];
-    if (autoD1C45702_val == lib3BE10C68_ge_RaceChoice_RandomKoprulu) {
+    if (autoD1C45702_val == lib3BE10C68_ge_RaceChoice_RandomOther) {
+        return true;
+    }
+    else if (autoD1C45702_val == lib3BE10C68_ge_RaceChoice_RandomKoprulu) {
         return true;
     }
     else if (autoD1C45702_val == lib3BE10C68_ge_RaceChoice_RandomScion) {
@@ -350,26 +415,19 @@ int lib3BE10C68_gf_GetRacesVariationCount () {
     bool[9] lv_raceAccepted;
     int lv_raceAcceptedCount;
     string lv_race;
-    string[20] lv_randomRaces;
 
     // Automatic Variable Declarations
     playergroup autoE041F39C_g;
     int autoE041F39C_var;
-    const int auto856576EF_ae = 8;
-    int auto856576EF_var;
 
     // Variable Initialization
 
     // Implementation
-    lv_randomRaces[1] = "Zerg";
-    lv_randomRaces[2] = "Terr";
-    lv_randomRaces[3] = "Prot";
-    lv_randomRaces[4] = "Xayi";
-    lv_randomRaces[5] = "Gen";
-    lv_randomRaces[6] = "Keir";
-    lv_randomRaces[7] = "NHbr";
-    lv_randomRaces[8] = "ued";
     if ((lib3BE10C68_gv_acceptedSpecified == true)) {
+        if ((lib3BE10C68_gv_acceptedDragon == true)) {
+            lv_raceAcceptedCount += 1;
+        }
+
         if ((lib3BE10C68_gv_acceptedGenetron == true)) {
             lv_raceAcceptedCount += 1;
         }
@@ -409,49 +467,51 @@ int lib3BE10C68_gf_GetRacesVariationCount () {
     while (true) {
         autoE041F39C_var = PlayerGroupNextPlayer(autoE041F39C_g, autoE041F39C_var);
         if (autoE041F39C_var < 0) { break; }
-        auto856576EF_var = 1;
-        for ( ; auto856576EF_var <= auto856576EF_ae; auto856576EF_var += 1 ) {
-            if ((PlayerRace(autoE041F39C_var) == "Gen") && (lib3BE10C68_gv_acceptedGenetron == false)) {
-                lib3BE10C68_gv_acceptedGenetron = true;
-                lv_raceAcceptedCount += 1;
-            }
-
-            if ((PlayerRace(autoE041F39C_var) == "NHbr") && (lib3BE10C68_gv_acceptedHybrids == false)) {
-                lib3BE10C68_gv_acceptedHybrids = true;
-                lv_raceAcceptedCount += 1;
-            }
-
-            if ((PlayerRace(autoE041F39C_var) == "Keir") && (lib3BE10C68_gv_acceptedKeiron == false)) {
-                lib3BE10C68_gv_acceptedKeiron = true;
-                lv_raceAcceptedCount += 1;
-            }
-
-            if ((PlayerRace(autoE041F39C_var) == "Prot") && (lib3BE10C68_gv_acceptedProtoss == false)) {
-                lib3BE10C68_gv_acceptedProtoss = true;
-                lv_raceAcceptedCount += 1;
-            }
-
-            if ((PlayerRace(autoE041F39C_var) == "Terr") && (lib3BE10C68_gv_acceptedTerran == false)) {
-                lib3BE10C68_gv_acceptedTerran = true;
-                lv_raceAcceptedCount += 1;
-            }
-
-            if ((PlayerRace(autoE041F39C_var) == "Zerg") && (lib3BE10C68_gv_acceptedZerg == false)) {
-                lib3BE10C68_gv_acceptedZerg = true;
-                lv_raceAcceptedCount += 1;
-            }
-
-            if ((PlayerRace(autoE041F39C_var) == "ued") && (lib3BE10C68_gv_acceptedUED == false)) {
-                lib3BE10C68_gv_acceptedUED = true;
-                lv_raceAcceptedCount += 1;
-            }
-
-            if ((PlayerRace(autoE041F39C_var) == "Xayi") && (lib3BE10C68_gv_acceptedXayid == false)) {
-                lib3BE10C68_gv_acceptedXayid = true;
-                lv_raceAcceptedCount += 1;
-            }
-
+        if ((PlayerRace(autoE041F39C_var) == "Dragon") && (lib3BE10C68_gv_acceptedDragon == false)) {
+            lib3BE10C68_gv_acceptedDragon = true;
+            lv_raceAcceptedCount += 1;
         }
+
+        if ((PlayerRace(autoE041F39C_var) == "Gen") && (lib3BE10C68_gv_acceptedGenetron == false)) {
+            lib3BE10C68_gv_acceptedGenetron = true;
+            lv_raceAcceptedCount += 1;
+        }
+
+        if ((PlayerRace(autoE041F39C_var) == "NHbr") && (lib3BE10C68_gv_acceptedHybrids == false)) {
+            lib3BE10C68_gv_acceptedHybrids = true;
+            lv_raceAcceptedCount += 1;
+        }
+
+        if ((PlayerRace(autoE041F39C_var) == "Keir") && (lib3BE10C68_gv_acceptedKeiron == false)) {
+            lib3BE10C68_gv_acceptedKeiron = true;
+            lv_raceAcceptedCount += 1;
+        }
+
+        if ((PlayerRace(autoE041F39C_var) == "Prot") && (lib3BE10C68_gv_acceptedProtoss == false)) {
+            lib3BE10C68_gv_acceptedProtoss = true;
+            lv_raceAcceptedCount += 1;
+        }
+
+        if ((PlayerRace(autoE041F39C_var) == "Terr") && (lib3BE10C68_gv_acceptedTerran == false)) {
+            lib3BE10C68_gv_acceptedTerran = true;
+            lv_raceAcceptedCount += 1;
+        }
+
+        if ((PlayerRace(autoE041F39C_var) == "Zerg") && (lib3BE10C68_gv_acceptedZerg == false)) {
+            lib3BE10C68_gv_acceptedZerg = true;
+            lv_raceAcceptedCount += 1;
+        }
+
+        if ((PlayerRace(autoE041F39C_var) == "ued") && (lib3BE10C68_gv_acceptedUED == false)) {
+            lib3BE10C68_gv_acceptedUED = true;
+            lv_raceAcceptedCount += 1;
+        }
+
+        if ((PlayerRace(autoE041F39C_var) == "Xayi") && (lib3BE10C68_gv_acceptedXayid == false)) {
+            lib3BE10C68_gv_acceptedXayid = true;
+            lv_raceAcceptedCount += 1;
+        }
+
     }
     return lv_raceAcceptedCount;
 }
@@ -468,8 +528,8 @@ void lib3BE10C68_gf_ApplyPlayerCustomRace (int lp_player, string lp_race) {
         SoundChannelDSPInsert(PlayerGroupSingle(lp_player), c_soundCategoryAlert, "ReverbForest");
         libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "UEDAdvisorUpgradeBecauseEditorIsFunctionalHelp", 1);
         if ((lib3BE10C68_gv_uED_Players == false)) {
-            TriggerExecute(lib2772A861_gt_InitializeUEDRace, true, false);
             lib3BE10C68_gv_uED_Players = true;
+            TriggerExecute(lib2772A861_gt_InitializeUEDRace, true, false);
         }
 
     }
@@ -478,6 +538,14 @@ void lib3BE10C68_gf_ApplyPlayerCustomRace (int lp_player, string lp_race) {
         if ((lib3BE10C68_gv_hybrids_Players == false)) {
             lib3BE10C68_gv_hybrids_Players = true;
             TriggerExecute(libNHbr_gt_InitializeNetworkHybridRace, true, false);
+        }
+
+    }
+
+    if ((lp_race == "Dragon")) {
+        if ((lib3BE10C68_gv_dragon_Players == false)) {
+            lib3BE10C68_gv_dragon_Players = true;
+            TriggerExecute(lib00B4CE4B_gt_InitializeDragonsRace, true, false);
         }
 
     }

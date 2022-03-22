@@ -22,6 +22,7 @@ void lib3A92A4CE_InitVariables () {
 
     lib3A92A4CE_InitVariables_completed = true;
 
+    lib3A92A4CE_gv_zombieIgnoreChance = 0.9;
     lib3A92A4CE_gv_zombieGroup = UnitGroupEmpty();
 }
 
@@ -84,6 +85,7 @@ void lib3A92A4CE_gf_RunZombiecatastrophe () {
     lib3A92A4CE_gv_stage = 2;
     TriggerEnable(lib3A92A4CE_gt_ZombieAttacks, true);
     TriggerEnable(lib3A92A4CE_gt_ParasiticBomb, true);
+    TriggerEnable(lib3A92A4CE_gt_ZombieChanceIncrease, true);
     Wait(60.0, c_timeGame);
     TriggerEnable(lib3A92A4CE_gt_ScourgeSpawn, true);
     lib3A92A4CE_gv_stage = 3;
@@ -548,6 +550,9 @@ bool lib3A92A4CE_gt_ZombieAttacks_Func (bool testConds, bool runActions) {
                 continue;
             }
         }
+        if ((lib3A92A4CE_gv_zombieIgnoreChance > RandomFixed(0.0, 1.0))) {
+        }
+
         lv_enemy = UnitGroupSearch(null, 15, UnitGetPosition(auto8A7FF069_var), lv_radius, lv_filter, 0);
         if ((UnitGroupCount(lv_enemy, c_unitCountAlive) > 0)) {
             UnitIssueOrder(auto8A7FF069_var, OrderTargetingPoint(AbilityCommand("attack", 0), UnitGetPosition(UnitGroupRandomUnit(lv_enemy, c_unitCountAlive))), c_orderQueueReplace);
@@ -562,6 +567,32 @@ void lib3A92A4CE_gt_ZombieAttacks_Init () {
     lib3A92A4CE_gt_ZombieAttacks = TriggerCreate("lib3A92A4CE_gt_ZombieAttacks_Func");
     TriggerEnable(lib3A92A4CE_gt_ZombieAttacks, false);
     TriggerAddEventTimePeriodic(lib3A92A4CE_gt_ZombieAttacks, 2.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ZombieChanceIncrease
+//--------------------------------------------------------------------------------------------------
+bool lib3A92A4CE_gt_ZombieChanceIncrease_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((lib3A92A4CE_gv_zombieIgnoreChance <= 0.0)) {
+        TriggerEnable(TriggerGetCurrent(), false);
+    }
+    else {
+        lib3A92A4CE_gv_zombieIgnoreChance -= 0.1;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib3A92A4CE_gt_ZombieChanceIncrease_Init () {
+    lib3A92A4CE_gt_ZombieChanceIncrease = TriggerCreate("lib3A92A4CE_gt_ZombieChanceIncrease_Func");
+    TriggerEnable(lib3A92A4CE_gt_ZombieChanceIncrease, false);
+    TriggerAddEventTimePeriodic(lib3A92A4CE_gt_ZombieChanceIncrease, 15.0, c_timeGame);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -702,6 +733,7 @@ void lib3A92A4CE_InitTriggers () {
     lib3A92A4CE_gt_InitialScourgeSpawn_Init();
     lib3A92A4CE_gt_ParasiticBomb_Init();
     lib3A92A4CE_gt_ZombieAttacks_Init();
+    lib3A92A4CE_gt_ZombieChanceIncrease_Init();
     lib3A92A4CE_gt_ZombieMutate_Init();
     lib3A92A4CE_gt_ZombieKillBounty_Init();
 }
