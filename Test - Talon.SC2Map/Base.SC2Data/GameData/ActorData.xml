@@ -14,9 +14,6 @@
         <On Terms="Abil.AlarakKnockback.TargetOff" Send="Destroy"/>
         <Range value="8.000000"/>
     </CActorRange>
-    <!--                                                                                         -->
-    <!-- Assimilator ........................................................................... -->
-    <!--                                                                                         -->
     <CActorUnit id="Assimilator">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Normal"/>
         <PortraitModel value="ExecutorPortrait"/>
@@ -138,18 +135,12 @@
         </WireframeShield>
     </CActorUnit>
     <CActorMissile id="AdeptAttackMissile">
-        <On index="4" Send="ModelSwap AdeptAttackWeaponUpgraded"/>
+        <On Send="ModelSwap AdeptAttackWeaponUpgraded"/>
     </CActorMissile>
-    <!--                                                                                         -->
-    <!-- Cybernetics Core ...................................................................... -->
-    <!--                                                                                         -->
     <CActorUnit id="CyberneticsCore">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Normal"/>
         <PortraitModel value="ExecutorPortrait"/>
     </CActorUnit>
-    <!--                                                                                         -->
-    <!-- Dark Shrine ........................................................................... -->
-    <!--                                                                                         -->
     <CActorUnit id="DarkShrine">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Small"/>
         <PortraitModel value="ExecutorPortrait"/>
@@ -167,46 +158,189 @@
         <WireframeShieldVariations index="0" removed="1"/>
         <WireframeShieldVariations index="1" removed="1"/>
     </CActorUnit>
-    <CActorModel id="DefilerMPConsume">
-        <On Terms="ActorCreation" Send="SetScale 0.500000 1.500000"/>
+    <CActorUnit id="Crusader" parent="GenericUnitBase" unitName="Crusader">
+        <Aliases value="_UnitLarge"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundMedium"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Immortal_Land"/>
+        <On Terms="Behavior.CrusaderOverload.On" Send="AnimBracketStart Cover Cover,Start Cover Cover,End"/>
+        <On Terms="Behavior.CrusaderOverload.On" Send="Create Immortal_Barrier_OnSound"/>
+        <On Terms="Behavior.CrusaderOverload.Off" Send="AnimBracketStop Cover"/>
+        <On Terms="Behavior.CrusaderOverload.Off" Send="Create Immortal_Void_BarrierOffSound"/>
+        <On Terms="Upgrade.Faction_Forgers.Add" Send="ModelSwap RoyalCrusader"/>
+        <On Terms="UnitBirth; ValidateUnit NoForgers" Send="ModelSwap RoyalCrusader"/>
+        <On Terms="Upgrade.Faction_CrusaderSwap.Add" Send="ModelSwap Immortal_Purifier_Collection"/>
+        <On Terms="UnitBirth; ValidateUnit NoCrusaderSwap" Send="ModelSwap Immortal_Purifier_Collection"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom Crusader" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo Crusader" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom Crusader" Send="PlayUnitSound Construction"/>
+        <On Terms="AbilMorph.*.Finish" Send="ModelSwap RoyalCrusader"/>
+        <On Terms="Behavior.CrusaderRed.Enable" Send="ModelSwap CrusaderRed"/>
+        <On Terms="Behavior.CrusaderGreen.Enable" Send="ModelSwap CrusaderGreen"/>
+        <Model value="Immortal"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <BuildModel value="ImmortalWarpIn"/>
+        <DeathArray index="Normal" ModelLink="TalonDeath_Unit_Normal"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathMedium" Name="Hallucination"/>
+        <DeathCustoms ModelLink="ProtossLargeUnitDeathLow" Name="AntiGravProtoss"/>
+        <DeathCustoms ModelLink="TalonDeath_Unit_Normal" Name="RagdollBasic">
+            <BodySquibs Name="Basic" Model="ProtossRobotSquibDeathRagdoll"/>
+            <BodySquibs Name="BloodReduced" Model="ProtossRobotBloodSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <PlacementModel value="ImmortalPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <PortraitModel value="ImmortalPortrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.600000"/>
+            <RangeDown value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleImmortal"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="1.25"/>
+        <BarOffset value="80"/>
+        <BarWidth value="90"/>
+        <SoundArray index="Ready" value="CrusaderReady"/>
+        <SoundArray index="Help" value="CrusaderHelp"/>
+        <SoundArray index="What" value="CrusaderWhat"/>
+        <SoundArray index="Yes" value="CrusaderYes"/>
+        <SoundArray index="Attack" value="CrusaderAttack"/>
+        <SoundArray index="Pissed" value="CrusaderPissed"/>
+        <GroupIcon>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-crusader.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Buttons\btn-unit-protoss-talon-crusader.dds"/>
+        <LifeArmorIcon value="Assets\Buttons\btn-upgrade-protoss-groundarmorlevel0-talon.dds"/>
+        <ShieldArmorIcon value="Assets\Buttons\btn-upgrade-protoss-shieldslevel0-talon.dds"/>
+        <UnitIcon value="Assets\Buttons\btn-unit-protoss-talon-crusader.dds"/>
+        <Wireframe>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-crusader.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-crusader-shield1.dds"/>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-crusader-shield2.dds"/>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-crusader-shield3.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <!--CActorAction id="CrusaderAttack" parent="GenericAttack" effectAttack="PhaseDisruptors">
+        <LaunchAttachQuery Methods="AMFilterWeaponLeft"/>
+        <LaunchAssets Sound="Immortal_AttackLaunch"/>
+        <ImpactMap index="None" Model="ImmortalAttackImpact" Sound="Immortal_AttackImpact"/>
+        <ImpactPhysics Name="PhaseDisrupterImpact" MatchKeys="Basic" Physics="ImmortalAttackDeathForce"/>
+    </CActorAction-->
+    <CActorModel id="CrusaderOverload" parent="ModelAddition">
+        <Inherits index="BaseModelScale" value="0"/>
+        <On index="0" Terms="Behavior.ImmortalOverload.Enable" Send="Create"/>
+        <On index="1" Terms="Behavior.ImmortalOverload.Disable" Send="Destroy"/>
+        <On index="2" Terms="ActorCreation; ValidateUnit NoForgers" Send="ModelSwap CrusaderShieldGattling"/>
+        <On Terms="ActorCreation; ValidateUnit NoBiocrafters" Send="ModelSwap CrusaderShieldProton"/>
+        <HostSiteOps Ops="SOpAttachTurret"/>
+        <Model value="ImmortalOverload"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
     </CActorModel>
-    <CActorModel id="DefilerMPConsumeImpact">
-        <HostSiteOps Ops="SOpAttachCenter"/>
-    </CActorModel>
-    <CActorSound id="DefilerMPConsumeImpactSound">
-        <Sound value="Tempest_DisruptionBlast_ChargeStart"/>
-    </CActorSound>
-    <CActorSound id="DefilerMPConsumeLaunchSound"/>
-    <CActorSound id="DefilerMPConsumeSound"/>
-    <!--CActorMissile id="DefilerMPPlagueAttackMissile" parent="GenericAttackMissileWithDeathAnim" unitName="DefilerMPPlagueWeapon"/>-->
-    <!--    <CActorAction id="DefilerMPPlagueAttack" parent="GenericAttack" effectImpact="DefilerMPPlagueSearch" effectLaunch="DefilerMPPlagueLM">-->
-    <!--        <LaunchAssets Sound=""/>-->
-    <!--        <ImpactMap index="None" Sound=""/>-->
-    <!--    </CActorAction-->
-    <CActorModel id="DefilerMPPlagueAttackImpact">
+    <CActorModel id="NokryssPlagueAttackImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.NokryssPlagueSearch.Start" Send="Create"/>
         <On Terms="ActorCreation" Send="SetTintColor 128,0,255"/>
     </CActorModel>
-    <CActorSplat id="DefilerMPPlagueCursorSplat">
+    <CActorSplat id="NokryssPlagueCursorSplat" parent="ZergCursorSplat" abil="NokryssPlague">
         <Model value="ProtossAOECursorSplat"/>
     </CActorSplat>
-    <!--CActorModel id="DefilerMPPlagueImpact" parent="ModelAnimationStyleOneShotUNIT">-->
-    <!--        <On Terms="Effect.DefilerMPPlagueSearch.Start" Send="Create"/>-->
-    <!--        <On Terms="ActorCreation" Send="SetTintColor 255,0,0"/>-->
-    <!--        <Host Scope="Target"/>-->
-    <!--        <HostSiteOps Ops="SOpShadow"/>-->
-    <!--    </CActorModel-->
-    <CActorSound id="DefilerMPPlagueImpactSound">
+    <CActorModelMaterial id="NokryssPlagueGlaze" parent="GlazeParent">
+        <On Terms="Behavior.NokryssPlague.On" Send="Create"/>
+        <On Terms="ActorCreation" Send="ModelMaterialApplyTo ::Main"/>
+        <On Terms="Behavior.NokryssPlague.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimDone; AnimName Death" Send="ModelMaterialRemoveFrom ::Main"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModelMaterial>
+    <CActorSound id="NokryssPlagueImpactSound" parent="SoundOneShot">
+        <On Terms="Effect.NokryssPlagueSearch.Start" Send="Create"/>
         <Sound value="Tempest_Disintegration_Impact"/>
     </CActorSound>
-    <CActorModel id="DefilerMPPlagueTargetModel">
+    <CActorRange id="NokryssPlagueRange" parent="RangeAbil" abil="NokryssPlague">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
+    </CActorRange>
+    <CActorModel id="NokryssPlagueTargetModel" parent="ModelAddition">
+        <On Terms="Behavior.NokryssPlague.On" Send="Create"/>
+        <On Terms="ActorCreation; ScopeContains _UnitSmall" Send="Destroy"/>
+        <On Terms="ActorCreation; ScopeContains _UnitMedium" Send="Destroy"/>
+        <On Terms="Behavior.NokryssPlague.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="UnitDeath" Send="Destroy"/>
         <On Terms="ActorCreation" Send="SetTintColor 128,0,255"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="0.500000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
     </CActorModel>
-    <CActorModel id="DefilerMPPlagueTargetModelMedium">
+    <CActorModel id="NokryssPlagueTargetModelMedium" parent="ModelAddition">
+        <On Terms="Behavior.NokryssPlague.On; ScopeContains _UnitMedium" Send="Create"/>
+        <On Terms="Behavior.NokryssPlague.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="UnitDeath" Send="Destroy"/>
         <On Terms="ActionDamage" Send="SetTintColor 128,0,255"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="0.750000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
     </CActorModel>
-    <CActorModel id="DefilerMPPlagueTargetModelSmall">
+    <CActorModel id="NokryssPlagueTargetModelSmall" parent="ModelAddition">
+        <On Terms="Behavior.NokryssPlague.On; ScopeContains _UnitSmall" Send="Create"/>
+        <On Terms="Behavior.NokryssPlague.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="UnitDeath" Send="Destroy"/>
         <On Terms="ActorCreation" Send="SetTintColor 128,0,255"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="1.000000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
     </CActorModel>
+    <CActorModel id="NokryssDrain" parent="ModelAnimationStyleOneShotUNIT">
+        <On Terms="Behavior.NokryssDrain.On" Send="Create"/>
+        <On Terms="Behavior.NokryssDrain.Off" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="SetScale 0.500000 1.500000"/>
+        <Model value="NokryssConsume"/>
+    </CActorModel>
+    <CActorModel id="NokryssDrainImpact" parent="ModelAnimationStyleOneShotUNIT">
+        <On Terms="Effect.NokryssDrainModifyUnit.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Model value="NokryssConsumeImpact"/>
+    </CActorModel>
+    <CActorSound id="NokryssDrainImpactSound" parent="SoundOneShot">
+        <On Terms="Effect.NokryssDrainModifyUnit.Start" Send="Create"/>
+        <Host Subject="_Unit" Scope="Caster"/>
+        <Sound value="NokryssDrainChargeStart"/>
+    </CActorSound>
+    <CActorSound id="NokryssDrainLaunchSound" parent="SoundOneShot">
+        <On Terms="Abil.NokryssDrain.SourcePrepStart" Send="Create"/>
+        <Sound value="NokryssDrainLaunch"/>
+    </CActorSound>
+    <CActorSound id="NokryssDrainSound" parent="SoundOneShot">
+        <On Terms="Behavior.NokryssDrain.On" Send="Create"/>
+        <Sound value="NokryssDrain"/>
+    </CActorSound>
     <CActorSound id="DestructionWave_Cast_ActorSound" parent="SoundOneShot">
         <On Terms="Abil.AlarakKnockback.TargetCastStart" Send="Create"/>
         <Sound value="Alarak_DestructionWave_Cast"/>
@@ -243,23 +377,14 @@
     <CActorUnit id="DisruptorPhased">
         <DeathArray index="Normal" ModelLink="TalonDeath_Unit_Normal"/>
     </CActorUnit>
-    <!--                                                                                         -->
-    <!-- Fleet Beacon .......................................................................... -->
-    <!--                                                                                         -->
     <CActorUnit id="FleetBeacon">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Normal"/>
         <PortraitModel value="ExecutorPortrait"/>
     </CActorUnit>
-    <!--                                                                                         -->
-    <!-- Forge ................................................................................. -->
-    <!--                                                                                         -->
     <CActorUnit id="Forge">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Normal"/>
         <PortraitModel value="ExecutorPortrait"/>
     </CActorUnit>
-    <!--                                                                                         -->
-    <!-- Gateway / Warp Gate.................................................................... -->
-    <!--                                                                                         -->
     <CActorUnit id="Gateway">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Normal"/>
         <PortraitModel value="ExecutorPortrait"/>
@@ -306,18 +431,6 @@
         <DeathArray index="Normal" ModelLink="ZealotDeath"/>
         <DeathCustoms index="6" ActorModel=""/>
         <WalkAnimMoveSpeed value="3"/>
-    </CActorUnit>
-    <CActorUnit id="Immortal">
-        <On Terms="Upgrade.Faction_Forgers.Add" Send="ModelSwap RoyalCrusader"/>
-        <On Terms="UnitBirth; ValidateUnit NoForgers" Send="ModelSwap RoyalCrusader"/>
-        <On Terms="Upgrade.Faction_CrusaderSwap.Add" Send="ModelSwap Immortal_Purifier_Collection"/>
-        <On Terms="UnitBirth; ValidateUnit NoCrusaderSwap" Send="ModelSwap Immortal_Purifier_Collection"/>
-        <On Terms="AbilMorph.*.Start; MorphFrom Immortal" Send="Destroy"/>
-        <On Terms="AbilMorph.*.Finish; MorphTo Immortal" Send="Create"/>
-        <On Terms="AbilMorph.*.Start; MorphFrom Immortal" Send="PlayUnitSound Construction"/>
-        <On Terms="AbilMorph.*.Finish; ValidateUnit NoForgers" Send="ModelSwap RoyalCrusader"/>
-        <DeathArray index="Normal" ModelLink="TalonDeath_Unit_Normal"/>
-        <DeathCustoms index="7" ModelLink="TalonDeath_Unit_Normal"/>
     </CActorUnit>
     <CActorUnit id="Interceptor">
         <DeathArray index="Normal" ModelLink="TalonDeath_Unit_Small"/>
@@ -615,9 +728,6 @@
         </WireframeShield>
     </CActorUnit>
     <CActorBeamSimple id="ColossusAttackBeam"/>
-    <!--                                                                                         -->
-    <!-- Colossus                                                                         -->
-    <!--                                                                                         -->
     <CActorBeamSimple id="ColossusAttackBeamAir">
         <Model value="TiamathAttackBeamThulian"/>
     </CActorBeamSimple>
@@ -734,9 +844,6 @@
         <DeathCustoms index="7" ActorModel=""/>
         <PortraitModel value="WarpPrismPortrait"/>
     </CActorUnit>
-    <!--                                                                                         -->
-    <!-- Nexus ................................................................................. -->
-    <!--                                                                                         -->
     <CActorUnit id="Nexus">
         <On Terms="Upgrade.Faction_Biocrafters.Add" Send="ModelSwap CitadelUpgraded"/>
         <On Terms="UnitBirth; ValidateUnit NoBiocrafters" Send="ModelSwap CitadelUpgraded"/>
@@ -796,12 +903,6 @@
         <On index="68" Terms="Effect.GravitonBeam.Stop; At Source" Send="ModelSwap Phoenix"/>
         <On index="69" Terms="Upgrade.Faction_ScoutSwap.Add" Send="ModelSwap ScoutMP"/>
         <On index="70" Terms="UnitBirth; ValidateUnit NoScoutSwap" Send="ModelSwap ScoutMP"/>
-        <On index="71" removed="1"/>
-        <On index="72" removed="1"/>
-        <On index="73" removed="1"/>
-        <On index="74" removed="1"/>
-        <On index="75" removed="1"/>
-        <On index="76" removed="1"/>
         <DeathArray index="Normal" ModelLink="TalonDeath_Unit_Small"/>
         <DeathCustoms index="6" ActorModel="" ModelLink="TalonDeath_Unit_Small"/>
     </CActorUnit>
@@ -818,7 +919,7 @@
     <CActorModel id="ProtossBuildingBirth"/>
     <CActorModel id="ProtossBuildingBirthSmall">
         <On index="4" Terms="UnitConstruction.TalonObelisk.Start"/>
-        <On index="5" Terms="UnitConstruction.VaporizerCannon.Start"/>
+        <On Terms="UnitConstruction.VaporizerCannon.Start"/>
     </CActorModel>
     <CActorProgress id="ProtossWarpIn">
         <On Terms="Abil.WarpGateTrainCI.TargetStart" Send="Create"/>
@@ -898,27 +999,40 @@
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Small"/>
         <PortraitModel value="MothershipPortrait"/>
     </CActorUnit>
-    <CActorAction id="QueenMPEnsnareAttack"/>
-    <CActorSplat id="QueenMPEnsnareCursor">
+    <CActorAction id="CrystalizingShardsAttack" parent="GenericAttack" effectImpact="CrystalizingShardsSearch" effectLaunch="CrystalizingShardsLaunchMissile">
+        <LaunchAssets Sound="QueenMP_EnsnareLaunch"/>
+        <Missile value="CrystalizingShardsMissile"/>
+        <ShieldFlashType value="None"/>
+    </CActorAction>
+    <CActorSplat id="CrystalizingShardsCursor" parent="ZergCursorSplat" abil="CrystalizingShards">
         <Model value="ProtossAOECursorSplat"/>
     </CActorSplat>
-    <CActorModel id="QueenMPEnsnareImpact"/>
-    <CActorSound id="QueenMPEnsnareImpactSound"/>
-    <CActorMissile id="QueenMPEnsnareMissile"/>
-    <CActorRange id="QueenMPEnsnareRange"/>
-    <CActorModel id="QueenMPEnsnareSlow">
-        <On Terms="ActorCreation" Send="SetTintColor 0,255,0"/>
+    <CActorModel id="CrystalizingShardsImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.CrystalizingShardsSearch.Start" Send="Create"/>
     </CActorModel>
-    <!--                                                                                         -->
-    <!-- Robotics Support Bay .................................................................. -->
-    <!--                                                                                         -->
+    <CActorSound id="CrystalizingShardsImpactSound" parent="SoundOneShot">
+        <On Terms="Effect.CrystalizingShardsSearch.Start" Send="Create"/>
+        <Sound value="QueenMP_EnsnareImpact"/>
+    </CActorSound>
+    <CActorMissile id="CrystalizingShardsMissile" parent="GenericUnitMinimal" unitName="CrystalizingShardsMissile">
+        <PreHost value="_ActorAction"/>
+    </CActorMissile>
+    <CActorRange id="CrystalizingShardsRange" parent="RangeAbil" abil="CrystalizingShards">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
+    </CActorRange>
+    <CActorModel id="CrystalizingShardsSlow" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.CrystalizingShards.On" Send="Create"/>
+        <On Terms="Behavior.CrystalizingShards.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorCreation" Send="SetTintColor 0,255,0"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
     <CActorUnit id="RoboticsBay">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Normal"/>
         <PortraitModel value="ExecutorPortrait"/>
     </CActorUnit>
-    <!--                                                                                         -->
-    <!-- Robotics Facility ..................................................................... -->
-    <!--                                                                                         -->
     <CActorUnit id="RoboticsFacility">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Normal"/>
         <PortraitModel value="ExecutorPortrait"/>
@@ -929,9 +1043,6 @@
     <CActorSiteOpForward id="BlastWaveSOPForward">
         <HostForward Subject="Vaporizer"/>
     </CActorSiteOpForward>
-    <!--                                                                                         -->
-    <!-- Scout ................................................................................. -->
-    <!--                                                                                         -->
     <CActorUnit id="ScoutMP">
         <DeathArray index="Normal" ModelLink="TalonDeath_Unit_Normal"/>
     </CActorUnit>
@@ -951,7 +1062,6 @@
         <DeathCustoms index="5" ModelLink="TalonDeath_Unit_Small"/>
     </CActorUnit>
     <CActorSound id="ShieldAbsorbImmortalSound"/>
-    <!--                                                                                         -->
     <CActorModel id="ShieldAbsorbImmortalViz">
         <Remove index="0" removed="1"/>
     </CActorModel>
@@ -1033,7 +1143,24 @@
         <On Terms="Effect.SlashDAugmented.Start" Send="Create"/>
         <Sound value="NovaPsiBlade_Impact"/>
     </CActorSound>
-    <CActorUnit id="Stalker">
+    <CActorUnit id="Subjugator" parent="GenericUnitBase" unitName="Subjugator">
+        <Aliases value="_UnitMedium"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundMedium"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Stalker_Land"/>
+        <!--On Terms="Upgrade.CrystalInfusion.Add" Send="ModelSwap SubjugatorPurple"/>
+        <On Terms="UnitBirth; ValidateUnit NoCrystalInfusion" Send="ModelSwap SubjugatorPurple"/-->
+        <On Terms="Behavior.SubjugatorRed.Enable" Send="ModelSwap SubjugatorRed"/>
+        <On Terms="Behavior.SubjugatorGreen.Enable" Send="ModelSwap SubjugatorGreen"/>
         <On Terms="Upgrade.Faction_Biocrafters.Add" Send="ModelSwap Subjugator"/>
         <On Terms="UnitBirth; ValidateUnit NoBiocrafters" Send="ModelSwap Subjugator"/>
         <On Terms="Upgrade.Faction_Forgers.Add" Send="ModelSwap Stalker_Deluxe_Collection"/>
@@ -1042,19 +1169,68 @@
         <On Terms="UnitBirth; ValidateUnit NoTheSilentSwap" Send="ModelSwap TheSilentUnit"/>
         <On Terms="Upgrade.Faction_TheForgedSwap.Add" Send="ModelSwap Stalker_Taldarim_Collection"/>
         <On Terms="UnitBirth; ValidateUnit NoTheForgedSwap" Send="ModelSwap Stalker_Taldarim_Collection"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <BuildModel value="StalkerWarpIn"/>
         <DeathArray index="Normal" ModelLink="TalonDeath_Unit_Small"/>
-        <DeathCustoms index="1" ModelLink="TalonDeath_Unit_Small"/>
-        <DeathCustoms index="6" ModelLink="TalonDeath_Unit_Small"/>
+        <DeathCustoms index="1" ModelLink="TalonDeath_Unit_Small" Name="AntiGravProtoss"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathMedium" Name="Hallucination"/>
+        <DeathCustoms ModelLink="TalonDeath_Unit_Small" Name="RagdollBasic">
+            <BodySquibs Name="Basic" Model="ProtossRobotSquibDeathRagdoll"/>
+            <BodySquibs Name="BloodReduced" Model="ProtossRobotBloodSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
+        <PlacementModel value="StalkerPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <PortraitModel value="StalkerPortrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.600000"/>
+            <RangeDown value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLarge"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="3.1328"/>
+        <BarOffset value="70"/>
         <SoundArray index="Ready" value="Paladin_Ready"/>
         <SoundArray index="Help" value="Paladin_Help"/>
         <SoundArray index="What" value="Paladin_What"/>
         <SoundArray index="Yes" value="Paladin_Yes"/>
         <SoundArray index="Attack" value="Paladin_Attack"/>
         <SoundArray index="Pissed" value="Paladin_Pissed"/>
+        <GroupIcon>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-paladin-forged.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Buttons\btn-unit-protoss-talon-paladin-forged-purple.dds"/>
+        <LifeArmorIcon value="Assets\Buttons\btn-upgrade-protoss-groundarmorlevel0-talon.dds"/>
+        <ShieldArmorIcon value="Assets\Buttons\btn-upgrade-protoss-shieldslevel0-talon.dds"/>
+        <UnitIcon value="Assets\Buttons\btn-unit-protoss-talon-paladin-forged-purple.dds"/>
+        <Wireframe>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-paladin-forged.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-paladin-forged-shield1.dds"/>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-paladin-forged-shield2.dds"/>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-paladin-forged-shield3.dds"/>
+        </WireframeShield>
     </CActorUnit>
-    <!--                                                                                         -->
-    <!-- StarGate                                                                                -->
-    <!--                                                                                         -->
     <CActorUnit id="Stargate">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Normal"/>
         <PortraitModel value="ExecutorPortrait"/>
@@ -1062,12 +1238,6 @@
     <CActorModelMaterial id="Talon_Glaze" parent="ModelAnimationStyleContinuous">
         <ModelFlags index="AutomateGlobalLoops" value="1"/>
     </CActorModelMaterial>
-    <CActorModel id="ImmortalOverload">
-        <On index="0" Terms="Behavior.ImmortalOverload.Enable" Send="Create"/>
-        <On index="1" Terms="Behavior.ImmortalOverload.Disable"/>
-        <On index="2" Terms="ActorCreation; ValidateUnit NoForgers" Send="ModelSwap CrusaderShieldGattling"/>
-        <On Terms="ActorCreation; ValidateUnit NoBiocrafters" Send="ModelSwap CrusaderShieldProton"/>
-    </CActorModel>
     <CActorUnit id="Kahlani" parent="GenericUnitStandard" unitName="Kahlani">
         <Aliases value="_UnitSmall"/>
         <Macros value="TerrainSquibAnimations"/>
@@ -1236,7 +1406,6 @@
         <On Terms="Upgrade.Faction_CyberInitiative_1.Add" Send="Destroy"/>
         <On Terms="ActorCreation; ValidatePlayer NoCyberInitiative" Send="Destroy"/>
     </CActorModel>
-    <CActorAction id="ImmortalAttack"/>
     <CActorAction id="AlcandarAttack" parent="ImmortalAttack" effectAttack="ParticleDisruptorCannons">
         <On index="0" Terms="Effect.ParticleDisruptorCannons.Stop; FromEffectTreeDescendant"/>
         <On index="5" Terms="Effect.ParticleDisruptorCannons.Start; At Caster"/>
@@ -1405,30 +1574,30 @@
         <On index="62" Terms="UnitHeightUpdate.*.Land" Send="Create SiegeTank_Land"/>
         <On index="63" Terms="AbilMorph.*.Start; MorphTo RoyalCrusaderDeployed" Send="Create"/>
         <On index="64" Terms="AbilMorph.*.Start; MorphTo RoyalCrusaderDeployed" Send="AnimPlay Start Morph,Start"/>
-        <On index="65" Terms="AbilMorph.*.Start; MorphTo Immortal" Send="Create"/>
-        <On index="66" Terms="AbilMorph.*.Start; MorphTo Immortal" Send="AnimPlay End Morph,End"/>
+        <On index="65" Terms="AbilMorph.*.Start; MorphTo Crusader" Send="Create"/>
+        <On index="66" Terms="AbilMorph.*.Start; MorphTo Crusader" Send="AnimPlay End Morph,End"/>
         <On index="67" Terms="UnitHeightUpdate.*.Land" Send="Create SiegeTank_Land"/>
         <On index="68" Terms="AbilMorph.*.Finish; MorphFrom RoyalCrusaderDeployed"/>
-        <On index="69" Terms="AbilMorph.*.Finish; MorphFrom Immortal"/>
+        <On index="69" Terms="AbilMorph.*.Finish; MorphFrom Crusader"/>
         <On index="70" removed="1"/>
         <Model value="CrusaderTransform"/>
         <DeathArray index="Normal" ModelLink="TalonDeath_Unit_Normal"/>
         <PortraitModel value="Immortal_CollectionSkin_Adun_Portrait"/>
+        <GroupSoundArray index="What" value="Crusader_What"/>
+        <GroupSoundArray index="Yes" value="Crusader_Yes"/>
+        <GroupSoundArray index="Attack" value="Crusader_Attack"/>
+        <SoundArray index="Ready" value="Crusader_Ready"/>
+        <SoundArray index="Help" value="Crusader_Help"/>
+        <SoundArray index="What" value="Crusader_What"/>
+        <SoundArray index="Yes" value="Crusader_Yes"/>
+        <SoundArray index="Attack" value="Crusader_Attack"/>
+        <SoundArray index="Pissed" value="Crusader_Pissed"/>
         <GroupIcon>
             <Image index="0" value="Assets\Buttons\wireframe-protoss-talon-royalcrusader.dds"/>
         </GroupIcon>
-        <GroupSoundArray index="What" value="Immortal_What"/>
-        <GroupSoundArray index="Yes" value="Immortal_Yes"/>
-        <GroupSoundArray index="Attack" value="Immortal_Attack"/>
         <HeroIcon value="Assets\Buttons\btn-unit-protoss-talon-royalcrusader.dds"/>
         <LifeArmorIcon value="Assets\Buttons\btn-upgrade-protoss-groundarmorlevel0-talon.dds"/>
         <ShieldArmorIcon value="Assets\Buttons\btn-upgrade-protoss-shieldslevel0-talon.dds"/>
-        <SoundArray index="Ready" value="Immortal_Ready"/>
-        <SoundArray index="Help" value="Immortal_Help"/>
-        <SoundArray index="What" value="Immortal_What"/>
-        <SoundArray index="Yes" value="Immortal_Yes"/>
-        <SoundArray index="Attack" value="Immortal_Attack"/>
-        <SoundArray index="Pissed" value="Immortal_Pissed"/>
         <UnitIcon value="Assets\Buttons\btn-unit-protoss-talon-royalcrusader.dds"/>
         <Wireframe>
             <Image index="0" value="Assets\Buttons\wireframe-protoss-talon-royalcrusader.dds"/>
@@ -1465,9 +1634,9 @@
     <CActorAction id="TempestAttackGround">
         <!--ImpactModel value="TempestGroundAttackImpactModel"/-->
     </CActorAction>
-    <!--CActorModel id="TempestGroundAttackImpactModel" parent="GenericAttackModel">-->
-    <!--        <On Terms="ActorCreation" Send="SetTintColor 255,64,64"/>-->
-    <!--    </CActorModel-->
+    <CActorModel id="TempestGroundAttackImpactModel" parent="GenericAttackModel">
+        <On Terms="ActorCreation" Send="SetTintColor 255,64,64"/>
+    </CActorModel>
     <CActorMissile id="TempestAttackGroundMissile">
         <On Terms="ActorCreation; ValidatePlayer HaveQuantumReactor" Send="ModelSwap TempestWeaponGround"/>
         <Model value="TempestWeapon"/>
@@ -1491,9 +1660,6 @@
     <CActorModel id="TempestDisruptionBlastCasterUnitChargeUpElectricExpire">
         <HostSiteOps Ops="SOpAttachHardPoint"/>
     </CActorModel>
-    <!--                                                                                         -->
-    <!-- Templar Archive ....................................................................... -->
-    <!--                                                                                         -->
     <CActorUnit id="TemplarArchive">
         <On Terms="Upgrade.Faction_FirstAssault.Add" Send="ModelSwap HarbingerShrine"/>
         <On Terms="UnitBirth; ValidateUnit NoFirstAssault" Send="ModelSwap HarbingerShrine"/>
@@ -1503,9 +1669,6 @@
         <PlacementModel value="TemplarArchivesPlacement"/>
         <PortraitModel value="ExecutorPortrait"/>
     </CActorUnit>
-    <!--                                                                                         -->
-    <!-- Twilight Council ...................................................................... -->
-    <!--                                                                                         -->
     <CActorUnit id="TwilightCouncil">
         <DeathArray index="Normal" ModelLink="TalonDeath_Building_Normal"/>
         <PortraitModel value="ExecutorPortrait"/>
@@ -1554,11 +1717,8 @@
         <IconArcLength value="3.250000"/>
     </CActorRange>
     <CActorUnit id="VoidRay">
-        <On index="104" Terms="Upgrade.Faction_CrystalwingSwap.Add" Send="ModelSwap Adept_Purifier"/>
-        <On index="105" Terms="UnitBirth; ValidatePlayer NoCrystalwingSwap" Send="ModelSwap Adept_Purifier"/>
-        <On index="106" removed="1"/>
-        <On index="107" removed="1"/>
-        <On index="108" removed="1"/>
+        <On Terms="Upgrade.Faction_CrystalwingSwap.Add" Send="ModelSwap Adept_Purifier"/>
+        <On Terms="UnitBirth; ValidatePlayer NoCrystalwingSwap" Send="ModelSwap Adept_Purifier"/>
         <DeathArray index="Normal" ModelLink="TalonDeath_Unit_Normal"/>
         <DeathCustoms index="6" ActorModel="" ModelLink="TalonDeath_Unit_Normal"/>
     </CActorUnit>
@@ -1732,47 +1892,16 @@
         <WalkAnimMoveSpeed value="1.25"/>
         <BarOffset value="80"/>
         <BarWidth value="90"/>
-        <GroupIcon>
-            <Image value="Assets\Buttons\wireframe-protoss-talon-crusader.dds"/>
-        </GroupIcon>
         <GroupSoundArray index="What" value="Immortal_GroupWhat"/>
         <GroupSoundArray index="Yes" value="Immortal_GroupYes"/>
         <GroupSoundArray index="Attack" value="Immortal_GroupAttack"/>
         <GroupSoundArray index="Board" value="Immortal_GroupBoard"/>
+        <GroupIcon>
+            <Image value="Assets\Buttons\wireframe-protoss-talon-crusader.dds"/>
+        </GroupIcon>
         <HeroIcon value="Assets\Buttons\btn-unit-protoss-talon-crusader.dds"/>
         <LifeArmorIcon value="Assets\Buttons\btn-upgrade-protoss-groundarmorlevel0-talon.dds"/>
-        <MinimapRenderPriority value="Normal"/>
         <ShieldArmorIcon value="Assets\Buttons\btn-upgrade-protoss-shieldslevel0-talon.dds"/>
-        <SoundArray index="Birth" value="Immortal_Birth"/>
-        <SoundArray index="Ready" value="Immortal_Ready"/>
-        <SoundArray index="Help" value="Immortal_Help"/>
-        <SoundArray index="What" value="Immortal_What"/>
-        <SoundArray index="Yes" value="Immortal_Yes"/>
-        <SoundArray index="Attack" value="Immortal_Attack"/>
-        <SoundArray index="Pissed" value="Immortal_Pissed"/>
-        <SoundArray index="Movement" value="Immortal_Movement"/>
-        <SoundArray index="Turning" value="Immortal_Turning"/>
-        <SoundArray index="Board" value="Immortal_Board"/>
-        <SoundArray index="Click" value="Immortal_Click"/>
-        <SoundArray index="ClickError" value="Immortal_ClickError"/>
-        <SoundArray index="Highlight" value="Immortal_Highlight"/>
-        <StatusBarFlags index="Shields" value="1"/>
-        <StatusBarFlags index="Life" value="1"/>
-        <StatusBarFlags index="Energy" value="1"/>
-        <StatusBarFlags index="Cargo" value="1"/>
-        <StatusBarFlags index="Progress" value="1"/>
-        <StatusBarFlags index="Duration" value="1"/>
-        <StatusBarFlags index="Magazine" value="1"/>
-        <StatusBarFlags index="Workers" value="1"/>
-        <StatusTextInfo>
-            <Offset value="0,16"/>
-            <Attachment value="Ref_StatusBar"/>
-            <FontSize value="16"/>
-            <BackgroundColor value="255,255,255,255"/>
-            <BackgroundImage value="Assets\Textures\ui_ingame_workercount_bg.dds"/>
-        </StatusTextInfo>
-        <UnitFlags index="ShowBlobShadow" value="1"/>
-        <UnitFlags index="StandAnimBirthVariation" value="1"/>
         <UnitIcon value="Assets\Buttons\btn-unit-protoss-talon-crusader.dds"/>
         <Wireframe>
             <Image value="Assets\Buttons\wireframe-protoss-talon-crusader.dds"/>
@@ -2012,7 +2141,6 @@
         </WireframeShield>
     </CActorUnit>
     <CActorAction id="StalkerAttack"/>
-    <!--                                                                                         -->
     <CActorMissile id="StalkerAttackMissile"/>
     <CActorAction id="AdvancedPaladinAttack" parent="GenericAttack" effectImpact="ParticleGlaiveD" effectLaunch="ParticleGlaiveLM">
         <LaunchAssets Model="" Sound="ArbiterMP_AttackLaunch"/>
@@ -3052,14 +3180,8 @@
         <ShieldFlashType value="Header"/>
     </CActorAction>
     <CActorUnit id="Zealot">
-        <On Terms="Upgrade.Faction_Biocrafters.Add" Send="ModelSwap ZealotXPR"/>
-        <On Terms="UnitBirth; ValidateUnit NoBiocrafters" Send="ModelSwap ZealotXPR"/>
         <On Terms="Upgrade.Faction_CyberInitiative_1.Add" Send="ModelSwap Zealot_Purifier_Collection"/>
         <On Terms="UnitBirth; ValidateUnit NoCyberInitiative" Send="ModelSwap Zealot_Purifier_Collection"/>
-        <On Terms="Upgrade.CrystalInfusion.Add" Send="ModelSwap HunterPurple"/>
-        <On Terms="UnitBirth; ValidateUnit NoCrystalInfusion" Send="ModelSwap HunterPurple"/>
-        <On Terms="Behavior.Berserker.Enable" Send="ModelSwap HunterRed"/>
-        <On Terms="Behavior.Tyrant.Enable" Send="ModelSwap HunterGreen"/>
         <On Terms="Behavior.ReactiveArmor.Enable" Send="ModelMaterialApply Talon_Glaze"/>
         <On Terms="Behavior.ReactiveArmor.Disable" Send="ModelMaterialRemove Talon_Glaze"/>
         <!--Model value="Hunter"/-->
@@ -3078,15 +3200,6 @@
         <On index="75" Terms="Abil.SchoulderDash.SourceCastStart" Send="$Spell,F"/>
         <On index="76" Terms="Abil.SchoulderDash.SourceChannelStop" Send="AnimClear Spell"/>
         <On index="77" removed="1"/>
-        <On index="78" removed="1"/>
-        <On index="79" removed="1"/>
-        <On index="80" removed="1"/>
-        <On index="81" removed="1"/>
-        <On index="82" removed="1"/>
-        <On index="83" removed="1"/>
-        <On index="84" removed="1"/>
-        <On index="85" removed="1"/>
-        <On index="86" removed="1"/>
         <Model value="VolchrontheHunter"/>
         <DeathCustoms index="6">
             <ActorModel value=""/>
@@ -3145,6 +3258,80 @@
             <Image index="1" value="Assets\Buttons\wireframe-protoss-talon-volchron-shield002.dds"/>
             <Image index="2" value="Assets\Buttons\wireframe-protoss-talon-volchron-shield003.dds"/>
         </WireframeShield>
+    </CActorUnit>
+    <CActorUnit id="Predator" parent="GenericUnitStandard" unitName="Predator">
+        <Aliases value="_UnitSmall"/>
+        <Macros value="ChargingAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <On Terms="Behavior.Charging.On" Send="ModelSuddenMotionStart"/>
+        <On Terms="Behavior.Charging.Off" Send="ModelSuddenMotionStop"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundSmall"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Zealot_Land"/>
+        <On Terms="Upgrade.CrystalInfusion.Add" Send="ModelSwap HunterPurple"/>
+        <On Terms="UnitBirth; ValidateUnit NoCrystalInfusion" Send="ModelSwap HunterPurple"/>
+        <On Terms="Behavior.Berserker.Enable" Send="ModelSwap HunterRed"/>
+        <On Terms="Behavior.Tyrant.Enable" Send="ModelSwap HunterGreen"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <BuildModel value="ZealotWarpIn"/>
+        <DeathArray index="Normal" ModelLink="ZealotDeath" SoundLink="Zealot_DeathFX"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathSmall" Name="Hallucination"/>
+        <DeathCustoms ActorModel="ZealotDeathRagdoll" ModelLink="ZealotDeathRagdoll" Name="RagdollBasic">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollWithTeamColor" ModelLink="ZealotDeathRagdoll" Name="RagdollSpineCrawlerHurl"/>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
+        <PlacementModel value="ZealotPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <PortraitModel value="ZealotPortrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.600000"/>
+            <RangeDown value="0.600000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMedium"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="3"/>
+        <BarOffset value="45"/>
+        <BarWidth value="42"/>
+        <SoundArray index="Ready" value="Zealot_Ready"/>
+        <SoundArray index="Help" value="Zealot_Help"/>
+        <SoundArray index="What" value="Zealot_What"/>
+        <SoundArray index="Yes" value="Zealot_Yes"/>
+        <SoundArray index="Attack" value="Zealot_Attack"/>
+        <SoundArray index="Pissed" value="Zealot_Pissed"/>
+        <UnitIcon value="Assets\Buttons\btn-unit-protoss-talon-infused-predator.dds"/>
+        <HeroIcon value="Assets\Buttons\btn-unit-protoss-talon-infused-predator.dds"/>
+        <Wireframe>
+            <Image value="Assets\Buttons\Wireframe-talon-infused-predator.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Buttons\Wireframe-talon-infused-predator-shield01.dds"/>
+            <Image value="Assets\Buttons\Wireframe-talon-infused-predator-shield02.dds"/>
+            <Image value="Assets\Buttons\Wireframe-talon-infused-predator-shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Buttons\Wireframe-talon-infused-predator.dds"/>
+        </GroupIcon>
     </CActorUnit>
     <CActorSiteOpRotator id="ZealotWhirlwindRotator">
         <LocalAxis value="0.000000,0.000000,1.000000"/>
