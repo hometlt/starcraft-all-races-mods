@@ -994,10 +994,6 @@ void libCOMI_gf_LoadCoopMission (string lp_map, trigger lp_startTrigger) {
     libCOMI_gf_StoreResourcesData();
     libCOMI_gv_cM_CampaignMissionStartTrigger = lp_startTrigger;
     libCOUI_gf_LoadMapOptions();
-    TriggerDebugSetTypeFile(1, "StoryModeDebug.txt");
-    TriggerDebugSetTypeFile(13, "ACStats.txt");
-    TriggerDebugSetTypeFile(14, "ACScores.txt");
-    TriggerDebugOutputEnable(true);
     libCOOC_gf_SetCurrentMap(lp_map);
     UserDataSetInt("Maps", libCOOC_gf_CC_MapUserDataInstance(libCOOC_gv_cC_CurrentMap), "IsCurrent", 1, 1);
     TriggerDebugOutput(1, StringExternal("Param/Value/lib_COMI_BC84AFBA"), false);
@@ -1042,7 +1038,6 @@ void libCOMI_gf_LoadCoopMission (string lp_map, trigger lp_startTrigger) {
         TechTreeUpgradeAddLevel(lv_indexPlayer, "PlayerCommander", 1);
     }
     libCOUI_gf_CreateGameBriefingRoom();
-    libCOUI_gf_ApplyMapOptions();
 }
 
 void libCOMI_gf_PrepareMap () {
@@ -2196,7 +2191,7 @@ void libCOMI_gf_CM_StartingTechForHumanPlayer (int lp_player, int lp_teamIndex) 
         return ;
     }
 
-    lv_point = libCOMI_gf_getPlayerStartPosition(PlayerGroupPlayer(libCOMI_gv_vU_SlotsAlly, lp_teamIndex));
+    lv_point = libCOMI_gf_GetPlayerStartPosition(PlayerGroupPlayer(libCOMI_gv_vU_SlotsAlly, lp_teamIndex));
     MeleeInitUnitsForPlayer(lp_player, libCOOC_gf_CC_CommanderSpawnRace(libCOOC_gf_ActiveCommanderForPlayer(lp_player)), lv_point);
     lv_camera = CameraInfoDefault();
     CameraInfoSetTarget(lv_camera, lv_point);
@@ -2227,7 +2222,28 @@ void libCOMI_gf_CM_StartingTechForHumanPlayer (int lp_player, int lp_teamIndex) 
     libCOMI_gf_VoicePackCommanderDefaultApply(lp_player);
 }
 
-point libCOMI_gf_getPlayerHeroSpawnPosition (int lp_slot) {
+point libCOMI_gf_GetPlayerStartPosition (int lp_player) {
+    // Variable Declarations
+    point lv_playerStartPoint;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    lv_playerStartPoint = PointFromName(("Player Start " + IntToString(PlayerGroupCount(libCOMI_gf_GetAlliedCommandersPlayers())) + "-" + IntToString(lp_player)));
+    if ((lv_playerStartPoint != null)) {
+        return lv_playerStartPoint;
+    }
+
+    lv_playerStartPoint = PointFromName(("Player Start " + IntToString(lp_player)));
+    if ((lv_playerStartPoint != null)) {
+        return lv_playerStartPoint;
+    }
+
+    return PlayerStartLocation(lp_player);
+}
+
+point libCOMI_gf_GetPlayerHeroPosition (int lp_slot) {
     // Variable Declarations
     int lv_player;
     point lv_mineralPoint;
@@ -2369,27 +2385,6 @@ void libCOMI_gf_CM_AIThinkCoop2 (int lp_player) {
         }
     }
     AIEnableStock(lp_player);
-}
-
-point libCOMI_gf_getPlayerStartPosition (int lp_player) {
-    // Variable Declarations
-    point lv_playerStartPoint;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    lv_playerStartPoint = PointFromName(("Player Start " + IntToString(PlayerGroupCount(libCOMI_gf_GetAlliedCommandersPlayers())) + "-" + IntToString(lp_player)));
-    if ((lv_playerStartPoint != null)) {
-        return lv_playerStartPoint;
-    }
-
-    lv_playerStartPoint = PointFromName(("Player Start " + IntToString(lp_player)));
-    if ((lv_playerStartPoint != null)) {
-        return lv_playerStartPoint;
-    }
-
-    return PlayerStartLocation(lp_player);
 }
 
 void libCOMI_gf_CM_CoopAI_CacheUpgradeData (int lp_player, int lp_difficulty) {
@@ -10110,7 +10105,7 @@ point libCOMI_gf_CM_Zeratul_GetArtifactPlacementOrigin (string lp_artifactPlacem
         return PointFromName("ZeratulArtifactOrigin");
     }
 
-    return MidPoint(PlayerStartLocation(PlayerGroupPlayer(libCOOC_gf_CommanderPlayers(), 1)), PlayerStartLocation(PlayerGroupPlayer(libCOOC_gf_CommanderPlayers(), 2)));
+    return MidPoint(PlayerStartLocation(1), PlayerStartLocation(2));
 }
 
 int libCOMI_gf_CM_Zeratul_GetArtifactLimit (int lp_zeratulPlayer) {
@@ -10577,54 +10572,87 @@ void libCOMI_gf_GameOver (int lp_gameOverType) {
     int lv_indexPlayer;
 
     // Automatic Variable Declarations
-    playergroup auto93EFBB67_g;
-    int auto93EFBB67_var;
-    playergroup autoDD58A6AF_g;
-    int autoDD58A6AF_var;
-    playergroup autoB09E05A2_g;
-    int autoB09E05A2_var;
-    playergroup auto49276859_g;
-    int auto49276859_var;
-
     // Variable Initialization
 
     // Implementation
     libCOMI_gv_cM_GameOverResult = lp_gameOverType;
     GameCheatAllow(c_gameCheatVictory, false);
     GameCheatAllow(c_gameCheatDefeat, false);
-    if ((lp_gameOverType == libCOMI_ge_CampaignMissionGameResultType_Defeat)) {
-        autoB09E05A2_g = libCOMI_gv_vU_AlliedCommanders;
-        autoB09E05A2_var = -1;
-        while (true) {
-            autoB09E05A2_var = PlayerGroupNextPlayer(autoB09E05A2_g, autoB09E05A2_var);
-            if (autoB09E05A2_var < 0) { break; }
-            GameOver(autoB09E05A2_var, c_gameOverDefeat, true, true);
-        }
-        auto49276859_g = libCOMI_gv_vU_EnemyPlayers;
-        auto49276859_var = -1;
-        while (true) {
-            auto49276859_var = PlayerGroupNextPlayer(auto49276859_g, auto49276859_var);
-            if (auto49276859_var < 0) { break; }
-            GameOver(auto49276859_var, c_gameOverVictory, true, true);
-        }
-    }
-    else {
-        auto93EFBB67_g = libCOMI_gv_vU_AlliedCommanders;
-        auto93EFBB67_var = -1;
-        while (true) {
-            auto93EFBB67_var = PlayerGroupNextPlayer(auto93EFBB67_g, auto93EFBB67_var);
-            if (auto93EFBB67_var < 0) { break; }
-            GameOver(auto93EFBB67_var, c_gameOverVictory, true, true);
-        }
-        autoDD58A6AF_g = libCOMI_gv_vU_EnemyPlayers;
-        autoDD58A6AF_var = -1;
-        while (true) {
-            autoDD58A6AF_var = PlayerGroupNextPlayer(autoDD58A6AF_g, autoDD58A6AF_var);
-            if (autoDD58A6AF_var < 0) { break; }
-            GameOver(autoDD58A6AF_var, c_gameOverDefeat, true, true);
-        }
-    }
     TriggerExecute(lib37CC0EF2_gt_Defeat, true, false);
+}
+
+void libCOMI_gf_EndCampaignMission (int lp_type) {
+    // Variable Declarations
+    int lv_indexPlayer;
+
+    // Automatic Variable Declarations
+    playergroup auto38057D5B_g;
+    playergroup auto34C6F329_g;
+    int auto34C6F329_var;
+    playergroup autoD56E671E_g;
+    int autoD56E671E_var;
+    playergroup autoA6D0BDCF_g;
+    int autoA6D0BDCF_var;
+    playergroup auto86325E3A_g;
+    int auto86325E3A_var;
+
+    // Variable Initialization
+
+    // Implementation
+    TriggerSendEvent("UT_MissionEnd");
+    TextExpressionSetToken("Param/Expression/lib_COMI_E4C5B378", "A", IntToText(libCOMI_gv_cM_DebugDehakaEssenceCollected));
+    TextExpressionSetToken("Param/Expression/lib_COMI_E4C5B378", "B", IntToText(libCOMI_gv_cM_DebugDehakaEssenceDroppedNormal));
+    TextExpressionSetToken("Param/Expression/lib_COMI_E4C5B378", "C", IntToText(libCOMI_gv_cM_DebugDehakaEssenceLost));
+    TextExpressionSetToken("Param/Expression/lib_COMI_E4C5B378", "D", IntToText(libCOMI_gv_cM_DebugDehakaEssenceDroppedRefund));
+    TriggerDebugOutput(13, TextExpressionAssemble("Param/Expression/lib_COMI_E4C5B378"), false);
+    PerfTestStop();
+    TriggerQueueClear(c_triggerQueueRetain);
+    TriggerQueuePause(true);
+    auto38057D5B_g = libCOOC_gf_NondefeatedPlayers();
+    lv_indexPlayer = -1;
+    while (true) {
+        lv_indexPlayer = PlayerGroupNextPlayer(auto38057D5B_g, lv_indexPlayer);
+        if (lv_indexPlayer < 0) { break; }
+        libCOOC_gf_CC_PlayerAwardMissionXP(lp_type, lv_indexPlayer);
+        libCOOC_gf_CC_SaveAllTransitionData((lp_type != c_gameOverVictory), lv_indexPlayer);
+        libCOMI_gv_cM_EndMissionResult[lv_indexPlayer] = lp_type;
+        libCOMI_gf_CM_MissionEndAwardAchievements(lv_indexPlayer);
+    }
+    if ((lp_type == c_gameOverDefeat)) {
+        auto34C6F329_g = libCOMI_gv_vU_AlliedCommanders;
+        auto34C6F329_var = -1;
+        while (true) {
+            auto34C6F329_var = PlayerGroupNextPlayer(auto34C6F329_g, auto34C6F329_var);
+            if (auto34C6F329_var < 0) { break; }
+            UIAlert("DefeatAlertCoop", auto34C6F329_var, StringToText(""), null);
+        }
+        autoD56E671E_g = libCOMI_gv_vU_EnemyPlayers;
+        autoD56E671E_var = -1;
+        while (true) {
+            autoD56E671E_var = PlayerGroupNextPlayer(autoD56E671E_g, autoD56E671E_var);
+            if (autoD56E671E_var < 0) { break; }
+            UIAlert("VictoryAlertCoop", autoD56E671E_var, StringToText(""), null);
+        }
+    }
+
+    if ((lp_type == c_gameOverVictory)) {
+        autoA6D0BDCF_g = libCOMI_gv_vU_AlliedCommanders;
+        autoA6D0BDCF_var = -1;
+        while (true) {
+            autoA6D0BDCF_var = PlayerGroupNextPlayer(autoA6D0BDCF_g, autoA6D0BDCF_var);
+            if (autoA6D0BDCF_var < 0) { break; }
+            UIAlert("VictoryAlertCoop", autoA6D0BDCF_var, StringToText(""), null);
+        }
+        auto86325E3A_g = libCOMI_gv_vU_EnemyPlayers;
+        auto86325E3A_var = -1;
+        while (true) {
+            auto86325E3A_var = PlayerGroupNextPlayer(auto86325E3A_g, auto86325E3A_var);
+            if (auto86325E3A_var < 0) { break; }
+            UIAlert("DefeatAlertCoop", auto86325E3A_var, StringToText(""), null);
+        }
+    }
+
+    TriggerExecute(lib01833E95_gt_AF_Score, true, false);
 }
 
 bool libCOMI_gf_GameIsOver () {
@@ -10654,68 +10682,6 @@ void libCOMI_gf_RunMissionVictorySequence (trigger lp_victoryCinematic) {
     TriggerQueueClear(c_triggerQueueKill);
     TriggerExecute(lp_victoryCinematic, true, false);
     TriggerExecute(libCOMI_gt_CM_MissionVictoryCallbackBlockActionQueue, true, false);
-}
-
-void libCOMI_gf_EndCampaignMission (int lp_type) {
-    // Variable Declarations
-    int lv_indexPlayer;
-
-    // Automatic Variable Declarations
-    playergroup auto38057D5B_g;
-    playergroup auto86D69DDE_g;
-
-    // Variable Initialization
-
-    // Implementation
-    TriggerSendEvent("UT_MissionEnd");
-    TextExpressionSetToken("Param/Expression/lib_COMI_E4C5B378", "A", IntToText(libCOMI_gv_cM_DebugDehakaEssenceCollected));
-    TextExpressionSetToken("Param/Expression/lib_COMI_E4C5B378", "B", IntToText(libCOMI_gv_cM_DebugDehakaEssenceDroppedNormal));
-    TextExpressionSetToken("Param/Expression/lib_COMI_E4C5B378", "C", IntToText(libCOMI_gv_cM_DebugDehakaEssenceLost));
-    TextExpressionSetToken("Param/Expression/lib_COMI_E4C5B378", "D", IntToText(libCOMI_gv_cM_DebugDehakaEssenceDroppedRefund));
-    TriggerDebugOutput(13, TextExpressionAssemble("Param/Expression/lib_COMI_E4C5B378"), false);
-    PerfTestStop();
-    TriggerQueueClear(c_triggerQueueRetain);
-    TriggerQueuePause(true);
-    auto38057D5B_g = libCOOC_gf_NondefeatedPlayers();
-    lv_indexPlayer = -1;
-    while (true) {
-        lv_indexPlayer = PlayerGroupNextPlayer(auto38057D5B_g, lv_indexPlayer);
-        if (lv_indexPlayer < 0) { break; }
-        libCOOC_gf_CC_PlayerAwardMissionXP(lp_type, lv_indexPlayer);
-        libCOOC_gf_CC_SaveAllTransitionData((lp_type != c_gameOverVictory), lv_indexPlayer);
-        libCOMI_gv_cM_EndMissionResult[lv_indexPlayer] = lp_type;
-        libCOMI_gf_CM_MissionEndAwardAchievements(lv_indexPlayer);
-    }
-    auto86D69DDE_g = libCOOC_gf_HumanPlayers();
-    lv_indexPlayer = -1;
-    while (true) {
-        lv_indexPlayer = PlayerGroupNextPlayer(auto86D69DDE_g, lv_indexPlayer);
-        if (lv_indexPlayer < 0) { break; }
-        if ((lp_type == c_gameOverVictory)) {
-            UIAlert("VictoryAlertCoop", lv_indexPlayer, StringToText(""), null);
-        }
-
-        if ((lp_type == c_gameOverDefeat)) {
-            UIAlert("DefeatAlertCoop", lv_indexPlayer, StringToText(""), null);
-        }
-
-        if ((lp_type == c_gameOverTie)) {
-            UIAlert("DrawAlertCoop", lv_indexPlayer, StringToText(""), null);
-        }
-
-        libCOOC_gf_CC_SetPlayerDefeated(lv_indexPlayer);
-        if ((libCOOC_gv_cC_InContestMap == true)) {
-            GameOver(lv_indexPlayer, libCOMI_gv_cM_EndMissionResult[lv_indexPlayer], true, true);
-        }
-        else {
-            libCOUI_gf_CU_FanfareDisplay(lp_type, lv_indexPlayer);
-        }
-    }
-    if ((libCOOC_gf_CoopDebugModeIsOn("LogPerf", 1) == true)) {
-        PerfTestStop();
-        TriggerStop(libCOMI_gt_CM_CampaignMissionPerfLog);
-    }
-
 }
 
 void libCOMI_gf_ZerglingRespawnSetPrimaryHatchery (unit lp_hatchery) {
@@ -15384,7 +15350,7 @@ bool libCOMI_gt_DefeatBaseDead_Func (bool testConds, bool runActions) {
     }
     Wait(4.0, c_timeReal);
     UISetCursorVisible(PlayerGroupAll(), true);
-    libCOMI_gf_GameOver(libCOMI_ge_CampaignMissionGameResultType_Defeat);
+    libCOMI_gf_EndCampaignMission(c_gameOverDefeat);
     return true;
 }
 
@@ -15602,7 +15568,7 @@ bool libCOMI_gt_SafetyZoneM_Func (bool testConds, bool runActions) {
     while (true) {
         auto28FB23E8_var = PlayerGroupNextPlayer(auto28FB23E8_g, auto28FB23E8_var);
         if (auto28FB23E8_var < 0) { break; }
-        lv_safety = RegionCircle(libCOMI_gf_getPlayerStartPosition(auto28FB23E8_var), lv_startinglocationsafetyradius);
+        lv_safety = RegionCircle(libCOMI_gf_GetPlayerStartPosition(auto28FB23E8_var), lv_startinglocationsafetyradius);
         if ((lv_safety != null)) {
             RegionAddRegion(libCOMU_gv_cT_MutatorSafetyZone, lv_safety);
         }
@@ -15950,13 +15916,13 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     // Automatic Variable Declarations
     playergroup auto6B1E1E16_g;
     playergroup autoB6336979_g;
-    playergroup auto0278168F_g;
     playergroup auto4B79EFEC_g;
     playergroup auto6159EA35_g;
     playergroup autoFBC5769B_g;
     playergroup auto2D7A536C_g;
     playergroup autoAFF19B53_g;
     playergroup auto99B4BE41_g;
+    playergroup auto075016DE_g;
 
     // Variable Initialization
     lv_itPlayerGroup = PlayerGroupEmpty();
@@ -15985,14 +15951,6 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     lv_indexPlayer = -1;
     while (true) {
         lv_indexPlayer = PlayerGroupNextPlayer(autoB6336979_g, lv_indexPlayer);
-        if (lv_indexPlayer < 0) { break; }
-        libCOOC_gf_CC_UpdateTechStates(lv_indexPlayer);
-        libCOOC_gf_CC_ApplyTech(lv_indexPlayer);
-    }
-    auto0278168F_g = libCOMI_gv_vU_EnemyAI;
-    lv_indexPlayer = -1;
-    while (true) {
-        lv_indexPlayer = PlayerGroupNextPlayer(auto0278168F_g, lv_indexPlayer);
         if (lv_indexPlayer < 0) { break; }
         libCOOC_gf_CC_UpdateTechStates(lv_indexPlayer);
         libCOOC_gf_CC_ApplyTech(lv_indexPlayer);
@@ -16096,7 +16054,7 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     while (true) {
         lv_player = PlayerGroupNextPlayer(auto2D7A536C_g, lv_player);
         if (lv_player < 0) { break; }
-        UIAlertPoint("Trigger", lv_player, StringExternal("Param/Value/lib_COMI_5C52372E"), null, libCOMI_gf_getPlayerStartPosition(lv_player));
+        UIAlertPoint("Trigger", lv_player, StringExternal("Param/Value/lib_COMI_5C52372E"), null, libCOMI_gf_GetPlayerStartPosition(lv_player));
         libCOMI_gf_SetWorkerRallyPointsPlayersNexuses(lv_player);
         libLbty_gf_OrderWorkerstoGatherNearbyResources(RegionEntireMap(), lv_player);
     }
@@ -16121,6 +16079,13 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
         TriggerExecute(libCOMI_gv_cM_CampaignMissionStartTrigger2, true, false);
     }
 
+    auto075016DE_g = libCOOC_gf_HumanPlayers();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto075016DE_g, lv_player);
+        if (lv_player < 0) { break; }
+        libNtve_gf_SetAlliance(lv_player, 0, libNtve_ge_AllianceSetting_Neutral);
+    }
     return true;
 }
 
@@ -16176,7 +16141,7 @@ bool libCOMI_gt_CM_HeroSpawn_Func (bool testConds, bool runActions) {
         }
 
         if ((libCOOC_gf_CC_CommanderHeroStructureType(libCOOC_gf_ActiveCommanderForPlayer(lv_indexPlayer)) != null) && (libCOOC_gf_CC_PrestigeSuppressed(lv_indexPlayer, "SuppressHeroStructure") == false)) {
-            libCOMI_gf_CM_HeroStructureCreateForPlayer(libCOMI_gf_getPlayerHeroSpawnPosition(lv_playerSlot), lv_indexPlayer, 225.0, 0);
+            libCOMI_gf_CM_HeroStructureCreateForPlayer(libCOMI_gf_GetPlayerHeroPosition(lv_teamIndex), lv_indexPlayer, 225.0, 0);
             if ((TechTreeUpgradeCount(lv_indexPlayer, "NovaCommander", c_techCountCompleteOnly) == 1)) {
                 UnitBehaviorAdd(UnitLastCreated(), "NovaCoopGhostAcademyLandingIntro", UnitLastCreated(), 1);
             }
@@ -33827,7 +33792,7 @@ bool libCOMI_gt_CM_HatcheryPrimarySearch_Func (bool testConds, bool runActions) 
         return true;
     }
 
-    auto59F15E5F_g = libCOOC_gf_CommanderPlayers();
+    auto59F15E5F_g = libCOMI_gv_vU_AlliedCommanders;
     lv_indexPlayer = -1;
     while (true) {
         lv_indexPlayer = PlayerGroupNextPlayer(auto59F15E5F_g, lv_indexPlayer);
@@ -34137,7 +34102,7 @@ bool libCOMI_gt_CM_GlobalCasterInit_Func (bool testConds, bool runActions) {
         }
 
         if ((TechTreeUpgradeCount(lv_indexPlayer, "ArtanisCommander", c_techCountCompleteOnly) == 1)) {
-            UnitCreateEffectPoint(libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "SOAPylonPowerCoop", libCOMI_gf_getPlayerHeroSpawnPosition(lv_indexPlayer));
+            UnitCreateEffectPoint(libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "SOAPylonPowerCoop", libCOMI_gf_GetPlayerHeroPosition(lv_indexPlayer));
         }
 
     }

@@ -48,10 +48,10 @@ void lib01833E95_InitVariables () {
     for (init_i = 0; init_i <= 2; init_i += 1) {
         lib01833E95_gv_aF_Score_PieCharts[init_i] = c_invalidDialogId;
     }
-    for (init_i = 0; init_i <= 1; init_i += 1) {
+    for (init_i = 0; init_i <= 2; init_i += 1) {
         lib01833E95_gv_aF_Score_FinalButton[init_i] = c_invalidDialogControlId;
     }
-    for (init_i = 0; init_i <= 1; init_i += 1) {
+    for (init_i = 0; init_i <= 2; init_i += 1) {
         lib01833E95_gv_aF_Score_FinalButtonLabel[init_i] = c_invalidDialogControlId;
     }
     lib01833E95_gv_aF_KillNumbers = c_invalidDialogId;
@@ -3326,34 +3326,30 @@ bool lib01833E95_gt_AF_Score_Func (bool testConds, bool runActions) {
     string lv_vCommander2;
 
     // Automatic Variable Declarations
+    playergroup auto44F7F734_g;
+    int auto44F7F734_var;
+
     // Variable Initialization
     lv_vBackgroundDialogPanel = c_invalidDialogControlId;
     lv_vCommander = libA8FDA37D_gf_ActiveCommanderForPlayer3(1);
     lv_vCommander2 = libA8FDA37D_gf_ActiveCommanderForPlayer3(2);
-
-    // Conditions
-    if (testConds) {
-        if (!((EventDialogControl() == libCOUI_gv_cU_FanfareCloseButton))) {
-            return false;
-        }
-
-        if (!((TriggerIsEnabled(TriggerGetCurrent()) == true))) {
-            return false;
-        }
-    }
 
     // Actions
     if (!runActions) {
         return true;
     }
 
-    TriggerEnable(TriggerGetCurrent(), false);
     TriggerEnable(libCOMI_gt_CM_AbortMission, false);
     Wait(0.0, c_timeReal);
     libNtve_gf_HideGameUI(false, PlayerGroupAll());
     UISetWorldVisible(PlayerGroupAll(), false);
-    DialogSetVisible(libCOUI_gv_cU_ScoreDialog, PlayerGroupAll(), false);
-    DialogControlSetVisible(libCOUI_gv_cU_GPPanel[EventPlayer()], PlayerGroupSingle(EventPlayer()), false);
+    auto44F7F734_g = libCOMI_gv_vU_AlliedCommanders;
+    auto44F7F734_var = -1;
+    while (true) {
+        auto44F7F734_var = PlayerGroupNextPlayer(auto44F7F734_g, auto44F7F734_var);
+        if (auto44F7F734_var < 0) { break; }
+        DialogControlSetVisible(libCOUI_gv_cU_GPPanel[auto44F7F734_var], PlayerGroupSingle(auto44F7F734_var), false);
+    }
     TriggerEnable(libA8FDA37D_gt_UT_Graph_Timer, false);
     libA8FDA37D_gf_UT_Graph_HideAllGraphsExcept(0, 1);
     libA8FDA37D_gf_UT_Graph_HideAllGraphsExcept(0, 2);
@@ -3405,13 +3401,15 @@ bool lib01833E95_gt_AF_Score_Func (bool testConds, bool runActions) {
     TriggerExecute(lib01833E95_gt_AF_Score_GraphsandCharts, true, false);
     TriggerExecute(lib01833E95_gt_AF_Score_SwitchButtonCreate, true, false);
     TriggerExecute(lib01833E95_gt_AF_Score_QuitButtonCreate, true, false);
+    TriggerExecute(lib01833E95_gt_AF_Score_MissionsButtonCreate, true, false);
+    TriggerExecute(libCOUI_gt_CreateMissionsDialog, true, false);
+    DialogSetVisible(libCOUI_gv_selectMissionDialogBig, PlayerGroupSingle(EventPlayer()), false);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 void lib01833E95_gt_AF_Score_Init () {
     lib01833E95_gt_AF_Score = TriggerCreate("lib01833E95_gt_AF_Score_Func");
-    TriggerAddEventDialogControl(lib01833E95_gt_AF_Score, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3507,6 +3505,39 @@ void lib01833E95_gt_AF_Score_SwitchButtonCreate_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: AF_Score_MissionsButtonCreate
+//--------------------------------------------------------------------------------------------------
+bool lib01833E95_gt_AF_Score_MissionsButtonCreate_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogCreate(400, 50, c_anchorBottomLeft, 900, 50, true);
+    DialogSetImageVisible(DialogLastCreated(), false);
+    DialogSetRenderPriority(DialogLastCreated(), 610);
+    DialogSetVisible(DialogLastCreated(), PlayerGroupAll(), true);
+    libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 300, 50, c_anchorBottom, 0, 0, StringExternal("Param/Value/lib_01833E95_B6258ECB"), ColorWithAlpha(0,0,0,0), false, 2.0);
+    libNtve_gf_SetDialogItemStyle(DialogControlLastCreated(), "FinalScoreButton", PlayerGroupAll());
+    DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+    DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 4.0, 20.0);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 5000, PlayerGroupAll());
+    lib01833E95_gv_aF_Score_FinalButtonLabel[2] = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 300, 50, c_anchorBottom, 0, 0, StringToText(""), StringToText(""), "");
+    DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 5000, PlayerGroupAll());
+    lib01833E95_gv_aF_Score_FinalButton[2] = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemTooltip(DialogControlLastCreated(), StringExternal("Param/Value/lib_01833E95_2FB071AC"), PlayerGroupAll());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib01833E95_gt_AF_Score_MissionsButtonCreate_Init () {
+    lib01833E95_gt_AF_Score_MissionsButtonCreate = TriggerCreate("lib01833E95_gt_AF_Score_MissionsButtonCreate_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: AF_Score_QuitButtonCreate
 //--------------------------------------------------------------------------------------------------
 bool lib01833E95_gt_AF_Score_QuitButtonCreate_Func (bool testConds, bool runActions) {
@@ -3546,7 +3577,7 @@ bool lib01833E95_gt_AF_Score_FinalButtonClicked_Func (bool testConds, bool runAc
 
     // Conditions
     if (testConds) {
-        if (!(((EventDialogControl() == lib01833E95_gv_aF_Score_FinalButton[0]) || (EventDialogControl() == lib01833E95_gv_aF_Score_FinalButton[1])))) {
+        if (!(((EventDialogControl() == lib01833E95_gv_aF_Score_FinalButton[0]) || (EventDialogControl() == lib01833E95_gv_aF_Score_FinalButton[1]) || (EventDialogControl() == lib01833E95_gv_aF_Score_FinalButton[2])))) {
             return false;
         }
     }
@@ -3576,6 +3607,14 @@ bool lib01833E95_gt_AF_Score_FinalButtonClicked_Func (bool testConds, bool runAc
         SoundPlayForPlayer(SoundLink("UI_Void_Error_Back", -1), c_maxPlayers, PlayerGroupSingle(EventPlayer()), 100.0, 0.0);
         Wait(1.0, c_timeGame);
         GameOver(EventPlayer(), libCOMI_gv_cM_EndMissionResult[EventPlayer()], false, true);
+    }
+    else if (auto7F4CAE9C_val == lib01833E95_gv_aF_Score_FinalButton[2]) {
+        if ((DialogIsVisible(libCOUI_gv_selectMissionDialogBig, EventPlayer()) == true)) {
+            DialogSetVisible(libCOUI_gv_selectMissionDialogBig, PlayerGroupSingle(EventPlayer()), false);
+        }
+        else {
+            DialogSetVisible(libCOUI_gv_selectMissionDialogBig, PlayerGroupSingle(EventPlayer()), true);
+        }
     }
     else {
     }
@@ -5726,6 +5765,7 @@ void lib01833E95_InitTriggers () {
     lib01833E95_gt_AF_Score_Init();
     lib01833E95_gt_AF_Score_GraphsandCharts_Init();
     lib01833E95_gt_AF_Score_SwitchButtonCreate_Init();
+    lib01833E95_gt_AF_Score_MissionsButtonCreate_Init();
     lib01833E95_gt_AF_Score_QuitButtonCreate_Init();
     lib01833E95_gt_AF_Score_FinalButtonClicked_Init();
     lib01833E95_gt_AF_MissionEnds_Init();

@@ -633,7 +633,7 @@ void libCOUI_gf_UpdateMapSelection (int lp_player, int lp_mapIndex) {
     // Variable Initialization
     lv_color = Color(0,0,0);
     lv_mapIndex = lp_mapIndex;
-    lv_old = libCOUI_gv_selected[EventPlayer()];
+    lv_old = libCOUI_gv_selected[lp_player];
 
     // Implementation
     libCOUI_gv_selected[lp_player] = lv_mapIndex;
@@ -701,12 +701,15 @@ int libCOUI_gf_HookUpDialogItemandshowforplayers (string lp_name, int lp_type, i
     return DialogControlLastCreated();
 }
 
-void libCOUI_gf_SaveOptions (bool lp_saveMap) {
+void libCOUI_gf_SaveMapOptions () {
     // Variable Declarations
     int lv_leaderPlayer;
     libCOUI_gs_MapSetupBank lv_mapOptions;
     int lv_itemIndex;
     int lv_commanderIndex;
+    int lv_commanderPrestige;
+    string lv_commanderName;
+    string lv_commanderMastery;
     string lv_commander;
     string lv_stringVar;
     int lv_mutatorsActive;
@@ -715,10 +718,10 @@ void libCOUI_gf_SaveOptions (bool lp_saveMap) {
     string lv_sECTION;
 
     // Automatic Variable Declarations
-    const int auto44432AFE_ae = libCOUI_gv_mM_MUTATORMAXCOUNT;
-    const int auto44432AFE_ai = 1;
     const int autoBE05AFAC_ae = libCOOC_gv_cCC_MAXPLAYERS;
     const int autoBE05AFAC_ai = 1;
+    int auto1B128F2B_ae;
+    const int auto1B128F2B_ai = 1;
     const int auto4ABB686D_ae = libCOOC_gv_cCC_MASTERIES_PER_COMMANDER;
     const int auto4ABB686D_ai = 1;
 
@@ -728,55 +731,36 @@ void libCOUI_gf_SaveOptions (bool lp_saveMap) {
     lv_mapOptions.lv_map = "Placeholder Map";
     lv_mapOptions.lv_enemyPersonality = "None";
     lv_mapOptions.lv_difficulty = 4;
+    lv_commanderName = "";
+    lv_commanderMastery = "";
     lv_stringVar = "";
     lv_sECTION = "NextMap";
 
     // Implementation
-    BankLoad(libCOUI_gv_vU_BANK, lv_leaderPlayer);
-    lv_bANK = BankLastCreated();
-    if ((lp_saveMap == true)) {
-        BankSectionCreate(lv_bANK, "NextMap");
-        BankValueSetFromInt(lv_bANK, "NextMap", "players", lv_mapOptions.lv_players);
-        BankValueSetFromInt(lv_bANK, "NextMap", "difficulty", libCOMI_gv_selectedDifficulty);
-        BankValueSetFromString(lv_bANK, "NextMap", "faction", (libCOMI_gv_selectedEnemyFaction));
-        lv_itemIndex = libCOUI_gv_mM_MUTATORMINCOUNT;
-        for ( ; ( (auto44432AFE_ai >= 0 && lv_itemIndex <= auto44432AFE_ae) || (auto44432AFE_ai < 0 && lv_itemIndex >= auto44432AFE_ae) ) ; lv_itemIndex += auto44432AFE_ai ) {
-            if ((libCOUI_gv_mM_MutatorItems[lv_itemIndex] == null)) {
-                continue;
-            }
-
-            if ((libNtve_gf_DialogItemIsChecked(libCOUI_gv_mM_MutatorCheckboxes[lv_itemIndex], 1) == true)) {
-                lv_mapOptions.lv_mutators[lv_mutatorsActive] = libCOUI_gv_mM_MutatorItems[lv_itemIndex];
-                if ((lv_mutatorsActive == 0)) {
-                    lv_stringVar = (libCOUI_gv_mM_MutatorItems[lv_itemIndex]);
-                }
-                else {
-                    lv_stringVar = (lv_stringVar + "," + (libCOUI_gv_mM_MutatorItems[lv_itemIndex]));
-                }
-                lv_mutatorsActive += 1;
-            }
-
-        }
-        BankValueSetFromString(lv_bANK, "NextMap", "mutators", lv_stringVar);
-        BankSave(lv_bANK);
-    }
-
     lv_player = 1;
     for ( ; ( (autoBE05AFAC_ai >= 0 && lv_player <= autoBE05AFAC_ae) || (autoBE05AFAC_ai < 0 && lv_player >= autoBE05AFAC_ae) ) ; lv_player += autoBE05AFAC_ai ) {
         if ((PlayerType(lv_player) == c_playerTypeUser)) {
             BankLoad(libCOUI_gv_vU_BANK, lv_player);
             lv_bANK = BankLastCreated();
-            lv_commander = libCOOC_gv_cCX_PlayerCommander[lv_player];
-            lv_commanderIndex = libCOOC_gf_CC_CommanderInternalIndex(lv_commander);
             BankSectionCreate(lv_bANK, "Player");
+            lv_commander = libCOOC_gv_cCX_PlayerCommander[lv_player];
             BankValueSetFromString(lv_bANK, "Player", "commander", (lv_commander));
-            BankValueSetFromInt(lv_bANK, "Player", "prestige", libCOOC_gv_cCX_PlayerPrestigeIndex[lv_player]);
-            BankValueSetFromInt(lv_bANK, "Player", "mastery", libCOOC_gv_cCX_PlayerMasteryLevel[lv_player]);
-            BankValueSetFromInt(lv_bANK, "Player", "experience", libCOOC_gv_cCX_PlayerExperience[lv_player][lv_commanderIndex]);
-            BankValueSetFromInt(lv_bANK, "Player", "level", libCOOC_gv_cC_PlayerLevel[lv_player][lv_commanderIndex]);
-            lv_itemIndex = 1;
-            for ( ; ( (auto4ABB686D_ai >= 0 && lv_itemIndex <= auto4ABB686D_ae) || (auto4ABB686D_ai < 0 && lv_itemIndex >= auto4ABB686D_ae) ) ; lv_itemIndex += auto4ABB686D_ai ) {
-                BankValueSetFromInt(lv_bANK, "Player", ("mastery" + IntToString(lv_itemIndex)), libCOUI_gv_cU_MasteryUpgradePointsSpent[lv_itemIndex][lv_player]);
+            auto1B128F2B_ae = UserDataInstanceCount("PlayerCommanders");
+            lv_commanderIndex = 1;
+            for ( ; ( (auto1B128F2B_ai >= 0 && lv_commanderIndex <= auto1B128F2B_ae) || (auto1B128F2B_ai < 0 && lv_commanderIndex >= auto1B128F2B_ae) ) ; lv_commanderIndex += auto1B128F2B_ai ) {
+                lv_commander = UserDataInstance("PlayerCommanders", lv_commanderIndex);
+                lv_commanderName = (lv_commander);
+                lv_commanderPrestige = DataTableGetInt(true, libCOOC_gf_CC_PrestigeCommanderTableKey(lv_commander, lv_player));
+                BankSectionCreate(lv_bANK, lv_commanderName);
+                BankValueSetFromInt(lv_bANK, lv_commanderName, "prestige", lv_commanderPrestige);
+                BankValueSetFromInt(lv_bANK, lv_commanderName, "experience", libCOOC_gv_cCX_PlayerExperience[lv_player][lv_commanderIndex]);
+                BankValueSetFromInt(lv_bANK, lv_commanderName, "level", libCOOC_gv_cC_PlayerLevel[lv_player][lv_commanderIndex]);
+                lv_commanderMastery = IntToString(libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][0]);
+                lv_itemIndex = 2;
+                for ( ; ( (auto4ABB686D_ai >= 0 && lv_itemIndex <= auto4ABB686D_ae) || (auto4ABB686D_ai < 0 && lv_itemIndex >= auto4ABB686D_ae) ) ; lv_itemIndex += auto4ABB686D_ai ) {
+                    lv_commanderMastery = (lv_commanderMastery + "/" + IntToString(libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][lv_itemIndex]));
+                }
+                BankValueSetFromString(BankLastCreated(), lv_commanderName, "mastery", lv_commanderMastery);
             }
             BankSave(lv_bANK);
         }
@@ -791,20 +775,27 @@ void libCOUI_gf_LoadMapOptions () {
     string lv_mutator;
     string lv_mutatorString;
     int lv_index;
-    int lv_commander;
     int lv_player;
     string lv_stringVar;
     int lv_leaderPlayer;
     bank lv_bANK;
     string lv_sECTION;
+    string lv_commander;
+    int lv_commanderIndex;
+    int lv_masteryIndex;
+    int lv_commanderPrestige;
+    int lv_commanderLevel;
+    int lv_commanderExperience;
+    string lv_commanderName;
+    string lv_commanderMastery;
 
     // Automatic Variable Declarations
     const int auto53B72D58_ae = libCOOC_gv_cCC_MAXPLAYERS;
     const int auto53B72D58_ai = 1;
-    const int autoCE2DE1FB_ae = libCOOC_gv_cCC_MASTERIES_PER_COMMANDER;
-    const int autoCE2DE1FB_ai = 1;
-    const int autoDBCD0319_ae = libCOUI_gv_vU_MAXMUTATORSSELECTED;
-    const int autoDBCD0319_ai = 1;
+    int autoD73CEE54_ae;
+    const int autoD73CEE54_ai = 1;
+    const int autoC7A3308F_ae = libCOOC_gv_cCC_MASTERIES_PER_COMMANDER;
+    const int autoC7A3308F_ai = 1;
 
     // Variable Initialization
     lv_mapOptions.lv_players = 2;
@@ -816,125 +807,36 @@ void libCOUI_gf_LoadMapOptions () {
     lv_stringVar = "";
     lv_leaderPlayer = 1;
     lv_sECTION = "NextMap";
+    lv_commanderName = "";
+    lv_commanderMastery = "";
 
     // Implementation
     lv_player = 1;
     for ( ; ( (auto53B72D58_ai >= 0 && lv_player <= auto53B72D58_ae) || (auto53B72D58_ai < 0 && lv_player >= auto53B72D58_ae) ) ; lv_player += auto53B72D58_ai ) {
         if ((PlayerType(lv_player) == c_playerTypeUser)) {
-            BankLoad("viscoop", lv_player);
+            BankLoad(libCOUI_gv_vU_BANK, lv_player);
             lv_bANK = BankLastCreated();
-            lv_sECTION = "Player";
-            libCOUI_gv_playersRecords[lv_player].lv_activeCommander = (BankValueGetAsString(lv_bANK, lv_sECTION, "commander"));
-            libCOUI_gv_playersRecords[lv_player].lv_level = BankValueGetAsInt(lv_bANK, lv_sECTION, "level");
-            libCOUI_gv_playersRecords[lv_player].lv_masteryLevel = BankValueGetAsInt(lv_bANK, lv_sECTION, "mastery");
-            libCOUI_gv_playersRecords[lv_player].lv_prestige = BankValueGetAsInt(lv_bANK, lv_sECTION, "prestige");
-            lv_index = 1;
-            for ( ; ( (autoCE2DE1FB_ai >= 0 && lv_index <= autoCE2DE1FB_ae) || (autoCE2DE1FB_ai < 0 && lv_index >= autoCE2DE1FB_ae) ) ; lv_index += autoCE2DE1FB_ai ) {
-                libCOUI_gv_playersRecords[lv_player].lv_masteryUpgradePointsSpent[lv_index] = BankValueGetAsInt(lv_bANK, lv_sECTION, ("mastery" + IntToString(lv_index)));
-            }
-            if ((lv_player == lv_leaderPlayer)) {
-                lv_sECTION = "NextMap";
-                libCOUI_gv_mapRecord.lv_players = BankValueGetAsInt(lv_bANK, lv_sECTION, "players");
-                libCOUI_gv_mapRecord.lv_map = (BankValueGetAsString(lv_bANK, lv_sECTION, "map"));
-                libCOUI_gv_mapRecord.lv_difficulty = BankValueGetAsInt(lv_bANK, lv_sECTION, "players");
-                libCOUI_gv_mapRecord.lv_enemyFaction = (BankValueGetAsString(lv_bANK, lv_sECTION, "faction"));
-                libCOUI_gv_mapRecord.lv_enemyPersonality = (BankValueGetAsString(lv_bANK, lv_sECTION, "personality"));
-                lv_mutatorsString = BankValueGetAsString(lv_bANK, lv_sECTION, "mutators");
-                if ((lv_mutatorsString != "")) {
-                    lv_index = 0;
-                    for ( ; ( (autoDBCD0319_ai >= 0 && lv_index <= autoDBCD0319_ae) || (autoDBCD0319_ai < 0 && lv_index >= autoDBCD0319_ae) ) ; lv_index += autoDBCD0319_ai ) {
-                        lv_mutator = (libA8FDA37D_gf_UT_SeparatedSubstring(libA8FDA37D_gf_UT_SeparatedSubstring(lv_mutatorsString, lv_index, ","), lv_index, ","));
-                        if ((lv_mutator != null)) {
-                            libCOUI_gv_mapRecord.lv_mutators[lv_index] = lv_mutator;
-                        }
-                        else {
-                            break;
-                        }
-                    }
+            autoD73CEE54_ae = UserDataInstanceCount("PlayerCommanders");
+            lv_commanderIndex = 1;
+            for ( ; ( (autoD73CEE54_ai >= 0 && lv_commanderIndex <= autoD73CEE54_ae) || (autoD73CEE54_ai < 0 && lv_commanderIndex >= autoD73CEE54_ae) ) ; lv_commanderIndex += autoD73CEE54_ai ) {
+                lv_commander = UserDataInstance("PlayerCommanders", lv_commanderIndex);
+                lv_commanderName = (lv_commander);
+                lv_commanderPrestige = BankValueGetAsInt(lv_bANK, lv_commanderName, "prestige");
+                lv_commanderLevel = BankValueGetAsInt(lv_bANK, lv_commanderName, "level");
+                lv_commanderExperience = BankValueGetAsInt(lv_bANK, lv_commanderName, "experience");
+                lv_commanderMastery = StringReplaceWord(BankValueGetAsString(lv_bANK, lv_commanderName, "mastery"), "/", " ", c_stringReplaceAll, c_stringCase);
+                DataTableSetInt(true, libCOOC_gf_CC_PrestigeCommanderTableKey(lv_commander, lv_player), lv_commanderPrestige);
+                libCOOC_gv_cC_PlayerLevel[lv_player][lv_commanderIndex] = lv_commanderLevel;
+                libCOOC_gf_CC_PlayerExperienceSet(lv_player, lv_commanderExperience, lv_commander);
+                lv_masteryIndex = 1;
+                for ( ; ( (autoC7A3308F_ai >= 0 && lv_masteryIndex <= autoC7A3308F_ae) || (autoC7A3308F_ai < 0 && lv_masteryIndex >= autoC7A3308F_ae) ) ; lv_masteryIndex += autoC7A3308F_ai ) {
+                    libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][lv_masteryIndex] = StringToInt(StringWord(lv_commanderMastery, lv_masteryIndex));
                 }
-
             }
-
+            lv_sECTION = "Player";
+            libCOOC_gv_cCX_PlayerCommander[lv_player] = (BankValueGetAsString(lv_bANK, lv_sECTION, "commander"));
         }
 
-    }
-}
-
-void libCOUI_gf_ApplyMapOptions () {
-    // Variable Declarations
-    string lv_mutator;
-    int lv_player;
-    int lv_masteryIndex;
-    int lv_mutatorsActive;
-    int lv_leaderPlayer;
-    bank lv_bANK;
-    int lv_mutatorIndex;
-    string lv_sECTION;
-    string lv_masteryUpgrade;
-    string lv_playerCommander;
-
-    // Automatic Variable Declarations
-    const int autoA78A5C9D_ae = libCOUI_gv_vU_MAXMUTATORSSELECTED;
-    const int autoA78A5C9D_ai = 1;
-    const int autoED468CCF_ae = libCOUI_gv_mM_MUTATORMAXCOUNT;
-    const int autoED468CCF_ai = 1;
-    const int auto3C2406AF_ae = libCOOC_gv_cCC_MAXPLAYERS;
-    const int auto3C2406AF_ai = 1;
-    const int auto605F0C3B_ae = libCOOC_gv_cCC_MASTERIES_PER_COMMANDER;
-    const int auto605F0C3B_ai = 1;
-    playergroup auto3DBB27FD_g;
-
-    // Variable Initialization
-    lv_leaderPlayer = 1;
-    lv_sECTION = "NextMap";
-
-    // Implementation
-    lv_player = 0;
-    for ( ; ( (autoA78A5C9D_ai >= 0 && lv_player <= autoA78A5C9D_ae) || (autoA78A5C9D_ai < 0 && lv_player >= autoA78A5C9D_ae) ) ; lv_player += autoA78A5C9D_ai ) {
-        if ((libCOUI_gv_mapRecord.lv_mutators[lv_player] == null)) {
-            break;
-        }
-
-        lv_mutator = libCOUI_gv_mapRecord.lv_mutators[lv_player];
-        lv_mutatorIndex = 1;
-        for ( ; ( (autoED468CCF_ai >= 0 && lv_mutatorIndex <= autoED468CCF_ae) || (autoED468CCF_ai < 0 && lv_mutatorIndex >= autoED468CCF_ae) ) ; lv_mutatorIndex += autoED468CCF_ai ) {
-            if ((libCOUI_gv_mM_MutatorItems[lv_mutatorIndex] == null)) {
-                break;
-            }
-
-            if ((libCOUI_gv_mM_MutatorItems[lv_mutatorIndex] == lv_mutator)) {
-                libNtve_gf_SetDialogItemChecked(libCOUI_gv_mM_MutatorCheckboxes[lv_mutatorIndex], true, PlayerGroupAll());
-            }
-
-        }
-    }
-    lv_player = 1;
-    for ( ; ( (auto3C2406AF_ai >= 0 && lv_player <= auto3C2406AF_ae) || (auto3C2406AF_ai < 0 && lv_player >= auto3C2406AF_ae) ) ; lv_player += auto3C2406AF_ai ) {
-        if ((PlayerType(lv_player) == c_playerTypeUser)) {
-            lv_playerCommander = libCOUI_gv_playersRecords[lv_player].lv_activeCommander;
-            libCOOC_gf_CC_PlayerLevelSet(lv_player, libCOUI_gv_playersRecords[lv_player].lv_level, lv_playerCommander);
-            libCOUI_gf_CU_CommanderSelect(lv_player, lv_playerCommander);
-            libCOUI_gf_CU_CommanderSelect(lv_player, libCOUI_gv_cU_CommanderList[lv_player]);
-            libCOOC_gf_CC_SetPlayerPrestigeIndex(lv_player, libCOUI_gv_playersRecords[lv_player].lv_prestige);
-            libCOOC_gv_cC_PlayerLevel[lv_player][libCOOC_gf_CC_CommanderInternalIndex(lv_playerCommander)] = libCOUI_gv_playersRecords[lv_player].lv_level;
-            libCOUI_gv_cU_MasteryLevelCurrent[lv_player] = libCOUI_gv_playersRecords[lv_player].lv_masteryLevel;
-            lv_masteryIndex = 1;
-            for ( ; ( (auto605F0C3B_ai >= 0 && lv_masteryIndex <= auto605F0C3B_ae) || (auto605F0C3B_ai < 0 && lv_masteryIndex >= auto605F0C3B_ae) ) ; lv_masteryIndex += auto605F0C3B_ai ) {
-                lv_masteryUpgrade = libCOUI_gv_cU_MasteryUpgrades[lv_masteryIndex][lv_player];
-                libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][libCOOC_gf_CC_CommanderInternalIndex(lv_playerCommander)][libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_masteryUpgrade)] = libCOUI_gv_playersRecords[lv_player].lv_masteryUpgradePointsSpent[lv_masteryIndex];
-            }
-            libCOUI_gf_CU_MasteryUpdatePoints(lv_player);
-            libCOUI_gf_CU_MasteryUpdate(lv_player);
-            libCOUI_gf_CU_MasteryUpdateData(lv_player);
-        }
-
-    }
-    auto3DBB27FD_g = libCOOC_gf_HumanPlayers();
-    lv_player = -1;
-    while (true) {
-        lv_player = PlayerGroupNextPlayer(auto3DBB27FD_g, lv_player);
-        if (lv_player < 0) { break; }
-        libCOUI_gf_UpdatePlayerCommander(lv_player);
     }
 }
 
@@ -983,11 +885,81 @@ void libCOUI_gf_CreateFactionsDialog () {
     DialogSetVisible(libCOUI_gv_amonFactionsDialog, PlayerGroupAll(), true);
 }
 
+void libCOUI_gf_SetFreeCommander (int lp_player, string lp_commander) {
+    // Variable Declarations
+    bool lv_isOccupied;
+    int lv_indexPlayer;
+    int lv_indexCommander;
+    string lv_indexCommanderInstance;
+
+    // Automatic Variable Declarations
+    playergroup auto9D91397A_g;
+    int auto90A0537D_ae;
+    const int auto90A0537D_ai = 1;
+    playergroup auto13479D51_g;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lp_commander != null)) {
+        auto9D91397A_g = libCOMI_gv_vU_SlotsUnlocked;
+        lv_indexPlayer = -1;
+        while (true) {
+            lv_indexPlayer = PlayerGroupNextPlayer(auto9D91397A_g, lv_indexPlayer);
+            if (lv_indexPlayer < 0) { break; }
+            if ((lv_indexPlayer == lp_player)) {
+                break;
+            }
+
+            if ((libCOOC_gv_cCX_PlayerCommander[lv_indexPlayer] == libCOOC_gv_cCX_PlayerCommander[lp_player])) {
+                lv_isOccupied = true;
+                break;
+            }
+
+        }
+    }
+    else {
+        lv_isOccupied = true;
+    }
+    if ((lv_isOccupied == false)) {
+        libCOUI_gf_CU_CommanderSelect(lp_player, libCOOC_gv_cCX_PlayerCommander[lp_player]);
+    }
+    else {
+        auto90A0537D_ae = UserDataInstanceCount("PlayerCommanders");
+        lv_indexCommander = 1;
+        for ( ; ( (auto90A0537D_ai >= 0 && lv_indexCommander <= auto90A0537D_ae) || (auto90A0537D_ai < 0 && lv_indexCommander >= auto90A0537D_ae) ) ; lv_indexCommander += auto90A0537D_ai ) {
+            lv_indexCommanderInstance = UserDataInstance("PlayerCommanders", lv_indexCommander);
+            lv_isOccupied = false;
+            auto13479D51_g = libCOMI_gv_vU_SlotsUnlocked;
+            lv_indexPlayer = -1;
+            while (true) {
+                lv_indexPlayer = PlayerGroupNextPlayer(auto13479D51_g, lv_indexPlayer);
+                if (lv_indexPlayer < 0) { break; }
+                if ((lv_indexPlayer == lp_player)) {
+                    break;
+                }
+
+                if ((libCOOC_gv_cCX_PlayerCommander[lv_indexPlayer] == lv_indexCommanderInstance)) {
+                    lv_isOccupied = true;
+                    break;
+                }
+
+            }
+            if ((lv_isOccupied == false)) {
+                libCOUI_gf_CU_CommanderSelect(lp_player, lv_indexCommanderInstance);
+                return ;
+            }
+
+        }
+    }
+}
+
 void libCOUI_gf_CreateGameBriefingRoom () {
     int init_i;
 
     // Variable Declarations
     int lv_indexPlayer;
+    int lv_indexPlayer2;
     string lv_indexCommander;
     int lv_activePlayers;
     string lv_vCommander;
@@ -998,8 +970,6 @@ void libCOUI_gf_CreateGameBriefingRoom () {
     int autoB53E731A_ae;
     int autoB53E731A_var;
     playergroup autoAF4BA8E4_g;
-    int auto0711D5E2_ae;
-    int auto0711D5E2_var;
 
     // Variable Initialization
     for (init_i = 0; init_i <= 5; init_i += 1) {
@@ -1046,6 +1016,7 @@ void libCOUI_gf_CreateGameBriefingRoom () {
     while (true) {
         lv_indexPlayer = PlayerGroupNextPlayer(autoAF4BA8E4_g, lv_indexPlayer);
         if (lv_indexPlayer < 0) { break; }
+        libCOUI_gf_SetFreeCommander(lv_indexPlayer, libCOOC_gv_cCX_PlayerCommander[lv_indexPlayer]);
         libCOUI_gf_CU_MasteryInitFromData(lv_indexPlayer);
         libCOUI_gf_CU_MasteryUpdatePoints(lv_indexPlayer);
         libCOUI_gf_CU_MasteryUpdate(lv_indexPlayer);
@@ -1054,14 +1025,6 @@ void libCOUI_gf_CreateGameBriefingRoom () {
             libCOUI_gf_CU_CommanderPlayerReadySet(lv_indexPlayer, true);
         }
 
-        auto0711D5E2_ae = (UserDataInstanceCount("PlayerCommanders") + 1);
-        auto0711D5E2_var = 0;
-        for ( ; auto0711D5E2_var <= auto0711D5E2_ae; auto0711D5E2_var += 1 ) {
-            lv_vCommander = UserDataInstance("PlayerCommanders", auto0711D5E2_var);
-            libCOOC_gf_CC_PlayerExperienceSetToLevel(lv_indexPlayer, 15, lv_vCommander);
-            libCOOC_gf_CC_UpdateTechStates(lv_indexPlayer);
-        }
-        libCOUI_gf_CU_CommanderSelect(lv_indexPlayer, libCOUI_gv_cU_CommanderList[libCOUI_gv_cU_CommanderSelect_RefCount]);
         libCOUI_gf_UpdatePlayerCommander(lv_indexPlayer);
     }
     libCOUI_gf_UpdateCommandersList();
@@ -1461,6 +1424,7 @@ void libCOUI_gf_VU_Ready () {
         if (lv_indexPlayer < 0) { break; }
         libCOOC_gf_ShowHideWorldCover(false, 0.0, lv_indexPlayer);
     }
+    libCOUI_gf_SaveMapOptions();
     TriggerSendEvent(libCOUI_gv_cUC_CommChoiceEventClosed);
     TriggerExecute(libA8FDA37D_gt_UT_Graph_Initialization, true, false);
     CutsceneStop(libCOUI_gv_aF_CS_CommanderCutscenes[0]);
@@ -1658,7 +1622,9 @@ void libCOUI_gf_UpdatePlayerCommander (int lp_player) {
 void libCOUI_gf_CU_CommanderUpdatePrestigeLabels (int lp_player) {
     // Variable Declarations
     int lv_playerAlly;
-    int lv_prestigeIndex;
+    string lv_commanderSelf;
+    string lv_commanderAlly;
+    int lv_prestigeSelf;
     int lv_prestigeAlly;
     text lv_playerPrestigeText;
     text lv_playerAllyPrestigeText;
@@ -1666,20 +1632,22 @@ void libCOUI_gf_CU_CommanderUpdatePrestigeLabels (int lp_player) {
     // Automatic Variable Declarations
     // Variable Initialization
     lv_playerAlly = libCOOC_gf_CC_PlayerAlly(lp_player);
-    lv_prestigeIndex = libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player);
+    lv_commanderSelf = libCOMI_gf_ActiveCommanderForPlayer4(lp_player);
+    lv_commanderAlly = libCOMI_gf_ActiveCommanderForPlayer4(lv_playerAlly);
+    lv_prestigeSelf = libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player);
     lv_prestigeAlly = libCOOC_gf_CC_PlayerActivePrestigeIndex(lv_playerAlly);
-    lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(libCOOC_gf_CC_CommanderData(libCOOC_gv_cCX_PlayerCommander[lp_player]), libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player)), "Name", lp_player));
-    lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(libCOOC_gf_CC_CommanderData(libCOOC_gv_cCX_PlayerCommander[lv_playerAlly]), libCOOC_gf_CC_PlayerActivePrestigeIndex(lv_playerAlly)), "Name", lv_playerAlly));
+    lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(lv_commanderSelf, lv_prestigeSelf), "Name", lp_player));
+    lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(lv_commanderAlly, lv_prestigeAlly), "Name", lv_playerAlly));
 
     // Implementation
-    if ((lv_prestigeIndex == 0) && (CatalogEntryIsValid(c_gameCatalogCommander, libCOMI_gf_ActiveCommanderForPlayer4(lp_player)) == true)) {
-        lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, libCOMI_gf_ActiveCommanderForPlayer4(lp_player), "Description", c_playerAny));
+    if ((lv_commanderAlly != "") && (lv_prestigeSelf == 0) && (CatalogEntryIsValid(c_gameCatalogCommander, lv_commanderAlly) == true)) {
+        lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, lv_commanderAlly, "Description", c_playerAny));
     }
-    else if ((lv_prestigeIndex == 0)) {
+    else if ((lv_prestigeSelf == 0)) {
         lv_playerPrestigeText = null;
     }
-    if ((lv_prestigeAlly == 0) && (CatalogEntryIsValid(c_gameCatalogCommander, libCOMI_gf_ActiveCommanderForPlayer4(lv_playerAlly)) == true)) {
-        lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, libCOMI_gf_ActiveCommanderForPlayer4(lv_playerAlly), "Description", c_playerAny));
+    if ((lv_commanderAlly != "") && (lv_prestigeAlly == 0) && (CatalogEntryIsValid(c_gameCatalogCommander, lv_commanderAlly) == true)) {
+        lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, lv_commanderAlly, "Description", c_playerAny));
     }
     else if ((lv_prestigeAlly == 0)) {
         lv_playerAllyPrestigeText = null;
@@ -3113,16 +3081,6 @@ void libCOUI_gf_AF_CS_MiraDialogCreate () {
     DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypePanel, "AF_CommanderSelectionScreen/MiraBRB");
     DialogControlHookup(DialogControlLastCreated(), c_triggerControlTypeLabel, "MiraLabel");
     libNtve_gf_SetDialogItemText(DialogControlLastCreated(), StringExternal("Param/Value/lib_COUI_866AA99F"), PlayerGroupAll());
-}
-
-void libCOUI_gf_AF_CS_InitBGCutsceneCleanUp (fixed lp_pWait) {
-    // Automatic Variable Declarations
-    // Implementation
-    DialogControlHookupStandard(c_triggerControlTypeCutscene, "UIContainer/FullscreenUpperContainer/CutsceneBGFade");
-    DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), false);
-    Wait(lp_pWait, c_timeGame);
-    CutsceneStop(CutsceneGetTriggerControl(DialogControlLastCreated()));
-    DialogControlDestroy(DialogControlLastCreated());
 }
 
 void libCOUI_gf_MM_MutatorDisplay (int lp_player) {
@@ -7737,6 +7695,7 @@ bool libCOUI_gt_StartMission_Func (bool testConds, bool runActions) {
 //--------------------------------------------------------------------------------------------------
 void libCOUI_gt_StartMission_Init () {
     libCOUI_gt_StartMission = TriggerCreate("libCOUI_gt_StartMission_Func");
+    TriggerEnable(libCOUI_gt_StartMission, false);
     TriggerAddEventDialogControl(libCOUI_gt_StartMission, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
 }
 
@@ -7745,6 +7704,7 @@ void libCOUI_gt_StartMission_Init () {
 //--------------------------------------------------------------------------------------------------
 bool libCOUI_gt_CreateMissionsDialog_Func (bool testConds, bool runActions) {
     // Variable Declarations
+    playergroup lv_players;
     int lv_offsetX;
     int lv_offsetY;
     int lv_x;
@@ -7759,6 +7719,7 @@ bool libCOUI_gt_CreateMissionsDialog_Func (bool testConds, bool runActions) {
     int autoC63F5F27_var;
 
     // Variable Initialization
+    lv_players = libCOOC_gf_HumanPlayers();
     lv_offsetX = 10;
     lv_offsetY = -60;
     lv_image = c_invalidDialogControlId;
@@ -7772,6 +7733,7 @@ bool libCOUI_gt_CreateMissionsDialog_Func (bool testConds, bool runActions) {
     DialogCreate(1000, 1000, c_anchorTopRight, 20, 20, true);
     DialogSetImageVisible(DialogLastCreated(), false);
     libCOUI_gv_selectMissionDialog = DialogLastCreated();
+    DialogSetRenderPriority(libCOUI_gv_selectMissionDialog, 9000);
     DialogControlCreate(libCOUI_gv_selectMissionDialog, c_triggerControlTypePulldown);
     libCOUI_gv_selectMissionPulldownDialog = DialogControlLastCreated();
     DialogControlSetSize(libCOUI_gv_selectMissionPulldownDialog, PlayerGroupAll(), 470, 90);
@@ -7783,13 +7745,14 @@ bool libCOUI_gt_CreateMissionsDialog_Func (bool testConds, bool runActions) {
     DialogControlSetVisible(libCOUI_gv_startMissionDialogButton, PlayerGroupAll(), true);
     DialogCreate(1890, 990, c_anchorTopLeft, 100, 100, true);
     libCOUI_gv_selectMissionDialogBig = DialogLastCreated();
+    DialogSetRenderPriority(libCOUI_gv_selectMissionDialogBig, 5000);
     DialogSetTitle(libCOUI_gv_selectMissionDialogBig, StringExternal("Param/Value/lib_COUI_95D4C568"));
     DialogSetVisible(libCOUI_gv_selectMissionDialogBig, PlayerGroupAll(), true);
     auto82873512_ae = UserDataInstanceCount("Maps");
     auto82873512_var = 1;
     for ( ; auto82873512_var <= auto82873512_ae; auto82873512_var += 1 ) {
         lv_map = UserDataInstance("Maps", auto82873512_var);
-        if (true) {
+        if ((UserDataGetInt("Maps", lv_map, "Hidden", 1) == 0)) {
             if ((((UserDataGetInt("Maps", lv_map, "Map Slot", 1) != 0) && (GameIsOnline() == true)) || ((UserDataGetString("Maps", lv_map, "localFile", 1) != "") && (GameIsOnline() == false)))) {
                 lv_x = (lv_offsetX + (220 * ((libCOUI_gv_totalMaps - (8 * (libCOUI_gv_totalMaps / 8))) - 0)));
                 lv_y = (lv_offsetY + (140 * (libCOUI_gv_totalMaps / 8)));
@@ -7801,7 +7764,18 @@ bool libCOUI_gt_CreateMissionsDialog_Func (bool testConds, bool runActions) {
                 libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 210, 130, c_anchorTopLeft, (lv_x + 50), (lv_y + 145), UserDataGetText("Maps", lv_map, "Description", 1), libCOUI_gv_mapNames[libCOUI_gv_totalMaps], UserDataGetImagePath("Maps", lv_map, "Image", 1));
                 DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeButton, "Coop_CommanderSelection/CommanderButtonTemplate");
                 DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 210, 130);
+                DialogControlSetPosition(DialogControlLastCreated(), lv_players, c_anchorTopLeft, (lv_x + 50), (lv_y + 145));
                 libCOUI_gv_missionButton[libCOUI_gv_totalMaps] = DialogControlLastCreated();
+                libNtve_gf_SetDialogItemTooltip(libCOUI_gv_missionButton[libCOUI_gv_totalMaps], UserDataGetText("Maps", lv_map, "Description", 1), lv_players);
+                DialogControlSetVisible(libCOUI_gf_HookUpDialogItemandshowforplayers("CommanderPortrait", c_triggerControlTypePortrait, libCOUI_gv_missionButton[libCOUI_gv_totalMaps], lv_players), PlayerGroupEmpty(), false);
+                libCOUI_gv_missionImage[libCOUI_gv_totalMaps] = libCOUI_gf_HookUpDialogItemandshowforplayers("Locked", c_triggerControlTypeImage, libCOUI_gv_missionButton[libCOUI_gv_totalMaps], lv_players);
+                DialogControlSetVisible(libCOUI_gv_missionImage[libCOUI_gv_totalMaps], lv_players, false);
+                libCOUI_gv_missionImage[libCOUI_gv_totalMaps] = libCOUI_gf_HookUpDialogItemandshowforplayers("BackgroundImage", c_triggerControlTypeImage, libCOUI_gv_missionButton[libCOUI_gv_totalMaps], lv_players);
+                libNtve_gf_SetDialogItemImage(libCOUI_gv_missionImage[libCOUI_gv_totalMaps], UserDataGetImagePath("Maps", lv_map, "Image", 1), lv_players);
+                libCOUI_gv_missionText[libCOUI_gv_totalMaps] = libCOUI_gf_HookUpDialogItemandshowforplayers("CommanderName", c_triggerControlTypeLabel, libCOUI_gv_missionButton[libCOUI_gv_totalMaps], lv_players);
+                libNtve_gf_SetDialogItemText(libCOUI_gv_missionText[libCOUI_gv_totalMaps], libCOUI_gv_mapNames[libCOUI_gv_totalMaps], lv_players);
+                libCOUI_gv_mapBorder[libCOUI_gv_totalMaps] = libCOUI_gf_HookUpDialogItemandshowforplayers("SelectionBorder", c_triggerControlTypeImage, libCOUI_gv_missionButton[libCOUI_gv_totalMaps], lv_players);
+                DialogControlSetVisible(libCOUI_gv_mapBorder[libCOUI_gv_totalMaps], lv_players, false);
                 libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 200, 50, c_anchorTopLeft, (lv_x + 55), (lv_y + 230), libCOUI_gv_mapNames[libCOUI_gv_totalMaps], ColorWithAlpha(0,0,0,0), false, 2.0);
                 libCOUI_gv_missionText[libCOUI_gv_totalMaps] = DialogControlLastCreated();
                 libNtve_gf_SetDialogItemStyle(DialogControlLastCreated(), "CenterJustified", PlayerGroupAll());
@@ -7826,6 +7800,7 @@ bool libCOUI_gt_CreateMissionsDialog_Func (bool testConds, bool runActions) {
         if (autoC63F5F27_var < 0) { break; }
         libCOUI_gf_UpdateMapSelection(autoC63F5F27_var, 1);
     }
+    TriggerEnable(libCOUI_gt_StartMission, true);
     return true;
 }
 
@@ -9511,7 +9486,6 @@ bool libCOUI_gt_AF_CS_Reskin_Func (bool testConds, bool runActions) {
     libCOUI_gf_AF_CS_MiraDialogCreate();
     Wait(0.2, c_timeGame);
     libCOUI_gf_AF_CS_CommanderCutscenes();
-    libCOUI_gf_AF_CS_InitBGCutsceneCleanUp(5.0);
     return true;
 }
 
