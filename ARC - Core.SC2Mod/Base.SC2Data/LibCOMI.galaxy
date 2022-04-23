@@ -40,19 +40,19 @@ void libCOMI_InitVariables () {
 
     libCOMI_gv_vU_Enemies = PlayerGroupEmpty();
     libCOMI_gv_vU_Allies = PlayerGroupEmpty();
-    libCOMI_gv_all = PlayerGroupAll();
     libCOMI_gv_vU_EnemyPlayers = PlayerGroupEmpty();
     libCOMI_gv_vU_EnemyAI = PlayerGroupEmpty();
-    libCOMI_gv_vU_BonusNPC = PlayerGroupEmpty();
     libCOMI_gv_vU_AlliedCommanders = PlayerGroupEmpty();
     libCOMI_gv_vU_HumanPlayers = PlayerGroupEmpty();
     libCOMI_gv_vU_SlotsUnlocked = PlayerGroupEmpty();
     libCOMI_gv_vU_SlotsEnemy = PlayerGroupEmpty();
     libCOMI_gv_vU_SlotsAlly = PlayerGroupEmpty();
     libCOMI_gv_vU_AllyNPC = PlayerGroupEmpty();
+    libCOMI_gv_vU_BonusNPC = PlayerGroupEmpty();
     libCOMI_gv_vU_EnemyNPC = PlayerGroupEmpty();
     libCOMI_gv_vU_NeutralNPC = PlayerGroupEmpty();
     libCOMI_gv_vU_HostileNPC = PlayerGroupEmpty();
+    libCOMI_gv_all = PlayerGroupAll();
     libCOMI_gv_playerHostile = 15;
     libCOMI_gv_gameMode = 2;
     libCOMI_gv_selectedDifficulty = libNtve_gf_DifficultyValueInt(1, 2, 3, 4);
@@ -369,6 +369,112 @@ string libCOMI_ge_ObjectiveTimerThresholds_Ident (int lp_val) {
 }
 
 // Functions
+playergroup libCOMI_gf_GetEnemyPlayers () {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOMI_gv_vU_Enemies;
+}
+
+playergroup libCOMI_gf_GetAlliesPlayers () {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOMI_gv_vU_Allies;
+}
+
+playergroup libCOMI_gf_GetEnemyHumanPlayers () {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOMI_gv_vU_EnemyPlayers;
+}
+
+playergroup libCOMI_gf_GetEnemyAIPlayers () {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOMI_gv_vU_EnemyAI;
+}
+
+playergroup libCOMI_gf_GetAlliedCommandersPlayers () {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOMI_gv_vU_AlliedCommanders;
+}
+
+playergroup libCOMI_gf_GetHumanPlayers () {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOMI_gv_vU_HumanPlayers;
+}
+
+trigger auto_libCOMI_gf_RunTriggeratMissionTime_Trigger = null;
+fixed auto_libCOMI_gf_RunTriggeratMissionTime_lp_time;
+trigger auto_libCOMI_gf_RunTriggeratMissionTime_lp_trigger;
+
+void libCOMI_gf_RunTriggeratMissionTime (fixed lp_time, trigger lp_trigger) {
+    auto_libCOMI_gf_RunTriggeratMissionTime_lp_time = lp_time;
+    auto_libCOMI_gf_RunTriggeratMissionTime_lp_trigger = lp_trigger;
+
+    if (auto_libCOMI_gf_RunTriggeratMissionTime_Trigger == null) {
+        auto_libCOMI_gf_RunTriggeratMissionTime_Trigger = TriggerCreate("auto_libCOMI_gf_RunTriggeratMissionTime_TriggerFunc");
+    }
+
+    TriggerExecute(auto_libCOMI_gf_RunTriggeratMissionTime_Trigger, false, false);
+}
+
+bool auto_libCOMI_gf_RunTriggeratMissionTime_TriggerFunc (bool testConds, bool runActions) {
+    fixed lp_time = auto_libCOMI_gf_RunTriggeratMissionTime_lp_time;
+    trigger lp_trigger = auto_libCOMI_gf_RunTriggeratMissionTime_lp_trigger;
+
+    // Automatic Variable Declarations
+    // Implementation
+    while (!((lp_time <= GameGetMissionTime()))) {
+        Wait(0.3, c_timeAI);
+    }
+    if ((libCOMI_gf_GameIsOver() == false)) {
+        TriggerExecute(lp_trigger, true, false);
+    }
+
+    return true;
+}
+
+trigger auto_libCOMI_gf_CreateWarpInEffect_Trigger = null;
+unit auto_libCOMI_gf_CreateWarpInEffect_lp_unit;
+
+void libCOMI_gf_CreateWarpInEffect (unit lp_unit) {
+    auto_libCOMI_gf_CreateWarpInEffect_lp_unit = lp_unit;
+
+    if (auto_libCOMI_gf_CreateWarpInEffect_Trigger == null) {
+        auto_libCOMI_gf_CreateWarpInEffect_Trigger = TriggerCreate("auto_libCOMI_gf_CreateWarpInEffect_TriggerFunc");
+    }
+
+    TriggerExecute(auto_libCOMI_gf_CreateWarpInEffect_Trigger, false, false);
+}
+
+bool auto_libCOMI_gf_CreateWarpInEffect_TriggerFunc (bool testConds, bool runActions) {
+    unit lp_unit = auto_libCOMI_gf_CreateWarpInEffect_lp_unit;
+
+    // Variable Declarations
+    actor lv_model;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    UnitAbilityEnable(lp_unit, "move", false);
+    UnitAbilityEnable(lp_unit, "attack", false);
+    if (((UnitGetType(lp_unit) == "HybridDestroyer") || (UnitGetType(lp_unit) == "HybridDominatorVoid") || (UnitGetType(lp_unit) == "HybridReaver") || (UnitGetType(lp_unit) == "HybridBehemoth") || (UnitGetType(lp_unit) == "HybridNemesis"))) {
+        libNtve_gf_AttachModelToUnit(lp_unit, "HybridWarpInEffect", "Ref_Center");
+    }
+    else {
+        libNtve_gf_AttachModelToUnit(lp_unit, "ProtossGenericWarpInOut", "Ref_Center");
+    }
+    lv_model = libNtve_gf_ActorLastCreated();
+    Wait(5.0, c_timeAI);
+    libNtve_gf_KillModel(lv_model);
+    UnitAbilityEnable(lp_unit, "move", true);
+    UnitAbilityEnable(lp_unit, "attack", true);
+    return true;
+}
+
 bool libCOMI_gf_PointIsInsideRebuildArea (point lp_point) {
     // Variable Declarations
     int lv_difficulty;
@@ -711,18 +817,6 @@ void libCOMI_gf_RemoveUnitAndCreep (unit lp_unit) {
         CreepModify(lv_position, lv_radius, false, false);
     }
 
-}
-
-playergroup libCOMI_gf_GetEnemyPlayers () {
-    // Automatic Variable Declarations
-    // Implementation
-    return libCOMI_gv_vU_Enemies;
-}
-
-playergroup libCOMI_gf_GetAlliedCommandersPlayers () {
-    // Automatic Variable Declarations
-    // Implementation
-    return libCOMI_gv_vU_AlliedCommanders;
 }
 
 string libCOMI_gf_CoopAIUnitCategory (int lp_category, int lp_player) {
@@ -3234,9 +3328,9 @@ void libCOMI_gf_CreateCoopDropForceinTransportsatLocationandWaitforthemtospawn (
             auto4161A881_ae = PlayerGroupCount(lv_attackingPlayers);
             lv_playerIter = 1;
             for ( ; ( (auto4161A881_ai >= 0 && lv_playerIter <= auto4161A881_ae) || (auto4161A881_ai < 0 && lv_playerIter >= auto4161A881_ae) ) ; lv_playerIter += auto4161A881_ai ) {
-                lv_transportType = libCOMI_gf_CoopAIUnitCategory(libCOMI_ge_UnitCategory_Transport, lv_playerIter);
+                lv_player = PlayerGroupPlayer(lv_attackingPlayers, lv_playerIter);
+                lv_transportType = libCOMI_gf_CoopAIUnitCategory(libCOMI_ge_UnitCategory_Transport, lv_player);
                 if ((lv_unitCount > 0)) {
-                    lv_player = PlayerGroupPlayer(lv_attackingPlayers, lv_playerIter);
                     if ((PlayerGroupHasPlayer(libCOMI_gf_CM_CoopAI_AttackForce_GetExcludedPlayers(lv_unitTypeIter), lv_player) == false)) {
                         if ((libCOMI_gf_UnitMoverExists(lv_unitTypeToCreate, "Fly") == false)) {
                             if (((lv_transportCurrent[lv_playerIter] == null) || ((UnitCargoValue(lv_transportCurrent[lv_playerIter], c_unitCargoSpaceFree) * 0.75) < (CatalogFieldValueGetAsInt(c_gameCatalogUnit, lv_unitTypeToCreate, "CargoSize", lv_player) + 1)))) {
@@ -12149,24 +12243,8 @@ void libCOMI_gf_SetAlliedCommandersstartingResources () {
 
 int libCOMI_gf_DifficultyLevelForPlayerCoop (int lp_player) {
     // Automatic Variable Declarations
-    int autoF9E6B533_val;
-
     // Implementation
-    if ((GameIsOnline() == true)) {
-        autoF9E6B533_val = lp_player;
-        if (autoF9E6B533_val == 1) {
-            return PlayerDifficulty(3);
-        }
-        else if (autoF9E6B533_val == 2) {
-            return PlayerDifficulty(4);
-        }
-        else {
-            return PlayerDifficulty(lp_player);
-        }
-    }
-    else {
-        return PlayerDifficulty(lp_player);
-    }
+    return libCOMI_gf_IntegerToDifficulty(libCOMI_gv_selectedDifficulty);
 }
 
 bool libCOMI_gf_PlayerIsInCombat (int lp_player) {
