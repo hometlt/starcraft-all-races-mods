@@ -79,7 +79,7 @@ void libCOUI_InitVariables () {
     libCOUI_gv_mapRecord.lv_enemyPersonality = "None";
     libCOUI_gv_mapRecord.lv_difficulty = 4;
     libCOUI_gv_amonFactionsDialog = c_invalidDialogId;
-    for (init_i = 0; init_i <= 20; init_i += 1) {
+    for (init_i = 0; init_i <= libCOUI_gv_mAX_FACTIONS; init_i += 1) {
         libCOUI_gv_raceButton[init_i] = c_invalidDialogControlId;
     }
     libCOUI_gv_uT_CommandsButton = c_invalidDialogControlId;
@@ -860,27 +860,31 @@ void libCOUI_gf_CreateFactionsDialog () {
     lv_image = c_invalidDialogControlId;
 
     // Implementation
-    DialogCreate(1500, 100, c_anchorBottomLeft, 120, 20, true);
+    DialogCreate(1800, 100, c_anchorBottomLeft, 130, 30, true);
     libCOUI_gv_amonFactionsDialog = DialogLastCreated();
     DialogSetImageVisible(DialogLastCreated(), false);
     auto9244B874_ae = UserDataInstanceCount("CoopAIFactions");
     auto9244B874_var = 1;
     for ( ; auto9244B874_var <= auto9244B874_ae; auto9244B874_var += 1 ) {
-        if ((auto9244B874_var > 20)) {
+        lv_faction = UserDataInstance("CoopAIFactions", auto9244B874_var);
+        if ((UserDataGetInt("CoopAIFactions", lv_faction, "HideInLauncher", 1) == 1)) {
+            continue;
+        }
+
+        if ((auto9244B874_var > libCOUI_gv_mAX_FACTIONS)) {
             TriggerDebugOutput(1, StringExternal("Param/Value/lib_COUI_4F4CF9F9"), true);
             break;
         }
 
-        lv_faction = UserDataInstance("CoopAIFactions", auto9244B874_var);
         libCOUI_gv_totalFactions += 1;
         DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeButton, "Coop_CommanderSelection/UnitIconFrameTemplate");
-        DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 80, 80);
-        DialogControlSetPosition(DialogControlLastCreated(), libCOMI_gv_all, c_anchorBottomLeft, (130 + (auto9244B874_var * 90)), 0);
+        DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 60, 60);
+        DialogControlSetPosition(DialogControlLastCreated(), libCOMI_gv_all, c_anchorBottomLeft, (130 + (libCOUI_gv_totalFactions * 70)), 0);
         libCOUI_gv_raceFaction[libCOUI_gv_totalFactions] = lv_faction;
         libCOUI_gv_raceButton[libCOUI_gv_totalFactions] = DialogControlLastCreated();
         lv_image = libCOUI_gf_HookUpDialogItemandshowforplayers("Icon", c_triggerControlTypeImage, libCOUI_gv_raceButton[libCOUI_gv_totalFactions], libCOMI_gv_all);
         libNtve_gf_SetDialogItemImage(lv_image, UserDataGetImagePath("CoopAIFactions", lv_faction, "Icon", 1), libCOMI_gv_all);
-        libNtve_gf_SetDialogItemTooltip(libCOUI_gv_raceButton[libCOUI_gv_totalFactions], UserDataGetText("UIFactions", lv_faction, "Name", 1), libCOMI_gv_all);
+        libNtve_gf_SetDialogItemTooltip(libCOUI_gv_raceButton[libCOUI_gv_totalFactions], UserDataGetText("CoopAIFactions", lv_faction, "Name", 1), libCOMI_gv_all);
     }
     DialogSetVisible(libCOUI_gv_amonFactionsDialog, PlayerGroupAll(), true);
 }
@@ -7686,7 +7690,7 @@ bool libCOUI_gt_StartMission_Func (bool testConds, bool runActions) {
         OnlineMapToMapLoad(libCOUI_gv_mapSlots[lv_selected], PlayerGroupAll(), PlayerGroupEmpty());
     }
     else {
-        GameSetNextMap(libCOUI_gv_mapFiles[lv_selected]);
+        GameSetNextMap(("coop/" + libCOUI_gv_mapFiles[lv_selected]));
         GameOver(1, c_gameOverVictory, false, false);
     }
     return true;
