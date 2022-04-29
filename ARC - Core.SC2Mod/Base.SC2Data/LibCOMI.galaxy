@@ -1845,7 +1845,8 @@ void libCOMI_gf_StoreResourcesData () {
     }
     UnitGroupAddUnitGroup(lv_allUnits, UnitGroup(null, libCOMI_gv_playerNeutral, lv_region, UnitFilter((1 << c_targetFilterRawResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
     UnitGroupAddUnitGroup(lv_allUnits, UnitGroup(null, libCOMI_gv_playerNeutral, lv_region, UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
-    UnitGroupAddUnitGroup(lv_allUnits, UnitGroup(null, c_playerAny, lv_region, UnitFilter(0, 0, 0, 0), 0));
+    UnitGroupAddUnitGroup(lv_allUnits, UnitGroup(null, 0, lv_region, UnitFilter(0, 0, 0, 0), 0));
+    UnitGroupAddUnitGroup(lv_allUnits, UnitGroup(null, 15, lv_region, UnitFilter(0, 0, 0, 0), 0));
     autoF21B9370_g = lv_allUnits;
     autoF21B9370_u = UnitGroupCount(autoF21B9370_g, c_unitCountAll);
     for (;; autoF21B9370_u -= 1) {
@@ -1959,6 +1960,7 @@ void libCOMI_gf_PlayersandAllienceSettings () {
             autoA14B3FB7_var = PlayerGroupNextPlayer(autoA14B3FB7_g, autoA14B3FB7_var);
             if (autoA14B3FB7_var < 0) { break; }
             if ((lv_player != autoA14B3FB7_var)) {
+                PlayerSetState(autoA14B3FB7_var, c_playerStateFoodIgnored, true);
                 libNtve_gf_SetAlliance(lv_player, autoA14B3FB7_var, libNtve_ge_AllianceSetting_AllyWithSharedVisionAndPushable);
                 libNtve_gf_SetAlliance(autoA14B3FB7_var, lv_player, libNtve_ge_AllianceSetting_AllyWithSharedVisionAndPushable);
             }
@@ -2489,48 +2491,71 @@ void libCOMI_gf_CM_CoopAI_CacheUpgradeData (int lp_player, int lp_difficulty) {
     int lv_factionCommanderIter;
     int lv_k;
     string lv_coopAIUpgrade;
+    string lv_upgrade;
+    string lv_coopAILevelUpgrade;
     string lv_commader;
+    string lv_commaderFaction;
     int lv_totalUpgrades;
+    int lv_totalLevelUpgrades;
     fixed lv_time;
-    bool lv_suitable;
     int lv_activeUpgrades;
 
     // Automatic Variable Declarations
+    int auto4D34C418_ae;
+    const int auto4D34C418_ai = 1;
+    int autoA719D967_ae;
+    int autoA719D967_var;
     int auto93DD5DF8_ae;
     const int auto93DD5DF8_ai = 1;
-    int autoD5AD33F5_ae;
-    const int autoD5AD33F5_ai = 1;
 
     // Variable Initialization
     lv_commader = libCOMI_gv_cM_CoopAIPlayer_Commander[lp_player];
+    lv_commaderFaction = UserDataGetUserInstance("CoopAICommanders", lv_commader, "Faction", 1);
     lv_totalUpgrades = UserDataInstanceCount("CoopAIUpgrade");
+    lv_totalLevelUpgrades = UserDataInstanceCount("CoopAILevelUpgrades");
 
     // Implementation
+    auto4D34C418_ae = lv_totalLevelUpgrades;
+    lv_upgradeIter = 1;
+    for ( ; ( (auto4D34C418_ai >= 0 && lv_upgradeIter <= auto4D34C418_ae) || (auto4D34C418_ai < 0 && lv_upgradeIter >= auto4D34C418_ae) ) ; lv_upgradeIter += auto4D34C418_ai ) {
+        lv_coopAILevelUpgrade = UserDataInstance("CoopAILevelUpgrades", lv_upgradeIter);
+        lv_faction = UserDataGetUserInstance("CoopAILevelUpgrades", lv_coopAILevelUpgrade, "Faction", 1);
+        if ((lv_faction != null) && (lv_faction != lv_commaderFaction)) {
+            continue;
+        }
+
+        autoA719D967_ae = UserDataFieldValueCount("CoopAILevelUpgrades", "Upgrade");
+        autoA719D967_var = 1;
+        for ( ; autoA719D967_var <= autoA719D967_ae; autoA719D967_var += 1 ) {
+            lv_upgrade = UserDataGetGameLink("CoopAILevelUpgrades", lv_coopAILevelUpgrade, "Upgrade", autoA719D967_var);
+            lv_time = UserDataGetFixed("CoopAILevelUpgradesTimings", UserDataInstance("CoopAILevelUpgradesTimings", autoA719D967_var), "TimePerDifficult", lp_difficulty);
+            if ((lv_time < 0.0)) {
+                continue;
+            }
+
+            if ((lv_activeUpgrades >= libCOMI_gv_cMC_CoopAI_MaxNumUpgrades)) {
+                TriggerDebugOutput(1, StringExternal("Param/Value/lib_COMI_4A925500"), true);
+                break;
+            }
+            else {
+                lv_activeUpgrades += 1;
+                libCOMI_gv_cM_CoopAI_CachedUpgradeData[lp_player].lv_time[lv_activeUpgrades] = lv_time;
+                libCOMI_gv_cM_CoopAI_CachedUpgradeData[lp_player].lv_upgrade[lv_activeUpgrades] = lv_upgrade;
+            }
+        }
+    }
     auto93DD5DF8_ae = lv_totalUpgrades;
     lv_upgradeIter = 1;
     for ( ; ( (auto93DD5DF8_ai >= 0 && lv_upgradeIter <= auto93DD5DF8_ae) || (auto93DD5DF8_ai < 0 && lv_upgradeIter >= auto93DD5DF8_ae) ) ; lv_upgradeIter += auto93DD5DF8_ai ) {
         lv_coopAIUpgrade = UserDataInstance("CoopAIUpgrade", lv_upgradeIter);
-        lv_time = UserDataGetFixed("CoopAIUpgrade", lv_coopAIUpgrade, "TimePerDifficult", lp_difficulty);
         lv_faction = UserDataGetUserInstance("CoopAIUpgrade", lv_coopAIUpgrade, "Faction", 1);
-        if ((lv_time < 0.0)) {
+        if ((lv_faction != null) && (lv_faction != lv_commaderFaction)) {
             continue;
         }
 
-        if ((lv_faction != null)) {
-            lv_suitable = false;
-            autoD5AD33F5_ae = UserDataFieldValueCount("UIFactions", "AICommanders");
-            lv_factionCommanderIter = 1;
-            for ( ; ( (autoD5AD33F5_ai >= 0 && lv_factionCommanderIter <= autoD5AD33F5_ae) || (autoD5AD33F5_ai < 0 && lv_factionCommanderIter >= autoD5AD33F5_ae) ) ; lv_factionCommanderIter += autoD5AD33F5_ai ) {
-                if ((UserDataGetUserInstance("UIFactions", lv_faction, "AICommanders", lv_factionCommanderIter) == lv_commader)) {
-                    lv_suitable = true;
-                    break;
-                }
-
-            }
-            if ((lv_suitable == false)) {
-                continue;
-            }
-
+        lv_time = UserDataGetFixed("CoopAIUpgrade", lv_coopAIUpgrade, "TimePerDifficult", lp_difficulty);
+        if ((lv_time < 0.0)) {
+            continue;
         }
 
         if ((UserDataGetUserInstance("CoopAIUpgrade", lv_coopAIUpgrade, "Exclusive", 1) != null) && (UserDataGetUserInstance("CoopAIUpgrade", lv_coopAIUpgrade, "Exclusive", 1) != "None") && (UserDataGetUserInstance("CoopAIUpgrade", lv_coopAIUpgrade, "Exclusive", 1) != lv_commader)) {
@@ -2541,10 +2566,11 @@ void libCOMI_gf_CM_CoopAI_CacheUpgradeData (int lp_player, int lp_difficulty) {
             TriggerDebugOutput(1, StringExternal("Param/Value/lib_COMI_CDE8D4FE"), true);
             break;
         }
-
-        lv_activeUpgrades += 1;
-        libCOMI_gv_cM_CoopAI_CachedUpgradeData[lp_player].lv_time[lv_activeUpgrades] = lv_time;
-        libCOMI_gv_cM_CoopAI_CachedUpgradeData[lp_player].lv_upgrade[lv_activeUpgrades] = UserDataGetUpgrade("CoopAIUpgrade", lv_coopAIUpgrade, "Upgrade", 1);
+        else {
+            lv_activeUpgrades += 1;
+            libCOMI_gv_cM_CoopAI_CachedUpgradeData[lp_player].lv_time[lv_activeUpgrades] = lv_time;
+            libCOMI_gv_cM_CoopAI_CachedUpgradeData[lp_player].lv_upgrade[lv_activeUpgrades] = UserDataGetUpgrade("CoopAIUpgrade", lv_coopAIUpgrade, "Upgrade", 1);
+        }
     }
     libCOMI_gv_cM_CoopAI_CachedUpgradeData[lp_player].lv_numUpgrades = lv_activeUpgrades;
     libCOMI_gv_cM_CoopAI_CachedUpgradeData[lp_player].lv_initialized = true;
@@ -2578,7 +2604,6 @@ void libCOMI_gf_AmonPlayersWave (unitgroup lp_units) {
                 lv_newOwner = PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 1);
             }
             UnitSetOwner(lv_dropUnit, lv_newOwner, true);
-            UnitBehaviorAddPlayer(lv_dropUnit, "InfestedStukovInfestedTerranTimedLife", lv_newOwner, 1);
         }
     }
 
@@ -16017,6 +16042,7 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     libA8FDA37D_gf_UT_SignalMutators();
     libCOMI_gf_PlayersandAllienceSettings();
     libCOMI_gf_InitEnemies();
+    libCOMI_gf_ClearZonesReplacement();
     auto6B1E1E16_g = libCOMI_gv_vU_AlliedCommanders;
     lv_indexPlayer = -1;
     while (true) {
@@ -16062,7 +16088,6 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeTipAlertPanel, false);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeTeamResourceButton, false);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeAllianceButton, false);
-    libCOMI_gf_ClearZonesReplacement();
     TriggerExecute(libCOMI_gt_ExpansionAreaM, true, true);
     TriggerExecute(libCOMI_gt_SafetyZoneM, true, true);
     libCOMU_gf_CT_InitializeAll();
@@ -17433,6 +17458,10 @@ bool libCOMI_gt_BanelingScourgeBiomassDrop_Func (bool testConds, bool runActions
 
     // Conditions
     if (testConds) {
+        if (!((lv_abathurPlayer != c_playerAny))) {
+            return false;
+        }
+
         if (!((UnitGetOwner(EventUnit()) != c_playerAny))) {
             return false;
         }
