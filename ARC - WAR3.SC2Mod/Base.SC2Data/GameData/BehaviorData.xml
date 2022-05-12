@@ -2,27 +2,27 @@
 <Catalog>
     <const id="Dispelable" path="CBehaviorBuff.BehaviorCategories.index" value="Temporary"/>
     <const id="ward" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Buried"/>
-    <const id="hero" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Resistant"/>
-    <const id="immunity" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Unstoppable"/>
     <const id="summoned" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Summoned"/>
-    <const id="air" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Air"/>
+    <const id="immunity" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Unstoppable"/>
+    <const id="hero" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Resistant"/>
     <const id="allies" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Ally"/>
-    <const id="item" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Item"/>
+    <const id="air" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Air"/>
     <const id="tree" path="CBehaviorBuff.DamageResponse.TargetFilters" value="HarvestableResource"/>
-    <const id="ancient" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Psionic"/>
+    <const id="item" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Item"/>
     <const id="player" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Player"/>
-    <const id="structure" path="CBehaviorBuff.DamageResponse.TargetFilters" value="PreventDefeat"/>
+    <const id="ancient" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Psionic"/>
     <const id="enemies" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Enemy"/>
-    <const id="mechanical" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Mechanical"/>
-    <const id="sapper" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Uncloakable"/>
+    <const id="structure" path="CBehaviorBuff.DamageResponse.TargetFilters" value="PreventDefeat"/>
     <const id="self" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Self"/>
-    <const id="ground" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Ground"/>
+    <const id="sapper" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Uncloakable"/>
+    <const id="mechanical" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Mechanical"/>
     <const id="neutral" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Neutral"/>
+    <const id="ground" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Ground"/>
     <const id="wall" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Hover"/>
     <const id="dead" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Dead"/>
     <const id="ethereal" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Stasis"/>
-    <const id="debris" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Destructible"/>
     <const id="invulnerable" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Invulnerable"/>
+    <const id="debris" path="CBehaviorBuff.DamageResponse.TargetFilters" value="Destructible"/>
     <CBehaviorBuff default="1" id="War3_Buff">
         <Name value="##id##/Name"/>
         <Tooltip value="##id##/Buffubertip"/>
@@ -82,9 +82,10 @@
         <MaxStackCount value="0"/>
     </CBehaviorBuff>
     <CBehaviorBuff default="1" id="War3_Sphere" parent="War3_Passive">
-        <DamageResponse Chance="1" Handled="##id##SphereEffect" Location="Attacker">
+        <DamageResponse Handled="##id##SphereEffect" Location="Attacker">
             <Kind index="Spell" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff default="1" id="UPKEEP_LEVEL" parent="War3_Passive">
@@ -202,7 +203,9 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--continuous Defense Bonus,carry-->
     <CBehaviorBuff default="1" id="AIde" parent="War3_Item">
-        <Modification LifeArmorBonus="1"/>
+        <Modification>
+            <LifeArmorBonus value="1"/>
+        </Modification>
     </CBehaviorBuff>
     <CBehaviorResource default="1" id="War3_GoldMine">
         <Name value="##id##/Name"/>
@@ -246,8 +249,172 @@ Targetattach=origin-->
             <StateFlags index="Summoned" value="1"/>
         </Modification>
     </CBehaviorBuff>
+    <!--    EXTRAS-->
+    <CBehaviorBuff default="1" id="CritController" parent="War3_Passive">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <DisableValidatorArray value="TargetIsAttacking"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="War3_AttackAugment" parent="War3_Buff">
+        <InfoFlags index="Hidden" value="1"/>
+        <RemoveValidatorArray value="CasterIsFiringWeapon_War3"/>
+        <RemoveValidatorArray value="CasterWeaponNotInCooldownWar3"/>
+        <BuffFlags index="Channeling" value="1"/>
+        <TechAliasArray value="_AttackAugment"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="War3_AttackAugmentTriggerNotice" parent="War3_AttackAugment">
+        <TechAliasArray value="_TriggerMissileTrack"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="War3_AbsorbResponse" parent="War3_Sphere">
+        <DamageResponse>
+            <Handled value=""/>
+            <ModifyFraction value="0"/>
+            <ModifyMinimumDamage value="1"/>
+            <Priority value="-1"/>
+            <ExcludeEffectInChainArray value="War3_AbsorbResponseBypass"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="War3_SphereItem" parent="War3_Sphere">
+        <EditorCategories value="Race:Other,AbilityorEffectType:Item"/>
+        <RemoveValidatorArray value="LevelableHero"/>
+        <DamageResponse TargetFilters="-;wall,tree,debris,item,structure,dead,invulnerable">
+            <Cost>
+                <Cooldown Link="War3_Sphere" Location="Unit" TimeUse="0.0625"/>
+            </Cost>
+        </DamageResponse>
+        <Modification>
+            <DamageDealtUnscaled index="Melee" value="5"/>
+            <DamageDealtUnscaled index="Ranged" value="5"/>
+            <WeaponEnableArray value="Hmkg2"/>
+            <WeaponEnableArray value="Hpal2"/>
+            <WeaponEnableArray value="Obla2"/>
+            <WeaponEnableArray value="Otch2"/>
+            <WeaponEnableArray value="Edem2"/>
+            <WeaponEnableArray value="Ewar2"/>
+            <WeaponEnableArray value="Udea2"/>
+            <WeaponEnableArray value="Udre2"/>
+            <WeaponEnableArray value="Ucrl2"/>
+            <WeaponEnableArray value="Nalc2"/>
+            <WeaponEnableArray value="Ntin2"/>
+            <WeaponEnableArray value="Npbm2"/>
+            <WeaponEnableArray value="Nplh2"/>
+            <WeaponEnableArray value="Nbst2"/>
+            <WeaponEnableArray value="Eevi2"/>
+            <WeaponEnableArray value="Eill2"/>
+            <WeaponEnableArray value="Ewrd2"/>
+            <WeaponEnableArray value="Hapm2"/>
+            <WeaponEnableArray value="Harf2"/>
+            <WeaponEnableArray value="Hart2"/>
+            <WeaponEnableArray value="Hdgo2"/>
+            <WeaponEnableArray value="Hhkl2"/>
+            <WeaponEnableArray value="Hlgr2"/>
+            <WeaponEnableArray value="Hmbr2"/>
+            <WeaponEnableArray value="Hmgd2"/>
+            <WeaponEnableArray value="Hpb12"/>
+            <WeaponEnableArray value="Hpb22"/>
+            <WeaponEnableArray value="Huth2"/>
+            <WeaponEnableArray value="Nal22"/>
+            <WeaponEnableArray value="Nal32"/>
+            <WeaponEnableArray value="Nalm2"/>
+            <WeaponEnableArray value="Nbbc2"/>
+            <WeaponEnableArray value="Nkjx2"/>
+            <WeaponEnableArray value="Nklj2"/>
+            <WeaponEnableArray value="Nmag2"/>
+            <WeaponEnableArray value="Npld2"/>
+            <WeaponEnableArray value="Nrob2"/>
+            <WeaponEnableArray value="Nsjs2"/>
+            <WeaponEnableArray value="Ocb22"/>
+            <WeaponEnableArray value="Ocbh2"/>
+            <WeaponEnableArray value="Ogrh2"/>
+            <WeaponEnableArray value="Opgh2"/>
+            <WeaponEnableArray value="Orex2"/>
+            <WeaponEnableArray value="Osam2"/>
+            <WeaponEnableArray value="Otcc2"/>
+            <WeaponEnableArray value="Uanb2"/>
+            <WeaponEnableArray value="Ubal2"/>
+            <WeaponEnableArray value="Udth2"/>
+            <WeaponEnableArray value="Uear2"/>
+            <WeaponEnableArray value="Umal2"/>
+            <WeaponEnableArray value="Utic2"/>
+            <WeaponEnableArray value="Uvar2"/>
+            <WeaponEnableArray value="Uvng2"/>
+        </Modification>
+        <MaxStackCount value="0"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="AHbhBase" parent="War3_Sphere">
+        <EditorCategories value="Race:Human,AbilityorEffectType:Heroes"/>
+        <Name value="AHbh/Name"/>
+        <DamageResponse Handled="AHbhSphereEffect" TargetFilters="-;Missile,debris,structure,dead">
+            <Kind index="Melee" value="0"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <!--Demon Hunter - Evasion-->
+    <CBehaviorBuff default="1" id="AEev" parent="War3_Passive">
+        <Name value="AEev/Name"/>
+        <EditorCategories value="Race:Nightelf,AbilityorEffectType:Hero"/>
+        <DamageResponse Handled="AEevMissDummy" ModifyFraction="0">
+            <Kind index="Spell" value="0"/>
+            <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="BEarBase" parent="War3_AuraBuff">
+        <Name value="BEar/Name"/>
+        <Tooltip value="BEar/Buffubertip"/>
+        <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
+        <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnTrueShot.dds"/>
+        <Modification>
+            <DamageDealtFraction index="Ranged" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="BOaeBase" parent="War3_AuraBuff">
+        <Name value="BOae/Name"/>
+        <Tooltip value="BOae/Buffubertip"/>
+        <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
+        <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnCommand.dds"/>
+    </CBehaviorBuff>
+    <!--Permanent Hit point Bonus-->
+    <CBehaviorBuff default="1" id="AImi" parent="War3_Passive">
+        <EditorCategories value="Race:Other,AbilityorEffectType:Item"/>
+        <Modification>
+            <VitalMaxDecreaseAffectsCurrentArray index="Life" value="1"/>
+        </Modification>
+        <MaxStackCount value="0"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="ANdb" parent="War3_Passive">
+        <Name value="ANdb/Name"/>
+        <EditorCategories value="Race:Nightelf,AbilityorEffectType:Hero"/>
+        <DamageResponse Handled="AEevMissDummy" ModifyFraction="0">
+            <Kind index="Spell" value="0"/>
+            <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="War3_HeroArrowBuff" parent="War3_Passive">
+        <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
+        <Modification>
+            <ModifyFlags index="HideChangeUI" value="1"/>
+        </Modification>
+        <DisableValidatorArray value="CasterHasAttackAugment"/>
+    </CBehaviorBuff>
+    <!--Dark Ranger - Black Arrow Buff=BNba,BNdm-->
+    <CBehaviorBuff default="1" id="ANba" parent="War3_HeroArrowBuff">
+        <Name value="ANba/Name"/>
+        <Requirements value="ANba"/>
+        <Modification>
+            <!--DamageDealtUnscaled index="Melee" value="2"/>
+            <DamageDealtUnscaled index="Ranged" value="2"/-->
+            <DamageTotalMultiplier index="Ranged" value="-1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff default="1" id="ANfa" parent="War3_HeroArrowBuff">
+        <Name value="ANfa/Name"/>
+        <Requirements value="ANfa"/>
+        <Modification>
+            <DamageDealtUnscaled index="Melee" value="5"/>
+            <DamageDealtUnscaled index="Ranged" value="5"/>
+        </Modification>
+    </CBehaviorBuff>
     <CBehaviorBuff id="AshmShow" parent="War3_Passive">
-        <Requirements value="AshmShow"/>
         <MaxStackCount value="0"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="AttackingHigherCliffTarget" parent="War3_Buff">
@@ -255,18 +422,17 @@ Targetattach=origin-->
         <RemoveValidatorArray value="StillAttackingHigherCliffTarget"/>
         <InfoFlags index="Hidden" value="1"/>
     </CBehaviorBuff>
-    <CBehaviorBuff id="HeroLevelMarker" parent="War3_Passive">
-        <Requirements value="HeroLevelMarker"/>
-    </CBehaviorBuff>
+    <CBehaviorBuff id="HeroLevelMarker" parent="War3_Passive"/>
     <CBehaviorBuff id="HeroHasUnspentSkillPoint" parent="War3_Passive">
         <Name value="HeroSkillPointsUsedUp/Name"/>
-        <Requirements value="HeroHasUnspentSkillPoint"/>
         <DisableValidatorArray value="CanLearnWar3"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="SuppressXPGrantOnKill">
         <InitialEffect value="RemoveSuppressXPGrantOnKill"/>
         <InfoFlags index="Hidden" value="1"/>
-        <DamageResponse Chance="1" Handled="SuppressXPGrantTemp" Location="Attacker"/>
+        <DamageResponse Handled="SuppressXPGrantTemp" Location="Attacker">
+            <Chance value="1"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="SuppressXPGrantTemp">
         <InfoFlags index="Hidden" value="1"/>
@@ -281,49 +447,37 @@ Targetattach=origin-->
         <VeterancyLevelArray/>
     </CBehaviorVeterancy>
     <CBehaviorBuff id="War3_AlwaysExplode" parent="War3_Passive">
-        <Requirements value="War3_AlwaysExplode"/>
-        <DamageResponse>
-            <Chance value="1"/>
-            <Fatal value="1"/>
-            <Handled value="War3_KillCasterWithBlast"/>
-            <ModifyFraction value="0"/>
+        <DamageResponse Fatal="1" Handled="War3_KillCasterWithBlast" ModifyFraction="0">
             <ExcludeEffectArray value="War3_KillCasterWithBlast"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="War3_SkillPointUsed" parent="War3_Passive">
         <Name value="SkillPointUsed/Name"/>
-        <Requirements value="War3_SkillPointUsed"/>
         <MaxStackCount value="255"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="War3_TriggerMissileTrackDummy" parent="War3_Passive">
         <TechAliasArray value="_TriggerMissileTrack"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="CreepUnitTriggerNotice" parent="War3_Passive">
-        <Requirements value="CreepUnitTriggerNotice"/>
         <DisableValidatorArray value="HostilePlayer"/>
         <RemoveValidatorArray value="HostilePlayer"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="DisableXPGainingWhileDead" parent="War3_Passive">
-        <Requirements value="DisableXPGainingWhileDead"/>
         <DisableValidatorArray value="IsDead"/>
         <Modification>
             <StateFlags index="SuppressXPGain" value="1"/>
         </Modification>
         <BehaviorFlags index="EnabledWhileDead" value="1"/>
     </CBehaviorBuff>
-    <CBehaviorBuff id="EnableUnsummon" parent="War3_Passive">
-        <Requirements value="EnableUnsummon"/>
-    </CBehaviorBuff>
+    <CBehaviorBuff id="EnableUnsummon" parent="War3_Passive"/>
     <CBehaviorBuff id="War3_Unit" parent="War3_Passive">
         <Name value="EVENT_PLAYER_UNIT_DEATH/Name"/>
         <Modification MoveSpeedMaximum="3.125"/>
-        <DamageResponse>
-            <Chance value="1"/>
-            <Handled value="ThreatClearer"/>
-            <Location value="Attacker"/>
-            <TargetFilters value="-;neutral,enemies"/>
+        <DamageResponse Handled="ThreatClearer" Location="Attacker" TargetFilters="-;neutral,enemies">
             <Kind index="Spell" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="ThreatClearer" parent="War3_Passive">
@@ -337,22 +491,21 @@ Targetattach=origin-->
         <Modification>
             <StateFlags index="SuppressXPGrant" value="1"/>
         </Modification>
-        <DamageResponse Chance="1" Fatal="1" Handled="HeroXPGrantTriggerNotice"/>
+        <DamageResponse Fatal="1" Handled="HeroXPGrantTriggerNotice">
+            <Chance value="1"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="HandicapXP" parent="War3_Passive">
         <EditorCategories value="Race:Neutral,AbilityorEffectType:Hero"/>
-        <Requirements value="HandicapXP"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="SingleHeroXPBounsTier2" parent="War3_Passive">
         <Name value="SingleHeroXPBounseTier2/Name"/>
         <EditorCategories value="Race:Neutral,AbilityorEffectType:Hero"/>
-        <Requirements value="SingleHeroXPBounsTier2"/>
         <Modification XPMultiplier="1.15"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="SingleHeroXPBounsTier3" parent="War3_Passive">
         <Name value="SingleHeroXPBounseTier3/Name"/>
         <EditorCategories value="Race:Neutral,AbilityorEffectType:Hero"/>
-        <Requirements value="SingleHeroXPBounsTier3"/>
         <Modification XPMultiplier="1.3">
             <BehaviorLinkDisableArray value="SingleHeroXPBounsTier2"/>
         </Modification>
@@ -362,20 +515,19 @@ Targetattach=origin-->
         <DisableValidatorArray value="IsSummonedUnit"/>
         <Duration value="0.125"/>
     </CBehaviorBuff>
-    <CBehaviorBuff id="TownHallEventTracker" parent="War3_Passive">
-        <Requirements value="TownHallEventTracker"/>
-    </CBehaviorBuff>
+    <CBehaviorBuff id="TownHallEventTracker" parent="War3_Passive"/>
     <CBehaviorBuff id="NonHeroCarrierDeath" parent="War3_Passive">
         <Modification>
             <DeathResponse Effect="DropInventory"/>
         </Modification>
         <Name value="UnitCarrierDeath/Name"/>
-        <Requirements value="NonHeroCarrierDeath"/>
         <RemoveValidatorArray value="NonHero"/>
-<!--        <Modification>-->
-<!--            <DeathResponse Chance="1" Effect="NonHeroCarrierDeath"/>-->
-<!--        </Modification>-->
-        <DamageResponse Chance="1" Handled="NonHeroCarrierDeath"/>
+        <!--        <Modification>-->
+        <!--            <DeathResponse Chance="1" Effect="NonHeroCarrierDeath"/>-->
+        <!--        </Modification>-->
+        <DamageResponse Handled="NonHeroCarrierDeath">
+            <Chance value="1"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="War3_BuilderMarker" parent="War3_Passive">
         <Duration value="0.125"/>
@@ -393,14 +545,14 @@ Targetattach=origin-->
     </CBehaviorAttribute>
     <CBehaviorBuff id="AcmgSommunedManaCost" parent="War3_Passive">
         <Name value="AcmgSommunedVitalStack/Name"/>
-        <Requirements value="AcmgSommunedManaCost"/>
         <MaxStackCount value="0"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="AttackGroundTarget" parent="War3_Passive">
-        <Requirements value="AttackGroundTarget"/>
         <RemoveValidatorArray value="CasterIsAttackingWar3"/>
         <FinalEffect value="SuicideRemove"/>
-        <DamageResponse Chance="1" ModifyFraction="0" ModifyMinimumDamage="1"/>
+        <DamageResponse ModifyFraction="0" ModifyMinimumDamage="1">
+            <Chance value="1"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="SuppressInvisibility" parent="War3_Buff">
         <InfoFlags index="Hidden" value="1"/>
@@ -419,24 +571,21 @@ Targetattach=origin-->
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnsleep.dds"/>
         <DisableValidatorArray value="Night"/>
         <DisableValidatorArray value="CasterNotInCombat"/>
-        <DisableValidatorArray value="CasterNotAttacking"/>
+        <DisableValidatorArray value="CasterHasNoOrders"/>
         <DisableValidatorArray value="HostilePlayer"/>
         <DisableValidatorArray value="CasterNotForcedAndNotWantsToMove"/>
-        <DisableValidatorArray index="2" value="CasterHasNoOrders"/>
         <Modification>
             <ModifyFlags index="DisableAbils" value="1"/>
-            <StateFlags index="Benign" value="1"/>
-            <StateFlags index="SuppressThreat" value="1"/>
             <ModifyFlags index="EnableAttack" value="1"/>
             <ModifyFlags index="EnableMove" value="1"/>
+            <StateFlags index="Benign" value="1"/>
             <StateFlags index="Passive" value="1"/>
-            <StateFlags index="Stun" value="0"/>
+            <StateFlags index="SuppressThreat" value="1"/>
         </Modification>
     </CBehaviorBuff>
     <!--Magic Immunity-->
     <CBehaviorBuff id="Amim" parent="War3_Passive">
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
-        <Requirements value="Amim"/>
         <Modification>
             <StateFlags index="Unstoppable" value="1"/>
         </Modification>
@@ -449,7 +598,6 @@ Targetattach=origin-->
     <!--Resistant Skin-->
     <CBehaviorBuff id="Arsk" parent="War3_Passive">
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
-        <Requirements value="Arsk"/>
         <Modification>
             <StateFlags index="Resistant" value="1"/>
         </Modification>
@@ -499,7 +647,9 @@ Targetattach=origin-->
         </Modification>
     </CBehaviorBuff>
     <CBehaviorAttribute id="AttAgi" parent="2ndAtt">
-        <Modification UnifiedAttackSpeedFactor="0.02" LifeArmorBonus="0.3"/>
+        <Modification UnifiedAttackSpeedFactor="0.02">
+            <LifeArmorBonus value="0.3"/>
+        </Modification>
         <InfoIcon value="Assets\Textures\UI\Widgets\Console\Human\infocard-heroattributes-agi.tga"/>
     </CBehaviorAttribute>
     <CBehaviorBuff id="AEpa1" parent="War3_Buff">
@@ -509,7 +659,8 @@ Targetattach=origin-->
             <DamageDealtUnscaled index="Ranged" value="10"/>
         </Modification>
         <Duration value="0.0625"/>
-        <DurationOverride index="0" Duration="0.0625">
+        <DurationOverride index="0">
+            <Duration value="0.0625"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -520,7 +671,8 @@ Targetattach=origin-->
             <DamageDealtUnscaled index="Ranged" value="20"/>
         </Modification>
         <Duration value="0.0625"/>
-        <DurationOverride index="0" Duration="0.0625">
+        <DurationOverride index="0">
+            <Duration value="0.0625"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -531,18 +683,17 @@ Targetattach=origin-->
             <DamageDealtUnscaled index="Ranged" value="30"/>
         </Modification>
         <Duration value="0.0625"/>
-        <DurationOverride index="0" Duration="0.0625">
+        <DurationOverride index="0">
+            <Duration value="0.0625"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
     <!--Detect (Sentry Ward)-->
     <CBehaviorBuff id="Adt1" parent="Adet">
-        <Requirements value="Adt1"/>
         <EditorCategories value="Race:Orc,AbilityorEffectType:Unit"/>
         <Modification Detect="8.5937"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ItemEnableHeroAAWeapon" parent="War3_Item">
-        <Requirements value="ItemEnableHeroAAWeapon"/>
         <Modification>
             <WeaponEnableArray value="Hmkg2"/>
             <WeaponEnableArray value="Hpal2"/>
@@ -1101,7 +1252,10 @@ Targetattach=origin-->
         <InfoFlags index="Hidden" value="1"/>
         <InfoIcon value="Assets\Textures\war3_btnparasite.dds"/>
         <Duration value="90"/>
-        <DurationOverride index="0" Duration="90"/>
+        <DurationOverride index="0">
+            <Duration value="90"/>
+            <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
+        </DurationOverride>
         <Alignment value="Negative"/>
     </CBehaviorBuff>
     <!--BattleRoar-->
@@ -1120,7 +1274,8 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="20"/>
-        <DurationOverride index="0" Duration="20">
+        <DurationOverride index="0">
+            <Duration value="20"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -1134,7 +1289,8 @@ Targetattach=origin-->
         <RemoveValidatorArray value="NotInvulnerabilitySuppressed"/>
         <Alignment value="Positive"/>
         <Duration value="15"/>
-        <DurationOverride index="0" Duration="15">
+        <DurationOverride index="0">
+            <Duration value="15"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -1142,12 +1298,12 @@ Targetattach=origin-->
     <CBehaviorBuff id="Bspe" parent="War3_Buff">
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnBoots.dds"/>
-        <Modification MoveSpeedMultiplier="1.6"/>
+        <Modification MoveSpeedMultiplier="3"/>
         <Duration value="10"/>
-        <DurationOverride index="0" Duration="10">
+        <DurationOverride index="0">
+            <Duration value="10"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
-        <Modification MoveSpeedMultiplier="3"/>
         <Alignment value="Positive"/>
         <TechAliasArray value="_PurgableBuff"/>
         <BehaviorCategories index="Dispelable" value="1"/>
@@ -1158,7 +1314,8 @@ Targetattach=origin-->
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnFrost.dds"/>
         <Modification MoveSpeedMultiplier="0.5" AttackSpeedMultiplier="0.75"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="5">
+        <DurationOverride index="0">
+            <Duration value="5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Alignment value="Negative"/>
@@ -1176,7 +1333,8 @@ Targetattach=origin-->
             <BehaviorLinkDisableArray value="HostileSleeperAlert"/>
         </Modification>
         <Duration value="4"/>
-        <DurationOverride index="0" Duration="2">
+        <DurationOverride index="0">
+            <Duration value="2"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Alignment value="Negative"/>
@@ -1212,7 +1370,8 @@ Targetattach=origin-->
             <StateFlags index="Stun" value="1"/>
         </Modification>
         <Duration value="40"/>
-        <DurationOverride index="0" Duration="10">
+        <DurationOverride index="0">
+            <Duration value="10"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Alignment value="Negative"/>
@@ -1292,7 +1451,8 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="2"/>
-        <DurationOverride index="0" Duration="2">
+        <DurationOverride index="0">
+            <Duration value="2"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -1308,7 +1468,8 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="0.33"/>
-        <DurationOverride index="0" Duration="0.33">
+        <DurationOverride index="0">
+            <Duration value="0.33"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -1325,9 +1486,10 @@ Targetattach=origin-->
             <AbilLinkDisableArray value="Acn2"/>
             <AbilLinkDisableArray value="ACcn"/>
         </Modification>
-        <DamageResponse Chance="1" ModifyFraction="1.66" TargetFilters="-;player,allies,neutral">
+        <DamageResponse ModifyFraction="1.66" TargetFilters="-;player,allies,neutral">
             <Kind index="Melee" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
         <BehaviorCategories index="Dispelable" value="1"/>
         <Alignment value="Negative"/>
@@ -1348,7 +1510,8 @@ Targetattach=origin-->
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnMarkOfFire.dds"/>
         <Period value="1"/>
         <Duration value="10"/>
-        <DurationOverride index="0" Duration="7">
+        <DurationOverride index="0">
+            <Duration value="7"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <InitialEffect value="ApxfMissileDamage"/>
@@ -1362,15 +1525,17 @@ Targetattach=origin-->
         <EditorCategories value="Race:human,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnInnerFire.dds"/>
         <TechAliasArray value="_PurgableBuff"/>
-        <Alignment value="Positive"/>
         <TechAliasArray value="_PurgableBuff"/>
+        <Alignment value="Positive"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
-        <Modification LifeArmorBonus="5">
+        <Modification>
             <DamageDealtFraction index="Melee" value="0.1"/>
             <DamageDealtFraction index="Ranged" value="0.1"/>
+            <LifeArmorBonus value="5"/>
         </Modification>
         <BehaviorCategories index="Dispelable" value="1"/>
     </CBehaviorBuff>
@@ -1380,7 +1545,8 @@ Targetattach=origin-->
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnHeal.dds"/>
         <Alignment value="Positive"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -1392,14 +1558,15 @@ Targetattach=origin-->
         <EditorCategories value="Race:human,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnSlow.dds"/>
         <TechAliasArray value="_PurgableDebuff"/>
+        <TechAliasArray value="_Debuff"/>
+        <TechAliasArray value="_PurgableDebuff"/>
         <BehaviorCategories index="Dispelable" value="1"/>
         <BehaviorCategories index="User1" value="1"/>
         <Alignment value="Negative"/>
-        <TechAliasArray value="_Debuff"/>
-        <TechAliasArray value="_PurgableDebuff"/>
         <Modification MoveSpeedMultiplier="0.4" AttackSpeedMultiplier="0.75"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="10">
+        <DurationOverride index="0">
+            <Duration value="10"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -1408,24 +1575,25 @@ Targetattach=origin-->
         <EditorCategories value="Race:human,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnInvisibility.dds"/>
         <Duration value="120"/>
-        <DurationOverride index="0" Duration="120">
+        <DurationOverride index="0">
+            <Duration value="120"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Alignment value="Positive"/>
         <Modification>
             <StateFlags index="Cloak" value="1"/>
+            <StateFlags index="Passive" value="1"/>
         </Modification>
         <RemoveValidatorArray value="NotCloakSuppressed"/>
         <InitialEffect value="CancelAttackOrdersWar3"/>
-        <Modification>
-            <StateFlags index="Passive" value="1"/>
-        </Modification>
     </CBehaviorBuff>
     <!--Polymorph-->
     <CBehaviorBuff id="Bply" parent="War3_Buff">
         <EditorCategories value="Race:human,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnPolymorph.dds"/>
         <TechAliasArray value="_POLYMORPHED"/>
+        <TechAliasArray value="_Debuff"/>
+        <TechAliasArray value="_PurgableDebuff"/>
         <BehaviorCategories index="Dispelable" value="1"/>
         <BehaviorCategories index="User1" value="1"/>
         <Modification MoveSpeedBonus="0.7812" MoveSpeedMultiplier="0.01">
@@ -1443,12 +1611,11 @@ Targetattach=origin-->
         <DisplayDuration index="Neutral" value="1"/>
         <DisplayDuration index="Enemy" value="1"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Alignment value="Negative"/>
-        <TechAliasArray value="_Debuff"/>
-        <TechAliasArray value="_PurgableDebuff"/>
         <InitialEffect value="BplyInitDummy"/>
     </CBehaviorBuff>
     <!--Blizzard-->
@@ -1456,7 +1623,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:human,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnBlizzard.dds"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Alignment value="Negative"/>
@@ -1474,7 +1642,8 @@ Targetattach=origin-->
         <Modification>
             <StateFlags index="Summoned" value="1"/>
         </Modification>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -1504,7 +1673,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="BHtb" parent="War3_Buff">
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnStormBolt.dds"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="3">
+        <DurationOverride index="0">
+            <Duration value="3"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -1521,7 +1691,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:human,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnThunderclap.dds"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="3">
+        <DurationOverride index="0">
+            <Duration value="3"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <InitialEffect value="AHtcDamageSet"/>
@@ -1533,7 +1704,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="BHbh" parent="War3_Buff">
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnBash.dds"/>
         <Duration value="2"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -1548,17 +1720,19 @@ Targetattach=origin-->
     <CBehaviorBuff id="BHav" parent="War3_Buff">
         <EditorCategories value="Race:human,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnAvatar.dds"/>
-        <Modification LifeArmorBonus="5">
+        <Modification>
             <StateFlags index="Unstoppable" value="1"/>
             <DamageDealtUnscaled index="Melee" value="20"/>
             <DamageDealtUnscaled index="Ranged" value="20"/>
             <DamageDealtUnscaled index="Splash" value="20"/>
+            <LifeArmorBonus value="5"/>
             <VitalMaxArray index="Life" value="500"/>
         </Modification>
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -1576,7 +1750,9 @@ Targetattach=origin-->
     <CBehaviorBuff id="BHad" parent="War3_AuraBuff">
         <EditorCategories value="Race:human,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnDevotion.dds"/>
-        <Modification LifeArmorBonus="3"/>
+        <Modification>
+            <LifeArmorBonus value="3"/>
+        </Modification>
     </CBehaviorBuff>
     <!--Militia-->
     <CBehaviorBuff id="Bmil" parent="War3_Buff">
@@ -1604,22 +1780,23 @@ Targetattach=origin-->
         <InfoFlags index="Hidden" value="1"/>
         <Modification>
             <StateFlags index="Passive" value="1"/>
+            <StateFlags index="SuppressAttack" value="1"/>
             <AbilClassDisableArray index="CAbilAttack" value="1"/>
         </Modification>
         <Duration value="0.125"/>
         <DurationOverride index="0" removed="1"/>
         <InitialEffect value="CancelAttackOrdersWar3"/>
-        <Modification>
-            <StateFlags index="SuppressAttack" value="1"/>
-        </Modification>
     </CBehaviorBuff>
     <!--Defense-->
     <CBehaviorBuff id="Bdef" parent="War3_Buff">
         <Duration value="30"/>
-        <DurationOverride index="0" Duration="30">
+        <DurationOverride index="0">
+            <Duration value="30"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
-        <Modification LifeArmorBonus="2"/>
+        <Modification>
+            <LifeArmorBonus value="2"/>
+        </Modification>
         <Alignment value="Positive"/>
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnScroll.dds"/>
@@ -1629,7 +1806,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnWand.dds"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -1652,7 +1830,9 @@ Targetattach=origin-->
             <AbilClassDisableArray index="CAbilLearn" value="1"/>
             <DeathResponse Chance="1" Effect="TargetRemoveTriggerRequest"/>
         </Modification>
-        <DamageResponse Chance="1" ModifyFraction="2"/>
+        <DamageResponse ModifyFraction="2">
+            <Chance value="1"/>
+        </DamageResponse>
         <InfoFlags index="Hidden" value="1"/>
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
@@ -1666,10 +1846,13 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="5">
+        <DurationOverride index="0">
+            <Duration value="5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
-        <Modification LifeArmorBonus="-5"/>
+        <Modification>
+            <LifeArmorBonus value="-5"/>
+        </Modification>
     </CBehaviorBuff>
     <!--SoulTrapVision-->
     <CBehaviorBuff id="BIsv" parent="War3_Buff">
@@ -1686,7 +1869,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="180"/>
-        <DurationOverride index="0" Duration="180">
+        <DurationOverride index="0">
+            <Duration value="180"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <FinalEffect value="TimedLifeFate"/>
@@ -1706,7 +1890,8 @@ Targetattach=origin-->
         <Alignment value="Positive"/>
         <RemoveValidatorArray value="NotInCombat"/>
         <Duration value="45"/>
-        <DurationOverride index="0" Duration="45">
+        <DurationOverride index="0">
+            <Duration value="45"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Period value="1"/>
@@ -1719,7 +1904,8 @@ Targetattach=origin-->
         <Alignment value="Positive"/>
         <RemoveValidatorArray value="NotInCombat"/>
         <Duration value="30"/>
-        <DurationOverride index="0" Duration="30">
+        <DurationOverride index="0">
+            <Duration value="30"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -1731,7 +1917,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnGreaterRejuvScroll.dds"/>
         <Duration value="30"/>
-        <DurationOverride index="0" Duration="30">
+        <DurationOverride index="0">
+            <Duration value="30"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -1815,9 +2002,8 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--TeleportReveal-->
     <CBehaviorBuff id="Btrv" parent="War3_Buff">
-        <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
-        <InfoFlags index="Hidden" value="1"/>
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
         <DurationOverride index="0" removed="1"/>
         <Duration value="5"/>
         <Modification>
@@ -1834,14 +2020,17 @@ Targetattach=origin-->
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnIncinerate.dds"/>
         <MaxStackCount value="0"/>
         <Duration value="2"/>
-        <DurationOverride index="0" Duration="2">
+        <DurationOverride index="0">
+            <Duration value="2"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
-        <DamageResponse Chance="1" ModifyAmount="1" ModifyMinimumDamage="1">
+        <DamageResponse ModifyMinimumDamage="1">
             <Kind index="Spell" value="0"/>
             <Kind index="Splash" value="0"/>
+            <ModifyAmount value="1"/>
             <RequireEffectArray value="Nfir1"/>
             <RequireEffectArray value="Nfir2"/>
+            <Chance value="1"/>
         </DamageResponse>
         <Alignment value="Negative"/>
         <TechAliasArray value="_Debuff"/>
@@ -1881,21 +2070,19 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="70"/>
-        <DurationOverride index="0" Duration="70">
+        <DurationOverride index="0">
+            <Duration value="70"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="TimedLifeFate"/>
         <Modification>
             <StateFlags index="Summoned" value="1"/>
         </Modification>
-        <DamageResponse>
-            <Chance value="1"/>
-            <Handled value="BNlmAttackCount"/>
-            <Location value="Attacker"/>
-            <TargetFilters value="-;player,allies,wall,tree,debris,item,structure,invulnerable"/>
+        <DamageResponse Handled="BNlmAttackCount" Location="Attacker" TargetFilters="-;player,allies,wall,tree,debris,item,structure,invulnerable">
             <Kind index="Spell" value="0"/>
             <Kind index="Melee" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--Volcano-->
@@ -1903,7 +2090,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnVolcano.dds"/>
         <Duration value="2"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -1922,7 +2110,8 @@ Targetattach=origin-->
         <DisplayDuration index="Ally" value="1"/>
         <FinalEffect value="TimedLifeFate"/>
         <Duration value="40.125"/>
-        <DurationOverride index="0" Duration="40.125">
+        <DurationOverride index="0">
+            <Duration value="40.125"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -1934,7 +2123,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnClusterRockets.dds"/>
         <Duration value="1.01"/>
-        <DurationOverride index="0" Duration="1.01">
+        <DurationOverride index="0">
+            <Duration value="1.01"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -1952,7 +2142,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="12"/>
-        <DurationOverride index="0" Duration="12">
+        <DurationOverride index="0">
+            <Duration value="12"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <FinalEffect value="Suicide"/>
@@ -1977,7 +2168,8 @@ Targetattach=origin-->
         <BehaviorCategories index="Dispelable" value="1"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="15"/>
-        <DurationOverride index="0" Duration="15">
+        <DurationOverride index="0">
+            <Duration value="15"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="1"/>
@@ -1991,7 +2183,8 @@ Targetattach=origin-->
             <AbilLinkDisableArray value="ANcr"/>
         </Modification>
         <Duration value="15"/>
-        <DurationOverride index="0" Duration="15">
+        <DurationOverride index="0">
+            <Duration value="15"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <DisplayDuration index="Self" value="1"/>
@@ -2006,7 +2199,9 @@ Targetattach=origin-->
     <CBehaviorBuff id="BNms" parent="War3_Buff">
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnNeutralManaShield.dds"/>
-        <Modification EnergyDamageRatioBonus="2"/>
+        <Modification>
+            <EnergyDamageRatioBonus value="2"/>
+        </Modification>
         <RemoveValidatorArray value="hasEnergy"/>
     </CBehaviorBuff>
     <!--RainOfFire-->
@@ -2017,7 +2212,8 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="3"/>
-        <DurationOverride index="0" Duration="3">
+        <DurationOverride index="0">
+            <Duration value="3"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <PeriodicEffect value="BNrdDPS"/>
@@ -2028,7 +2224,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnColdArrows.dds"/>
         <Duration value="3"/>
-        <DurationOverride index="0" Duration="0.75">
+        <DurationOverride index="0">
+            <Duration value="0.75"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Alignment value="Negative"/>
@@ -2041,7 +2238,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnColdArrows.dds"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="1.5">
+        <DurationOverride index="0">
+            <Duration value="1.5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Alignment value="Negative"/>
@@ -2058,7 +2256,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnHowlOfTerror.dds"/>
         <Duration value="10"/>
-        <DurationOverride index="0" Duration="10">
+        <DurationOverride index="0">
+            <Duration value="10"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -2098,7 +2297,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="120"/>
-        <DurationOverride index="0" Duration="120">
+        <DurationOverride index="0">
+            <Duration value="120"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <FinalEffect value="TimedLifeFate"/>
@@ -2114,7 +2314,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="45"/>
-        <DurationOverride index="0" Duration="45">
+        <DurationOverride index="0">
+            <Duration value="45"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -2129,7 +2330,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="70"/>
-        <DurationOverride index="0" Duration="70">
+        <DurationOverride index="0">
+            <Duration value="70"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="TimedLifeFate"/>
@@ -2144,7 +2346,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="70"/>
-        <DurationOverride index="0" Duration="70">
+        <DurationOverride index="0">
+            <Duration value="70"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="TimedLifeFate"/>
@@ -2159,7 +2362,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="70"/>
-        <DurationOverride index="0" Duration="70">
+        <DurationOverride index="0">
+            <Duration value="70"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="TimedLifeFate"/>
@@ -2186,7 +2390,8 @@ Targetattach=origin-->
         <BehaviorCategories index="Dispelable" value="1"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="5">
+        <DurationOverride index="0">
+            <Duration value="5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="1"/>
@@ -2203,7 +2408,8 @@ Targetattach=origin-->
         <BehaviorCategories index="Dispelable" value="1"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="12"/>
-        <DurationOverride index="0" Duration="5">
+        <DurationOverride index="0">
+            <Duration value="5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="0.0625"/>
@@ -2243,7 +2449,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="80"/>
-        <DurationOverride index="0" Duration="80">
+        <DurationOverride index="0">
+            <Duration value="80"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="TimedLifeFate"/>
@@ -2279,7 +2486,8 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <TechAliasArray value="_PurgableDebuff"/>
         <Duration value="12"/>
-        <DurationOverride index="0" Duration="6">
+        <DurationOverride index="0">
+            <Duration value="6"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification Height="1">
@@ -2301,7 +2509,8 @@ Targetattach=origin-->
         <DisplayDuration index="Ally" value="1"/>
         <BuffFlags index="Channeled" value="1"/>
         <Duration value="40"/>
-        <DurationOverride index="0" Duration="40">
+        <DurationOverride index="0">
+            <Duration value="40"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <FinalEffect value="TimedLifeFate"/>
@@ -2326,7 +2535,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnDizzy.dds"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="30">
+        <DurationOverride index="0">
+            <Duration value="30"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification MoveSpeedMultiplier="0.1" AttackSpeedMultiplier="0.1"/>
@@ -2346,7 +2556,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnGolemThunderclap.dds"/>
         <Duration value="4"/>
-        <DurationOverride index="0" Duration="2">
+        <DurationOverride index="0">
+            <Duration value="2"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification MoveSpeedMultiplier="0.75" AttackSpeedMultiplier="0.75"/>
@@ -2360,7 +2571,8 @@ Targetattach=origin-->
         <TechAliasArray value="_PurgableBuff"/>
         <BehaviorCategories index="Dispelable" value="1"/>
         <Duration value="20"/>
-        <DurationOverride index="0" Duration="20">
+        <DurationOverride index="0">
+            <Duration value="20"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification MoveSpeedMultiplier="1.25" AttackSpeedMultiplier="1.4"/>
@@ -2394,7 +2606,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="180"/>
-        <DurationOverride index="0" Duration="180">
+        <DurationOverride index="0">
+            <Duration value="180"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="TimedLifeFate"/>
@@ -2409,7 +2622,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="30"/>
-        <DurationOverride index="0" Duration="30">
+        <DurationOverride index="0">
+            <Duration value="30"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="0.5"/>
@@ -2437,7 +2651,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -2446,7 +2661,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="22"/>
-        <DurationOverride index="0" Duration="22">
+        <DurationOverride index="0">
+            <Duration value="22"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -2455,7 +2671,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="40"/>
-        <DurationOverride index="0" Duration="40">
+        <DurationOverride index="0">
+            <Duration value="40"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="5"/>
@@ -2472,7 +2689,8 @@ Targetattach=origin-->
         <Duration value="50"/>
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
-        <DurationOverride index="0" Duration="50">
+        <DurationOverride index="0">
+            <Duration value="50"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <FinalEffect value="TimedLifeFate"/>
@@ -2483,14 +2701,16 @@ Targetattach=origin-->
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnManaFlare.dds"/>
         <Alignment value="Positive"/>
         <Duration value="30"/>
-        <DurationOverride index="0" Duration="30">
+        <DurationOverride index="0">
+            <Duration value="30"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="0.75"/>
         <InitialEffect value="BmflSearch"/>
         <PeriodicEffect value="BmflSearch"/>
-        <Modification LifeArmorBonus="12">
+        <Modification>
             <ModifyFlags index="DisableAbils" value="1"/>
+            <LifeArmorBonus value="12"/>
             <AbilLinkEnableArray value="Amfl"/>
         </Modification>
         <DisplayDuration index="Self" value="1"/>
@@ -2505,7 +2725,8 @@ Targetattach=origin-->
         <RemoveValidatorArray value="BmfaRemove"/>
         <RemoveValidatorArray value="CasterNotHasManaFlareSuppress"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -2514,7 +2735,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnPhaseShift.dds"/>
         <Duration value="1.5"/>
-        <DurationOverride index="0" Duration="1.5">
+        <DurationOverride index="0">
+            <Duration value="1.5"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -2532,7 +2754,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnShadowStrike.dds"/>
         <Duration value="15.1"/>
-        <DurationOverride index="0" Duration="15.1">
+        <DurationOverride index="0">
+            <Duration value="15.1"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <InitialEffect value="BEshInitSet"/>
@@ -2555,7 +2778,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="1.3"/>
-        <DurationOverride index="0" Duration="1.3">
+        <DurationOverride index="0">
+            <Duration value="1.3"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Period value="1"/>
@@ -2571,7 +2795,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="180"/>
-        <DurationOverride index="0" Duration="180">
+        <DurationOverride index="0">
+            <Duration value="180"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <FinalEffect value="TimedLifeFate"/>
@@ -2584,7 +2809,10 @@ Targetattach=origin-->
         <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnSlowPoison.dds"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="1"/>
+        <DurationOverride index="0">
+            <Duration value="1"/>
+            <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
+        </DurationOverride>
         <Modification MoveSpeedMultiplier="0.5" AttackSpeedMultiplier="0.25"/>
     </CBehaviorBuff>
     <!--SlowPoisonStackDoT-->
@@ -2592,7 +2820,9 @@ Targetattach=origin-->
         <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\War3_PASBTNSlowPoison.dds"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="1"/>
+        <DurationOverride index="0">
+            <Duration value="1"/>
+        </DurationOverride>
     </CBehaviorBuff>
     <!--CorrosiveBreath-->
     <CBehaviorBuff id="Bcor" parent="War3_Buff">
@@ -2617,7 +2847,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -2652,7 +2883,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnEnt.dds"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -2666,16 +2898,13 @@ Targetattach=origin-->
     <CBehaviorBuff id="BEah" parent="War3_AuraBuff">
         <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnThorns.dds"/>
-        <DamageResponse>
-            <Chance value="1"/>
-            <Handled value="BEahSpecial"/>
-            <ModifyFraction value="0"/>
-            <TargetFilters value="-;player,allies,neutral,Missile"/>
+        <DamageResponse Handled="BEahSpecial" ModifyFraction="0" TargetFilters="-;player,allies,neutral,Missile">
             <Kind index="Spell" value="0"/>
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
             <Kind index="NoProc" value="0"/>
             <ExcludeEffectArray value="TriggerMeleeDamge"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--AuraTrueshot-->
@@ -2693,11 +2922,13 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <TechAliasArray value="_PurgableDebuff"/>
         <Duration value="90"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
-        <Modification LifeArmorBonus="-4">
+        <Modification>
             <ModifyFlags index="ShareSight" value="1"/>
+            <LifeArmorBonus value="-4"/>
         </Modification>
     </CBehaviorBuff>
     <!--Cyclone-->
@@ -2710,7 +2941,8 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <TechAliasArray value="_PurgableDebuff"/>
         <Duration value="20"/>
-        <DurationOverride index="0" Duration="6">
+        <DurationOverride index="0">
+            <Duration value="6"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -2735,7 +2967,8 @@ Targetattach=origin-->
         <Alignment value="Positive"/>
         <TechAliasArray value="_PurgableBuff"/>
         <Duration value="12"/>
-        <DurationOverride index="0" Duration="12">
+        <DurationOverride index="0">
+            <Duration value="12"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Period value="1"/>
@@ -2747,7 +2980,8 @@ Targetattach=origin-->
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnBattleRoar.dds"/>
         <Alignment value="Positive"/>
         <Duration value="45"/>
-        <DurationOverride index="0" Duration="45">
+        <DurationOverride index="0">
+            <Duration value="45"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -2782,7 +3016,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="30"/>
-        <DurationOverride index="0" Duration="30">
+        <DurationOverride index="0">
+            <Duration value="30"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -2797,13 +3032,14 @@ Targetattach=origin-->
             <WeaponEnableArray value="emtg2"/>
             <WeaponDisableArray value="emtg1"/>
         </Modification>
-        <DamageResponse Chance="1" Handled="BgraHandleDummy" Location="Attacker">
-            <Cost>
-                <Charge CountMax="15" CountStart="15" CountUse="1"/>
-            </Cost>
+        <DamageResponse Handled="BgraHandleDummy" Location="Attacker">
             <Kind index="Spell" value="0"/>
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
+            <Cost>
+                <Charge CountMax="15" CountStart="15" CountUse="1"/>
+            </Cost>
         </DamageResponse>
     </CBehaviorBuff>
     <!--SlowPoisonStackInfo-->
@@ -2824,7 +3060,8 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="1.01"/>
-        <DurationOverride index="0" Duration="1.01">
+        <DurationOverride index="0">
+            <Duration value="1.01"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -2833,10 +3070,13 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnBerserkForTrolls.dds"/>
         <Modification MoveSpeedMultiplier="1.2" AttackSpeedMultiplier="1.5"/>
-        <DamageResponse Chance="1" ModifyFraction="1.5"/>
+        <DamageResponse ModifyFraction="1.5">
+            <Chance value="1"/>
+        </DamageResponse>
         <Alignment value="Positive"/>
         <Duration value="12"/>
-        <DurationOverride index="0" Duration="12">
+        <DurationOverride index="0">
+            <Duration value="12"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <DisplayDuration index="Self" value="1"/>
@@ -2851,14 +3091,16 @@ Targetattach=origin-->
         <MaxStackCount value="4"/>
         <MaxStackCountPerCaster value="1"/>
         <Duration value="75"/>
-        <DurationOverride index="0" Duration="75">
+        <DurationOverride index="0">
+            <Duration value="75"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <RemoveValidatorArray value="CasterNotDead"/>
         <RemoveValidatorArray value="TargetLifeGT1"/>
-        <DamageResponse Chance="1" ModifyFraction="0" TargetFilters="-;player,allies,neutral">
+        <DamageResponse ModifyFraction="0" TargetFilters="-;player,allies,neutral">
             <ExcludeEffectArray value="BsplMainDamage"/>
             <ExcludeEffectArray value="BsplSplitDamage"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--LiquidFire-->
@@ -2866,7 +3108,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnliquidfire.dds"/>
         <Duration value="3"/>
-        <DurationOverride index="0" Duration="3">
+        <DurationOverride index="0">
+            <Duration value="3"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="1"/>
@@ -2881,6 +3124,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnHex.dds"/>
         <TechAliasArray value="_POLYMORPHED"/>
+        <TechAliasArray value="_Debuff"/>
+        <TechAliasArray value="_PurgableDebuff"/>
         <BehaviorCategories index="Dispelable" value="1"/>
         <BehaviorCategories index="User1" value="1"/>
         <Modification MoveSpeedBonus="0.7812" MoveSpeedMultiplier="0.01">
@@ -2898,8 +3143,6 @@ Targetattach=origin-->
         <DisplayDuration index="Neutral" value="1"/>
         <DisplayDuration index="Enemy" value="1"/>
         <Alignment value="Negative"/>
-        <TechAliasArray value="_Debuff"/>
-        <TechAliasArray value="_PurgableDebuff"/>
         <InitialEffect value="BOhxInitDummy"/>
     </CBehaviorBuff>
     <!--Voodoo-->
@@ -2932,11 +3175,12 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnEnsnare.dds"/>
         <TechAliasArray value="_SNARED"/>
-        <Alignment value="Negative"/>
         <TechAliasArray value="_Debuff"/>
+        <Alignment value="Negative"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="12"/>
-        <DurationOverride index="0" Duration="3">
+        <DurationOverride index="0">
+            <Duration value="3"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -2948,11 +3192,12 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnEnsnare.dds"/>
         <TechAliasArray value="_SNARED"/>
-        <Alignment value="Negative"/>
         <TechAliasArray value="_Debuff"/>
+        <Alignment value="Negative"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="12"/>
-        <DurationOverride index="0" Duration="3">
+        <DurationOverride index="0">
+            <Duration value="3"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -2983,7 +3228,8 @@ Targetattach=origin-->
         <BehaviorCategories index="Dispelable" value="1"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="15"/>
-        <DurationOverride index="0" Duration="5">
+        <DurationOverride index="0">
+            <Duration value="5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="5"/>
@@ -2997,7 +3243,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnLightningShield.dds"/>
         <Duration value="20"/>
-        <DurationOverride index="0" Duration="20">
+        <DurationOverride index="0">
+            <Duration value="20"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="1"/>
@@ -3019,7 +3266,8 @@ Targetattach=origin-->
         <TechAliasArray value="_PurgableBuff"/>
         <BehaviorCategories index="Dispelable" value="1"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification MoveSpeedMultiplier="1.25" AttackSpeedMultiplier="1.4"/>
@@ -3031,7 +3279,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="600"/>
-        <DurationOverride index="0" Duration="600">
+        <DurationOverride index="0">
+            <Duration value="600"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="TimedLifeFate"/>
@@ -3041,7 +3290,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnStasisTrap.dds"/>
         <Duration value="150"/>
-        <DurationOverride index="0" Duration="2.5">
+        <DurationOverride index="0">
+            <Duration value="2.5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -3053,7 +3303,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="Bsta" parent="War3_Buff">
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnStasisTrap.dds"/>
         <Duration value="6"/>
-        <DurationOverride index="0" Duration="2.5">
+        <DurationOverride index="0">
+            <Duration value="2.5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -3068,7 +3319,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnHealingWard.dds"/>
         <Duration value="30"/>
-        <DurationOverride index="0" Duration="30">
+        <DurationOverride index="0">
+            <Duration value="30"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <DisplayDuration index="Self" value="1"/>
@@ -3079,23 +3331,44 @@ Targetattach=origin-->
         </Modification>
     </CBehaviorBuff>
     <!--AuraRegenLife-->
-    <CBehaviorBuff id="Boar" parent="War3_AuraBuff">
-        <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
-        <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnHealingWard.dds"/>
+    <CBehaviorBuff id="Bhwa" parent="War3_AuraBuff">
+        <Name value="Boar/Name"/>
+        <Tooltip value="Boar/Buffubertip"/>
         <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnHealingWard.dds"/>
+        <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <Period value="1"/>
         <PeriodicEffect value="AoarHealTick"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="BCnr" parent="Bhwa">
+        <MaxStackCount value="0"/>
+        <PeriodicEffect value="ACnrHealTick"/>
+        <Cost>
+            <Charge Link="Behavior/Boar"/>
+            <Cooldown Link="Behavior/Boar"/>
+        </Cost>
+        <RemoveValidatorArray index="0" value="BoarRemove"/>
+        <DamageResponse>
+            <Cost>
+                <Charge Link="Behavior/Boar"/>
+                <Cooldown Link="Behavior/Boar"/>
+            </Cost>
+        </DamageResponse>
     </CBehaviorBuff>
     <!--PoisonAttack-->
     <CBehaviorBuff id="Bpoi" parent="War3_Poision">
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnEnvenomedSpear.dds"/>
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <Duration value="25"/>
-        <DurationOverride index="0" Duration="1"/>
+        <DurationOverride index="0">
+            <Duration value="1"/>
+            <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
+        </DurationOverride>
     </CBehaviorBuff>
     <CBehaviorBuff id="AEpaBpoi" parent="Bpoi">
         <Duration value="10"/>
-        <DurationOverride index="0" Duration="10">
+        <DurationOverride index="0">
+            <Duration value="10"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <PeriodicEffect value="AEpaDoTSet"/>
@@ -3105,17 +3378,24 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnEnvenomedSpear.dds"/>
         <Duration value="25"/>
-        <DurationOverride index="0" Duration="1"/>
+        <DurationOverride index="0">
+            <Duration value="1"/>
+        </DurationOverride>
     </CBehaviorBuff>
     <CBehaviorBuff id="BIpb" parent="War3_Poision">
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnOrbOfVenom.dds"/>
         <Duration value="6"/>
-        <DurationOverride index="0" Duration="6"/>
+        <DurationOverride index="0">
+            <Duration value="6"/>
+            <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
+        </DurationOverride>
     </CBehaviorBuff>
     <CBehaviorBuff id="BIpd" parent="War3_PoisionStack">
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnOrbOfVenom.dds"/>
         <Duration value="6"/>
-        <DurationOverride index="0" Duration="6"/>
+        <DurationOverride index="0">
+            <Duration value="6"/>
+        </DurationOverride>
     </CBehaviorBuff>
     <!--AuraKotoBeast-->
     <CBehaviorBuff id="Bakb" parent="War3_AuraBuff">
@@ -3134,7 +3414,8 @@ Targetattach=origin-->
         <RemoveValidatorArray value="NotCloakSuppressed"/>
         <RemoveValidatorArray value="TargetIsNotFiringWeapon"/>
         <Duration value="20"/>
-        <DurationOverride index="0" Duration="20">
+        <DurationOverride index="0">
+            <Duration value="20"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <InitialEffect value="WindWalkCancelAttack"/>
@@ -3152,7 +3433,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnMirrorImage.dds"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -3225,7 +3507,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="40"/>
-        <DurationOverride index="0" Duration="40">
+        <DurationOverride index="0">
+            <Duration value="40"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <DisplayDuration index="Self" value="1"/>
@@ -3243,7 +3526,9 @@ Targetattach=origin-->
         <Name value="Bpoi/Name"/>
         <Tooltip value="Bpoi/Buffubertip"/>
         <Duration value="20"/>
-        <DurationOverride index="0" Duration="10"/>
+        <DurationOverride index="0">
+            <Duration value="10"/>
+        </DurationOverride>
     </CBehaviorBuff>
     <CBehaviorBuff id="BIpi" parent="War3_Buff">
         <InfoFlags index="Hidden" value="1"/>
@@ -3263,7 +3548,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="7"/>
-        <DurationOverride index="0" Duration="7">
+        <DurationOverride index="0">
+            <Duration value="7"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <PeriodicEffect value="BOwwDPS"/>
@@ -3273,14 +3559,11 @@ Targetattach=origin-->
             <AbilClassDisableArray index="CAbilEffectInstant" value="1"/>
         </Modification>
         <Period value="1"/>
-        <DamageResponse>
-            <Chance value="1"/>
-            <Location value="Attacker"/>
-            <ModifyFraction value="0"/>
-            <TargetFilters value="-;player,allies,neutral"/>
+        <DamageResponse Location="Attacker" ModifyFraction="0" TargetFilters="-;player,allies,neutral">
             <Kind index="Spell" value="0"/>
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
         <DisplayDuration index="Self" value="1"/>
     </CBehaviorBuff>
@@ -3307,7 +3590,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnReplenishHealth.dds"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <InitialEffect value="BrplHeal"/>
@@ -3321,7 +3605,8 @@ Targetattach=origin-->
             <VitalRegenArray index="Energy" value="10"/>
         </Modification>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Alignment value="Positive"/>
@@ -3349,16 +3634,13 @@ Targetattach=origin-->
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnThornShield.dds"/>
         <InfoFlags index="Hidden" value="1"/>
-        <DamageResponse>
-            <Chance value="1"/>
-            <Handled value="BEahSpecial"/>
-            <ModifyFraction value="0"/>
-            <TargetFilters value="-;player,allies,neutral,Missile"/>
+        <DamageResponse Handled="BEahSpecial" ModifyFraction="0" TargetFilters="-;player,allies,neutral,Missile">
             <Kind index="Spell" value="0"/>
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
             <Kind index="NoProc" value="0"/>
             <ExcludeEffectArray value="TriggerMeleeDamge"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--CarrionScarab-->
@@ -3376,7 +3658,8 @@ Targetattach=origin-->
         <DisableValidatorArray value="DistanceLT7"/>
         <BuffFlags index="UpdateDurationWhileDisabled" value="1"/>
         <Duration value="30"/>
-        <DurationOverride index="0" Duration="30">
+        <DurationOverride index="0">
+            <Duration value="30"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -3430,7 +3713,8 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="12"/>
-        <DurationOverride index="0" Duration="7">
+        <DurationOverride index="0">
+            <Duration value="7"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -3446,14 +3730,15 @@ Targetattach=origin-->
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnPlagueCloud.dds"/>
         <TechAliasArray value="_PLAGUED"/>
+        <TechAliasArray value="_Debuff"/>
         <Duration value="120"/>
-        <DurationOverride index="0" Duration="120">
+        <DurationOverride index="0">
+            <Duration value="120"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="1"/>
         <PeriodicEffect value="BaplDPS"/>
         <Alignment value="Negative"/>
-        <TechAliasArray value="_Debuff"/>
         <BehaviorCategories index="User1" value="1"/>
     </CBehaviorBuff>
     <!--FreezingBreath-->
@@ -3461,7 +3746,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnFreezingBreath.dds"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="5">
+        <DurationOverride index="0">
+            <Duration value="5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -3481,7 +3767,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="40"/>
-        <DurationOverride index="0" Duration="40">
+        <DurationOverride index="0">
+            <Duration value="40"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="TimedLifeFate"/>
@@ -3494,7 +3781,8 @@ Targetattach=origin-->
         <TechAliasArray value="_PurgableBuff"/>
         <BehaviorCategories index="Dispelable" value="1"/>
         <Duration value="45"/>
-        <DurationOverride index="0" Duration="45">
+        <DurationOverride index="0">
+            <Duration value="45"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="1"/>
@@ -3506,7 +3794,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnCurse.dds"/>
         <Duration value="120"/>
-        <DurationOverride index="0" Duration="60">
+        <DurationOverride index="0">
+            <Duration value="60"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Period value="0.0625"/>
@@ -3526,7 +3815,8 @@ Targetattach=origin-->
         <TechAliasArray value="_PurgableBuff"/>
         <BehaviorCategories index="Dispelable" value="1"/>
         <Duration value="90"/>
-        <DurationOverride index="0" Duration="90">
+        <DurationOverride index="0">
+            <Duration value="90"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -3537,19 +3827,15 @@ Targetattach=origin-->
     <CBehaviorBuff id="Bam2" parent="War3_Buff">
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnAntiMagicShell.dds"/>
-
         <Alignment value="Positive"/>
         <DisplayShield index="Self" value="1"/>
         <DisplayShield index="Ally" value="1"/>
         <Duration value="90"/>
-        <DurationOverride index="0" Duration="90">
+        <DurationOverride index="0">
+            <Duration value="90"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
-        <DamageResponse>
-            <Chance value="1"/>
-            <ModifyFraction value="0"/>
-            <ModifyLimit value="300"/>
-            <ModifyMinimumDamage value="1"/>
+        <DamageResponse ModifyFraction="0" ModifyLimit="300" ModifyMinimumDamage="1">
             <Kind index="Melee" value="0"/>
             <Kind index="Splash" value="0"/>
             <ExcludeEffectArray value="hbsh1"/>
@@ -3940,6 +4226,7 @@ Targetattach=origin-->
             <ExcludeEffectArray value="zjug1"/>
             <ExcludeEffectArray value="zmar1"/>
             <ExcludeEffectArray value="zsmc1"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--Possession-->
@@ -3948,7 +4235,8 @@ Targetattach=origin-->
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnPossession.dds"/>
         <BuffFlags index="Channeled" value="1"/>
         <Duration value="4.5"/>
-        <DurationOverride index="0" Duration="4.5">
+        <DurationOverride index="0">
+            <Duration value="4.5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -3962,11 +4250,14 @@ Targetattach=origin-->
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="4.5"/>
-        <DurationOverride index="0" Duration="4.5">
+        <DurationOverride index="0">
+            <Duration value="4.5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <BuffFlags index="Channeled" value="1"/>
-        <DamageResponse Chance="1" ModifyFraction="1.66"/>
+        <DamageResponse ModifyFraction="1.66">
+            <Chance value="1"/>
+        </DamageResponse>
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <ExpireEffect value="Aps2ControlSet"/>
@@ -3996,7 +4287,8 @@ Targetattach=origin-->
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <Duration value="40"/>
-        <DurationOverride index="0" Duration="40">
+        <DurationOverride index="0">
+            <Duration value="40"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="TimedLifeFate"/>
@@ -4021,7 +4313,9 @@ Targetattach=origin-->
             <StateFlags index="SuppressCombat" value="1"/>
             <StateFlags index="SuppressThreat" value="1"/>
         </Modification>
-        <DamageResponse Chance="1" ModifyAmount="0.5" ModifyMinimumDamage="1">
+        <DamageResponse ModifyMinimumDamage="1">
+            <ModifyAmount value="0.5"/>
+            <Chance value="1"/>
             <Cost>
                 <Charge>
                     <CountMax value="1"/>
@@ -4037,7 +4331,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnSleep.dds"/>
         <Duration value="2"/>
-        <DurationOverride index="0" Duration="2">
+        <DurationOverride index="0">
+            <Duration value="2"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -4064,14 +4359,11 @@ Targetattach=origin-->
     <CBehaviorBuff id="BUav" parent="War3_AuraBuff">
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnVampiricAura.dds"/>
-        <DamageResponse>
-            <Chance value="1"/>
-            <Handled value="BUavLeech"/>
-            <Location value="Attacker"/>
-            <TargetFilters value="-;player,allies,neutral,mechanical,PreventReveal"/>
+        <DamageResponse Handled="BUavLeech" Location="Attacker" TargetFilters="-;player,allies,neutral,mechanical,PreventReveal">
             <Kind index="Spell" value="0"/>
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--FrostArmor-->
@@ -4079,15 +4371,17 @@ Targetattach=origin-->
         <EditorCategories value="Race:undead,AbilityorEffectType:Units"/>
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnFrostArmor.dds"/>
         <Duration value="45"/>
-        <DurationOverride index="0" Duration="45">
+        <DurationOverride index="0">
+            <Duration value="45"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Alignment value="Positive"/>
         <TechAliasArray value="_PurgableBuff"/>
         <BehaviorCategories index="Dispelable" value="1"/>
-        <DamageResponse Chance="1" Handled="Bfro">
+        <DamageResponse Handled="Bfro">
             <Kind index="Spell" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--DeathAndDecayAoe-->
@@ -4098,7 +4392,8 @@ Targetattach=origin-->
         <TechAliasArray value="_Debuff"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <InitialEffect value="BUddDamage"/>
@@ -4113,7 +4408,8 @@ Targetattach=origin-->
         <BehaviorCategories index="Dispelable" value="1"/>
         <BehaviorCategories index="User1" value="1"/>
         <Duration value="60"/>
-        <DurationOverride index="0" Duration="10">
+        <DurationOverride index="0">
+            <Duration value="10"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification MoveSpeedMultiplier="0.25" AttackSpeedMultiplier="0.5">
@@ -4164,7 +4460,9 @@ Targetattach=origin-->
         <SharedXPRadius index="Kills" value="9.375"/>
         <SharedXPFraction index="Kills" value="0.5"/>
         <VeterancyLevelArray LevelLossEffect="LevelLossEvent">
-            <Modification LifeArmorBonus="-2"/>
+            <Modification>
+                <LifeArmorBonus value="-2"/>
+            </Modification>
         </VeterancyLevelArray>
         <VeterancyLevelArray MinVeterancyXP="200" LevelLossEffect="LevelLossEvent"/>
         <VeterancyLevelArray MinVeterancyXP="300" LevelLossEffect="LevelLossEvent"/>
@@ -4192,10 +4490,10 @@ Targetattach=origin-->
     <CBehaviorBuff id="Attu" parent="War3_Passive"/>
     <CBehaviorBuff id="Rooted" parent="War3_Passive">
         <Modification>
-            <AbilLinkEnableArray value="AentSmart"/>
             <ModifyFlags index="SuppressMoving" value="1"/>
             <ModifyFlags index="SuppressTurning" value="1"/>
             <AbilClassDisableArray index="CAbilEffectTarget" value="1"/>
+            <AbilLinkEnableArray value="AentSmart"/>
             <WeaponEnableArray value="etol1"/>
             <WeaponEnableArray value="etoa1"/>
             <WeaponEnableArray value="etoe1"/>
@@ -4240,189 +4538,15 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--Moon Glaive-->
     <CBehaviorBuff id="Amgl" parent="War3_Passive">
-        <Requirements value="Amgl"/>
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
     </CBehaviorBuff>
     <!--Moon Glaive (No research)-->
     <CBehaviorBuff id="Amgr" parent="Amgl">
         <Requirements value="Amgr"/>
     </CBehaviorBuff>
-
-
-
-
-
-<!--    EXTRAS-->
-
-
-
-
-    <CBehaviorBuff default="1" id="CritController" parent="War3_Passive">
-        <EditorCategories value="AbilityorEffectType:Units"/>
-        <DisableValidatorArray value="TargetIsAttacking"/>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="War3_AttackAugment" parent="War3_Buff">
-        <InfoFlags index="Hidden" value="1"/>
-        <RemoveValidatorArray value="CasterIsFiringWeapon_War3"/>
-        <RemoveValidatorArray value="CasterWeaponNotInCooldownWar3"/>
-        <BuffFlags index="Channeling" value="1"/>
-        <TechAliasArray value="_AttackAugment"/>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="War3_AttackAugmentTriggerNotice" parent="War3_AttackAugment">
-        <TechAliasArray value="_TriggerMissileTrack"/>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="War3_AbsorbResponse" parent="War3_Sphere">
-        <DamageResponse>
-            <Handled value=""/>
-            <ModifyFraction value="0"/>
-            <ModifyMinimumDamage value="1"/>
-            <Priority value="-1"/>
-            <ExcludeEffectInChainArray value="War3_AbsorbResponseBypass"/>
-        </DamageResponse>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="War3_SphereItem" parent="War3_Sphere">
-        <EditorCategories value="Race:Other,AbilityorEffectType:Item"/>
-        <RemoveValidatorArray value="LevelableHero"/>
-        <DamageResponse TargetFilters="-;wall,tree,debris,item,structure,dead,invulnerable">
-            <Cost>
-                <Cooldown Link="War3_Sphere" Location="Unit" TimeUse="0.0625"/>
-            </Cost>
-        </DamageResponse>
-        <Modification>
-            <DamageDealtUnscaled index="Melee" value="5"/>
-            <DamageDealtUnscaled index="Ranged" value="5"/>
-            <WeaponEnableArray value="Hmkg2"/>
-            <WeaponEnableArray value="Hpal2"/>
-            <WeaponEnableArray value="Obla2"/>
-            <WeaponEnableArray value="Otch2"/>
-            <WeaponEnableArray value="Edem2"/>
-            <WeaponEnableArray value="Ewar2"/>
-            <WeaponEnableArray value="Udea2"/>
-            <WeaponEnableArray value="Udre2"/>
-            <WeaponEnableArray value="Ucrl2"/>
-            <WeaponEnableArray value="Nalc2"/>
-            <WeaponEnableArray value="Ntin2"/>
-            <WeaponEnableArray value="Npbm2"/>
-            <WeaponEnableArray value="Nplh2"/>
-            <WeaponEnableArray value="Nbst2"/>
-            <WeaponEnableArray value="Eevi2"/>
-            <WeaponEnableArray value="Eill2"/>
-            <WeaponEnableArray value="Ewrd2"/>
-            <WeaponEnableArray value="Hapm2"/>
-            <WeaponEnableArray value="Harf2"/>
-            <WeaponEnableArray value="Hart2"/>
-            <WeaponEnableArray value="Hdgo2"/>
-            <WeaponEnableArray value="Hhkl2"/>
-            <WeaponEnableArray value="Hlgr2"/>
-            <WeaponEnableArray value="Hmbr2"/>
-            <WeaponEnableArray value="Hmgd2"/>
-            <WeaponEnableArray value="Hpb12"/>
-            <WeaponEnableArray value="Hpb22"/>
-            <WeaponEnableArray value="Huth2"/>
-            <WeaponEnableArray value="Nal22"/>
-            <WeaponEnableArray value="Nal32"/>
-            <WeaponEnableArray value="Nalm2"/>
-            <WeaponEnableArray value="Nbbc2"/>
-            <WeaponEnableArray value="Nkjx2"/>
-            <WeaponEnableArray value="Nklj2"/>
-            <WeaponEnableArray value="Nmag2"/>
-            <WeaponEnableArray value="Npld2"/>
-            <WeaponEnableArray value="Nrob2"/>
-            <WeaponEnableArray value="Nsjs2"/>
-            <WeaponEnableArray value="Ocb22"/>
-            <WeaponEnableArray value="Ocbh2"/>
-            <WeaponEnableArray value="Ogrh2"/>
-            <WeaponEnableArray value="Opgh2"/>
-            <WeaponEnableArray value="Orex2"/>
-            <WeaponEnableArray value="Osam2"/>
-            <WeaponEnableArray value="Otcc2"/>
-            <WeaponEnableArray value="Uanb2"/>
-            <WeaponEnableArray value="Ubal2"/>
-            <WeaponEnableArray value="Udth2"/>
-            <WeaponEnableArray value="Uear2"/>
-            <WeaponEnableArray value="Umal2"/>
-            <WeaponEnableArray value="Utic2"/>
-            <WeaponEnableArray value="Uvar2"/>
-            <WeaponEnableArray value="Uvng2"/>
-        </Modification>
-        <MaxStackCount value="0"/>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="AHbhBase" parent="War3_Sphere">
-        <EditorCategories value="Race:Human,AbilityorEffectType:Heroes"/>
-        <Name value="AHbh/Name"/>
-        <DamageResponse Handled="AHbhSphereEffect" TargetFilters="-;Missile,debris,structure,dead">
-            <Kind index="Melee" value="0"/>
-        </DamageResponse>
-    </CBehaviorBuff>
-    <!--Demon Hunter - Evasion-->
-    <CBehaviorBuff default="1" id="AEev" parent="War3_Passive">
-        <Name value="AEev/Name"/>
-        <EditorCategories value="Race:Nightelf,AbilityorEffectType:Hero"/>
-        <DamageResponse Chance="1" Handled="AEevMissDummy" ModifyFraction="0">
-            <Kind index="Spell" value="0"/>
-            <Kind index="Splash" value="0"/>
-        </DamageResponse>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="BEarBase" parent="War3_AuraBuff">
-        <Name value="BEar/Name"/>
-        <Tooltip value="BEar/Buffubertip"/>
-        <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
-        <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnTrueShot.dds"/>
-        <Modification>
-            <DamageDealtFraction index="Ranged" value="1"/>
-        </Modification>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="BOaeBase" parent="War3_AuraBuff">
-        <Name value="BOae/Name"/>
-        <Tooltip value="BOae/Buffubertip"/>
-        <EditorCategories value="Race:orc,AbilityorEffectType:Units"/>
-        <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnCommand.dds"/>
-    </CBehaviorBuff>
-    <!--Permanent Hit point Bonus-->
-    <CBehaviorBuff default="1" id="AImi" parent="War3_Passive">
-        <EditorCategories value="Race:Other,AbilityorEffectType:Item"/>
-        <Modification>
-            <VitalMaxDecreaseAffectsCurrentArray index="Life" value="1"/>
-        </Modification>
-        <MaxStackCount value="0"/>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="ANdb" parent="War3_Passive">
-        <Name value="ANdb/Name"/>
-        <EditorCategories value="Race:Nightelf,AbilityorEffectType:Hero"/>
-        <DamageResponse Chance="1" Handled="AEevMissDummy" ModifyFraction="0">
-            <Kind index="Spell" value="0"/>
-            <Kind index="Splash" value="0"/>
-        </DamageResponse>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="War3_HeroArrowBuff" parent="War3_Passive">
-        <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
-        <Modification>
-            <ModifyFlags index="HideChangeUI" value="1"/>
-        </Modification>
-        <DisableValidatorArray value="CasterHasAttackAugment"/>
-    </CBehaviorBuff>
-    <!--Dark Ranger - Black Arrow Buff=BNba,BNdm-->
-    <CBehaviorBuff default="1" id="ANba" parent="War3_HeroArrowBuff">
-        <Name value="ANba/Name"/>
-        <Requirements value="ANba"/>
-        <Modification>
-            <!--DamageDealtUnscaled index="Melee" value="2"/>
-            <DamageDealtUnscaled index="Ranged" value="2"/-->
-            <DamageTotalMultiplier index="Ranged" value="-1"/>
-        </Modification>
-    </CBehaviorBuff>
-    <CBehaviorBuff default="1" id="ANfa" parent="War3_HeroArrowBuff">
-        <Name value="ANfa/Name"/>
-        <Requirements value="ANfa"/>
-        <Modification>
-            <DamageDealtUnscaled index="Melee" value="5"/>
-            <DamageDealtUnscaled index="Ranged" value="5"/>
-        </Modification>
-    </CBehaviorBuff>
     <!--Self Destruct Dur=.1 HeroDur=.1-->
     <CBehaviorBuff id="Asds" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Unit"/>
-        <Requirements value="Asds"/>
         <Modification>
             <DeathResponse Chance="1" Effect="AsdsDamage"/>
         </Modification>
@@ -4486,7 +4610,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="MeatWagonHasCargo" parent="War3_Passive">
         <Name value="MeatWagonHasCarge/Name"/>
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="MeatWagonHasCargo"/>
         <MaxStackCount value="0"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="MirrorImageExtra" parent="War3_Buff">
@@ -4497,11 +4620,8 @@ Targetattach=origin-->
         <InfoFlags index="Hidden" value="1"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="SlamValidTarget" parent="War3_AttackAugment"/>
-    <CBehaviorBuff id="Critx2" parent="War3_Passive">
-        <Requirements value="Critx2"/>
-    </CBehaviorBuff>
+    <CBehaviorBuff id="Critx2" parent="War3_Passive"/>
     <CBehaviorBuff id="EngineUpgradeTrainSpeedBuff" parent="War3_Passive">
-        <Requirements value="EngineUpgradeTrainSpeedBuff"/>
         <MaxStackCount value="0"/>
         <Modification>
             <RateMultiplierArray index="Queueable" value="1.25"/>
@@ -4510,7 +4630,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="PhasingNoSight" parent="War3_Passive">
         <Name value="NoSight/Name"/>
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="PhasingNoSight"/>
         <Modification SightMaximum="0"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="RevealSnapShot" parent="War3_Buff">
@@ -4533,7 +4652,6 @@ Targetattach=origin-->
         </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="CloseShopIfNoSelfBuyer" parent="War3_Passive">
-        <Requirements value="CloseShopIfNoSelfBuyer"/>
         <DisableValidatorArray value="NoPlayerBuyerNearby"/>
         <Modification>
             <AbilClassDisableArray index="CAbilRevive" value="1"/>
@@ -4544,7 +4662,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="CloseAlliedShopIfNoBuyer" parent="War3_Passive">
         <Name value="CloseShopIfNoBuyer/Name"/>
-        <Requirements value="CloseAlliedShopIfNoBuyer"/>
         <DisableValidatorArray value="NoAlliedBuyerNearby"/>
         <Modification>
             <AbilClassDisableArray index="CAbilTrain" value="1"/>
@@ -4571,18 +4688,15 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="DevourTactTemp" parent="War3_Passive">
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="DevourTactTemp"/>
         <Period value="3"/>
         <PeriodicEffect value="SearchDevourTarget"/>
         <RemoveValidatorArray value="ComputerPlayer"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="InCombat" parent="War3_Passive">
         <Name value="InCombatShort/Name"/>
-        <Requirements value="InCombat"/>
         <DisableValidatorArray value="TargetInCombat"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="InventoryDisabled" parent="War3_Passive">
-        <Requirements value="InventoryDisabled"/>
         <Modification>
             <AbilClassDisableArray index="CAbilInventory" value="1"/>
         </Modification>
@@ -4605,12 +4719,10 @@ Targetattach=origin-->
         </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="SerpentWardAI" parent="War3_Passive">
-        <Requirements value="SerpentWardAI"/>
         <Period value="1"/>
         <PeriodicEffect value="SerpentAttackTargetSearch"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="SerpentWardHack" parent="War3_Passive">
-        <Requirements value="SerpentWardHack"/>
         <Modification>
             <BehaviorClassDisableArray index="CBehaviorBuff" value="1"/>
             <BehaviorLinkEnableArray value="SerpentWardHack"/>
@@ -4619,7 +4731,6 @@ Targetattach=origin-->
         </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="ShadeSupply" parent="War3_Passive">
-        <Requirements value="ShadeSupply"/>
         <Modification Food="-1"/>
     </CBehaviorBuff>
     <CBehaviorSpawn id="SpawnGoblin1">
@@ -4675,7 +4786,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="RetrainSuppress" parent="War3_Buff">
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="0.25"/>
-        <DurationOverride index="0" Duration="0.25">
+        <DurationOverride index="0">
+            <Duration value="0.25"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -4686,19 +4798,15 @@ Targetattach=origin-->
             <AbilClassEnableArray index="CAbilLearn" value="1"/>
         </Modification>
     </CBehaviorBuff>
-    <CBehaviorBuff id="SupressRevive" parent="War3_Passive">
-        <Requirements value="SupressRevive"/>
-    </CBehaviorBuff>
+    <CBehaviorBuff id="SupressRevive" parent="War3_Passive"/>
     <CBehaviorBuff id="ThrallSkin" parent="War3_Passive">
         <Modification UnitNameOverride="Othr/Propernames"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="TriggerResumeBuildMarker" parent="War3_Passive">
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="TriggerResumeBuildMarker"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="UnSelectableShopMain" parent="War3_Passive">
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="UnSelectableShopMain"/>
         <Modification>
             <StateFlags index="Uncommandable" value="1"/>
             <StateFlags index="Unselectable" value="1"/>
@@ -4726,7 +4834,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="ManaFlareSuppress" parent="War3_Buff">
         <EditorCategories value="Race:nightelf,AbilityorEffectType:Units"/>
         <Duration value="0.75"/>
-        <DurationOverride index="0" Duration="0.75">
+        <DurationOverride index="0">
+            <Duration value="0.75"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -4746,7 +4855,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="ACbk" parent="War3_AttackAugment">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Unit"/>
         <DamageResponse>
-            <Chance value="1"/>
             <Handled value="BNba"/>
             <Location value="Attacker"/>
             <ModifyMinimumDamage value="1"/>
@@ -4755,6 +4863,7 @@ Targetattach=origin-->
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
             <Kind index="NoProc" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
         <Modification>
             <DamageDealtUnscaled index="Melee" value="2"/>
@@ -4764,7 +4873,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="ACcw" parent="War3_AttackAugment">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Unit"/>
         <DamageResponse>
-            <Chance value="1"/>
             <Handled value="BHca"/>
             <Location value="Attacker"/>
             <ModifyMinimumDamage value="1"/>
@@ -4772,6 +4880,7 @@ Targetattach=origin-->
             <Kind index="Spell" value="0"/>
             <Kind index="Splash" value="0"/>
             <Kind index="NoProc" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
         <Modification>
             <DamageDealtUnscaled index="Melee" value="0.25"/>
@@ -4814,7 +4923,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="AahaP5" parent="War3_Passive"/>
     <CBehaviorBuff id="AcanMarker" parent="War3_Passive">
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="AcanMarker"/>
         <BuffFlags index="Channeling" value="1"/>
         <FinalEffect value="TargetRemoveTriggerRequest"/>
         <Modification>
@@ -4822,13 +4930,15 @@ Targetattach=origin-->
         </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNab1" parent="BNab">
-        <Modification LifeArmorBonus="-3">
+        <Modification>
+            <LifeArmorBonus value="-3"/>
             <BehaviorLinkDisableArray value="BNabS1"/>
         </Modification>
         <PeriodicEffect value="BNab1DPS"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNab2" parent="BNab">
-        <Modification LifeArmorBonus="-4">
+        <Modification>
+            <LifeArmorBonus value="-4"/>
             <BehaviorLinkDisableArray value="BNabS1"/>
             <BehaviorLinkDisableArray value="BNab1"/>
             <BehaviorLinkDisableArray value="BNabS2"/>
@@ -4836,7 +4946,8 @@ Targetattach=origin-->
         <PeriodicEffect value="BNab2DPS"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNab3" parent="BNab">
-        <Modification LifeArmorBonus="-5">
+        <Modification>
+            <LifeArmorBonus value="-5"/>
             <BehaviorLinkDisableArray value="BNabS1"/>
             <BehaviorLinkDisableArray value="BNab1"/>
             <BehaviorLinkDisableArray value="BNabS2"/>
@@ -4846,18 +4957,22 @@ Targetattach=origin-->
         <PeriodicEffect value="BNab3DPS"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNabS1" parent="BNab">
-        <Modification LifeArmorBonus="-3"/>
+        <Modification>
+            <LifeArmorBonus value="-3"/>
+        </Modification>
         <PeriodicEffect value="BNabS1DPS"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNabS2" parent="BNab">
-        <Modification LifeArmorBonus="-4">
+        <Modification>
+            <LifeArmorBonus value="-4"/>
             <BehaviorLinkDisableArray value="BNabS1"/>
             <BehaviorLinkDisableArray value="BNab1"/>
         </Modification>
         <PeriodicEffect value="BNabS2DPS"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNabS3" parent="BNab">
-        <Modification LifeArmorBonus="-5">
+        <Modification>
+            <LifeArmorBonus value="-5"/>
             <BehaviorLinkDisableArray value="BNabS1"/>
             <BehaviorLinkDisableArray value="BNab1"/>
             <BehaviorLinkDisableArray value="BNabS2"/>
@@ -4882,7 +4997,6 @@ Targetattach=origin-->
     <!--DrunkenHaze-->
     <CBehaviorBuff id="BNdhMiss" parent="War3_Passive">
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="BNdhMiss"/>
         <Modification>
             <ModifyFlags index="HideChangeUI" value="1"/>
             <DamageTotalMultiplier index="Melee" value="-200"/>
@@ -4892,7 +5006,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="BNdhMissChanceUsed" parent="War3_Passive">
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="BNdhMissChanceUsed"/>
         <RemoveValidatorArray value="SourceWeaponNotInCooldownWar3"/>
         <Duration value="2"/>
     </CBehaviorBuff>
@@ -4930,7 +5043,8 @@ Targetattach=origin-->
             <DamageDealtFraction index="Ranged" value="-0.3"/>
         </Modification>
         <Duration value="15"/>
-        <DurationOverride index="0" Duration="15">
+        <DurationOverride index="0">
+            <Duration value="15"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -4941,7 +5055,8 @@ Targetattach=origin-->
             <BehaviorLinkDisableArray value="BNht1"/>
         </Modification>
         <Duration value="15"/>
-        <DurationOverride index="0" Duration="15">
+        <DurationOverride index="0">
+            <Duration value="15"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
     </CBehaviorBuff>
@@ -4953,15 +5068,20 @@ Targetattach=origin-->
             <BehaviorLinkDisableArray value="BNht2"/>
         </Modification>
         <Duration value="15"/>
-        <DurationOverride index="0" Duration="15">
+        <DurationOverride index="0">
+            <Duration value="15"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNms1" parent="BNms">
-        <Modification EnergyDamageRatioBonus="1"/>
+        <Modification>
+            <EnergyDamageRatioBonus value="1"/>
+        </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNms2" parent="BNms">
-        <Modification EnergyDamageRatioBonus="1.5"/>
+        <Modification>
+            <EnergyDamageRatioBonus value="1.5"/>
+        </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNms3" parent="BNms"/>
     <!--Crypt Lord - Locust Swarm-->
@@ -4983,7 +5103,6 @@ Targetattach=origin-->
     </CBehaviorWander>
     <CBehaviorBuff id="BcrsMiss" parent="War3_Passive">
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="BcrsMiss"/>
         <Modification>
             <ModifyFlags index="HideChangeUI" value="1"/>
             <DamageTotalMultiplier index="Melee" value="-200"/>
@@ -4993,7 +5112,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="BcrsMissChanceUsed" parent="War3_Passive">
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="BcrsMissChanceUsed"/>
         <RemoveValidatorArray value="SourceWeaponNotInCooldownWar3"/>
         <Duration value="2"/>
     </CBehaviorBuff>
@@ -5015,7 +5133,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="CreatedCorpse" parent="War3_Passive">
         <BehaviorFlags index="EnabledWhileDead" value="1"/>
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="CreatedCorpse"/>
         <RemoveValidatorArray value="IsDead"/>
         <RemoveValidatorArray value="NotHidden"/>
     </CBehaviorBuff>
@@ -5054,7 +5171,8 @@ Targetattach=origin-->
         <InfoFlags index="Hidden" value="1"/>
         <EditorCategories value="AbilityorEffectType:Units"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="5">
+        <DurationOverride index="0">
+            <Duration value="5"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -5077,14 +5195,12 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="AOmiUniqueSummon" parent="War3_UniqueSummonMarker">
         <EditorCategories value="AbilityorEffectType:Units,Race:Orc"/>
-        <Requirements value="AOmiUniqueSummon"/>
         <MaxStackCount value="0"/>
         <MaxStackCountPerCaster value="1"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANssCooldown" parent="War3_Passive">
         <Name value="AnssCooldown/Name"/>
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="ANssCooldown"/>
         <Duration value="40"/>
         <Modification>
             <BehaviorLinkDisableArray value="ANss"/>
@@ -5093,7 +5209,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="Aroc" parent="War3_Passive">
         <InfoIcon value="Assets\Textures\BTN\Renee_war3_btnscatterrockets.dds"/>
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Aroc"/>
         <Modification>
             <ModifyFlags index="HideChangeUI" value="1"/>
             <WeaponArray Link="hrttBarrage"/>
@@ -5102,25 +5217,25 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="Adef" parent="War3_Passive">
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Adef"/>
         <Modification MoveSpeedMultiplier="0.7"/>
-        <DamageResponse Chance="1" ModifyFraction="0" ModifyMinimumDamage="1">
+        <DamageResponse ModifyFraction="0" ModifyMinimumDamage="1">
             <Kind index="Spell" value="0"/>
             <Kind index="Melee" value="0"/>
             <Kind index="Splash" value="0"/>
             <ExcludeEffectArray value="TriggerRangedDamge"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="Amdf" parent="War3_Passive">
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Amdf"/>
         <Modification MoveSpeedMultiplier="0.67">
             <StateFlags index="Unstoppable" value="1"/>
         </Modification>
-        <DamageResponse Chance="1" ModifyFraction="0.67">
+        <DamageResponse ModifyFraction="0.67">
             <Kind index="Melee" value="0"/>
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="Agyb" parent="War3_Passive">
@@ -5129,7 +5244,6 @@ Targetattach=origin-->
             <WeaponEnableArray value="hgyr1"/>
             <WeaponEnableArray value="hgyr2"/>
         </Modification>
-        <Requirements value="Agyb"/>
     </CBehaviorBuff>
     <!--PhoenixFire Dur=10 HeroDur=7-->
     <CBehaviorBuff id="Apxf" parent="War3_Passive">
@@ -5141,39 +5255,43 @@ Targetattach=origin-->
     <!--Sphere Dur=.01 HeroDur=.01 Cooldown=1-->
     <CBehaviorBuff id="Asph" parent="War3_Passive">
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Asph"/>
     </CBehaviorBuff>
     <!--Storm Hammers-->
     <CBehaviorBuff id="Asth" parent="War3_Passive">
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Asth"/>
     </CBehaviorBuff>
     <!--Detect (Gyrocopter)-->
     <CBehaviorBuff id="Agyv" parent="War3_Passive">
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Agyv"/>
         <Modification Detect="7.0312"/>
     </CBehaviorBuff>
     <!--Detect (Magic Sentinel)-->
     <CBehaviorBuff id="Adts" parent="War3_Passive">
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Adts"/>
         <Modification Detect="7.0312"/>
     </CBehaviorBuff>
     <!--Bash (creep) Dur=2 HeroDur=2 Buff=BPSE-->
     <CBehaviorBuff id="ACbh" parent="War3_Sphere">
-        <DamageResponse Chance="0.15" TargetFilters="-;air,wall,tree,debris,item,structure,ward,dead,invulnerable"/>
+        <DamageResponse TargetFilters="-;air,wall,tree,debris,item,structure,ward,dead,invulnerable">
+            <Chance value="0.15"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="AHbh1" parent="AHbhBase">
-        <DamageResponse Chance="0.2"/>
+        <DamageResponse>
+            <Chance value="0.2"/>
+        </DamageResponse>
         <Modification CriticalAttackChanceScaledBonus="0.2"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="AHbh2" parent="AHbhBase">
-        <DamageResponse Chance="0.3"/>
+        <DamageResponse>
+            <Chance value="0.3"/>
+        </DamageResponse>
         <Modification CriticalAttackChanceScaledBonus="0.3"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="AHbh3" parent="AHbhBase">
-        <DamageResponse Chance="0.4"/>
+        <DamageResponse>
+            <Chance value="0.4"/>
+        </DamageResponse>
         <Modification CriticalAttackChanceScaledBonus="0.4"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="AHbhController" parent="CritController">
@@ -5187,17 +5305,14 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="Afbk" parent="War3_Sphere">
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Afbk"/>
         <DamageResponse TargetFilters="-;player,allies,wall,tree,Missile,debris,item,structure,ward,dead,invulnerable"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="Afbt" parent="War3_Sphere">
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Afbt"/>
         <DamageResponse TargetFilters="-;player,allies,Structure,wall,tree,Missile,debris,item,ward,dead,invulnerable"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="Aflk" parent="War3_Sphere">
         <EditorCategories value="Race:Human,AbilityorEffectType:Units"/>
-        <Requirements value="Aflk"/>
         <DamageResponse TargetFilters="air;Missile,dead"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="Afsh" parent="War3_AttackAugmentTriggerNotice">
@@ -5208,24 +5323,28 @@ Targetattach=origin-->
         <BuffFlags index="Channeling" value="0"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANrg" parent="War3_Passive">
-        <Modification LifeArmorBonus="1">
+        <Modification>
+            <LifeArmorBonus value="1"/>
             <AttributeChangeArray Attribute="AttStr" Points="5"/>
         </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANg1" parent="War3_Passive">
-        <Modification LifeArmorBonus="1">
+        <Modification>
+            <LifeArmorBonus value="1"/>
             <AttributeChangeArray Attribute="AttStr" Points="2"/>
         </Modification>
         <DisableValidatorArray value="ANeg1"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANg2" parent="War3_Passive">
-        <Modification LifeArmorBonus="2">
+        <Modification>
+            <LifeArmorBonus value="2"/>
             <AttributeChangeArray Attribute="AttStr" Points="4"/>
         </Modification>
         <DisableValidatorArray value="ANeg2"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANg3" parent="War3_Passive">
-        <Modification LifeArmorBonus="3">
+        <Modification>
+            <LifeArmorBonus value="3"/>
             <AttributeChangeArray Attribute="AttStr" Points="6"/>
         </Modification>
         <DisableValidatorArray value="ANeg3"/>
@@ -5233,7 +5352,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="BEshSpeedDecay" parent="War3_Buff">
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Hero"/>
         <InfoFlags index="Hidden" value="1"/>
-        <DurationOverride index="0" Duration="15.1">
+        <DurationOverride index="0">
+            <Duration value="15.1"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Duration value="15.1"/>
@@ -5244,7 +5364,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="ACssSpeedDecay" parent="War3_Buff">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
         <InfoFlags index="Hidden" value="1"/>
-        <DurationOverride index="0" Duration="15.1">
+        <DurationOverride index="0">
+            <Duration value="15.1"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Duration value="15.1"/>
@@ -5253,20 +5374,25 @@ Targetattach=origin-->
         <Modification UnifiedMoveSpeedFactor="-0.028" UnifiedAttackSpeedFactor="-0.028"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="BHadI" parent="BHad">
-        <Modification LifeArmorBonus="1"/>
+        <Modification>
+            <LifeArmorBonus value="1"/>
+        </Modification>
         <RemoveValidatorArray index="0" value="BHadIRemove"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="BHad1" parent="BHad">
         <RemoveValidatorArray index="0" value="BHad1Remove"/>
-        <Modification LifeArmorBonus="1.5"/>
+        <Modification>
+            <LifeArmorBonus value="1.5"/>
+        </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="BHad2" parent="BHad">
         <RemoveValidatorArray index="0" value="BHad2Remove"/>
-        <Modification LifeArmorBonus="3"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="BHad3" parent="BHad">
         <RemoveValidatorArray index="0" value="BHad3Remove"/>
-        <Modification LifeArmorBonus="4.5"/>
+        <Modification>
+            <LifeArmorBonus value="4.5"/>
+        </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="AIrlBuff" parent="BIrl">
         <PeriodicEffect value="AIrlHealTick"/>
@@ -5281,7 +5407,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:other,AbilityorEffectType:Units"/>
         <RemoveValidatorArray value="NotInCombat"/>
         <Duration value="45"/>
-        <DurationOverride Duration="45">
+        <DurationOverride>
+            <Duration value="45"/>
             <ValidatorArray value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -5302,7 +5429,8 @@ Targetattach=origin-->
         <InfoFlags index="Hidden" value="1"/>
         <EditorCategories value="Race:Other"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <ExpireEffect value="BNsaRegen"/>
@@ -5310,7 +5438,8 @@ Targetattach=origin-->
     <!--WindWalk-->
     <CBehaviorBuff id="BOwkTransition" parent="War3_Buff">
         <Duration value="0.6"/>
-        <DurationOverride index="0" Duration="0.6">
+        <DurationOverride index="0">
+            <Duration value="0.6"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -5323,7 +5452,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="BOwkExtraDamage" parent="War3_Buff">
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -5337,7 +5467,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="BOwk1ExtraDamage" parent="War3_Buff">
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -5351,7 +5482,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="BOwk2ExtraDamage" parent="War3_Buff">
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -5365,7 +5497,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="BOwk3ExtraDamage" parent="War3_Buff">
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="1"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -5379,7 +5512,8 @@ Targetattach=origin-->
     <CBehaviorBuff id="WindWalkTempInvincible" parent="War3_Buff">
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="0.5"/>
-        <DurationOverride index="0" Duration="0.5">
+        <DurationOverride index="0">
+            <Duration value="0.5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification>
@@ -5397,7 +5531,8 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="BOwk2" parent="BOwk">
         <Duration value="35"/>
-        <DurationOverride index="0" Duration="35">
+        <DurationOverride index="0">
+            <Duration value="35"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification MoveSpeedMultiplier="1.4">
@@ -5409,7 +5544,8 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="BOwk3" parent="BOwk">
         <Duration value="50"/>
-        <DurationOverride index="0" Duration="50">
+        <DurationOverride index="0">
+            <Duration value="50"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <Modification MoveSpeedMultiplier="1.7">
@@ -5495,7 +5631,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="HostileSuppressXPGrantAndAttackSummoned" parent="War3_Passive">
         <Name value="HostileSupressXPGrant/Name"/>
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="HostileSuppressXPGrantAndAttackSummoned"/>
         <DisableValidatorArray value="HostilePlayer"/>
         <!--Period value="1"/>
         <PeriodicEffect value="HostileSearchSummoned"/-->
@@ -5506,7 +5641,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="IllusionPersist" parent="War3_Passive">
         <BehaviorFlags index="EnabledWhileDead" value="1"/>
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="IllusionPersist"/>
         <Modification>
             <StateFlags index="Hallucination" value="1"/>
         </Modification>
@@ -5521,7 +5655,6 @@ Targetattach=origin-->
         <PeriodicEffect value="GODMarker"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="TriggerZeroDamageAdjust" parent="War3_Passive">
-        <Requirements value="TriggerZeroDamageAdjust"/>
         <Modification>
             <DamageTotalMultiplier index="Melee" value="1"/>
             <DamageTotalMultiplier index="Ranged" value="1"/>
@@ -5529,7 +5662,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="TriggerCritDamageMultiplier" parent="War3_Passive">
         <EditorCategories value="AbilityorEffectType:Units"/>
-        <Requirements value="TriggerCritDamageMultiplier"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="War3_BuffDispelable" parent="War3_Buff">
         <BehaviorCategories index="Dispelable" value="1"/>
@@ -5540,7 +5672,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="AHpxUniqueSummon" parent="War3_UniqueSummonMarker">
         <EditorCategories value="AbilityorEffectType:Units,Race:Neutral"/>
-        <Requirements value="AHpxUniqueSummon"/>
         <RemoveValidatorArray index="0" removed="1"/>
     </CBehaviorBuff>
     <!--Paladin - Devotion Aura Buff=BHad-->
@@ -5551,22 +5682,13 @@ Targetattach=origin-->
     <!--Neutral Regen (health only)-->
     <CBehaviorBuff id="ACnr" parent="War3_AuraCaster">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Unit"/>
-        <Requirements value="ACnr"/>
-    </CBehaviorBuff>
-    <CBehaviorBuff id="BCnr" parent="Boar">
-        <MaxStackCount value="0"/>
-        <PeriodicEffect value="ACnrHealTick"/>
     </CBehaviorBuff>
     <!--Creep Abil End-->
     <!--Item Abil Start-->
     <!--Orb of Fire-->
-    <CBehaviorBuff id="AIfb" parent="War3_SphereItem">
-        <Requirements value="AIfb"/>
-    </CBehaviorBuff>
+    <CBehaviorBuff id="AIfb" parent="War3_SphereItem"/>
     <!--Orb of Lightning-->
-    <CBehaviorBuff id="AIll" parent="War3_SphereItem">
-        <Requirements value="AIll"/>
-    </CBehaviorBuff>
+    <CBehaviorBuff id="AIll" parent="War3_SphereItem"/>
     <!--Orb of Venom-->
     <CBehaviorBuff id="AIpb" parent="War3_SphereItem">
         <Requirements value="AIfb"/>
@@ -5580,16 +5702,16 @@ Targetattach=origin-->
     <!--Defend (Item)-->
     <CBehaviorBuff id="AIdd" parent="War3_Passive">
         <EditorCategories value="Race:Other,AbilityorEffectType:Item"/>
-        <DamageResponse Chance="1" ModifyFraction="0">
+        <DamageResponse ModifyFraction="0">
             <Kind index="Spell" value="0"/>
             <Kind index="Melee" value="0"/>
             <Kind index="Splash" value="0"/>
             <ExcludeEffectArray value="TriggerRangedDamge"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--NE Abil-->
     <CBehaviorBuff id="Acor" parent="War3_Passive">
-        <Requirements value="Acor"/>
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
     </CBehaviorBuff>
     <!--Elune's Grace-->
@@ -5643,24 +5765,18 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--Hardened Skin-->
     <CBehaviorBuff id="Assk" parent="War3_Passive">
-        <Requirements value="Assk"/>
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
-        <DamageResponse>
-            <Chance value="1"/>
-            <ClampMinimum value="3"/>
+        <DamageResponse ClampMinimum="3" TargetFilters="-;player,neutral">
             <ModifyAmount value="-12"/>
-            <TargetFilters value="-;player,neutral"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--Hardened Skin(Naga Turtle)-->
     <CBehaviorBuff id="Ansk" parent="War3_Passive">
-        <Requirements value="Ansk"/>
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
-        <DamageResponse>
-            <Chance value="1"/>
-            <ClampMinimum value="3"/>
+        <DamageResponse ClampMinimum="3" TargetFilters="-;player,neutral">
             <ModifyAmount value="-12"/>
-            <TargetFilters value="-;player,neutral"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--Mana Battery-->
@@ -5673,7 +5789,6 @@ Targetattach=origin-->
     <!--Shadow Meld-->
     <CBehaviorBuff id="Ashm" parent="War3_Passive">
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
-        <Requirements value="Ashm"/>
         <DisableValidatorArray value="NotMoving"/>
         <DisableValidatorArray value="Night"/>
         <DisableValidatorArray value="NotCloakSuppressed"/>
@@ -5687,7 +5802,8 @@ Targetattach=origin-->
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
         <InfoFlags index="Hidden" value="1"/>
         <Duration value="1.5"/>
-        <DurationOverride index="0" Duration="1.5">
+        <DurationOverride index="0">
+            <Duration value="1.5"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -5713,7 +5829,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--Slow Poison Dur=5 HeroDur=1 Buff=Bspo,Bssd-->
     <CBehaviorBuff id="Aspo" parent="War3_Sphere">
-        <Requirements value="Aspo"/>
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
         <DamageResponse TargetFilters="-;mechanical,wall,tree,debris,item,structure,ward,dead,invulnerable"/>
     </CBehaviorBuff>
@@ -5725,35 +5840,33 @@ Targetattach=origin-->
     <!--Tree of life (for attaching art)-->
     <CBehaviorBuff id="Atol" parent="War3_Passive">
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
-        <Requirements value="Atol"/>
     </CBehaviorBuff>
     <!--Ultravision-->
     <CBehaviorBuff id="Ault" parent="War3_Passive">
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
-        <Requirements value="Ault"/>
     </CBehaviorBuff>
     <!--Impaling Bolt-->
     <CBehaviorBuff id="Aimp" parent="War3_Passive">
         <EditorCategories value="Race:Nightelf,AbilityorEffectType:Unit"/>
-        <Requirements value="Aimp"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="Aetl" parent="War3_Passive">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="Aetl"/>
         <Modification HealTakenMultiplier="1.66">
             <StateFlags index="Stasis" value="1"/>
             <StateFlags index="SuppressAttack" value="1"/>
             <AbilClassDisableArray index="CAbilAttack" value="1"/>
         </Modification>
-        <DamageResponse Chance="1" ModifyFraction="1.66" TargetFilters="-;player,allies,neutral">
+        <DamageResponse ModifyFraction="1.66" TargetFilters="-;player,allies,neutral">
             <Kind index="Melee" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--Keeper - Entangling Roots Buff=BEer-->
     <CBehaviorBuff id="AEerStun" parent="War3_Buff">
         <Duration value="0.1"/>
-        <DurationOverride index="0" Duration="0.1">
+        <DurationOverride index="0">
+            <Duration value="0.1"/>
             <ValidatorArray index="0" value="Hero"/>
         </DurationOverride>
         <Modification>
@@ -5762,13 +5875,19 @@ Targetattach=origin-->
         </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="AEev1" parent="AEev">
-        <DamageResponse Chance="0.1"/>
+        <DamageResponse>
+            <Chance value="0.1"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="AEev2" parent="AEev">
-        <DamageResponse Chance="0.2"/>
+        <DamageResponse>
+            <Chance value="0.2"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="AEev3" parent="AEev">
-        <DamageResponse Chance="0.3"/>
+        <DamageResponse>
+            <Chance value="0.3"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <!--Priestess - Searing Arrows-->
     <CBehaviorBuff id="AHfaBase" parent="War3_Passive">
@@ -5831,13 +5950,11 @@ Targetattach=origin-->
     <!--Detect (Shade)-->
     <CBehaviorBuff id="Atru" parent="War3_Passive">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="Atru"/>
         <Modification Detect="7.0312"/>
     </CBehaviorBuff>
     <!--Ghost-->
     <CBehaviorBuff id="Agho" parent="War3_Passive">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="Agho"/>
         <Modification>
             <StateFlags index="Cloak" value="1"/>
         </Modification>
@@ -5845,7 +5962,6 @@ Targetattach=origin-->
     <!--Ghost (Visible)-->
     <CBehaviorBuff id="Aeth" parent="War3_Passive">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="Aeth"/>
         <Modification>
             <StateFlags index="Cloak" value="1"/>
         </Modification>
@@ -5872,7 +5988,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--Balls of Fire Dur=2.51 HeroDur=1.01 Buff=Bbof effect=Xbof-->
     <CBehaviorBuff id="Abof" parent="War3_Sphere">
-        <Requirements value="Abof"/>
         <EditorCategories value="Race:Orc,AbilityorEffectType:Unit"/>
     </CBehaviorBuff>
     <!--Battlestations (Chaos)-->
@@ -5887,31 +6002,26 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--Venom Spears Dur=25 HeroDur=1 Buff=Bpoi,Bpsd-->
     <CBehaviorBuff id="Aven" parent="War3_Sphere">
-        <Requirements value="Aven"/>
         <EditorCategories value="Race:Orc,AbilityorEffectType:Unit"/>
         <DamageResponse TargetFilters="-;mechanical,wall,tree,debris,item,structure,ward,dead,invulnerable"/>
     </CBehaviorBuff>
     <!--Aura - Regeneration (Ward) Buff=Boar-->
     <CBehaviorBuff id="Aoar" parent="War3_AuraCaster">
         <EditorCategories value="Race:Orc,AbilityorEffectType:Unit"/>
-        <Requirements value="Aoar"/>
         <InitialEffect value="AoarSearch"/>
     </CBehaviorBuff>
     <!--Liquid Fire Dur=3 HeroDur=3 Buff=Bliq-->
     <CBehaviorBuff id="Aliq" parent="War3_Sphere">
-        <Requirements value="Aliq"/>
         <EditorCategories value="Race:Orc,AbilityorEffectType:Unit"/>
         <DamageResponse TargetFilters="-;player,allies,air,ground,wall,tree,debris,item,ward,dead"/>
     </CBehaviorBuff>
     <!--Pillage-->
     <CBehaviorBuff id="Asal" parent="War3_Passive">
         <EditorCategories value="Race:Orc,AbilityorEffectType:Unit"/>
-        <Requirements value="Asal"/>
     </CBehaviorBuff>
     <!--Pulverize-->
     <CBehaviorBuff id="Awar" parent="War3_Passive">
         <EditorCategories value="Race:Orc,AbilityorEffectType:Unit"/>
-        <Requirements value="Awar"/>
         <Modification CriticalAttackChanceScaledBonus="0.25"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="AwarController" parent="CritController">
@@ -5923,7 +6033,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--Orb of Venom (Poison Attack) Dur=6 HeroDur=6 Buff=BIpb,BIpd-->
     <CBehaviorBuff id="Apo2" parent="War3_SphereItem">
-        <Requirements value="Apo2"/>
         <DamageResponse TargetFilters="-;mechanical,wall,tree,debris,item,structure,ward,dead,invulnerable"/>
         <Modification>
             <DamageDealtUnscaled index="Melee" value="0"/>
@@ -5933,7 +6042,8 @@ Targetattach=origin-->
     <!--Purge Dur=15 HeroDur=5 Buff=Bprg-->
     <CBehaviorBuff id="BprgPause" parent="War3_Buff">
         <Duration value="3"/>
-        <DurationOverride index="0" Duration="1">
+        <DurationOverride index="0">
+            <Duration value="1"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <InfoFlags index="Hidden" value="1"/>
@@ -5949,7 +6059,6 @@ Targetattach=origin-->
     <!--Reinforced Burrows-->
     <CBehaviorBuff id="Arbr" parent="War3_Passive">
         <EditorCategories value="Race:Orc,AbilityorEffectType:Units"/>
-        <Requirements value="Arbr"/>
         <Modification>
             <StateFlags index="UnitAttrOnUser1" value="1"/>
             <StateFlags index="UnitAttrOffMassive" value="1"/>
@@ -5958,11 +6067,11 @@ Targetattach=origin-->
     <!--Spiked Barricades-->
     <CBehaviorBuff id="Aspi" parent="War3_Passive">
         <EditorCategories value="Race:Orc,AbilityorEffectType:Units"/>
-        <Requirements value="Aspi"/>
-        <DamageResponse Chance="1" Handled="Rosp" TargetFilters="-;player,allies,neutral">
+        <DamageResponse Handled="Rosp" TargetFilters="-;player,allies,neutral">
             <Kind index="Spell" value="0"/>
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="AstaDelay">
@@ -5984,13 +6093,11 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--Aura - War Drums Buff=Bakb-->
     <CBehaviorBuff id="Aakb" parent="War3_AuraCaster">
-        <Requirements value="Aakb"/>
         <EditorCategories value="Race:Orc,AbilityorEffectType:Hero"/>
     </CBehaviorBuff>
     <!--Blade Master - Critical Strike-->
     <CBehaviorBuff id="AOcr" parent="War3_Passive">
         <EditorCategories value="Race:Orc,AbilityorEffectType:Hero"/>
-        <Requirements value="AOcr"/>
         <Modification CriticalAttackChanceScaledBonus="0.15"/>
         <DisableValidatorArray value="SlamValidTarget"/>
     </CBehaviorBuff>
@@ -6019,14 +6126,12 @@ Targetattach=origin-->
     <!--Farseer - Spirit Wolf Buff=BOsf-->
     <CBehaviorBuff id="AOsfUniqueSummon" parent="War3_UniqueSummonMarker">
         <EditorCategories value="AbilityorEffectType:Units,Race:Orc"/>
-        <Requirements value="AOsfUniqueSummon"/>
         <MaxStackCount value="2"/>
         <MaxStackCountPerCaster value="1"/>
     </CBehaviorBuff>
     <!--Permanent Invisibility Dur=2 HeroDur=2-->
     <CBehaviorBuff id="Apiv" parent="War3_Passive">
         <EditorCategories value="Race:Other,AbilityorEffectType:Unit"/>
-        <Requirements value="Apiv"/>
         <Modification>
             <StateFlags index="Cloak" value="1"/>
         </Modification>
@@ -6034,7 +6139,6 @@ Targetattach=origin-->
     <!--Critical Strike (creep)-->
     <CBehaviorBuff id="ACct" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Unit"/>
-        <Requirements value="ACct"/>
         <Modification CriticalAttackChanceScaledBonus="0.2"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ACctController" parent="CritController">
@@ -6049,7 +6153,6 @@ Targetattach=origin-->
             <Cooldown Location="Unit" TimeUse="240"/>
         </Cost>
         <EditorCategories value="Race:Orc,AbilityorEffectType:Hero"/>
-        <Requirements value="AOre"/>
         <Modification>
             <DeathResponse Chance="1" Effect="AOre">
                 <Cost>
@@ -6061,7 +6164,6 @@ Targetattach=origin-->
     <!--Cairne - Reincarnation effect=XOre cast=3-->
     <CBehaviorBuff id="AOr3" parent="War3_Passive">
         <EditorCategories value="Race:Orc,AbilityorEffectType:Hero"/>
-        <Requirements value="AOr3"/>
         <Modification>
             <DeathResponse Chance="1" Effect="AOr3">
                 <Cost>
@@ -6088,7 +6190,6 @@ Targetattach=origin-->
     <!--Vampiric Aura (creep) Buff=BUav-->
     <CBehaviorBuff id="ACvp" parent="War3_AuraCaster">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Unit"/>
-        <Requirements value="ACvp"/>
     </CBehaviorBuff>
     <!--Aura - Trueshot (Creep) Buff=BEar-->
     <CBehaviorBuff id="ACat" parent="AEar">
@@ -6103,7 +6204,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--Aura - Command (Creep) Buff=BOac-->
     <CBehaviorBuff id="ACac" parent="AOac">
-        <Requirements value="ACac"/>
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Unit"/>
     </CBehaviorBuff>
     <!--Aura - Devotion (Creep) Buff=BHad-->
@@ -6288,31 +6388,45 @@ Targetattach=origin-->
     <CBehaviorBuff id="AId1" parent="AIde"/>
     <!--DefenseBonus (+2)-->
     <CBehaviorBuff id="AId2" parent="AIde">
-        <Modification LifeArmorBonus="2"/>
+        <Modification>
+            <LifeArmorBonus value="2"/>
+        </Modification>
     </CBehaviorBuff>
     <!--DefenseBonus (+3)-->
     <CBehaviorBuff id="AId3" parent="AIde">
-        <Modification LifeArmorBonus="3"/>
+        <Modification>
+            <LifeArmorBonus value="3"/>
+        </Modification>
     </CBehaviorBuff>
     <!--DefenseBonus (+4)-->
     <CBehaviorBuff id="AId4" parent="AIde">
-        <Modification LifeArmorBonus="4"/>
+        <Modification>
+            <LifeArmorBonus value="4"/>
+        </Modification>
     </CBehaviorBuff>
     <!--DefenseBonus (+5)-->
     <CBehaviorBuff id="AId5" parent="AIde">
-        <Modification LifeArmorBonus="5"/>
+        <Modification>
+            <LifeArmorBonus value="5"/>
+        </Modification>
     </CBehaviorBuff>
     <!--DefenseBonus (+7)-->
     <CBehaviorBuff id="AId7" parent="AIde">
-        <Modification LifeArmorBonus="7"/>
+        <Modification>
+            <LifeArmorBonus value="7"/>
+        </Modification>
     </CBehaviorBuff>
     <!--DefenseBonus (+8)-->
     <CBehaviorBuff id="AId8" parent="AIde">
-        <Modification LifeArmorBonus="8"/>
+        <Modification>
+            <LifeArmorBonus value="8"/>
+        </Modification>
     </CBehaviorBuff>
     <!--DefenseBonus (+10)-->
     <CBehaviorBuff id="AId0" parent="AIde">
-        <Modification LifeArmorBonus="10"/>
+        <Modification>
+            <LifeArmorBonus value="10"/>
+        </Modification>
     </CBehaviorBuff>
     <!--continuous Defense Bonus,carry End-->
     <!--ATK Bonus Start-->
@@ -6476,7 +6590,9 @@ Targetattach=origin-->
     <CBehaviorBuff id="AIev" parent="AEev">
         <Name value="AIev/Name"/>
         <EditorCategories value="Race:Other,AbilityorEffectType:Item"/>
-        <DamageResponse Chance="0.15"/>
+        <DamageResponse>
+            <Chance value="0.15"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <!--ItemRegenMana, Trigger Notice-->
     <CBehaviorBuff id="AIrm" parent="War3_Item"/>
@@ -6485,10 +6601,11 @@ Targetattach=origin-->
     <!--Runed Bracers-->
     <CBehaviorBuff id="AIsr" parent="War3_Item">
         <MaxStackCount value="1"/>
-        <DamageResponse Chance="1" ModifyFraction="0.33">
+        <DamageResponse ModifyFraction="0.33">
             <Kind index="Melee" value="0"/>
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
     </CBehaviorBuff>
     <!--ItemAuraVampiric Buff=BUav-->
@@ -6523,10 +6640,11 @@ Targetattach=origin-->
     <!--Spell Shield Buff=BNss-->
     <CBehaviorBuff id="ANss" parent="War3_Item">
         <Period value="0.0625"/>
-        <DamageResponse Chance="1" Handled="BNssTrigger" ModifyFraction="0">
+        <DamageResponse Handled="BNssTrigger" ModifyFraction="0">
             <Kind index="Melee" value="0"/>
             <Kind index="Ranged" value="0"/>
             <Kind index="Splash" value="0"/>
+            <Chance value="1"/>
         </DamageResponse>
         <Cost>
             <Cooldown Location="Unit" TimeUse="40"/>
@@ -6553,7 +6671,9 @@ Targetattach=origin-->
     <!--ItemReincarnation effect=XOre-->
     <CBehaviorBuff id="AIrc" parent="War3_Item">
         <MaxStackCount value="1"/>
-        <DamageResponse Chance="1" Fatal="1" Handled="AIrc"/>
+        <DamageResponse Fatal="1" Handled="AIrc">
+            <Chance value="1"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <!--Permanent Immolation Dur=1 HeroDur=1 Buff=BNpi-->
     <CBehaviorBuff id="ANpi" parent="War3_Passive">
@@ -6627,19 +6747,16 @@ Targetattach=origin-->
     <!--Plague Toss Dur=10 HeroDur=10, Trigger Hook-->
     <CBehaviorBuff id="Apts" parent="War3_Passive">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="Apts"/>
     </CBehaviorBuff>
     <!--Aura - Plague (Abomination) Buff=Bapl-->
     <CBehaviorBuff id="Aap1" parent="Aapl">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
         <Name value="Aapl/Name"/>
-        <Requirements value="Aap1"/>
     </CBehaviorBuff>
     <!--Aura - Plague (Plague Ward) Buff=Bapl,Bplg-->
     <CBehaviorBuff id="Aap2" parent="Aapl">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
         <Name value="Aapl/Name"/>
-        <Requirements value="Aap2"/>
         <Modification Height="0.0625">
             <StateFlags index="Invulnerable" value="1"/>
             <StateFlags index="SuppressCollision" value="1"/>
@@ -6650,25 +6767,21 @@ Targetattach=origin-->
     <!--Exhume Dur=15=-->
     <CBehaviorBuff id="Aexh" parent="War3_Passive">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="Aexh"/>
         <PeriodicEffect value="AexhSpawn"/>
         <Period value="15"/>
     </CBehaviorBuff>
     <!--Freezing Breath Dur=5 HeroDur=5 Buff=Bfrz-->
     <CBehaviorBuff id="Afrz" parent="War3_Sphere">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="Afrz"/>
     </CBehaviorBuff>
     <!--Frost Attack Dur=5 HeroDur=5 Buff=Bfro-->
     <CBehaviorBuff id="Afra" parent="War3_Sphere">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="Afra"/>
         <DamageResponse Handled="Bfro" TargetFilters="-;wall,tree,debris,item,structure,ward,dead,invulnerable"/>
     </CBehaviorBuff>
     <!--Frost Attack (1,2) Dur=5 HeroDur=5 Buff=Bfro-->
     <CBehaviorBuff id="Afr2" parent="War3_Sphere">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="Afr2"/>
         <DamageResponse Handled="Bfro" TargetFilters="-;wall,tree,debris,item,structure,ward,dead,invulnerable"/>
     </CBehaviorBuff>
     <!--Frost Breath Dur=10 HeroDur=10 Buff=Bfro-->
@@ -6690,12 +6803,10 @@ Targetattach=origin-->
     <!--Orb of Annihilation-->
     <CBehaviorBuff id="UseAfak" parent="War3_Passive">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="UseAfak"/>
         <DisableValidatorArray value="MPGE25"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="AfakUnitRegister" parent="War3_Passive">
         <EditorCategories value="Race:Undead,AbilityorEffectType:Unit"/>
-        <Requirements value="AfakUnitRegister"/>
     </CBehaviorBuff>
     <!--Possession (Channeling) Dur=4.5 HeroDur=4.5 Buff=Bpos,Bpoc-->
     <CBehaviorBuff id="AposControlled" parent="War3_Passive">
@@ -6722,7 +6833,8 @@ Targetattach=origin-->
             <StateFlags index="Untargetable" value="1"/>
         </Modification>
         <Duration value="15.0625"/>
-        <DurationOverride index="0" Duration="15.0625">
+        <DurationOverride index="0">
+            <Duration value="15.0625"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="SuicideRemove"/>
@@ -6743,15 +6855,19 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <!--Lich - Frost Armor Buff=BUfa-->
     <CBehaviorBuff id="BUfa1" parent="BUfa">
-        <Modification LifeArmorBonus="3"/>
+        <Modification>
+            <LifeArmorBonus value="3"/>
+        </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="BUfa2" parent="BUfa">
-        <Modification LifeArmorBonus="5">
+        <Modification>
+            <LifeArmorBonus value="5"/>
             <BehaviorLinkDisableArray value="BUfa1"/>
         </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="BUfa3" parent="BUfa">
-        <Modification LifeArmorBonus="7">
+        <Modification>
+            <LifeArmorBonus value="7"/>
             <BehaviorLinkDisableArray value="BUfa1"/>
             <BehaviorLinkDisableArray value="BUfa2"/>
         </Modification>
@@ -6761,23 +6877,27 @@ Targetattach=origin-->
         <InitialEffect value="BUts"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="AUts1" parent="AUts">
-        <Modification LifeArmorBonus="3"/>
+        <Modification>
+            <LifeArmorBonus value="3"/>
+        </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="AUts2" parent="AUts">
-        <Modification LifeArmorBonus="5"/>
+        <Modification>
+            <LifeArmorBonus value="5"/>
+        </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="AUts3" parent="AUts">
-        <Modification LifeArmorBonus="7"/>
+        <Modification>
+            <LifeArmorBonus value="7"/>
+        </Modification>
     </CBehaviorBuff>
     <!--Orb of Corruption Dur=5 HeroDur=5 Buff=BIcb-->
     <CBehaviorBuff id="AIcb" parent="War3_SphereItem">
-        <Requirements value="AIcb"/>
         <DamageResponse Handled="BIcb"/>
     </CBehaviorBuff>
     <!--Attribute Modifier Skill-->
     <CBehaviorBuff id="Aamk" parent="AttExtraPermanent">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
-        <Requirements value="Aamk"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="Aamk1" parent="Aamk">
         <Modification>
@@ -6826,16 +6946,13 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="ANbaUnitRegister" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
-        <Requirements value="ANbaUnitRegister"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="UseANba" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
-        <Requirements value="UseANba"/>
         <DisableValidatorArray value="MPGE6"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="UseANfa" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
-        <Requirements value="UseANfa"/>
         <DisableValidatorArray value="CasterMPGE10"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANbaController" parent="CritController">
@@ -6856,58 +6973,66 @@ Targetattach=origin-->
     <!--Cleaving Attack (Creep)-->
     <CBehaviorBuff id="ACce" parent="War3_AbsorbResponse">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Unit"/>
-        <Requirements value="ACce"/>
         <DamageResponse TargetFilters="-;player,allies,air,wall,tree,debris,item,structure,ward,dead,invulnerable"/>
     </CBehaviorBuff>
     <!--Tinkerer - Demolish (Level 0)-->
     <CBehaviorBuff id="ANde" parent="War3_Sphere">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
-        <Requirements value="ANde"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANdeDamageEx" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
         <Requirements value="ANde"/>
-        <DamageResponse Chance="1" ModifyFraction="2">
+        <DamageResponse ModifyFraction="2">
             <RequireEffectArray value="Nrob1"/>
             <RequireEffectArray value="Nrob2"/>
+            <Chance value="1"/>
         </DamageResponse>
         <Duration value="0.0625"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANdeDamageExA" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
         <Requirements value="ANde"/>
-        <DamageResponse Chance="1" ModifyFraction="2.5">
+        <DamageResponse ModifyFraction="2.5">
             <RequireEffectArray value="Nrob1"/>
             <RequireEffectArray value="Nrob2"/>
+            <Chance value="1"/>
         </DamageResponse>
         <Duration value="0.0625"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANdeDamageExB" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
         <Requirements value="ANde"/>
-        <DamageResponse Chance="1" ModifyFraction="3">
+        <DamageResponse ModifyFraction="3">
             <RequireEffectArray value="Nrob1"/>
             <RequireEffectArray value="Nrob2"/>
+            <Chance value="1"/>
         </DamageResponse>
         <Duration value="0.0625"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANdeDamageExC" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
         <Requirements value="ANde"/>
-        <DamageResponse Chance="1" ModifyFraction="3.5">
+        <DamageResponse ModifyFraction="3.5">
             <RequireEffectArray value="Nrob1"/>
             <RequireEffectArray value="Nrob2"/>
+            <Chance value="1"/>
         </DamageResponse>
         <Duration value="0.0625"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANdb1" parent="ANdb">
-        <DamageResponse Chance="0.07"/>
+        <DamageResponse>
+            <Chance value="0.07"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANdb2" parent="ANdb">
-        <DamageResponse Chance="0.14"/>
+        <DamageResponse>
+            <Chance value="0.14"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANdb3" parent="ANdb">
-        <DamageResponse Chance="0.21"/>
+        <DamageResponse>
+            <Chance value="0.21"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANdbCritTrigger" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
@@ -6916,7 +7041,6 @@ Targetattach=origin-->
     <!--Tinkerer - Engineering Upgrade Buff=BNeg-->
     <CBehaviorBuff id="ANeg" parent="War3_Passive">
         <EditorCategories value="Race:Creeps,AbilityorEffectType:Hero"/>
-        <Requirements value="ANeg"/>
         <InitialEffect value="BNeg"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANeg1" parent="ANeg">
@@ -6938,13 +7062,16 @@ Targetattach=origin-->
         </Modification>
     </CBehaviorBuff>
     <CBehaviorBuff id="ANbh" parent="AHbhBase">
-        <DamageResponse Chance="0.25"/>
+        <DamageResponse>
+            <Chance value="0.25"/>
+        </DamageResponse>
         <Modification CriticalAttackChanceScaledBonus="0.25"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="BNlmSplitDelay" parent="War3_Buff">
         <EditorCategories value="Race:Creeps"/>
         <Duration value="5"/>
-        <DurationOverride index="0" Duration="5">
+        <DurationOverride index="0">
+            <Duration value="5"/>
             <ValidatorArray index="0" value="HeroOrPowerfulMob"/>
         </DurationOverride>
         <ExpireEffect value="BNlmMissile"/>
@@ -6966,7 +7093,6 @@ Targetattach=origin-->
     </CBehaviorBuff>
     <CBehaviorBuff id="ACpv" parent="War3_Passive">
         <EditorCategories value="Race:Creeps"/>
-        <Requirements value="ACpv"/>
         <Modification CriticalAttackChanceScaledBonus="0.2"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="ACpvController" parent="CritController">
@@ -6979,7 +7105,6 @@ Targetattach=origin-->
     <CBehaviorBuff id="ANefUniqueSummon" parent="War3_UniqueSummonMarker">
         <Name value="BNefUniqueSummon/Name"/>
         <EditorCategories value="Race:Creeps"/>
-        <Requirements value="ANefUniqueSummon"/>
         <MaxStackCount value="3"/>
         <MaxStackCountPerCaster value="1"/>
     </CBehaviorBuff>

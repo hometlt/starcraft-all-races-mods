@@ -5,23 +5,23 @@
     <const id="$weapon" value="SOpAttachWeapon"/>
     <const id="$weapon,left" value="SOpAttachWeaponLeft"/>
     <const id="$sprite,fourth" value="SOpAttachSpriteFourth"/>
-    <const id="$chest,mount,right" value="SOpAttachChestMountRight"/>
     <const id="$hand,right" value="SOpAttachHandRight"/>
+    <const id="$chest,mount,right" value="SOpAttachChestMountRight"/>
     <const id="$chest" value="SOpAttachChest"/>
     <const id="$hand,left" value="SOpAttachHandLeft"/>
-    <const id="$head,mount" value="SOpAttachHeadMount"/>
-    <const id="$overhead" value="SOpAttachOverhead"/>
     <const id="$weapon,right" value="SOpAttachWeaponRight"/>
-    <const id="$chest,right" value="SOpAttachChestRight"/>
+    <const id="$overhead" value="SOpAttachOverhead"/>
+    <const id="$head,mount" value="SOpAttachHeadMount"/>
     <const id="$sprite,second" value="SOpAttachSpriteSecond"/>
+    <const id="$chest,right" value="SOpAttachChestRight"/>
     <const id="$sprite,first" value="SOpAttachSpriteFirst"/>
-    <const id="$chest,mount,left" value="SOpAttachChestMountLeft"/>
     <const id="$sprite,fifth" value="SOpAttachSpriteFifth"/>
+    <const id="$chest,mount,left" value="SOpAttachChestMountLeft"/>
     <const id="$War3BuildingDamageNew" value="AMNodeOccupancyNoSpam AMFilterHardpointOrDamage AMRandomUniformAllWar3 AMReductionFireWar3"/>
     <const id="$head" value="SOpAttachHead"/>
-    <const id="$chest,mount" value="SOpAttachChestMount"/>
-    <const id="$sprite,third" value="SOpAttachSpriteThird"/>
     <const id="$origin" value="SOpAttachOrigin"/>
+    <const id="$sprite,third" value="SOpAttachSpriteThird"/>
+    <const id="$chest,mount" value="SOpAttachChestMount"/>
     <CActorAction default="1" id="War3_GenericMissileAttack" parent="GenericAttack">
         <Missile value="##missile##"/>
         <ImpactMap index="None" Model="##missile##"/>
@@ -382,35 +382,6 @@
         <Inherits index="BaseModelScale" value="0"/>
         <Inherits index="Scale" value="0"/>
     </CActorModel>
-    <CActorModel id="War_UberSplatModel">
-        <On Terms="SupporterDestruction" Send="Destroy"/>
-        <On Terms="ActorOrphan" Send="Destroy"/>
-        <On Terms="UnitDeath" Send="AnimBracketStop BSD"/>
-        <On Terms="ActorCreation" Send="SetCastShadows"/>
-        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ClosingFull"/>
-        <On Terms="ActorCreation" Send="SetCastShadows"/>
-        <ModelFlags index="AllowHitTest" value="0"/>
-        <ModelFlags index="UseSyncSeed" value="1"/>
-        <Aliases value="_Snapshot"/>
-        <Aliases value="_Splat"/>
-        <Host Subject="::Creator"/>
-        <Inherits index="BaseModelScale" value="1"/>
-        <Inherits index="CloakEffect" value="1"/>
-        <Inherits index="CreepEngulfment" value="1"/>
-        <Inherits index="Decal" value="1"/>
-        <Inherits index="Opacity" value="1"/>
-        <Inherits index="TeamColor" value="1"/>
-        <Inherits index="TimeScale" value="1"/>
-        <Inherits index="TintColor" value="1"/>
-        <Inherits index="Visibility" value="1"/>
-        <Inherits index="WarpGroup" value="1"/>
-        <Flags index="SuppressCreationErrors" value="1"/>
-        <Model value="##file##"/>
-        <!--AcceptedHostedPropTransfers index="BaseModelScale" value="0"/-->
-        <AcceptedHostedPropTransfers index="CloakEffect" value="0"/>
-        <AcceptedHostedPropTransfers index="Scale" value="0"/>
-        <Terms value="Cap 1"/>
-    </CActorModel>
     <CActorSplat default="1" id="War3_BurrowedSplat" parent="BurrowedSplatBase">
         <!--<?token id="unitName" value="Bogus"?>-->
         <On Terms="UnitBirth.##unitName##" Send="Create"/>
@@ -432,22 +403,6 @@
         <ModelFlags index="AutomateGlobalLoops" value="1"/>
         <On Terms="UnitConstruction.*.Finish" Send="AnimBracketStop BSD"/>
         <On Terms="UnitConstruction.*.Cancel" Send="AnimBracketStop BSD"/>
-    </CActorModel>
-    <CActorModel id="BuildingFireBase">
-        <Inherits index="CloakEffect" value="1"/>
-        <Inherits index="Visibility" value="1"/>
-        <Supporter Subject="::Creator"/>
-        <AutoScaleFromSelectionFactor value="0.300000"/>
-        <On Terms="ActorCreation" Send="$Birth"/>
-        <On Terms="AnimDone; AnimName Birth" Send="$Stand"/>
-        <On Terms="AnimDone; AnimName Stand" Send="$Stand"/>
-        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
-        <On Terms="SupporterDestruction" Send="$Death"/>
-        <On Terms="ActorOrphan" Send="Destroy"/>
-        <Host Subject="_Selectable"/>
-        <HostSiteOps Ops="SOpAttachBuildingDamageOrHardpoint SOp2DRotation"/>
-        <Model value="War3_LargeBuildingFire"/>
-        <ModelFlags index="AutomateGlobalLoops" value="1"/>
     </CActorModel>
     <CActorSetQueried default="1" id="BuildingFlameSetFireBase">
         <Host Subject="_Selectable"/>
@@ -535,6 +490,191 @@
         <On Terms="Behavior.ThunderLizardRun.Off" Send="SetWalkAnimMoveSpeed 1"/>
         <WalkAnimMoveSpeed value="1"/>
     </CActorUnit>
+    <!--    Extra Data-->
+    <CActorSimple default="1" id="War3_AttackMissileSwap">
+        <Aliases value="_SphereOp"/>
+        <On Terms="Behavior.##id##.On" Send="Create"/>
+        <On Terms="Behavior.##id##.Off" Send="Destroy"/>
+        <On Terms="Signal.*.SwapMe" Send="RefSetFromMsg ::actor.MissileW ::Sender"/>
+        <On Terms="Signal.*.SwapMe" Target="::actor.MissileW" Send="ModelSwap ##id##Missile"/>
+    </CActorSimple>
+    <CActorSimple default="1" id="War3_BuffSoundOnly">
+        <On Terms="Behavior.##id##.On" Send="Create"/>
+        <On Terms="Behavior.##id##.Off" Send="Destroy"/>
+        <On Terms="ActorCreation" Target="_Selectable" Send="Create EffectSoundOneShot ##effectsound##"/>
+        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/>
+    </CActorSimple>
+    <CActorSimple default="1" id="War3_BuffModelSwap">
+        <On Terms="Behavior.##buff##.On" Send="Create"/>
+        <On Terms="Behavior.##buff##.Off" Send="Destroy"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="ModelSwap ##model##"/>
+        <On Terms="ActorDestruction" Target="_Unit" Send="Signal ClearModelSwap"/>
+    </CActorSimple>
+    <CActorSimple default="1" id="War3_AbilSoundOnly">
+        <On Terms="Abil.##id##.SourceChannelStart" Send="Create"/>
+        <On Terms="Abil.##id##.SourceChannelStop" Send="Destroy"/>
+        <On Terms="ActorCreation" Target="_Selectable" Send="Create EffectSoundOneShot ##effectsound##"/>
+        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/>
+    </CActorSimple>
+    <CActorSimple default="1" id="War3_EffectSoundOnly">
+        <On Terms="Effect.##dataeffect##.Start; At Effect" Send="Create"/>
+        <On Terms="Effect.##dataeffect##.Stop; At Effect" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="Create EffectSoundOneShot ##effectsound##"/>
+        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/>
+    </CActorSimple>
+    <CActorModel default="1" id="War3_PersistEffect" parent="ModelAnimationStyleContinuous">
+        <On Terms="Effect.##id##.Start" Send="Create"/>
+        <On Terms="Effect.##id##.Stop" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="Create EffectSoundOneShot ##effectsound##"/>
+        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/>
+    </CActorModel>
+    <CActorSimple default="1" id="War3_SimpleCastAnim">
+        <?token id="anim" value="Spell"?>
+        <On Terms="Abil.##id##.SourcePrepStart" Target="_Selectable" Send="AnimPlay spell Spell NonLooping -1.000000 -1.000000 1.000000 AsTimeScaleAbsolute"/>
+        <On Terms="Abil.##id##.SourcePrepStart" Send="Create EffectSoundOneShot ##effectsound##"/>
+        <On Terms="Abil.##id##.SourcePrepStart" Send="Create"/>
+        <On Terms="Abil.##id##.SourcePrepStop" Send="Destroy"/>
+        <!--On Terms="Abil.##id##.SourcePrepStart" Send="Create EffectSoundLooped ##effectsoundlooped##"/-->
+    </CActorSimple>
+    <CActorSimple default="1" id="War3_SimpleMorphAnim">
+        <On Terms="AbilMorph.##id##.Start" Send="Create"/>
+        <On Terms="AbilMorph.##id##.Finish" Send="Destroy"/>
+        <On Terms="AbilMorph.##id##.Start" Target="_Selectable" Send="AnimPlay Morph Morph"/>
+        <On Terms="AbilMorph.##id##.Finish" Target="_Selectable" Send="AnimClear Morph"/>
+    </CActorSimple>
+    <CActorSimple default="1" id="War3_ChannelAnim">
+        <On Terms="Abil.##id##.SourcePrepStart" Target="_Selectable" Send="AnimBracketStart channel Spell Stand,Channel {} 0 1.000000 AsTimeScaleAbsolute"/>
+        <On Terms="Abil.##id##.SourceChannelStop" Target="_Selectable" Send="AnimBracketStop channel"/>
+        <!--On Terms="Abil.##id##.TargetCastStart" Send="Create ##id##Target"/-->
+        <On Terms="Abil.##id##.SourcePrepStart" Send="Create"/>
+        <On Terms="Abil.##id##.SourcePrepStop" Send="Destroy"/>
+        <On Terms="Abil.##id##.SourceChannelStart" Send="Create"/>
+        <On Terms="Abil.##id##.SourceChannelStop" Send="Destroy"/>
+        <!--On Terms="ActorCreation" Send="Create EffectSoundOneShot ##effectsound##"/>
+        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/-->
+    </CActorSimple>
+    <CActorSimple default="1" id="War3_ChannelAnimWcArt" parent="War3_ChannelAnim">
+        <On Terms="Abil.##id##.SourceCastStart" Send="Create"/>
+        <On Terms="Abil.##id##.SourceCastStop" Send="Destroy"/>
+        <On Terms="Abil.##id##.SourceCastStart" Send="Create ##id##Caster"/>
+    </CActorSimple>
+    <CActorSimple default="1" id="War3_SimpleCastAnimWcArt" parent="War3_SimpleCastAnim">
+        <On Terms="Abil.##id##.SourceCastStart" Send="Create ##id##Caster"/>
+        <On Terms="Abil.##id##.SourceCastStart" Send="Create"/>
+        <On Terms="Abil.##id##.SourceCastStop" Send="Destroy"/>
+        <!--On Terms="Abil.##id##.SourcePrepStart" Send="Create EffectSoundLooped ##effectsoundlooped##"/-->
+    </CActorSimple>
+    <CActorDoodad default="1" id="War3_TreeDoodad" parent="War3_Doodad">
+        <Model value="War3_LordaeronTreeStatic"/>
+    </CActorDoodad>
+    <CActorText default="1" id="GoldText">
+        <?token id="dropBehavior" value="Bogus"?>
+        <?token id="dropEffect" value="Bogus"?>
+        <Filter index="Ally" value="1"/>
+        <Filter index="Neutral" value="1"/>
+        <Filter index="Enemy" value="1"/>
+        <On Terms="Behavior.##dropBehavior##.Create" Send="Create"/>
+        <On Terms="Behavior.##dropBehavior##.Create" Send="SetVisibility"/>
+        <On Terms="Behavior.##dropBehavior##.Destroy" Send="SetVisibility 1"/>
+        <On Terms="Behavior.##dropBehavior##.Destroy" Send="Signal Show"/>
+        <On Terms="Effect.##dropEffect##.Start; At Target" Send="Create"/>
+        <On Terms="Effect.##dropEffect##.Start; At Target" Send="Signal Show"/>
+        <On Terms="Signal.*.Show" Send="TimerSet 0.010000 StartMover"/>
+        <On Terms="Signal.*.Show" Send="TimerSet 2.000000 Die"/>
+        <On Terms="Signal.*.Show" Send="SetOpacity 0.000000 2.000000"/>
+        <On Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
+        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <!--Host Subject="_FloatingText"/-->
+        <FixedSize value="28"/>
+        <AlignV value="Bottom"/>
+        <HeightOffset value="1.000000"/>
+        <Color value="255,255,220,0"/>
+        <Text value="##id##/Text"/>
+    </CActorText>
+    <CActorText default="1" id="MissText">
+        <?token id="effect" value="Bogus"?>
+        <On Terms="Effect.##effect##.Start" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.010000 StartMover"/>
+        <On Terms="ActorCreation" Send="TimerSet 2.000000 Die"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.000000 2.000000"/>
+        <On Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
+        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <!--Host Subject="_FloatingText"/-->
+        <FixedSize value="28"/>
+        <AlignV value="Bottom"/>
+        <HeightOffset value="1.000000"/>
+        <Color value="255,255,0,0"/>
+        <Text value="Miss/Text"/>
+    </CActorText>
+    <CActorText default="1" id="LumberText">
+        <?token id="dropEffect" type="CEffectLink" value="Bogus"?>
+        <?token id="dropBehavior" type="CBehaviorLink" value="Bogus"?>
+        <Filter index="Ally" value="1"/>
+        <Filter index="Neutral" value="1"/>
+        <Filter index="Enemy" value="1"/>
+        <On Terms="Behavior.##dropBehavior##.Create" Send="Create"/>
+        <On Terms="Behavior.##dropBehavior##.Create" Send="SetVisibility"/>
+        <On Terms="Behavior.##dropBehavior##.Destroy" Send="SetVisibility 1"/>
+        <On Terms="Behavior.##dropBehavior##.Destroy" Send="Signal Show"/>
+        <On Terms="Effect.##dropEffect##.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.##dropEffect##.Start; At Caster" Send="Signal Show"/>
+        <On Terms="Signal.*.Show" Send="TimerSet 0.010000 StartMover"/>
+        <On Terms="Signal.*.Show" Send="TimerSet 2.000000 Die"/>
+        <On Terms="Signal.*.Show" Send="SetOpacity 0.000000 2.000000"/>
+        <On Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
+        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <!--Host Subject="_FloatingText"/-->
+        <FixedSize value="28"/>
+        <AlignV value="Bottom"/>
+        <HeightOffset value="1.000000"/>
+        <Color value="255,0,200,80"/>
+        <Text value="##id##/Text"/>
+    </CActorText>
+    <CActorModel id="War_UberSplatModel">
+        <On Terms="SupporterDestruction" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="UnitDeath" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorCreation" Send="SetCastShadows"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ClosingFull"/>
+        <On Terms="ActorCreation" Send="SetCastShadows"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <ModelFlags index="UseSyncSeed" value="1"/>
+        <Aliases value="_Snapshot"/>
+        <Aliases value="_Splat"/>
+        <Host Subject="::Creator"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="CreepEngulfment" value="1"/>
+        <Inherits index="Decal" value="1"/>
+        <Inherits index="Opacity" value="1"/>
+        <Inherits index="TeamColor" value="1"/>
+        <Inherits index="TimeScale" value="1"/>
+        <Inherits index="TintColor" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Inherits index="WarpGroup" value="1"/>
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <Model value="##file##"/>
+        <!--AcceptedHostedPropTransfers index="BaseModelScale" value="0"/-->
+        <AcceptedHostedPropTransfers index="CloakEffect" value="0"/>
+        <AcceptedHostedPropTransfers index="Scale" value="0"/>
+        <Terms value="Cap 1"/>
+    </CActorModel>
+    <CActorModel id="BuildingFireBase">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Supporter Subject="::Creator"/>
+        <AutoScaleFromSelectionFactor value="0.300000"/>
+        <On Terms="ActorCreation" Send="$Birth"/>
+        <On Terms="AnimDone; AnimName Birth" Send="$Stand"/>
+        <On Terms="AnimDone; AnimName Stand" Send="$Stand"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+        <On Terms="SupporterDestruction" Send="$Death"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachBuildingDamageOrHardpoint SOp2DRotation"/>
+        <Model value="War3_LargeBuildingFire"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModel>
     <CActorModel id="War3_MagicSphere" parent="ModelAddition">
         <AutoScaleFromSelectionFactor value="1.000000"/>
         <Terms value="Cap 1"/>
@@ -560,7 +700,6 @@
     </CActorModel>
     <CActorModel id="TerrainSquibHarnessContinuous">
         <Inherits index="CloakEffect" value="1"/>
-        <Inherits index="Visibility" value="1"/>
         <ModelFlags index="CloakedUndetectedIsHidden" value="1"/>
     </CActorModel>
     <CActorSound id="WaterWalkLarge">
@@ -674,8 +813,6 @@
         <On Terms="ActorCreation" Send="SetRotation"/>
     </CActorModel>
     <CActorCreep id="CreepMgr">
-<!--        <On index="0" Terms="GameInitialize" Send="Print"/>-->
-        <On index="0" Terms="GameInitialize" Send="Create"/>
         <SubjectResponses Filters="Unit" Terms="ScopeContains _War3Tree">
             <OnResponse Target="_War3Tree" Send="Signal TreeBlight"/>
         </SubjectResponses>
@@ -1036,7 +1173,6 @@
     <!--druidoftheclawmorphed-->
     <CActorUnit id="edcm" parent="War3_Army" unitSound="DruidOfTheClawMorphed" unitName="edcm" defType="LARGE">
         <On index="81" Terms="UnitPortrait.*.Configure" Target="::PortraitGameSelf" Send="AnimGroupApply Alternateex"/>
-
         <On Terms="ActorCreation" Send="AnimGroupApply Alternate {} {} Instant"/>
         <On Terms="UnitPortrait.*.Configure" Target="::PortraitGameSelf" Send="AnimGroupApply Alternate {} {} Instant"/>
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnBearForm.dds"/>
@@ -1269,7 +1405,7 @@
     <!--entangledgoldmine-->
     <CActorUnit id="egol" parent="War3_Building" unitSound="EntangledGoldMine" unitName="egol" defType="FORT">
         <MinimapUseSelfColor value="0"/>
-        <CustomUnitStatusFrame value="War3_UnitStatus/RemainingResourceWithHearth"/>
+        <CustomUnitStatusFrame value="War3_UnitStatus/UnitBar275"/>
         <MinimapIcon value="Assets\Textures\UI\MiniMap\minimap-gold-entangled.tga"/>
         <On Terms="ActorCreation" Send="Create UBR_EMDB"/>
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnGoldMine.dds"/>
@@ -1279,7 +1415,6 @@
         <HeroIcon value="Assets\Textures\BTN\Renee_war3_btnGoldMine.dds"/>
         <SoundArray index="Construction" value="UndeadBuildingConstructionLoop"/>
         <BarWidth value="275"/>
-        <CustomUnitStatusFrame value="War3_UnitStatus/UnitBar275"/>
         <Macros value="War3_GoldmineAnim"/>
         <BarOffset value="120"/>
         <DeathArray index="Cancel" AnimProps="Birth" ModelLink="War3_NECancelDeath"/>
@@ -2789,7 +2924,6 @@
         <WalkAnimMoveSpeed value="2.1093"/>
         <On Terms="UnitPortrait.*.Configure; HasStatus Raged" Target="::PortraitGameSelf" Send="AnimGroupApply Alternate"/>
         <On Terms="UnitPortrait.*.Configure; !HasStatus Raged" Target="::PortraitGameSelf" Send="AnimGroupRemove Alternate"/>
-
     </CActorUnit>
     <!--alchemistmorph-->
     <CActorUnit id="Nalm" parent="War3_Hero" unitSound="HEROGoblinALCHEMIST" unitName="Nalm" defType="HERO">
@@ -6215,25 +6349,22 @@
     <!--goldmine-->
     <CActorUnit id="ngol" parent="War3_Building" unitSound="GoldMine" unitName="ngol" defType="FORT">
         <MinimapUseSelfColor value="0"/>
-        <MinimapIcon value="Assets\Textures\UI\MiniMap\minimap-gold.tga"/>
         <On Terms="ActorCreation" Send="Create UBR_NGOL"/>
+        <On Terms="ActorCreation" Send="TimerSet 1.000000 Delay"/>
+        <On Terms="TimerExpired; TimerName Delay" Send="SetShowStatusBar 1 Custom"/>
+        <On Terms="TimerExpired; TimerName Delay" Send="SetShowStatusBar 1 Workers"/>
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnGoldMine.dds"/>
         <GroupIcon>
             <Image index="0" value="Assets\Textures\BTN\Renee_war3_btnGoldMine.dds"/>
         </GroupIcon>
         <HeroIcon value="Assets\Textures\BTN\Renee_war3_btnGoldMine.dds"/>
         <BarWidth value="250"/>
-        <CustomUnitStatusFrame value="War3_UnitStatus/UnitBar250"/>
+        <CustomUnitStatusFrame value="War3_UnitStatus/RemainingResource"/>
         <MinimapRenderPriority value="Resource"/>
         <Macros value="War3_GoldmineAnim"/>
         <BarOffset value="120"/>
         <StatusHarvesterData Text="UI/HarvesterCountGoldmine"/>
-        <MinimapIcon value=""/>
         <MinimapIconBackground value="Assets\Textures\UI\MiniMap\minimap-gold.tga"/>
-        <CustomUnitStatusFrame value="War3_UnitStatus/RemainingResource"/>
-        <On Terms="ActorCreation" Send="TimerSet 1.000000 Delay"/>
-        <On Terms="TimerExpired; TimerName Delay" Send="SetShowStatusBar 1 Custom"/>
-        <On Terms="TimerExpired; TimerName Delay" Send="SetShowStatusBar 1 Workers"/>
         <MinimapIconBackgroundScale value="1.500000"/>
     </CActorUnit>
     <!--greendragon-->
@@ -10049,10 +10180,10 @@
     <!--cantina-->
     <CActorUnit id="ntav" parent="War3_Building" unitSound="Cantina" unitName="ntav" defType="FORT">
         <On Terms="ActorCreation" Send="SetTeamColor 128,0,0 64,0,0"/>
+        <On Terms="ActorCreation" Send="Create UBR_HMED"/>
         <MinimapUseSelfColor value="0"/>
         <MinimapIcon value="Assets\Textures\UI\MiniMap\minimap-neutralbuilding.tga"/>
         <MinimapRenderPriority value="Merc"/>
-        <On Terms="ActorCreation" Send="Create UBR_HMED"/>
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnTavern.dds"/>
         <GroupIcon>
             <Image index="0" value="Assets\Textures\BTN\Renee_war3_btnTavern.dds"/>
@@ -10275,7 +10406,7 @@
         </GroupIcon>
         <HeroIcon value="Assets\Textures\BTN\Renee_war3_btnTornado.dds"/>
         <BarWidth value="50"/>
-<!--        <CustomUnitStatusFrame value="War3_UnitStatus/UnitBar50"/>-->
+        <!--        <CustomUnitStatusFrame value="War3_UnitStatus/UnitBar50"/>-->
         <HighlightSubTooltip value="UI/LEVEL4"/>
         <BarOffset value="60"/>
         <WalkAnimMoveSpeed value="0.586"/>
@@ -11893,6 +12024,9 @@
     <!--trollburrow-->
     <CActorUnit id="otrb" parent="War3_Building" unitSound="TrollBurrow" unitName="otrb" defType="LARGE">
         <On Terms="ActorCreation" Send="Create UBR_OSMA"/>
+        <On Terms="AbilTransport.Abtl.TransportLoad" Target="_Selectable" Send="Create EffectSoundOneShot LoadUnload"/>
+        <On Terms="AbilTransport.Abtl.TransportUnload" Target="_Selectable" Send="Create EffectSoundOneShot LoadUnload"/>
+        <On Terms="AbilTransport.Abtl.TransportLoad" Target="_Selectable" Send="Create EffectSoundOneShot BurrowBattleStations"/>
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnTrollBurrow.dds"/>
         <GroupIcon>
             <Image index="0" value="Assets\Textures\BTN\Renee_war3_btnTrollBurrow.dds"/>
@@ -11905,9 +12039,6 @@
         <DeathArray index="Cancel" AnimProps="Birth" ModelLink="War3_HCancelDeath"/>
         <CustomUnitStatusOffset value="0,-80"/>
         <CustomUnitStatusAttachment value="Ref_Overhead"/>
-        <On Terms="AbilTransport.Abtl.TransportLoad" Target="_Selectable" Send="Create EffectSoundOneShot LoadUnload"/>
-        <On Terms="AbilTransport.Abtl.TransportUnload" Target="_Selectable" Send="Create EffectSoundOneShot LoadUnload"/>
-        <On Terms="AbilTransport.Abtl.TransportLoad" Target="_Selectable" Send="Create EffectSoundOneShot BurrowBattleStations"/>
     </CActorUnit>
     <!--taurentotem-->
     <CActorUnit id="otto" parent="War3_Building" unitSound="TaurenTotem" unitName="otto" defType="FORT">
@@ -11982,6 +12113,7 @@
     <!--watchtower-->
     <CActorUnit id="owtw" parent="War3_Building" unitSound="WatchTower" unitName="owtw" defType="LARGE">
         <On Terms="ActorCreation" Send="Create UBR_OSMA"/>
+        <On Terms="Behavior.Arbr.On" Target="_Scalable" Send="AnimGroupApply Alternate"/>
         <!--On Terms="Behavior.*.On" Target="_Snapshot" Send="AnimGroupApply Alternate {} {} Instant"/>
         <On Terms="Behavior.*.On" Target="_Snapshot" Send="AnimGroupApply Alternate {} {} Instant"/-->
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnOrcTower.dds"/>
@@ -11995,8 +12127,6 @@
         <HighlightSubTooltip value="UI/LEVEL1"/>
         <BarOffset value="120"/>
         <DeathArray index="Cancel" AnimProps="Birth" ModelLink="War3_HCancelDeath"/>
-        <On Terms="Behavior.Arbr.On" Target="_Scalable" Send="AnimGroupApply Alternate"/>
-
     </CActorUnit>
     <!--windrider-->
     <CActorUnit id="owyv" parent="War3_Army" unitSound="WyvernRider" unitName="owyv" defType="SMALL">
@@ -12275,6 +12405,7 @@
     <CActorUnit id="ucs2" parent="War3_Army" unitSound="Scarab" unitName="ucs2" defType="LARGE">
         <Scale value="1.100000"/>
         <On Terms="ActorCreation" Send="SetTintColor 170,170,255"/>
+        <On Terms="ActorCreation" Send="SetOpacity 1.000000 0.000000 Invisible"/>
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnCarrionScarabs.dds"/>
         <GroupIcon>
             <Image index="0" value="Assets\Textures\BTN\Renee_war3_btnCarrionScarabs.dds"/>
@@ -12285,12 +12416,12 @@
         <HighlightSubTooltip value="UI/LEVEL2"/>
         <BarOffset value="60"/>
         <WalkAnimMoveSpeed value="2.1093"/>
-        <On Terms="ActorCreation" Send="SetOpacity 1.000000 0.000000 Invisible"/>
     </CActorUnit>
     <!--carrionscarab3-->
     <CActorUnit id="ucs3" parent="War3_Army" unitSound="Scarab" unitName="ucs3" defType="LARGE">
         <Scale value="1.300000"/>
         <On Terms="ActorCreation" Send="SetTintColor 255,170,170"/>
+        <On Terms="ActorCreation" Send="SetOpacity 1.000000 0.000000 Invisible"/>
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnCarrionScarabs.dds"/>
         <GroupIcon>
             <Image index="0" value="Assets\Textures\BTN\Renee_war3_btnCarrionScarabs.dds"/>
@@ -12301,7 +12432,6 @@
         <HighlightSubTooltip value="UI/LEVEL3"/>
         <BarOffset value="60"/>
         <WalkAnimMoveSpeed value="2.1093"/>
-        <On Terms="ActorCreation" Send="SetOpacity 1.000000 0.000000 Invisible"/>
     </CActorUnit>
     <!--carrionscarabburrowed2-->
     <CActorUnit id="ucsB" parent="War3_Army" unitSound="Scarab" unitName="ucsB" defType="LARGE">
@@ -12309,6 +12439,7 @@
         <On Terms="ActorCreation" Send="SetTintColor 170,170,255"/>
         <On Terms="ActorCreation" Send="AnimGroupApply Alternate {} {} Instant"/>
         <On Terms="UnitPortrait.*.Configure" Target="::PortraitGameSelf" Send="AnimGroupApply Alternate {} {} Instant"/>
+        <On Terms="AbilMorph.*.Start" Send="SetOpacity 1.000000 0.000000 Invisible"/>
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnCarrionScarabs.dds"/>
         <GroupIcon>
             <Image index="0" value="Assets\Textures\BTN\Renee_war3_btnCarrionScarabs.dds"/>
@@ -12318,7 +12449,6 @@
         <CustomUnitStatusFrame value="War3_UnitStatus/UnitBar75"/>
         <HighlightSubTooltip value="UI/LEVEL2"/>
         <BarOffset value="60"/>
-        <On Terms="AbilMorph.*.Start" Send="SetOpacity 1.000000 0.000000 Invisible"/>
     </CActorUnit>
     <!--carrionscarabburrowed3-->
     <CActorUnit id="ucsC" parent="War3_Army" unitSound="Scarab" unitName="ucsC" defType="LARGE">
@@ -12326,6 +12456,7 @@
         <On Terms="ActorCreation" Send="SetTintColor 255,170,170"/>
         <On Terms="ActorCreation" Send="AnimGroupApply Alternate {} {} Instant"/>
         <On Terms="UnitPortrait.*.Configure" Target="::PortraitGameSelf" Send="AnimGroupApply Alternate {} {} Instant"/>
+        <On Terms="AbilMorph.*.Start" Send="SetOpacity 1.000000 0.000000 Invisible"/>
         <UnitIcon value="Assets\Textures\BTN\Renee_war3_btnCarrionScarabs.dds"/>
         <GroupIcon>
             <Image index="0" value="Assets\Textures\BTN\Renee_war3_btnCarrionScarabs.dds"/>
@@ -12335,7 +12466,6 @@
         <CustomUnitStatusFrame value="War3_UnitStatus/UnitBar87"/>
         <HighlightSubTooltip value="UI/LEVEL3"/>
         <BarOffset value="60"/>
-        <On Terms="AbilMorph.*.Start" Send="SetOpacity 1.000000 0.000000 Invisible"/>
     </CActorUnit>
     <!--deathknight-->
     <CActorUnit id="Udea" parent="War3_Hero" unitSound="HeroDeathKnight" unitName="Udea" defType="HERO">
@@ -12455,7 +12585,7 @@
         <HeroIcon value="Assets\Textures\BTN\Renee_war3_btnGoldMine.dds"/>
         <SoundArray index="Construction" value="UndeadBuildingConstructionLoop"/>
         <BarWidth value="275"/>
-<!--        <CustomUnitStatusFrame value="War3_UnitStatus/UnitBar275"/>-->
+        <!--        <CustomUnitStatusFrame value="War3_UnitStatus/UnitBar275"/>-->
         <Macros value="War3_GoldmineAnim"/>
         <BarOffset value="120"/>
         <DeathArray index="Cancel" AnimProps="Birth" ModelLink="War3_UCancelDeath"/>
@@ -13127,13 +13257,12 @@
     <!--Macro End-->
     <CActorModel id="War3_HeroGlow" parent="ModelAddition">
         <!--On Terms="UnitDeathCustomize" Send="Destroy"/-->
-        <HostSiteOps Ops="$origin SOpForwardNorth" HoldRotation="1"/>
+        <HostSiteOps Ops="SOpAttachHarnessSoft SOpForwardNorth" HoldRotation="1"/>
         <AutoScaleFromSelectionFactor value="2.000000"/>
         <Terms value="Cap 1"/>
         <Sharing value="Always"/>
         <Inherits index="BaseModelScale" value="0"/>
         <Inherits index="CastShadows" value="0"/>
-        <HostSiteOps Ops="SOpAttachHarnessSoft SOpForwardNorth"/>
         <On Terms="ActorCreation; !ValidateUnit NotFireLord" Send="Destroy Immediate"/>
     </CActorModel>
     <CActorPortrait id="War3_PortraitActor">
@@ -13216,7 +13345,7 @@
         <AttachQuery Methods="AMFilterChestMount"/>
     </CActorSiteOpAttach>
     <CActorSiteOpAttach id="SOpAttachChestMountLeft">
-<!--        <AttachQuery Methods="AMFilterChestMountLeft"/>-->
+        <!--        <AttachQuery Methods="AMFilterChestMountLeft"/>-->
         <AttachQuery Methods="Mount 0"/>
     </CActorSiteOpAttach>
     <CActorSiteOpAttach id="SOpAttachChestMountRight">
@@ -17200,9 +17329,9 @@
         <DeathArray index="Normal" SoundLink="TreeWallDeath"/>
         <On Terms="ActorCreation" Send="TextureSelectById LordaeronSummerTree"/>
         <On Terms="ActorCreation" Send="TextureSelectById LordaeronSummerTreeNormal"/>
-        <Aliases value="_War3Tree"/>
         <On Terms="Signal.*.TreeBlight" Send="TextureSelectById LordaeronSummerTreeBlight"/>
         <On Terms="Signal.*.TreeBlight" Send="TextureSelectById LordaeronSummerTreeBlightNormal"/>
+        <Aliases value="_War3Tree"/>
     </CActorUnit>
     <CActorUnit id="NTtw" parent="War3_Destructible" unitName="NTtw">
         <RandomScaleRange value="0.800000,1.200000"/>
@@ -17981,7 +18110,6 @@
     </CActorModel>
     <CActorModel id="BSTN" parent="War3_Buff">
         <Host Subject="SiteOverheadFollow" Actor="Create"/>
-        <HostSiteOps Ops=""/>
     </CActorModel>
     <CActorModel id="BPSE" parent="War3_Buff">
         <HostSiteOps Ops="$overhead"/>
@@ -18107,10 +18235,7 @@
     <CActorModel id="BNso" parent="War3_Buff">
         <HostSiteOps Ops="$overhead"/>
     </CActorModel>
-    <CActorAction id="BNlmMissileAttack" parent="War3_GenericMissileAttack" effectLaunch="BNlmMissile" missile="BNlmMissile" effectImpact="BNlmCloneUnit">
-        <On index="1" Terms="Effect.BNlmCloneUnit.Start; FromEffectTreeDescendant"/>
-        <On index="2" Terms="Effect.BNlmCloneUnit.Stop; FromEffectTreeDescendant"/>
-    </CActorAction>
+    <CActorAction id="BNlmMissileAttack" parent="War3_GenericMissileAttack" effectImpact="BNlmCloneUnit" effectLaunch="BNlmMissile" missile="BNlmMissile"/>
     <CActorMissile id="BNlmMissile" parent="War3_Missile" unitName="BNlmMissile"/>
     <CActorModel id="BNvc" parent="War3_Buff">
         <HostSiteOps Ops="$overhead"/>
@@ -18216,7 +18341,7 @@
     <CActorModel id="BNwmEffect" parent="EffectArt"/>
     <CActorModel id="Basl" parent="War3_Buff"/>
     <CActorModel id="BtspEffect" parent="EffectArt">
-<!--        <HostSiteOps Ops="$sprite,first"/>-->
+        <!--        <HostSiteOps Ops="$sprite,first"/>-->
         <On index="0" Send="AnimBracketStart BSD Birth Stand Death"/>
         <On Terms="Behavior.Btsp.On" Send="Create"/>
         <On Terms="Behavior.Btsp.Off" Send="AnimBracketStop BSD"/>
@@ -18236,7 +18361,6 @@
     </CActorModel>
     <CActorModel id="Bpig" parent="War3_Buff">
         <On Terms="Effect.ApigDPS.Start; At Target" Send="Create"/>
-        <Host Subject="_Selectable"/>
         <HostSiteOps Ops="$chest"/>
     </CActorModel>
     <CActorModel id="BpigSpecial" parent="SpecialArt">
@@ -18278,14 +18402,12 @@
     <CActorModel id="BmfaSpecial" parent="SpecialArt">
         <On Terms="Effect.BmflLightning.Start" Send="Create"/>
     </CActorModel>
-    <CActorAction id="BmfaMissileAttack" parent="War3_GenericMissileAttack"
-                  effectImpact="BmfaMissileImpactSet"
-                  effectLaunch="BmfaMissile">
+    <CActorAction id="BmfaMissileAttack" parent="War3_GenericMissileAttack" effectImpact="BmfaMissileImpactSet" effectLaunch="BmfaMissile">
         <Beam value="BmflBeam"/>
-<!--        <Missile value="BmfaMissile"/>-->
+        <!--        <Missile value="BmfaMissile"/>-->
         <ImpactMap index="None" Model=""/>
         <On index="0" Terms="Effect.BmflLightning.Stop; FromEffectTreeDescendant"/>
-        <On index="5" Terms="Effect.BmflLightning.Start; At Caster"/>
+        <On index="5" Terms="Effect.BmflLightning.Start; At Caster" Send="Create"/>
         <BeamScope value="Caster"/>
     </CActorAction>
     <CActorMissile id="BmfaMissile" parent="War3_Missile" unitName="BmfaMissile"/>
@@ -18367,13 +18489,13 @@
     <CActorModel id="BbskTarget" parent="War3_Buff">
         <On index="3" Terms="Behavior.Bbsk.On" Send="Create"/>
         <On index="4" Terms="Behavior.Bbsk.Off" Send="AnimBracketStop BSD"/>
-        <HostSiteOps Ops="$weapon,right"/>
         <On Terms="WeaponStart.*.AttackStart" Send="SetVisibility"/>
         <On Terms="WeaponStop.*.AttackStop" Send="SetVisibility 1"/>
+        <HostSiteOps Ops="$weapon,right"/>
     </CActorModel>
     <CActorModel id="Bspl" parent="War3_Buff">
-    <AutoScaleFromSelectionFactor value="1.600000"/>
-    <AnimBlendTime value="0.000000"/>
+        <AutoScaleFromSelectionFactor value="1.600000"/>
+        <AnimBlendTime value="0.000000"/>
         <HostSiteOps Ops="$chest"/>
     </CActorModel>
     <CActorModel id="Bliq" parent="War3_Buff" effectsoundlooped="LiquidFireLoop">
@@ -18400,9 +18522,8 @@
         <HostSiteOps Ops="$origin"/>
     </CActorModel>
     <CActorModel id="Blsh" parent="War3_Buff">
-    <AutoScaleFromSelectionFactor value="0.000000"/>
-    <HostSiteOps HoldRotation="1"/>
-        <HostSiteOps Ops="$origin"/>
+        <AutoScaleFromSelectionFactor value="0.000000"/>
+        <HostSiteOps Ops="$origin" HoldRotation="1"/>
     </CActorModel>
     <CActorModel id="BlshSpecial" parent="SpecialArt">
         <On Terms="Effect.BlshDPS.Start; At Target" Send="Create"/>
@@ -18420,9 +18541,10 @@
     <CActorModel id="Bsta" parent="War3_Buff">
         <HostSiteOps Ops="$overhead"/>
     </CActorModel>
-    <CActorModel id="Boar" parent="War3_Buff" effectsoundlooped="FountainOfLifeLoop">
+    <CActorModel id="Bhwa" parent="War3_Buff" effectsoundlooped="FountainOfLifeLoop">
         <On Terms="Behavior.BCnr.On" Send="Create"/>
         <On Terms="Behavior.BCnr.Off" Send="AnimBracketStop BSD"/>
+        <Model value="Bnrm"/>
     </CActorModel>
     <CActorModel id="Bpoi" parent="War3_Buff">
         <On Terms="Behavior.AEpaBpoi.On" Send="Create"/>
@@ -18467,7 +18589,6 @@
         <On Terms="ActorCreation" Send="TimerSet 0.750000,0.500000 Air"/>
         <On Terms="TimerExpired; TimerName Air" Target="::Main" Send="HostSiteOpsSet ::Host"/>
         <On Terms="TimerExpired; TimerName Air" Target="::Main" Send="RefClear ::Host"/>
-        <HostSiteOps Ops=""/>
     </CActorModel>
     <CActorModel id="BUts" parent="War3_Buff">
         <HostSiteOps Ops="$chest,left"/>
@@ -18548,11 +18669,10 @@
         <On Terms="ActorCreation; ScopeContains AIavTarget" Send="Destroy"/>
     </CActorModel>
     <CActorModel id="BUavSpecial" parent="SpecialArt">
-    <On Terms="Effect.BUavLeech.Start; At Source" Send="Create"/>
-    <On Terms="Effect.BUav1Leech.Start; At Source" Send="Create"/>
-    <On Terms="Effect.BUav2Leech.Start; At Source" Send="Create"/>
-    <On Terms="Effect.BUav3Leech.Start; At Source" Send="Create"/>
-    <HostSiteOps Ops=""/>
+        <On Terms="Effect.BUavLeech.Start; At Source" Send="Create"/>
+        <On Terms="Effect.BUav1Leech.Start; At Source" Send="Create"/>
+        <On Terms="Effect.BUav2Leech.Start; At Source" Send="Create"/>
+        <On Terms="Effect.BUav3Leech.Start; At Source" Send="Create"/>
     </CActorModel>
     <CActorModel id="BUfa" parent="War3_Buff">
         <HostSiteOps Ops="$chest"/>
@@ -20733,12 +20853,11 @@
         <HostSiteOps Ops="SOpAttachHarnessSoft SOpShadow" HoldRotation="1"/>
     </CActorModel>
     <CActorModel id="AIavTarget" parent="TargetArtX">
-        <HostSiteOps Ops="$origin"/>
+        <HostSiteOps Ops="$origin" HoldRotation="1"/>
         <On index="0" Send="AnimBracketStart BSD Birth Stand Death"/>
         <On Terms="Behavior.AIav.On" Send="Create"/>
         <On Terms="Behavior.AIav.Off" Send="AnimBracketStop BSD"/>
         <On Terms="ActorCreation" Send="SetCastShadows"/>
-        <HostSiteOps HoldRotation="1"/>
     </CActorModel>
     <CActorModel id="AIrlCaster" parent="CasterArt">
         <On Terms="Abil.AIrl.SourceCastStart" Send="Create"/>
@@ -20952,7 +21071,7 @@
     <CActorAction id="ANhsMissileAttack" parent="War3_GenericMissileAttack" effectImpact="ANhsMissileImpactSet" effectLaunch="ANhsMissile" missile="ANhsMissile"/>
     <CActorMissile id="ANhsMissile" parent="War3_Missile" unitName="ANhsMissile"/>
     <CActorModel id="XNhsSpecial" parent="SpecialArt">
-    <On Terms="Effect.ANhsHealSet.Start; At Target" Send="Create"/>
+        <On Terms="Effect.ANhsHealSet.Start; At Target" Send="Create"/>
     </CActorModel>
     <CActorAction id="ANabMissileAttack" parent="War3_GenericMissileAttack" effectImpact="ANabMissileImpactSet" effectLaunch="ANabMissile" missile="ANabMissile"/>
     <CActorMissile id="ANabMissile" parent="War3_Missile" unitName="ANabMissile"/>
@@ -21155,14 +21274,7 @@
         <On Terms="Abil.ACtc.SourceCastStart" Send="Create"/>
     </CActorModel>
     <CActorModel id="ACt2Caster" parent="CasterArt"/>
-    <CActorAction id="ACtbMissileAttack" parent="War3_GenericMissileAttack"  effectLaunch="ACtbMissile" missile="ACtbMissile"  effectImpact="AHtbDamage1">
-<!--        effectImpact="ACtbMissileImpactSet"-->
-        <On index="1" Terms="Effect.AHtbDamage1.Start; FromEffectTreeDescendant"/>
-        <On index="2" Terms="Effect.AHtbDamage1.Stop; FromEffectTreeDescendant"/>
-    </CActorAction>
-
-
-
+    <CActorAction id="ACtbMissileAttack" parent="War3_GenericMissileAttack" effectImpact="AHtbDamage1" effectLaunch="ACtbMissile" missile="ACtbMissile"/>
     <CActorMissile id="ACtbMissile" parent="War3_Missile" unitName="ACtbMissile"/>
     <CActorModel id="ANrnEffect" parent="EffectArt"/>
     <CActorAction id="ANfbMissileAttack" parent="War3_GenericMissileAttack" effectImpact="ANfbMissileImpactSet" effectLaunch="ANfbMissile" missile="ANfbMissile"/>
@@ -21187,7 +21299,7 @@
     <CActorBeamSimple id="AmbdBeam" parent="MBUR"/>
     <CActorModel id="AmnbTarget" parent="TargetArtX"/>
     <CActorBeamSimple id="AmnbBeam" parent="MBUR"/>
-        <CActorModel id="AmbbTarget" parent="TargetArtX">
+    <CActorModel id="AmbbTarget" parent="TargetArtX">
         <On Terms="Abil.Ambb.TargetChannelStart" Send="Create"/>
     </CActorModel>
     <CActorBeamSimple id="AmbbBeam" parent="MBUR">
@@ -21199,11 +21311,11 @@
         <On index="0" Send="AnimBracketStart BSD Birth Stand Death"/>
         <On Terms="Behavior.ACsp.On" Send="Create"/>
         <On Terms="Behavior.ACsp.Off" Send="Destroy"/>
-        <HostSiteOps Ops="$overhead"/>
         <On Terms="ActorCreation" Target="_Selectable" Send="SetTransferOverrideAnim Unpowered"/>
         <On Terms="ActorCreation" Target="_Selectable" Send="AnimBracketStart Sleep {} Unpowered"/>
         <On Terms="ActorDestruction" Target="_Selectable" Send="AnimBracketStop Sleep"/>
         <On Terms="ActorDestruction" Target="_Selectable" Send="SetTransferOverrideAnim Stand"/>
+        <HostSiteOps Ops="$overhead"/>
     </CActorModel>
     <CActorModel id="ACbaTarget" parent="TargetArtX">
         <HostSiteOps Ops="$origin"/>
@@ -21406,7 +21518,6 @@
         <HostForProps Subject="::Main" Scope="Caster" Actor="Find"/>
     </CActorModel>
     <CActorModel id="AeatSpecial" parent="SpecialArt">
-        <HostSiteOps Ops=""/>
         <On Terms="Abil.Aeat.SourceFinishStop" Send="Create"/>
         <On Terms="ActorCreation" Target="_Selectable" Send="Attach AeatSpecial {Weapon 0}"/>
     </CActorModel>
@@ -21489,9 +21600,9 @@
         <On Terms="Behavior.ACat.Off" Send="AnimBracketStop BSD"/>
     </CActorModel>
     <CActorModel id="AEsdTarget" parent="TargetArtX">
-    <On Terms="Behavior.AEsd.Off" Send="Create"/>
-    <On Terms="ActorCreation" Send="SetCastShadows"/>
-    <AutoScaleFromSelectionFactor value="1.000000"/>
+        <On Terms="Behavior.AEsd.Off" Send="Create"/>
+        <On Terms="ActorCreation" Send="SetCastShadows"/>
+        <AutoScaleFromSelectionFactor value="1.000000"/>
         <HostSiteOps Ops="$origin"/>
     </CActorModel>
     <CActorModel id="XEsfEffect" parent="EffectArt">
@@ -21790,7 +21901,7 @@
         <On Terms="Behavior.Brpl.On" Send="Create"/>
     </CActorModel>
     <CActorModel id="ArplSpecial" parent="SpecialArt">
-<!--        <HostSiteOps Ops="$overhead"/>-->
+        <!--        <HostSiteOps Ops="$overhead"/>-->
         <On Terms="Abil.Arpl.SourceCastStart" Send="Create"/>
         <Host Subject="SiteOverheadFollow" Actor="Create"/>
     </CActorModel>
@@ -21802,7 +21913,7 @@
         <AutoScaleFromSelectionFactor value="2.000000"/>
     </CActorModel>
     <CActorModel id="ArpmSpecial" parent="SpecialArt">
-<!--        <HostSiteOps Ops="$overhead"/>-->
+        <!--        <HostSiteOps Ops="$overhead"/>-->
         <On Terms="Abil.Arpm.SourceCastStart" Send="Create"/>
         <Host Subject="SiteOverheadFollow" Actor="Create"/>
     </CActorModel>
@@ -21875,13 +21986,11 @@
     <CActorAction id="AUcsMissileAttack" parent="War3_GenericMissileAttack" effectImpact="AUcsMissileImpactSet" effectLaunch="AUcsMissile" missile="AUcsMissile"/>
     <CActorMissile id="AUcsMissile" parent="War3_Missile" unitName="AUcsMissile"/>
     <CActorModel id="AUavTarget" parent="TargetArtX">
-        <HostSiteOps Ops="$origin"/>
-
+        <HostSiteOps Ops="$origin" HoldRotation="1"/>
         <On index="0" Send="AnimBracketStart BSD Birth Stand Death"/>
         <On Terms="Behavior.AUav.On" Send="Create"/>
         <On Terms="Behavior.AUav.Off" Send="AnimBracketStop BSD"/>
         <On Terms="ActorCreation" Send="SetCastShadows"/>
-        <HostSiteOps HoldRotation="1"/>
     </CActorModel>
     <CActorModel id="AUfnEffect" parent="EffectArt">
         <On Terms="Effect.AUfn.Start" Send="Create"/>
@@ -21938,157 +22047,6 @@
     <CActorModel id="XfulTarget4" parent="TargetAttachX">
         <HostSiteOps Ops="$sprite,fourth"/>
     </CActorModel>
-
-
-
-
-
-
-
-
-
-    <!--    Extra Data-->
-
-
-    <CActorSimple default="1" id="War3_AttackMissileSwap">
-        <Aliases value="_SphereOp"/>
-        <On Terms="Behavior.##id##.On" Send="Create"/>
-        <On Terms="Behavior.##id##.Off" Send="Destroy"/>
-        <On Terms="Signal.*.SwapMe" Send="RefSetFromMsg ::actor.MissileW ::Sender"/>
-        <On Terms="Signal.*.SwapMe" Target="::actor.MissileW" Send="ModelSwap ##id##Missile"/>
-    </CActorSimple>
-    <CActorSimple default="1" id="War3_BuffSoundOnly">
-        <On Terms="Behavior.##id##.On" Send="Create"/>
-        <On Terms="Behavior.##id##.Off" Send="Destroy"/>
-        <On Terms="ActorCreation" Target="_Selectable" Send="Create EffectSoundOneShot ##effectsound##"/>
-        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/>
-    </CActorSimple>
-    <CActorSimple default="1" id="War3_BuffModelSwap">
-        <On Terms="Behavior.##buff##.On" Send="Create"/>
-        <On Terms="Behavior.##buff##.Off" Send="Destroy"/>
-        <On Terms="ActorCreation" Target="_Unit" Send="ModelSwap ##model##"/>
-        <On Terms="ActorDestruction" Target="_Unit" Send="Signal ClearModelSwap"/>
-    </CActorSimple>
-    <CActorSimple default="1" id="War3_AbilSoundOnly">
-        <On Terms="Abil.##id##.SourceChannelStart" Send="Create"/>
-        <On Terms="Abil.##id##.SourceChannelStop" Send="Destroy"/>
-        <On Terms="ActorCreation" Target="_Selectable" Send="Create EffectSoundOneShot ##effectsound##"/>
-        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/>
-    </CActorSimple>
-    <CActorSimple default="1" id="War3_EffectSoundOnly">
-        <On Terms="Effect.##dataeffect##.Start; At Effect" Send="Create"/>
-        <On Terms="Effect.##dataeffect##.Stop; At Effect" Send="Destroy"/>
-        <On Terms="ActorCreation" Send="Create EffectSoundOneShot ##effectsound##"/>
-        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/>
-    </CActorSimple>
-    <CActorModel default="1" id="War3_PersistEffect" parent="ModelAnimationStyleContinuous">
-        <On Terms="Effect.##id##.Start" Send="Create"/>
-        <On Terms="Effect.##id##.Stop" Send="Destroy"/>
-        <On Terms="ActorCreation" Send="Create EffectSoundOneShot ##effectsound##"/>
-        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/>
-    </CActorModel>
-    <CActorSimple default="1" id="War3_SimpleCastAnim">
-        <?token id="anim" value="Spell"?>
-        <On Terms="Abil.##id##.SourcePrepStart" Target="_Selectable" Send="AnimPlay spell Spell NonLooping -1.000000 -1.000000 1.000000 AsTimeScaleAbsolute"/>
-        <On Terms="Abil.##id##.SourcePrepStart" Send="Create EffectSoundOneShot ##effectsound##"/>
-        <On Terms="Abil.##id##.SourcePrepStart" Send="Create"/>
-        <On Terms="Abil.##id##.SourcePrepStop" Send="Destroy"/>
-        <!--On Terms="Abil.##id##.SourcePrepStart" Send="Create EffectSoundLooped ##effectsoundlooped##"/-->
-    </CActorSimple>
-    <CActorSimple default="1" id="War3_SimpleMorphAnim">
-        <On Terms="AbilMorph.##id##.Start" Send="Create"/>
-        <On Terms="AbilMorph.##id##.Finish" Send="Destroy"/>
-        <On Terms="AbilMorph.##id##.Start" Target="_Selectable" Send="AnimPlay Morph Morph"/>
-        <On Terms="AbilMorph.##id##.Finish" Target="_Selectable" Send="AnimClear Morph"/>
-    </CActorSimple>
-    <CActorSimple default="1" id="War3_ChannelAnim">
-        <On Terms="Abil.##id##.SourcePrepStart" Target="_Selectable" Send="AnimBracketStart channel Spell Stand,Channel {} 0 1.000000 AsTimeScaleAbsolute"/>
-        <On Terms="Abil.##id##.SourceChannelStop" Target="_Selectable" Send="AnimBracketStop channel"/>
-        <!--On Terms="Abil.##id##.TargetCastStart" Send="Create ##id##Target"/-->
-        <On Terms="Abil.##id##.SourcePrepStart" Send="Create"/>
-        <On Terms="Abil.##id##.SourcePrepStop" Send="Destroy"/>
-        <On Terms="Abil.##id##.SourceChannelStart" Send="Create"/>
-        <On Terms="Abil.##id##.SourceChannelStop" Send="Destroy"/>
-        <!--On Terms="ActorCreation" Send="Create EffectSoundOneShot ##effectsound##"/>
-        <On Terms="ActorCreation" Send="Create EffectSoundLooped ##effectsoundlooped##"/-->
-    </CActorSimple>
-    <CActorSimple default="1" id="War3_ChannelAnimWcArt" parent="War3_ChannelAnim">
-        <On Terms="Abil.##id##.SourceCastStart" Send="Create"/>
-        <On Terms="Abil.##id##.SourceCastStop" Send="Destroy"/>
-        <On Terms="Abil.##id##.SourceCastStart" Send="Create ##id##Caster"/>
-    </CActorSimple>
-    <CActorSimple default="1" id="War3_SimpleCastAnimWcArt" parent="War3_SimpleCastAnim">
-        <On Terms="Abil.##id##.SourceCastStart" Send="Create ##id##Caster"/>
-        <On Terms="Abil.##id##.SourceCastStart" Send="Create"/>
-        <On Terms="Abil.##id##.SourceCastStop" Send="Destroy"/>
-        <!--On Terms="Abil.##id##.SourcePrepStart" Send="Create EffectSoundLooped ##effectsoundlooped##"/-->
-    </CActorSimple>
-    <CActorDoodad default="1" id="War3_TreeDoodad" parent="War3_Doodad">
-        <Model value="War3_LordaeronTreeStatic"/>
-    </CActorDoodad>
-    <CActorText default="1" id="GoldText">
-        <?token id="dropBehavior" value="Bogus"?>
-        <?token id="dropEffect" value="Bogus"?>
-        <Filter index="Ally" value="1"/>
-        <Filter index="Neutral" value="1"/>
-        <Filter index="Enemy" value="1"/>
-        <On Terms="Behavior.##dropBehavior##.Create" Send="Create"/>
-        <On Terms="Behavior.##dropBehavior##.Create" Send="SetVisibility"/>
-        <On Terms="Behavior.##dropBehavior##.Destroy" Send="SetVisibility 1"/>
-        <On Terms="Behavior.##dropBehavior##.Destroy" Send="Signal Show"/>
-        <On Terms="Effect.##dropEffect##.Start; At Target" Send="Create"/>
-        <On Terms="Effect.##dropEffect##.Start; At Target" Send="Signal Show"/>
-        <On Terms="Signal.*.Show" Send="TimerSet 0.010000 StartMover"/>
-        <On Terms="Signal.*.Show" Send="TimerSet 2.000000 Die"/>
-        <On Terms="Signal.*.Show" Send="SetOpacity 0.000000 2.000000"/>
-        <On Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
-        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
-        <!--Host Subject="_FloatingText"/-->
-        <FixedSize value="28"/>
-        <AlignV value="Bottom"/>
-        <HeightOffset value="1.000000"/>
-        <Color value="255,255,220,0"/>
-        <Text value="##id##/Text"/>
-    </CActorText>
-    <CActorText default="1" id="MissText">
-        <?token id="effect" value="Bogus"?>
-        <On Terms="Effect.##effect##.Start" Send="Create"/>
-        <On Terms="ActorCreation" Send="TimerSet 0.010000 StartMover"/>
-        <On Terms="ActorCreation" Send="TimerSet 2.000000 Die"/>
-        <On Terms="ActorCreation" Send="SetOpacity 0.000000 2.000000"/>
-        <On Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
-        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
-        <!--Host Subject="_FloatingText"/-->
-        <FixedSize value="28"/>
-        <AlignV value="Bottom"/>
-        <HeightOffset value="1.000000"/>
-        <Color value="255,255,0,0"/>
-        <Text value="Miss/Text"/>
-    </CActorText>
-    <CActorText default="1" id="LumberText">
-        <?token id="dropEffect" type="CEffectLink" value="Bogus"?>
-        <?token id="dropBehavior" type="CBehaviorLink" value="Bogus"?>
-        <Filter index="Ally" value="1"/>
-        <Filter index="Neutral" value="1"/>
-        <Filter index="Enemy" value="1"/>
-        <On Terms="Behavior.##dropBehavior##.Create" Send="Create"/>
-        <On Terms="Behavior.##dropBehavior##.Create" Send="SetVisibility"/>
-        <On Terms="Behavior.##dropBehavior##.Destroy" Send="SetVisibility 1"/>
-        <On Terms="Behavior.##dropBehavior##.Destroy" Send="Signal Show"/>
-        <On Terms="Effect.##dropEffect##.Start; At Caster" Send="Create"/>
-        <On Terms="Effect.##dropEffect##.Start; At Caster" Send="Signal Show"/>
-        <On Terms="Signal.*.Show" Send="TimerSet 0.010000 StartMover"/>
-        <On Terms="Signal.*.Show" Send="TimerSet 2.000000 Die"/>
-        <On Terms="Signal.*.Show" Send="SetOpacity 0.000000 2.000000"/>
-        <On Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
-        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
-        <!--Host Subject="_FloatingText"/-->
-        <FixedSize value="28"/>
-        <AlignV value="Bottom"/>
-        <HeightOffset value="1.000000"/>
-        <Color value="255,0,200,80"/>
-        <Text value="##id##/Text"/>
-    </CActorText>
     <!--Parasite(eredar) Dur=30 HeroDur= Buff=BNpa,BNpm cast=90-->
     <CActorSimple id="ACpa" parent="War3_SimpleCastAnim"/>
     <CActorSimple id="Beye" parent="War3_BuffSoundOnly">
@@ -22652,19 +22610,19 @@
         <Scale value="0.780000"/>
     </CActorModel>
     <CActorModel id="ConfirmationLocalAirAttack">
-        <On index="4" Terms="ActorCreation" Send="SetTintColor {255,0,0 0.200000}"/>
+        <On index="4" Send="SetTintColor {255,0,0 0.200000}"/>
         <Scale value="0.780000"/>
     </CActorModel>
     <CActorModel id="ConfirmationLocalGroundAttack">
-        <On index="4" Terms="ActorCreation" Send="SetTintColor {255,0,0 0.200000}"/>
+        <On index="4" Send="SetTintColor {255,0,0 0.200000}"/>
         <Scale value="0.780000"/>
     </CActorModel>
     <CActorModel id="ConfirmationSyncAirAttack">
-        <On index="4" Terms="ActorCreation" Send="SetTintColor {255,0,0 0.200000}"/>
+        <On index="4" Send="SetTintColor {255,0,0 0.200000}"/>
         <Scale value="0.780000"/>
     </CActorModel>
     <CActorModel id="ConfirmationSyncGroundAttack">
-        <On index="4" Terms="ActorCreation" Send="SetTintColor {255,0,0 0.200000}"/>
+        <On index="4" Send="SetTintColor {255,0,0 0.200000}"/>
         <Scale value="0.780000"/>
     </CActorModel>
     <CActorSiteOpLocalOffset id="ANbfEffectOffset">
@@ -22824,7 +22782,7 @@
     </CActorSiteOpAttach>
     <CActorTerrainDeformer id="VolcanoTerrainDeformer">
         <BlendTime value="5.000000"/>
-        <HeightDelta value="1.000000"/>Volc
+        <HeightDelta value="1.000000"/>
         <TerrainDeformerFlags index="RestoreOnDestroy" value="1"/>
         <On Terms="Behavior.BNva.On" Send="Create"/>
         <On Terms="Behavior.BNva.Off" Send="Destroy"/>
@@ -24328,5 +24286,4 @@
         <On Terms="AbilMorph.*.Finish; MorphTo etoa; PlayerHasClanDecal" Send="Create"/>
         <On Terms="AbilMorph.*.Finish; MorphTo etoe; PlayerHasClanDecal" Send="Create"/>
     </CActorModel>
-
 </Catalog>

@@ -21,6 +21,7 @@ void lib2772A861_InitVariables () {
     lib2772A861_InitVariables_completed = true;
 
     lib2772A861_gv_teleportationNodeD09AD0BED182D0BED180D18BD0B5D181D182D180D0BED18FD182 = UnitGroupEmpty();
+    lib2772A861_gv_beaconConstructionunitgroup = UnitGroupEmpty();
     lib2772A861_gv_loadedArsenals = UnitGroupEmpty();
     lib2772A861_gv_loadedHeavyTowers = UnitGroupEmpty();
     lib2772A861_gv_loadedInfusionTowers = UnitGroupEmpty();
@@ -28,14 +29,33 @@ void lib2772A861_InitVariables () {
     lib2772A861_gv_loadedSuppressionTowers = UnitGroupEmpty();
     lib2772A861_gv_d183D0BFD0B0D0B2D188D0B8D0B5D182D180D183D0BFD0B5D180D18B = UnitGroupEmpty();
     lib2772A861_gv_player = 1;
+    lib2772A861_gv_uEDplayers = PlayerGroupEmpty();
 }
 
 // Presets
 // Functions
-string lib2772A861_gf_GetUnitTypeRace (string lp_unit) {
+void lib2772A861_gf_PlayerRacecolor (int lp_player) {
     // Automatic Variable Declarations
     // Implementation
-    return (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "Race", c_playerAny));
+    if ((PlayerRace(lp_player) == "ued")) {
+        PlayerSetColorIndex(lp_player, 10, true);
+    }
+    else {
+        if ((PlayerRace(lp_player) == "Zerg")) {
+            PlayerSetColorIndex(lp_player, 4, true);
+        }
+        else {
+            if ((PlayerRace(lp_player) == "Prot")) {
+                PlayerSetColorIndex(lp_player, 3, true);
+            }
+            else {
+                if ((PlayerRace(lp_player) == "Terr")) {
+                    PlayerSetColorIndex(lp_player, 1, true);
+                }
+
+            }
+        }
+    }
 }
 
 void lib2772A861_gf_Randomsoundonpoint (string lp_sound1, string lp_sound2, string lp_sound3, string lp_sound4, string lp_sound5, string lp_sound6, string lp_sound7, string lp_sound8, string lp_sound9, string lp_sound10, int lp_d09AD0BED0BBD0B8D187D0B5D181D182D0B2D0BED0B7D0B2D183D0BAD0BED0B2, fixed lp_volume, int lp_d0B2D18BD181D0BED182D0B0, playergroup lp_playsoundfor, point lp_point) {
@@ -170,6 +190,7 @@ bool lib2772A861_gt_InitializeUEDRace_Func (bool testConds, bool runActions) {
 //--------------------------------------------------------------------------------------------------
 void lib2772A861_gt_InitializeUEDRace_Init () {
     lib2772A861_gt_InitializeUEDRace = TriggerCreate("lib2772A861_gt_InitializeUEDRace_Func");
+    TriggerAddEventMapInit(lib2772A861_gt_InitializeUEDRace);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -354,7 +375,7 @@ bool lib2772A861_gt_EffectSalvagerMine_Func (bool testConds, bool runActions) {
     lv_beamModel2 = libNtve_gf_ActorLastCreated();
     libNtve_gf_AttachModelToUnit(lv_salvager, "SalvagerMineLaunch", "Ref_Weapon");
     lv_launchModel = libNtve_gf_ActorLastCreated();
-    while (!(((TimerGetRemaining(lv_timer) == 0.0) || (UnitIsAlive(lv_salvager) == false) || (UnitOrderHasAbil(lv_salvager, "moveUED") == true) || (UnitOrderHasAbil(lv_salvager, "attackUED") == true) || (UnitOrderHasAbil(lv_salvager, "stop2") == true)))) {
+    while (!(((TimerGetRemaining(lv_timer) == 0.0) || (UnitIsAlive(lv_salvager) == false) || (UnitOrderHasAbil(lv_salvager, "SalvagerHarvest") == false)))) {
         Wait(0.065, c_timeGame);
     }
     Wait(0.065, c_timeGame);
@@ -434,7 +455,7 @@ bool lib2772A861_gt_EffectSpawnunit_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
     // Conditions
     if (testConds) {
-        if (!((lib2772A861_gf_GetUnitTypeRace(UnitGetType(EventUnit())) == "ued"))) {
+        if (!((PlayerRace(EventPlayer()) == "ued"))) {
             return false;
         }
     }
@@ -499,6 +520,47 @@ void lib2772A861_gt_EffectSpawnunit_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: Beacon anim create
+//--------------------------------------------------------------------------------------------------
+bool lib2772A861_gt_Beaconanimcreate_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    actor lv_beaconConstAnim;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "Beacon"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(lib2772A861_gv_beaconConstructionunitgroup, EventUnitProgressUnit());
+    libNtve_gf_AttachModelToUnit(EventUnitProgressUnit(), "UEDCalldownWithBeacon", "Ref_Center");
+    lv_beaconConstAnim = libNtve_gf_ActorLastCreated();
+    libNtve_gf_PlayAnimation(lv_beaconConstAnim, c_animNameDefault, "Stand Work Start", c_animFlagNonLooping, c_animTimeDefault);
+    Wait(4.995, c_timeGame);
+    libNtve_gf_PlayAnimation(lv_beaconConstAnim, c_animNameDefault, "Stand Work", c_animFlagPlayForever, c_animTimeDefault);
+    while (!((libNtve_gf_UnitIsUnderConstruction(EventUnitProgressUnit()) == false))) {
+        Wait(0.065, c_timeGame);
+    }
+    libNtve_gf_KillModel(lv_beaconConstAnim);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib2772A861_gt_Beaconanimcreate_Init () {
+    lib2772A861_gt_Beaconanimcreate = TriggerCreate("lib2772A861_gt_Beaconanimcreate_Func");
+    TriggerAddEventUnitConstructProgress(lib2772A861_gt_Beaconanimcreate, null, c_unitProgressStageStart);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Owards - effect for targetting units
 //--------------------------------------------------------------------------------------------------
 bool lib2772A861_gt_Owardseffectfortargettingunits_Func (bool testConds, bool runActions) {
@@ -545,6 +607,38 @@ bool lib2772A861_gt_OwardseffectforPoliticalAdvisor_Func (bool testConds, bool r
 void lib2772A861_gt_OwardseffectforPoliticalAdvisor_Init () {
     lib2772A861_gt_OwardseffectforPoliticalAdvisor = TriggerCreate("lib2772A861_gt_OwardseffectforPoliticalAdvisor_Func");
     TriggerAddEventUnitAbility(lib2772A861_gt_OwardseffectforPoliticalAdvisor, null, AbilityCommand("OnwardComrades", 0), c_unitAbilStageExecute, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ???????????????????? ??????-???? ?????????????? ?? ????????
+//--------------------------------------------------------------------------------------------------
+bool lib2772A861_gt_D0A1D0BED185D180D0B0D0BDD0B5D0BDD0B8D18FD0BAD0BED0BBD0B2D0B0D0B2D180D0B5D0BCD0B5D0BDD0B8D0B2D0BCD0BED0B4D0B5_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto539A8F07_g;
+    int auto539A8F07_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto539A8F07_g = PlayerGroupActive();
+    auto539A8F07_var = -1;
+    while (true) {
+        auto539A8F07_var = PlayerGroupNextPlayer(auto539A8F07_g, auto539A8F07_var);
+        if (auto539A8F07_var < 0) { break; }
+        BankValueSetFromInt(lib2772A861_gv_timeGame[auto539A8F07_var], "TimeGame", "Time", (BankValueGetAsInt(lib2772A861_gv_timeGame[auto539A8F07_var], "TimeGame", "Time") + 1));
+        Wait(0.2, c_timeReal);
+        BankSave(lib2772A861_gv_timeGame[auto539A8F07_var]);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib2772A861_gt_D0A1D0BED185D180D0B0D0BDD0B5D0BDD0B8D18FD0BAD0BED0BBD0B2D0B0D0B2D180D0B5D0BCD0B5D0BDD0B8D0B2D0BCD0BED0B4D0B5_Init () {
+    lib2772A861_gt_D0A1D0BED185D180D0B0D0BDD0B5D0BDD0B8D18FD0BAD0BED0BBD0B2D0B0D0B2D180D0B5D0BCD0B5D0BDD0B8D0B2D0BCD0BED0B4D0B5 = TriggerCreate("lib2772A861_gt_D0A1D0BED185D180D0B0D0BDD0B5D0BDD0B8D18FD0BAD0BED0BBD0B2D0B0D0B2D180D0B5D0BCD0B5D0BDD0B8D0B2D0BCD0BED0B4D0B5_Func");
+    TriggerEnable(lib2772A861_gt_D0A1D0BED185D180D0B0D0BDD0B5D0BDD0B8D18FD0BAD0BED0BBD0B2D0B0D0B2D180D0B5D0BCD0B5D0BDD0B8D0B2D0BCD0BED0B4D0B5, false);
+    TriggerAddEventTimePeriodic(lib2772A861_gt_D0A1D0BED185D180D0B0D0BDD0B5D0BDD0B8D18FD0BAD0BED0BBD0B2D0B0D0B2D180D0B5D0BCD0B5D0BDD0B8D0B2D0BCD0BED0B4D0B5, 60.0, c_timeReal);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -955,16 +1049,12 @@ bool lib2772A861_gt_StrengtheningShield_Func (bool testConds, bool runActions) {
     }
     if (((UnitIsAlive(lv_shuttle) == true) && (UnitIsAlive(lv_targetUnit) == true))) {
         TimerStart(lv_timer, 40.0, false, c_timeGame);
-        UnitSetPropertyFixed(lv_targetUnit, c_unitPropShieldsMax, 125.0);
-        UnitSetPropertyFixed(lv_targetUnit, c_unitPropShields, 125.0);
         UnitBehaviorAdd(lv_targetUnit, "GlazeTeleportationEffect", lv_shuttle, 1);
         while (!(((TimerGetRemaining(lv_timer) == 0.0) || (UnitGetPropertyInt(lv_targetUnit, c_unitPropShields, c_unitPropCurrent) == 0) || (UnitIsAlive(lv_targetUnit) == false)))) {
             Wait(1.0, c_timeGame);
         }
         SoundPlayAtPointForPlayer(SoundLink("Protoss_ShieldDeath", -1), c_maxPlayers, PlayerGroupAll(), UnitGetPosition(EventUnit()), 12.0, 100.0, 0.0);
         UnitBehaviorRemove(lv_targetUnit, "GlazeTeleportationEffect", 1);
-        UnitSetPropertyFixed(lv_targetUnit, c_unitPropShieldsMax, 0.0);
-        UnitSetPropertyFixed(lv_targetUnit, c_unitPropShields, 0.0);
     }
 
     return true;
@@ -977,66 +1067,13 @@ void lib2772A861_gt_StrengtheningShield_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: ?????????????? ?????????????????? ?????????????????? ???? ???????????? ????????????????
-//--------------------------------------------------------------------------------------------------
-bool lib2772A861_gt_D0B4D0B0D0B2D0B0D0BDD0B8D0B5D181D0B0D0BBD0B2D0B0D0B3D0B5D180D183D0B1D0B5D185D18DD0B9D0B2D0B8D0BED180D0BED182D0B4D0BED0B1D18BD187D0B8D0BCD0B8D0BDD0B5D180D0B0D0BBD18B_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    int lv_minerals;
-    actor lv_model;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Conditions
-    if (testConds) {
-        if (!((UnitGetType(EventUnit()) == "Salvager"))) {
-            return false;
-        }
-
-        if (!((UnitIsAlive(EventUnit()) == true))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    if ((UnitHasBehavior2(EventUnit(), "ResourceDoublingField") == false) && (UnitHasBehavior2(OrderGetTargetUnit(UnitOrder(EventUnit(), 0)), "EnrichmentField") == true)) {
-        UnitBehaviorAdd(EventUnit(), "ResourceDoublingField", OrderGetTargetUnit(UnitOrder(EventUnit(), 0)), 1);
-        lv_minerals = UnitGetPropertyInt(OrderGetTargetUnit(UnitOrder(EventUnit(), 0)), c_unitPropResources, c_unitPropCurrent);
-        lv_minerals -= 2;
-        libNtve_gf_KillModel(lv_model);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void lib2772A861_gt_D0B4D0B0D0B2D0B0D0BDD0B8D0B5D181D0B0D0BBD0B2D0B0D0B3D0B5D180D183D0B1D0B5D185D18DD0B9D0B2D0B8D0BED180D0BED182D0B4D0BED0B1D18BD187D0B8D0BCD0B8D0BDD0B5D180D0B0D0BBD18B_Init () {
-    lib2772A861_gt_D0B4D0B0D0B2D0B0D0BDD0B8D0B5D181D0B0D0BBD0B2D0B0D0B3D0B5D180D183D0B1D0B5D185D18DD0B9D0B2D0B8D0BED180D0BED182D0B4D0BED0B1D18BD187D0B8D0BCD0B8D0BDD0B5D180D0B0D0BBD18B = TriggerCreate("lib2772A861_gt_D0B4D0B0D0B2D0B0D0BDD0B8D0B5D181D0B0D0BBD0B2D0B0D0B3D0B5D180D183D0B1D0B5D185D18DD0B9D0B2D0B8D0BED180D0BED182D0B4D0BED0B1D18BD187D0B8D0BCD0B8D0BDD0B5D180D0B0D0BBD18B_Func");
-    TriggerAddEventUnitAbility(lib2772A861_gt_D0B4D0B0D0B2D0B0D0BDD0B8D0B5D181D0B0D0BBD0B2D0B0D0B3D0B5D180D183D0B1D0B5D185D18DD0B9D0B2D0B8D0BED180D0BED182D0B4D0BED0B1D18BD187D0B8D0BCD0B8D0BDD0B5D180D0B0D0BBD18B, null, AbilityCommand("SalvagerHarvest", 0), c_abilHarvestStageHarvest, false);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: Resourses Infusion Tower
 //--------------------------------------------------------------------------------------------------
 bool lib2772A861_gt_ResoursesInfusionTower_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    int lv_player;
-
     // Automatic Variable Declarations
-    // Variable Initialization
-    lv_player = 1;
-
     // Conditions
     if (testConds) {
-        if (!((UnitHasBehavior2(EventUnit(), "ResourceDoublingField") == true))) {
-            return false;
-        }
-
-        if (!((UnitGetType(EventUnit()) == "Salvager"))) {
+        if (!((UnitHasBehavior2(EventUnitTargetUnit(), "EnrichmentField") == true))) {
             return false;
         }
 
@@ -1050,9 +1087,7 @@ bool lib2772A861_gt_ResoursesInfusionTower_Func (bool testConds, bool runActions
         return true;
     }
 
-    TriggerEnable(lib2772A861_gt_ResoursesInfusionTowercheck, true);
-    lib2772A861_gv_player = EventPlayer();
-    UnitBehaviorRemove(EventUnit(), "ResourceDoublingField", 1);
+    UnitBehaviorAdd(EventUnit(), "ResourceDoublingField", EventUnit(), 1);
     return true;
 }
 
@@ -1063,25 +1098,35 @@ void lib2772A861_gt_ResoursesInfusionTower_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: Resourses Infusion Tower check
+// Trigger: 
 //--------------------------------------------------------------------------------------------------
-bool lib2772A861_gt_ResoursesInfusionTowercheck_Func (bool testConds, bool runActions) {
+bool lib2772A861_gt_tliwxdeamfdwtjac_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitHasBehavior2(EventUnit(), "ResourceDoublingField") == true))) {
+            return false;
+        }
+
+        if (!((UnitIsAlive(EventUnit()) == true))) {
+            return false;
+        }
+    }
+
     // Actions
     if (!runActions) {
         return true;
     }
 
-    TriggerEnable(lib2772A861_gt_ResoursesInfusionTowercheck, false);
-    PlayerModifyPropertyInt(EventPlayer(), c_playerPropMinerals, c_playerPropOperAdd, 2);
+    UnitBehaviorRemove(EventUnit(), "ResourceDoublingField", 1);
+    PlayerModifyPropertyInt(UnitGetOwner(EventUnit()), c_playerPropMinerals, c_playerPropOperAdd, 2);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void lib2772A861_gt_ResoursesInfusionTowercheck_Init () {
-    lib2772A861_gt_ResoursesInfusionTowercheck = TriggerCreate("lib2772A861_gt_ResoursesInfusionTowercheck_Func");
-    TriggerEnable(lib2772A861_gt_ResoursesInfusionTowercheck, false);
-    TriggerAddEventPlayerPropChange(lib2772A861_gt_ResoursesInfusionTowercheck, AbsI(lib2772A861_gv_player), c_playerPropMinerals);
+void lib2772A861_gt_tliwxdeamfdwtjac_Init () {
+    lib2772A861_gt_tliwxdeamfdwtjac = TriggerCreate("lib2772A861_gt_tliwxdeamfdwtjac_Func");
+    TriggerAddEventUnitAbility(lib2772A861_gt_tliwxdeamfdwtjac, null, AbilityCommand("SalvagerHarvest", 1), c_abilHarvestStageDropOff, false);
 }
 
 void lib2772A861_InitTriggers () {
@@ -1093,8 +1138,10 @@ void lib2772A861_InitTriggers () {
     lib2772A861_gt_EffectSalvagerMine_Init();
     lib2772A861_gt_EffectTeleportationnode_Init();
     lib2772A861_gt_EffectSpawnunit_Init();
+    lib2772A861_gt_Beaconanimcreate_Init();
     lib2772A861_gt_Owardseffectfortargettingunits_Init();
     lib2772A861_gt_OwardseffectforPoliticalAdvisor_Init();
+    lib2772A861_gt_D0A1D0BED185D180D0B0D0BDD0B5D0BDD0B8D18FD0BAD0BED0BBD0B2D0B0D0B2D180D0B5D0BCD0B5D0BDD0B8D0B2D0BCD0BED0B4D0B5_Init();
     lib2772A861_gt_HidebuttondefaultDropTS_Init();
     lib2772A861_gt_HidebuttonarsenalDropTS_Init();
     lib2772A861_gt_OrderArsenalUnload_Init();
@@ -1104,9 +1151,8 @@ void lib2772A861_InitTriggers () {
     lib2772A861_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD181D0BFD0B0D181D0B5D0BDD0B8D0B5_Init();
     lib2772A861_gt_BeaconBuild_Init();
     lib2772A861_gt_StrengtheningShield_Init();
-    lib2772A861_gt_D0B4D0B0D0B2D0B0D0BDD0B8D0B5D181D0B0D0BBD0B2D0B0D0B3D0B5D180D183D0B1D0B5D185D18DD0B9D0B2D0B8D0BED180D0BED182D0B4D0BED0B1D18BD187D0B8D0BCD0B8D0BDD0B5D180D0B0D0BBD18B_Init();
     lib2772A861_gt_ResoursesInfusionTower_Init();
-    lib2772A861_gt_ResoursesInfusionTowercheck_Init();
+    lib2772A861_gt_tliwxdeamfdwtjac_Init();
 }
 
 //--------------------------------------------------------------------------------------------------
