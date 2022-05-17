@@ -19,6 +19,14 @@
         <AINotifyEffect value="SprayProtoss"/>
         <CmdButtonArray index="Execute" Requirements="NHbrSpray@HaveSprayNHbr"/>
     </CAbilEffectTarget>
+    <CValidatorCombine id="NHbrCommon@UnitisVoidRiftOrTemple">
+        <ResultFailed value="Error,MustTargetVoidPortal"/>
+        <CombineArray value="NHbrCommon@IsTemple"/>
+        <CombineArray value="NHbrCommon@IsVoidRift"/>
+    </CValidatorCombine>
+    <CValidatorUnitType id="NHbrCommon@IsSilent">
+        <Value value="NHbrSilent"/>
+    </CValidatorUnitType>
     <CValidatorUnitType id="NHbrCommon@NotScreamerCaster">
         <WhichUnit Value="Caster"/>
         <Value value="NHbrScreamer"/>
@@ -625,9 +633,17 @@
         <DataRecord Entry="Validator,NHbrCommon@IsIonicCrystal"/>
         <DataRecord Entry="Validator,NHbrCommon@EnergyUser"/>
         <DataRecord Entry="Validator,NHbrCommon@IsScreamer"/>
+        <DataRecord Entry="Behavior,NHbrCommon@RequiresCrystallicShrine"/>
+        <DataRecord Entry="Behavior,NHbrCommon@RequiresProcessingCore"/>
+        <DataRecord Entry="Behavior,NHbrCommon@RequiresStasisCell"/>
+        <DataRecord Entry="Validator,NHbrCommon@IsSilent"/>
+        <DataRecord Entry="Validator,NHbrCommon@UnitisVoidRiftOrTemple"/>
     </CDataCollection>
     <CUnit default="1" id="DefaultSettingsNHbrBuilding">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
         <Race value="NHbr"/>
+        <Mob value="Multiplayer"/>
         <FlagArray index="Turnable" value="0"/>
         <FlagArray index="PreventDefeat" value="1"/>
         <FlagArray index="PreventDestroy" value="1"/>
@@ -636,6 +652,8 @@
         <FlagArray index="TownAlert" value="1"/>
         <FlagArray index="NoPortraitTalk" value="1"/>
         <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
         <Collide index="Burrow" value="1"/>
         <Collide index="Ground" value="1"/>
         <Collide index="Structure" value="1"/>
@@ -644,45 +662,48 @@
         <Collide index="Locust" value="1"/>
         <Collide index="Phased" value="1"/>
         <Collide index="Small" value="1"/>
-        <FogVisibility value="Snapshot"/>
-        <PlaneArray index="Ground" value="1"/>
         <Attributes index="Structure" value="1"/>
+        <LifeArmor value="1"/>
         <LifeArmorName value="Unit/LifeArmorName/NHbrBuildingPlating"/>
+        <ShieldArmor value="1"/>
         <ShieldArmorName value="Unit/ShieldArmorName/NHbrShields"/>
-        <HotkeyCategory value="Unit/Category/NHbrUnits"/>
-        <SubgroupPriority value="2"/>
-        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
-        <DataCollection value="##id##"/>
+        <ShieldArmorTip value="Unit/ShieldArmorTooltip/NHbrShields"/>
+        <Sight value="9"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
         <BehaviorArray Link="NHbrProtection@SpellArmor"/>
         <BehaviorArray Link="NHbrCommon@BuildersTracker"/>
         <BehaviorArray Link="NHbrNetwork@PowerUser"/>
-        <AbilArray Link="BuildInProgress"/>
-        <LifeArmor value="1"/>
-        <ShieldArmor value="1"/>
-        <Facing value="315"/>
-        <ScoreResult value="BuildOrder"/>
         <CardLayouts>
             <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
         </CardLayouts>
-        <DeathRevealRadius value="3"/>
-        <AttackTargetPriority value="11"/>
-        <Mob value="Multiplayer"/>
-        <Sight value="9"/>
-        <ShieldArmorTip value="Unit/ShieldArmorTooltip/NHbrShields"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="2"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <HotkeyCategory value="Unit/Category/NHbrUnits"/>
+        <DataCollection value="##id##"/>
     </CUnit>
     <CUnit default="1" id="DefaultSettingsNHbrGroundUnit">
-        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
-        <DataCollection value="##id##"/>
+        <DeathRevealRadius value="3"/>
         <Race value="NHbr"/>
+        <Mob value="Multiplayer"/>
         <FlagArray index="PreventDestroy" value="1"/>
         <FlagArray index="UseLineOfSight" value="1"/>
         <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <LifeArmor value="1"/>
         <LifeArmorName value="Unit/LifeArmorName/NHbrArmor"/>
+        <ShieldArmor value="1"/>
         <ShieldArmorName value="Unit/ShieldArmorName/NHbrShields"/>
+        <ShieldArmorTip value="Unit/ShieldArmorTooltip/NHbrShields"/>
         <Acceleration value="1000"/>
         <LateralAcceleration value="46.0625"/>
         <StationaryTurningRate value="999.8437"/>
         <TurningRate value="999.8437"/>
+        <AttackTargetPriority value="20"/>
         <DamageDealtXP value="1"/>
         <DamageTakenXP value="1"/>
         <KillXP value="20"/>
@@ -691,8 +712,6 @@
         <AbilArray Link="move"/>
         <BehaviorArray Link="NHbrProtection@SpellArmor"/>
         <BehaviorArray Link="NHbrNetwork@PowerUser"/>
-        <LifeArmor value="1"/>
-        <ShieldArmor value="1"/>
         <CardLayouts>
             <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
             <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
@@ -700,7 +719,12 @@
             <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
             <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
         </CardLayouts>
+        <ScoreResult value="BuildOrder"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
         <GlossaryCategory value="Unit/Category/NHbrUnits"/>
+        <HotkeyCategory value="Unit/Category/NHbrUnits"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Always"/>
         <Fidget>
             <ChanceArray index="Anim" value="20"/>
             <ChanceArray index="Idle" value="70"/>
@@ -708,18 +732,7 @@
         </Fidget>
         <TauntDuration index="Cheer" value="5"/>
         <TauntDuration index="Dance" value="5"/>
-        <Mob value="Multiplayer"/>
-        <AttackTargetPriority value="20"/>
-        <DeathRevealRadius value="3"/>
-        <PlaneArray index="Ground" value="1"/>
-        <Collide index="Ground" value="1"/>
-        <Collide index="Locust" value="1"/>
-        <Collide index="Small" value="1"/>
-        <HotkeyCategory value="Unit/Category/NHbrUnits"/>
-        <KillDisplay value="Always"/>
-        <RankDisplay value="Always"/>
-        <ScoreResult value="BuildOrder"/>
-        <ShieldArmorTip value="Unit/ShieldArmorTooltip/NHbrShields"/>
+        <DataCollection value="##id##"/>
     </CUnit>
     <CUnit default="1" id="DefaultSettingsNHbrAirUnit">
         <DeathRevealRadius value="3"/>
@@ -730,12 +743,16 @@
         <FlagArray index="ArmySelect" value="1"/>
         <PlaneArray index="Air" value="1"/>
         <Collide index="Flying" value="1"/>
+        <LifeArmor value="1"/>
         <LifeArmorName value="Unit/LifeArmorName/NHbrArmor"/>
+        <ShieldArmor value="1"/>
         <ShieldArmorName value="Unit/ShieldArmorName/NHbrShields"/>
+        <ShieldArmorTip value="Unit/ShieldArmorTooltip/NHbrShields"/>
         <Mover value="Fly"/>
         <Acceleration value="1000"/>
         <StationaryTurningRate value="999.8437"/>
         <TurningRate value="999.8437"/>
+        <Sight value="9"/>
         <AttackTargetPriority value="20"/>
         <DamageDealtXP value="1"/>
         <DamageTakenXP value="1"/>
@@ -745,8 +762,6 @@
         <AbilArray Link="move"/>
         <BehaviorArray Link="NHbrProtection@SpellArmor"/>
         <BehaviorArray Link="NHbrNetwork@PowerUser"/>
-        <LifeArmor value="1"/>
-        <ShieldArmor value="1"/>
         <CardLayouts>
             <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
             <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
@@ -761,8 +776,6 @@
         <KillDisplay value="Always"/>
         <RankDisplay value="Always"/>
         <DataCollection value="##id##"/>
-        <Sight value="9"/>
-        <ShieldArmorTip value="Unit/ShieldArmorTooltip/NHbrShields"/>
     </CUnit>
     <CBehaviorBuff id="NHbrCommon@RequiresCrystallicShrine">
         <InfoFlags index="Hidden" value="1"/>
@@ -927,7 +940,7 @@
     </CUpgrade>
     <CUpgrade id="NHbrSpray">
         <Flags index="UpgradeCheat" value="0"/>
-        <EditorCategories value="Race:NHbr,UpgradeType:SpellResearch"/>
+        <EditorCategories value="Race:NHbr"/>
         <AffectedUnitArray value="NHbrMinion"/>
         <LeaderAlias value=""/>
     </CUpgrade>

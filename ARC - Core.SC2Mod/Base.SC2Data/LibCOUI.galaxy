@@ -4,6 +4,7 @@ include "LibCOOC_h"
 include "LibCOMI_h"
 include "LibCOMU_h"
 include "LibA8FDA37D_h"
+include "Lib01833E95_h"
 
 include "LibCOUI_h"
 
@@ -18,6 +19,7 @@ void libCOUI_InitLibraries () {
     libCOMI_InitVariables();
     libCOMU_InitVariables();
     libA8FDA37D_InitVariables();
+    lib01833E95_InitVariables();
 }
 
 // Variable Initialization
@@ -35,6 +37,25 @@ void libCOUI_InitVariables () {
 
     libCOUI_InitVariables_completed = true;
 
+    libCOUI_gv_options_Wave = 1;
+    libCOUI_gv_options_Boss = 1;
+    libCOUI_gv_options_Enforcer1 = 1;
+    libCOUI_gv_options_Enforcer2 = 1;
+    libCOUI_gv_optionsDialog = c_invalidDialogId;
+    libCOUI_gv_optionsDialogTitle = c_invalidDialogControlId;
+    for (init_i = 0; init_i <= 3; init_i += 1) {
+        libCOUI_gv_optionsDialogLabels[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= 3; init_i += 1) {
+        libCOUI_gv_optionsDialogMenus[init_i] = c_invalidDialogControlId;
+    }
+    libCOUI_gv_optionsDialogAccept = c_invalidDialogControlId;
+    libCOUI_gv_alliance_tab = c_invalidDialogId;
+    for (init_i = 0; init_i <= 16; init_i += 1) {
+        libCOUI_gv_commanders_names[init_i] = c_invalidDialogControlId;
+    }
+    libCOUI_gv_alliance_button_dialog = c_invalidDialogId;
+    libCOUI_gv_alliance_button = c_invalidDialogControlId;
     libCOUI_gv_dialog = c_invalidDialogId;
     libCOUI_gv_startMissionDialogButton = c_invalidDialogControlId;
     libCOUI_gv_selectMissionDialog = c_invalidDialogId;
@@ -510,6 +531,61 @@ void libCOUI_InitVariables () {
 
 // Presets
 // Functions
+void libCOUI_gf_set_alliance_button () {
+    // Variable Declarations
+    int lv_offset_y;
+    int lv_label_height;
+    int lv_player;
+    int lv_num_of_players;
+    string lv_button;
+
+    // Automatic Variable Declarations
+    playergroup auto74501A8D_g;
+
+    // Variable Initialization
+    lv_offset_y = 35;
+    lv_label_height = 28;
+    lv_num_of_players = PlayerGroupCount(PlayerGroupActive());
+
+    // Implementation
+    DialogCreate(825, (lv_label_height*lv_num_of_players+60), c_anchorTopLeft, 0, 0, true);
+    libCOUI_gv_alliance_tab = DialogLastCreated();
+    auto74501A8D_g = PlayerGroupActive();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto74501A8D_g, lv_player);
+        if (lv_player < 0) { break; }
+        libNtve_gf_CreateDialogItemLabel(libCOUI_gv_alliance_tab, 200, lv_label_height, c_anchorTopLeft, 35, lv_offset_y, PlayerName(lv_player), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lv_player, false)), false, 2.0);
+        libNtve_gf_SetDialogItemStyle(DialogControlLastCreated(), "ModLeftSize20", PlayerGroupAll());
+        libNtve_gf_SetDialogItemStyle(DialogControlLastCreated(), "ModLeftSize20", PlayerGroupAll());
+        libCOUI_gv_commanders_names[lv_player] = DialogControlLastCreated();
+        if ((GameAttributeGameValue("3") == "0001")) {
+        }
+
+        if ((GameAttributeGameValue("9") == "0001")) {
+            libNtve_gf_CreateDialogItemLabel(libCOUI_gv_alliance_tab, 300, lv_label_height, c_anchorTopRight, 35, lv_offset_y, StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Name", lv_player)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lv_player, false)), false, 2.0);
+            libNtve_gf_SetDialogItemStyle(DialogControlLastCreated(), "ModRightSize20", PlayerGroupAll());
+            libNtve_gf_SetDialogItemTooltip(DialogControlLastCreated(), StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Tooltip", lv_player)), PlayerGroupAll());
+        }
+
+        lv_offset_y = (lv_offset_y+lv_label_height);
+    }
+    DialogSetVisible(libCOUI_gv_alliance_tab, PlayerGroupAll(), false);
+    DialogCreate(36, 36, c_anchorTopRight, 5, 5, true);
+    libCOUI_gv_alliance_button_dialog = DialogLastCreated();
+    libNtve_gf_CreateDialogItemButton(libCOUI_gv_alliance_button_dialog, 36, 36, c_anchorTopLeft, 0, 0, StringToText(""), StringToText(""), "Assets\\Textures\\ui_alliance_button_normalpressed.dds");
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_alliance_button_normalpressed.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libCOUI_gv_alliance_button = DialogControlLastCreated();
+    DialogSetVisible(libCOUI_gv_alliance_button_dialog, PlayerGroupAll(), true);
+}
+
+int libCOUI_gf_player_row (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return (lp_player + 1);
+}
+
 void libCOUI_gf_UpdateMapSelection (int lp_player, int lp_mapIndex) {
     // Variable Declarations
     int lv_i;
@@ -6475,6 +6551,209 @@ color libCOUI_gf_ProgressColor (int lp_minValue, int lp_maxValue, int lp_progres
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
+// Trigger: Close Options
+//--------------------------------------------------------------------------------------------------
+bool libCOUI_gt_CloseOptions_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((EventDialogControl() == libCOUI_gv_optionsDialogAccept))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    BankValueSetFromInt(libCOUI_gv_savedBank, "CoA", "wave", (DialogControlGetSelectedItem(libCOUI_gv_optionsDialogMenus[0], 1)-1));
+    libCOUI_gv_options_Wave = DialogControlGetSelectedItem(libCOUI_gv_optionsDialogMenus[0], 1);
+    BankValueSetFromInt(libCOUI_gv_savedBank, "CoA", "boss", (DialogControlGetSelectedItem(libCOUI_gv_optionsDialogMenus[1], 1)-1));
+    libCOUI_gv_options_Boss = DialogControlGetSelectedItem(libCOUI_gv_optionsDialogMenus[1], 1);
+    BankValueSetFromInt(libCOUI_gv_savedBank, "CoA", "enforcer1", (DialogControlGetSelectedItem(libCOUI_gv_optionsDialogMenus[2], 1)-1));
+    libCOUI_gv_options_Enforcer1 = DialogControlGetSelectedItem(libCOUI_gv_optionsDialogMenus[2], 1);
+    BankValueSetFromInt(libCOUI_gv_savedBank, "CoA", "enforcer2", (DialogControlGetSelectedItem(libCOUI_gv_optionsDialogMenus[3], 1)-1));
+    libCOUI_gv_options_Enforcer2 = DialogControlGetSelectedItem(libCOUI_gv_optionsDialogMenus[3], 1);
+    BankSave(libCOUI_gv_savedBank);
+    DialogSetVisible(libCOUI_gv_optionsDialog, PlayerGroupAll(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOUI_gt_CloseOptions_Init () {
+    libCOUI_gt_CloseOptions = TriggerCreate("libCOUI_gt_CloseOptions_Func");
+    TriggerAddEventDialogControl(libCOUI_gt_CloseOptions, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Open Options
+//--------------------------------------------------------------------------------------------------
+bool libCOUI_gt_OpenOptions_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogSetVisible(libCOUI_gv_optionsDialog, PlayerGroupAll(), true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOUI_gt_OpenOptions_Init () {
+    libCOUI_gt_OpenOptions = TriggerCreate("libCOUI_gt_OpenOptions_Func");
+    TriggerAddEventChatMessage(libCOUI_gt_OpenOptions, c_playerAny, "-options", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Create Options Dialog
+//--------------------------------------------------------------------------------------------------
+bool libCOUI_gt_CreateOptionsDialog_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+    int lv_numOptions;
+
+    // Automatic Variable Declarations
+    int auto8F014ACF_ae;
+    const int auto8F014ACF_ai = 1;
+    const int auto2C1F88DD_ae = 3;
+    const int auto2C1F88DD_ai = 1;
+
+    // Variable Initialization
+    lv_numOptions = 4;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogCreate(700, (220+(lv_numOptions*70)), c_anchorCenter, 0, 0, true);
+    libCOUI_gv_optionsDialog = DialogLastCreated();
+    libNtve_gf_CreateDialogItemLabel(libCOUI_gv_optionsDialog, 700, 50, c_anchorTop, 0, 50, StringExternal("Param/Value/lib_COUI_4A32EE9D"), ColorWithAlpha(0,0,0,0), false, 2.0);
+    libCOUI_gv_optionsDialogTitle = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemStyle(libCOUI_gv_optionsDialogTitle, "BattlenetDialogTitle", PlayerGroupAll());
+    auto8F014ACF_ae = (lv_numOptions-1);
+    lv_i = 0;
+    for ( ; ( (auto8F014ACF_ai >= 0 && lv_i <= auto8F014ACF_ae) || (auto8F014ACF_ai < 0 && lv_i >= auto8F014ACF_ae) ) ; lv_i += auto8F014ACF_ai ) {
+        libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 200, 50, c_anchorTopLeft, 80, (120+(lv_i*70)), IntToText(lv_i), ColorWithAlpha(0,0,0,0), false, 2.0);
+        libCOUI_gv_optionsDialogLabels[lv_i] = DialogControlLastCreated();
+    }
+    libNtve_gf_SetDialogItemText(libCOUI_gv_optionsDialogLabels[0], StringExternal("Param/Value/lib_COUI_CD595FA3"), PlayerGroupAll());
+    libNtve_gf_SetDialogItemText(libCOUI_gv_optionsDialogLabels[1], StringExternal("Param/Value/lib_COUI_440DC0C0"), PlayerGroupAll());
+    libNtve_gf_SetDialogItemText(libCOUI_gv_optionsDialogLabels[2], StringExternal("Param/Value/lib_COUI_B350511A"), PlayerGroupAll());
+    libNtve_gf_SetDialogItemText(libCOUI_gv_optionsDialogLabels[3], StringExternal("Param/Value/lib_COUI_F10C5776"), PlayerGroupAll());
+    lv_i = 0;
+    for ( ; ( (auto2C1F88DD_ai >= 0 && lv_i <= auto2C1F88DD_ae) || (auto2C1F88DD_ai < 0 && lv_i >= auto2C1F88DD_ae) ) ; lv_i += auto2C1F88DD_ai ) {
+        DialogControlCreate(libCOUI_gv_optionsDialog, c_triggerControlTypePulldown);
+        libCOUI_gv_optionsDialogMenus[lv_i] = DialogControlLastCreated();
+        DialogControlSetPosition(libCOUI_gv_optionsDialogMenus[lv_i], PlayerGroupAll(), c_anchorTopLeft, 380, (100+(lv_i*70)));
+        DialogControlAddItem(libCOUI_gv_optionsDialogMenus[lv_i], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_EB8053B9"));
+    }
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[0], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_DE8A0477"));
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[0], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_4AEDA742"));
+    DialogControlSelectItem(libCOUI_gv_optionsDialogMenus[0], PlayerGroupAll(), (libCOUI_gv_options_Wave+1));
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[1], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_311CF641"));
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[1], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_3194D848"));
+    DialogControlSelectItem(libCOUI_gv_optionsDialogMenus[1], PlayerGroupAll(), (libCOUI_gv_options_Boss+1));
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[2], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_DE6EFC66"));
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[2], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_9F39D522"));
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[2], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_B5304D0A"));
+    DialogControlSelectItem(libCOUI_gv_optionsDialogMenus[2], PlayerGroupAll(), (libCOUI_gv_options_Enforcer1+1));
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[3], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_E8017E1A"));
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[3], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_42CA8580"));
+    DialogControlAddItem(libCOUI_gv_optionsDialogMenus[3], PlayerGroupAll(), StringExternal("Param/Value/lib_COUI_6AB1C985"));
+    DialogControlSelectItem(libCOUI_gv_optionsDialogMenus[3], PlayerGroupAll(), (libCOUI_gv_options_Enforcer2+1));
+    libNtve_gf_CreateDialogItemButton(libCOUI_gv_optionsDialog, 200, 50, c_anchorBottom, 0, 50, StringToText(""), StringExternal("Param/Value/lib_COUI_AB1B1B8D"), "");
+    libCOUI_gv_optionsDialogAccept = DialogControlLastCreated();
+    DialogSetRenderPriority(libCOUI_gv_optionsDialog, 10000);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOUI_gt_CreateOptionsDialog_Init () {
+    libCOUI_gt_CreateOptionsDialog = TriggerCreate("libCOUI_gt_CreateOptionsDialog_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Load Bank Variables
+//--------------------------------------------------------------------------------------------------
+bool libCOUI_gt_LoadBankVariables_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    BankLoad("coopSpeedruns", 1);
+    libCOUI_gv_savedBank = BankLastCreated();
+    BankSectionCreate(BankLastCreated(), "CoA");
+    libCOUI_gv_options_Wave = BankValueGetAsInt(libCOUI_gv_savedBank, "CoA", "wave");
+    libCOUI_gv_options_Boss = BankValueGetAsInt(libCOUI_gv_savedBank, "CoA", "boss");
+    libCOUI_gv_options_Enforcer1 = BankValueGetAsInt(libCOUI_gv_savedBank, "CoA", "enforcer1");
+    libCOUI_gv_options_Enforcer2 = BankValueGetAsInt(libCOUI_gv_savedBank, "CoA", "enforcer2");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOUI_gt_LoadBankVariables_Init () {
+    libCOUI_gt_LoadBankVariables = TriggerCreate("libCOUI_gt_LoadBankVariables_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: alliance_button_pressed
+//--------------------------------------------------------------------------------------------------
+bool libCOUI_gt_alliance_button_pressed_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((EventDialogControl() == libCOUI_gv_alliance_button))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((DialogIsVisible(libCOUI_gv_alliance_tab, EventPlayer()) == true)) {
+        DialogSetVisible(libCOUI_gv_alliance_tab, PlayerGroupSingle(EventPlayer()), false);
+    }
+    else {
+        DialogSetVisible(libCOUI_gv_alliance_tab, PlayerGroupSingle(EventPlayer()), true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOUI_gt_alliance_button_pressed_Init () {
+    libCOUI_gt_alliance_button_pressed = TriggerCreate("libCOUI_gt_alliance_button_pressed_Func");
+    TriggerAddEventDialogControl(libCOUI_gt_alliance_button_pressed, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: player_defeated
+//--------------------------------------------------------------------------------------------------
+bool libCOUI_gt_player_defeated_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetDialogItemColor(libCOUI_gv_commanders_names[EventPlayer()], Color(44.71, 44.71, 44.71), PlayerGroupAll());
+    libNtve_gf_SetDialogItemText(libCOUI_gv_commanders_names[EventPlayer()], StringExternal("Param/Value/lib_COUI_C1A5E13A"), PlayerGroupAll());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOUI_gt_player_defeated_Init () {
+    libCOUI_gt_player_defeated = TriggerCreate("libCOUI_gt_player_defeated_Func");
+    TriggerAddEventPlayerLeft(libCOUI_gt_player_defeated, c_playerAny, c_gameResultUndecided);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: MapListslectionChanged
 //--------------------------------------------------------------------------------------------------
 bool libCOUI_gt_MapListslectionChanged_Func (bool testConds, bool runActions) {
@@ -10181,7 +10460,7 @@ bool libCOUI_gt_CU_FanfareDismissed_Func (bool testConds, bool runActions) {
     }
 
     DialogSetVisible(libCOUI_gv_cU_FanfareDialog, PlayerGroupSingle(EventPlayer()), false);
-    libCOUI_gf_CU_ScoreDisplay(EventPlayer(), libCOUI_gv_cU_FanfareResult[EventPlayer()]);
+    TriggerExecute(lib01833E95_gt_AF_Score, true, false);
     return true;
 }
 
@@ -10193,6 +10472,12 @@ void libCOUI_gt_CU_FanfareDismissed_Init () {
 }
 
 void libCOUI_InitTriggers () {
+    libCOUI_gt_CloseOptions_Init();
+    libCOUI_gt_OpenOptions_Init();
+    libCOUI_gt_CreateOptionsDialog_Init();
+    libCOUI_gt_LoadBankVariables_Init();
+    libCOUI_gt_alliance_button_pressed_Init();
+    libCOUI_gt_player_defeated_Init();
     libCOUI_gt_MapListslectionChanged_Init();
     libCOUI_gt_MapButtonClicked_Init();
     libCOUI_gt_MissionsButtonClicked_Init();
@@ -10310,4 +10595,5 @@ include "LibCOOC"
 include "LibCOMI"
 include "LibCOMU"
 include "LibA8FDA37D"
+include "Lib01833E95"
 

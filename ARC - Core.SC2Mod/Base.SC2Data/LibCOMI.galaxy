@@ -6,7 +6,6 @@ include "LibCOUI_h"
 include "LibCOMU_h"
 include "LibA8FDA37D_h"
 include "Lib01833E95_h"
-include "Lib37CC0EF2_h"
 
 include "LibCOMI_h"
 
@@ -22,7 +21,6 @@ void libCOMI_InitLibraries () {
     libCOMU_InitVariables();
     libA8FDA37D_InitVariables();
     lib01833E95_InitVariables();
-    lib37CC0EF2_InitVariables();
 }
 
 // Variable Initialization
@@ -405,6 +403,29 @@ playergroup libCOMI_gf_GetHumanPlayers () {
     return libCOMI_gv_vU_HumanPlayers;
 }
 
+bool libCOMI_gf_DefeatAnyPlayerBaseDead () {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    playergroup auto3440675A_g;
+
+    // Variable Initialization
+
+    // Implementation
+    auto3440675A_g = libCOMI_gv_vU_AlliedCommanders;
+    lv_i = -1;
+    while (true) {
+        lv_i = PlayerGroupNextPlayer(auto3440675A_g, lv_i);
+        if (lv_i < 0) { break; }
+        if ((libNtve_gf_UnitGroupIsDead(UnitGroup(null, lv_i, null, UnitFilter((1 << c_targetFilterPreventDefeat), 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 1)) == true)) {
+            return true;
+        }
+
+    }
+    return false;
+}
+
 trigger auto_libCOMI_gf_RunTriggeratMissionTime_Trigger = null;
 fixed auto_libCOMI_gf_RunTriggeratMissionTime_lp_time;
 trigger auto_libCOMI_gf_RunTriggeratMissionTime_lp_trigger;
@@ -473,6 +494,47 @@ bool auto_libCOMI_gf_CreateWarpInEffect_TriggerFunc (bool testConds, bool runAct
     UnitAbilityEnable(lp_unit, "move", true);
     UnitAbilityEnable(lp_unit, "attack", true);
     return true;
+}
+
+void libCOMI_gf_InitAmon () {
+    // Variable Declarations
+    unit lv_unit;
+    int lv_owner;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    playergroup auto222D5220_g;
+    unitgroup auto81E454EE_g;
+    int auto81E454EE_u;
+
+    // Variable Initialization
+
+    // Implementation
+    TriggerEnable(libCOMI_gt_VoidIncomeIncrease, true);
+    TriggerEnable(libCOMI_gt_VoidIncome, true);
+    Wait(180.0, c_timeGame);
+    if ((PlayerGroupCount(libCOMI_gv_vU_EnemyPlayers) > 0)) {
+        auto222D5220_g = libCOMI_gv_vU_EnemyAI;
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto222D5220_g, lv_player);
+            if (lv_player < 0) { break; }
+            auto81E454EE_g = UnitGroup(null, lv_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+            auto81E454EE_u = UnitGroupCount(auto81E454EE_g, c_unitCountAll);
+            for (;; auto81E454EE_u -= 1) {
+                lv_unit = UnitGroupUnitFromEnd(auto81E454EE_g, auto81E454EE_u);
+                if (lv_unit == null) { break; }
+                if ((PlayerGroupCount(libCOMI_gv_vU_EnemyPlayers) > 1) && ((lv_player == PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 2)) || (lv_player == PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 4)))) {
+                    lv_owner = PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 2);
+                }
+                else {
+                    lv_owner = PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 1);
+                }
+                UnitSetOwner(lv_unit, lv_owner, true);
+            }
+        }
+    }
+
 }
 
 bool libCOMI_gf_PointIsInsideRebuildArea (point lp_point) {
@@ -4565,6 +4627,171 @@ void libCOMI_gf_CreateCoopDropForceinTransportsatLocationandWaitforthemtospawn_T
     }
     libCOMI_gf_CM_CoopAI_AttackForce_ClearTable();
     DataTableSetUnitGroup(libCOMI_gv_cMC_CoopAI_AttackForce_DataTableScope, libCOMI_gf_CM_CoopAI_AttackForce_ForceName(), lv_attackForce);
+}
+
+void libCOMI_gf_SetProtossFaction (int lp_player, string lp_faction, bool lp_ai) {
+    // Automatic Variable Declarations
+    // Deprecated
+    if ((lp_ai == true) && (lp_faction == "Alarak")) {
+        TechTreeAbilityAllow(lp_player, AbilityCommand("VoidHighTemplarPsiOrbAutoCasted", 0), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("VoidHighTemplarMindBlastAutoCasted", 0), true);
+        TechTreeAbilityAllow(lp_player, AbilityCommand("ForceFieldMonitorAutoCasted", 0), true);
+    }
+
+}
+
+void libCOMI_gf_SetZergFaction (int lp_playernumber, string lp_faction, bool lp_ai) {
+    // Variable Declarations
+    int lv_playernumber;
+
+    // Automatic Variable Declarations
+    string autoC14C7228_val;
+
+    // Variable Initialization
+
+    // Deprecated
+    autoC14C7228_val = lp_faction;
+    if (autoC14C7228_val == "Stukov") {
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "StukovCommander", 1);
+        TechTreeAbilityAllow(lp_playernumber, AbilityCommand("SIStukovInfestStructureUpgraded", 0), true);
+        TechTreeAbilityAllow(lp_playernumber, AbilityCommand("SIStukovInfestStructure", 0), false);
+        TechTreeAbilityAllow(lp_playernumber, AbilityCommand("SIStukovInfestStructureUpgraded", 0), false);
+        TechTreeAbilityAllow(lp_playernumber, AbilityCommand("SIStukovInfestStructure", 0), true);
+        TechTreeUpgradeAllow(lp_playernumber, "HeavyInfestation", false);
+        TechTreeUpgradeAllow(lp_playernumber, "SIBarracksTrainInfestedCivilianLevel4", false);
+        TechTreeAbilityAllow(lv_playernumber, AbilityCommand("StukovSummonApocalisk", 0), false);
+        TechTreeUpgradeAllow(lp_playernumber, "SIBunkerArmor", false);
+        TechTreeUpgradeAllow(lp_playernumber, "SIBunkerLifeRegen", false);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "SIImprovedMarineSpawning", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "StukovInfantryUpgradeCatch", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "SIMarinePlaguedMunitions", false);
+        TechTreeUpgradeAllow(lp_playernumber, "StukovInfestedCivilianSpawnBroodlingOnDeath", false);
+        TechTreeUnitAllow(lp_playernumber, "SIQueen", false);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "StukovFactoryUpgradeCatch", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "InfestedSiegeTankArmoredDamage", false);
+        TechTreeUpgradeAllow(lp_playernumber, "SIDiamondbackSnailTrail", false);
+        TechTreeAbilityAllow(lv_playernumber, AbilityCommand("StukovSummonAleksander", 0), false);
+        TechTreeUpgradeAllow(lp_playernumber, "StukovInfestedBansheeInfestedLife", false);
+        TechTreeUpgradeAllow(lp_playernumber, "LiberatorInfestedBecomeSwarm", false);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "StukovApocaliskUpgrades", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "StukovBroodQueenUpgradeCatch", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "SIQueenEnergy", false);
+        TechTreeUpgradeAllow(lp_playernumber, "SIQueenFungalGrowth", false);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "SIInfestedBunkerUpgraded", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "StukovAleksanderMindControl", 1);
+        TechTreeAbilityAllow(lp_playernumber, AbilityCommand("SIStukovInfestStructure", 0), true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "StukovEngineeringBayUpgradeCatch", 1);
+    }
+    else if (autoC14C7228_val == "Abathur") {
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "AbathurCommander", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "HotSHaveQueen", 1);
+        TechTreeUnitAllow(lv_playernumber, "Brutalisk", true);
+        TechTreeUnitAllow(lv_playernumber, "HotSLeviathan", true);
+        TechTreeUnitAllow(lv_playernumber, "Leviathan", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "AbathurToxicNestIcreasedBiomass", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "ToxicNestattackgivesMarkforCollectionPassive", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "AbathurImprovedMend", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "AbathurBioMechanicalTransfusion", true);
+        TechTreeUpgradeAllow(lp_playernumber, "AbathurHatcheryDoubleQueue", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "AbathurBiomassRefund", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "HotSHaveViper", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "AbathurDeepTunnel", true);
+        TechTreeUpgradeAllow(lp_playernumber, "ViperAbductImprovedStun", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "AbathurEnableSymbiote", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganSpirelUpgradeCatch", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "DevourerAoEDamage", true);
+        TechTreeUpgradeAllow(lp_playernumber, "GuardianAttackRangeIncrease", true);
+        TechTreeUpgradeAllow(lp_playernumber, "MutaliskSunderingGlave", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "AbathurMorphTimeCostReduced", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "AbathurEnemyDeathCreateLocusts", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "RoachVile", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "HotSHaveVile", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "AbathurBiomassLifeLeech", 1);
+    }
+    else if (autoC14C7228_val == "Zagara") {
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "ZagaraCommander", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "K5TwoDrones", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "HotSHaveAberration", 1);
+        TechTreeAbilityAllow(lp_playernumber, AbilityCommand("ZagaraVoidCoopMassRoachDrop", 0), true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "QueenDoubleInjectLarva", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "ScourgeGasCostReduction", true);
+        TechTreeUpgradeAllow(lp_playernumber, "ScourgeSplashDamage", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "ZagaraBileLaunchers", 1);
+        TechTreeUnitAllow(lp_playernumber, "BileLauncherZagara", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganZagaraSpawningPoolUpgradeCatch", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "HotSZerglingHealth", true);
+        TechTreeUpgradeAllow(lp_playernumber, "ZerglingArmorShred", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "ZagaraVoidCoopBanelingSpawner", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "ZagaraVoidCoopAberrationBanelingIncubation", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "AberrationArmorAura", true);
+        TechTreeUpgradeAllow(lp_playernumber, "ZagaraVoidCoopAttackUpgrade", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "ZagaraVoidCoopImprovedMassRoachDrop", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "HotSRupture", true);
+        TechTreeUpgradeAllow(lp_playernumber, "HotSBanelingCorrosiveBile", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "CoopZerglingSwarmling", 1);
+        TechTreeUnitAllow(lv_playernumber, "HotSSwarmling", true);
+        TechTreeUnitAllow(lv_playernumber, "Zergling", false);
+        TechTreeUpgradeAllow(lp_playernumber, "BileLauncherBombardmentCooldown", true);
+        TechTreeUpgradeAllow(lp_playernumber, "BileLauncherIncreasedRange", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "CoopBanelingSplitterling", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "ZagaraVoidCoopImprovedAbilities", 1);
+    }
+    else if (autoC14C7228_val == "Kerrigan") {
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganCommander", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganInfestedCosmetic", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "K5PrimalSlash", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "K5PsiStrike", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganImmobilizationWave", 1);
+        TechTreeAbilityAllow(lp_playernumber, AbilityCommand("KerriganVoidCoopCrushingGripWave", 0), true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganVoidCoopImprovedLeapingStrike", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganZagaraSpawningPoolUpgradeCatch", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "HotSZerglingHealth", true);
+        TechTreeUpgradeAllow(lp_playernumber, "ZerglingArmorShred", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "HotSLurker", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "HotSHaveLurker", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "HotSHaveLurker", 1);
+        TechTreeUnitAllow(lv_playernumber, "Hydralisk", false);
+        TechTreeUnitAllow(lv_playernumber, "Lurker", true);
+        TechTreeUnitAllow(lv_playernumber, "HydraliskLurker", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganHydraliskUpgradeCatch", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "HydraliskFrenzy", true);
+        TechTreeUpgradeAllow(lp_playernumber, "HotSHydraliskHealth", true);
+        TechTreeUpgradeAllow(lp_playernumber, "SeismicSpines", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganCreepBonusesCoop", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "K5CreepBonuses", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "VoidCoopGreaterNydusWorm", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "K5ChainLightning", true);
+        TechTreeUpgradeAllow(lp_playernumber, "K5Cooldowns", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "K5Fury", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganKerriganUpgradeCatch", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "MutaliskSunderingGlave", true);
+        TechTreeUpgradeAllow(lp_playernumber, "KerriganVoidCoopBroodlordSpeed", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "CoopZerglingRaptor", 1);
+        TechTreeUnitAllow(lv_playernumber, "Zergling", false);
+        TechTreeUnitAllow(lv_playernumber, "HotSRaptor", true);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganUltraliskUpgradeCatch", 1);
+        TechTreeUpgradeAllow(lp_playernumber, "UltraliskBurrowChargeUpgrade", true);
+        TechTreeUpgradeAllow(lp_playernumber, "HotSTissueAssimilation", true);
+        TechTreeUpgradeAllow(lp_playernumber, "HotSUltraliskBurrowCharge", true);
+        TechTreeUnitAllow(lv_playernumber, "HotSTorrasque", true);
+        TechTreeUnitAllow(lv_playernumber, "Ultralisk", false);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "HotSTorrasque", 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lv_playernumber, "KerriganVoidCoopEnergyRegen", 1);
+    }
+    else {
+    }
+}
+
+void libCOMI_gf_SetTerranFaction (int lp_playernumber) {
+    // Variable Declarations
+    int lv_pLAYER;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_pLAYER = lp_playernumber;
+
+    // Deprecated
+    libNtve_gf_SetUpgradeLevelForPlayer(lv_pLAYER, "NovaHelmetSensorVisor", 1);
 }
 
 int libCOMI_gf_PingTypeFromObjectiveType (bool lp_objectiveType) {
@@ -10697,7 +10924,7 @@ void libCOMI_gf_GameOver (int lp_gameOverType) {
     libCOMI_gv_cM_GameOverResult = lp_gameOverType;
     GameCheatAllow(c_gameCheatVictory, false);
     GameCheatAllow(c_gameCheatDefeat, false);
-    TriggerExecute(lib37CC0EF2_gt_Defeat, true, false);
+    TriggerExecute(libCOMI_gt_Defeat, true, false);
 }
 
 void libCOMI_gf_EndCampaignMission (int lp_type) {
@@ -10714,6 +10941,9 @@ void libCOMI_gf_EndCampaignMission (int lp_type) {
     int autoA6D0BDCF_var;
     playergroup auto86325E3A_g;
     int auto86325E3A_var;
+    playergroup auto02ECD6EE_g;
+    int auto02ECD6EE_var;
+    playergroup auto86D69DDE_g;
 
     // Variable Initialization
 
@@ -10771,7 +11001,29 @@ void libCOMI_gf_EndCampaignMission (int lp_type) {
         }
     }
 
-    TriggerExecute(lib01833E95_gt_AF_Score, true, false);
+    if ((lp_type == c_gameOverTie)) {
+        auto02ECD6EE_g = libCOMI_gv_vU_HumanPlayers;
+        auto02ECD6EE_var = -1;
+        while (true) {
+            auto02ECD6EE_var = PlayerGroupNextPlayer(auto02ECD6EE_g, auto02ECD6EE_var);
+            if (auto02ECD6EE_var < 0) { break; }
+            UIAlert("DrawAlertCoop", lv_indexPlayer, StringToText(""), null);
+        }
+    }
+
+    auto86D69DDE_g = libCOOC_gf_HumanPlayers();
+    lv_indexPlayer = -1;
+    while (true) {
+        lv_indexPlayer = PlayerGroupNextPlayer(auto86D69DDE_g, lv_indexPlayer);
+        if (lv_indexPlayer < 0) { break; }
+        libCOOC_gf_CC_SetPlayerDefeated(lv_indexPlayer);
+        if ((libCOOC_gv_cC_InContestMap == true)) {
+            GameOver(lv_indexPlayer, libCOMI_gv_cM_EndMissionResult[lv_indexPlayer], true, true);
+        }
+        else {
+            libCOUI_gf_CU_FanfareDisplay(lp_type, lv_indexPlayer);
+        }
+    }
 }
 
 bool libCOMI_gf_GameIsOver () {
@@ -15374,6 +15626,169 @@ void libCOMI_gf_PlayMapIntroZoom (bool lp_waitDontWait) {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
+// Trigger: Tip Ready Q 2
+//--------------------------------------------------------------------------------------------------
+bool libCOMI_gt_TipReadyQ2_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libCOMI_gf_PlayerInCinematicModeCampaign() == false))) {
+            return false;
+        }
+
+        if (!((libCOMI_gf_GameIsOver() == false))) {
+            return false;
+        }
+
+        if (!((TriggerIsEnabled(TriggerGetCurrent()) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    TriggerQueueEnter();
+    libCOMI_gf_DisplayMissionTip();
+    Wait(libCOMI_gv_campaignHintDelay, c_timeReal);
+    TriggerQueueExit();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMI_gt_TipReadyQ2_Init () {
+    libCOMI_gt_TipReadyQ2 = TriggerCreate("libCOMI_gt_TipReadyQ2_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Cheat
+//--------------------------------------------------------------------------------------------------
+bool libCOMI_gt_VictoryCheat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupHasPlayer(libCOMI_gf_GetAlliedCommandersPlayers(), EventPlayer()) == true))) {
+            return false;
+        }
+
+        if (!((libCOMI_gf_GameIsOver() == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libCOMI_gf_GameOver(libCOMI_ge_CampaignMissionGameResultType_Victory);
+    libCOMI_gf_RunMissionVictorySequence(libCOMI_gt_Victory);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMI_gt_VictoryCheat_Init () {
+    libCOMI_gt_VictoryCheat = TriggerCreate("libCOMI_gt_VictoryCheat_Func");
+    TriggerAddEventPlayerLeft(libCOMI_gt_VictoryCheat, c_playerAny, c_gameResultVictory);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Defeat Cheat
+//--------------------------------------------------------------------------------------------------
+bool libCOMI_gt_DefeatCheat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupHasPlayer(libCOMI_gf_GetAlliedCommandersPlayers(), EventPlayer()) == true))) {
+            return false;
+        }
+
+        if (!((libCOMI_gf_GameIsOver() == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libCOMI_gf_GameOver(libCOMI_ge_CampaignMissionGameResultType_Defeat);
+    TriggerExecute(libCOMI_gt_Defeat, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMI_gt_DefeatCheat_Init () {
+    libCOMI_gt_DefeatCheat = TriggerCreate("libCOMI_gt_DefeatCheat_Func");
+    TriggerAddEventPlayerLeft(libCOMI_gt_DefeatCheat, c_playerAny, c_gameResultDefeat);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory
+//--------------------------------------------------------------------------------------------------
+bool libCOMI_gt_Victory_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerIsEnabled(TriggerGetCurrent()) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    VictoryPanelAddTrackedStatistic("UnitsTotalCount");
+    VictoryPanelAddTrackedStatistic("UnitsKilledCount");
+    VictoryPanelAddTrackedStatistic("UnitsLostCount");
+    VictoryPanelAddTrackedStatistic("StructuresKilledCount");
+    VictoryPanelAddTrackedStatistic("StructuresLostCount");
+    libCOMI_gf_EndCampaignMission(c_gameOverVictory);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMI_gt_Victory_Init () {
+    libCOMI_gt_Victory = TriggerCreate("libCOMI_gt_Victory_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Defeat
+//--------------------------------------------------------------------------------------------------
+bool libCOMI_gt_Defeat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TriggerIsEnabled(TriggerGetCurrent()) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(TriggerGetCurrent(), false);
+    libCOMI_gf_EndCampaignMission(c_gameOverDefeat);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMI_gt_Defeat_Init () {
+    libCOMI_gt_Defeat = TriggerCreate("libCOMI_gt_Defeat_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Defeat Base Dead
 //--------------------------------------------------------------------------------------------------
 bool libCOMI_gt_DefeatBaseDead_Func (bool testConds, bool runActions) {
@@ -15400,7 +15815,7 @@ bool libCOMI_gt_DefeatBaseDead_Func (bool testConds, bool runActions) {
             return false;
         }
 
-        if (!(lib37CC0EF2_gf_DefeatAnyPlayerBaseDead())) {
+        if (!(libCOMI_gf_DefeatAnyPlayerBaseDead())) {
             return false;
         }
     }
@@ -15492,7 +15907,7 @@ bool libCOMI_gt_VoidIncome_Func (bool testConds, bool runActions) {
 void libCOMI_gt_VoidIncome_Init () {
     libCOMI_gt_VoidIncome = TriggerCreate("libCOMI_gt_VoidIncome_Func");
     TriggerEnable(libCOMI_gt_VoidIncome, false);
-    TriggerAddEventTimePeriodic(libCOMI_gt_VoidIncome, 5.0, c_timeGame);
+    TriggerAddEventTimePeriodic(libCOMI_gt_VoidIncome, 2.5, c_timeGame);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -16144,8 +16559,7 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     libCOOC_gf_SetTechRestrictionsCallback(TriggerGetCurrent());
     GameTimeOfDaySet("08:00:00");
     libCOMI_gf_SetAlliedCommandersstartingResources();
-    TriggerEnable(libCOMI_gt_VoidIncomeIncrease, true);
-    TriggerEnable(libCOMI_gt_VoidIncome, true);
+    libCOMI_gf_InitAmon();
     TriggerEnable(libCOMI_gt_DefeatBaseDead, true);
     libCOOC_gf_CC_StatRecordMapStart();
     TriggerExecute(libCOMI_gv_cM_CampaignMissionStartTrigger, true, false);
@@ -16177,7 +16591,7 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
         libCOMI_gf_SetWorkerRallyPointsPlayersNexuses(lv_player);
         libLbty_gf_OrderWorkerstoGatherNearbyResources(RegionEntireMap(), lv_player);
     }
-    TriggerExecute(lib37CC0EF2_gt_TipReadyQ2, true, false);
+    TriggerExecute(libCOMI_gt_TipReadyQ2, true, false);
     if ((libCOMI_gv_cM_CampaignMissionStartTrigger2 != null)) {
         TriggerExecute(libCOMI_gv_cM_CampaignMissionStartTrigger2, true, false);
     }
@@ -37573,6 +37987,11 @@ void libCOMI_gt_CM_CampaignMissionIntroZoomIn_Init () {
 }
 
 void libCOMI_InitTriggers () {
+    libCOMI_gt_TipReadyQ2_Init();
+    libCOMI_gt_VictoryCheat_Init();
+    libCOMI_gt_DefeatCheat_Init();
+    libCOMI_gt_Victory_Init();
+    libCOMI_gt_Defeat_Init();
     libCOMI_gt_DefeatBaseDead_Init();
     libCOMI_gt_VoidIncome_Init();
     libCOMI_gt_VoidIncomeIncrease_Init();
@@ -38144,5 +38563,4 @@ include "LibCOUI"
 include "LibCOMU"
 include "LibA8FDA37D"
 include "Lib01833E95"
-include "Lib37CC0EF2"
 

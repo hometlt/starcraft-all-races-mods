@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+    <CEffectCreatePersistent id="NHbrSilentWeapon@CP">
+        <EditorCategories value="Race:NHbr"/>
+        <PeriodCount value="0">
+            <AccumulatorArray value="GetNetworkPositive"/>
+        </PeriodCount>
+        <PeriodicEffectArray value="NHbrSilentWeapon@MU"/>
+        <PeriodicPeriodArray value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="NHbrSilentWeapon@Set">
+        <EditorCategories value="Race:NHbr"/>
+        <EffectArray value="NHbrSilentWeapon@CP"/>
+        <EffectArray value="NHbrSilentWeapon@LM"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="NHbrSilentWeapon@MU">
+        <EditorCategories value="Race:NHbr"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ImpactUnit Value="Caster"/>
+        <Weapon Weapon="NHbrSilentWeapon" CooldownOperation="Add" CooldownFraction="-0.01"/>
+    </CEffectModifyUnit>
     <CEffectDamage id="NHbrSilentWeapon@Damage" parent="DU_WEAP">
         <EditorCategories value="Race:NHbr"/>
         <Kind value="Ranged"/>
@@ -12,6 +32,14 @@
         <AmmoUnit value="NHbrSilentWeapon@Missile"/>
         <Movers Link="NHbrSilentWeapon@Mover"/>
     </CEffectLaunchMissile>
+    <CValidatorUnitWeaponFiring id="NHbrSilentWeapon@CasterisAttacking">
+        <WhichUnit Value="Caster"/>
+        <Weapon value="NHbrSilentWeapon"/>
+    </CValidatorUnitWeaponFiring>
+    <CButton id="NHbrSilentWeapon">
+        <Icon value="Assets\Textures\btn-ability-spearofadun-solarlance.dds"/>
+        <EditorCategories value="Race:NHbr"/>
+    </CButton>
     <CActorAction id="NHbrSilentWeapon@Attack" parent="GenericAttack" effectImpact="NHbrSilentWeapon@Damage" effectLaunch="NHbrSilentWeapon@LM">
         <LaunchAttachQuery Methods="AMFilterWeapon"/>
         <ImpactMap index="None" Model="NHbrSilentWeapon@Impact"/>
@@ -112,10 +140,10 @@
         <Icon value="Assets\Textures\btn-ability-spearofadun-solarlance.dds"/>
         <DisplayEffect value="NHbrSilentWeapon@Damage"/>
         <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
-        <Range value="7"/>
+        <Range value="7.5"/>
         <Period value="0.99"/>
         <DamagePoint value="0"/>
-        <Effect value="NHbrSilentWeapon@LM"/>
+        <Effect value="NHbrSilentWeapon@Set"/>
     </CWeaponLegacy>
     <CMoverMissile id="NHbrSilentWeapon@Mover">
         <MotionPhases>
@@ -212,11 +240,18 @@
         <DataRecord Entry="Sound,NHbrSilentWeapon@AttackImpact"/>
         <DataRecord Entry="Unit,NHbrSilentWeapon@Missile"/>
         <DataRecord Entry="Weapon,NHbrSilentWeapon"/>
+        <DataRecord Entry="Behavior,NHbrSilentWeapon"/>
+        <DataRecord Entry="Button,NHbrSilentWeapon"/>
+        <DataRecord Entry="Effect,NHbrSilentWeapon@CP"/>
+        <DataRecord Entry="Effect,NHbrSilentWeapon@MU"/>
+        <DataRecord Entry="Effect,NHbrSilentWeapon@Set"/>
+        <DataRecord Entry="Validator,NHbrSilentWeapon@CasterisAttacking"/>
     </CDataCollectionAbil>
     <CDataCollectionUnit id="NHbrSilent">
         <EditorCategories value="Race:NHbr,DataGroup:Unit"/>
         <EditorIconSource value="Actor"/>
         <DataRecord Entry="Actor,NHbrSilent"/>
+        <DataRecord Entry="Behavior,NHbrSilent@AttackSpeed"/>
         <DataRecord Entry="Model,NHbrSilent@Model"/>
         <DataRecord Entry="Model,NHbrSilent@Death"/>
         <DataRecord Entry="Model,NHbrSilent@Portrait"/>
@@ -227,6 +262,7 @@
         <DataRecord Entry="Sound,NHbrSilent@Attack"/>
         <DataRecord Entry="Sound,NHbrSilent@Pissed"/>
         <DataRecord Entry="Unit,NHbrSilent"/>
+        <DataRecord Entry="Accumulator,NHbrSilent@Arithmetic"/>
     </CDataCollectionUnit>
     <CUnit id="NHbrSilentWeapon@Missile" parent="MISSILE">
         <Race value="NHbr"/>
@@ -237,16 +273,16 @@
         <Collide index="ForceField" value="1"/>
         <Attributes index="Armored" value="1"/>
         <Attributes index="Mechanical" value="1"/>
-        <LifeStart value="175"/>
-        <LifeMax value="175"/>
-        <ShieldsStart value="140"/>
-        <ShieldsMax value="140"/>
-        <Speed value="3.0585"/>
+        <LifeStart value="140"/>
+        <LifeMax value="140"/>
+        <ShieldsStart value="120"/>
+        <ShieldsMax value="120"/>
+        <Speed value="3.211"/>
         <Sight value="9"/>
         <Food value="-4"/>
         <CostCategory value="Army"/>
         <CostResource index="Minerals" value="200"/>
-        <CostResource index="Vespene" value="125"/>
+        <CostResource index="Vespene" value="100"/>
         <WeaponArray Link="NHbrSilentWeapon"/>
         <SeparationRadius value="0.75"/>
         <InnerRadius value="0.75"/>
@@ -263,5 +299,19 @@
         <GlossaryWeakArray value="Roach"/>
         <GlossaryWeakArray value="Colossus"/>
         <Radius value="0.75"/>
+        <EnergyStart value="75"/>
+        <EnergyMax value="100"/>
+        <BehaviorArray Link="NHbrSilentWeapon"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="NHbrSilentWeapon" Type="Passive" Row="2" Column="0"/>
+        </CardLayouts>
     </CUnit>
+    <CBehaviorBuff id="NHbrSilentWeapon">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
+        <DisableValidatorArray value="NHbrSilentWeapon@CasterisAttacking"/>
+        <Modification>
+            <VitalRegenArray index="Energy" value="-4.25"/>
+        </Modification>
+    </CBehaviorBuff>
 </Catalog>
