@@ -497,44 +497,11 @@ bool auto_libCOMI_gf_CreateWarpInEffect_TriggerFunc (bool testConds, bool runAct
 }
 
 void libCOMI_gf_InitAmon () {
-    // Variable Declarations
-    unit lv_unit;
-    int lv_owner;
-    int lv_player;
-
     // Automatic Variable Declarations
-    playergroup auto222D5220_g;
-    unitgroup auto81E454EE_g;
-    int auto81E454EE_u;
-
-    // Variable Initialization
-
     // Implementation
     TriggerEnable(libCOMI_gt_VoidIncomeIncrease, true);
     TriggerEnable(libCOMI_gt_VoidIncome, true);
-    Wait(180.0, c_timeGame);
-    if ((PlayerGroupCount(libCOMI_gv_vU_EnemyPlayers) > 0)) {
-        auto222D5220_g = libCOMI_gv_vU_EnemyAI;
-        lv_player = -1;
-        while (true) {
-            lv_player = PlayerGroupNextPlayer(auto222D5220_g, lv_player);
-            if (lv_player < 0) { break; }
-            auto81E454EE_g = UnitGroup(null, lv_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-            auto81E454EE_u = UnitGroupCount(auto81E454EE_g, c_unitCountAll);
-            for (;; auto81E454EE_u -= 1) {
-                lv_unit = UnitGroupUnitFromEnd(auto81E454EE_g, auto81E454EE_u);
-                if (lv_unit == null) { break; }
-                if ((PlayerGroupCount(libCOMI_gv_vU_EnemyPlayers) > 1) && ((lv_player == PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 2)) || (lv_player == PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 4)))) {
-                    lv_owner = PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 2);
-                }
-                else {
-                    lv_owner = PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 1);
-                }
-                UnitSetOwner(lv_unit, lv_owner, true);
-            }
-        }
-    }
-
+    TriggerExecute(libCOMI_gt_AmonGameplay, true, false);
 }
 
 bool libCOMI_gf_PointIsInsideRebuildArea (point lp_point) {
@@ -15930,6 +15897,114 @@ void libCOMI_gt_VoidIncomeIncrease_Init () {
     libCOMI_gt_VoidIncomeIncrease = TriggerCreate("libCOMI_gt_VoidIncomeIncrease_Func");
     TriggerEnable(libCOMI_gt_VoidIncomeIncrease, false);
     TriggerAddEventTimePeriodic(libCOMI_gt_VoidIncomeIncrease, 120.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Amon Gameplay
+//--------------------------------------------------------------------------------------------------
+bool libCOMI_gt_AmonGameplay_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+    int lv_owner;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    playergroup auto59EDF3D4_g;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto59EDF3D4_g = libCOMI_gv_vU_EnemyPlayers;
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto59EDF3D4_g, lv_player);
+        if (lv_player < 0) { break; }
+        TechTreeUpgradeAddLevel(lv_player, "MultiplayerTech", 1);
+    }
+    Wait(180.0, c_timeGame);
+    TriggerExecute(libCOMI_gt_AmonChangeOwner, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMI_gt_AmonGameplay_Init () {
+    libCOMI_gt_AmonGameplay = TriggerCreate("libCOMI_gt_AmonGameplay_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Amon Change Owner
+//--------------------------------------------------------------------------------------------------
+bool libCOMI_gt_AmonChangeOwner_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    bool lv_isDefensiveStructutre;
+    unit lv_unit;
+    string lv_unit2;
+    int lv_owner;
+    int lv_player;
+    string lv_unitCategories;
+
+    // Automatic Variable Declarations
+    playergroup auto5F5C3C82_g;
+    unitgroup auto8D32E6C4_g;
+    int auto8D32E6C4_u;
+    int auto42A2E130_ae;
+    int auto42A2E130_var;
+
+    // Variable Initialization
+    lv_unitCategories = UserDataGetUserInstance("CoopAIFactions", libCOMI_gv_selectedEnemyFaction, "Units", 1);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((PlayerGroupCount(libCOMI_gv_vU_EnemyPlayers) > 0)) {
+        auto5F5C3C82_g = libCOMI_gv_vU_EnemyAI;
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto5F5C3C82_g, lv_player);
+            if (lv_player < 0) { break; }
+            auto8D32E6C4_g = UnitGroup(null, lv_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+            auto8D32E6C4_u = UnitGroupCount(auto8D32E6C4_g, c_unitCountAll);
+            for (;; auto8D32E6C4_u -= 1) {
+                lv_unit = UnitGroupUnitFromEnd(auto8D32E6C4_g, auto8D32E6C4_u);
+                if (lv_unit == null) { break; }
+                if ((PlayerGroupCount(libCOMI_gv_vU_EnemyPlayers) > 1) && ((lv_player == PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 2)) || (lv_player == PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 4)))) {
+                    lv_owner = PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 2);
+                }
+                else {
+                    lv_owner = PlayerGroupPlayer(libCOMI_gv_vU_EnemyPlayers, 1);
+                }
+                auto42A2E130_ae = UserDataFieldValueCount("CoopAIUnitCategories", "DefenseStructure");
+                auto42A2E130_var = 1;
+                for ( ; auto42A2E130_var <= auto42A2E130_ae; auto42A2E130_var += 1 ) {
+                    lv_isDefensiveStructutre = false;
+                    lv_unit2 = UserDataGetUnit("CoopAIUnitCategories", lv_unitCategories, "DefenseStructure", auto42A2E130_var);
+                    if ((UnitGetType(lv_unit) == lv_unit2)) {
+                        lv_isDefensiveStructutre = true;
+                        break;
+                    }
+
+                }
+                if ((lv_isDefensiveStructutre == false)) {
+                    UnitSetOwner(lv_unit, lv_owner, true);
+                }
+
+            }
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMI_gt_AmonChangeOwner_Init () {
+    libCOMI_gt_AmonChangeOwner = TriggerCreate("libCOMI_gt_AmonChangeOwner_Func");
+    TriggerAddEventChatMessage(libCOMI_gt_AmonChangeOwner, c_playerAny, "-amon power", true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -37995,6 +38070,8 @@ void libCOMI_InitTriggers () {
     libCOMI_gt_DefeatBaseDead_Init();
     libCOMI_gt_VoidIncome_Init();
     libCOMI_gt_VoidIncomeIncrease_Init();
+    libCOMI_gt_AmonGameplay_Init();
+    libCOMI_gt_AmonChangeOwner_Init();
     libCOMI_gt_CM_VOEnemySpotted_Init();
     libCOMI_gt_PlayerStartPLAYERSPLAYER_Init();
     libCOMI_gt_HeroSpawnPLAYERSPLAYER_Init();
