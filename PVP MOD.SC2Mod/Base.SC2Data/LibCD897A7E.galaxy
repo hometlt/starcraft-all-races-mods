@@ -51,7 +51,7 @@ void libCD897A7E_InitVariables () {
     libCD897A7E_gv_cAbilityTrain = CatalogEntryClass(c_gameCatalogAbil, "StarportTrain");
     libCD897A7E_gv_cAbilityTransport = CatalogEntryClass(c_gameCatalogAbil, "WarpPrismTransport");
     libCD897A7E_gv_cEffectApplyBehavior = CatalogEntryClass(c_gameCatalogEffect, "CollapsibleRockTowerDiagonalCPMakeInvulnerable");
-    libCD897A7E_gv_cEffectCreateHealer = CatalogEntryClass(c_gameCatalogEffect, "Repair");
+    libCD897A7E_gv_cEffectCreateHealer = CatalogEntryClass(c_gameCatalogEffect, "BatteryOverchargeCreateHealer");
     libCD897A7E_gv_cEffectCreatePersistent = CatalogEntryClass(c_gameCatalogEffect, "VortexCreatePersistent");
     libCD897A7E_gv_cEffectCreateUnit = CatalogEntryClass(c_gameCatalogEffect, "BroodlingEscortCU");
     libCD897A7E_gv_cEffectDamage = CatalogEntryClass(c_gameCatalogEffect, "VolatileBurstFriendlyBuildingDamage");
@@ -61,11 +61,11 @@ void libCD897A7E_InitVariables () {
     libCD897A7E_gv_cEffectSet = CatalogEntryClass(c_gameCatalogEffect, "VolatileBurst");
     libCD897A7E_gv_cEffectTeleport = CatalogEntryClass(c_gameCatalogEffect, "AdeptPhaseShiftTeleport");
     libCD897A7E_gv_cEffectIssueOrder = CatalogEntryClass(c_gameCatalogEffect, "PurifyIssueOrder");
-    libCD897A7E_gv_cEffectSwitch = CatalogEntryClass(c_gameCatalogEffect, "SuicideTargetFriendlySwitch");
+    libCD897A7E_gv_cEffectSwitch = CatalogEntryClass(c_gameCatalogEffect, "BattlecruiserDamageSwitch");
     libCD897A7E_gv_cValidatorCombine = CatalogEntryClass(c_gameCatalogValidator, "250mmCannonValidators");
     libCD897A7E_gv_cValidatorPlayerReqirement = CatalogEntryClass(c_gameCatalogValidator, "BattlecruiserUpgraded");
     libCD897A7E_gv_cRequirementAnd = 7;
-    libCD897A7E_gv_cRequirementEq = CatalogEntryClass(c_gameCatalogRequirementNode, "EqCountUpgradeTerranBuildingArmorQueuedOrBetter0");
+    libCD897A7E_gv_cRequirementEq = CatalogEntryClass(c_gameCatalogRequirementNode, "EqCountAbilMedivacTransport22Peak");
     libCD897A7E_gv_cRequirementOr = CatalogEntryClass(c_gameCatalogRequirementNode, "OrBehaviorHurricaneMissileCompleteOnlyAtUnitBehaviorYamatoCompleteOnlyAtUnit");
     libCD897A7E_gv_cRequirementGTE = CatalogEntryClass(c_gameCatalogRequirementNode, "GTE3238024024CountBehaviorArmorpiercingModeCompleteOnlyAtUnit1");
     libCD897A7E_gv_cRequirementGT = CatalogEntryClass(c_gameCatalogRequirementNode, "GTCountBehaviorLocustSpawnDummyCompleteOnlyAtUnit0");
@@ -6379,11 +6379,6 @@ void libCD897A7E_gf_UnitSelectionPanel (int lp_player) {
     for ( ; ( (auto66F56E83_ai >= 0 && lv_profileIndex <= auto66F56E83_ae) || (auto66F56E83_ai < 0 && lv_profileIndex >= auto66F56E83_ae) ) ; lv_profileIndex += auto66F56E83_ai ) {
         lv_profile = UserDataInstance("MonobattlesProfiles", lv_profileIndex);
         if ((UserDataGetGameLink("MonobattlesProfiles", lv_profile, "Race", 1) == PlayerRace(lp_player))) {
-            if ((lv_buttonIndex == 19)) {
-                TriggerDebugOutput(1, StringExternal("Param/Value/lib_CD897A7E_520BD0F6"), true);
-                break;
-            }
-
             lv_buttonIndex += 1;
             lv_uNIT = UserDataGetUnit("MonobattlesProfiles", lv_profile, "Unit", 1);
             lv_aCTOR = ((lv_uNIT));
@@ -7110,8 +7105,6 @@ void libCD897A7E_gf_ResolveUnitAffectedUpgrades (int lp_player) {
 
 bool libCD897A7E_gf_UpgradeIsUseful (int lp_player, string lp_upgrade) {
     // Variable Declarations
-    string lv_upgradeRace;
-    string lv_playerRace;
     int lv_i;
     string lv_upgradeEntry;
     string lv_unitEntry;
@@ -7140,8 +7133,6 @@ bool libCD897A7E_gf_UpgradeIsUseful (int lp_player, string lp_upgrade) {
     const int auto989E8439_ai = 1;
 
     // Variable Initialization
-    lv_upgradeRace = libCD897A7E_gf_GetUpgradeRace(lp_upgrade);
-    lv_playerRace = PlayerRace(lp_player);
     lv_upgradeEntry = lp_upgrade;
     lv_effectArrayReference = "";
     lv_effectArrayType = "";
@@ -7156,7 +7147,7 @@ bool libCD897A7E_gf_UpgradeIsUseful (int lp_player, string lp_upgrade) {
         }
 
     }
-    if ((lv_upgradeRace != lv_playerRace)) {
+    if ((PlayerRace(lp_player) != "Neut") && (libCD897A7E_gf_GetUpgradeRace(lv_upgradeEntry) != PlayerRace(lp_player))) {
         return false;
     }
 
@@ -7671,8 +7662,8 @@ void libCD897A7E_gf_ActivateMonobattleProfile (int lp_player, string lp_profile)
     const int auto03CBE0DA_ai = 1;
     int autoA7454180_ae;
     const int autoA7454180_ai = 1;
-    int autoA996D079_ae;
-    const int autoA996D079_ai = 1;
+    int auto9E2FC5A1_ae;
+    const int auto9E2FC5A1_ai = 1;
     int auto9A47705D_ae;
     const int auto9A47705D_ai = 1;
 
@@ -7748,9 +7739,9 @@ void libCD897A7E_gf_ActivateMonobattleProfile (int lp_player, string lp_profile)
         libCD897A7E_gv_cACHESIZE_UPGRADES += 1;
         libCD897A7E_gv_cACHE_UPGRADES[libCD897A7E_gv_cACHESIZE_UPGRADES] = UserDataGetUpgrade("MonobattlesProfiles", libCD897A7E_gv_profiles[lp_player], "UpgradesExcludes", lv_i);
     }
-    autoA996D079_ae = UserDataFieldValueCount("MonobattlesRules", "Unit");
+    auto9E2FC5A1_ae = UserDataFieldValueCount("MonobattlesRules", "Unit");
     lv_i = 1;
-    for ( ; ( (autoA996D079_ai >= 0 && lv_i <= autoA996D079_ae) || (autoA996D079_ai < 0 && lv_i >= autoA996D079_ae) ) ; lv_i += autoA996D079_ai ) {
+    for ( ; ( (auto9E2FC5A1_ai >= 0 && lv_i <= auto9E2FC5A1_ae) || (auto9E2FC5A1_ai < 0 && lv_i >= auto9E2FC5A1_ae) ) ; lv_i += auto9E2FC5A1_ai ) {
         lv_uNIT = UserDataGetUnit("MonobattlesRules", libCD897A7E_gv_profilesCategories[lp_player], "Unit", lv_i);
         libCD897A7E_gf_ArmUnitType(lp_player, lv_uNIT);
         libCD897A7E_gf_CacheUnit(lp_player, lv_uNIT, true);
@@ -9218,53 +9209,6 @@ void libCD897A7E_gf_Therangethataerialbuildingscanstay () {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
-// Trigger: show monobattle profiles
-//--------------------------------------------------------------------------------------------------
-bool libCD897A7E_gt_showmonobattleprofiles_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    int lv_profileIndex;
-    int lv_player;
-    string lv_profile;
-    string lv_monobattleRaceRules;
-    int lv_i;
-    string lv_unitEntry;
-    string lv_race;
-    string lv_selectedUnit;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_player = EventPlayer();
-    lv_selectedUnit = UnitGetType(UnitGroupUnit(UnitGroupSelected(lv_player), 1));
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    if ((lv_selectedUnit == "")) {
-        lv_race = PlayerRace(EventPlayer());
-    }
-    else {
-        lv_race = libCD897A7E_gf_GetUnitRace(lv_selectedUnit);
-    }
-    PlayerSetRace(EventPlayer(), lv_race);
-    libCD897A7E_gf_DisallowAll(EventPlayer());
-    libCD897A7E_gf_UnitSelectionPanel(lv_player);
-    libCD897A7E_gf_Therangethataerialbuildingscanstay();
-    TriggerEnable(libCD897A7E_gt_MBForcingastationaryaerialbuildingtomove, true);
-    TriggerEnable(libCD897A7E_gt_MBForcingaerialbuildingstomove, true);
-    TriggerEnable(libCD897A7E_gt_MBUnitCreated, true);
-    TriggerEnable(libCD897A7E_gt_MBUnitChanges, true);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libCD897A7E_gt_showmonobattleprofiles_Init () {
-    libCD897A7E_gt_showmonobattleprofiles = TriggerCreate("libCD897A7E_gt_showmonobattleprofiles_Func");
-    TriggerAddEventChatMessage(libCD897A7E_gt_showmonobattleprofiles, c_playerAny, "show monobattle profiles", true);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: Create Unit Brief UI
 //--------------------------------------------------------------------------------------------------
 bool libCD897A7E_gt_CreateUnitBriefUI_Func (bool testConds, bool runActions) {
@@ -9594,7 +9538,6 @@ void libCD897A7E_gt_MBForcingastationaryaerialbuildingtomove_Init () {
 }
 
 void libCD897A7E_InitTriggers () {
-    libCD897A7E_gt_showmonobattleprofiles_Init();
     libCD897A7E_gt_CreateUnitBriefUI_Init();
     libCD897A7E_gt_Unitselected_Init();
     libCD897A7E_gt_MBUnitCreated_Init();

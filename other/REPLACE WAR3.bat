@@ -1,0 +1,1 @@
+COPY /Y "ARC MOD (WAR3).SC2Mod" "../ARC MOD.SC2Mod"
