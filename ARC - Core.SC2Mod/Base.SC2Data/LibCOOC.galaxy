@@ -1401,30 +1401,6 @@ void libCOOC_gf_CC_SetPlayerPrestigeIndex (int lp_player, int lp_index) {
     libCOOC_gv_cCX_PlayerPrestigeIndex[lp_player] = libNtve_gf_ArithmeticIntClamp(lp_index, 0, libCOOC_gv_cCC_PLAYERPRESTIGEMAXRANK);
 }
 
-void libCOOC_gf_CC_ApplyUpgradeSupplemental (int lp_player, string lp_upgradeSupplemental) {
-    // Variable Declarations
-    string lv_upgrade;
-    string lv_supplement;
-    string lv_script;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_upgrade = UserDataGetGameLink("PlayerPrestigeUpgradeSupplements", lp_upgradeSupplemental, "Upgrade", 1);
-    lv_supplement = UserDataGetGameLink("PlayerPrestigeUpgradeSupplements", lp_upgradeSupplemental, "Supplement", 1);
-    lv_script = "";
-
-    // Implementation
-    if ((lp_upgradeSupplemental != null) && (CatalogEntryIsValid(c_gameCatalogUpgrade, lv_upgrade) == true) && (CatalogEntryIsValid(c_gameCatalogUpgrade, lv_supplement) == true) && (TechTreeUpgradeCount(lp_player, lv_upgrade, c_techCountCompleteOnly) > 0)) {
-        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_supplement, TechTreeUpgradeCount(lp_player, lv_upgrade, c_techCountCompleteOnly));
-        lv_script = UserDataGetString("PlayerPrestigeUpgradeSupplements", lp_upgradeSupplemental, "PostScript", 1);
-        if ((lv_script != "")) {
-            libNtve_gf_TriggerExecuteByName((lv_script + "_Func"), false, true);
-        }
-
-    }
-
-}
-
 void libCOOC_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
     // Variable Declarations
     int lv_index;
@@ -1596,6 +1572,25 @@ void libCOOC_gf_CC_LoadChampionFromBank3 (int lp_player, bank lp_bank, string lp
     }
 }
 
+void libCOOC_gf_CC_ApplyUpgradeSupplemental (int lp_player, string lp_upgradeSupplemental) {
+    // Variable Declarations
+    string lv_upgrade;
+    string lv_supplement;
+    string lv_script;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_upgrade = UserDataGetGameLink("PlayerPrestigeUpgradeSupplements", lp_upgradeSupplemental, "Upgrade", 1);
+    lv_supplement = UserDataGetGameLink("PlayerPrestigeUpgradeSupplements", lp_upgradeSupplemental, "Supplement", 1);
+    lv_script = "";
+
+    // Implementation
+    if ((lp_upgradeSupplemental != null) && (CatalogEntryIsValid(c_gameCatalogUpgrade, lv_upgrade) == true) && (CatalogEntryIsValid(c_gameCatalogUpgrade, lv_supplement) == true) && (TechTreeUpgradeCount(lp_player, lv_upgrade, c_techCountCompleteOnly) > 0)) {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_supplement, TechTreeUpgradeCount(lp_player, lv_upgrade, c_techCountCompleteOnly));
+    }
+
+}
+
 string libCOOC_gf_ActiveCommanderForPlayer (int lp_player) {
     // Variable Declarations
     string lv_commanderInstance;
@@ -1617,13 +1612,13 @@ int libCOOC_gf_CC_CommanderLevel (int lp_player, string lp_commander) {
 string libCOOC_gf_CC_PlayerLevelCommander (string lp_playerLevel) {
     // Automatic Variable Declarations
     // Implementation
-    return UserDataGetUserInstance("PlayerLevels", lp_playerLevel, "Commander", 1);
+    return UserDataGetUserInstance("X_PlayerLevels", lp_playerLevel, "Commander", 1);
 }
 
 int libCOOC_gf_CC_PlayerLevelValue (string lp_playerLevel) {
     // Automatic Variable Declarations
     // Implementation
-    return UserDataGetInt("PlayerLevels", lp_playerLevel, "Level", 1);
+    return UserDataGetInt("X_PlayerLevels", lp_playerLevel, "Level", 1);
 }
 
 int libCOOC_gf_CC_PlayerExperience (int lp_player, string lp_commander) {
@@ -2395,7 +2390,6 @@ void libCOOC_gf_CC_ApplyCommanderTech (int lp_player) {
     const int autoDA1B9A8E_ai = 1;
     int autoC7DFFF31_ae;
     const int autoC7DFFF31_ai = 1;
-    string autoF7D954DE_val;
 
     // Variable Initialization
 
@@ -2420,48 +2414,11 @@ void libCOOC_gf_CC_ApplyCommanderTech (int lp_player) {
     libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "CommanderLevel", libCOOC_gv_cC_PlayerLevel[lp_player][libCOOC_gf_CC_CommanderInternalIndex(lv_playerCommander)]);
     PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesLimit, c_playerPropOperSetTo, (UserDataGetInt("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lp_player), "SuppliesMax", 1) + UserDataGetInt("PlayerPrestige", libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player), "SuppliesMax", 1)));
     PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesMade, c_playerPropOperSetTo, (UserDataGetInt("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lp_player), "SuppliesMade", 1) + UserDataGetInt("PlayerPrestige", libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player), "SuppliesMade", 1)));
-    autoF7D954DE_val = lv_playerCommander;
-    if (autoF7D954DE_val == "ProtossZeratul") {
-        libCOOC_gf_CC_ApplyCommanderTechZeratul(lp_player);
-    }
-    else {
-    }
     libCOOC_gf_CC_ApplyMasteryTech(lp_player);
     if ((libCOOC_gf_CC_CommanderSkin(lv_playerCommander) != "")) {
         PlayerApplySkin(lp_player, libCOOC_gf_CC_CommanderSkin(lv_playerCommander), true);
     }
 
-}
-
-void libCOOC_gf_CC_ApplyCommanderTechZeratul (int lp_player) {
-    // Variable Declarations
-    int lv_itPlayer;
-    int lv_itAllyAspect;
-    bool lv_itAllyAspectStateAB;
-    bool lv_itAllyAspectStateBA;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_itAllyAspect = c_allianceIdPassive;
-    lv_itAllyAspectStateAB = true;
-    lv_itAllyAspectStateBA = true;
-
-    // Implementation
-    TechTreeUnitAllow(lp_player, "Assimilator", false);
-    TechTreeUnitAllow(lp_player, "AutomatedAssimilator", false);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("ProtossBuild", 1), false);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("ProtossBuild", 3), false);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("ProtossBuild", 11), false);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("ProtossBuild", 14), false);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("ProtossBuild", 4), false);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("ProtossBuild", 7), false);
-    TechTreeUnitAllow(lp_player, "AutomatedAssimilatorZeratul", true);
-    TechTreeUnitAllow(lp_player, "ZeratulRoboticsFacility", true);
-    TechTreeUnitAllow(lp_player, "ZeratulRoboticsBay", true);
-    TechTreeUnitAllow(lp_player, "ZeratulGateway", true);
-    TechTreeUnitAllow(lp_player, "ZeratulCyberneticsCore", true);
-    TechTreeUnitAllow(lp_player, "ZeratulDarkShrine", true);
-    TechTreeUnitAllow(lp_player, "ZeratulPhotonCannon", true);
 }
 
 void libCOOC_gf_CC_UpdateProtossStates (int lp_player) {
@@ -2604,7 +2561,7 @@ int libCOOC_gf_CC_ZergHeroBonusLife (int lp_player, int lp_startLevel, int lp_en
         auto7EBF509E_al = UserDataGetInt("PlayerLevels",lv_indexLevel,"Level",1);
         if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("PlayerLevels",lv_indexLevel,"Commander",1) &&
         auto7EBF509E_al >= lp_startLevel && auto7EBF509E_al <= lp_endLevel ) {
-            lv_totalLife += UserDataGetInt("PlayerLevels", lv_indexLevel, "Life", 1);
+            lv_totalLife += UserDataGetInt("X_PlayerLevels", lv_indexLevel, "Life", 1);
         }
     }
     return lv_totalLife;
@@ -2632,7 +2589,7 @@ int libCOOC_gf_CC_ZergHeroBonusEnergy (int lp_player, int lp_startLevel, int lp_
         autoEE6697D5_al = UserDataGetInt("PlayerLevels",lv_indexLevel,"Level",1);
         if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("PlayerLevels",lv_indexLevel,"Commander",1) &&
         autoEE6697D5_al >= lp_startLevel && autoEE6697D5_al <= lp_endLevel ) {
-            lv_totalEnergy += UserDataGetInt("PlayerLevels", lv_indexLevel, "Energy", 1);
+            lv_totalEnergy += UserDataGetInt("X_PlayerLevels", lv_indexLevel, "Energy", 1);
         }
     }
     return lv_totalEnergy;
@@ -2659,7 +2616,7 @@ int libCOOC_gf_CC_ZergHeroBonusArmor (int lp_player, int lp_startLevel, int lp_e
         auto5910C5B8_al = UserDataGetInt("PlayerLevels",lv_indexLevel,"Level",1);
         if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("PlayerLevels",lv_indexLevel,"Commander",1) &&
         auto5910C5B8_al >= lp_startLevel && auto5910C5B8_al <= lp_endLevel ) {
-            lv_totalArmor += UserDataGetInt("PlayerLevels", lv_indexLevel, "Armor", 1);
+            lv_totalArmor += UserDataGetInt("X_PlayerLevels", lv_indexLevel, "Armor", 1);
         }
     }
     return lv_totalArmor;
@@ -2686,7 +2643,7 @@ int libCOOC_gf_CC_ZergHeroBonusDamage (int lp_player, int lp_startLevel, int lp_
         auto55085A2A_al = UserDataGetInt("PlayerLevels",lv_indexLevel,"Level",1);
         if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("PlayerLevels",lv_indexLevel,"Commander",1) &&
         auto55085A2A_al >= lp_startLevel && auto55085A2A_al <= lp_endLevel ) {
-            lv_totalDamage += UserDataGetInt("PlayerLevels", lv_indexLevel, "Damage", 1);
+            lv_totalDamage += UserDataGetInt("X_PlayerLevels", lv_indexLevel, "Damage", 1);
         }
     }
     return lv_totalDamage;
@@ -2731,10 +2688,10 @@ void libCOOC_gf_CC_ZergHeroApplyStatBonuses (int lp_player, int lp_level) {
         auto238FCE8E_al = UserDataGetInt("PlayerLevels",lv_indexLevel,"Level",1);
         if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("PlayerLevels",lv_indexLevel,"Commander",1) &&
         auto238FCE8E_al >= 1 && auto238FCE8E_al <= lp_level ) {
-            lv_life += UserDataGetInt("PlayerLevels", lv_indexLevel, "Life", 1);
-            lv_energy += UserDataGetInt("PlayerLevels", lv_indexLevel, "Energy", 1);
-            lv_damage += UserDataGetInt("PlayerLevels", lv_indexLevel, "Damage", 1);
-            lv_armor += UserDataGetInt("PlayerLevels", lv_indexLevel, "Armor", 1);
+            lv_life += UserDataGetInt("X_PlayerLevels", lv_indexLevel, "Life", 1);
+            lv_energy += UserDataGetInt("X_PlayerLevels", lv_indexLevel, "Energy", 1);
+            lv_damage += UserDataGetInt("X_PlayerLevels", lv_indexLevel, "Damage", 1);
+            lv_armor += UserDataGetInt("X_PlayerLevels", lv_indexLevel, "Armor", 1);
         }
     }
     libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "KerriganKitUpgradeEnergy", ModI(lv_energy, 10));
@@ -2873,7 +2830,7 @@ string libCOOC_gf_CC_ArmyCategoryOfTechUnit (string lp_techUnit) {
 int libCOOC_gf_CC_ArmyCategoryRequiredLevel (string lp_armyCategory, string lp_commander) {
     // Automatic Variable Declarations
     // Implementation
-    return libCOOC_gf_CC_CommanderUserFieldInt(lp_commander, "TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "RequiredLevel");
+    return libCOOC_gf_CC_CommanderUserFieldInt(lp_commander, "TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "X_RequiredLevel");
 }
 
 text libCOOC_gf_CC_ArmyCategoryName (string lp_armyCategory) {
@@ -2933,12 +2890,6 @@ string libCOOC_gf_CC_ArmyCategoryUnitType (string lp_armyCategory) {
 
     lv_value = CatalogFieldValueGet(c_gameCatalogArmyCategory, (lp_armyCategory), "Unit", libCOOC_gv_cCC_DISREGARDPLAYER);
     return (lv_value);
-}
-
-text libCOOC_gf_StoryArmyUnitTooltip2 (string lp_armyCategory) {
-    // Automatic Variable Declarations
-    // Implementation
-    return UserDataGetText("TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "TechnologyTooltip", 1);
 }
 
 bool libCOOC_gf_CC_ArmyCategoryCommanderValid (string lp_armyCategory, string lp_commander) {
@@ -3023,12 +2974,6 @@ bool libCOOC_gf_CC_ArmyCategoryUsedInUI (string lp_armyCategory) {
     return (CatalogFieldValueGet(c_gameCatalogArmyCategory, (lp_armyCategory), "Flags[Hidden]", libCOOC_gv_cCC_DISREGARDPLAYER) == "0");
 }
 
-int libCOOC_gf_CC_ArmyCategoryUIOrder (string lp_armyCategory, string lp_commander) {
-    // Automatic Variable Declarations
-    // Implementation
-    return libCOOC_gf_CC_CommanderUserFieldInt(lp_commander, "TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "UIOrder");
-}
-
 bool libCOOC_gf_CC_ArmyCategoryToastShown (string lp_armyCategory) {
     // Automatic Variable Declarations
     // Implementation
@@ -3036,13 +2981,13 @@ bool libCOOC_gf_CC_ArmyCategoryToastShown (string lp_armyCategory) {
         return false;
     }
 
-    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "IsNew", 1) > 0);
+    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "X_IsNew", 1) > 0);
 }
 
 bool libCOOC_gf_CC_ArmyCategoryUnlocksExternal (string lp_armyCategory) {
     // Automatic Variable Declarations
     // Implementation
-    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "UnlocksExternal", 1) != 0);
+    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "X_UnlocksExternal", 1) != 0);
 }
 
 string libCOOC_gf_CC_ArmyCategoryStateKey (string lp_category, string lp_commander, int lp_player) {
@@ -3335,7 +3280,7 @@ text libCOOC_gf_CC_ArmyUnitDescription (string lp_armyUnit) {
 text libCOOC_gf_StoryArmyUnitTooltip (string lp_armyUnit) {
     // Automatic Variable Declarations
     // Implementation
-    return UserDataGetText("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "TechnologyTooltip", libCOOC_gv_cCC_DISREGARDPLAYER);
+    return UserDataGetText("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_TechnologyTooltip", libCOOC_gv_cCC_DISREGARDPLAYER);
 }
 
 string libCOOC_gf_CC_ArmyUnitIcon (string lp_armyCategory) {
@@ -3347,13 +3292,13 @@ string libCOOC_gf_CC_ArmyUnitIcon (string lp_armyCategory) {
 bool libCOOC_gf_CC_ArmyUnitStartsLocked (string lp_armyUnit) {
     // Automatic Variable Declarations
     // Implementation
-    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "UnlocksExternal", 1) == 1);
+    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_UnlocksExternal", 1) == 1);
 }
 
 int libCOOC_gf_CC_ArmyUnitRequiredLevel (string lp_armyUnit, string lp_commander) {
     // Automatic Variable Declarations
     // Implementation
-    return libCOOC_gf_CC_CommanderUserFieldInt(lp_commander, "TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "RequiredLevel");
+    return libCOOC_gf_CC_CommanderUserFieldInt(lp_commander, "TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_RequiredLevel");
 }
 
 string libCOOC_gf_CC_ArmyCategoryOfArmyUnit (string lp_armyUnit) {
@@ -3410,7 +3355,7 @@ int libCOOC_gf_CC_StoryArmyUnitState (string lp_armyUnit, string lp_commander, i
 bool libCOOC_gf_CC_StoryArmyUnitState2 (string lp_armyUnit) {
     // Automatic Variable Declarations
     // Implementation
-    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "IsNew", 1) == 1);
+    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_IsNew", 1) == 1);
 }
 
 string libCOOC_gf_CC_ArmyUnitStateKey (string lp_armyUnit, string lp_commander, int lp_player) {
@@ -3439,7 +3384,7 @@ void libCOOC_gf_CC_SetArmyUnitState (string lp_armyUnit, int lp_state, string lp
 void libCOOC_gf_CC_ArmyUnitSetNew (string lp_armyUnit, bool lp_new) {
     // Automatic Variable Declarations
     // Implementation
-    UserDataSetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "IsNew", 1, BoolToInt(lp_new));
+    UserDataSetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_IsNew", 1, BoolToInt(lp_new));
 }
 
 void libCOOC_gf_CC_UpdateArmyUnitStates (int lp_player) {
@@ -3838,12 +3783,6 @@ text libCOOC_gf_CC_PerkName (string lp_power) {
     }
 
     return StringExternal(CatalogFieldValueGet(c_gameCatalogButton, UserDataGetGameLink("CampaignPerk", lp_power, "Button", 1), "Name", c_playerAny));
-}
-
-int libCOOC_gf_CC_PerkUIOrder (string lp_campaignPerk) {
-    // Automatic Variable Declarations
-    // Implementation
-    return UserDataGetInt("CampaignPerk", lp_campaignPerk, "UISlot", 1);
 }
 
 int libCOOC_gf_CC_PerkCost (string lp_campaignPerk) {
