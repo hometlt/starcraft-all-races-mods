@@ -843,7 +843,7 @@ int libCOOC_gf_MissionRewardTotalEarned2 (string lp_type) {
 
     // Implementation
     if ((GameCheatsEnabled(c_gameCheatCategoryDevelopment) == true) && (libCOOC_gv_cC_DebugDefeatMultiplierOverride >= 0.0)) {
-        return UserDataGetInt("X_Experience", "GameValues", "BonusObjExperience", 1);
+        return UserDataGetInt("Experience", "GameValues", "BonusObjExperience", 1);
     }
 
     auto1CAF10CF_ai = 1;
@@ -871,7 +871,7 @@ int libCOOC_gf_MissionObjectiveRewardsEarned (string lp_objective, string lp_typ
         return 0;
     }
 
-    lv_rewards = FixedToInt(Round(((IntToFixed(libCOOC_gf_MissionObjectiveProgress(lp_objective))*IntToFixed(UserDataGetInt("X_Experience", "GameValues", "BonusObjExperience", 1))*UserDataGetFixed("MissionObjective", libCOOC_gf_CS_ObjectiveUserDataInstance(lp_objective), "XPMultiplier", 1))/IntToFixed(libCOOC_gf_MissionObjectiveItemCount(lp_objective)))));
+    lv_rewards = FixedToInt(Round(((IntToFixed(libCOOC_gf_MissionObjectiveProgress(lp_objective))*IntToFixed(UserDataGetInt("Experience", "GameValues", "BonusObjExperience", 1))*UserDataGetFixed("MissionObjective", libCOOC_gf_CS_ObjectiveUserDataInstance(lp_objective), "XPMultiplier", 1))/IntToFixed(libCOOC_gf_MissionObjectiveItemCount(lp_objective)))));
     return lv_rewards;
 }
 
@@ -887,7 +887,7 @@ int libCOOC_gf_MissionObjectiveRewardsAvailable2 (string lp_objective, string lp
         return 0;
     }
 
-    return UserDataGetInt("X_Experience", "GameValues", "BonusObjExperience", 1);
+    return UserDataGetInt("Experience", "GameValues", "BonusObjExperience", 1);
 }
 
 int libCOOC_gf_MissionRewardTotalEarned3 (string lp_mission, string lp_type) {
@@ -926,7 +926,7 @@ int libCOOC_gf_MissionObjectiveRewards (string lp_objective, string lp_type) {
     // Implementation
     auto270C1A28_val = lp_type;
     if (auto270C1A28_val == "Experience") {
-        return FixedToInt((UserDataGetInt("X_Experience", "GameValues", "BonusObjExperience", 1) / libCOOC_gf_MissionObjectiveItemCount(lp_objective)));
+        return FixedToInt((UserDataGetInt("Experience", "GameValues", "BonusObjExperience", 1) / libCOOC_gf_MissionObjectiveItemCount(lp_objective)));
     }
     else {
     }
@@ -945,7 +945,7 @@ int libCOOC_gf_MissionObjectiveRewards2 (string lp_objective, string lp_type) {
     // Implementation
     auto4CF502E0_val = lp_type;
     if (auto4CF502E0_val == "Experience") {
-        return UserDataGetInt("X_Experience", "GameValues", "BonusObjExperience", 1);
+        return UserDataGetInt("Experience", "GameValues", "BonusObjExperience", 1);
     }
     else {
     }
@@ -1052,6 +1052,278 @@ bool libCOOC_gf_CS_ObjectiveCountsDown (string lp_objective) {
     // Automatic Variable Declarations
     // Implementation
     return (UserDataGetInt("MissionObjective", libCOOC_gf_CS_ObjectiveUserDataInstance(lp_objective), "CountDown", 1) == 1);
+}
+
+void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
+    // Variable Declarations
+    int lv_i;
+    string lv_tech;
+    string lv_playerCommander;
+    string lv_playerPrestige;
+    int lv_playerLevel;
+    string lv_cheat;
+    string lv_upgrade;
+    string lv_unit;
+    abilcmd lv_ability;
+    int lv_state;
+    int lv_shared;
+
+    // Automatic Variable Declarations
+    string autoA275E914_userType;
+    int autoA275E914_i;
+    int auto1ED09D34_ae;
+    int auto1ED09D34_var;
+    int auto71E05A11_ae;
+    int auto71E05A11_var;
+    string autoFEA6185F_userType;
+    int autoFEA6185F_i;
+    int auto97CDBC9F_ae;
+    int auto97CDBC9F_var;
+    int auto890C18F6_ae;
+    int auto890C18F6_var;
+    int autoCB6814CD_ae;
+    int autoCB6814CD_var;
+    int auto7EEB62E5_ae;
+    int auto7EEB62E5_var;
+    int auto6EBC223D_ae;
+    const int auto6EBC223D_ai = 1;
+    int autoF4C1D82E_ae;
+    const int autoF4C1D82E_ai = 1;
+
+    // Variable Initialization
+    lv_playerCommander = libCOOC_gf_ActiveCommanderForPlayer(lp_player);
+    lv_playerPrestige = libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player);
+    lv_playerLevel = libCOOC_gv_cC_PlayerLevel[lp_player][libCOOC_gf_CC_CommanderInternalIndex(lv_playerCommander)];
+
+    // Implementation
+    TechTreeRestrictionsEnable(lp_player, true);
+    libCOOC_gf_CC_UpdatePlayerLevel(lp_player);
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "CommanderLevel", lv_playerLevel);
+    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesLimit, c_playerPropOperSetTo, (UserDataGetInt("PlayerCommanders", lv_playerCommander, "SuppliesMax", 1) + UserDataGetInt("PlayerPrestige", lv_playerPrestige, "SuppliesMax", 1)));
+    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesMade, c_playerPropOperSetTo, (UserDataGetInt("PlayerCommanders", lv_playerCommander, "SuppliesMade", 1) + UserDataGetInt("PlayerPrestige", lv_playerPrestige, "SuppliesMade", 1)));
+    autoA275E914_userType = "CommanderTech";
+    autoA275E914_i = 1;
+    for ( ; autoA275E914_i <= UserDataInstanceCount(autoA275E914_userType) ; autoA275E914_i += 1 ) {
+        lv_tech = UserDataInstance(autoA275E914_userType, autoA275E914_i);
+        lv_state = UserDataGetInt("CommanderTech", lv_tech, "state", 1);
+        if ((lv_state == 1)) {
+            lv_cheat = UserDataGetUpgrade("CommanderTech", lv_tech, "cheat", 1);
+            if ((lv_cheat != null) && (lv_cheat != "@ARC")) {
+                libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_cheat, 0);
+            }
+
+            lv_upgrade = UserDataGetUpgrade("CommanderTech", lv_tech, "upgrade", 1);
+            if ((lv_upgrade != null) && (lv_upgrade != "@ARC")) {
+                TechTreeUpgradeAllow(lp_player, lv_upgrade, false);
+                auto1ED09D34_ae = TechTreeUpgradeProducedAbilCmdCount(lv_upgrade);
+                auto1ED09D34_var = 1;
+                for ( ; auto1ED09D34_var <= auto1ED09D34_ae; auto1ED09D34_var += 1 ) {
+                    TechTreeAbilityAllow(lp_player, TechTreeUpgradeProducedAbilCmd(lv_upgrade, auto1ED09D34_var), false);
+                }
+            }
+
+            lv_unit = UserDataGetUnit("CommanderTech", lv_tech, "unit", 1);
+            if ((lv_unit != null) && (lv_unit != "@ARC")) {
+                TechTreeUnitAllow(lp_player, lv_unit, false);
+                auto71E05A11_ae = TechTreeUnitProducedAbilCmdCount(lv_unit);
+                auto71E05A11_var = 1;
+                for ( ; auto71E05A11_var <= auto71E05A11_ae; auto71E05A11_var += 1 ) {
+                    TechTreeAbilityAllow(lp_player, TechTreeUnitProducedAbilCmd(lv_unit, auto71E05A11_var), false);
+                }
+            }
+
+            lv_ability = UserDataGetAbilCmd("CommanderTech", lv_tech, "ability", 1);
+            if ((lv_ability != null)) {
+                TechTreeAbilityAllow(lp_player, lv_ability, false);
+            }
+
+        }
+
+    }
+    autoFEA6185F_userType = "CommanderTech";
+    autoFEA6185F_i = 1;
+    for ( ; autoFEA6185F_i <= UserDataInstanceCount(autoFEA6185F_userType) ; autoFEA6185F_i += 1 ) {
+        lv_tech = UserDataInstance(autoFEA6185F_userType, autoFEA6185F_i);
+        if ((UserDataGetUserInstance("CommanderTech", lv_tech, "commander", 1) == lv_playerCommander) && (UserDataGetInt("CommanderTech", lv_tech, "level", 1) <= lv_playerLevel) && ((UserDataGetUserInstance("CommanderTech", lv_tech, "prestige", 1) == null) || (UserDataGetUserInstance("CommanderTech", lv_tech, "prestige", 1) == lv_playerPrestige))) {
+            lv_cheat = UserDataGetUpgrade("CommanderTech", lv_tech, "cheat", 1);
+            lv_upgrade = UserDataGetUpgrade("CommanderTech", lv_tech, "upgrade", 1);
+            lv_unit = UserDataGetUnit("CommanderTech", lv_tech, "unit", 1);
+            lv_ability = UserDataGetAbilCmd("CommanderTech", lv_tech, "ability", 1);
+            lv_state = UserDataGetInt("CommanderTech", lv_tech, "state", 1);
+            if ((lv_cheat != null) && (lv_cheat != "@ARC")) {
+                lv_shared = UserDataGetInt("CommanderTech", lv_tech, "X_shared", 1);
+                libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_cheat, lv_state);
+            }
+
+            if ((lv_upgrade != null) && (lv_upgrade != "@ARC")) {
+                if ((lv_state == 1)) {
+                    TechTreeUpgradeAllow(lp_player, lv_upgrade, true);
+                    auto890C18F6_ae = TechTreeUpgradeProducedAbilCmdCount(lv_upgrade);
+                    auto890C18F6_var = 1;
+                    for ( ; auto890C18F6_var <= auto890C18F6_ae; auto890C18F6_var += 1 ) {
+                        TechTreeAbilityAllow(lp_player, TechTreeUpgradeProducedAbilCmd(lv_upgrade, auto890C18F6_var), true);
+                    }
+                }
+                else {
+                    TechTreeUpgradeAllow(lp_player, lv_upgrade, false);
+                    auto97CDBC9F_ae = TechTreeUpgradeProducedAbilCmdCount(lv_upgrade);
+                    auto97CDBC9F_var = 1;
+                    for ( ; auto97CDBC9F_var <= auto97CDBC9F_ae; auto97CDBC9F_var += 1 ) {
+                        TechTreeAbilityAllow(lp_player, TechTreeUpgradeProducedAbilCmd(lv_upgrade, auto97CDBC9F_var), false);
+                    }
+                }
+            }
+
+            if ((lv_unit != null) && (lv_unit != "@ARC")) {
+                if ((lv_state == 1)) {
+                    TechTreeUnitAllow(lp_player, lv_unit, true);
+                    auto7EEB62E5_ae = TechTreeUnitProducedAbilCmdCount(lv_unit);
+                    auto7EEB62E5_var = 1;
+                    for ( ; auto7EEB62E5_var <= auto7EEB62E5_ae; auto7EEB62E5_var += 1 ) {
+                        TechTreeAbilityAllow(lp_player, TechTreeUnitProducedAbilCmd(lv_unit, auto7EEB62E5_var), true);
+                    }
+                }
+                else {
+                    TechTreeUnitAllow(lp_player, lv_unit, false);
+                    autoCB6814CD_ae = TechTreeUnitProducedAbilCmdCount(lv_unit);
+                    autoCB6814CD_var = 1;
+                    for ( ; autoCB6814CD_var <= autoCB6814CD_ae; autoCB6814CD_var += 1 ) {
+                        TechTreeAbilityAllow(lp_player, TechTreeUnitProducedAbilCmd(lv_unit, autoCB6814CD_var), false);
+                    }
+                }
+            }
+
+            if ((lv_ability != null)) {
+                if ((lv_state == 1)) {
+                    TechTreeAbilityAllow(lp_player, lv_ability, true);
+                }
+                else {
+                    TechTreeAbilityAllow(lp_player, lv_ability, false);
+                }
+            }
+
+        }
+
+    }
+    if ((lv_playerPrestige != null)) {
+        auto6EBC223D_ae = UserDataFieldValueCount("PlayerPrestige", "PlayerResponses");
+        lv_i = 1;
+        for ( ; ( (auto6EBC223D_ai >= 0 && lv_i <= auto6EBC223D_ae) || (auto6EBC223D_ai < 0 && lv_i >= auto6EBC223D_ae) ) ; lv_i += auto6EBC223D_ai ) {
+            libCOOC_gf_CC_PlayerResponseEnable(lp_player, UserDataGetUserInstance("PlayerPrestige", lv_playerPrestige, "PlayerResponses", lv_i), true);
+        }
+        autoF4C1D82E_ae = UserDataFieldValueCount("PlayerPrestige", "UpgradeSupplements");
+        lv_i = 1;
+        for ( ; ( (autoF4C1D82E_ai >= 0 && lv_i <= autoF4C1D82E_ae) || (autoF4C1D82E_ai < 0 && lv_i >= autoF4C1D82E_ae) ) ; lv_i += autoF4C1D82E_ai ) {
+            libCOOC_gf_CC_ApplyUpgradeSupplemental(lp_player, UserDataGetUserInstance("PlayerPrestige", lv_playerPrestige, "UpgradeSupplements", lv_i));
+        }
+        PlayerApplySkin(lp_player, UserDataGetGameLink("PlayerPrestige", lv_playerPrestige, "Skin", 1), true);
+        libCOOC_gf_CC_ApplyTechPostPrestige(lp_player);
+    }
+
+    libCOOC_gf_CC_ApplyMasteryTech(lp_player);
+    if ((libCOOC_gf_CC_CommanderSkin(lv_playerCommander) != "")) {
+        PlayerApplySkin(lp_player, libCOOC_gf_CC_CommanderSkin(lv_playerCommander), true);
+    }
+
+    libCOOC_gf_CC_SharedUpgradesEnable();
+    libCOMI_gf_CM_DetectionUpgradesApply();
+    if ((libNtve_gf_PlayerInCinematicMode(lp_player) == true)) {
+        libCOUI_gf_CU_GPShowHide(true, lp_player, c_transitionDurationImmediate);
+        libCOUI_gf_CU_GPVisibilityAutoUpdate(false, lp_player, c_transitionDurationImmediate);
+    }
+    else {
+        libCOUI_gf_CU_GPShowHide(true, lp_player, c_transitionDurationDefault);
+    }
+}
+
+void libCOOC_gf_CC_PlayerResponseEnable (int lp_player, string lp_response, bool lp_enforceMinLvl) {
+    // Variable Declarations
+    int lv_ally;
+    playergroup lv_allygroup;
+
+    // Automatic Variable Declarations
+    playergroup auto9B0ABC36_g;
+
+    // Variable Initialization
+    lv_allygroup = PlayerGroupEmpty();
+
+    // Implementation
+    if ((lp_enforceMinLvl == true) && (libCOOC_gf_CC_CommanderLevel(lp_player, libCOOC_gf_ActiveCommanderForPlayer(lp_player)) < UserDataGetInt("PlayerResponse", lp_response, "MinLvl", 1))) {
+        return ;
+    }
+
+    if ((UserDataGetInt("PlayerResponse", lp_response, "Self", 1) == 1)) {
+        PlayerAddResponse(lp_player, UserDataGetGameLink("PlayerResponse", lp_response, "Response", 1));
+    }
+
+    if ((UserDataGetInt("PlayerResponse", lp_response, "Ally", 1) == 1)) {
+        lv_allygroup = libCOOC_gf_CommanderPlayers();
+        PlayerGroupRemove(lv_allygroup, lp_player);
+        auto9B0ABC36_g = lv_allygroup;
+        lv_ally = -1;
+        while (true) {
+            lv_ally = PlayerGroupNextPlayer(auto9B0ABC36_g, lv_ally);
+            if (lv_ally < 0) { break; }
+            PlayerAddResponse(lv_ally, UserDataGetGameLink("PlayerResponse", lp_response, "Response", 1));
+        }
+    }
+
+}
+
+void libCOOC_gf_CC_SharedUpgradesEnable () {
+    // Variable Declarations
+    string lv_indexSharedUpgrade;
+
+    // Automatic Variable Declarations
+    int auto8FFB0F01_ai;
+    int auto8FFB0F01_ae;
+
+    // Variable Initialization
+
+    // Implementation
+    auto8FFB0F01_ai = 1;
+    auto8FFB0F01_ae = UserDataInstanceCount("SharedUpgrades")+1;
+    while (auto8FFB0F01_ai < auto8FFB0F01_ae) {
+        lv_indexSharedUpgrade = UserDataInstance("SharedUpgrades", auto8FFB0F01_ai);
+        auto8FFB0F01_ai = auto8FFB0F01_ai+1;
+        if ((UserDataGetUpgrade("SharedUpgrades", lv_indexSharedUpgrade, "Upgrade", 1) != null)) {
+            libCOOC_gf_CC_SharedUpgradesCheckAndApply(UserDataGetUpgrade("SharedUpgrades", lv_indexSharedUpgrade, "Upgrade", 1));
+        }
+
+    }
+}
+
+void libCOOC_gf_CC_SharedUpgradesCheckAndApply (string lp_checkUpgrade) {
+    // Variable Declarations
+    int lv_itPlayer;
+    int lv_itPlayerApplyTarget;
+
+    // Automatic Variable Declarations
+    playergroup auto401F0935_g;
+    playergroup autoD8A6477E_g;
+
+    // Variable Initialization
+
+    // Implementation
+    auto401F0935_g = libCOOC_gf_CommanderPlayers();
+    lv_itPlayer = -1;
+    while (true) {
+        lv_itPlayer = PlayerGroupNextPlayer(auto401F0935_g, lv_itPlayer);
+        if (lv_itPlayer < 0) { break; }
+        if ((TechTreeUpgradeCount(lv_itPlayer, lp_checkUpgrade, c_techCountCompleteOnly) >= 1)) {
+            autoD8A6477E_g = libCOOC_gf_MutualAlliedCommandersofPlayerCoutInactiveAndSelf(lv_itPlayer);
+            lv_itPlayerApplyTarget = -1;
+            while (true) {
+                lv_itPlayerApplyTarget = PlayerGroupNextPlayer(autoD8A6477E_g, lv_itPlayerApplyTarget);
+                if (lv_itPlayerApplyTarget < 0) { break; }
+                if ((TechTreeUpgradeCount(lv_itPlayer, lp_checkUpgrade, c_techCountCompleteOnly) > TechTreeUpgradeCount(lv_itPlayerApplyTarget, lp_checkUpgrade, c_techCountCompleteOnly))) {
+                    libNtve_gf_SetUpgradeLevelForPlayer(lv_itPlayerApplyTarget, lp_checkUpgrade, TechTreeUpgradeCount(lv_itPlayer, lp_checkUpgrade, c_techCountCompleteOnly));
+                }
+
+            }
+        }
+
+    }
 }
 
 int libCOOC_gf_CC_PlayerMasteryLevel (int lp_player) {
@@ -1440,22 +1712,22 @@ void libCOOC_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
         return ;
     }
 
-    autoFFFE3F17_ae = UserDataFieldValueCount("PlayerPrestige", "DisableAbil");
+    autoFFFE3F17_ae = UserDataFieldValueCount("PlayerPrestige", "X_DisableAbil");
     lv_index = 1;
     for ( ; ( (autoFFFE3F17_ai >= 0 && lv_index <= autoFFFE3F17_ae) || (autoFFFE3F17_ai < 0 && lv_index >= autoFFFE3F17_ae) ) ; lv_index += autoFFFE3F17_ai ) {
-        TechTreeAbilityAllow(lp_player, UserDataGetAbilCmd("PlayerPrestige", lp_prestige, "DisableAbil", lv_index), false);
+        TechTreeAbilityAllow(lp_player, UserDataGetAbilCmd("PlayerPrestige", lp_prestige, "X_DisableAbil", lv_index), false);
     }
-    auto2AF6D99E_ae = UserDataFieldValueCount("PlayerPrestige", "EnableAbil");
+    auto2AF6D99E_ae = UserDataFieldValueCount("PlayerPrestige", "X_EnableAbil");
     lv_index = 1;
     for ( ; ( (auto2AF6D99E_ai >= 0 && lv_index <= auto2AF6D99E_ae) || (auto2AF6D99E_ai < 0 && lv_index >= auto2AF6D99E_ae) ) ; lv_index += auto2AF6D99E_ai ) {
-        TechTreeAbilityAllow(lp_player, UserDataGetAbilCmd("PlayerPrestige", lp_prestige, "EnableAbil", lv_index), true);
+        TechTreeAbilityAllow(lp_player, UserDataGetAbilCmd("PlayerPrestige", lp_prestige, "X_EnableAbil", lv_index), true);
     }
-    auto8173B652_ae = UserDataFieldValueCount("PlayerPrestige", "SuppressUpgrade");
+    auto8173B652_ae = UserDataFieldValueCount("PlayerPrestige", "X_SuppressUpgrade");
     lv_index = 1;
     for ( ; ( (auto8173B652_ai >= 0 && lv_index <= auto8173B652_ae) || (auto8173B652_ai < 0 && lv_index >= auto8173B652_ae) ) ; lv_index += auto8173B652_ai ) {
-        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "SuppressUpgrade", lv_index), 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_SuppressUpgrade", lv_index), 0);
     }
-    autoEDDDFDDA_ae = UserDataFieldValueCount("PlayerPrestige", "SuppressUpgradeShared");
+    autoEDDDFDDA_ae = UserDataFieldValueCount("PlayerPrestige", "X_SuppressUpgradeShared");
     lv_index = 1;
     for ( ; ( (autoEDDDFDDA_ai >= 0 && lv_index <= autoEDDDFDDA_ae) || (autoEDDDFDDA_ai < 0 && lv_index >= autoEDDDFDDA_ae) ) ; lv_index += autoEDDDFDDA_ai ) {
         autoED32D43C_g = libCOOC_gf_CommanderPlayers();
@@ -1463,40 +1735,40 @@ void libCOOC_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
         while (true) {
             lv_ally = PlayerGroupNextPlayer(autoED32D43C_g, lv_ally);
             if (lv_ally < 0) { break; }
-            libNtve_gf_SetUpgradeLevelForPlayer(lv_ally, UserDataGetGameLink("PlayerPrestige", lp_prestige, "SuppressUpgradeShared", lv_index), 0);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_ally, UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_SuppressUpgradeShared", lv_index), 0);
         }
     }
-    autoA8942F1B_ae = UserDataFieldValueCount("PlayerPrestige", "DisableUnit");
+    autoA8942F1B_ae = UserDataFieldValueCount("PlayerPrestige", "X_DisableUnit");
     lv_index = 1;
     for ( ; ( (autoA8942F1B_ai >= 0 && lv_index <= autoA8942F1B_ae) || (autoA8942F1B_ai < 0 && lv_index >= autoA8942F1B_ae) ) ; lv_index += autoA8942F1B_ai ) {
-        TechTreeUnitAllow(lp_player, UserDataGetUnit("PlayerPrestige", lp_prestige, "DisableUnit", lv_index), false);
+        TechTreeUnitAllow(lp_player, UserDataGetUnit("PlayerPrestige", lp_prestige, "X_DisableUnit", lv_index), false);
     }
-    autoCE5057A8_ae = UserDataFieldValueCount("PlayerPrestige", "EnableUnit");
+    autoCE5057A8_ae = UserDataFieldValueCount("PlayerPrestige", "X_EnableUnit");
     lv_index = 1;
     for ( ; ( (autoCE5057A8_ai >= 0 && lv_index <= autoCE5057A8_ae) || (autoCE5057A8_ai < 0 && lv_index >= autoCE5057A8_ae) ) ; lv_index += autoCE5057A8_ai ) {
-        TechTreeUnitAllow(lp_player, UserDataGetUnit("PlayerPrestige", lp_prestige, "EnableUnit", lv_index), true);
+        TechTreeUnitAllow(lp_player, UserDataGetUnit("PlayerPrestige", lp_prestige, "X_EnableUnit", lv_index), true);
     }
     autoAF2781D7_ae = UserDataFieldValueCount("PlayerPrestige", "UpgradeSupplements");
     lv_index = 1;
     for ( ; ( (autoAF2781D7_ai >= 0 && lv_index <= autoAF2781D7_ae) || (autoAF2781D7_ai < 0 && lv_index >= autoAF2781D7_ae) ) ; lv_index += autoAF2781D7_ai ) {
         libCOOC_gf_CC_ApplyUpgradeSupplemental(lp_player, UserDataGetUserInstance("PlayerPrestige", lp_prestige, "UpgradeSupplements", lv_index));
     }
-    lv_upgrade = UserDataGetGameLink("PlayerPrestige", lp_prestige, "PrimaryUpgrade", 1);
+    lv_upgrade = UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_PrimaryUpgrade", 1);
     if ((lv_upgrade != null)) {
         libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_upgrade, 1);
     }
 
-    lv_script = UserDataGetString("PlayerPrestige", lp_prestige, "ScriptName", 1);
+    lv_script = UserDataGetString("PlayerPrestige", lp_prestige, "X_ScriptName", 1);
     if ((lv_script != "")) {
         libNtve_gf_TriggerExecuteByName((lv_script + "_Func"), true, true);
     }
 
-    auto232467FB_ae = UserDataFieldValueCount("PlayerPrestige", "SecondaryUpgradesSelf");
+    auto232467FB_ae = UserDataFieldValueCount("PlayerPrestige", "X_SecondaryUpgradesSelf");
     lv_index = 1;
     for ( ; ( (auto232467FB_ai >= 0 && lv_index <= auto232467FB_ae) || (auto232467FB_ai < 0 && lv_index >= auto232467FB_ae) ) ; lv_index += auto232467FB_ai ) {
-        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "SecondaryUpgradesSelf", lv_index), 1);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_SecondaryUpgradesSelf", lv_index), 1);
     }
-    autoF8F85F68_ae = UserDataFieldValueCount("PlayerPrestige", "SecondaryUpgradesShared");
+    autoF8F85F68_ae = UserDataFieldValueCount("PlayerPrestige", "X_SecondaryUpgradesShared");
     lv_index = 1;
     for ( ; ( (autoF8F85F68_ai >= 0 && lv_index <= autoF8F85F68_ae) || (autoF8F85F68_ai < 0 && lv_index >= autoF8F85F68_ae) ) ; lv_index += autoF8F85F68_ai ) {
         autoC788CC8D_g = libCOOC_gf_CommanderPlayers();
@@ -1504,7 +1776,7 @@ void libCOOC_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
         while (true) {
             lv_ally = PlayerGroupNextPlayer(autoC788CC8D_g, lv_ally);
             if (lv_ally < 0) { break; }
-            libNtve_gf_SetUpgradeLevelForPlayer(lv_ally, UserDataGetGameLink("PlayerPrestige", lp_prestige, "SecondaryUpgradesShared", lv_index), 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_ally, UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_SecondaryUpgradesShared", lv_index), 1);
         }
     }
     autoE6A4272A_ae = UserDataFieldValueCount("PlayerPrestige", "PlayerResponses");
@@ -1658,7 +1930,7 @@ fixed libCOOC_gf_CC_PlayerExperienceResultModifier (int lp_result) {
         return 1.0;
     }
 
-    return UserDataGetFixed("X_Experience", "GameValues", "LossMaxMultiplier", 1);
+    return UserDataGetFixed("Experience", "GameValues", "LossMaxMultiplier", 1);
 }
 
 fixed libCOOC_gf_CC_PlayerExperienceInLevelPct (int lp_player, string lp_commander) {
@@ -1706,7 +1978,7 @@ int libCOOC_gf_CC_PlayerLevelExperienceNeededDelta (int lp_level) {
         return 0;
     }
 
-    return UserDataGetInt("X_Experience", "GameValues", "ExperienceToLevel", lp_level);
+    return UserDataGetInt("Experience", "GameValues", "ExperienceToLevel", lp_level);
 }
 
 int libCOOC_gf_CC_PlayerLevelExperienceNeededTotal (int lp_level) {
@@ -1770,13 +2042,13 @@ bool libCOOC_gf_CC_PlayerAllyGivesAbility (int lp_player) {
 int libCOOC_gf_CC_MissionExperienceReward () {
     // Automatic Variable Declarations
     // Implementation
-    return UserDataGetInt("X_Experience", "GameValues", "WinExperience", 1);
+    return UserDataGetInt("Experience", "GameValues", "WinExperience", 1);
 }
 
 fixed libCOOC_gf_CC_MissionExperienceDifficultyBonus (int lp_difficulty) {
     // Automatic Variable Declarations
     // Implementation
-    return (UserDataGetFixed("X_Experience", "GameValues", "DifficultyModifier", libCOOC_gf_CC_DifficultyIndex(lp_difficulty))+libCOMU_gf_CT_GetRandomMutatorXPModifier());
+    return (UserDataGetFixed("Experience", "GameValues", "DifficultyModifier", libCOOC_gf_CC_DifficultyIndex(lp_difficulty))+libCOMU_gf_CT_GetRandomMutatorXPModifier());
 }
 
 string libCOOC_gf_CC_CommanderUserInstance (string lp_commander) {
@@ -2830,7 +3102,7 @@ string libCOOC_gf_CC_ArmyCategoryOfTechUnit (string lp_techUnit) {
 int libCOOC_gf_CC_ArmyCategoryRequiredLevel (string lp_armyCategory, string lp_commander) {
     // Automatic Variable Declarations
     // Implementation
-    return libCOOC_gf_CC_CommanderUserFieldInt(lp_commander, "TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "X_RequiredLevel");
+    return libCOOC_gf_CC_CommanderUserFieldInt(lp_commander, "X_TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "X_RequiredLevel");
 }
 
 text libCOOC_gf_CC_ArmyCategoryName (string lp_armyCategory) {
@@ -2872,7 +3144,7 @@ string libCOOC_gf_CC_ArmyCategoryIcon (string lp_armyCategory) {
 string libCOOC_gf_CC_ArmyCategoryEvolutionIcon (string lp_armyCategory) {
     // Automatic Variable Declarations
     // Implementation
-    return UserDataGetImagePath("TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "EvolutionMissionIcon", 1);
+    return UserDataGetImagePath("X_TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "EvolutionMissionIcon", 1);
 }
 
 string libCOOC_gf_CC_ArmyCategoryUnitType (string lp_armyCategory) {
@@ -2981,13 +3253,13 @@ bool libCOOC_gf_CC_ArmyCategoryToastShown (string lp_armyCategory) {
         return false;
     }
 
-    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "X_IsNew", 1) > 0);
+    return (UserDataGetInt("X_TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "X_IsNew", 1) > 0);
 }
 
 bool libCOOC_gf_CC_ArmyCategoryUnlocksExternal (string lp_armyCategory) {
     // Automatic Variable Declarations
     // Implementation
-    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "X_UnlocksExternal", 1) != 0);
+    return (UserDataGetInt("X_TechUnit", libCOOC_gf_CC_TechUnitOfArmyCategory(lp_armyCategory), "X_UnlocksExternal", 1) != 0);
 }
 
 string libCOOC_gf_CC_ArmyCategoryStateKey (string lp_category, string lp_commander, int lp_player) {
@@ -3280,7 +3552,7 @@ text libCOOC_gf_CC_ArmyUnitDescription (string lp_armyUnit) {
 text libCOOC_gf_StoryArmyUnitTooltip (string lp_armyUnit) {
     // Automatic Variable Declarations
     // Implementation
-    return UserDataGetText("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_TechnologyTooltip", libCOOC_gv_cCC_DISREGARDPLAYER);
+    return UserDataGetText("X_TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_TechnologyTooltip", libCOOC_gv_cCC_DISREGARDPLAYER);
 }
 
 string libCOOC_gf_CC_ArmyUnitIcon (string lp_armyCategory) {
@@ -3292,13 +3564,13 @@ string libCOOC_gf_CC_ArmyUnitIcon (string lp_armyCategory) {
 bool libCOOC_gf_CC_ArmyUnitStartsLocked (string lp_armyUnit) {
     // Automatic Variable Declarations
     // Implementation
-    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_UnlocksExternal", 1) == 1);
+    return (UserDataGetInt("X_TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_UnlocksExternal", 1) == 1);
 }
 
 int libCOOC_gf_CC_ArmyUnitRequiredLevel (string lp_armyUnit, string lp_commander) {
     // Automatic Variable Declarations
     // Implementation
-    return libCOOC_gf_CC_CommanderUserFieldInt(lp_commander, "TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_RequiredLevel");
+    return libCOOC_gf_CC_CommanderUserFieldInt(lp_commander, "X_TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_RequiredLevel");
 }
 
 string libCOOC_gf_CC_ArmyCategoryOfArmyUnit (string lp_armyUnit) {
@@ -3355,7 +3627,7 @@ int libCOOC_gf_CC_StoryArmyUnitState (string lp_armyUnit, string lp_commander, i
 bool libCOOC_gf_CC_StoryArmyUnitState2 (string lp_armyUnit) {
     // Automatic Variable Declarations
     // Implementation
-    return (UserDataGetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_IsNew", 1) == 1);
+    return (UserDataGetInt("X_TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_IsNew", 1) == 1);
 }
 
 string libCOOC_gf_CC_ArmyUnitStateKey (string lp_armyUnit, string lp_commander, int lp_player) {
@@ -3384,7 +3656,7 @@ void libCOOC_gf_CC_SetArmyUnitState (string lp_armyUnit, int lp_state, string lp
 void libCOOC_gf_CC_ArmyUnitSetNew (string lp_armyUnit, bool lp_new) {
     // Automatic Variable Declarations
     // Implementation
-    UserDataSetInt("TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_IsNew", 1, BoolToInt(lp_new));
+    UserDataSetInt("X_TechUnit", libCOOC_gf_CC_TechUnitOfArmyUnit(lp_armyUnit), "X_IsNew", 1, BoolToInt(lp_new));
 }
 
 void libCOOC_gf_CC_UpdateArmyUnitStates (int lp_player) {
@@ -3998,96 +4270,6 @@ void libCOOC_gf_CC_ResetPerkTech (int lp_player) {
     }
 }
 
-void libCOOC_gf_CC_SharedUpgradesEnable () {
-    // Variable Declarations
-    string lv_indexSharedUpgrade;
-
-    // Automatic Variable Declarations
-    int auto8FFB0F01_ai;
-    int auto8FFB0F01_ae;
-
-    // Variable Initialization
-
-    // Implementation
-    auto8FFB0F01_ai = 1;
-    auto8FFB0F01_ae = UserDataInstanceCount("SharedUpgrades")+1;
-    while (auto8FFB0F01_ai < auto8FFB0F01_ae) {
-        lv_indexSharedUpgrade = UserDataInstance("SharedUpgrades", auto8FFB0F01_ai);
-        auto8FFB0F01_ai = auto8FFB0F01_ai+1;
-        if ((UserDataGetUpgrade("SharedUpgrades", lv_indexSharedUpgrade, "Upgrade", 1) != null)) {
-            libCOOC_gf_CC_SharedUpgradesCheckAndApply(UserDataGetUpgrade("SharedUpgrades", lv_indexSharedUpgrade, "Upgrade", 1));
-        }
-
-    }
-}
-
-void libCOOC_gf_CC_SharedUpgradesCheckAndApply (string lp_checkUpgrade) {
-    // Variable Declarations
-    int lv_itPlayer;
-    int lv_itPlayerApplyTarget;
-
-    // Automatic Variable Declarations
-    playergroup auto401F0935_g;
-    playergroup autoD8A6477E_g;
-
-    // Variable Initialization
-
-    // Implementation
-    auto401F0935_g = libCOOC_gf_CommanderPlayers();
-    lv_itPlayer = -1;
-    while (true) {
-        lv_itPlayer = PlayerGroupNextPlayer(auto401F0935_g, lv_itPlayer);
-        if (lv_itPlayer < 0) { break; }
-        if ((TechTreeUpgradeCount(lv_itPlayer, lp_checkUpgrade, c_techCountCompleteOnly) >= 1)) {
-            autoD8A6477E_g = libCOOC_gf_MutualAlliedCommandersofPlayerCoutInactiveAndSelf(lv_itPlayer);
-            lv_itPlayerApplyTarget = -1;
-            while (true) {
-                lv_itPlayerApplyTarget = PlayerGroupNextPlayer(autoD8A6477E_g, lv_itPlayerApplyTarget);
-                if (lv_itPlayerApplyTarget < 0) { break; }
-                if ((TechTreeUpgradeCount(lv_itPlayer, lp_checkUpgrade, c_techCountCompleteOnly) > TechTreeUpgradeCount(lv_itPlayerApplyTarget, lp_checkUpgrade, c_techCountCompleteOnly))) {
-                    libNtve_gf_SetUpgradeLevelForPlayer(lv_itPlayerApplyTarget, lp_checkUpgrade, TechTreeUpgradeCount(lv_itPlayer, lp_checkUpgrade, c_techCountCompleteOnly));
-                }
-
-            }
-        }
-
-    }
-}
-
-void libCOOC_gf_CC_PlayerResponseEnable (int lp_player, string lp_response, bool lp_enforceMinLvl) {
-    // Variable Declarations
-    int lv_ally;
-    playergroup lv_allygroup;
-
-    // Automatic Variable Declarations
-    playergroup auto9B0ABC36_g;
-
-    // Variable Initialization
-    lv_allygroup = PlayerGroupEmpty();
-
-    // Implementation
-    if ((lp_enforceMinLvl == true) && (libCOOC_gf_CC_CommanderLevel(lp_player, libCOOC_gf_ActiveCommanderForPlayer(lp_player)) < UserDataGetInt("PlayerResponse", lp_response, "MinLvl", 1))) {
-        return ;
-    }
-
-    if ((UserDataGetInt("PlayerResponse", lp_response, "Self", 1) == 1)) {
-        PlayerAddResponse(lp_player, UserDataGetGameLink("PlayerResponse", lp_response, "Response", 1));
-    }
-
-    if ((UserDataGetInt("PlayerResponse", lp_response, "Ally", 1) == 1)) {
-        lv_allygroup = libCOOC_gf_CommanderPlayers();
-        PlayerGroupRemove(lv_allygroup, lp_player);
-        auto9B0ABC36_g = lv_allygroup;
-        lv_ally = -1;
-        while (true) {
-            lv_ally = PlayerGroupNextPlayer(auto9B0ABC36_g, lv_ally);
-            if (lv_ally < 0) { break; }
-            PlayerAddResponse(lv_ally, UserDataGetGameLink("PlayerResponse", lp_response, "Response", 1));
-        }
-    }
-
-}
-
 void libCOOC_gf_CC_ApplyTech (int lp_player) {
     // Variable Declarations
     int lv_indexPlayer;
@@ -4199,14 +4381,6 @@ void libCOOC_gf_CC_UpdateTechStates (int lp_player) {
     }
 }
 
-void libCOOC_gf_CC_ResetTech (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    libCOOC_gf_CC_ResetCurrency(lp_player);
-    libCOOC_gf_CC_ResetArmyTech(lp_player);
-    libCOOC_gf_CC_ResetPerkTech(lp_player);
-}
-
 void libCOOC_gf_EnableCampaignTechUnit (bool lp_enableDisable, string lp_techUnit, int lp_player) {
     // Variable Declarations
     string lv_armyCategory;
@@ -4218,11 +4392,11 @@ void libCOOC_gf_EnableCampaignTechUnit (bool lp_enableDisable, string lp_techUni
 
     // Implementation
     if ((lp_enableDisable == true)) {
-        UserDataSetInt("TechUnit", lp_techUnit, "Enabled", lp_player, 1);
+        UserDataSetInt("X_TechUnit", lp_techUnit, "Enabled", lp_player, 1);
         lv_debugMessage = StringExternal("Param/Value/lib_COOC_39184915");
     }
     else {
-        UserDataSetInt("TechUnit", lp_techUnit, "Enabled", lp_player, 0);
+        UserDataSetInt("X_TechUnit", lp_techUnit, "Enabled", lp_player, 0);
         lv_debugMessage = StringExternal("Param/Value/lib_COOC_8773302A");
     }
     lv_armyCategory = libCOOC_gf_CC_ArmyCategoryOfTechUnit(lp_techUnit);
@@ -4247,7 +4421,7 @@ void libCOOC_gf_EnableCampaignTechUnit (bool lp_enableDisable, string lp_techUni
 bool libCOOC_gf_CampaignTechUnitIsEnabled (string lp_techUnit, int lp_player) {
     // Automatic Variable Declarations
     // Implementation
-    return (UserDataGetInt("TechUnit", lp_techUnit, "Enabled", lp_player) > 0);
+    return (UserDataGetInt("X_TechUnit", lp_techUnit, "Enabled", lp_player) > 0);
 }
 
 string libCOOC_gf_CC_CampaignTechUnitType (string lp_techUnit) {
@@ -4509,19 +4683,6 @@ void libCOOC_gf_EnableArcadeContestMode () {
     libCOOC_gv_cC_InContestMap = true;
 }
 
-void libCOOC_gf_CC_CampaignPreload () {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((libCOOC_gf_CC_CampaignMapTypeCheck(libCOOC_gf_CC_CurrentMap(), c_mapKindMission) == true)) {
-        libNtve_gf_PreloadSoundObject("UI_LowHealthWarning_Start", false);
-        libNtve_gf_PreloadSoundObject("UI_LowHealthWarning_BreathLoop", false);
-        libNtve_gf_PreloadSoundObject("UI_LowHealthWarning_HeartBeatLoop", false);
-        SoundLengthQuery(SoundLink("UI_LowHealthWarning_BreathLoop", -1));
-        SoundLengthQuery(SoundLink("UI_LowHealthWarning_HeartBeatLoop", -1));
-    }
-
-}
-
 void libCOOC_gf_CC_SaveAllTransitionData (bool lp_resultFromDefeat, int lp_player) {
     // Variable Declarations
     int lv_saveType;
@@ -4541,7 +4702,6 @@ void libCOOC_gf_CC_LoadAllTransitionData (int lp_player) {
     if ((libCOOC_gf_CC_CoopBankExists(lp_player) == false)) {
         TextExpressionSetToken("Param/Expression/lib_COOC_253EB9C4", "A", IntToText(lp_player));
         TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_253EB9C4"), false);
-        libCOOC_gf_ResetCampaignData(lp_player);
         return ;
     }
 
@@ -4553,7 +4713,6 @@ void libCOOC_gf_CC_LoadAllTransitionData (int lp_player) {
         TextExpressionSetToken("Param/Expression/lib_COOC_6DCBB62D", "B", IntToText(libCOOC_gv_cCX_PlayerBankVersion[lp_player]));
         TextExpressionSetToken("Param/Expression/lib_COOC_6DCBB62D", "C", IntToText(libCOOC_gv_cCC_BankVersion));
         TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_6DCBB62D"), false);
-        libCOOC_gf_ResetCampaignData(lp_player);
         return ;
     }
 
@@ -4652,15 +4811,6 @@ void libCOOC_gf_CC_LoadTransitionVars (int lp_player, bank lp_sourceBank) {
     libCOOC_gv_cCX_PlayerBankVersion[lp_player] = libCOOC_gf_CC_LoadTransitionVarInteger(lp_sourceBank, lv__SectionName, ("Bank Version"), 0);
     lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignPerks");
     libCOOC_gf_CC_LoadChampionFromBank2(lp_player, lp_sourceBank, lv__SectionName);
-}
-
-void libCOOC_gf_ResetCampaignData (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    libCOOC_gv_cCX_PlayerBankVersion[lp_player] = libCOOC_gv_cCC_BankVersion;
-    libCOOC_gf_CC_ResetTech(lp_player);
-    libCOOC_gf_CC_UpdateTechStates(lp_player);
-    libCOOC_gf_DispatchCampaignEvent(libCOOC_ge_CC_Event_CampaignDataReset, "", "", false);
 }
 
 void libCOOC_gf_CC_CustomStartupBegin () {
@@ -6232,6 +6382,27 @@ void libCOOC_gt_CC_AchievementVorazunTimeStop_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: CC_SharedUpgradesRecheck
+//--------------------------------------------------------------------------------------------------
+bool libCOOC_gt_CC_SharedUpgradesRecheck_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libCOOC_gf_CC_SharedUpgradesEnable();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOOC_gt_CC_SharedUpgradesRecheck_Init () {
+    libCOOC_gt_CC_SharedUpgradesRecheck = TriggerCreate("libCOOC_gt_CC_SharedUpgradesRecheck_Func");
+    TriggerAddEventUnitResearchProgress(libCOOC_gt_CC_SharedUpgradesRecheck, null, c_unitProgressStageComplete);
+    TriggerAddEventPlayerEffectUsed(libCOOC_gt_CC_SharedUpgradesRecheck, c_playerAny, "RefreshSharedUpgrades");
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: CC_PrestigeUpgradeSupplement
 //--------------------------------------------------------------------------------------------------
 bool libCOOC_gt_CC_PrestigeUpgradeSupplement_Func (bool testConds, bool runActions) {
@@ -6283,27 +6454,6 @@ void libCOOC_gt_CC_PrestigeUpgradeSupplement_Init () {
     libCOOC_gt_CC_PrestigeUpgradeSupplement = TriggerCreate("libCOOC_gt_CC_PrestigeUpgradeSupplement_Func");
     TriggerEnable(libCOOC_gt_CC_PrestigeUpgradeSupplement, false);
     TriggerAddEventUpgradeLevelChanged(libCOOC_gt_CC_PrestigeUpgradeSupplement, c_playerAny);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: CC_SharedUpgradesRecheck
-//--------------------------------------------------------------------------------------------------
-bool libCOOC_gt_CC_SharedUpgradesRecheck_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libCOOC_gf_CC_SharedUpgradesEnable();
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libCOOC_gt_CC_SharedUpgradesRecheck_Init () {
-    libCOOC_gt_CC_SharedUpgradesRecheck = TriggerCreate("libCOOC_gt_CC_SharedUpgradesRecheck_Func");
-    TriggerAddEventUnitResearchProgress(libCOOC_gt_CC_SharedUpgradesRecheck, null, c_unitProgressStageComplete);
-    TriggerAddEventPlayerEffectUsed(libCOOC_gt_CC_SharedUpgradesRecheck, c_playerAny, "RefreshSharedUpgrades");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -8427,8 +8577,8 @@ void libCOOC_InitTriggers () {
     libCOOC_gt_CC_DebugToggleTechSuperSpam_Init();
     libCOOC_gt_CC_DebugUpdateTech_Init();
     libCOOC_gt_CC_AchievementVorazunTimeStop_Init();
-    libCOOC_gt_CC_PrestigeUpgradeSupplement_Init();
     libCOOC_gt_CC_SharedUpgradesRecheck_Init();
+    libCOOC_gt_CC_PrestigeUpgradeSupplement_Init();
     libCOOC_gt_CC_CustomStartupSelectLaunch_Init();
     libCOOC_gt_CC_ScoreArtanisAbsorb_Init();
     libCOOC_gt_CC_ScoreArtanisKaraxOrbitalStrike_Init();

@@ -1272,6 +1272,64 @@
     <CActorModel id="TychusReaperSuperCloak" parent="SuperCloak" behaviorCloak="TychusReaperSuperCloak">
         <EditorCategories value=""/>
     </CActorModel>
+    <CActorUnit id="Ares" parent="GenericUnitBase" unitName="Ares">
+        <Aliases value="_UnitLarge"/>
+        <On Terms="Behavior.ARESTimedLife.On" Send="SetStatusBarOn 1 Duration"/>
+        <On Terms="Behavior.ARESTimedLife.Off" Send="SetStatusBarOn 0 Duration"/>
+        <On Terms="ActorCreation" Send="AnimGroupApply A"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart Morph Stand,Work,End IGNORE Stand,Work,Start"/>
+        <On Terms="Behavior.SpecialDeliveryGroundDrop.Create" Send="Create ARESDropModel"/>
+        <On Terms="AnimBracketState.*.BeforeOpening; AnimName Morph" Send="AnimGroupRemove Work"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName Morph" Send="AnimGroupApply Work"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsWarbotB" Send="DeathCustomize Variation2"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsWarbotC" Send="DeathCustomize Variation3"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="TimerSet 0.250000 KillBeam"/>
+        <On Terms="Effect.WarbotARight.Start; At Caster" Send="AnimPlay Attack Attack,Right"/>
+        <On Terms="Effect.WarbotALeft.Start; At Caster" Send="AnimPlay Attack Attack,Left"/>
+        <On Terms="Effect.WarbotBPersistent.Start" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.WarbotB.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="WeaponStart.WarbotC.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStart.WarbotC.AttackStart" Send="TimerSet 1.000000 KillBeam"/>
+        <On Terms="WeaponStop.WarbotC.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="TimerExpired; TimerName KillBeam" Target="WarbotCAttackBeam" Send="Destroy"/>
+        <On Terms="Behavior.WarbotA.On" Send="AnimGroupApply A"/>
+        <On Terms="Behavior.WarbotA.On" Send="AnimBracketStart Morph Stand,Work,End IGNORE Stand,Work,Start"/>
+        <On Terms="Behavior.WarbotA.Off" Send="AnimGroupRemove A"/>
+        <On Terms="Behavior.WarbotA.Off" Send="AnimClear Attack"/>
+        <On Terms="Behavior.WarbotB.On" Send="AnimGroupApply B"/>
+        <On Terms="Behavior.WarbotB.On" Send="AnimBracketStart Morph Stand,Work,End IGNORE Stand,Work,Start"/>
+        <On Terms="Behavior.WarbotB.Off" Send="AnimGroupRemove B"/>
+        <On Terms="Behavior.WarbotB.Off" Send="AnimClear Attack"/>
+        <On Terms="Behavior.WarbotC.On" Send="AnimGroupApply C"/>
+        <On Terms="Behavior.WarbotC.On" Send="AnimBracketStart Morph Stand,Work,End IGNORE Stand,Work,Start"/>
+        <On Terms="Behavior.WarbotC.Off" Send="AnimGroupRemove C"/>
+        <On Terms="Behavior.WarbotC.Off" Send="AnimClear Attack"/>
+        <DeathArray index="Normal" ModelLink="WarbotDeath" SoundLink="WarbotAC_DieExplosion"/>
+        <DeathCustoms ModelLink="WarbotDeathB" SoundLink="WarbotAC_DieExplosion" Name="Variation2"/>
+        <DeathCustoms ModelLink="WarbotDeathC" SoundLink="WarbotAC_DieExplosion" Name="Variation3"/>
+        <DeathActorModelLow value="UnitDeathModel"/>
+        <PortraitModel value="ARESPortrait"/>
+        <BarOffset value="75"/>
+        <BarWidth value="75"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-warbot.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-ares.dds"/>
+        <HighlightTooltip value="Unit/Name/VoidCoopARES2"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
+        <SoundArray index="Ready" value="Coop_Ares_Ready"/>
+        <SoundArray index="What" value="Warbot_What"/>
+        <SoundArray index="Yes" value="Warbot_Yes"/>
+        <SoundArray index="Attack" value="Warbot_Attack"/>
+        <SoundArray index="Pissed" value="Warbot_Pissed"/>
+        <UnitFlags index="SuppressStandIntro" value="1"/>
+        <UnitFlags index="SuppressWalkIntro" value="1"/>
+        <UnitFlags index="SuppressWalkOutro" value="1"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-ares.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-warbot.dds"/>
+        </Wireframe>
+    </CActorUnit>
     <CActorSound id="VoidSeekerFasterMovementSound">
         <FogVisibility value="Visible"/>
     </CActorSound>
@@ -7744,9 +7802,7 @@
         <On Terms="Behavior.BiomassBuff100.On" Send="Create"/>
         <On Terms="Behavior.BiomassBuff100.Off" Send="Destroy"/>
     </CActorModel-->
-    <CActorAction id="MothershipCoreWeaponAttack">
-        <LaunchSiteOps Ops="SOpForwardTargetPoint SOp2DRotation SOpAttachOverhead"/>
-    </CActorAction>
+    <CActorAction id="MothershipCoreWeaponAttack"/>
     <CActorModel id="MutatorDeathAOEPreBoom" parent="ModelAnimationStyleOneShot">
         <EditorCategories value=""/>
         <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD {} Stand,Work,Start Death ContentPlayOnce"/>
@@ -23719,7 +23775,6 @@
         <PlacementModel value="TempestPlacement"/>
     </CActorUnit>
     <CActorUnit id="Observer">
-        <PlacementModel value="ObserverPlacement"/>
         <On Terms="UnitBirth.ObserverSiegeMode" Send="Create"/>
         <On Terms="UnitBirth.ObserverSiegeMode" Send="Create ObserverObservationMode"/>
         <On Terms="AbilMorph.*.Start; MorphFrom Observer; MorphTo ObserverSiegeMode" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
@@ -29749,12 +29804,7 @@
         <On Terms="ActorCreation; ValidatePlayer HaveVanguardArmoredDamage" Send="ModelSwap ImmortalTaldarimWeaponImpact_Upgraded"/>
         <On Terms="ActorCreation; ValidatePlayer HaveAlarakVanguardIncreaseSplashArea" Send="SetScale 1.300000"/>
     </CActorModel>
-    <CActorRange id="LiberatorAGSearchRange">
-        <Host Subject="::Creator"/>
-        <Range value="4.600000"/>
-        <Icon value="Assets\Textures\liberatorradius.dds"/>
-        <IconArcLength value="3.000000"/>
-    </CActorRange>
+    <CActorRange id="LiberatorAGSearchRange"/>
     <CActorModel id="LiberatorDummyRange" parent="ModelAnimationStyleContinuous">
         <On Terms="Effect.LiberatorTargetMorphPersistent.Start" Send="Create"/>
         <On Terms="Effect.LiberatorTargetMorphPersistent.Stop" Send="Destroy"/>
@@ -45073,12 +45123,6 @@
         <ImpactPhysics Name="HunterSeekerImpactAir" MatchKeys="BasicAir" Physics="HunterSeekerAttackForceAir"/>
     </CActorAction>
     <CActorModel id="RavenShredderMissileFailDeath">
-        <Flags index="SuppressSaveLoad" value="1"/>
-        <AcceptedTransfers index="Textures" value="1"/>
-        <Inherits index="BaseModelScale" value="1"/>
-        <Inherits index="Scale" value="1"/>
-        <Host Subject="_Unit"/>
-        <HostSiteOps Ops="SOpAttachOriginStationary"/>
         <On Terms="ActorCreation" Send="$Death"/>
         <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
         <On Terms="ActorCreation" Send="Create RavenShredderMissileFailSound"/>

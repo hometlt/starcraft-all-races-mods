@@ -726,7 +726,7 @@ void libCOUI_gf_SaveMapOptions () {
                 BankValueSetFromInt(lv_bANK, lv_commanderName, "prestige", lv_commanderPrestige);
                 BankValueSetFromInt(lv_bANK, lv_commanderName, "experience", libCOOC_gv_cCX_PlayerExperience[lv_player][lv_commanderIndex]);
                 BankValueSetFromInt(lv_bANK, lv_commanderName, "level", libCOOC_gv_cC_PlayerLevel[lv_player][lv_commanderIndex]);
-                lv_commanderMastery = IntToString(libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][0]);
+                lv_commanderMastery = IntToString(libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][1]);
                 lv_itemIndex = 2;
                 for ( ; ( (auto4ABB686D_ai >= 0 && lv_itemIndex <= auto4ABB686D_ae) || (auto4ABB686D_ai < 0 && lv_itemIndex >= auto4ABB686D_ae) ) ; lv_itemIndex += auto4ABB686D_ai ) {
                     lv_commanderMastery = (lv_commanderMastery + "/" + IntToString(libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][lv_itemIndex]));
@@ -759,6 +759,7 @@ void libCOUI_gf_LoadMapOptions () {
     int lv_commanderExperience;
     string lv_commanderName;
     string lv_commanderMastery;
+    string lv_test;
 
     // Automatic Variable Declarations
     const int auto53B72D58_ae = libCOOC_gv_cCC_MAXPLAYERS;
@@ -780,6 +781,7 @@ void libCOUI_gf_LoadMapOptions () {
     lv_sECTION = "NextMap";
     lv_commanderName = "";
     lv_commanderMastery = "";
+    lv_test = "";
 
     // Implementation
     lv_player = 1;
@@ -797,12 +799,27 @@ void libCOUI_gf_LoadMapOptions () {
                 lv_commanderExperience = BankValueGetAsInt(lv_bANK, lv_commanderName, "experience");
                 lv_commanderMastery = StringReplaceWord(BankValueGetAsString(lv_bANK, lv_commanderName, "mastery"), "/", " ", c_stringReplaceAll, c_stringCase);
                 DataTableSetInt(true, libCOOC_gf_CC_PrestigeCommanderTableKey(lv_commander, lv_player), lv_commanderPrestige);
-                libCOOC_gv_cC_PlayerLevel[lv_player][lv_commanderIndex] = lv_commanderLevel;
-                libCOOC_gf_CC_PlayerExperienceSet(lv_player, lv_commanderExperience, lv_commander);
+                libCOOC_gf_CC_PlayerExperienceSetToLevel(lv_player, 15, lv_commander);
+                libCOOC_gf_CC_PlayerLevelSet(lv_player, 15, lv_commander);
                 lv_masteryIndex = 1;
                 for ( ; ( (autoC7A3308F_ai >= 0 && lv_masteryIndex <= autoC7A3308F_ae) || (autoC7A3308F_ai < 0 && lv_masteryIndex >= autoC7A3308F_ae) ) ; lv_masteryIndex += autoC7A3308F_ai ) {
                     libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][lv_masteryIndex] = StringToInt(StringWord(lv_commanderMastery, lv_masteryIndex));
                 }
+                if ((libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][1] == 0) && (libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][2] == 0)) {
+                    libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][1] = 15;
+                    libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][2] = 15;
+                }
+
+                if ((libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][3] == 0) && (libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][4] == 0)) {
+                    libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][3] = 15;
+                    libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][4] = 15;
+                }
+
+                if ((libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][5] == 0) && (libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][6] == 0)) {
+                    libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][5] = 15;
+                    libCOOC_gv_cCX_PlayerMasteryPointsSpent[lv_player][lv_commanderIndex][6] = 15;
+                }
+
             }
             lv_sECTION = "Player";
             libCOOC_gv_cCX_PlayerCommander[lv_player] = (BankValueGetAsString(lv_bANK, lv_sECTION, "commander"));
@@ -1615,17 +1632,27 @@ void libCOUI_gf_CU_CommanderUpdatePrestigeLabels (int lp_player) {
     lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(lv_commanderAlly, lv_prestigeAlly), "Name", lv_playerAlly));
 
     // Implementation
-    if ((lv_commanderAlly != "") && (lv_prestigeSelf == 0) && (CatalogEntryIsValid(c_gameCatalogCommander, lv_commanderAlly) == true)) {
-        lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, lv_commanderAlly, "Description", c_playerAny));
-    }
-    else if ((lv_prestigeSelf == 0)) {
+    if ((CatalogEntryIsValid(c_gameCatalogCommander, lv_commanderSelf) == false)) {
         lv_playerPrestigeText = null;
     }
-    if ((lv_commanderAlly != "") && (lv_prestigeAlly == 0) && (CatalogEntryIsValid(c_gameCatalogCommander, lv_commanderAlly) == true)) {
-        lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, lv_commanderAlly, "Description", c_playerAny));
+    else {
+        if ((lv_prestigeSelf == 0)) {
+            lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, lv_commanderSelf, "Description", c_playerAny));
+        }
+        else {
+            lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(lv_commanderSelf, lv_prestigeSelf), "Name", lp_player));
+        }
     }
-    else if ((lv_prestigeAlly == 0)) {
+    if ((CatalogEntryIsValid(c_gameCatalogCommander, lv_commanderAlly) == false)) {
         lv_playerAllyPrestigeText = null;
+    }
+    else {
+        if ((lv_prestigeAlly == 0)) {
+            lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, lv_commanderAlly, "Description", c_playerAny));
+        }
+        else {
+            lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(lv_commanderAlly, lv_prestigeAlly), "Name", lv_playerAlly));
+        }
     }
     libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedPrestigeSelf, lv_playerPrestigeText, PlayerGroupSingle(lp_player));
     libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedPrestigeSelf, lv_playerAllyPrestigeText, PlayerGroupSingle(lv_playerAlly));
