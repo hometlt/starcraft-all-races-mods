@@ -234,6 +234,10 @@ void libCOMI_InitVariables () {
         libCOMI_gv_cM_ZeratulTopBarRallyRedirectUnits[init_i] = UnitGroupEmpty();
     }
     libCOMI_gv_cM_Zeratul_RalliedGroup = UnitGroupEmpty();
+    libCOMI_gv_cM_MaxSpawn = 9;
+    libCOMI_gv_cM_CreepGroup = UnitGroupEmpty();
+    libCOMI_gv_cM_CreepTimer = TimerCreate();
+    libCOMI_gv_cM_SpawnTime = 180;
     for (init_i = 0; init_i <= libCOOC_gv_cCC_MAXPLAYERS; init_i += 1) {
         libCOMI_gv_cM_DehakaReviveEatTextTag[init_i] = c_textTagNone;
     }
@@ -284,10 +288,6 @@ void libCOMI_InitVariables () {
     for (init_i = 0; init_i <= libCOOC_gv_cCC_MAXPLAYERS; init_i += 1) {
         libCOMI_gv_cM_EndMissionResult[init_i] = c_gameOverDefeat;
     }
-    libCOMI_gv_cM_MaxSpawn = 9;
-    libCOMI_gv_cM_CreepGroup = UnitGroupEmpty();
-    libCOMI_gv_cM_CreepTimer = TimerCreate();
-    libCOMI_gv_cM_SpawnTime = 180;
     libCOMI_gv_cM_HeroUnitsOfAllCommanders = UnitGroupEmpty();
     for (init_i = 0; init_i <= libCOOC_gv_cCC_MAXPLAYERS; init_i += 1) {
         libCOMI_gv_cM_HeroDeathCount[init_i] = -1;
@@ -401,6 +401,12 @@ playergroup libCOMI_gf_GetHumanPlayers () {
     // Automatic Variable Declarations
     // Implementation
     return libCOMI_gv_vU_HumanPlayers;
+}
+
+void libCOMI_gf_PlayMapIntroZoom (bool lp_waitDontWait) {
+    // Automatic Variable Declarations
+    // Implementation
+    TriggerExecute(libCOMI_gt_CM_CampaignMissionIntroZoomIn, true, lp_waitDontWait);
 }
 
 bool libCOMI_gf_DefeatAnyPlayerBaseDead () {
@@ -15308,13 +15314,27 @@ void libCOMI_gf_CM_DifficultyApplySettings (int lp_player) {
     // Implementation
 }
 
-void libCOMI_gf_PlayMapIntroZoom (bool lp_waitDontWait) {
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: warning
+//--------------------------------------------------------------------------------------------------
+bool libCOMI_gt_warning_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
-    // Implementation
-    TriggerExecute(libCOMI_gt_CM_CampaignMissionIntroZoomIn, true, lp_waitDontWait);
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_COMI_28801748"));
+    return true;
 }
 
-// Triggers
+//--------------------------------------------------------------------------------------------------
+void libCOMI_gt_warning_Init () {
+    libCOMI_gt_warning = TriggerCreate("libCOMI_gt_warning_Func");
+    TriggerAddEventMapInit(libCOMI_gt_warning);
+}
+
 //--------------------------------------------------------------------------------------------------
 // Trigger: Tip Ready Q 2
 //--------------------------------------------------------------------------------------------------
@@ -16232,6 +16252,7 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     // Automatic Variable Declarations
     playergroup auto6B1E1E16_g;
     playergroup autoB6336979_g;
+    playergroup auto0278168F_g;
     playergroup auto4B79EFEC_g;
     playergroup auto6159EA35_g;
     playergroup autoFBC5769B_g;
@@ -16268,8 +16289,14 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     while (true) {
         lv_indexPlayer = PlayerGroupNextPlayer(autoB6336979_g, lv_indexPlayer);
         if (lv_indexPlayer < 0) { break; }
-        libCOOC_gf_CC_UpdateTechStates(lv_indexPlayer);
-        libCOOC_gf_CC_ApplyTech(lv_indexPlayer);
+        libCOOC_gf_CC_ApplyTechNew(lv_indexPlayer);
+    }
+    auto0278168F_g = libCOMI_gv_vU_EnemyAI;
+    lv_indexPlayer = -1;
+    while (true) {
+        lv_indexPlayer = PlayerGroupNextPlayer(auto0278168F_g, lv_indexPlayer);
+        if (lv_indexPlayer < 0) { break; }
+        libCOOC_gf_CC_ApplyTechNew(lv_indexPlayer);
     }
     TriggerEnable(libCOOC_gt_CC_PrestigeUpgradeSupplement, true);
     libCOUI_gf_CU_PrestigeBriefInit(1, 2);
@@ -17308,6 +17335,39 @@ bool libCOMI_gt_ToggleAIDebugMessages_Func (bool testConds, bool runActions) {
 void libCOMI_gt_ToggleAIDebugMessages_Init () {
     libCOMI_gt_ToggleAIDebugMessages = TriggerCreate("libCOMI_gt_ToggleAIDebugMessages_Func");
     TriggerAddEventChatMessage(libCOMI_gt_ToggleAIDebugMessages, c_playerAny, "togaidebug", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: SupplyUpgrades
+//--------------------------------------------------------------------------------------------------
+bool libCOMI_gt_SupplyUpgrades_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_player = EventPlayer();
+
+    // Conditions
+    if (testConds) {
+        if (!(((EventUpgradeName() == "MaxSupply10") || (EventUpgradeName() == "MaxSupply25") || (EventUpgradeName() == "MaxSupply50") || (EventUpgradeName() == "MaxSupply100")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerModifyPropertyInt(lv_player, c_playerPropSuppliesLimit, c_playerPropOperSetTo, ((TechTreeUpgradeCount(lv_player, "MaxSupply10", c_techCountCompleteOnly) * 10) + (TechTreeUpgradeCount(lv_player, "MaxSupply25", c_techCountCompleteOnly) * 25) + (TechTreeUpgradeCount(lv_player, "MaxSupply50", c_techCountCompleteOnly) * 50) + (TechTreeUpgradeCount(lv_player, "MaxSupply100", c_techCountCompleteOnly) * 100) + UserDataGetInt("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lv_player), "SuppliesMax", 1)));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMI_gt_SupplyUpgrades_Init () {
+    libCOMI_gt_SupplyUpgrades = TriggerCreate("libCOMI_gt_SupplyUpgrades_Func");
+    TriggerAddEventUpgradeLevelChanged(libCOMI_gt_SupplyUpgrades, c_playerAny);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38242,6 +38302,7 @@ void libCOMI_gt_CM_CampaignMissionIntroZoomIn_Init () {
 }
 
 void libCOMI_InitTriggers () {
+    libCOMI_gt_warning_Init();
     libCOMI_gt_TipReadyQ2_Init();
     libCOMI_gt_VictoryCheat_Init();
     libCOMI_gt_DefeatCheat_Init();
@@ -38279,6 +38340,7 @@ void libCOMI_InitTriggers () {
     libCOMI_gt_CM_CoopAI_AttackWavePingManager_Init();
     libCOMI_gt_CM_CoopAI_InitAIDebugging_Init();
     libCOMI_gt_ToggleAIDebugMessages_Init();
+    libCOMI_gt_SupplyUpgrades_Init();
     libCOMI_gt_DUT_CommanderTerran_Init();
     libCOMI_gt_DUT_CommanderSwann_Init();
     libCOMI_gt_DUT_CommanderNova_Init();

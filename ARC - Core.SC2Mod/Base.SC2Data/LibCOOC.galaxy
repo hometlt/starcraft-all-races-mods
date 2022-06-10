@@ -1062,6 +1062,7 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
     string lv_playerPrestige;
     int lv_playerLevel;
     string lv_cheat;
+    string lv_skin;
     string lv_upgrade;
     string lv_unit;
     abilcmd lv_ability;
@@ -1099,14 +1100,13 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
     TechTreeRestrictionsEnable(lp_player, true);
     libCOOC_gf_CC_UpdatePlayerLevel(lp_player);
     libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "CommanderLevel", lv_playerLevel);
-    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesLimit, c_playerPropOperSetTo, (UserDataGetInt("PlayerCommanders", lv_playerCommander, "SuppliesMax", 1) + UserDataGetInt("PlayerPrestige", lv_playerPrestige, "SuppliesMax", 1)));
-    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesMade, c_playerPropOperSetTo, (UserDataGetInt("PlayerCommanders", lv_playerCommander, "SuppliesMade", 1) + UserDataGetInt("PlayerPrestige", lv_playerPrestige, "SuppliesMade", 1)));
+    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesLimit, c_playerPropOperSetTo, UserDataGetInt("PlayerCommanders", lv_playerCommander, "SuppliesMax", 1));
     autoA275E914_userType = "CommanderTech";
     autoA275E914_i = 1;
     for ( ; autoA275E914_i <= UserDataInstanceCount(autoA275E914_userType) ; autoA275E914_i += 1 ) {
         lv_tech = UserDataInstance(autoA275E914_userType, autoA275E914_i);
         lv_state = UserDataGetInt("CommanderTech", lv_tech, "state", 1);
-        if ((lv_state == 1)) {
+        if ((lv_state > 0)) {
             lv_cheat = UserDataGetUpgrade("CommanderTech", lv_tech, "cheat", 1);
             if ((lv_cheat != null) && (lv_cheat != "@ARC")) {
                 libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_cheat, 0);
@@ -1150,13 +1150,13 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
             lv_unit = UserDataGetUnit("CommanderTech", lv_tech, "unit", 1);
             lv_ability = UserDataGetAbilCmd("CommanderTech", lv_tech, "ability", 1);
             lv_state = UserDataGetInt("CommanderTech", lv_tech, "state", 1);
+            lv_skin = UserDataGetGameLink("CommanderTech", lv_tech, "skin", 1);
             if ((lv_cheat != null) && (lv_cheat != "@ARC")) {
-                lv_shared = UserDataGetInt("CommanderTech", lv_tech, "X_shared", 1);
                 libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_cheat, lv_state);
             }
 
             if ((lv_upgrade != null) && (lv_upgrade != "@ARC")) {
-                if ((lv_state == 1)) {
+                if ((lv_state > 0)) {
                     TechTreeUpgradeAllow(lp_player, lv_upgrade, true);
                     auto890C18F6_ae = TechTreeUpgradeProducedAbilCmdCount(lv_upgrade);
                     auto890C18F6_var = 1;
@@ -1175,7 +1175,7 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
             }
 
             if ((lv_unit != null) && (lv_unit != "@ARC")) {
-                if ((lv_state == 1)) {
+                if ((lv_state > 0)) {
                     TechTreeUnitAllow(lp_player, lv_unit, true);
                     auto7EEB62E5_ae = TechTreeUnitProducedAbilCmdCount(lv_unit);
                     auto7EEB62E5_var = 1;
@@ -1194,11 +1194,20 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
             }
 
             if ((lv_ability != null)) {
-                if ((lv_state == 1)) {
+                if ((lv_state > 0)) {
                     TechTreeAbilityAllow(lp_player, lv_ability, true);
                 }
                 else {
                     TechTreeAbilityAllow(lp_player, lv_ability, false);
+                }
+            }
+
+            if ((lv_skin != null) && (lv_skin != "@ARC")) {
+                if ((lv_state > 0)) {
+                    PlayerApplySkin(lp_player, lv_skin, true);
+                }
+                else {
+                    PlayerApplySkin(lp_player, lv_skin, false);
                 }
             }
 
@@ -1216,15 +1225,10 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
         for ( ; ( (autoF4C1D82E_ai >= 0 && lv_i <= autoF4C1D82E_ae) || (autoF4C1D82E_ai < 0 && lv_i >= autoF4C1D82E_ae) ) ; lv_i += autoF4C1D82E_ai ) {
             libCOOC_gf_CC_ApplyUpgradeSupplemental(lp_player, UserDataGetUserInstance("PlayerPrestige", lv_playerPrestige, "UpgradeSupplements", lv_i));
         }
-        PlayerApplySkin(lp_player, UserDataGetGameLink("PlayerPrestige", lv_playerPrestige, "Skin", 1), true);
         libCOOC_gf_CC_ApplyTechPostPrestige(lp_player);
     }
 
     libCOOC_gf_CC_ApplyMasteryTech(lp_player);
-    if ((libCOOC_gf_CC_CommanderSkin(lv_playerCommander) != "")) {
-        PlayerApplySkin(lp_player, libCOOC_gf_CC_CommanderSkin(lv_playerCommander), true);
-    }
-
     libCOOC_gf_CC_SharedUpgradesEnable();
     libCOMI_gf_CM_DetectionUpgradesApply();
     if ((libNtve_gf_PlayerInCinematicMode(lp_player) == true)) {
@@ -1647,20 +1651,13 @@ bool libCOOC_gf_CC_PrestigeSuppressed (int lp_player, string lp_suppressionType)
     lv_prestige = libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player);
 
     // Implementation
-    if ((lv_prestige == null)) {
-        if ((lp_suppressionType == "SuppressHero") && (UserDataGetInt("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lp_player), "HeroUnitSuppressed", 1) == 1)) {
-            return true;
-        }
-        else if ((lp_suppressionType == "SuppressHeroStructure") && (UserDataGetInt("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lp_player), "HeroStructureSuppressed", 1) == 1)) {
-            return true;
-        }
-    }
-    else {
+    if ((lv_prestige != null)) {
         if ((UserDataGetInt("PlayerPrestige", lv_prestige, lp_suppressionType, 1) == 1)) {
             return true;
         }
 
     }
+
     return false;
 }
 
@@ -1681,26 +1678,8 @@ void libCOOC_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
     int lv_ally;
 
     // Automatic Variable Declarations
-    int autoFFFE3F17_ae;
-    const int autoFFFE3F17_ai = 1;
-    int auto2AF6D99E_ae;
-    const int auto2AF6D99E_ai = 1;
-    int auto8173B652_ae;
-    const int auto8173B652_ai = 1;
-    int autoEDDDFDDA_ae;
-    const int autoEDDDFDDA_ai = 1;
-    playergroup autoED32D43C_g;
-    int autoA8942F1B_ae;
-    const int autoA8942F1B_ai = 1;
-    int autoCE5057A8_ae;
-    const int autoCE5057A8_ai = 1;
     int autoAF2781D7_ae;
     const int autoAF2781D7_ai = 1;
-    int auto232467FB_ae;
-    const int auto232467FB_ai = 1;
-    int autoF8F85F68_ae;
-    const int autoF8F85F68_ai = 1;
-    playergroup autoC788CC8D_g;
     int autoE6A4272A_ae;
     const int autoE6A4272A_ai = 1;
 
@@ -1712,79 +1691,24 @@ void libCOOC_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
         return ;
     }
 
-    autoFFFE3F17_ae = UserDataFieldValueCount("PlayerPrestige", "X_DisableAbil");
-    lv_index = 1;
-    for ( ; ( (autoFFFE3F17_ai >= 0 && lv_index <= autoFFFE3F17_ae) || (autoFFFE3F17_ai < 0 && lv_index >= autoFFFE3F17_ae) ) ; lv_index += autoFFFE3F17_ai ) {
-        TechTreeAbilityAllow(lp_player, UserDataGetAbilCmd("PlayerPrestige", lp_prestige, "X_DisableAbil", lv_index), false);
-    }
-    auto2AF6D99E_ae = UserDataFieldValueCount("PlayerPrestige", "X_EnableAbil");
-    lv_index = 1;
-    for ( ; ( (auto2AF6D99E_ai >= 0 && lv_index <= auto2AF6D99E_ae) || (auto2AF6D99E_ai < 0 && lv_index >= auto2AF6D99E_ae) ) ; lv_index += auto2AF6D99E_ai ) {
-        TechTreeAbilityAllow(lp_player, UserDataGetAbilCmd("PlayerPrestige", lp_prestige, "X_EnableAbil", lv_index), true);
-    }
-    auto8173B652_ae = UserDataFieldValueCount("PlayerPrestige", "X_SuppressUpgrade");
-    lv_index = 1;
-    for ( ; ( (auto8173B652_ai >= 0 && lv_index <= auto8173B652_ae) || (auto8173B652_ai < 0 && lv_index >= auto8173B652_ae) ) ; lv_index += auto8173B652_ai ) {
-        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_SuppressUpgrade", lv_index), 0);
-    }
-    autoEDDDFDDA_ae = UserDataFieldValueCount("PlayerPrestige", "X_SuppressUpgradeShared");
-    lv_index = 1;
-    for ( ; ( (autoEDDDFDDA_ai >= 0 && lv_index <= autoEDDDFDDA_ae) || (autoEDDDFDDA_ai < 0 && lv_index >= autoEDDDFDDA_ae) ) ; lv_index += autoEDDDFDDA_ai ) {
-        autoED32D43C_g = libCOOC_gf_CommanderPlayers();
-        lv_ally = -1;
-        while (true) {
-            lv_ally = PlayerGroupNextPlayer(autoED32D43C_g, lv_ally);
-            if (lv_ally < 0) { break; }
-            libNtve_gf_SetUpgradeLevelForPlayer(lv_ally, UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_SuppressUpgradeShared", lv_index), 0);
-        }
-    }
-    autoA8942F1B_ae = UserDataFieldValueCount("PlayerPrestige", "X_DisableUnit");
-    lv_index = 1;
-    for ( ; ( (autoA8942F1B_ai >= 0 && lv_index <= autoA8942F1B_ae) || (autoA8942F1B_ai < 0 && lv_index >= autoA8942F1B_ae) ) ; lv_index += autoA8942F1B_ai ) {
-        TechTreeUnitAllow(lp_player, UserDataGetUnit("PlayerPrestige", lp_prestige, "X_DisableUnit", lv_index), false);
-    }
-    autoCE5057A8_ae = UserDataFieldValueCount("PlayerPrestige", "X_EnableUnit");
-    lv_index = 1;
-    for ( ; ( (autoCE5057A8_ai >= 0 && lv_index <= autoCE5057A8_ae) || (autoCE5057A8_ai < 0 && lv_index >= autoCE5057A8_ae) ) ; lv_index += autoCE5057A8_ai ) {
-        TechTreeUnitAllow(lp_player, UserDataGetUnit("PlayerPrestige", lp_prestige, "X_EnableUnit", lv_index), true);
-    }
     autoAF2781D7_ae = UserDataFieldValueCount("PlayerPrestige", "UpgradeSupplements");
     lv_index = 1;
     for ( ; ( (autoAF2781D7_ai >= 0 && lv_index <= autoAF2781D7_ae) || (autoAF2781D7_ai < 0 && lv_index >= autoAF2781D7_ae) ) ; lv_index += autoAF2781D7_ai ) {
         libCOOC_gf_CC_ApplyUpgradeSupplemental(lp_player, UserDataGetUserInstance("PlayerPrestige", lp_prestige, "UpgradeSupplements", lv_index));
     }
-    lv_upgrade = UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_PrimaryUpgrade", 1);
     if ((lv_upgrade != null)) {
         libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_upgrade, 1);
     }
 
-    lv_script = UserDataGetString("PlayerPrestige", lp_prestige, "X_ScriptName", 1);
     if ((lv_script != "")) {
         libNtve_gf_TriggerExecuteByName((lv_script + "_Func"), true, true);
     }
 
-    auto232467FB_ae = UserDataFieldValueCount("PlayerPrestige", "X_SecondaryUpgradesSelf");
-    lv_index = 1;
-    for ( ; ( (auto232467FB_ai >= 0 && lv_index <= auto232467FB_ae) || (auto232467FB_ai < 0 && lv_index >= auto232467FB_ae) ) ; lv_index += auto232467FB_ai ) {
-        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_SecondaryUpgradesSelf", lv_index), 1);
-    }
-    autoF8F85F68_ae = UserDataFieldValueCount("PlayerPrestige", "X_SecondaryUpgradesShared");
-    lv_index = 1;
-    for ( ; ( (autoF8F85F68_ai >= 0 && lv_index <= autoF8F85F68_ae) || (autoF8F85F68_ai < 0 && lv_index >= autoF8F85F68_ae) ) ; lv_index += autoF8F85F68_ai ) {
-        autoC788CC8D_g = libCOOC_gf_CommanderPlayers();
-        lv_ally = -1;
-        while (true) {
-            lv_ally = PlayerGroupNextPlayer(autoC788CC8D_g, lv_ally);
-            if (lv_ally < 0) { break; }
-            libNtve_gf_SetUpgradeLevelForPlayer(lv_ally, UserDataGetGameLink("PlayerPrestige", lp_prestige, "X_SecondaryUpgradesShared", lv_index), 1);
-        }
-    }
     autoE6A4272A_ae = UserDataFieldValueCount("PlayerPrestige", "PlayerResponses");
     lv_index = 1;
     for ( ; ( (autoE6A4272A_ai >= 0 && lv_index <= autoE6A4272A_ae) || (autoE6A4272A_ai < 0 && lv_index >= autoE6A4272A_ae) ) ; lv_index += autoE6A4272A_ai ) {
         libCOOC_gf_CC_PlayerResponseEnable(lp_player, UserDataGetUserInstance("PlayerPrestige", lp_prestige, "PlayerResponses", lv_index), true);
     }
-    PlayerApplySkin(lp_player, UserDataGetGameLink("PlayerPrestige", lp_prestige, "Skin", 1), true);
 }
 
 void libCOOC_gf_CC_ApplyPrestigeTech (int lp_player) {
@@ -2085,12 +2009,6 @@ int libCOOC_gf_CC_CommanderInternalIndex (string lp_commander) {
     return UserDataGetInt("PlayerCommanders", lp_commander, "UniqueIndex", 1);
 }
 
-bool libCOOC_gf_CC_CommanderShowInUI (string lp_commander) {
-    // Automatic Variable Declarations
-    // Implementation
-    return (UserDataGetInt("PlayerCommanders", lp_commander, "ShowInUI", 1) == 1);
-}
-
 string libCOOC_gf_CC_CommanderConversationLink (string lp_characterInstance) {
     // Automatic Variable Declarations
     string autoBAA82F24_val;
@@ -2202,12 +2120,6 @@ string libCOOC_gf_CC_CommanderDefaultVoicePack (string lp_commander) {
     // Automatic Variable Declarations
     // Implementation
     return UserDataGetGameLink("PlayerCommanders", lp_commander, "DefaultVoicePack", 1);
-}
-
-text libCOOC_gf_CC_CommanderInfoDetails (string lp_commander, int lp_detailIndex) {
-    // Automatic Variable Declarations
-    // Implementation
-    return UserDataGetText("PlayerCommanders", lp_commander, "InfoDetails", lp_detailIndex);
 }
 
 string libCOOC_gf_CC_CommanderSelectCutscene (string lp_commander) {
@@ -2650,47 +2562,6 @@ void libCOOC_gf_CC_ResetCurrency (int lp_player) {
         autoB7DB4A72_ai = autoB7DB4A72_ai+1;
         libCOOC_gf_CC_PlayerExperienceSetToLevel(lp_player, 0, lv_indexCommander);
     }
-}
-
-void libCOOC_gf_CC_ApplyCommanderTech (int lp_player) {
-    // Variable Declarations
-    int lv_indexTech;
-    string lv_playerCommander;
-
-    // Automatic Variable Declarations
-    int autoDA1B9A8E_ae;
-    const int autoDA1B9A8E_ai = 1;
-    int autoC7DFFF31_ae;
-    const int autoC7DFFF31_ai = 1;
-
-    // Variable Initialization
-
-    // Implementation
-    lv_playerCommander = libCOOC_gf_ActiveCommanderForPlayer(lp_player);
-    autoDA1B9A8E_ae = UserDataFieldValueCount("PlayerCommanders", "DefaultAbilityCommands");
-    lv_indexTech = 1;
-    for ( ; ( (autoDA1B9A8E_ai >= 0 && lv_indexTech <= autoDA1B9A8E_ae) || (autoDA1B9A8E_ai < 0 && lv_indexTech >= autoDA1B9A8E_ae) ) ; lv_indexTech += autoDA1B9A8E_ai ) {
-        if ((UserDataGetAbilCmd("PlayerCommanders", lv_playerCommander, "DefaultAbilityCommands", lv_indexTech) != null)) {
-            TechTreeAbilityAllow(lp_player, UserDataGetAbilCmd("PlayerCommanders", lv_playerCommander, "DefaultAbilityCommands", lv_indexTech), true);
-        }
-
-    }
-    autoC7DFFF31_ae = UserDataFieldValueCount("PlayerCommanders", "DefaultUpgrades");
-    lv_indexTech = 1;
-    for ( ; ( (autoC7DFFF31_ai >= 0 && lv_indexTech <= autoC7DFFF31_ae) || (autoC7DFFF31_ai < 0 && lv_indexTech >= autoC7DFFF31_ae) ) ; lv_indexTech += autoC7DFFF31_ai ) {
-        if ((UserDataGetUpgrade("PlayerCommanders", lv_playerCommander, "DefaultUpgrades", lv_indexTech) != null)) {
-            libNtve_gf_SetUpgradeLevelForPlayer(lp_player, UserDataGetUpgrade("PlayerCommanders", lv_playerCommander, "DefaultUpgrades", lv_indexTech), 1);
-        }
-
-    }
-    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "CommanderLevel", libCOOC_gv_cC_PlayerLevel[lp_player][libCOOC_gf_CC_CommanderInternalIndex(lv_playerCommander)]);
-    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesLimit, c_playerPropOperSetTo, (UserDataGetInt("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lp_player), "SuppliesMax", 1) + UserDataGetInt("PlayerPrestige", libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player), "SuppliesMax", 1)));
-    PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesMade, c_playerPropOperSetTo, (UserDataGetInt("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lp_player), "SuppliesMade", 1) + UserDataGetInt("PlayerPrestige", libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player), "SuppliesMade", 1)));
-    libCOOC_gf_CC_ApplyMasteryTech(lp_player);
-    if ((libCOOC_gf_CC_CommanderSkin(lv_playerCommander) != "")) {
-        PlayerApplySkin(lp_player, libCOOC_gf_CC_CommanderSkin(lv_playerCommander), true);
-    }
-
 }
 
 void libCOOC_gf_CC_UpdateProtossStates (int lp_player) {
@@ -3988,73 +3859,10 @@ fixed libCOOC_gf_CostOfAbility (string lp_ability, string lp_costType) {
     return StringToFixed(lv_value);
 }
 
-string libCOOC_gf_CC_PerkIcon (string lp_campaignPerk) {
-    // Variable Declarations
-    string lv_icon;
-    string lv_perkButton;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    lv_perkButton = UserDataGetGameLink("CampaignPerk", lp_campaignPerk, "Button", 1);
-    if ((lv_perkButton == null)) {
-        lv_icon = "Assets\\Textures\\btn-missing-kaeo.dds";
-    }
-    else {
-        lv_icon = (CatalogFieldValueGet(c_gameCatalogButton, lv_perkButton, "Icon", c_playerAny));
-    }
-    if ((lv_icon == null)) {
-        lv_icon = "Assets\\Textures\\btn-missing-kaeo.dds";
-    }
-
-    return lv_icon;
-}
-
 string libCOOC_gf_CC_PerkMovie (string lp_campaignPerk) {
     // Automatic Variable Declarations
     // Implementation
     return UserDataGetMovie("CampaignPerk", lp_campaignPerk, "Movie", 1);
-}
-
-text libCOOC_gf_CC_PerkTooltip (string lp_campaignPerk) {
-    // Automatic Variable Declarations
-    // Implementation
-    TextExpressionSetToken("Param/Expression/lib_COOC_DBBF1BAA", "NAME", libCOOC_gf_CC_PerkName(lp_campaignPerk));
-    TextExpressionSetToken("Param/Expression/lib_COOC_DBBF1BAA", "DESCRIPTION", libCOOC_gf_CC_PerkDescription(lp_campaignPerk));
-    return TextExpressionAssemble("Param/Expression/lib_COOC_DBBF1BAA");
-}
-
-text libCOOC_gf_CC_PerkDescription (string lp_campaignPerk) {
-    // Variable Declarations
-    string lv_perkButton;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    lv_perkButton = UserDataGetGameLink("CampaignPerk", lp_campaignPerk, "Button", 1);
-    if ((lv_perkButton == null)) {
-        return StringExternal("Param/Value/lib_COOC_2D4B7E4E");
-    }
-
-    return StringExternal(CatalogFieldValueGet(c_gameCatalogButton, UserDataGetGameLink("CampaignPerk", lp_campaignPerk, "Button", 1), "Tooltip", c_playerAny));
-}
-
-text libCOOC_gf_CC_PerkName (string lp_power) {
-    // Variable Declarations
-    string lv_perkButton;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    lv_perkButton = UserDataGetGameLink("CampaignPerk", lp_power, "Button", 1);
-    if ((lv_perkButton == null)) {
-        return StringExternal("Param/Value/lib_COOC_ED0D7115");
-    }
-
-    return StringExternal(CatalogFieldValueGet(c_gameCatalogButton, UserDataGetGameLink("CampaignPerk", lp_power, "Button", 1), "Name", c_playerAny));
 }
 
 int libCOOC_gf_CC_PerkCost (string lp_campaignPerk) {
@@ -4288,7 +4096,6 @@ void libCOOC_gf_CC_ApplyTech (int lp_player) {
     TechTreeRestrictionsEnable(lp_player, true);
     libCOOC_gf_CC_UpdateTechStates(lp_player);
     libCOOC_gf_CC_ApplyArmyTech(lp_player);
-    libCOOC_gf_CC_ApplyCommanderTech(lp_player);
     libCOOC_gf_CC_ApplyPerkTech(lp_player);
     auto87F16805_val = PlayerRace(lp_player);
     if (auto87F16805_val == "Terr") {
