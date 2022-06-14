@@ -4,7 +4,7 @@ include "LibCOOC_h"
 include "LibCOMI_h"
 include "LibCOMU_h"
 include "LibA8FDA37D_h"
-include "Lib01833E95_h"
+include "LibADFU_h"
 
 include "LibCOUI_h"
 
@@ -19,7 +19,7 @@ void libCOUI_InitLibraries () {
     libCOMI_InitVariables();
     libCOMU_InitVariables();
     libA8FDA37D_InitVariables();
-    lib01833E95_InitVariables();
+    libADFU_InitVariables();
 }
 
 // Variable Initialization
@@ -50,12 +50,6 @@ void libCOUI_InitVariables () {
         libCOUI_gv_optionsDialogMenus[init_i] = c_invalidDialogControlId;
     }
     libCOUI_gv_optionsDialogAccept = c_invalidDialogControlId;
-    libCOUI_gv_alliance_tab = c_invalidDialogId;
-    for (init_i = 0; init_i <= 16; init_i += 1) {
-        libCOUI_gv_commanders_names[init_i] = c_invalidDialogControlId;
-    }
-    libCOUI_gv_alliance_button_dialog = c_invalidDialogId;
-    libCOUI_gv_alliance_button = c_invalidDialogControlId;
     libCOUI_gv_dialog = c_invalidDialogId;
     libCOUI_gv_startMissionDialogButton = c_invalidDialogControlId;
     libCOUI_gv_selectMissionDialog = c_invalidDialogId;
@@ -531,61 +525,6 @@ void libCOUI_InitVariables () {
 
 // Presets
 // Functions
-void libCOUI_gf_set_alliance_button () {
-    // Variable Declarations
-    int lv_offset_y;
-    int lv_label_height;
-    int lv_player;
-    int lv_num_of_players;
-    string lv_button;
-
-    // Automatic Variable Declarations
-    playergroup auto74501A8D_g;
-
-    // Variable Initialization
-    lv_offset_y = 35;
-    lv_label_height = 28;
-    lv_num_of_players = PlayerGroupCount(PlayerGroupActive());
-
-    // Implementation
-    DialogCreate(825, (lv_label_height*lv_num_of_players+60), c_anchorTopLeft, 0, 0, true);
-    libCOUI_gv_alliance_tab = DialogLastCreated();
-    auto74501A8D_g = PlayerGroupActive();
-    lv_player = -1;
-    while (true) {
-        lv_player = PlayerGroupNextPlayer(auto74501A8D_g, lv_player);
-        if (lv_player < 0) { break; }
-        libNtve_gf_CreateDialogItemLabel(libCOUI_gv_alliance_tab, 200, lv_label_height, c_anchorTopLeft, 35, lv_offset_y, PlayerName(lv_player), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lv_player, false)), false, 2.0);
-        libNtve_gf_SetDialogItemStyle(DialogControlLastCreated(), "ModLeftSize20", PlayerGroupAll());
-        libNtve_gf_SetDialogItemStyle(DialogControlLastCreated(), "ModLeftSize20", PlayerGroupAll());
-        libCOUI_gv_commanders_names[lv_player] = DialogControlLastCreated();
-        if ((GameAttributeGameValue("3") == "0001")) {
-        }
-
-        if ((GameAttributeGameValue("9") == "0001")) {
-            libNtve_gf_CreateDialogItemLabel(libCOUI_gv_alliance_tab, 300, lv_label_height, c_anchorTopRight, 35, lv_offset_y, StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Name", lv_player)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lv_player, false)), false, 2.0);
-            libNtve_gf_SetDialogItemStyle(DialogControlLastCreated(), "ModRightSize20", PlayerGroupAll());
-            libNtve_gf_SetDialogItemTooltip(DialogControlLastCreated(), StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Tooltip", lv_player)), PlayerGroupAll());
-        }
-
-        lv_offset_y = (lv_offset_y+lv_label_height);
-    }
-    DialogSetVisible(libCOUI_gv_alliance_tab, PlayerGroupAll(), false);
-    DialogCreate(36, 36, c_anchorTopRight, 5, 5, true);
-    libCOUI_gv_alliance_button_dialog = DialogLastCreated();
-    libNtve_gf_CreateDialogItemButton(libCOUI_gv_alliance_button_dialog, 36, 36, c_anchorTopLeft, 0, 0, StringToText(""), StringToText(""), "Assets\\Textures\\ui_alliance_button_normalpressed.dds");
-    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_alliance_button_normalpressed.dds", PlayerGroupAll());
-    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
-    libCOUI_gv_alliance_button = DialogControlLastCreated();
-    DialogSetVisible(libCOUI_gv_alliance_button_dialog, PlayerGroupAll(), true);
-}
-
-int libCOUI_gf_player_row (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    return (lp_player + 1);
-}
-
 void libCOUI_gf_UpdateMapSelection (int lp_player, int lp_mapIndex) {
     // Variable Declarations
     int lv_i;
@@ -1045,6 +984,7 @@ void libCOUI_gf_CreateGameBriefingRoom () {
     TriggerEnable(libCOUI_gt_CU_MasteryAcceptPressed, true);
     TriggerEnable(libCOUI_gt_CU_MasteryShiftTrackUp, true);
     TriggerEnable(libCOUI_gt_CU_MasteryShiftTrackDown, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_COUI_E7A39C9E"));
 }
 
 void libCOUI_gf_CU_CommanderCreate () {
@@ -1191,7 +1131,7 @@ void libCOUI_gf_CU_CommanderCreate () {
         libCOUI_gv_cU_CommanderAbilitiesButtons[lv_tierIndex].lv_title = libCOUI_gf_HookUpDialogItemandshowforplayers("Title", c_triggerControlTypeLabel, libCOUI_gv_cU_CommanderAbilitiesButtons[lv_tierIndex].lv_button, lv_nobody);
         libCOUI_gv_cU_CommanderAbilitiesButtons[lv_tierIndex].lv_description = libCOUI_gf_HookUpDialogItemandshowforplayers("Description", c_triggerControlTypeLabel, libCOUI_gv_cU_CommanderAbilitiesButtons[lv_tierIndex].lv_button, lv_nobody);
     }
-    lv_tierIndex = 0;
+    lv_tierIndex = 1;
     for ( ; ( (auto4540F4E1_ai >= 0 && lv_tierIndex <= auto4540F4E1_ae) || (auto4540F4E1_ai < 0 && lv_tierIndex >= auto4540F4E1_ae) ) ; lv_tierIndex += auto4540F4E1_ai ) {
         libCOUI_gv_cU_CommanderPrestigesButtons[lv_tierIndex].lv_button = libCOUI_gf_HookUpDialogItemandshowforplayers(libNtve_gf_ConvertStringToUILayoutFrameName(("Prestige" + IntToString(lv_tierIndex))), c_triggerControlTypeButton, libCOUI_gv_vU_DetailsResearchContainer, lv_all);
         libCOUI_gv_cU_CommanderPrestigesButtons[lv_tierIndex].lv_icon = libCOUI_gf_HookUpDialogItemandshowforplayers("Icon", c_triggerControlTypeImage, libCOUI_gv_cU_CommanderPrestigesButtons[lv_tierIndex].lv_button, lv_all);
@@ -1254,7 +1194,7 @@ void libCOUI_gf_CreateCommanderListFromData () {
     while (auto1FBD22E2_ai < auto1FBD22E2_ae) {
         lv_indexCommander = UserDataInstance("PlayerCommander", auto1FBD22E2_ai);
         auto1FBD22E2_ai = auto1FBD22E2_ai+1;
-        if ((libCOOC_gf_CC_CommanderShowInUI(lv_indexCommander) == true)) {
+        if (true) {
             lv_commIndex += 1;
             if ((lv_commIndex > libCOUI_gv_cUC_COMMSELECTMAX)) {
                 break;
@@ -1523,178 +1463,6 @@ text libCOUI_gf_CC_CommanderPrestigeIndexFace2 (string lp_commander, int lp_inde
     return null;
 }
 
-void libCOUI_gf_UpdatePlayerCommander (int lp_player) {
-    // Variable Declarations
-    playergroup lv_playerSelf;
-    playergroup lv_playerAlly;
-    int lv_tierIndex;
-    string lv_indexPerk;
-    string lv_perkLevel;
-    string lv_playerCommander;
-    text lv_playerPrestigeText;
-    text lv_playerAllyPrestigeText;
-    int lv_upgradesCuunt;
-
-    // Automatic Variable Declarations
-    const int auto79D1C7CE_ae = libCOUI_gv_cUC_COMMUPGRADETIERCOUNT;
-    const int auto79D1C7CE_ai = 1;
-    int autoB06CD6C1_ai;
-    int autoB06CD6C1_ae;
-
-    // Variable Initialization
-    lv_playerSelf = PlayerGroupEmpty();
-    lv_playerAlly = PlayerGroupEmpty();
-
-    // Implementation
-    if ((libCOUI_gv_cU_CommanderDialog == c_invalidDialogId)) {
-        return ;
-    }
-
-    lv_playerSelf = PlayerGroupSingle(lp_player);
-    lv_playerAlly = PlayerGroupSingle(libCOOC_gf_CC_PlayerAlly(lp_player));
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderLevelLabelSelf, IntToText(libCOOC_gf_CC_CommanderLevel(lp_player, libCOOC_gf_ActiveCommanderForPlayer(lp_player))), lv_playerSelf);
-    if ((libNtve_gf_DialogItemIsChecked(libCOUI_gv_cU_CommanderMasteryCheckbox, lp_player) == true)) {
-        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderMasteryLabelSelf, IntToText(libCOOC_gf_CC_PlayerMasteryLevel(lp_player)), lv_playerSelf);
-    }
-    else {
-        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderMasteryLabelSelf, StringExternal("Param/Value/lib_COUI_1CBC8A30"), lv_playerSelf);
-    }
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderLevelLabelAlly, IntToText(libCOOC_gf_CC_CommanderLevel(libCOOC_gf_CC_PlayerAlly(lp_player), libCOOC_gf_ActiveCommanderForPlayer(libCOOC_gf_CC_PlayerAlly(lp_player)))), lv_playerSelf);
-    if ((libNtve_gf_DialogItemIsChecked(libCOUI_gv_cU_CommanderMasteryCheckbox, libCOOC_gf_CC_PlayerAlly(lp_player)) == true)) {
-        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderMasteryLabelAlly, IntToText(libCOOC_gf_CC_PlayerMasteryLevel(libCOOC_gf_CC_PlayerAlly(lp_player))), lv_playerSelf);
-    }
-    else {
-        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderMasteryLabelAlly, StringExternal("Param/Value/lib_COUI_8680E454"), lv_playerSelf);
-    }
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedNameSelf, libCOOC_gf_CC_CommanderName(libCOOC_gv_cCX_PlayerCommander[lp_player]), lv_playerSelf);
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedNameSelf, libCOOC_gf_CC_CommanderName(libCOOC_gv_cCX_PlayerCommander[libCOOC_gf_CC_PlayerAlly(lp_player)]), lv_playerAlly);
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedNameAlly, libCOOC_gf_CC_CommanderName(libCOOC_gv_cCX_PlayerCommander[lp_player]), lv_playerAlly);
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedNameAlly, libCOOC_gf_CC_CommanderName(libCOOC_gv_cCX_PlayerCommander[libCOOC_gf_CC_PlayerAlly(lp_player)]), lv_playerSelf);
-    libCOUI_gf_CU_CommanderUpdatePrestigeLabels(lp_player);
-    lv_upgradesCuunt = 0;
-    lv_playerCommander = libCOOC_gf_ActiveCommanderForPlayer(lp_player);
-    lv_tierIndex = 1;
-    for ( ; ( (auto79D1C7CE_ai >= 0 && lv_tierIndex <= auto79D1C7CE_ae) || (auto79D1C7CE_ai < 0 && lv_tierIndex >= auto79D1C7CE_ae) ) ; lv_tierIndex += auto79D1C7CE_ai ) {
-        DialogControlSetVisible(libCOUI_gv_cU_CommanderUpgradesButtons[lv_tierIndex].lv_button, lv_playerSelf, false);
-    }
-    autoB06CD6C1_ai = 1;
-    autoB06CD6C1_ae = UserDataInstanceCount("CampaignPerk")+1;
-    while (autoB06CD6C1_ai < autoB06CD6C1_ae) {
-        lv_indexPerk = UserDataInstance("CampaignPerk", autoB06CD6C1_ai);
-        autoB06CD6C1_ai = autoB06CD6C1_ai+1;
-        lv_perkLevel = libCOOC_gf_CC_PerkLevel(lv_indexPerk);
-        if ((libCOOC_gf_CC_PlayerLevelCommander(lv_perkLevel) != lv_playerCommander)) {
-            continue;
-        }
-
-        lv_tierIndex = libCOOC_gf_CC_PlayerLevelValue(lv_perkLevel);
-        if ((lv_tierIndex > libCOUI_gv_cUC_COMMUPGRADETIERCOUNT)) {
-            continue;
-        }
-
-        libNtve_gf_SetDialogItemImage(libCOUI_gv_cU_CommanderUpgradesButtons[lv_tierIndex].lv_icon, libCOOC_gf_CC_PerkIcon(lv_indexPerk), lv_playerSelf);
-        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderUpgradesButtons[lv_tierIndex].lv_title, libCOOC_gf_CC_PerkName(lv_indexPerk), PlayerGroupAll());
-        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderUpgradesButtons[lv_tierIndex].lv_description, libCOOC_gf_CC_PerkDescription(lv_indexPerk), PlayerGroupAll());
-        DialogControlSetVisible(libCOUI_gv_cU_CommanderUpgradesButtons[lv_tierIndex].lv_button, lv_playerSelf, true);
-        lv_upgradesCuunt += 1;
-        if ((libCOOC_gf_CC_PerkStateCheck(lv_indexPerk, libCOOC_ge_CC_PerkState_Active, lv_playerCommander, lp_player) == true)) {
-            libNtve_gf_SetDialogItemToggled(libCOUI_gv_cU_CommanderUpgradesButtons[lv_tierIndex].lv_button, true, lv_playerSelf);
-        }
-        else {
-            libNtve_gf_SetDialogItemToggled(libCOUI_gv_cU_CommanderUpgradesButtons[lv_tierIndex].lv_button, false, lv_playerSelf);
-        }
-    }
-    libCOUI_gf_CU_PrestigeUpdate2(lp_player);
-    libCOUI_gf_CU_PrestigeUpdate3(lp_player);
-    TextExpressionSetToken("Param/Expression/lib_COUI_916E0D8C", "A", IntToText(libCOMU_gf_CT_MutatorEnabledCount()));
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderMutatorCountLabel, TextExpressionAssemble("Param/Expression/lib_COUI_916E0D8C"), lv_playerSelf);
-    libCOUI_gf_CU_PrestigeUpdate(lp_player);
-}
-
-void libCOUI_gf_CU_CommanderUpdatePrestigeLabels (int lp_player) {
-    // Variable Declarations
-    int lv_playerAlly;
-    string lv_commanderSelf;
-    string lv_commanderAlly;
-    int lv_prestigeSelf;
-    int lv_prestigeAlly;
-    text lv_playerPrestigeText;
-    text lv_playerAllyPrestigeText;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_playerAlly = libCOOC_gf_CC_PlayerAlly(lp_player);
-    lv_commanderSelf = libCOMI_gf_ActiveCommanderForPlayer4(lp_player);
-    lv_commanderAlly = libCOMI_gf_ActiveCommanderForPlayer4(lv_playerAlly);
-    lv_prestigeSelf = libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player);
-    lv_prestigeAlly = libCOOC_gf_CC_PlayerActivePrestigeIndex(lv_playerAlly);
-    lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(lv_commanderSelf, lv_prestigeSelf), "Name", lp_player));
-    lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(lv_commanderAlly, lv_prestigeAlly), "Name", lv_playerAlly));
-
-    // Implementation
-    if ((CatalogEntryIsValid(c_gameCatalogCommander, lv_commanderSelf) == false)) {
-        lv_playerPrestigeText = null;
-    }
-    else {
-        if ((lv_prestigeSelf == 0)) {
-            lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, lv_commanderSelf, "Description", c_playerAny));
-        }
-        else {
-            lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(lv_commanderSelf, lv_prestigeSelf), "Name", lp_player));
-        }
-    }
-    if ((CatalogEntryIsValid(c_gameCatalogCommander, lv_commanderAlly) == false)) {
-        lv_playerAllyPrestigeText = null;
-    }
-    else {
-        if ((lv_prestigeAlly == 0)) {
-            lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogCommander, lv_commanderAlly, "Description", c_playerAny));
-        }
-        else {
-            lv_playerAllyPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, libCOOC_gf_CC_CommanderPrestigeIndexFace(lv_commanderAlly, lv_prestigeAlly), "Name", lv_playerAlly));
-        }
-    }
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedPrestigeSelf, lv_playerPrestigeText, PlayerGroupSingle(lp_player));
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedPrestigeSelf, lv_playerAllyPrestigeText, PlayerGroupSingle(lv_playerAlly));
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedPrestigeAlly, lv_playerAllyPrestigeText, PlayerGroupSingle(lp_player));
-    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedPrestigeAlly, lv_playerPrestigeText, PlayerGroupSingle(lv_playerAlly));
-}
-
-void libCOUI_gf_CU_PrestigeUpdate (int lp_player) {
-    // Variable Declarations
-    int lv_prestigeCount;
-    int lv_masteryTalentsCount;
-    int lv_itemIndex;
-    string lv_face;
-    string lv_face2;
-    playergroup lv_playerSelf;
-    string lv_commander;
-
-    // Automatic Variable Declarations
-    const int auto606ADCEC_ae = libCOOC_gv_cCC_PLAYERPRESTIGEMAXRANK;
-    const int auto606ADCEC_ai = 1;
-
-    // Variable Initialization
-    lv_playerSelf = PlayerGroupSingle(lp_player);
-
-    // Implementation
-    lv_commander = UserDataGetGameLink("PlayerCommanders", libCOOC_gv_cCX_PlayerCommander[lp_player], "CommanderData", 1);
-    lv_prestigeCount = CatalogFieldValueCount(c_gameCatalogCommander, lv_commander, "PrestigeArray", c_playerAny);
-    lv_itemIndex = 0;
-    for ( ; ( (auto606ADCEC_ai >= 0 && lv_itemIndex <= auto606ADCEC_ae) || (auto606ADCEC_ai < 0 && lv_itemIndex >= auto606ADCEC_ae) ) ; lv_itemIndex += auto606ADCEC_ai ) {
-        lv_face = libCOOC_gf_CC_CommanderPrestigeIndexFace(libCOMI_gf_ActiveCommanderForPlayer4(lp_player), lv_itemIndex);
-        if ((lv_itemIndex <= lv_prestigeCount)) {
-            DialogControlSetVisible(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_button, lv_playerSelf, true);
-            libNtve_gf_SetDialogItemImage(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_icon, (CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Icon", c_playerAny)), lv_playerSelf);
-            libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_title, StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Name", lp_player)), lv_playerSelf);
-            libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_description, StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Tooltip", lp_player)), lv_playerSelf);
-        }
-        else {
-            DialogControlSetVisible(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_button, lv_playerSelf, false);
-        }
-    }
-}
-
 void libCOUI_gf_CU_PrestigeUpdate2 (int lp_player) {
     // Variable Declarations
     text lv_tooltip;
@@ -1768,6 +1536,91 @@ void libCOUI_gf_CU_PrestigeUpdate3 (int lp_player) {
             libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderAbilitiesButtons[lv_itemIndex].lv_description, StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Tooltip", c_playerAny)), lv_playerSelf);
         }
     }
+}
+
+void libCOUI_gf_UpdatePlayerCommander (int lp_player) {
+    // Variable Declarations
+    playergroup lv_playerSelf;
+    playergroup lv_playerAlly;
+    int lv_tierIndex;
+    string lv_indexPerk;
+    text lv_PerkName;
+    text lv_PerkDescription;
+    text lv_PerkTooltip;
+    string lv_perkLevel;
+    string lv_playerCommander;
+    text lv_playerPrestigeText;
+    text lv_playerAllyPrestigeText;
+    int lv_upgradesCuunt;
+    string lv_perkIcon;
+    string lv_perkButton;
+
+    // Automatic Variable Declarations
+    const int auto79D1C7CE_ae = libCOUI_gv_cUC_COMMUPGRADETIERCOUNT;
+    const int auto79D1C7CE_ai = 1;
+    int autoE6E922E5_ae;
+    int autoE6E922E5_var;
+
+    // Variable Initialization
+    lv_playerSelf = PlayerGroupEmpty();
+    lv_playerAlly = PlayerGroupEmpty();
+
+    // Implementation
+    if ((libCOUI_gv_cU_CommanderDialog == c_invalidDialogId)) {
+        return ;
+    }
+
+    lv_playerSelf = PlayerGroupSingle(lp_player);
+    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderLevelLabelSelf, IntToText(libCOOC_gf_CC_CommanderLevel(lp_player, libCOOC_gf_ActiveCommanderForPlayer(lp_player))), lv_playerSelf);
+    if ((libNtve_gf_DialogItemIsChecked(libCOUI_gv_cU_CommanderMasteryCheckbox, lp_player) == true)) {
+        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderMasteryLabelSelf, IntToText(libCOOC_gf_CC_PlayerMasteryLevel(lp_player)), lv_playerSelf);
+    }
+    else {
+        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderMasteryLabelSelf, StringExternal("Param/Value/lib_COUI_1CBC8A30"), lv_playerSelf);
+    }
+    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedNameSelf, libCOOC_gf_CC_CommanderName(libCOOC_gv_cCX_PlayerCommander[lp_player]), lv_playerSelf);
+    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedNameSelf, libCOOC_gf_CC_CommanderName(libCOOC_gv_cCX_PlayerCommander[libCOOC_gf_CC_PlayerAlly(lp_player)]), lv_playerAlly);
+    libCOUI_gf_CU_CommanderUpdatePrestigeLabels(lp_player);
+    lv_upgradesCuunt = 0;
+    lv_playerCommander = libCOOC_gf_ActiveCommanderForPlayer(lp_player);
+    lv_tierIndex = 1;
+    for ( ; ( (auto79D1C7CE_ai >= 0 && lv_tierIndex <= auto79D1C7CE_ae) || (auto79D1C7CE_ai < 0 && lv_tierIndex >= auto79D1C7CE_ae) ) ; lv_tierIndex += auto79D1C7CE_ai ) {
+        DialogControlSetVisible(libCOUI_gv_cU_CommanderUpgradesButtons[lv_tierIndex].lv_button, lv_playerSelf, false);
+    }
+    autoE6E922E5_ae = UserDataFieldValueCount("PlayerCommanders", "PerkButton");
+    autoE6E922E5_var = 1;
+    for ( ; autoE6E922E5_var <= autoE6E922E5_ae; autoE6E922E5_var += 1 ) {
+        lv_perkButton = UserDataGetGameLink("PlayerCommanders", lv_playerCommander, "PerkButton", autoE6E922E5_var);
+        if ((lv_perkButton == null)) {
+            continue;
+        }
+
+        lv_perkIcon = (CatalogFieldValueGet(c_gameCatalogButton, lv_perkButton, "Icon", c_playerAny));
+        if ((lv_perkIcon == null)) {
+            lv_perkIcon = "Assets\\Textures\\btn-missing-kaeo.dds";
+        }
+
+        lv_PerkName = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_perkButton, "Name", c_playerAny));
+        lv_PerkDescription = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_perkButton, "Tooltip", c_playerAny));
+        TextExpressionSetToken("Param/Expression/lib_COUI_6AF68ABF", "NAME", lv_PerkName);
+        TextExpressionSetToken("Param/Expression/lib_COUI_6AF68ABF", "DESCRIPTION", lv_PerkDescription);
+        lv_PerkTooltip = TextExpressionAssemble("Param/Expression/lib_COUI_6AF68ABF");
+        libNtve_gf_SetDialogItemImage(libCOUI_gv_cU_CommanderUpgradesButtons[autoE6E922E5_var].lv_icon, lv_perkIcon, lv_playerSelf);
+        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderUpgradesButtons[autoE6E922E5_var].lv_title, lv_PerkName, PlayerGroupAll());
+        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderUpgradesButtons[autoE6E922E5_var].lv_description, lv_PerkDescription, PlayerGroupAll());
+        DialogControlSetVisible(libCOUI_gv_cU_CommanderUpgradesButtons[autoE6E922E5_var].lv_button, lv_playerSelf, true);
+        if ((autoE6E922E5_var <= libCOOC_gf_CC_CommanderLevel(lp_player, libCOOC_gf_ActiveCommanderForPlayer(lp_player)))) {
+            libNtve_gf_SetDialogItemToggled(libCOUI_gv_cU_CommanderUpgradesButtons[autoE6E922E5_var].lv_button, true, lv_playerSelf);
+        }
+        else {
+            libNtve_gf_SetDialogItemToggled(libCOUI_gv_cU_CommanderUpgradesButtons[autoE6E922E5_var].lv_button, false, lv_playerSelf);
+        }
+    }
+    libCOUI_gf_CU_PrestigeUpdate2(lp_player);
+    libCOUI_gf_CU_PrestigeUpdate3(lp_player);
+    TextExpressionSetToken("Param/Expression/lib_COUI_916E0D8C", "A", IntToText(libCOMU_gf_CT_MutatorEnabledCount()));
+    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderMutatorCountLabel, TextExpressionAssemble("Param/Expression/lib_COUI_916E0D8C"), lv_playerSelf);
+    libCOUI_gf_CU_PrestigeUpdate(lp_player);
 }
 
 void libCOUI_gf_UpdateCommandersList () {
@@ -1907,7 +1760,6 @@ void libCOUI_gf_CU_CommanderSelect (int lp_player, string lp_chosenCommander) {
     // Automatic Variable Declarations
     // Implementation
     libCOOC_gf_CC_PlayerCommanderSet(lp_player, lp_chosenCommander);
-    libCOOC_gf_CC_UpdateTechStates(lp_player);
     libCOUI_gf_CU_PrestigeSelect(lp_player, DataTableGetInt(true, libCOOC_gf_CC_PrestigeCommanderTableKey(lp_chosenCommander, lp_player)));
     if ((PlayerType(lp_player) == c_playerTypeUser)) {
         libCOUI_gf_CU_CommanderPlayerReadySet(lp_player, false);
@@ -2162,33 +2014,25 @@ void libCOUI_gf_CU_MasteryInitFromData (int lp_player) {
     int lv_masteryIndex;
 
     // Automatic Variable Declarations
-    int autoE4006FE8_ai;
-    int autoE4006FE8_ae;
-    int autoE4006FE8_ac;
+    int autoF3EFE70C_ae;
+    const int autoF3EFE70C_ai = 1;
 
     // Variable Initialization
 
     // Implementation
     libCOUI_gv_cU_MasteryShiftPressed[lp_player] = false;
     libCOUI_gv_cU_MasteryLevelCurrent[lp_player] = libCOOC_gf_CC_PlayerMasteryLevel(lp_player);
-    autoE4006FE8_ai = 0;
-    autoE4006FE8_ae = UserDataInstanceCount("MasteryUpgrades")+1;
-    while (autoE4006FE8_ai < autoE4006FE8_ae) {
-        autoE4006FE8_ai = autoE4006FE8_ai+1;
-        autoE4006FE8_ac = UserDataGetInt("MasteryUpgrades", UserDataInstance("MasteryUpgrades", autoE4006FE8_ai), "Category", 1);
-        if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("MasteryUpgrades",UserDataInstance("MasteryUpgrades", autoE4006FE8_ai),"Commander",1) ) {
-            lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", autoE4006FE8_ai);
-            lv_masteryIndex = libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade);
-            if ((lv_masteryIndex == 0)) {
-                continue;
-            }
-            else {
-                libCOUI_gv_cU_MasteryUpgradePointsSpent[lv_masteryIndex][lp_player] = libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade);
-                libCOUI_gv_cU_MasteryUpgrades[lv_masteryIndex][lp_player] = lv_indexMasteryUpgrade;
-                libNtve_gf_SetDialogItemText(libCOUI_gv_cU_MasteryNameLabels[lv_masteryIndex], libCOOC_gf_CC_PlayerMasteryName(lv_indexMasteryUpgrade), PlayerGroupSingle(lp_player));
-                libNtve_gf_SetDialogItemTooltip(libCOUI_gv_cU_MasteryNameLabels[lv_masteryIndex], libCOOC_gf_CC_PlayerMasteryTooltip(lv_indexMasteryUpgrade), PlayerGroupSingle(lp_player));
-            }
-        }    
+    autoF3EFE70C_ae = UserDataFieldValueCount("PlayerCommanders", "Mastery");
+    lv_masteryIndex = 1;
+    for ( ; ( (autoF3EFE70C_ai >= 0 && lv_masteryIndex <= autoF3EFE70C_ae) || (autoF3EFE70C_ai < 0 && lv_masteryIndex >= autoF3EFE70C_ae) ) ; lv_masteryIndex += autoF3EFE70C_ai ) {
+        lv_indexMasteryUpgrade = UserDataGetUserInstance("PlayerCommanders", libCOOC_gv_cCX_PlayerCommander[lp_player], "Mastery", lv_masteryIndex);
+        if ((lv_indexMasteryUpgrade != null)) {
+            libCOUI_gv_cU_MasteryUpgradePointsSpent[lv_masteryIndex][lp_player] = libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade);
+            libCOUI_gv_cU_MasteryUpgrades[lv_masteryIndex][lp_player] = lv_indexMasteryUpgrade;
+            libNtve_gf_SetDialogItemText(libCOUI_gv_cU_MasteryNameLabels[lv_masteryIndex], libCOOC_gf_CC_PlayerMasteryName(lv_indexMasteryUpgrade), PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemTooltip(libCOUI_gv_cU_MasteryNameLabels[lv_masteryIndex], libCOOC_gf_CC_PlayerMasteryTooltip(lv_indexMasteryUpgrade), PlayerGroupSingle(lp_player));
+        }
+
     }
 }
 
@@ -2314,6 +2158,68 @@ void libCOUI_gf_CU_MasteryUpdatePoints (int lp_player) {
     }
 }
 
+void libCOUI_gf_CU_CommanderUpdatePrestigeLabels (int lp_player) {
+    // Variable Declarations
+    string lv_playerCommander;
+    int lv_prestigeSelf;
+    text lv_playerPrestigeText;
+    string lv_face;
+    string lv_prestige;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_playerCommander = libCOOC_gv_cCX_PlayerCommander[lp_player];
+    lv_prestigeSelf = libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player);
+
+    // Implementation
+    if ((lv_prestigeSelf == 0)) {
+        lv_playerPrestigeText = null;
+    }
+    else {
+        lv_prestige = UserDataGetUserInstance("PlayerCommanders", lv_playerCommander, "Prestige", lv_prestigeSelf);
+        lv_face = UserDataGetGameLink("PlayerPrestige", lv_prestige, "Icon", 1);
+        lv_playerPrestigeText = StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Name", lp_player));
+    }
+    libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderSelectedPrestigeSelf, lv_playerPrestigeText, PlayerGroupSingle(lp_player));
+}
+
+void libCOUI_gf_CU_PrestigeUpdate (int lp_player) {
+    // Variable Declarations
+    int lv_prestigeCount;
+    int lv_masteryTalentsCount;
+    int lv_itemIndex;
+    string lv_face;
+    string lv_face2;
+    playergroup lv_playerSelf;
+    string lv_commander;
+    string lv_perkButton;
+    string lv_prestige;
+
+    // Automatic Variable Declarations
+    const int auto606ADCEC_ae = libCOOC_gv_cCC_PLAYERPRESTIGEMAXRANK;
+    const int auto606ADCEC_ai = 1;
+
+    // Variable Initialization
+    lv_playerSelf = PlayerGroupSingle(lp_player);
+
+    // Implementation
+    lv_commander = UserDataGetGameLink("PlayerCommanders", libCOOC_gv_cCX_PlayerCommander[lp_player], "CommanderData", 1);
+    lv_itemIndex = 1;
+    for ( ; ( (auto606ADCEC_ai >= 0 && lv_itemIndex <= auto606ADCEC_ae) || (auto606ADCEC_ai < 0 && lv_itemIndex >= auto606ADCEC_ae) ) ; lv_itemIndex += auto606ADCEC_ai ) {
+        lv_prestige = UserDataGetUserInstance("PlayerCommanders", libCOOC_gv_cCX_PlayerCommander[lp_player], "Prestige", lv_itemIndex);
+        if ((lv_prestige == null)) {
+            DialogControlSetVisible(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_button, lv_playerSelf, false);
+            continue;
+        }
+
+        lv_face = UserDataGetGameLink("PlayerPrestige", lv_prestige, "Icon", 1);
+        DialogControlSetVisible(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_button, lv_playerSelf, true);
+        libNtve_gf_SetDialogItemImage(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_icon, (CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Icon", c_playerAny)), lv_playerSelf);
+        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_title, StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Name", lp_player)), lv_playerSelf);
+        libNtve_gf_SetDialogItemText(libCOUI_gv_cU_CommanderPrestigesButtons[lv_itemIndex].lv_description, StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Tooltip", lp_player)), lv_playerSelf);
+    }
+}
+
 void libCOUI_gf_CU_PrestigeSelect (int lp_player, int lp_index) {
     // Variable Declarations
     int lv_boundedIndex;
@@ -2333,7 +2239,7 @@ void libCOUI_gf_CU_PrestigeSelect (int lp_player, int lp_index) {
     lv_playerAlly = libCOOC_gf_CC_PlayerAlly(lp_player);
 
     // Implementation
-    lv_itemIndex = 0;
+    lv_itemIndex = 1;
     for ( ; ( (auto9B23D8AA_ai >= 0 && lv_itemIndex <= auto9B23D8AA_ae) || (auto9B23D8AA_ai < 0 && lv_itemIndex >= auto9B23D8AA_ae) ) ; lv_itemIndex += auto9B23D8AA_ai ) {
         if ((lv_itemIndex == lv_boundedIndex)) {
             lv_state = "Toggled";
@@ -2387,16 +2293,20 @@ string libCOUI_gf_CC_CommanderPrestigeIndexFace4 (string lp_commander, int lp_in
 
 text libCOUI_gf_CU_PrestigeBriefFormatTooltip (int lp_player) {
     // Variable Declarations
-    string lv_face;
+    int lv_playerPrestige;
+    string lv_prestige;
+    string lv_face2;
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_face = libCOOC_gf_CC_CommanderPrestigeIndexFace(libCOMI_gf_ActiveCommanderForPlayer4(lp_player), libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player));
+    lv_playerPrestige = libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player);
+    lv_prestige = UserDataGetUserInstance("PlayerCommanders", libCOOC_gv_cCX_PlayerCommander[lp_player], "Prestige", lv_playerPrestige);
+    lv_face2 = UserDataGetGameLink("PlayerPrestige", lv_prestige, "Icon", 1);
 
     // Implementation
     TextExpressionSetToken("Param/Expression/lib_COUI_4A080472", "A", libCOOC_gf_CC_CommanderName(libCOOC_gf_ActiveCommanderForPlayer(lp_player)));
-    TextExpressionSetToken("Param/Expression/lib_COUI_4A080472", "B", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Name", lp_player)));
-    TextExpressionSetToken("Param/Expression/lib_COUI_4A080472", "C", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face, "Tooltip", lp_player)));
+    TextExpressionSetToken("Param/Expression/lib_COUI_4A080472", "B", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face2, "Name", lp_player)));
+    TextExpressionSetToken("Param/Expression/lib_COUI_4A080472", "C", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_face2, "Tooltip", lp_player)));
     return TextExpressionAssemble("Param/Expression/lib_COUI_4A080472");
 }
 
@@ -2426,7 +2336,7 @@ void libCOUI_gf_CU_PrestigeBriefInit (int lp_player, int lp_playerAlly) {
         libCOUI_gv_cU_PlayerAllyPrestigeBriefImage = DialogControlLastCreated();
     }
 
-    if ((lv_playerPrestige != 0)) {
+    if ((lv_playerPrestige != 0) && (lv_playerPrestige != 1)) {
         lv_playerTooltip = libCOUI_gf_CU_PrestigeBriefFormatTooltip(lp_player);
         libNtve_gf_SetDialogItemTooltip(libCOUI_gv_cU_PlayerPrestigeBrief, lv_playerTooltip, PlayerGroupSingle(lp_player));
         libNtve_gf_SetDialogItemImage(libCOUI_gv_cU_PlayerPrestigeBriefImage, UserDataGetImagePath("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lp_player), "PrestigeIcon", 1), PlayerGroupSingle(lp_player));
@@ -2434,7 +2344,7 @@ void libCOUI_gf_CU_PrestigeBriefInit (int lp_player, int lp_playerAlly) {
         libNtve_gf_SetDialogItemImage(libCOUI_gv_cU_PlayerAllyPrestigeBriefImage, UserDataGetImagePath("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lp_player), "PrestigeIcon", 1), PlayerGroupSingle(lp_playerAlly));
     }
 
-    if ((lv_playerAllyPrestige != 0)) {
+    if ((lv_playerAllyPrestige != 0) && (lv_playerAllyPrestige != 1)) {
         lv_playerTooltip = libCOUI_gf_CU_PrestigeBriefFormatTooltip(lp_playerAlly);
         libNtve_gf_SetDialogItemTooltip(libCOUI_gv_cU_PlayerPrestigeBrief, lv_playerTooltip, PlayerGroupSingle(lp_playerAlly));
         libNtve_gf_SetDialogItemImage(libCOUI_gv_cU_PlayerPrestigeBriefImage, UserDataGetImagePath("PlayerCommanders", libCOOC_gf_ActiveCommanderForPlayer(lp_playerAlly), "PrestigeIcon", 1), PlayerGroupSingle(lp_playerAlly));
@@ -2475,12 +2385,12 @@ bool auto_libCOUI_gf_CU_PrestigeBriefReveal_TriggerFunc (bool testConds, bool ru
 
     // Implementation
     Wait(3.0, c_timeGame);
-    if ((lv_playerPrestige != 0)) {
+    if ((lv_playerPrestige != 0) && (lv_playerPrestige != 1)) {
         DialogControlSetVisible(libCOUI_gv_cU_PlayerPrestigeBrief, PlayerGroupSingle(lp_player), true);
         DialogControlSetVisible(libCOUI_gv_cU_PlayerAllyPrestigeBrief, PlayerGroupSingle(lp_playerAlly), true);
     }
 
-    if ((lv_playerAllyPrestige != 0)) {
+    if ((lv_playerAllyPrestige != 0) && (lv_playerAllyPrestige != 1)) {
         DialogControlSetVisible(libCOUI_gv_cU_PlayerPrestigeBrief, PlayerGroupSingle(lp_playerAlly), true);
         DialogControlSetVisible(libCOUI_gv_cU_PlayerAllyPrestigeBrief, PlayerGroupSingle(lp_player), true);
     }
@@ -3606,8 +3516,8 @@ void libCOUI_gf_CU_UpdateHeroPanel (int lp_index, int lp_player) {
     }
 
     if ((UnitIsAlive(libCOUI_gv_cU_HeroUnit[lp_index][lp_player]) == false) && (libCOMI_gf_GameIsOver() == false)) {
-        if ((libCOUI_gv_cU_VoidHeroUIRevivable[lp_index][lp_player] == true) && (PlayerGetCooldown(lp_player, libCOOC_gf_CC_CommanderHeroReviveLink(libCOOC_gf_ActiveCommanderForPlayer(lp_player))) > 0.0)) {
-            libNtve_gf_SetDialogItemAnimationTime(libCOUI_gv_cU_HeroDialogCooldownImage[lp_index], (60.0 * (1 - PlayerGetCooldown(lp_player, libCOOC_gf_CC_CommanderHeroReviveLink(libCOOC_gf_ActiveCommanderForPlayer(lp_player)))/libCOUI_gv_cU_HeroReviveTimer[lp_index][lp_player]) ), lv_updateGroup);
+        if ((libCOUI_gv_cU_VoidHeroUIRevivable[lp_index][lp_player] == true) && (PlayerGetCooldown(lp_player, libCOMI_gf_CC_CommanderHeroReviveLink(libCOOC_gf_ActiveCommanderForPlayer(lp_player))) > 0.0)) {
+            libNtve_gf_SetDialogItemAnimationTime(libCOUI_gv_cU_HeroDialogCooldownImage[lp_index], (60.0 * (1 - PlayerGetCooldown(lp_player, libCOMI_gf_CC_CommanderHeroReviveLink(libCOOC_gf_ActiveCommanderForPlayer(lp_player)))/libCOUI_gv_cU_HeroReviveTimer[lp_index][lp_player]) ), lv_updateGroup);
             DialogControlSetVisible(libCOUI_gv_cU_HeroDialogCooldownImage[lp_index], lv_updateGroup, true);
         }
         else if (true) {
@@ -4716,7 +4626,7 @@ void libCOUI_gf_CU_GPInitFenix (int lp_player) {
     libCOUI_gv_cU_GPCutscene[lp_player] = DialogControlLastCreated();
     libNtve_gf_SetDialogItemCutscene(libCOUI_gv_cU_GPCutscene[lp_player], "Cutscenes\\UI_FenixCastingPanel.SC2Cutscene", PlayerGroupAll());
     CutscenePlay(CutsceneGetTriggerControl(libCOUI_gv_cU_GPCutscene[lp_player]));
-    if ((libCOOC_gf_CC_PerkStateCheck("FenixUnlockArbiterSuit", libCOOC_ge_CC_PerkState_Active, "ProtossFenix", lp_player) == true)) {
+    if ((TechTreeAbilityIsAllowed(lp_player, AbilityCommand("SOASummonFenixArbiter", 0)) == true)) {
         DialogControlSetAnimationState(libCOUI_gv_cU_GPCmdButtons[3][lp_player], PlayerGroupAll(), "UnlockState", "Unlocked");
     }
     else {
@@ -5324,7 +5234,7 @@ void libCOUI_gf_CU_GPVisibilitySet (bool lp_showHide, int lp_player, fixed lp_du
 
     // Variable Initialization
     lv_updatePlayers = PlayerGroupEmpty();
-    lv__2DGlobalPanel = UserDataGetInt("PlayerCommanders", libCOOC_gf_CC_CommanderUserInstance(libCOMI_gf_ActiveCommanderForPlayer4(lp_player)), "GlobalCast2D", 1);
+    lv__2DGlobalPanel = UserDataGetInt("PlayerCommanders", libCOOC_gv_cCX_PlayerCommander[lp_player], "GlobalCast2D", 1);
 
     // Implementation
     lv_updatePlayers = PlayerGroupSingle(lp_player);
@@ -6728,59 +6638,6 @@ void libCOUI_gt_LoadBankVariables_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: alliance_button_pressed
-//--------------------------------------------------------------------------------------------------
-bool libCOUI_gt_alliance_button_pressed_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Conditions
-    if (testConds) {
-        if (!((EventDialogControl() == libCOUI_gv_alliance_button))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    if ((DialogIsVisible(libCOUI_gv_alliance_tab, EventPlayer()) == true)) {
-        DialogSetVisible(libCOUI_gv_alliance_tab, PlayerGroupSingle(EventPlayer()), false);
-    }
-    else {
-        DialogSetVisible(libCOUI_gv_alliance_tab, PlayerGroupSingle(EventPlayer()), true);
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libCOUI_gt_alliance_button_pressed_Init () {
-    libCOUI_gt_alliance_button_pressed = TriggerCreate("libCOUI_gt_alliance_button_pressed_Func");
-    TriggerAddEventDialogControl(libCOUI_gt_alliance_button_pressed, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: player_defeated
-//--------------------------------------------------------------------------------------------------
-bool libCOUI_gt_player_defeated_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libNtve_gf_SetDialogItemColor(libCOUI_gv_commanders_names[EventPlayer()], Color(44.71, 44.71, 44.71), PlayerGroupAll());
-    libNtve_gf_SetDialogItemText(libCOUI_gv_commanders_names[EventPlayer()], StringExternal("Param/Value/lib_COUI_C1A5E13A"), PlayerGroupAll());
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libCOUI_gt_player_defeated_Init () {
-    libCOUI_gt_player_defeated = TriggerCreate("libCOUI_gt_player_defeated_Func");
-    TriggerAddEventPlayerLeft(libCOUI_gt_player_defeated, c_playerAny, c_gameResultUndecided);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: MapListslectionChanged
 //--------------------------------------------------------------------------------------------------
 bool libCOUI_gt_MapListslectionChanged_Func (bool testConds, bool runActions) {
@@ -7184,7 +7041,6 @@ bool libCOUI_gt_CU_CommanderLevelUpClicked_Func (bool testConds, bool runActions
     }
 
     libCOOC_gf_CC_PlayerExperienceSetToLevel(EventPlayer(), (libCOOC_gf_CC_CommanderLevel(EventPlayer(), libCOOC_gf_ActiveCommanderForPlayer(EventPlayer()))+1), libCOOC_gf_ActiveCommanderForPlayer(EventPlayer()));
-    libCOOC_gf_CC_UpdateTechStates(EventPlayer());
     auto708D7CB8_g = libCOOC_gf_HumanPlayers();
     lv_indexPlayer = -1;
     while (true) {
@@ -7370,7 +7226,6 @@ bool libCOUI_gt_CU_CommanderLevelDownClicked_Func (bool testConds, bool runActio
     }
 
     libCOOC_gf_CC_PlayerExperienceSetToLevel(EventPlayer(), (libCOOC_gf_CC_CommanderLevel(EventPlayer(), libCOOC_gf_ActiveCommanderForPlayer(EventPlayer()))-1), libCOOC_gf_ActiveCommanderForPlayer(EventPlayer()));
-    libCOOC_gf_CC_UpdateTechStates(EventPlayer());
     auto146A0863_g = libCOOC_gf_HumanPlayers();
     lv_indexPlayer = -1;
     while (true) {
@@ -10487,7 +10342,7 @@ bool libCOUI_gt_CU_FanfareDismissed_Func (bool testConds, bool runActions) {
     }
 
     DialogSetVisible(libCOUI_gv_cU_FanfareDialog, PlayerGroupSingle(EventPlayer()), false);
-    TriggerExecute(lib01833E95_gt_AF_Score, true, false);
+    TriggerExecute(libADFU_gt_AF_Score, true, false);
     return true;
 }
 
@@ -10503,8 +10358,6 @@ void libCOUI_InitTriggers () {
     libCOUI_gt_OpenOptions_Init();
     libCOUI_gt_CreateOptionsDialog_Init();
     libCOUI_gt_LoadBankVariables_Init();
-    libCOUI_gt_alliance_button_pressed_Init();
-    libCOUI_gt_player_defeated_Init();
     libCOUI_gt_MapListslectionChanged_Init();
     libCOUI_gt_MapButtonClicked_Init();
     libCOUI_gt_MissionsButtonClicked_Init();
@@ -10622,5 +10475,5 @@ include "LibCOOC"
 include "LibCOMI"
 include "LibCOMU"
 include "LibA8FDA37D"
-include "Lib01833E95"
+include "LibADFU"
 
