@@ -1551,6 +1551,7 @@ void libCOMI_gf_LoadCoopMission (string lp_map, trigger lp_startTrigger) {
     // Variable Initialization
 
     // Implementation
+    libCOOC_gf_PurchaseStorymodeTech();
     libCOMI_gf_RegisterPlayers();
     libCOMI_gv_gameMode = MinI(PlayerGroupCount(libCOMI_gv_vU_SlotsUnlocked), PlayerGroupCount(libCOMI_gv_vU_HumanPlayers));
     libCOMI_gf_CheckMapAvailableFactions();
@@ -1872,7 +1873,6 @@ void libCOMI_gf_ApplyCAIPersonality (int lp_playerAI) {
     if ((lv_commander != null)) {
         libCOOC_gf_CC_PlayerCommanderSet(lp_playerAI, lv_commander);
         PlayerSetRace(lp_playerAI, libCOOC_gf_CC_CommanderRace(lv_commander));
-        libCOOC_gf_CC_UpdateTechStates(lp_playerAI);
     }
 
     if ((lv_triggers != "")) {
@@ -12055,11 +12055,11 @@ bool auto_libCOMI_gf_CM_GPReminderHorner_TriggerFunc (bool testConds, bool runAc
     }
 
     libCOUI_gf_CU_GPHighlightButton(1, true, lp_player);
-    if ((libCOOC_gf_CC_PerkStateCheck("HornerPHLevel5", libCOOC_ge_CC_PerkState_Locked, "TerranHorner", lp_player) == false)) {
+    if ((TechTreeAbilityIsAllowed(lp_player, AbilityCommand("HornerAirFleetActivate", 0)) == true)) {
         libCOUI_gf_CU_GPHighlightButton(3, true, lp_player);
     }
 
-    if ((libCOOC_gf_CC_PerkStateCheck("HornerPHLevel10", libCOOC_ge_CC_PerkState_Locked, "TerranHorner", lp_player) == false)) {
+    if ((TechTreeAbilityIsAllowed(lp_player, AbilityCommand("HHSummonMercenarySpaceStation", 0)) == true)) {
         libCOUI_gf_CU_GPHighlightButton(4, true, lp_player);
     }
 
@@ -12799,58 +12799,37 @@ void libCOMI_gf_CM_CommanderVOInit () {
         if (autoCD6ED918_val == "TerranRaynor") {
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionRaynorHyperion, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionRaynorBansheesUsed, true);
-            if ((libCOOC_gf_CC_PerkStateCheck("RaynorBansheeAirstrike", libCOOC_ge_CC_PerkState_Locked, "TerranRaynor", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AdjutantAlert_RaynorAirStrikeReady", -1), "Abil/BansheeAirstrike", null, null);
-            }
-
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AdjutantAlert_RaynorAirStrikeReady", -1), "Abil/BansheeAirstrike", null, null);
             libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AdjutantAlert_RaynorHyperionReady", -1), "Abil/VoidCoopSummonHyperion", null, null);
         }
         else if (autoCD6ED918_val == "TerranSwann") {
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionSwannDrone, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionSwannCombatDropUsed, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionSwannLaserDrill, true);
-            if ((libCOOC_gf_CC_PerkStateCheck("SwannSpecialDelivery", libCOOC_ge_CC_PerkState_Locked, "TerranSwann", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AdjutantAlert_SwannCombatDropReady", -1), "Abil/SpecialDelivery", null, null);
-            }
-
-            if ((libCOOC_gf_CC_PerkStateCheck("SwannLaserDrillUpgrades", libCOOC_ge_CC_PerkState_Locked, "TerranSwann", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AdjutantAlert_SwannPulseCannonReady", -1), "Abil/DrakkenLaserDrillNuke", null, null);
-            }
-
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AdjutantAlert_SwannCombatDropReady", -1), "Abil/SpecialDelivery", null, null);
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AdjutantAlert_SwannPulseCannonReady", -1), "Abil/DrakkenLaserDrillNuke", null, null);
             libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AdjutantAlert_SwannConcentratedBeamReady", -1), "Abil/DrakkenLaserDrillBFG", null, null);
         }
         else if (autoCD6ED918_val == "ZergKerrigan") {
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionKerriganCrushingGrip, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionKerriganAssimilation, true);
-            if ((libCOOC_gf_CC_PerkStateCheck("KerriganUnlockCrushingGripWave", libCOOC_ge_CC_PerkState_Locked, "ZergKerrigan", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("IzshaAlert_KerriganImmobilWave", -1), "Abil/KerriganVoidCoopCrushingGripWave", libCOMI_gv_cM_HeroUnit[lv_indexPlayer], null);
-            }
-
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("IzshaAlert_KerriganImmobilWave", -1), "Abil/KerriganVoidCoopCrushingGripWave", libCOMI_gv_cM_HeroUnit[lv_indexPlayer], null);
             libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("IzshaAlert_KerriganAssmilAura", -1), "Abil/KerriganVoidCoopEconDrop", libCOMI_gv_cM_HeroUnit[lv_indexPlayer], null);
         }
         else if (autoCD6ED918_val == "ZergZagara") {
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionZagaraRoachDrop, true);
-            if ((libCOOC_gf_CC_PerkStateCheck("ZagaraUnlockMassRoachDrop", libCOOC_ge_CC_PerkState_Locked, "ZergZagara", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("IzshaAlert_ZagaraInfestedDrop", -1), "ZagaraVoidCoopInfestedPods", libCOMI_gv_cM_HeroUnit[lv_indexPlayer], null);
-            }
-
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("IzshaAlert_ZagaraInfestedDrop", -1), "ZagaraVoidCoopInfestedPods", libCOMI_gv_cM_HeroUnit[lv_indexPlayer], null);
             libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("IzshaAlert_ZagaraMassFrenzy", -1), "ZagaraVoidCoopMassFrenzy", libCOMI_gv_cM_HeroUnit[lv_indexPlayer], null);
         }
         else if (autoCD6ED918_val == "ProtossArtanis") {
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionArtanisSuperShields, true);
             libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("ExecutorAlert_ArtanisOverchargeReady", -1), "Abil/SoASuperShield", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "SoASuperShield");
-            if ((libCOOC_gf_CC_PerkStateCheck("ArtanisUnlockStrafeAttack", libCOOC_ge_CC_PerkState_Locked, "ProtossArtanis", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("ExecutorAlert_ArtanisSolarBombardReady", -1), "Abil/SOAStrafeAttack", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "SOAStrafeAttack");
-            }
-
+            libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("ExecutorAlert_ArtanisSolarBombardReady", -1), "Abil/SOAStrafeAttack", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "SOAStrafeAttack");
         }
         else if (autoCD6ED918_val == "ProtossVorazun") {
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionVorazunTimeStop, true);
             libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("ExecutorAlert_VorazunShadowGuardReady", -1), "Abil/SOAShadowGuardCalldown", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "SOAShadowGuardCalldown");
-            if ((libCOOC_gf_CC_PerkStateCheck("VorazunUnlockTimeStop", libCOOC_ge_CC_PerkState_Locked, "ProtossVorazun", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("ExecutorAlert_VorazunTimeStopReady", -1), "Abil/SOATimeFreeze", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "SOATimeFreeze");
-            }
-
+            libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("ExecutorAlert_VorazunTimeStopReady", -1), "Abil/SOATimeFreeze", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "SOATimeFreeze");
         }
         else if (autoCD6ED918_val == "ProtossKarax") {
             TriggerExecute(libCOMI_gt_CM_AbilityTransmissionKaraxPassiveChronoBoost, true, false);
@@ -12867,35 +12846,20 @@ void libCOMI_gf_CM_CommanderVOInit () {
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionAlarakEmpower, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionAlarakDeathFleet, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionAlarakSacrifice, true);
-            if ((libCOOC_gf_CC_PerkStateCheck("AlarakDeathFleet", libCOOC_ge_CC_PerkState_Locked, "ProtossAlarak", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AlarakCommander_DFReady", -1), "Abil/AlarakACSummonDeathfleetTarget", null, AbilityCommand("AlarakACSummonDeathfleetTarget", 0));
-            }
-
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AlarakCommander_DFReady", -1), "Abil/AlarakACSummonDeathfleetTarget", null, AbilityCommand("AlarakACSummonDeathfleetTarget", 0));
             libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("AlarakCommander_EMReady", -1), "Abil/AlarakEmpower", libCOMI_gv_cM_HeroUnit[lv_indexPlayer], null);
         }
         else if (autoCD6ED918_val == "TerranNova") {
-            if ((libCOOC_gf_CC_PerkStateCheck("NovaUnlockGriffinBombingRun", libCOOC_ge_CC_PerkState_Locked, "TerranNova", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("NovaCommander_GriffinAirstrikeReady", -1), "Abil/NovaGriffinBombingRunActivate", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "NovaGriffinBombingRunActivate");
-            }
-
-            if ((libCOOC_gf_CC_PerkStateCheck("NovaUnlockGriffinTransport", libCOOC_ge_CC_PerkState_Locked, "TerranNova", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("NovaCommander_GriffinAirliftReady", -1), "Abil/NovaGriffinTransportLoadUnits", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "NovaGriffinTransportLoadUnits");
-            }
-
+            libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("NovaCommander_GriffinAirstrikeReady", -1), "Abil/NovaGriffinBombingRunActivate", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "NovaGriffinBombingRunActivate");
+            libCOMI_gf_CM_CommanderVOAbilityWatchUnit(lv_indexPlayer, SoundLink("NovaCommander_GriffinAirliftReady", -1), "Abil/NovaGriffinTransportLoadUnits", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "NovaGriffinTransportLoadUnits");
             libCOMI_gf_CM_AbilityTransmissionNovaNukeReadyActionVer(lv_indexPlayer);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionNovaTransport, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionNovaBombingRun, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionNovaDMatrix, true);
         }
         else if (autoCD6ED918_val == "ZergStukov") {
-            if ((libCOOC_gf_CC_PerkStateCheck("CommanderStukovAleksander", libCOOC_ge_CC_PerkState_Locked, "ZergStukov", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("StukovCommander_AleksanderReady", -1), "Abil/StukovSummonAleksander", null, null);
-            }
-
-            if ((libCOOC_gf_CC_PerkStateCheck("CommanderStukovApocalisk", libCOOC_ge_CC_PerkState_Locked, "ZergStukov", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("StukovCommander_ApocaliskReady", -1), "Abil/StukovSummonApocalisk", null, null);
-            }
-
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("StukovCommander_AleksanderReady", -1), "Abil/StukovSummonAleksander", null, null);
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("StukovCommander_ApocaliskReady", -1), "Abil/StukovSummonApocalisk", null, null);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionStukovInfestStructure, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionStukovApocalisk, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionStukovAleksander, true);
@@ -12938,14 +12902,8 @@ void libCOMI_gf_CM_CommanderVOInit () {
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionHornerFleet, true);
             TriggerEnable(libCOMI_gt_CM_AbilityTransmissionHornerStation, true);
             TriggerEnable(libCOMI_gt_CM_UnitTransmissionHornerBomberBuild, true);
-            if ((libCOOC_gf_CC_PerkStateCheck("HornerPHLevel5", libCOOC_ge_CC_PerkState_Locked, "TerranHorner", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_AbilityTransmissionHornerFleetReminderActionVer(lv_indexPlayer, SoundLink("HornerHan_CallFleet", -1), "Abil/HornerAirFleetActivate", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "HornerAirFleetActivate");
-            }
-
-            if ((libCOOC_gf_CC_PerkStateCheck("HornerPHLevel10", libCOOC_ge_CC_PerkState_Locked, "TerranHorner", lv_indexPlayer) == false)) {
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("HornerHan_Spacestation", -1), "Abil/HHSummonMercenarySpaceStation", null, null);
-            }
-
+            libCOMI_gf_CM_AbilityTransmissionHornerFleetReminderActionVer(lv_indexPlayer, SoundLink("HornerHan_CallFleet", -1), "Abil/HornerAirFleetActivate", libCOMI_gv_cM_GlobalCasterUnit[lv_indexPlayer], "HornerAirFleetActivate");
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("HornerHan_Spacestation", -1), "Abil/HHSummonMercenarySpaceStation", null, null);
             libCOMI_gf_CM_UnitTransmissionHornerBomberBuildReminderActionVer(lv_indexPlayer);
             libCOMI_gf_CM_AbilityTransmissionHornerMagMineReminderActionVer(lv_indexPlayer);
             libCOMI_gv_cM_HornerVOHornerPlayer = lv_indexPlayer;
@@ -12966,24 +12924,20 @@ void libCOMI_gf_CM_CommanderVOInit () {
             TriggerEnable(libCOMI_gt_CM_UnitTransmissionTychusOutlawRecruitAvailable, true);
             TriggerEnable(libCOMI_gt_CM_UnitTransmissionTychusOutlawRecruited, true);
             TriggerEnable(libCOMI_gt_CM_UnitTransmissionTychusOutlawRecruitReminder, true);
-            if ((libCOOC_gf_CC_PerkStateCheck("TychusPHLevel3", libCOOC_ge_CC_PerkState_Locked, "TerranTychus", lv_indexPlayer) == false)) {
-                TriggerEnable(libCOMI_gt_CM_AbilityTransmissionTychusOdinUse, true);
-                libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("TychusCommander_OdinReady", -1), "Abil/TychusCalldownOdinTargeted", null, null);
-            }
-
-            if ((libCOOC_gf_CC_PerkStateCheck("TychusPHLevel4", libCOOC_ge_CC_PerkState_Locked, "TerranTychus", lv_indexPlayer) == false)) {
+            libCOMI_gf_CM_CommanderVOAbilityWatch(lv_indexPlayer, SoundLink("TychusCommander_OdinReady", -1), "Abil/TychusCalldownOdinTargeted", null, null);
+            if ((TechTreeAbilityIsAllowed(lv_indexPlayer, AbilityCommand("TychusBarracksTrain", 4)) == true)) {
                 TriggerEnable(libCOMI_gt_CM_AbilityTransmissionTychusCreateMarauder, true);
             }
 
-            if ((libCOOC_gf_CC_PerkStateCheck("TychusPHLevel6", libCOOC_ge_CC_PerkState_Locked, "TerranTychus", lv_indexPlayer) == false)) {
+            if ((TechTreeAbilityIsAllowed(lv_indexPlayer, AbilityCommand("TychusFactoryTrain", 3)) == true)) {
                 TriggerEnable(libCOMI_gt_CM_AbilityTransmissionTychusCreateWarhound, true);
             }
 
-            if ((libCOOC_gf_CC_PerkStateCheck("TychusPHLevel8", libCOOC_ge_CC_PerkState_Locked, "TerranTychus", lv_indexPlayer) == false)) {
+            if ((TechTreeAbilityIsAllowed(lv_indexPlayer, AbilityCommand("TychusFactoryTrain", 1)) == true)) {
                 TriggerEnable(libCOMI_gt_CM_AbilityTransmissionTychusCreateHERC, true);
             }
 
-            if ((libCOOC_gf_CC_PerkStateCheck("TychusPHLevel10", libCOOC_ge_CC_PerkState_Locked, "TerranTychus", lv_indexPlayer) == false)) {
+            if ((TechTreeAbilityIsAllowed(lv_indexPlayer, AbilityCommand("TychusBarracksTrain", 2)) == true)) {
                 TriggerEnable(libCOMI_gt_CM_AbilityTransmissionTychusCreateGhost, true);
             }
 
@@ -13256,7 +13210,7 @@ bool auto_libCOMI_gf_CM_AbilityTransmissionNovaNukeReadyActionVer_TriggerFunc (b
     lv_locNovaPlayer = lp_novaPlayer;
 
     // Implementation
-    if ((libCOOC_gf_CC_PerkStateCheck("NovaUnlockUltimates", libCOOC_ge_CC_PerkState_Active, "TerranNova", lv_locNovaPlayer) == false)) {
+    if ((TechTreeAbilityIsAllowed(lp_novaPlayer, AbilityCommand("NovaCoopCasterNuke", 0)) == true)) {
         return true;
     }
 
@@ -13315,7 +13269,7 @@ bool auto_libCOMI_gf_CM_AbilityTransmissionFenixSuitsReadyFirstTime_TriggerFunc 
         Wait(1.0, c_timeGame);
     }
     if (((lp_unit == null) || (UnitIsAlive(lp_unit) == true))) {
-        if ((libCOOC_gf_CC_PerkStateCheck("FenixUnlockArbiterSuit", libCOOC_ge_CC_PerkState_Locked, "ProtossFenix", lp_player) == false)) {
+        if ((TechTreeAbilityIsAllowed(lp_player, AbilityCommand("SOASummonFenixArbiter", 0)) == true)) {
             lv_vOOptions = 3;
         }
 
