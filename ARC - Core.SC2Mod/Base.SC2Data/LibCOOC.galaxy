@@ -1024,12 +1024,16 @@ bool libCOOC_gf_CS_ObjectiveCountsDown (string lp_objective) {
 void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
     // Variable Declarations
     int lv_i;
+    int lv_s;
+    int lv_s2;
     string lv_tech;
     string lv_playerCommander;
     string lv_playerPrestige;
     int lv_playerLevel;
     string lv_cheat;
     string lv_skin;
+    string lv_factionSkin;
+    string lv_skinSupplement;
     string lv_upgrade;
     string lv_unit;
     abilcmd lv_ability;
@@ -1053,6 +1057,10 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
     int autoCB6814CD_var;
     int auto7EEB62E5_ae;
     int auto7EEB62E5_var;
+    int auto93D2E38F_ae;
+    const int auto93D2E38F_ai = 1;
+    int auto00ED376F_ae;
+    const int auto00ED376F_ai = 1;
     int auto6EBC223D_ae;
     const int auto6EBC223D_ai = 1;
     int autoF4C1D82E_ae;
@@ -1065,8 +1073,7 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
 
     // Implementation
     TechTreeRestrictionsEnable(lp_player, true);
-    libCOOC_gf_CC_UpdatePlayerLevel(lp_player);
-    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "CommanderLevel", lv_playerLevel);
+    TechTreeRequirementsEnable(lp_player, true);
     PlayerModifyPropertyInt(lp_player, c_playerPropSuppliesLimit, c_playerPropOperSetTo, UserDataGetInt("PlayerCommanders", lv_playerCommander, "SuppliesMax", 1));
     autoA275E914_userType = "CommanderTech";
     autoA275E914_i = 1;
@@ -1111,7 +1118,7 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
     autoFEA6185F_i = 1;
     for ( ; autoFEA6185F_i <= UserDataInstanceCount(autoFEA6185F_userType) ; autoFEA6185F_i += 1 ) {
         lv_tech = UserDataInstance(autoFEA6185F_userType, autoFEA6185F_i);
-        if ((UserDataGetUserInstance("CommanderTech", lv_tech, "commander", 1) == lv_playerCommander) && (UserDataGetInt("CommanderTech", lv_tech, "level", 1) <= lv_playerLevel) && ((UserDataGetUserInstance("CommanderTech", lv_tech, "prestige", 1) == null) || (UserDataGetUserInstance("CommanderTech", lv_tech, "prestige", 1) == lv_playerPrestige))) {
+        if (((UserDataGetUserInstance("CommanderTech", lv_tech, "commander", 1) == lv_playerCommander) || (UserDataGetUserInstance("CommanderTech", lv_tech, "commander", 1) == null)) && (UserDataGetInt("CommanderTech", lv_tech, "level", 1) <= lv_playerLevel) && ((UserDataGetUserInstance("CommanderTech", lv_tech, "prestige", 1) == null) || (UserDataGetUserInstance("CommanderTech", lv_tech, "prestige", 1) == lv_playerPrestige))) {
             lv_cheat = UserDataGetUpgrade("CommanderTech", lv_tech, "cheat", 1);
             lv_upgrade = UserDataGetUpgrade("CommanderTech", lv_tech, "upgrade", 1);
             lv_unit = UserDataGetUnit("CommanderTech", lv_tech, "unit", 1);
@@ -1176,6 +1183,30 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
                 else {
                     PlayerApplySkin(lp_player, lv_skin, false);
                 }
+                auto93D2E38F_ae = UserDataInstanceCount("FactionSkins");
+                lv_s = 1;
+                for ( ; ( (auto93D2E38F_ai >= 0 && lv_s <= auto93D2E38F_ae) || (auto93D2E38F_ai < 0 && lv_s >= auto93D2E38F_ae) ) ; lv_s += auto93D2E38F_ai ) {
+                    lv_factionSkin = UserDataInstance("FactionSkins", lv_s);
+                    if ((UserDataGetGameLink("FactionSkins", lv_factionSkin, "Skin", 1) == lv_skin)) {
+                        auto00ED376F_ae = UserDataFieldValueCount("FactionSkins", "Supplement");
+                        lv_s2 = 1;
+                        for ( ; ( (auto00ED376F_ai >= 0 && lv_s2 <= auto00ED376F_ae) || (auto00ED376F_ai < 0 && lv_s2 >= auto00ED376F_ae) ) ; lv_s2 += auto00ED376F_ai ) {
+                            lv_skinSupplement = UserDataGetGameLink("FactionSkins", lv_factionSkin, "Supplement", lv_s2);
+                            if ((lv_skinSupplement != null)) {
+                                if ((lv_state > 0)) {
+                                    libNtve_gf_PlayerApplySkinReplacingExistingUnit(lp_player, lv_skinSupplement, true);
+                                }
+                                else {
+                                    libNtve_gf_PlayerApplySkinReplacingExistingUnit(lp_player, lv_skinSupplement, false);
+                                }
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                    }
+
+                }
             }
 
         }
@@ -1195,8 +1226,6 @@ void libCOOC_gf_CC_ApplyTechNew (int lp_player) {
     }
 
     libCOOC_gf_CC_ApplyMasteryTech(lp_player);
-    libCOOC_gf_CC_SharedUpgradesEnable();
-    libCOMI_gf_CM_DetectionUpgradesApply();
 }
 
 void libCOOC_gf_CC_PlayerResponseEnable (int lp_player, string lp_response, bool lp_enforceMinLvl) {

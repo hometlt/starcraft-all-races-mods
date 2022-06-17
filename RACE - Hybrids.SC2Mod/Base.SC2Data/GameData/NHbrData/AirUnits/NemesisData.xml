@@ -69,6 +69,17 @@
         <BehaviorArray value="NHbrNemesisDisintegrator"/>
         <ValidatorArray value="NHbrNemesisDisintegrator@HasNetwork"/>
     </CAbilBehavior>
+    <CValidatorUnitCompareVital id="NHbrSilentWeapon@CasterHas5Network">
+        <ResultFailed value="NotEnoughEnergy,Error/NotEnoughNetwork"/>
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="5"/>
+        <Vital value="Energy"/>
+    </CValidatorUnitCompareVital>
+    <CValidatorPlayerRequirement id="NHbrNemesisUpgradeToAdvancedNemesis@HasUpgrade">
+        <Find value="1"/>
+        <Value value="NHbrNemesisUpgradeToAdvancedNemesis@Completed"/>
+    </CValidatorPlayerRequirement>
     <CValidatorUnitCompareVital id="NHbrNemesisDisintegrator@HasNetwork">
         <ResultFailed value="NotEnoughEnergy,Error/NotEnoughNetwork"/>
         <Compare value="GE"/>
@@ -85,6 +96,18 @@
         <Value value="1"/>
         <Behavior value="NHbrNemesisDisintegrator"/>
     </CValidatorUnitCompareBehaviorCount>
+    <CRequirement id="NHbrNemesisUpgradeToAdvancedNemesis@Completed">
+        <EditorCategories value="Race:NHbr,TechType:Upgrade"/>
+        <NodeArray index="Show" Link="CountUpgradeNHbrNemesisUpgradeToAdvancedNemesisCompleteOnlyTechTreeCheat"/>
+    </CRequirement>
+    <CRequirement id="NHbrNemesisUpgradeToAdvancedNemesis@Show">
+        <EditorCategories value="Race:NHbr,TechType:Upgrade"/>
+        <NodeArray index="Show" Link="EqCountUpgradeNHbrNemesisUpgradeToAdvancedNemesisQueuedOrBetter0"/>
+    </CRequirement>
+    <CRequirement id="NHbrNemesisUpgradeToAdvancedNemesis@Use">
+        <EditorCategories value="Race:NHbr,TechType:Upgrade"/>
+        <NodeArray index="Use" Link="CountUpgradeNHbrNemesisUpgradeToAdvancedNemesisCompleteOnly1934114652"/>
+    </CRequirement>
     <CRequirement id="NHbrNemesisDisintegrator@HasDisintegratorShow">
         <EditorCategories value="Race:NHbr"/>
         <NodeArray index="Show" Link="EqCountBehaviorNHbrNemesisDisintegratorCompleteOnlyAtUnit1"/>
@@ -111,6 +134,25 @@
         <EditorCategories value="Race:NHbr"/>
         <HotkeySet value="NemesisDisintegrator"/>
     </CButton>
+    <CButton id="NHbrNemesisUpgradeToAdvancedNemesis">
+        <Icon value="Assets\Textures\tip_hybridnemesis.dds"/>
+        <EditorCategories value="Race:NHbr"/>
+    </CButton>
+    <CRequirementCountUpgrade id="CountUpgradeNHbrNemesisUpgradeToAdvancedNemesisCompleteOnly1934114652">
+        <Flags index="TechTreeCheat" value="0"/>
+        <Count Link="NHbrNemesisUpgradeToAdvancedNemesis" State="CompleteOnly"/>
+    </CRequirementCountUpgrade>
+    <CRequirementCountUpgrade id="CountUpgradeNHbrNemesisUpgradeToAdvancedNemesisCompleteOnlyTechTreeCheat">
+        <Count Link="NHbrNemesisUpgradeToAdvancedNemesis" State="CompleteOnly"/>
+    </CRequirementCountUpgrade>
+    <CRequirementCountUpgrade id="CountUpgradeNHbrNemesisUpgradeToAdvancedNemesisQueuedOrBetter">
+        <Flags index="TechTreeCheat" value="0"/>
+        <Count Link="NHbrNemesisUpgradeToAdvancedNemesis" State="QueuedOrBetter"/>
+    </CRequirementCountUpgrade>
+    <CRequirementEq id="EqCountUpgradeNHbrNemesisUpgradeToAdvancedNemesisQueuedOrBetter0">
+        <OperandArray index="0" value="CountUpgradeNHbrNemesisUpgradeToAdvancedNemesisQueuedOrBetter"/>
+        <OperandArray index="1" value="0"/>
+    </CRequirementEq>
     <CRequirementCountBehavior id="CountBehaviorNHbrNemesisDisintegratorCompleteOnlyAtUnit">
         <Flags index="TechTreeCheat" value="0"/>
         <Count Link="NHbrNemesisDisintegrator" State="CompleteOnlyAtUnit"/>
@@ -161,6 +203,85 @@
         </ToDInfoArray>
         <EditorCategories value="LightGroup:PortraitsUnitsProtoss"/>
     </CLight>
+    <CActorUnit id="NHbrNemesisAdvanced" parent="GenericUnitStandard" unitName="NHbrNemesisAdvanced">
+        <Aliases value="_UnitHuge"/>
+        <Aliases value="_ShieldBlack"/>
+        <Remove Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="ActorCreation" Target="NHbrNemesis" Send="Destroy Immediate"/>
+        <On Terms="Abil.NHbrNemesisStream.SourceChannelStart" Send="$Spell PlayForever"/>
+        <On Terms="Abil.NHbrNemesisStream.SourceChannelStop" Send="AnimClear Spell"/>
+        <On Terms="Effect.NHbrNemesisWeapon@Persistent.Start" Send="Create NHbrNemesisWeapon@Beam"/>
+        <On Terms="Effect.NHbrNemesisWeapon@Damage.Start; FromEffectTreeDescendant" Send="ActionDamage"/>
+        <On Terms="Effect.NHbrNemesisWeapon@Persistent.Stop" Target="NHbrNemesisWeapon@Beam" Send="Destroy"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Work,Start Work"/>
+        <On Terms="Behavior.NHbrNemesisDisintegrator.On" Target="NHbrNemesisWeapon@Beam" Send="Signal BeamOn"/>
+        <On Terms="Behavior.NHbrNemesisDisintegrator.Off" Target="NHbrNemesisWeapon@Beam" Send="Signal BeamOff"/>
+        <On Terms="Effect.NHbrNemesisWeapon@Persistent.Start; ValidateUnit NHbrNemesisWeapon@HasDisintegration" Target="NHbrNemesisWeapon@Beam" Send="Signal BeamOn"/>
+        <On Terms="Effect.NHbrNemesisWeapon@Persistent.Start; ValidateUnit NHbrNemesisWeapon@HasDisintegration" Send="Create NHbrNemesisWeapon@BeamLeft"/>
+        <On Terms="Effect.NHbrNemesisWeapon@Persistent.Start; ValidateUnit NHbrNemesisWeapon@HasDisintegration" Send="Create NHbrNemesisWeapon@BeamRight"/>
+        <On Terms="Effect.NHbrNemesisWeapon@Persistent.Stop" Target="NHbrNemesisWeapon@BeamLeft" Send="Destroy"/>
+        <On Terms="Effect.NHbrNemesisWeapon@Persistent.Stop" Target="NHbrNemesisWeapon@BeamRight" Send="Destroy"/>
+        <On Terms="Behavior.NHbrNemesisDisintegrator.On" Target="NHbrNemesisWeapon@Beam" Send="Create NHbrNemesisWeapon@BeamLeft"/>
+        <On Terms="Behavior.NHbrNemesisDisintegrator.On" Target="NHbrNemesisWeapon@Beam" Send="Create NHbrNemesisWeapon@BeamRight"/>
+        <On Terms="Behavior.NHbrNemesisDisintegrator.Off" Target="NHbrNemesisWeapon@BeamLeft" Send="Destroy"/>
+        <On Terms="Behavior.NHbrNemesisDisintegrator.Off" Target="NHbrNemesisWeapon@BeamRight" Send="Destroy"/>
+        <DeathArray index="Normal" ModelLink="NHbrNemesisAdvanced@Death" SoundLink="NHbrNemesisAdvanced@Death_Vanish" VoiceLink="NHbr_Zerg_Death"/>
+        <DeathCustoms ModelLink="ZergLargeUnitDeathLow" Name="AntiGravZerg"/>
+        <PortraitModel value="NHbrNemesisAdvanced@Portrait"/>
+        <WalkAnimMoveSpeed value="1.7031"/>
+        <BarOffset value="75"/>
+        <BarWidth value="100"/>
+        <CustomUnitStatusFrame value="UnitStatus/UnitStatusFrame_HybridNemesis"/>
+        <ErrorArray Error="CantSeeBuildLocation" Sound="Alert_ZergBuildError" GroupSound="Alert_ZergBuildError"/>
+        <ErrorArray Error="CantSeeLandLocation" Sound="Alert_ZergBuildError" GroupSound="Alert_ZergBuildError"/>
+        <ErrorArray Error="CantBuildLocationInvalid" Sound="Alert_ZergBuildError" GroupSound="Alert_ZergBuildError"/>
+        <ErrorArray Error="CantLandLocationInvalid" Sound="Alert_ZergBuildError" GroupSound="Alert_ZergBuildError"/>
+        <GroupIcon>
+            <Image value="assets\Wireframes\Hybrid\wireframe-hybrid-unit-Advanced-Nemesis.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-flyercarapace-level0.dds"/>
+        <ShieldArmorIcon value="Assets\Textures\btn-ability-zeratul-warpprism-shieldboosters.dds"/>
+        <SoundArray index="Birth" value="NHbrNemesis@Birth"/>
+        <SoundArray index="Ready" value="NHbrNemesis@Roar"/>
+        <SoundArray index="Help" value="QueenHelp"/>
+        <SoundArray index="What" value="QueenWhat"/>
+        <SoundArray index="Yes" value="QueenYes"/>
+        <SoundArray index="Attack" value="NHbrNemesis@Attack_vox"/>
+        <SoundArray index="Pissed" value="Queen_Pissed"/>
+        <SoundArray index="Movement" value="zQueen_moveLoop"/>
+        <SoundArray index="Turning" value="Queen_Turning"/>
+        <SoundArray index="Board" value="Queen_Board"/>
+        <SoundArray index="Click" value="Queen_Click"/>
+        <SoundArray index="ClickError" value="Queen_ClickError"/>
+        <SoundArray index="Highlight" value="Queen_Highlight"/>
+        <StatusColors index="Shields">
+            <ColorArray index="0" value="255,255,255,255"/>
+        </StatusColors>
+        <StatusColors index="Energy">
+            <ColorArray index="0" value="255,0,255,191"/>
+        </StatusColors>
+        <UnitFlags index="StandAnimBirthVariation" value="0"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <UnitIcon value="assets\Buttons\Hybrid\btn-hybrid-unit-Advanced-Nemesis.dds"/>
+        <VitalColors index="Shields">
+            <ColorArray value="255,255,255,255"/>
+        </VitalColors>
+        <VitalColors index="Energy">
+            <ColorArray value="255,0,255,191"/>
+        </VitalColors>
+        <VitalNames index="Shields" value="UI/Tooltip/Protection"/>
+        <VitalNames index="Energy" value="UI/Tooltip/Network"/>
+        <Wireframe>
+            <Image value="assets\Wireframes\Hybrid\wireframe-hybrid-unit-Advanced-Nemesis.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="assets\Wireframes\Hybrid\wireframe-hybrid-unit-Advanced-Nemesis-shield01.dds"/>
+            <Image value="assets\Wireframes\Hybrid\wireframe-hybrid-unit-Advanced-Nemesis-shield02.dds"/>
+            <Image value="assets\Wireframes\Hybrid\wireframe-hybrid-unit-Advanced-Nemesis-shield03.dds"/>
+        </WireframeShield>
+        <WireframeShieldColor value="255,192,192,192"/>
+        <Macros value="NHbrCommon@DestroyParticles"/>
+    </CActorUnit>
     <CActorBeamSimple id="NHbrNemesisWeapon@BeamLeft" parent="BeamSimpleAnimationStyleContinuous">
         <Model value="NHbrNemesisWeapon@BuffedBeam"/>
         <ModelFlags index="AutomateGlobalLoops" value="1"/>
@@ -177,10 +298,10 @@
         <On Terms="Effect.NHbrNemesisWeapon@Persistent.Stop; At Effect" Send="AnimBracketStop BSD"/>
         <On Terms="Signal.*.BeamOn" Send="ModelSwap NHbrNemesisWeapon@BuffedBeam"/>
         <On Terms="Signal.*.BeamOff" Send="ModelSwap NHbrNemesisWeapon@Beam"/>
+        <Scale value="1.500000"/>
         <ModelFlags index="AutomateGlobalLoops" value="1"/>
         <HostLaunchSiteOps Ops="SOpCasterUnit SOpAttachWeapon"/>
         <HostImpactSiteOps Ops="SOpTargetUnit SOpAttachTarget"/>
-        <Scale value="1.500000"/>
     </CActorBeamSimple>
     <CActorSound id="NHbrNemesisWeapon@LoopSound" parent="SoundContinuous">
         <On Terms="Effect.NHbrNemesisWeapon@Persistent.Start; At Caster" Send="Create"/>
@@ -201,7 +322,7 @@
     </CActorSound>
     <CActorSound id="NHbrNemesis@DeathSound" parent="SoundOneShot">
         <On Terms="UnitDeath.NHbrNemesis; PassChance 25.000000" Send="Create"/>
-        <On Terms="UnitDeath.QueenBurrowed; PassChance 25.000000" Send="Create"/>
+        <On Terms="UnitDeath.NHbrNemesisAdvanced; PassChance 25.000000" Send="Create"/>
         <Sound value="NHbrNemesis@Death_Vanish"/>
         <Layers Sound="Primal_ZergFlyer_Hit">
             <Chance value="100"/>
@@ -220,6 +341,8 @@
         <Aliases value="_UnitHuge"/>
         <Aliases value="_ShieldBlack"/>
         <Remove Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="Upgrade.NHbrNemesisUpgradeToAdvancedNemesis.Add" Send="Create NHbrNemesisAdvanced"/>
+        <On Terms="UnitBirth; ValidatePlayer NHbrNemesisUpgradeToAdvancedNemesis@HasUpgrade" Send="Create NHbrNemesisAdvanced"/>
         <On Terms="Abil.NHbrNemesisStream.SourceChannelStart" Send="$Spell PlayForever"/>
         <On Terms="Abil.NHbrNemesisStream.SourceChannelStop" Send="AnimClear Spell"/>
         <On Terms="Effect.NHbrNemesisWeapon@Persistent.Start" Send="Create NHbrNemesisWeapon@Beam"/>
@@ -258,7 +381,7 @@
         <SoundArray index="Yes" value="QueenYes"/>
         <SoundArray index="Attack" value="NHbrNemesis@Attack_vox"/>
         <SoundArray index="Pissed" value="Queen_Pissed"/>
-        <SoundArray index="Movement" value="zQueen_moveLoop"/>
+        <SoundArray index="Movement" value="Queen_moveLoop"/>
         <SoundArray index="Turning" value="Queen_Turning"/>
         <SoundArray index="Board" value="Queen_Board"/>
         <SoundArray index="Click" value="Queen_Click"/>
@@ -292,11 +415,88 @@
         <WireframeShieldColor value="255,192,192,192"/>
         <BarWidth value="100"/>
         <CustomUnitStatusFrame value="UnitStatus/UnitStatusFrame_HybridNemesis"/>
+        <Macros value="NHbrCommon@DestroyParticles"/>
     </CActorUnit>
     <CActorSound id="NHbrNemesis@StopSound" parent="SoundOneShot">
         <On Terms="Effect.NHbrNemesisWeapon@Persistent.Stop; At Caster" Send="Create"/>
         <Sound value="NHbrNemesisWeapon@WeaponEnd"/>
     </CActorSound>
+    <CModel id="NHbrNemesisAdvanced" parent="Unit" Race="Zerg">
+        <Model value="assets\Units\Hybrid\Hybrid_Advanced_Nemesis\Hybrid_Advanced_Nemesis.m3"/>
+        <AttachProps Id="Ref_Center" SquibType="Shield" RadiusShield="1.000000">
+            <Keys index="Shield" value="0"/>
+        </AttachProps>
+        <EditorCategories value="Race:NHbr"/>
+        <Occlusion value="Show"/>
+        <PlanetPanelCamera value="Star2CameraLow08"/>
+        <Radius value="1.250000"/>
+        <SelectionOffset value="0.000000,0.000000,-0.400000"/>
+        <SelectionRadius value="1.250000"/>
+        <ShadowRadius value="1.250000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <TechPurchaseCamera value="Star2CameraLow08"/>
+        <UnitGlossaryCamera value="Star2CameraLow08"/>
+    </CModel>
+    <CModel id="NHbrNemesisAdvanced@Death" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Protoss\Hybrid_Nemesis_Death\Hybrid_Nemesis_Death.m3"/>
+        <LowQualityModel value="ZergMediumUnitDeathLow"/>
+        <EditorCategories value="Race:NHbr"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="NHbrNemesisDeathSound"/>
+            <Type value="Actor"/>
+            <Time value="3.017000"/>
+            <Payload value="NHbrNemesis@DeathSound"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Uni_DeathFXAcid"/>
+            <Type value="Sound"/>
+            <Time value="0.021000"/>
+            <Payload value="Uni_DeathFXAcid"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Uni_DeathFXAcid"/>
+            <Type value="Sound"/>
+            <Time value="3.004000"/>
+            <Payload value="Uni_DeathFXAcid"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="NHbr_Nemesis_DeathScreams"/>
+            <Type value="Sound"/>
+            <Time value="0.011000"/>
+            <Payload value="NHbrNemesis@DeathScreams"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="NHbr_Nemesis_DeathScreams"/>
+            <Type value="Sound"/>
+            <Time value="0.810000"/>
+            <Payload value="NHbrNemesis@DeathScreams"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="NHbr_Nemesis_DeathScreams"/>
+            <Type value="Sound"/>
+            <Time value="1.607000"/>
+            <Payload value="NHbrNemesis@DeathScreams"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="NHbr_Nemesis_DeathScreams"/>
+            <Type value="Sound"/>
+            <Time value="2.389000"/>
+            <Payload value="NHbrNemesis@DeathScreams"/>
+        </Events>
+        <Occlusion value="Show"/>
+    </CModel>
+    <CModel id="NHbrNemesisAdvanced@Portrait">
+        <Model value="Assets\Portraits\Protoss\Hybrid_Nemesis_Portrait\Hybrid_Nemesis_Portrait.m3"/>
+        <EditorCategories value="Race:NHbr"/>
+        <Image value="Assets\Textures\protossblankportrait_static.dds"/>
+    </CModel>
     <CModel id="NHbrNemesis@Portrait">
         <Model value="Assets\Portraits\Protoss\Hybrid_Nemesis_Portrait\Hybrid_Nemesis_Portrait.m3"/>
         <EditorCategories value="Race:NHbr"/>
@@ -516,6 +716,24 @@
         <VolumeRolloffPoints Distance="11.838440"/>
         <VolumeRolloffPoints Distance="26.880224" Volume="-96.000000"/>
     </CSound>
+    <CDataCollectionUnit id="NHbrNemesisAdvanced">
+        <EditorCategories value="Race:NHbr,DataGroup:Unit"/>
+        <EditorIconSource value="Actor"/>
+        <DataRecord Entry="Actor,NHbrNemesisAdvanced"/>
+        <DataRecord Entry="Model,NHbrNemesisAdvanced@Death"/>
+        <DataRecord Entry="Model,NHbrNemesisAdvanced@Portrait"/>
+        <DataRecord Entry="Model,NHbrNemesisAdvanced"/>
+        <DataRecord Entry="Unit,NHbrNemesisAdvanced"/>
+    </CDataCollectionUnit>
+    <CDataCollectionUpgrade id="NHbrNemesisUpgradeToAdvancedNemesis">
+        <EditorCategories value="DataGroup:Buff,Race:NHbr"/>
+        <DataRecord Entry="Button,NHbrNemesisUpgradeToAdvancedNemesis"/>
+        <DataRecord Entry="Requirement,NHbrNemesisUpgradeToAdvancedNemesis@Completed"/>
+        <DataRecord Entry="Requirement,NHbrNemesisUpgradeToAdvancedNemesis@Show"/>
+        <DataRecord Entry="Requirement,NHbrNemesisUpgradeToAdvancedNemesis@Use"/>
+        <DataRecord Entry="Upgrade,NHbrNemesisUpgradeToAdvancedNemesis"/>
+        <DataRecord Entry="Validator,NHbrNemesisUpgradeToAdvancedNemesis@HasUpgrade"/>
+    </CDataCollectionUpgrade>
     <CDataCollectionAbil id="NHbrNemesisDisintegrator">
         <EditorCategories value="DataGroup:Ability,Race:NHbr"/>
         <DataRecord Entry="Abil,NHbrNemesisDisintegrator"/>
@@ -581,6 +799,52 @@
         <DataRecord Entry="Unit,NHbrNemesis"/>
         <EditorIconSource value="Actor"/>
     </CDataCollectionUnit>
+    <CUnit id="NHbrNemesisAdvanced" parent="DefaultSettingsNHbrAirUnit">
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Massive" value="1"/>
+        <LifeStart value="400"/>
+        <LifeMax value="400"/>
+        <EnergyStart value="200"/>
+        <EnergyMax value="200"/>
+        <ShieldsStart value="150"/>
+        <ShieldsMax value="150"/>
+        <Speed value="2.6601"/>
+        <Acceleration value="1.0625"/>
+        <LateralAcceleration value="46"/>
+        <StationaryTurningRate value="720"/>
+        <TurningRate value="720"/>
+        <Height value="4"/>
+        <VisionHeight value="4"/>
+        <Food value="-6"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="400"/>
+        <CostResource index="Vespene" value="350"/>
+        <AbilArray Link="NHbrNemesisDisintegrator"/>
+        <BehaviorArray Link="NHbrNemesisDisintegrator@Ionizer"/>
+        <WeaponArray Link="NHbrNemesisWeapon"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="NHbrNemesisDisintegrator@Ionizer" Type="AbilCmd" AbilCmd="NHbrNemesisDisintegrator,Off" Row="2" Column="0"/>
+            <LayoutButtons Face="NHbrNemesisDisintegrator@IonizerPassive" Type="Passive" Requirements="NHbrNemesisDisintegrator@HasNoDisintegratorShow" Row="2" Column="0"/>
+            <LayoutButtons Face="NHbrNemesisDisintegrator@Disintegrator" Type="AbilCmd" AbilCmd="NHbrNemesisDisintegrator,On" Row="2" Column="1"/>
+            <LayoutButtons Face="NHbrNemesisDisintegrator@DisintegratorPassive" Type="Passive" Requirements="NHbrNemesisDisintegrator@HasDisintegratorShow" Row="2" Column="1"/>
+            <LayoutButtons Face="NHbrNemesisCatacombNetworkReassembly@NetworkReassembly" Type="Passive" Requirements="NHbrNemesisCatacombNetworkReassembly@Use" Row="1" Column="0"/>
+            <LayoutButtons Face="NHbrNemesisUpgradeToAdvancedNemesis" Type="Passive" Requirements="NHbrNemesisUpgradeToAdvancedNemesis@Use" Row="1" Column="1"/>
+        </CardLayouts>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <InnerRadius value="0.5"/>
+        <ScoreMake value="150"/>
+        <ScoreKill value="150"/>
+        <SubgroupPriority value="54"/>
+        <MinimapRadius value="1.25"/>
+        <AIEvalFactor value="0.55"/>
+        <GlossaryPriority value="36"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="50"/>
+            <ChanceArray index="Idle" value="50"/>
+        </Fidget>
+    </CUnit>
     <CUnit id="NHbrNemesis" parent="DefaultSettingsNHbrAirUnit">
         <Attributes index="Armored" value="1"/>
         <Attributes index="Biological" value="1"/>
@@ -607,6 +871,7 @@
             <LayoutButtons Face="NHbrNemesisDisintegrator@Disintegrator" Type="AbilCmd" AbilCmd="NHbrNemesisDisintegrator,On" Row="2" Column="1"/>
             <LayoutButtons Face="NHbrNemesisDisintegrator@DisintegratorPassive" Type="Passive" Requirements="NHbrNemesisDisintegrator@HasDisintegratorShow" Row="2" Column="1"/>
             <LayoutButtons Face="NHbrNemesisCatacombNetworkReassembly@NetworkReassembly" Type="Passive" Requirements="NHbrNemesisCatacombNetworkReassembly@Use" Row="1" Column="0"/>
+            <LayoutButtons Face="NHbrNemesisUpgradeToAdvancedNemesis" Type="Passive" Requirements="NHbrNemesisUpgradeToAdvancedNemesis@Use" Row="1" Column="1"/>
         </CardLayouts>
         <Radius value="1.25"/>
         <SeparationRadius value="1.25"/>
@@ -658,4 +923,11 @@
         </Duration>
         <InfoFlags index="Hidden" value="1"/>
     </CBehaviorBuff>
+    <CUpgrade id="NHbrNemesisUpgradeToAdvancedNemesis">
+        <Icon value="Assets\Textures\tip_hybridnemesis.dds"/>
+        <EditorCategories value="Race:NHbr"/>
+        <AffectedUnitArray value="NHbrNemesis"/>
+        <AffectedUnitArray value="NHbrNemesisAdvanced"/>
+        <EffectArray Reference="Effect,NHbrNemesisWeapon@Damage,Amount" Value="3"/>
+    </CUpgrade>
 </Catalog>

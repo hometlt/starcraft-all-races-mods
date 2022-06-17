@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
-    <CEffectCreatePersistent id="NHbrSilentWeapon@CP">
+    <CEffectModifyUnit id="NHbrSilentWeapon@MUDummy">
+        <ValidatorArray value="NHbrSilentWeapon@CasterHas5Network"/>
         <EditorCategories value="Race:NHbr"/>
-        <PeriodCount value="0">
-            <AccumulatorArray value="GetNetworkPositive"/>
-        </PeriodCount>
-        <PeriodicEffectArray value="NHbrSilentWeapon@MU"/>
-        <PeriodicPeriodArray value="0.0625"/>
-    </CEffectCreatePersistent>
+        <ImpactUnit Value="Caster"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="NHbrSilentWeapon@ReduceNetwork">
+        <EditorCategories value="Race:NHbr"/>
+        <VitalArray index="Energy">
+            <Change value="-5"/>
+        </VitalArray>
+    </CEffectModifyUnit>
     <CEffectSet id="NHbrSilentWeapon@Set">
         <EditorCategories value="Race:NHbr"/>
-        <EffectArray value="NHbrSilentWeapon@CP"/>
+        <EffectArray value="NHbrSilentWeapon@MUDummy"/>
         <EffectArray value="NHbrSilentWeapon@LM"/>
     </CEffectSet>
-    <CEffectModifyUnit id="NHbrSilentWeapon@MU">
-        <EditorCategories value="Race:NHbr"/>
-        <ResponseFlags index="Acquire" value="1"/>
-        <ResponseFlags index="Flee" value="1"/>
-        <ImpactUnit Value="Caster"/>
-        <Weapon Weapon="NHbrSilentWeapon" CooldownOperation="Add" CooldownFraction="-0.01"/>
-    </CEffectModifyUnit>
     <CEffectDamage id="NHbrSilentWeapon@Damage" parent="DU_WEAP">
         <EditorCategories value="Race:NHbr"/>
         <Kind value="Ranged"/>
@@ -32,10 +28,6 @@
         <AmmoUnit value="NHbrSilentWeapon@Missile"/>
         <Movers Link="NHbrSilentWeapon@Mover"/>
     </CEffectLaunchMissile>
-    <CValidatorUnitWeaponFiring id="NHbrSilentWeapon@CasterisAttacking">
-        <WhichUnit Value="Caster"/>
-        <Weapon value="NHbrSilentWeapon"/>
-    </CValidatorUnitWeaponFiring>
     <CButton id="NHbrSilentWeapon">
         <Icon value="Assets\Textures\btn-ability-spearofadun-solarlance.dds"/>
         <EditorCategories value="Race:NHbr"/>
@@ -109,6 +101,7 @@
         <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
         <ShieldArmorIcon value="Assets\Textures\btn-ability-zeratul-warpprism-shieldboosters.dds"/>
         <Scale value="0.950000"/>
+        <Macros value="NHbrCommon@DestroyParticles"/>
     </CActorUnit>
     <CModel id="NHbrSilentWeapon@Impact" parent="MissileFX">
         <Model value="Assets\Effects\Protoss\DragoonMissileImpact\DragoonMissileImpact.m3"/>
@@ -142,9 +135,10 @@
         <DisplayEffect value="NHbrSilentWeapon@Damage"/>
         <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <Range value="7.5"/>
-        <Period value="0.99"/>
+        <Period value="1"/>
         <DamagePoint value="0"/>
         <Effect value="NHbrSilentWeapon@Set"/>
+        <DisplayAttackCount value="1"/>
     </CWeaponLegacy>
     <CMoverMissile id="NHbrSilentWeapon@Mover">
         <MotionPhases>
@@ -232,21 +226,20 @@
         <EditorCategories value="DataGroup:Weapon,Race:NHbr"/>
         <DataRecord Entry="Actor,NHbrSilentWeapon@Attack"/>
         <DataRecord Entry="Actor,NHbrSilentWeapon@AttackMissile"/>
+        <DataRecord Entry="Button,NHbrSilentWeapon"/>
         <DataRecord Entry="Effect,NHbrSilentWeapon@Damage"/>
+        <DataRecord Entry="Effect,NHbrSilentWeapon@Set"/>
         <DataRecord Entry="Effect,NHbrSilentWeapon@LM"/>
+        <DataRecord Entry="Effect,NHbrSilentWeapon@ReduceNetwork"/>
+        <DataRecord Entry="Effect,NHbrSilentWeapon@MUDummy"/>
         <DataRecord Entry="Model,NHbrSilentWeapon@Impact"/>
         <DataRecord Entry="Model,NHbrSilentWeapon@Missile"/>
         <DataRecord Entry="Mover,NHbrSilentWeapon@Mover"/>
         <DataRecord Entry="Sound,NHbrSilentWeapon@AttackLaunch"/>
         <DataRecord Entry="Sound,NHbrSilentWeapon@AttackImpact"/>
         <DataRecord Entry="Unit,NHbrSilentWeapon@Missile"/>
+        <DataRecord Entry="Validator,NHbrSilentWeapon@CasterHas5Network"/>
         <DataRecord Entry="Weapon,NHbrSilentWeapon"/>
-        <DataRecord Entry="Behavior,NHbrSilentWeapon"/>
-        <DataRecord Entry="Button,NHbrSilentWeapon"/>
-        <DataRecord Entry="Effect,NHbrSilentWeapon@CP"/>
-        <DataRecord Entry="Effect,NHbrSilentWeapon@MU"/>
-        <DataRecord Entry="Effect,NHbrSilentWeapon@Set"/>
-        <DataRecord Entry="Validator,NHbrSilentWeapon@CasterisAttacking"/>
     </CDataCollectionAbil>
     <CDataCollectionUnit id="NHbrSilent">
         <EditorCategories value="Race:NHbr,DataGroup:Unit"/>
@@ -302,17 +295,8 @@
         <Radius value="0.75"/>
         <EnergyStart value="75"/>
         <EnergyMax value="100"/>
-        <BehaviorArray Link="NHbrSilentWeapon"/>
         <CardLayouts index="0">
             <LayoutButtons Face="NHbrSilentWeapon" Type="Passive" Row="2" Column="0"/>
         </CardLayouts>
     </CUnit>
-    <CBehaviorBuff id="NHbrSilentWeapon">
-        <InfoFlags index="Hidden" value="1"/>
-        <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
-        <DisableValidatorArray value="NHbrSilentWeapon@CasterisAttacking"/>
-        <Modification>
-            <VitalRegenArray index="Energy" value="-4"/>
-        </Modification>
-    </CBehaviorBuff>
 </Catalog>
