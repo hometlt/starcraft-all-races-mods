@@ -60,7 +60,6 @@ void libCOMI_InitVariables () {
     libCOMI_gv_enemyFactionsCount = 1;
     libCOMI_gv_selectedEnemyFaction = "Random";
     libCOMI_gv_selectedEnemyPersonality = "None";
-    libCOMI_gv_safetyZone = RegionFromName("Safety Zone");
     for (init_i = 0; init_i <= 15; init_i += 1) {
         libCOMI_gv_playerColor[init_i] = 15;
     }
@@ -908,7 +907,7 @@ void libCOMI_gf_LoadCoopMission (string lp_map, trigger lp_startTrigger) {
     // Implementation
     libCOMI_gf_RegisterPlayers();
     libCOMI_gv_gameMode = MinI(PlayerGroupCount(libCOMI_gv_vU_SlotsPlayers), PlayerGroupCount(libCOMI_gv_vU_HumanPlayers));
-    libCOMI_gf_CheckMapAvailableFactions();
+    libCOMI_gf_RegisterAvailableFactions();
     libCOMI_gf_StorePreplacedUnits();
     libCOMI_gv_cM_CampaignMissionStartTrigger = lp_startTrigger;
     libCOUI_gf_LoadMapOptions();
@@ -1051,9 +1050,12 @@ bool auto_libCOMI_gf_CreateWarpInEffect_TriggerFunc (bool testConds, bool runAct
 void libCOMI_gf_InitAmon () {
     // Automatic Variable Declarations
     // Implementation
-    TriggerEnable(libCOMI_gt_VoidIncomeIncrease, true);
-    TriggerEnable(libCOMI_gt_VoidIncome, true);
-    TriggerExecute(libCOMI_gt_AmonGameplay, true, false);
+    if ((PlayerGroupCount(libCOMI_gv_vU_EnemyPlayers) > 0)) {
+        TriggerEnable(libCOMI_gt_VoidIncomeIncrease, true);
+        TriggerEnable(libCOMI_gt_VoidIncome, true);
+        TriggerExecute(libCOMI_gt_AmonGameplay, true, false);
+    }
+
 }
 
 int libCOMI_gf_IntegerAsTechBucket (int lp_tech) {
@@ -1637,6 +1639,180 @@ bool libCOMI_gf_IsUnitfromFactionCategory (int lp_category, string lp_unitType, 
     return false;
 }
 
+void libCOMI_gf_AddRegionByNameIfExists (region lp_sourceRegion, string lp_targetRegionName) {
+    // Variable Declarations
+    region lv_region;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_region = RegionEmpty();
+
+    // Implementation
+    lv_region = RegionFromName(lp_targetRegionName);
+    if ((lv_region != null)) {
+        RegionAddRegion(lp_sourceRegion, lv_region);
+    }
+
+}
+
+void libCOMI_gf_AddRegionIfExists (region lp_sourceRegion, region lp_targetRegion) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((lp_targetRegion != null)) {
+        RegionAddRegion(lp_sourceRegion, lp_targetRegion);
+    }
+
+}
+
+region libCOMI_gf_GetExpansionZone () {
+    // Variable Declarations
+    region lv_region;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_region = RegionEmpty();
+
+    // Implementation
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Expansion Zone");
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Expansion Area");
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, ("Expansion Area " + IntToString(PlayerGroupCount(libCOMI_gf_GetAlliedCommandersPlayers()))));
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, ("Expansion Zone " + IntToString(PlayerGroupCount(libCOMI_gf_GetAlliedCommandersPlayers()))));
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Expansion Area");
+    if ((libNtve_gf_HeightOfRegion(lv_region) == 0.0) && (libNtve_gf_WidthOfRegion(lv_region) == 0.0)) {
+        return null;
+    }
+    else {
+        return lv_region;
+    }
+}
+
+region libCOMI_gf_GetExplorationZone () {
+    // Variable Declarations
+    region lv_region;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_region = RegionEmpty();
+
+    // Implementation
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Initial Exploration");
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Exploration Zone");
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, ("Exploration Zone " + IntToString(PlayerGroupCount(libCOMI_gf_GetAlliedCommandersPlayers()))));
+    if ((libNtve_gf_HeightOfRegion(lv_region) == 0.0) && (libNtve_gf_WidthOfRegion(lv_region) == 0.0)) {
+        return null;
+    }
+    else {
+        return lv_region;
+    }
+}
+
+region libCOMI_gf_GetIgnoreZone () {
+    // Variable Declarations
+    region lv_region;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_region = RegionEmpty();
+
+    // Implementation
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Ignore Area");
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Ignore Zone");
+    if ((libNtve_gf_HeightOfRegion(lv_region) == 0.0) && (libNtve_gf_WidthOfRegion(lv_region) == 0.0)) {
+        return null;
+    }
+    else {
+        return lv_region;
+    }
+}
+
+region libCOMI_gf_GetSafetyZone () {
+    // Variable Declarations
+    region lv_region;
+
+    // Automatic Variable Declarations
+    playergroup auto6FEA1605_g;
+    int auto6FEA1605_var;
+
+    // Variable Initialization
+    lv_region = RegionEmpty();
+
+    // Implementation
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, ("Safety Zone " + IntToString(PlayerGroupCount(libCOMI_gf_GetAlliedCommandersPlayers()))));
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Safety Zone");
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "MutatorSafetyZone");
+    if ((libNtve_gf_HeightOfRegion(lv_region) == 0.0) && (libNtve_gf_WidthOfRegion(lv_region) == 0.0)) {
+        libCOMI_gf_AddRegionIfExists(lv_region, libCOMI_gf_GetExplorationZone());
+        libCOMI_gf_AddRegionIfExists(lv_region, libCOMI_gf_GetExpansionZone());
+        auto6FEA1605_g = libCOMI_gf_GetAlliedCommandersPlayers();
+        auto6FEA1605_var = -1;
+        while (true) {
+            auto6FEA1605_var = PlayerGroupNextPlayer(auto6FEA1605_g, auto6FEA1605_var);
+            if (auto6FEA1605_var < 0) { break; }
+            RegionAddRegion(lv_region, RegionCircle(libCOMI_gf_GetPlayerStartPosition(auto6FEA1605_var), 25.0));
+        }
+    }
+
+    return lv_region;
+}
+
+region libCOMI_gf_GetSleepZone () {
+    // Variable Declarations
+    region lv_region;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_region = RegionEmpty();
+
+    // Implementation
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Performance Sleep Area");
+    libCOMI_gf_AddRegionByNameIfExists(lv_region, "Sleep Zone");
+    if ((libNtve_gf_HeightOfRegion(lv_region) == 0.0) && (libNtve_gf_WidthOfRegion(lv_region) == 0.0)) {
+        return null;
+    }
+    else {
+        return lv_region;
+    }
+}
+
+void libCOMI_gf_FixHarvestableResources () {
+    // Variable Declarations
+    unitgroup lv_expansionMinerals;
+    unitgroup lv_expansionGeysers;
+    unitgroup lv_assimilators;
+
+    // Automatic Variable Declarations
+    unitgroup autoD7ACC702_g;
+    int autoD7ACC702_u;
+    unit autoD7ACC702_var;
+    unitgroup auto4A97900D_g;
+    int auto4A97900D_u;
+    unit auto4A97900D_var;
+
+    // Variable Initialization
+    lv_expansionMinerals = UnitGroup(null, 0, RegionEntireMap(), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_expansionGeysers = UnitGroup(null, 0, RegionEntireMap(), UnitFilter((1 << c_targetFilterRawResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_assimilators = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure) | (1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+
+    // Implementation
+    autoD7ACC702_g = libCOMI_gv_expansionGeysers;
+    autoD7ACC702_u = UnitGroupCount(autoD7ACC702_g, c_unitCountAll);
+    for (;; autoD7ACC702_u -= 1) {
+        autoD7ACC702_var = UnitGroupUnitFromEnd(autoD7ACC702_g, autoD7ACC702_u);
+        if (autoD7ACC702_var == null) { break; }
+        UnitSetPropertyFixed(autoD7ACC702_var, c_unitPropResources, 5000.0);
+    }
+    auto4A97900D_g = lv_assimilators;
+    auto4A97900D_u = UnitGroupCount(auto4A97900D_g, c_unitCountAll);
+    for (;; auto4A97900D_u -= 1) {
+        auto4A97900D_var = UnitGroupUnitFromEnd(auto4A97900D_g, auto4A97900D_u);
+        if (auto4A97900D_var == null) { break; }
+        if ((UnitGetOwner(auto4A97900D_var) != 0)) {
+            UnitSetPropertyFixed(auto4A97900D_var, c_unitPropResources, 5000.0);
+        }
+
+    }
+}
+
 void libCOMI_gf_SetPlayerColors () {
     int init_i;
 
@@ -2142,6 +2318,10 @@ void libCOMI_gf_CreateRefineries () {
     unit lv_unit;
     string lv_unitType;
     unitgroup lv_geysers;
+    unitgroup lv_minerals;
+    unit lv_mineral;
+    int lv_preplacedWorkers;
+    unitgroup lv_expansionMinerals;
 
     // Automatic Variable Declarations
     playergroup autoA79938BC_g;
@@ -2150,10 +2330,15 @@ void libCOMI_gf_CreateRefineries () {
     int auto40E4AA8D_var;
     unitgroup autoCBAACBB5_g;
     int autoCBAACBB5_u;
+    int auto17E31671_ae;
+    int auto17E31671_var;
 
     // Variable Initialization
     lv_unitCategory = UserDataGetUserInstance("CoopAIFactions", libCOMI_gv_selectedEnemyFaction, "Units", 1);
     lv_geysers = UnitGroupEmpty();
+    lv_minerals = UnitGroupEmpty();
+    lv_preplacedWorkers = 5;
+    lv_expansionMinerals = UnitGroup(null, 0, RegionEntireMap(), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
 
     // Implementation
     autoA79938BC_g = libCOMI_gv_vU_EnemyAI;
@@ -2178,7 +2363,20 @@ void libCOMI_gf_CreateRefineries () {
                     UnitGroupAddUnitGroup(lv_geysers, UnitGroup("ShakurasVespeneGeyser", c_playerAny, RegionCircle(UnitGetPosition(lv_unit), 15.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 2));
                     if ((UnitGroupCount(lv_geysers, c_unitCountAll) == 2)) {
                         libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CoopAIUnitCategories", lv_unitCategory, "Refinery", 1), c_unitCreateIgnorePlacement, autoA79938BC_var, UnitGetPosition(UnitGroupUnit(lv_geysers, 1)));
+                        libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CoopAIUnitCategories", lv_unitCategory, "Worker", 1), c_unitCreateIgnorePlacement, autoA79938BC_var, MidPoint(UnitGetPosition(UnitGroupUnit(lv_geysers, 1)), UnitGetPosition(lv_unit)));
                         libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CoopAIUnitCategories", lv_unitCategory, "Refinery", 1), c_unitCreateIgnorePlacement, autoA79938BC_var, UnitGetPosition(UnitGroupUnit(lv_geysers, 2)));
+                        libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CoopAIUnitCategories", lv_unitCategory, "Worker", 1), c_unitCreateIgnorePlacement, autoA79938BC_var, MidPoint(UnitGetPosition(UnitGroupUnit(lv_geysers, 2)), UnitGetPosition(lv_unit)));
+                        lv_minerals = UnitGroup(null, 0, RegionCircle(UnitGetPosition(lv_unit), 15.0), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), (lv_preplacedWorkers - 2));
+                        auto17E31671_ae = (lv_preplacedWorkers - 2);
+                        auto17E31671_var = 1;
+                        for ( ; auto17E31671_var <= auto17E31671_ae; auto17E31671_var += 1 ) {
+                            if ((UnitGroupCount(lv_minerals, c_unitCountAlive) > 0)) {
+                                lv_mineral = UnitGroupRandomUnit(lv_minerals, c_unitCountAlive);
+                                UnitGroupRemove(lv_minerals, lv_mineral);
+                                libNtve_gf_CreateUnitsWithDefaultFacing(1, UserDataGetUnit("CoopAIUnitCategories", lv_unitCategory, "Worker", 1), c_unitCreateIgnorePlacement, autoA79938BC_var, MidPoint(UnitGetPosition(lv_mineral), UnitGetPosition(lv_unit)));
+                            }
+
+                        }
                     }
 
                 }
@@ -2186,6 +2384,12 @@ void libCOMI_gf_CreateRefineries () {
 
         }
     }
+}
+
+string libCOMI_gf_GetEnemyFaction () {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOMI_gv_selectedEnemyFaction;
 }
 
 void libCOMI_gf_RegisterPlayers () {
@@ -2262,7 +2466,7 @@ void libCOMI_gf_RegisterPlayers () {
     libCOMI_gv_maxAlliesPlayersOnMap = MaxI((libCOMI_gv_totalPlayersOnMap - libCOMI_gv_maxAmonPlayersOnMap), lv_allyPositions);
 }
 
-void libCOMI_gf_CheckMapAvailableFactions () {
+void libCOMI_gf_RegisterAvailableFactions () {
     // Variable Declarations
     string lv_aIPersonality;
     string lv_aIFaction;
@@ -2526,11 +2730,14 @@ void libCOMI_gf_PlayersandAllienceSettings () {
     int auto3AA67E67_var;
     playergroup autoA14B3FB7_g;
     int autoA14B3FB7_var;
+    playergroup auto019EE0A4_g;
+    int auto019EE0A4_var;
+    playergroup autoFB2244D6_g;
+    int autoFB2244D6_var;
     playergroup autoDD8C7461_g;
     playergroup auto7F3B4A0E_g;
     playergroup auto94C6747B_g;
     playergroup autoF08381C5_g;
-    playergroup auto698A507A_g;
     playergroup auto075016DE_g;
 
     // Variable Initialization
@@ -2603,12 +2810,25 @@ void libCOMI_gf_PlayersandAllienceSettings () {
             autoA14B3FB7_var = PlayerGroupNextPlayer(autoA14B3FB7_g, autoA14B3FB7_var);
             if (autoA14B3FB7_var < 0) { break; }
             if ((lv_player != autoA14B3FB7_var)) {
-                PlayerSetState(autoA14B3FB7_var, c_playerStateFoodIgnored, true);
                 libNtve_gf_SetAlliance(lv_player, autoA14B3FB7_var, libNtve_ge_AllianceSetting_AllyWithSharedVisionAndPushable);
                 libNtve_gf_SetAlliance(autoA14B3FB7_var, lv_player, libNtve_ge_AllianceSetting_AllyWithSharedVisionAndPushable);
             }
 
         }
+    }
+    auto019EE0A4_g = libCOMI_gv_vU_EnemyPlayers;
+    auto019EE0A4_var = -1;
+    while (true) {
+        auto019EE0A4_var = PlayerGroupNextPlayer(auto019EE0A4_g, auto019EE0A4_var);
+        if (auto019EE0A4_var < 0) { break; }
+        PlayerSetState(auto019EE0A4_var, c_playerStateFoodIgnored, true);
+    }
+    autoFB2244D6_g = libCOMI_gv_vU_Enemies;
+    autoFB2244D6_var = -1;
+    while (true) {
+        autoFB2244D6_var = PlayerGroupNextPlayer(autoFB2244D6_g, autoFB2244D6_var);
+        if (autoFB2244D6_var < 0) { break; }
+        PlayerSetState(autoFB2244D6_var, c_playerStateFoodIgnored, true);
     }
     autoDD8C7461_g = libCOMI_gv_vU_EnemyAI;
     lv_player = -1;
@@ -2642,27 +2862,27 @@ void libCOMI_gf_PlayersandAllienceSettings () {
         lv_player = PlayerGroupNextPlayer(autoF08381C5_g, lv_player);
         if (lv_player < 0) { break; }
         if (((PlayerStatus(lv_player) == c_playerStatusLeft) || (PlayerType(lv_player) == c_playerTypeNone))) {
-            libNtve_gf_SetAllianceBetweenTwoPlayerGroups(PlayerGroupSingle(lv_player), libCOMI_gf_GetAlliedCommandersPlayers(), libNtve_ge_AllianceSetting_AllyWithSharedVisionControlAndSpending);
+            if ((libCOUI_gv_chosenTeam[lv_player] == 1)) {
+                libNtve_gf_SetAllianceBetweenTwoPlayerGroups(PlayerGroupSingle(lv_player), libCOMI_gf_GetAlliedCommandersPlayers(), libNtve_ge_AllianceSetting_AllyWithSharedVisionControlAndSpending);
+            }
+            else {
+                libNtve_gf_SetAllianceBetweenTwoPlayerGroups(PlayerGroupSingle(lv_player), libCOMI_gf_GetEnemyHumanPlayers(), libNtve_ge_AllianceSetting_AllyWithSharedVisionControlAndSpending);
+            }
         }
 
     }
-    auto698A507A_g = libCOMI_gv_all;
-    lv_player = -1;
-    while (true) {
-        lv_player = PlayerGroupNextPlayer(auto698A507A_g, lv_player);
-        if (lv_player < 0) { break; }
-        if ((lv_player != 15) && (libCOMI_gf_ActiveCommanderForPlayer4(lv_player) == null)) {
-            libNtve_gf_SetAllianceBetweenTwoPlayerGroups(PlayerGroupSingle(lv_player), PlayerGroupSingle(15), libNtve_ge_AllianceSetting_Neutral);
-            libNtve_gf_SetAllianceBetweenTwoPlayerGroups(PlayerGroupSingle(15), PlayerGroupSingle(lv_player), libNtve_ge_AllianceSetting_Neutral);
-        }
-
-    }
-    auto075016DE_g = PlayerGroupAll();
+    auto075016DE_g = libCOMI_gv_all;
     lv_player = -1;
     while (true) {
         lv_player = PlayerGroupNextPlayer(auto075016DE_g, lv_player);
         if (lv_player < 0) { break; }
-        libNtve_gf_SetAlliance(lv_player, 0, libNtve_ge_AllianceSetting_Neutral);
+        libNtve_gf_SetAlliance(lv_player, libCOMI_gv_playerNeutral, libNtve_ge_AllianceSetting_Neutral);
+        libNtve_gf_SetAlliance(libCOMI_gv_playerNeutral, lv_player, libNtve_ge_AllianceSetting_Neutral);
+        if ((PlayerGroupHasPlayer(libCOMI_gf_GetAlliedCommandersPlayers(), lv_player) == false)) {
+            libNtve_gf_SetAlliance(lv_player, libCOMI_gv_playerHostile, libNtve_ge_AllianceSetting_Neutral);
+            libNtve_gf_SetAlliance(libCOMI_gv_playerHostile, lv_player, libNtve_ge_AllianceSetting_Neutral);
+        }
+
     }
 }
 
@@ -3093,45 +3313,6 @@ void libCOMI_gf_CreateUnitAndCreep (int lp_pLAYER, string lp_tYPE, point lp_pOSI
         AISetUnitScriptControlled(lv_uNIT, false);
     }
 
-}
-
-void libCOMI_gf_FixResources () {
-    // Variable Declarations
-    unitgroup lv_expansionMinerals;
-    unitgroup lv_expansionGeysers;
-    unitgroup lv_assimilators;
-
-    // Automatic Variable Declarations
-    unitgroup autoD7ACC702_g;
-    int autoD7ACC702_u;
-    unit autoD7ACC702_var;
-    unitgroup auto4A97900D_g;
-    int auto4A97900D_u;
-    unit auto4A97900D_var;
-
-    // Variable Initialization
-    lv_expansionMinerals = UnitGroup(null, 0, RegionEntireMap(), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-    lv_expansionGeysers = UnitGroup(null, 0, RegionEntireMap(), UnitFilter((1 << c_targetFilterRawResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-    lv_assimilators = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure) | (1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-
-    // Implementation
-    autoD7ACC702_g = libCOMI_gv_expansionGeysers;
-    autoD7ACC702_u = UnitGroupCount(autoD7ACC702_g, c_unitCountAll);
-    for (;; autoD7ACC702_u -= 1) {
-        autoD7ACC702_var = UnitGroupUnitFromEnd(autoD7ACC702_g, autoD7ACC702_u);
-        if (autoD7ACC702_var == null) { break; }
-        UnitSetPropertyFixed(autoD7ACC702_var, c_unitPropResources, 5000.0);
-    }
-    auto4A97900D_g = lv_assimilators;
-    auto4A97900D_u = UnitGroupCount(auto4A97900D_g, c_unitCountAll);
-    for (;; auto4A97900D_u -= 1) {
-        auto4A97900D_var = UnitGroupUnitFromEnd(auto4A97900D_g, auto4A97900D_u);
-        if (auto4A97900D_var == null) { break; }
-        if ((UnitGetOwner(auto4A97900D_var) != 0)) {
-            UnitSetPropertyFixed(auto4A97900D_var, c_unitPropResources, 5000.0);
-        }
-
-    }
 }
 
 void libCOMI_gf_CM_AIThinkCoop2 (int lp_player) {
@@ -15634,7 +15815,7 @@ bool libCOMI_gt_fast_Func (bool testConds, bool runActions) {
     }
 
     TriggerExecute(libA8FDA37D_gt_UT_FastBuild, true, false);
-    auto85FE8006_g = libCOMI_gf_GetHumanPlayers();
+    auto85FE8006_g = libCOMI_gf_GetAlliedCommandersPlayers();
     auto85FE8006_var = -1;
     while (true) {
         auto85FE8006_var = PlayerGroupNextPlayer(auto85FE8006_g, auto85FE8006_var);
@@ -16223,15 +16404,12 @@ bool libCOMI_gt_CM_VOEnemySpotted_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    if (true) {
-    }
-
-    if ((PlayerGroupHasPlayer(libCOMI_gv_vU_Allies, lv_attackedPlayer) == true) && ((PlayerGroupHasPlayer(libCOMI_gv_vU_EnemyAI, lv_attackingPlayer) == true) || (PlayerGroupHasPlayer(libCOMI_gv_vU_EnemyPlayers, lv_attackingPlayer) == true))) {
+    if ((PlayerGroupHasPlayer(libCOMI_gf_GetAlliedCommandersPlayers(), lv_attackedPlayer) == true) && ((PlayerGroupHasPlayer(libCOMI_gf_GetEnemyAIPlayers(), lv_attackingPlayer) == true) || (PlayerGroupHasPlayer(libCOMI_gf_GetEnemyHumanPlayers(), lv_attackingPlayer) == true))) {
         lv_enemyPlayer = lv_attackingPlayer;
         lv_enemyUnit = lv_attackingUnit;
         lv_userPlayer = lv_attackedPlayer;
     }
-    else if ((PlayerGroupHasPlayer(libCOMI_gv_vU_Allies, lv_attackingPlayer) == true) && ((PlayerGroupHasPlayer(libCOMI_gv_vU_EnemyAI, lv_attackedPlayer) == true) || (PlayerGroupHasPlayer(libCOMI_gv_vU_EnemyPlayers, lv_attackedPlayer) == true))) {
+    else if ((PlayerGroupHasPlayer(libCOMI_gf_GetAlliedCommandersPlayers(), lv_attackingPlayer) == true) && ((PlayerGroupHasPlayer(libCOMI_gf_GetEnemyAIPlayers(), lv_attackedPlayer) == true) || (PlayerGroupHasPlayer(libCOMI_gf_GetEnemyHumanPlayers(), lv_attackedPlayer) == true))) {
         lv_enemyPlayer = lv_attackedPlayer;
         lv_enemyUnit = lv_attackedUnit;
         lv_userPlayer = lv_attackingPlayer;
@@ -16265,103 +16443,6 @@ void libCOMI_gt_CM_VOEnemySpotted_Init () {
     libCOMI_gt_CM_VOEnemySpotted = TriggerCreate("libCOMI_gt_CM_VOEnemySpotted_Func");
     TriggerEnable(libCOMI_gt_CM_VOEnemySpotted, false);
     TriggerAddEventUnitAttacked2(libCOMI_gt_CM_VOEnemySpotted, null, null);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Player Start [<PLAYERS>-]<PLAYER>
-//--------------------------------------------------------------------------------------------------
-bool libCOMI_gt_PlayerStartPLAYERSPLAYER_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libCOMI_gt_PlayerStartPLAYERSPLAYER_Init () {
-    libCOMI_gt_PlayerStartPLAYERSPLAYER = TriggerCreate("libCOMI_gt_PlayerStartPLAYERSPLAYER_Func");
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Hero Spawn [<PLAYERS>-]<PLAYER>
-//--------------------------------------------------------------------------------------------------
-bool libCOMI_gt_HeroSpawnPLAYERSPLAYER_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libCOMI_gt_HeroSpawnPLAYERSPLAYER_Init () {
-    libCOMI_gt_HeroSpawnPLAYERSPLAYER = TriggerCreate("libCOMI_gt_HeroSpawnPLAYERSPLAYER_Func");
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Safety Zone [<M>]
-//--------------------------------------------------------------------------------------------------
-bool libCOMI_gt_SafetyZoneM_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    fixed lv_startinglocationsafetyradius;
-    region lv_safety;
-
-    // Automatic Variable Declarations
-    playergroup auto28FB23E8_g;
-    int auto28FB23E8_var;
-
-    // Variable Initialization
-    lv_startinglocationsafetyradius = 25.0;
-    lv_safety = libCOMI_gv_safetyZone;
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libCOMU_gv_cT_MutatorSafetyZone = RegionEmpty();
-    lv_safety = RegionFromName(("Safety Zone " + IntToString(PlayerGroupCount(libCOMI_gf_GetAlliedCommandersPlayers()))));
-    if ((lv_safety != null)) {
-        RegionAddRegion(libCOMU_gv_cT_MutatorSafetyZone, lv_safety);
-    }
-
-    lv_safety = RegionFromName("Safety Zone");
-    if ((lv_safety != null)) {
-        RegionAddRegion(libCOMU_gv_cT_MutatorSafetyZone, lv_safety);
-    }
-
-    lv_safety = RegionFromName("MutatorSafetyZone");
-    if ((lv_safety != null)) {
-        RegionAddRegion(libCOMU_gv_cT_MutatorSafetyZone, lv_safety);
-    }
-
-    lv_safety = RegionFromName("Initial Exploration");
-    if ((libCOMU_gv_cT_MutatorSafetyZone == RegionEmpty()) && (lv_safety != null)) {
-        libCOMU_gv_cT_MutatorSafetyZone = lv_safety;
-    }
-
-    lv_safety = RegionFromName("Expansion Area");
-    if ((lv_safety != null)) {
-        RegionAddRegion(libCOMU_gv_cT_MutatorSafetyZone, lv_safety);
-    }
-
-    lv_safety = RegionFromName(("Expansion Area " + IntToString(PlayerGroupCount(libCOMI_gf_GetAlliedCommandersPlayers()))));
-    if ((lv_safety != null)) {
-        RegionAddRegion(libCOMU_gv_cT_MutatorSafetyZone, lv_safety);
-    }
-
-    auto28FB23E8_g = libCOMI_gf_GetAlliedCommandersPlayers();
-    auto28FB23E8_var = -1;
-    while (true) {
-        auto28FB23E8_var = PlayerGroupNextPlayer(auto28FB23E8_g, auto28FB23E8_var);
-        if (auto28FB23E8_var < 0) { break; }
-        lv_safety = RegionCircle(libCOMI_gf_GetPlayerStartPosition(auto28FB23E8_var), lv_startinglocationsafetyradius);
-        if ((lv_safety != null)) {
-            RegionAddRegion(libCOMU_gv_cT_MutatorSafetyZone, lv_safety);
-        }
-
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libCOMI_gt_SafetyZoneM_Init () {
-    libCOMI_gt_SafetyZoneM = TriggerCreate("libCOMI_gt_SafetyZoneM_Func");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -16432,7 +16513,7 @@ bool libCOMI_gt_PerformanceSleepArea_Func (bool testConds, bool runActions) {
     // Variable Initialization
     lv_placedUnits = UnitGroupEmpty();
     lv_sleepyOwners = PlayerGroupEmpty();
-    lv_performanceSleepArea = RegionFromName("Performance Sleep Area");
+    lv_performanceSleepArea = libCOMI_gf_GetSleepZone();
 
     // Actions
     if (!runActions) {
@@ -16498,7 +16579,7 @@ bool libCOMI_gt_InitialExploration_Func (bool testConds, bool runActions) {
     playergroup autoE19D999D_g;
 
     // Variable Initialization
-    lv_region = RegionFromName("Initial Exploration");
+    lv_region = libCOMI_gf_GetExplorationZone();
     lv_amonExploration = RegionFromName("Amon Initial Exploration");
 
     // Conditions
@@ -16557,13 +16638,11 @@ void libCOMI_gt_InitialExploration_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: Expansion Area [<M>]
+// Trigger: Fix Expansion Area Rocks
 //--------------------------------------------------------------------------------------------------
-bool libCOMI_gt_ExpansionAreaM_Func (bool testConds, bool runActions) {
+bool libCOMI_gt_FixExpansionAreaRocks_Func (bool testConds, bool runActions) {
     // Variable Declarations
     region lv_region;
-    region lv_region1;
-    region lv_region2;
     unit lv_unit;
     int lv_player;
 
@@ -16578,9 +16657,7 @@ bool libCOMI_gt_ExpansionAreaM_Func (bool testConds, bool runActions) {
     unit auto5AE09336_var;
 
     // Variable Initialization
-    lv_region = RegionEmpty();
-    lv_region1 = RegionFromName("Expansion Area");
-    lv_region2 = RegionFromName(("Expansion Area " + IntToString(PlayerGroupCount(libCOMI_gf_GetAlliedCommandersPlayers()))));
+    lv_region = libCOMI_gf_GetExpansionZone();
 
     // Conditions
     if (testConds) {
@@ -16592,14 +16669,6 @@ bool libCOMI_gt_ExpansionAreaM_Func (bool testConds, bool runActions) {
     // Actions
     if (!runActions) {
         return true;
-    }
-
-    if ((lv_region1 != null)) {
-        RegionAddRegion(lv_region, lv_region1);
-    }
-
-    if ((lv_region2 != null)) {
-        RegionAddRegion(lv_region, lv_region2);
     }
 
     libCOMI_gv_expansionMinerals = UnitGroup(null, 0, lv_region, UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
@@ -16634,8 +16703,8 @@ bool libCOMI_gt_ExpansionAreaM_Func (bool testConds, bool runActions) {
 }
 
 //--------------------------------------------------------------------------------------------------
-void libCOMI_gt_ExpansionAreaM_Init () {
-    libCOMI_gt_ExpansionAreaM = TriggerCreate("libCOMI_gt_ExpansionAreaM_Func");
+void libCOMI_gt_FixExpansionAreaRocks_Init () {
+    libCOMI_gt_FixExpansionAreaRocks = TriggerCreate("libCOMI_gt_FixExpansionAreaRocks_Func");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -16720,8 +16789,8 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeTipAlertPanel, false);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeTeamResourceButton, false);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeAllianceButton, false);
-    TriggerExecute(libCOMI_gt_ExpansionAreaM, true, true);
-    TriggerExecute(libCOMI_gt_SafetyZoneM, true, true);
+    TriggerExecute(libCOMI_gt_FixExpansionAreaRocks, true, true);
+    libCOMU_gv_cT_MutatorSafetyZone = libCOMI_gf_GetSafetyZone();
     libCOMU_gf_CT_InitializeAll();
     TriggerExecute(libCOMI_gt_CM_CampaignUnitTeaching, true, false);
     auto4B79EFEC_g = libCOMI_gf_GetAlliedCommandersPlayers();
@@ -16797,7 +16866,7 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
         libLbty_gf_OrderWorkerstoGatherNearbyResources(RegionEntireMap(), lv_player);
     }
     TriggerExecute(libCOMI_gt_TipReadyQ2, true, false);
-    libCOMI_gf_FixResources();
+    libCOMI_gf_FixHarvestableResources();
     return true;
 }
 
@@ -27724,12 +27793,14 @@ void libCOMI_gt_CM_Zeratul_ArtifactRush_Init () {
 //--------------------------------------------------------------------------------------------------
 bool libCOMI_gt_CM_Zeratul_TriggersInit_Func (bool testConds, bool runActions) {
     // Variable Declarations
+    unitgroup lv_units;
     int lv_p;
 
     // Automatic Variable Declarations
     playergroup auto1CB18E9A_g;
 
     // Variable Initialization
+    lv_units = UnitGroupEmpty();
 
     // Actions
     if (!runActions) {
@@ -27744,8 +27815,6 @@ bool libCOMI_gt_CM_Zeratul_TriggersInit_Func (bool testConds, bool runActions) {
         if ((libCOMI_gf_ActiveCommanderForPlayer4(lv_p) == "Zeratul")) {
             libCOMI_gv_cM_ZeratulPlayer = lv_p;
             libCOMI_gf_CM_Zeratul_PlaceArtifact(libCOMI_gv_cM_ZeratulPlayer);
-            TechTreeBehaviorAllow(lv_p, "CannotTrade", false);
-            TechTreeAbilityAllow(lv_p, AbilityCommand("RoboticsBayResearch", 1), false);
         }
 
     }
@@ -27794,7 +27863,7 @@ bool libCOMI_gt_CM_Zeratul_TriggersInit_Func (bool testConds, bool runActions) {
     TriggerEnable(libCOMI_gt_CM_ZeratulAvatarMinimapIcon, true);
     TriggerEnable(libCOMI_gt_CM_Zeratul_RallySetToZeratul, true);
     TriggerEnable(libCOMI_gt_CM_Zeratul_TransportResetRally, true);
-    Wait(0.0625, c_timeGame);
+    Wait(0.625, c_timeGame);
     VisFillArea(libCOMI_gv_cM_ZeratulPlayer, RegionEntireMap(), c_fillTypeMasked, false);
     return true;
 }
@@ -38563,13 +38632,10 @@ void libCOMI_InitTriggers () {
     libCOMI_gt_AmonGameplay_Init();
     libCOMI_gt_AmonChangeOwner_Init();
     libCOMI_gt_CM_VOEnemySpotted_Init();
-    libCOMI_gt_PlayerStartPLAYERSPLAYER_Init();
-    libCOMI_gt_HeroSpawnPLAYERSPLAYER_Init();
-    libCOMI_gt_SafetyZoneM_Init();
     libCOMI_gt_DoodadsReplacementAreaP_Init();
     libCOMI_gt_PerformanceSleepArea_Init();
     libCOMI_gt_InitialExploration_Init();
-    libCOMI_gt_ExpansionAreaM_Init();
+    libCOMI_gt_FixExpansionAreaRocks_Init();
     libCOMI_gt_CM_CampaignMissionInitialize_Init();
     libCOMI_gt_Autocasting_Init();
     libCOMI_gt_VoidPingSound_Init();

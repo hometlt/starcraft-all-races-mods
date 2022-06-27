@@ -113,7 +113,7 @@ void libCOUI_InitVariables () {
     libCOUI_gv_uT_CommandsButton = c_invalidDialogControlId;
     libCOUI_gv_playAmonButton = c_invalidDialogControlId;
     libCOUI_gv_playRandomButton = c_invalidDialogControlId;
-    for (init_i = 0; init_i <= libCOMI_gv_mAX_TEAM_PLAYERS; init_i += 1) {
+    for (init_i = 0; init_i <= 15; init_i += 1) {
         libCOUI_gv_chosenTeam[init_i] = 1;
     }
     for (init_i = 0; init_i <= libCOUI_gv_cUC_COMMSELECTMAX; init_i += 1) {
@@ -955,11 +955,8 @@ void libCOUI_gf_CreateGameBriefingRoom () {
     }
     DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeLabel, "Coop_CommanderSelection/CommanderSelectionTemplate/Title");
     libNtve_gf_SetDialogItemText(DialogControlLastCreated(), GameMapName(), PlayerGroupAll());
-    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeLabel, "VoidShared_MissionLaunchUI2D/Mission2DTemplate/Objective");
+    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeLabel, "Coop_CommanderSelection/CommanderSelectionTemplate/Objective");
     libNtve_gf_SetDialogItemText(DialogControlLastCreated(), GameMapDescription(), PlayerGroupAll());
-    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeButton, "VoidShared_MissionLaunchUI2D/Mission2DTemplate/LaunchButton");
-    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeButton, "VoidShared_MissionLaunchUI2D/Mission2DTemplate/QuitButton");
-    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypePulldown, "VoidShared_MissionLaunchUI2D/Mission2DTemplate/DifficultyPulldown");
     libCOUI_gf_CreateCommandersList();
     libCOUI_gf_UpdateDifficultiesList();
     libCOUI_gf_UpdateGameModeList();
@@ -1295,6 +1292,43 @@ void libCOUI_gf_SetFreeCommander (int lp_player, string lp_commander) {
     }
 }
 
+playergroup libCOUI_gf_GetplayingPlayers () {
+    // Variable Declarations
+    playergroup lv_playingPlayers;
+
+    // Automatic Variable Declarations
+    playergroup auto3E4EF7EC_g;
+    int auto3E4EF7EC_var;
+    playergroup auto5ED670EB_g;
+    int auto5ED670EB_var;
+
+    // Variable Initialization
+    lv_playingPlayers = PlayerGroupEmpty();
+
+    // Implementation
+    auto3E4EF7EC_g = libCOMI_gv_vU_SlotsPlayers;
+    auto3E4EF7EC_var = -1;
+    while (true) {
+        auto3E4EF7EC_var = PlayerGroupNextPlayer(auto3E4EF7EC_g, auto3E4EF7EC_var);
+        if (auto3E4EF7EC_var < 0) { break; }
+        if ((PlayerType(auto3E4EF7EC_var) == c_playerTypeUser) && (PlayerStatus(auto3E4EF7EC_var) != c_playerStatusLeft)) {
+            PlayerGroupAdd(lv_playingPlayers, auto3E4EF7EC_var);
+        }
+
+    }
+    auto5ED670EB_g = libCOMI_gv_vU_SlotsPlayers;
+    auto5ED670EB_var = -1;
+    while (true) {
+        auto5ED670EB_var = PlayerGroupNextPlayer(auto5ED670EB_g, auto5ED670EB_var);
+        if (auto5ED670EB_var < 0) { break; }
+        if (((PlayerType(auto5ED670EB_var) != c_playerTypeUser) || (PlayerStatus(auto5ED670EB_var) == c_playerStatusLeft)) && (libCOMI_gv_gameMode > PlayerGroupCount(lv_playingPlayers))) {
+            PlayerGroupAdd(lv_playingPlayers, auto5ED670EB_var);
+        }
+
+    }
+    return lv_playingPlayers;
+}
+
 void libCOUI_gf_UpdateCommandersList () {
     // Variable Declarations
     text lv_commanderDscription;
@@ -1307,6 +1341,7 @@ void libCOUI_gf_UpdateCommandersList () {
     int lv_alliesPlayersCount;
     int lv_ownerIndex;
     string lv_commander;
+    playergroup lv_playingPlayers;
 
     // Automatic Variable Declarations
     const int auto685D2F52_ae = libCOUI_gv_cUC_COMMSELECTMAX;
@@ -1331,6 +1366,7 @@ void libCOUI_gf_UpdateCommandersList () {
     lv_chosenPlayer = PlayerGroupEmpty();
     TextExpressionSetToken("Param/Expression/lib_COUI_F5D4CF06", "A", lv_availableTooltip);
     lv_unavailableTooltip = TextExpressionAssemble("Param/Expression/lib_COUI_F5D4CF06");
+    lv_playingPlayers = libCOUI_gf_GetplayingPlayers();
 
     // Implementation
     if ((libCOUI_gv_cU_CommanderDialog == c_invalidDialogId)) {
@@ -1346,7 +1382,7 @@ void libCOUI_gf_UpdateCommandersList () {
 
         lv_owner = 0;
         lv_ownerIndex = 0;
-        auto731B3ACF_g = libCOMI_gv_vU_SlotsPlayers;
+        auto731B3ACF_g = lv_playingPlayers;
         auto731B3ACF_var = -1;
         while (true) {
             auto731B3ACF_var = PlayerGroupNextPlayer(auto731B3ACF_g, auto731B3ACF_var);
@@ -1362,7 +1398,7 @@ void libCOUI_gf_UpdateCommandersList () {
         TextExpressionSetToken("Param/Expression/lib_COUI_5FA327C8", "B", StringExternal(CatalogFieldValueGet(c_gameCatalogRace, libCOOC_gf_CC_CommanderRace(UserDataInstance("PlayerCommanders", lv_commIndex)), "Name", c_playerAny)));
         TextExpressionSetToken("Param/Expression/lib_COUI_5FA327C8", "C", lv_commanderDscription);
         lv_availableTooltip = TextExpressionAssemble("Param/Expression/lib_COUI_5FA327C8");
-        if ((lv_owner != 0) && ((PlayerType(lv_owner) == c_playerTypeUser) || (libCOMI_gv_gameMode >= lv_ownerIndex))) {
+        if ((lv_owner != 0)) {
             lv_otherPlayers = PlayerGroupAll();
             PlayerGroupRemove(lv_otherPlayers, lv_owner);
             lv_chosenPlayer = PlayerGroupSingle(lv_owner);
@@ -1390,7 +1426,7 @@ void libCOUI_gf_UpdateCommandersList () {
         }
     }
     libCOUI_gv_randomPlayersCount = 0;
-    auto3CF0DB57_g = libCOMI_gv_vU_SlotsPlayers;
+    auto3CF0DB57_g = lv_playingPlayers;
     auto3CF0DB57_var = -1;
     while (true) {
         auto3CF0DB57_var = PlayerGroupNextPlayer(auto3CF0DB57_g, auto3CF0DB57_var);
@@ -1422,12 +1458,12 @@ void libCOUI_gf_UpdateCommandersList () {
         DialogControlSetVisible(libCOUI_gv_playRandomButton, PlayerGroupAll(), false);
     }
     else {
-        auto64187F3C_g = libCOMI_gv_vU_SlotsPlayers;
+        auto64187F3C_g = lv_playingPlayers;
         auto64187F3C_var = -1;
         while (true) {
             auto64187F3C_var = PlayerGroupNextPlayer(auto64187F3C_g, auto64187F3C_var);
             if (auto64187F3C_var < 0) { break; }
-            if ((libCOOC_gv_cCX_PlayerCommander[auto64187F3C_var] == null)) {
+            if ((libCOOC_gv_cCX_PlayerCommander[auto64187F3C_var] == null) && (libCOUI_gv_chosenTeam[auto64187F3C_var] == 1)) {
                 DialogControlSetVisible(libCOUI_gv_playRandomButton, PlayerGroupSingle(auto64187F3C_var), false);
             }
             else {
@@ -1436,7 +1472,7 @@ void libCOUI_gf_UpdateCommandersList () {
         }
     }
     libCOUI_gv_amonPlayersCount = 0;
-    autoCBB77C43_g = libCOMI_gv_vU_SlotsPlayers;
+    autoCBB77C43_g = lv_playingPlayers;
     autoCBB77C43_var = -1;
     while (true) {
         autoCBB77C43_var = PlayerGroupNextPlayer(autoCBB77C43_g, autoCBB77C43_var);
@@ -1470,7 +1506,7 @@ void libCOUI_gf_UpdateCommandersList () {
         DialogControlSetVisible(libCOUI_gv_playAmonButton, PlayerGroupAll(), false);
     }
     else {
-        autoE9398060_g = libCOMI_gv_vU_SlotsPlayers;
+        autoE9398060_g = lv_playingPlayers;
         autoE9398060_var = -1;
         while (true) {
             autoE9398060_var = PlayerGroupNextPlayer(autoE9398060_g, autoE9398060_var);
@@ -1576,28 +1612,28 @@ void libCOUI_gf_VU_Ready () {
     int lv_player;
 
     // Automatic Variable Declarations
-    int auto9309B7FE_ae;
-    const int auto9309B7FE_ai = 1;
+    playergroup autoB234CFEC_g;
     playergroup autoE017512C_g;
 
     // Variable Initialization
 
     // Implementation
-    auto9309B7FE_ae = PlayerGroupCount(libCOMI_gv_vU_SlotsPlayers);
-    lv_slotIndex = 1;
-    for ( ; ( (auto9309B7FE_ai >= 0 && lv_slotIndex <= auto9309B7FE_ae) || (auto9309B7FE_ai < 0 && lv_slotIndex >= auto9309B7FE_ae) ) ; lv_slotIndex += auto9309B7FE_ai ) {
-        lv_player = PlayerGroupPlayer(libCOMI_gv_vU_SlotsPlayers, lv_slotIndex);
-        if ((PlayerType(lv_player) != c_playerTypeUser) && (lv_slotIndex > libCOMI_gv_gameMode)) {
-            continue;
-        }
-
+    autoB234CFEC_g = libCOUI_gf_GetplayingPlayers();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(autoB234CFEC_g, lv_player);
+        if (lv_player < 0) { break; }
         if ((libCOUI_gv_chosenTeam[lv_player] == 2)) {
             PlayerGroupAdd(libCOMI_gv_vU_EnemyPlayers, lv_player);
             PlayerGroupAdd(libCOMI_gv_vU_Enemies, lv_player);
         }
         else {
             if ((libCOOC_gv_cCX_PlayerCommander[lv_player] == null)) {
-                libCOOC_gv_cCX_PlayerCommander[lv_player] = libCOUI_gf_RandomCommander();
+                libCOOC_gf_CC_PlayerCommanderSet(lv_player, libCOUI_gf_RandomCommander());
+                libCOUI_gf_CU_PrestigeSelect(lv_player, DataTableGetInt(true, libCOOC_gf_CC_PrestigeCommanderTableKey(libCOOC_gv_cCX_PlayerCommander[lv_player], lv_player)));
+                libCOUI_gf_CU_MasteryInitFromData(lv_player);
+                libCOUI_gf_CU_MasteryUpdatePoints(lv_player);
+                libCOUI_gf_CU_MasteryUpdate(lv_player);
             }
 
             PlayerGroupAdd(libCOMI_gv_vU_Allies, lv_player);
@@ -7062,6 +7098,33 @@ void libCOUI_gt_UT_CommandsButtonClicked_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: CU_PlayerLeftInLobby
+//--------------------------------------------------------------------------------------------------
+bool libCOUI_gt_CU_PlayerLeftInLobby_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libCOMI_gv_gameHasBegun == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libCOUI_gf_UpdateCommandersList();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOUI_gt_CU_PlayerLeftInLobby_Init () {
+    libCOUI_gt_CU_PlayerLeftInLobby = TriggerCreate("libCOUI_gt_CU_PlayerLeftInLobby_Func");
+    TriggerAddEventPlayerLeft(libCOUI_gt_CU_PlayerLeftInLobby, c_playerAny, c_gameResultUndecided);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Commander Button Clicked
 //--------------------------------------------------------------------------------------------------
 bool libCOUI_gt_CommanderButtonClicked_Func (bool testConds, bool runActions) {
@@ -10401,6 +10464,7 @@ void libCOUI_InitTriggers () {
     libCOUI_gt_AF_CS_CommanderSelected_Init();
     libCOUI_gt_AF_CS_NewsControlButtonClicked_Init();
     libCOUI_gt_UT_CommandsButtonClicked_Init();
+    libCOUI_gt_CU_PlayerLeftInLobby_Init();
     libCOUI_gt_CommanderButtonClicked_Init();
     libCOUI_gt_UT_PrestigeAlly_Init();
     libCOUI_gt_UT_CommanderClicked_Init();
