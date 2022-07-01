@@ -36,6 +36,8 @@ void libCOMI_InitVariables () {
 
     libCOMI_InitVariables_completed = true;
 
+    libCOMI_gv_wEBSITE = StringExternal("Param/Value/lib_COMI_395DFFCD");
+    libCOMI_gv_aNNOUNCE_MESSAGE = StringExternal("Param/Value/lib_COMI_EB166CF7");
     libCOMI_gv_cM_HeroUnitsOfAllCommanders = UnitGroupEmpty();
     for (init_i = 0; init_i <= libCOOC_gv_cCC_MAXPLAYERS; init_i += 1) {
         libCOMI_gv_cM_HeroDeathCount[init_i] = -1;
@@ -2954,6 +2956,7 @@ void libCOMI_gf_InitEnemies () {
     lv_personality = libCOMI_gv_selectedEnemyPersonality;
     lv_faction = libCOMI_gv_selectedEnemyFaction;
     libCOMI_gf_SetCAIPersonality(lv_personality);
+    libCOUI_gf_CU_EnemyBriefInit(lv_personality);
     autoB462ABF8_g = libCOMI_gv_vU_EnemyAI;
     lv_player = -1;
     while (true) {
@@ -6133,10 +6136,6 @@ void libCOMI_gf_StartCoopAI (int lp_player, int lp_aIPlayerEnemy) {
     }
 
     libCOMI_gf_CM_CoopAI_SetupStartingTech(lp_player);
-    if (((lp_player == 3) || (lp_player == 4))) {
-        libCOUI_gf_CU_EnemyBriefInit(libCOMI_gv_cM_CoopAIPlayer_Commander[lp_player]);
-    }
-
 }
 
 void libCOMI_gf_CM_StartCoopMissionMechanic (int lp_player, string lp_aICommander) {
@@ -15802,35 +15801,60 @@ void libCOMI_gf_CM_DifficultyApplySettings (int lp_player) {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
-// Trigger: fast
+// Trigger: Announce Message
 //--------------------------------------------------------------------------------------------------
-bool libCOMI_gt_fast_Func (bool testConds, bool runActions) {
+bool libCOMI_gt_AnnounceMessage_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    bank lv_bANK;
+    int lv_lAST_VERSION;
+
     // Automatic Variable Declarations
-    playergroup auto85FE8006_g;
-    int auto85FE8006_var;
+    playergroup auto22C98385_g;
+    int auto22C98385_var;
+
+    // Variable Initialization
 
     // Actions
     if (!runActions) {
         return true;
     }
 
-    TriggerExecute(libA8FDA37D_gt_UT_FastBuild, true, false);
-    auto85FE8006_g = libCOMI_gf_GetAlliedCommandersPlayers();
-    auto85FE8006_var = -1;
+    auto22C98385_g = PlayerGroupAll();
+    auto22C98385_var = -1;
     while (true) {
-        auto85FE8006_var = PlayerGroupNextPlayer(auto85FE8006_g, auto85FE8006_var);
-        if (auto85FE8006_var < 0) { break; }
-        PlayerModifyPropertyInt(auto85FE8006_var, c_playerPropMinerals, c_playerPropOperAdd, 50000);
-        PlayerModifyPropertyInt(auto85FE8006_var, c_playerPropVespene, c_playerPropOperAdd, 50000);
+        auto22C98385_var = PlayerGroupNextPlayer(auto22C98385_g, auto22C98385_var);
+        if (auto22C98385_var < 0) { break; }
+        if ((PlayerType(auto22C98385_var) == c_playerTypeUser)) {
+            BankLoad(libCOUI_gv_vU_BANK, auto22C98385_var);
+            lv_bANK = BankLastCreated();
+            if ((BankSectionExists(lv_bANK, "MISC") == true)) {
+                if ((BankKeyExists(lv_bANK, "MISC", "LAST_VERSION") == true)) {
+                    lv_lAST_VERSION = BankValueGetAsInt(lv_bANK, "MISC", "LAST_VERSION");
+                }
+
+            }
+
+            if ((lv_lAST_VERSION < libCOMI_gv_cURRENT_VERSION)) {
+                libCOMI_gv_nEWCOMER = true;
+                UIDisplayMessage(PlayerGroupSingle(auto22C98385_var), c_messageAreaChat, libCOMI_gv_aNNOUNCE_MESSAGE);
+                if ((BankSectionExists(lv_bANK, "MISC") == false)) {
+                    BankSectionCreate(lv_bANK, "MISC");
+                }
+
+                BankValueSetFromInt(lv_bANK, "MISC", "LAST_VERSION", libCOMI_gv_cURRENT_VERSION);
+                BankSave(lv_bANK);
+            }
+
+        }
+
     }
-    libA8FDA37D_gf_UT_Cheat();
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libCOMI_gt_fast_Init () {
-    libCOMI_gt_fast = TriggerCreate("libCOMI_gt_fast_Func");
-    TriggerAddEventGeneric(libCOMI_gt_fast, libCOMI_gv_cOOP_MISSION_STARTED);
+void libCOMI_gt_AnnounceMessage_Init () {
+    libCOMI_gt_AnnounceMessage = TriggerCreate("libCOMI_gt_AnnounceMessage_Func");
+    TriggerAddEventMapInit(libCOMI_gt_AnnounceMessage);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -16761,7 +16785,7 @@ bool libCOMI_gt_CM_CampaignMissionInitialize_Func (bool testConds, bool runActio
     libCOMI_gf_CM_DetectionUpgradesApply();
     libCOMI_gf_SetPlayerColors();
     TriggerEnable(libCOOC_gt_CC_PrestigeUpgradeSupplement, true);
-    libCOUI_gf_CU_PrestigeBriefInit(1, 2);
+    libCOUI_gf_CU_PrestigeBriefInit();
     libNtve_gf_HideGameUI(true, PlayerGroupAll());
     libCOOC_gf_CC_ScoreInit();
     libCOUI_gf_Unpause();
@@ -38617,7 +38641,7 @@ void libCOMI_gt_CM_CampaignMissionIntroZoomIn_Init () {
 }
 
 void libCOMI_InitTriggers () {
-    libCOMI_gt_fast_Init();
+    libCOMI_gt_AnnounceMessage_Init();
     libCOMI_gt_CM_HeroDied_Init();
     libCOMI_gt_CM_HeroSpawn_Init();
     libCOMI_gt_CM_InstantRevive_Init();
