@@ -32,7 +32,6 @@ void libCOOC_InitVariables () {
     libCOOC_InitVariables_completed = true;
 
     libCOOC_gv_cCC_MAXMISSIONSCORE = 250000;
-    libCOOC_gv_cC_DebugDefeatMultiplierOverride = -1.0;
     for (init_i = 0; init_i <= 50; init_i += 1) {
         for (init_j = 0; init_j <= 2; init_j += 1) {
             libCOOC_gv_cC_EventParameter[init_i][init_j] = "";
@@ -44,13 +43,12 @@ void libCOOC_InitVariables () {
     for (init_i = 0; init_i <= libCOOC_gv_cCC_MAXPLAYERS; init_i += 1) {
         libCOOC_gv_cC_PlayerMasteryEnabled[init_i] = true;
     }
-    libCOOC_gv_cC_CoopBankName = "COCampaign";
     libCOOC_gv_cC_ScoreVorazunBHGroup = UnitGroupEmpty();
     libCOOC_gv_pC_StatEventLastCampaign = -1;
-    libCOOC_gv_cC_WorldCoverDlg = c_invalidDialogId;
+    libCOOC_gv_cC_NoSpawnRegion = RegionEmpty();
     libCOOC_gv__FadeDialog = c_invalidDialogId;
     libCOOC_gv__FadeImage = c_invalidDialogControlId;
-    libCOOC_gv_cC_NoSpawnRegion = RegionEmpty();
+    libCOOC_gv_cC_CoopBankName = "COCampaign";
 }
 
 // Presets
@@ -253,40 +251,6 @@ string libCOOC_gf_CC_AIPersonalityRace (string lp_personality) {
     return UserDataGetGameLink("CoopAICommanders", lp_personality, "X_Race", 1);
 }
 
-bool libCOOC_gf_CoopDebugModeIsOn (string lp_mode, int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    return GameIsDebugOptionSet((lp_mode), lp_player);
-}
-
-void libCOOC_gf_SetTechRestrictionsCallback (trigger lp_callbackTrigger) {
-    // Automatic Variable Declarations
-    // Implementation
-    libCOOC_gv_cC_TechLimitsCallback = lp_callbackTrigger;
-}
-
-void libCOOC_gf_PurchaseStorymodeTech () {
-    // Variable Declarations
-    string lv_indexMission;
-    string lv_armyCategory;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    if ((GameIsTransitionMap() == true)) {
-        return ;
-    }
-
-    TriggerExecute(libCOOC_gv_cC_TechLimitsCallback, true, false);
-}
-
-bool libCOOC_gf_CC_PlaytestModeEnabled () {
-    // Automatic Variable Declarations
-    // Implementation
-    return libCOOC_gv_cC_DebugPlaytestMode;
-}
-
 void libCOOC_gf_CC_AchievementToggleTimeStop (bool lp_enableDisable) {
     // Automatic Variable Declarations
     // Implementation
@@ -306,63 +270,6 @@ void libCOOC_gf_CC_AchievementToggleSuperChrono (bool lp_enableDisable) {
     }
     else {
         TriggerEnable(libCOOC_gt_CC_ScoreKaraxChronoProduction, false);
-    }
-}
-
-int libCOOC_gf_CC_DifficultyIndex (int lp_difficulty) {
-    // Variable Declarations
-    int lv_index;
-
-    // Automatic Variable Declarations
-    int auto35BA92F5_val;
-
-    // Variable Initialization
-
-    // Implementation
-    auto35BA92F5_val = lp_difficulty;
-    if (auto35BA92F5_val == 1) {
-        return 1;
-    }
-    else if (auto35BA92F5_val == 2) {
-        return 2;
-    }
-    else if (auto35BA92F5_val == 3) {
-        return 3;
-    }
-    else if (auto35BA92F5_val == 4) {
-        return 4;
-    }
-    else if (auto35BA92F5_val == 5) {
-        return 5;
-    }
-    else if (auto35BA92F5_val == 6) {
-        return 6;
-    }
-    else {
-        return 0;
-    }
-}
-
-int libCOOC_gf_CC_DifficultyFromIndex (int lp_index) {
-    // Automatic Variable Declarations
-    int auto3A457F69_val;
-
-    // Implementation
-    auto3A457F69_val = lp_index;
-    if (auto3A457F69_val == libCOOC_gf_CC_DifficultyIndex(1)) {
-        return 1;
-    }
-    else if (auto3A457F69_val == libCOOC_gf_CC_DifficultyIndex(2)) {
-        return 2;
-    }
-    else if (auto3A457F69_val == libCOOC_gf_CC_DifficultyIndex(3)) {
-        return 3;
-    }
-    else if (auto3A457F69_val == libCOOC_gf_CC_DifficultyIndex(4)) {
-        return 4;
-    }
-    else {
-        return 2;
     }
 }
 
@@ -575,10 +482,6 @@ int libCOOC_gf_MissionRewardTotalEarned2 (string lp_type) {
     // Variable Initialization
 
     // Implementation
-    if ((GameCheatsEnabled(c_gameCheatCategoryDevelopment) == true) && (libCOOC_gv_cC_DebugDefeatMultiplierOverride >= 0.0)) {
-        return UserDataGetInt("Experience", "GameValues", "BonusObjExperience", 1);
-    }
-
     auto1CAF10CF_ai = 1;
     while (auto1CAF10CF_ai <= libCOOC_gv_cCC_OBJECTIVESMAX) {    
         lv_objective = libCOOC_gv_cC_ObjectivesCreated[auto1CAF10CF_ai];
@@ -1095,463 +998,6 @@ void libCOOC_gf_CC_SharedUpgradesCheckAndApply (string lp_checkUpgrade) {
     }
 }
 
-int libCOOC_gf_CC_PlayerMasteryLevel (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    return libCOOC_gv_cCX_PlayerMasteryLevel[lp_player];
-}
-
-int libCOOC_gf_CC_PlayerMasteryCategory (string lp_masteryUpgrade) {
-    // Automatic Variable Declarations
-    // Implementation
-    return UserDataGetInt("MasteryUpgrades", lp_masteryUpgrade, "Category", 1);
-}
-
-int libCOOC_gf_CC_PlayerMasteryCategoryPointsAtLevel (int lp_player, int lp_categoryIndex, int lp_level) {
-    // Variable Declarations
-    int lv_categoryPoints;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    lv_categoryPoints = (lp_level / libCOOC_gv_cCC_MASTERY_CATEGORIES);
-    if ((ModI(lp_level, libCOOC_gv_cCC_MASTERY_CATEGORIES) >= lp_categoryIndex)) {
-        lv_categoryPoints += 1;
-    }
-
-    return lv_categoryPoints;
-}
-
-int libCOOC_gf_CC_PlayerMasteryCategoryPointsSpent (int lp_player, int lp_categoryIndex) {
-    // Variable Declarations
-    int lv_pointsSpent;
-    string lv_indexMasteryUpgrade;
-
-    // Automatic Variable Declarations
-    int auto9A82478A_ai;
-    int auto9A82478A_ae;
-    int auto9A82478A_ac;
-
-    // Variable Initialization
-
-    // Implementation
-    auto9A82478A_ai = 0;
-    auto9A82478A_ae = UserDataInstanceCount("MasteryUpgrades")+1;
-    while (auto9A82478A_ai < auto9A82478A_ae) {
-        auto9A82478A_ai = auto9A82478A_ai+1;
-        auto9A82478A_ac = UserDataGetInt("MasteryUpgrades", UserDataInstance("MasteryUpgrades", auto9A82478A_ai), "Category", 1);
-        if( auto9A82478A_ac == lp_categoryIndex &&
-        libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("MasteryUpgrades",UserDataInstance("MasteryUpgrades", auto9A82478A_ai),"Commander",1) ) {
-            lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto9A82478A_ai);
-            lv_pointsSpent += libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade);
-        }    
-    }
-    return lv_pointsSpent;
-}
-
-int libCOOC_gf_CC_PlayerMasteryCategoryPointsAvailable (int lp_player, int lp_categoryIndex) {
-    // Automatic Variable Declarations
-    // Implementation
-    return (libCOOC_gf_CC_PlayerMasteryCategoryPointsAtLevel(lp_player, lp_categoryIndex, 0) - libCOOC_gf_CC_PlayerMasteryCategoryPointsSpent(lp_player, lp_categoryIndex));
-}
-
-int libCOOC_gf_CC_PlayerMasteryUpgradeLevel (int lp_player, string lp_masteryUpgrade) {
-    // Automatic Variable Declarations
-    // Implementation
-    return libCOOC_gv_cCX_PlayerMasteryPointsSpent[lp_player][libCOOC_gf_CC_CommanderInternalIndex(libCOOC_gf_CC_PlayerMasteryCommander(lp_masteryUpgrade))][libCOOC_gf_CC_PlayerMasteryInternalIndex(lp_masteryUpgrade)];
-}
-
-string libCOOC_gf_CC_PlayerMasteryCommander (string lp_masteryUpgrade) {
-    // Automatic Variable Declarations
-    // Implementation
-    return UserDataGetUserInstance("MasteryUpgrades", lp_masteryUpgrade, "Commander", 1);
-}
-
-string libCOOC_gf_CC_PlayerMasteryUpgradeData (string lp_masteryUpgrade) {
-    // Automatic Variable Declarations
-    // Implementation
-    return UserDataGetUpgrade("MasteryUpgrades", lp_masteryUpgrade, "Upgrade", 1);
-}
-
-string libCOOC_gf_CC_PlayerMasteryTalent (string lp_masteryUpgrade) {
-    // Automatic Variable Declarations
-    // Implementation
-    return UserDataGetGameLink("MasteryUpgrades", lp_masteryUpgrade, "TalentData", 1);
-}
-
-int libCOOC_gf_CC_PlayerMasteryInternalIndex (string lp_masteryUpgrade) {
-    // Variable Declarations
-    int lv_internalIndex;
-    int lv_talentIndex;
-
-    // Automatic Variable Declarations
-    int autoB4700BC6_ae;
-    const int autoB4700BC6_ai = 1;
-
-    // Variable Initialization
-
-    // Implementation
-    if ((lp_masteryUpgrade == null)) {
-        return 0;
-    }
-
-    lv_internalIndex = UserDataGetInt("MasteryUpgrades", lp_masteryUpgrade, "InternalIndex", 1);
-    if ((lv_internalIndex == 0)) {
-        autoB4700BC6_ae = (CatalogFieldValueCount(c_gameCatalogCommander, libCOOC_gf_CC_CommanderData(libCOOC_gf_CC_PlayerMasteryCommander(lp_masteryUpgrade)), "MasteryTalentArray", c_playerAny)-1);
-        lv_talentIndex = 0;
-        for ( ; ( (autoB4700BC6_ai >= 0 && lv_talentIndex <= autoB4700BC6_ae) || (autoB4700BC6_ai < 0 && lv_talentIndex >= autoB4700BC6_ae) ) ; lv_talentIndex += autoB4700BC6_ai ) {
-            lv_internalIndex += 1;
-            if (((CatalogFieldValueGet(c_gameCatalogCommander, libCOOC_gf_CC_CommanderData(libCOOC_gf_CC_PlayerMasteryCommander(lp_masteryUpgrade)), "MasteryTalentArray[" + IntToString(lv_talentIndex) + "].Talent", c_playerAny)) == libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade))) {
-                UserDataSetInt("MasteryUpgrades", lp_masteryUpgrade, "InternalIndex", 1, lv_internalIndex);
-                return lv_internalIndex;
-                break;
-            }
-
-        }
-    }
-    else {
-        return lv_internalIndex;
-    }
-    return 0;
-}
-
-text libCOOC_gf_CC_PlayerMasteryName (string lp_masteryUpgrade) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade) == null)) {
-        return StringToText((lp_masteryUpgrade));
-    }
-
-    return StringExternal(CatalogFieldValueGet(c_gameCatalogButton, CatalogFieldValueGet(c_gameCatalogTalent, libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade), "Face", c_playerAny), "Name", c_playerAny));
-}
-
-text libCOOC_gf_CC_PlayerMasteryTooltip (string lp_masteryUpgrade) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade) == null)) {
-        return StringToText((lp_masteryUpgrade));
-    }
-
-    return StringExternal(CatalogFieldValueGet(c_gameCatalogButton, CatalogFieldValueGet(c_gameCatalogTalent, libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade), "Face", c_playerAny), "Tooltip", c_playerAny));
-}
-
-text libCOOC_gf_CC_PlayerMasteryValueFormat (string lp_masteryUpgrade) {
-    // Automatic Variable Declarations
-    // Implementation
-    return UserDataGetText("MasteryUpgrades", lp_masteryUpgrade, "ValueFormat", 1);
-}
-
-fixed libCOOC_gf_CC_PlayerMasteryValueIncrement (string lp_masteryUpgrade, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    return UserDataGetFixed("MasteryUpgrades", lp_masteryUpgrade, "PointIncrement", lp_index);
-}
-
-bool libCOOC_gf_CC_PlayerMasteryEnabled (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    return libCOOC_gv_cC_PlayerMasteryEnabled[lp_player];
-}
-
-void libCOOC_gf_CC_PlayerMasteryUpgradeLevelSet (int lp_player, string lp_masteryUpgrade, int lp_level) {
-    // Automatic Variable Declarations
-    // Implementation
-    libCOOC_gv_cCX_PlayerMasteryPointsSpent[lp_player][libCOOC_gf_CC_CommanderInternalIndex(libCOOC_gf_CC_PlayerMasteryCommander(lp_masteryUpgrade))][libCOOC_gf_CC_PlayerMasteryInternalIndex(lp_masteryUpgrade)] = lp_level;
-    libCOOC_gf_CC_ScoreValueSet(lp_player, (("MasteryPoints" + IntToString(libCOOC_gf_CC_PlayerMasteryInternalIndex(lp_masteryUpgrade)))), lp_level);
-}
-
-void libCOOC_gf_CC_PlayerMasteryLevelSet (int lp_player, int lp_level) {
-    // Automatic Variable Declarations
-    // Implementation
-    libCOOC_gv_cCX_PlayerMasteryLevel[lp_player] = lp_level;
-}
-
-void libCOOC_gf_CC_PlayerMasteryEnabledSet (int lp_player, bool lp_enabled) {
-    // Automatic Variable Declarations
-    // Implementation
-    libCOOC_gv_cC_PlayerMasteryEnabled[lp_player] = lp_enabled;
-}
-
-void libCOOC_gf_CC_ApplyMasteryTech (int lp_player) {
-    // Variable Declarations
-    string lv_indexMasteryUpgrade;
-
-    // Automatic Variable Declarations
-    int auto37349ADB_ai;
-    int auto37349ADB_ae;
-    int auto37349ADB_ac;
-
-    // Variable Initialization
-
-    // Implementation
-    if ((libCOOC_gv_cC_PlayerMasteryEnabled[lp_player] == false)) {
-        return ;
-    }
-
-    auto37349ADB_ai = 0;
-    auto37349ADB_ae = UserDataInstanceCount("MasteryUpgrades")+1;
-    while (auto37349ADB_ai < auto37349ADB_ae) {
-        auto37349ADB_ai = auto37349ADB_ai+1;
-        auto37349ADB_ac = UserDataGetInt("MasteryUpgrades", UserDataInstance("MasteryUpgrades", auto37349ADB_ai), "Category", 1);
-        if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("MasteryUpgrades",UserDataInstance("MasteryUpgrades", auto37349ADB_ai),"Commander",1) ) {
-            lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto37349ADB_ai);
-            if ((libCOOC_gf_CC_PlayerMasteryUpgradeData(lv_indexMasteryUpgrade) != null)) {
-                libNtve_gf_SetUpgradeLevelForPlayer(lp_player, libCOOC_gf_CC_PlayerMasteryUpgradeData(lv_indexMasteryUpgrade), libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade));
-            }
-
-        }    
-    }
-}
-
-void libCOOC_gf_CC_SaveMasteryToBank (int lp_player, bank lp_bank, string lp_section) {
-    // Variable Declarations
-    string lv_indexMasteryUpgrade;
-
-    // Automatic Variable Declarations
-    int auto984C9716_ai;
-    int auto984C9716_ae;
-
-    // Variable Initialization
-
-    // Implementation
-    libCOOC_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, "MasteryLevel", libCOOC_gf_CC_PlayerMasteryLevel(lp_player), 0);
-    auto984C9716_ai = 0;
-    auto984C9716_ae = UserDataInstanceCount("MasteryUpgrades")+1;
-    while (auto984C9716_ai < auto984C9716_ae) {
-        auto984C9716_ai = auto984C9716_ai+1;
-        lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto984C9716_ai);
-        libCOOC_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, (lv_indexMasteryUpgrade), libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade), 0);
-    }
-}
-
-void libCOOC_gf_CC_LoadMasteryFromBank (int lp_player, bank lp_bank, string lp_section) {
-    // Variable Declarations
-    string lv_indexMasteryUpgrade;
-
-    // Automatic Variable Declarations
-    int auto64BE67B0_ai;
-    int auto64BE67B0_ae;
-
-    // Variable Initialization
-
-    // Implementation
-    libCOOC_gv_cCX_PlayerMasteryLevel[lp_player] = libCOOC_gf_CC_LoadTransitionVarInteger(lp_bank, lp_section, "MasteryLevel", 0);
-    auto64BE67B0_ai = 0;
-    auto64BE67B0_ae = UserDataInstanceCount("MasteryUpgrades")+1;
-    while (auto64BE67B0_ai < auto64BE67B0_ae) {
-        auto64BE67B0_ai = auto64BE67B0_ai+1;
-        lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto64BE67B0_ai);
-        libCOOC_gv_cCX_PlayerMasteryPointsSpent[lp_player][libCOOC_gf_CC_CommanderInternalIndex(libCOOC_gf_CC_PlayerMasteryCommander(lv_indexMasteryUpgrade))][libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade)] = libCOOC_gf_CC_LoadTransitionVarInteger(lp_bank, lp_section, (lv_indexMasteryUpgrade), 0);
-        libCOOC_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, (lv_indexMasteryUpgrade), libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade), 0);
-    }
-}
-
-string libCOOC_gf_CC_CommanderPrestigeIndexFace (string lp_commander, int lp_index) {
-    // Variable Declarations
-    int lv_prestigeindex;
-    string lv_prestigefacestring;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_prestigefacestring = "";
-
-    // Implementation
-    if ((lp_commander != null) && ((lp_index >= 1) && (lp_index <= libCOOC_gv_cCC_PLAYERPRESTIGEMAXRANK)) && (CatalogEntryIsValid(c_gameCatalogCommander, lp_commander) == true) && (CatalogFieldValueCount(c_gameCatalogCommander, lp_commander, "PrestigeArray", c_playerAny) >= lp_index)) {
-        lv_prestigefacestring = CatalogFieldValueGet(c_gameCatalogCommander, lp_commander, "PrestigeArray[" + IntToString((lp_index - 1)) + "]", c_playerAny);
-        if ((CatalogEntryIsValid(c_gameCatalogButton, lv_prestigefacestring) == true)) {
-            return (lv_prestigefacestring);
-        }
-
-    }
-
-    if ((lp_index == 0)) {
-        return "CommanderPrestige";
-    }
-    else {
-        return null;
-    }
-}
-
-int libCOOC_gf_CC_PlayerActivePrestigeIndex (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    return libCOOC_gv_cCX_PlayerPrestigeIndex[lp_player];
-}
-
-string libCOOC_gf_CC_PlayerActivePrestigeInstance (int lp_player) {
-    // Variable Declarations
-    string lv_commander;
-    string lv_commander2;
-    int lv_commander3;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_commander = libCOOC_gf_ActiveCommanderForPlayer(lp_player);
-
-    // Implementation
-    if ((lv_commander != null)) {
-        lv_commander3 = libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player);
-        return UserDataGetUserInstance("PlayerCommanders", lv_commander, "Prestige", lv_commander3);
-    }
-
-    return null;
-}
-
-string libCOOC_gf_CC_PrestigeCommanderBankKey (string lp_commander, int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    return ("PRESTIGE" + "_" + (lp_commander));
-}
-
-string libCOOC_gf_CC_PrestigeCommanderTableKey (string lp_commander, int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    return ("PRESTIGE" + "_" + IntToString(lp_player) + "_" + (lp_commander));
-}
-
-bool libCOOC_gf_CC_PrestigeSuppressed (int lp_player, string lp_suppressionType) {
-    // Variable Declarations
-    string lv_prestige;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_prestige = libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player);
-
-    // Implementation
-    if ((lv_prestige != null)) {
-        if ((UserDataGetInt("PlayerPrestige", lv_prestige, lp_suppressionType, 1) == 1)) {
-            return true;
-        }
-
-    }
-
-    return false;
-}
-
-void libCOOC_gf_CC_SetPlayerPrestigeIndex (int lp_player, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    libCOOC_gv_cCX_PlayerPrestigeIndex[lp_player] = libNtve_gf_ArithmeticIntClamp(lp_index, 0, libCOOC_gv_cCC_PLAYERPRESTIGEMAXRANK);
-}
-
-void libCOOC_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
-    // Variable Declarations
-    int lv_index;
-    string lv_upgrade;
-    string lv_script;
-    int lv_ally;
-
-    // Automatic Variable Declarations
-    int autoAF2781D7_ae;
-    const int autoAF2781D7_ai = 1;
-    int autoE6A4272A_ae;
-    const int autoE6A4272A_ai = 1;
-
-    // Variable Initialization
-    lv_script = "";
-
-    // Implementation
-    if ((lp_prestige == null)) {
-        return ;
-    }
-
-    autoAF2781D7_ae = UserDataFieldValueCount("PlayerPrestige", "UpgradeSupplements");
-    lv_index = 1;
-    for ( ; ( (autoAF2781D7_ai >= 0 && lv_index <= autoAF2781D7_ae) || (autoAF2781D7_ai < 0 && lv_index >= autoAF2781D7_ae) ) ; lv_index += autoAF2781D7_ai ) {
-        libCOOC_gf_CC_ApplyUpgradeSupplemental(lp_player, UserDataGetUserInstance("PlayerPrestige", lp_prestige, "UpgradeSupplements", lv_index));
-    }
-    if ((lv_upgrade != null)) {
-        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_upgrade, 1);
-    }
-
-    if ((lv_script != "")) {
-        libNtve_gf_TriggerExecuteByName((lv_script + "_Func"), true, true);
-    }
-
-    autoE6A4272A_ae = UserDataFieldValueCount("PlayerPrestige", "PlayerResponses");
-    lv_index = 1;
-    for ( ; ( (autoE6A4272A_ai >= 0 && lv_index <= autoE6A4272A_ae) || (autoE6A4272A_ai < 0 && lv_index >= autoE6A4272A_ae) ) ; lv_index += autoE6A4272A_ai ) {
-        libCOOC_gf_CC_PlayerResponseEnable(lp_player, UserDataGetUserInstance("PlayerPrestige", lp_prestige, "PlayerResponses", lv_index), true);
-    }
-}
-
-void libCOOC_gf_CC_ApplyPrestigeTech (int lp_player) {
-    // Variable Declarations
-    string lv_upgrade;
-    string lv_button;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    TextExpressionSetToken("Param/Expression/lib_COOC_BCBD5063", "A", IntToText(libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player)));
-    TextExpressionSetToken("Param/Expression/lib_COOC_BCBD5063", "B", IntToText(lp_player));
-    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_BCBD5063"), false);
-    libCOOC_gf_CC_PlayerPrestigeEnable(lp_player, libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player));
-}
-
-void libCOOC_gf_CC_SaveChampionToBank3 (int lp_player, bank lp_bank, string lp_section) {
-    // Variable Declarations
-    string lv_indexCommander;
-    string lv_indexPerk;
-
-    // Automatic Variable Declarations
-    int auto78F1F722_ai;
-    int auto78F1F722_ae;
-
-    // Variable Initialization
-
-    // Implementation
-    auto78F1F722_ai = 1;
-    auto78F1F722_ae = UserDataInstanceCount("PlayerCommander")+1;
-    while (auto78F1F722_ai < auto78F1F722_ae) {
-        lv_indexCommander = UserDataInstance("PlayerCommander", auto78F1F722_ai);
-        auto78F1F722_ai = auto78F1F722_ai+1;
-        libCOOC_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, libCOOC_gf_CC_PrestigeCommanderBankKey(lv_indexCommander, lp_player), DataTableGetInt(true, libCOOC_gf_CC_PrestigeCommanderTableKey(lv_indexCommander, lp_player)), 0);
-    }
-}
-
-void libCOOC_gf_CC_LoadChampionFromBank3 (int lp_player, bank lp_bank, string lp_section) {
-    // Variable Declarations
-    string lv_indexPerk;
-    string lv_indexCommander;
-
-    // Automatic Variable Declarations
-    int auto8D8097E9_ai;
-    int auto8D8097E9_ae;
-
-    // Variable Initialization
-
-    // Implementation
-    auto8D8097E9_ai = 1;
-    auto8D8097E9_ae = UserDataInstanceCount("PlayerCommander")+1;
-    while (auto8D8097E9_ai < auto8D8097E9_ae) {
-        lv_indexCommander = UserDataInstance("PlayerCommander", auto8D8097E9_ai);
-        auto8D8097E9_ai = auto8D8097E9_ai+1;
-        DataTableSetInt(true, libCOOC_gf_CC_PrestigeCommanderTableKey(lv_indexCommander, lp_player), libCOOC_gf_CC_LoadTransitionVarInteger(lp_bank, lp_section, libCOOC_gf_CC_PrestigeCommanderBankKey(lv_indexCommander, lp_player), 0));
-    }
-}
-
-void libCOOC_gf_CC_ApplyUpgradeSupplemental (int lp_player, string lp_upgradeSupplemental) {
-    // Variable Declarations
-    string lv_upgrade;
-    string lv_supplement;
-    string lv_script;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_upgrade = UserDataGetGameLink("PlayerPrestigeUpgradeSupplements", lp_upgradeSupplemental, "Upgrade", 1);
-    lv_supplement = UserDataGetGameLink("PlayerPrestigeUpgradeSupplements", lp_upgradeSupplemental, "Supplement", 1);
-    lv_script = "";
-
-    // Implementation
-    if ((lp_upgradeSupplemental != null) && (CatalogEntryIsValid(c_gameCatalogUpgrade, lv_upgrade) == true) && (CatalogEntryIsValid(c_gameCatalogUpgrade, lv_supplement) == true) && (TechTreeUpgradeCount(lp_player, lv_upgrade, c_techCountCompleteOnly) > 0)) {
-        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_supplement, TechTreeUpgradeCount(lp_player, lv_upgrade, c_techCountCompleteOnly));
-    }
-
-}
-
 string libCOOC_gf_ActiveCommanderForPlayer (int lp_player) {
     // Variable Declarations
     string lv_commanderInstance;
@@ -1611,10 +1057,6 @@ void libCOOC_gf_SetMissionEffort (fixed lp_percentEffort) {
 fixed libCOOC_gf_CC_PlayerExperienceResultModifier (int lp_result) {
     // Automatic Variable Declarations
     // Implementation
-    if ((GameCheatsEnabled(c_gameCheatCategoryDevelopment) == true) && (libCOOC_gv_cC_DebugDefeatMultiplierOverride >= 0.0)) {
-        return libCOOC_gv_cC_DebugDefeatMultiplierOverride;
-    }
-
     if ((lp_result == c_gameOverVictory)) {
         return 1.0;
     }
@@ -2114,10 +1556,6 @@ void libCOOC_gf_CC_PlayerAwardMissionXP (int lp_result, int lp_player) {
     // Variable Initialization
 
     // Implementation
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        return ;
-    }
-
     if ((GameIsOnline() == true)) {
         libCOOC_gf_CC_PlayerSetXPScores(lp_result, lp_player);
     }
@@ -2281,299 +1719,461 @@ void libCOOC_gf_CC_ResetCurrency (int lp_player) {
     }
 }
 
-void libCOOC_gf_EnableArcadeContestMode () {
+int libCOOC_gf_CC_PlayerMasteryLevel (int lp_player) {
     // Automatic Variable Declarations
     // Implementation
-    libCOOC_gv_cC_InContestMap = true;
+    return libCOOC_gv_cCX_PlayerMasteryLevel[lp_player];
 }
 
-void libCOOC_gf_CC_SaveAllTransitionData (bool lp_resultFromDefeat, int lp_player) {
+int libCOOC_gf_CC_PlayerMasteryCategory (string lp_masteryUpgrade) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UserDataGetInt("MasteryUpgrades", lp_masteryUpgrade, "Category", 1);
+}
+
+int libCOOC_gf_CC_PlayerMasteryCategoryPointsAtLevel (int lp_player, int lp_categoryIndex, int lp_level) {
     // Variable Declarations
-    int lv_saveType;
+    int lv_categoryPoints;
 
     // Automatic Variable Declarations
     // Variable Initialization
 
     // Implementation
-    libCOOC_gf_CC_OpenCoopBank(lp_player);
-    libCOOC_gf_CC_SaveTransitionVars(lp_player, libCOOC_gv_cC_CoopBank[lp_player], lp_resultFromDefeat);
-    libCOOC_gf_CC_SaveCoopBank(lp_player);
-}
-
-void libCOOC_gf_CC_LoadAllTransitionData (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((libCOOC_gf_CC_CoopBankExists(lp_player) == false)) {
-        TextExpressionSetToken("Param/Expression/lib_COOC_253EB9C4", "A", IntToText(lp_player));
-        TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_253EB9C4"), false);
-        return ;
+    lv_categoryPoints = (lp_level / libCOOC_gv_cCC_MASTERY_CATEGORIES);
+    if ((ModI(lp_level, libCOOC_gv_cCC_MASTERY_CATEGORIES) >= lp_categoryIndex)) {
+        lv_categoryPoints += 1;
     }
 
-    TriggerDebugOutput(1, StringExternal("Param/Value/lib_COOC_6670EA63"), false);
-    libCOOC_gf_CC_OpenCoopBank(lp_player);
-    libCOOC_gf_CC_LoadTransitionVars(lp_player, libCOOC_gv_cC_CoopBank[lp_player]);
-    if ((libCOOC_gv_cCX_PlayerBankVersion[lp_player] < libCOOC_gv_cCC_BankVersion)) {
-        TextExpressionSetToken("Param/Expression/lib_COOC_6DCBB62D", "A", IntToText(lp_player));
-        TextExpressionSetToken("Param/Expression/lib_COOC_6DCBB62D", "B", IntToText(libCOOC_gv_cCX_PlayerBankVersion[lp_player]));
-        TextExpressionSetToken("Param/Expression/lib_COOC_6DCBB62D", "C", IntToText(libCOOC_gv_cCC_BankVersion));
-        TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_6DCBB62D"), false);
-        return ;
-    }
-
+    return lv_categoryPoints;
 }
 
-void libCOOC_gf_CC_LoadBNetChoices (int lp_player) {
+int libCOOC_gf_CC_PlayerMasteryCategoryPointsSpent (int lp_player, int lp_categoryIndex) {
     // Variable Declarations
-    string lv_chosenCommander;
+    int lv_pointsSpent;
     string lv_indexMasteryUpgrade;
-    int lv_currentLevel;
 
     // Automatic Variable Declarations
-    int auto01FD1831_ai;
-    int auto01FD1831_ae;
-    int auto01FD1831_ac;
+    int auto9A82478A_ai;
+    int auto9A82478A_ae;
+    int auto9A82478A_ac;
 
     // Variable Initialization
 
     // Implementation
-    TextExpressionSetToken("Param/Expression/lib_COOC_D5B22955", "A", IntToText(lp_player));
-    TextExpressionSetToken("Param/Expression/lib_COOC_D5B22955", "B", PlayerName(lp_player));
-    TextExpressionSetToken("Param/Expression/lib_COOC_D5B22955", "C", StringToText((libCOMI_gf_ActiveCommanderForPlayer4(lp_player))));
-    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_D5B22955"), false);
-    lv_chosenCommander = libCOOC_gf_CC_CommanderUserInstance(libCOMI_gf_ActiveCommanderForPlayer4(lp_player));
-    libCOOC_gf_CC_PlayerCommanderSet(lp_player, lv_chosenCommander);
-    if ((PlayerRace(lp_player) != libCOOC_gf_CC_CommanderRace(lv_chosenCommander))) {
-        PlayerSetRace(lp_player, libCOOC_gf_CC_CommanderRace(lv_chosenCommander));
+    auto9A82478A_ai = 0;
+    auto9A82478A_ae = UserDataInstanceCount("MasteryUpgrades")+1;
+    while (auto9A82478A_ai < auto9A82478A_ae) {
+        auto9A82478A_ai = auto9A82478A_ai+1;
+        auto9A82478A_ac = UserDataGetInt("MasteryUpgrades", UserDataInstance("MasteryUpgrades", auto9A82478A_ai), "Category", 1);
+        if( auto9A82478A_ac == lp_categoryIndex &&
+        libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("MasteryUpgrades",UserDataInstance("MasteryUpgrades", auto9A82478A_ai),"Commander",1) ) {
+            lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto9A82478A_ai);
+            lv_pointsSpent += libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade);
+        }    
+    }
+    return lv_pointsSpent;
+}
+
+int libCOOC_gf_CC_PlayerMasteryCategoryPointsAvailable (int lp_player, int lp_categoryIndex) {
+    // Automatic Variable Declarations
+    // Implementation
+    return (libCOOC_gf_CC_PlayerMasteryCategoryPointsAtLevel(lp_player, lp_categoryIndex, 0) - libCOOC_gf_CC_PlayerMasteryCategoryPointsSpent(lp_player, lp_categoryIndex));
+}
+
+int libCOOC_gf_CC_PlayerMasteryUpgradeLevel (int lp_player, string lp_masteryUpgrade) {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOOC_gv_cCX_PlayerMasteryPointsSpent[lp_player][libCOOC_gf_CC_CommanderInternalIndex(libCOOC_gf_CC_PlayerMasteryCommander(lp_masteryUpgrade))][libCOOC_gf_CC_PlayerMasteryInternalIndex(lp_masteryUpgrade)];
+}
+
+string libCOOC_gf_CC_PlayerMasteryCommander (string lp_masteryUpgrade) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UserDataGetUserInstance("MasteryUpgrades", lp_masteryUpgrade, "Commander", 1);
+}
+
+string libCOOC_gf_CC_PlayerMasteryUpgradeData (string lp_masteryUpgrade) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UserDataGetUpgrade("MasteryUpgrades", lp_masteryUpgrade, "Upgrade", 1);
+}
+
+string libCOOC_gf_CC_PlayerMasteryTalent (string lp_masteryUpgrade) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UserDataGetGameLink("MasteryUpgrades", lp_masteryUpgrade, "TalentData", 1);
+}
+
+int libCOOC_gf_CC_PlayerMasteryInternalIndex (string lp_masteryUpgrade) {
+    // Variable Declarations
+    int lv_internalIndex;
+    int lv_talentIndex;
+
+    // Automatic Variable Declarations
+    int autoB4700BC6_ae;
+    const int autoB4700BC6_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lp_masteryUpgrade == null)) {
+        return 0;
     }
 
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        lv_currentLevel = 15;
+    lv_internalIndex = UserDataGetInt("MasteryUpgrades", lp_masteryUpgrade, "InternalIndex", 1);
+    if ((lv_internalIndex == 0)) {
+        autoB4700BC6_ae = (CatalogFieldValueCount(c_gameCatalogCommander, libCOOC_gf_CC_CommanderData(libCOOC_gf_CC_PlayerMasteryCommander(lp_masteryUpgrade)), "MasteryTalentArray", c_playerAny)-1);
+        lv_talentIndex = 0;
+        for ( ; ( (autoB4700BC6_ai >= 0 && lv_talentIndex <= autoB4700BC6_ae) || (autoB4700BC6_ai < 0 && lv_talentIndex >= autoB4700BC6_ae) ) ; lv_talentIndex += autoB4700BC6_ai ) {
+            lv_internalIndex += 1;
+            if (((CatalogFieldValueGet(c_gameCatalogCommander, libCOOC_gf_CC_CommanderData(libCOOC_gf_CC_PlayerMasteryCommander(lp_masteryUpgrade)), "MasteryTalentArray[" + IntToString(lv_talentIndex) + "].Talent", c_playerAny)) == libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade))) {
+                UserDataSetInt("MasteryUpgrades", lp_masteryUpgrade, "InternalIndex", 1, lv_internalIndex);
+                return lv_internalIndex;
+                break;
+            }
+
+        }
     }
     else {
-        lv_currentLevel = PlayerCommanderLevel(lp_player);
+        return lv_internalIndex;
     }
-    libCOOC_gf_CC_PlayerLevelSet(lp_player, lv_currentLevel, lv_chosenCommander);
-    libCOOC_gf_CC_SetPlayerPrestigeIndex(lp_player, PlayerCommanderSelectedPrestige(lp_player));
-    libCOOC_gf_CC_PlayerMasteryLevelSet(lp_player, PlayerCommanderMasteryLevel(lp_player));
-    auto01FD1831_ai = 0;
-    auto01FD1831_ae = UserDataInstanceCount("MasteryUpgrades")+1;
-    while (auto01FD1831_ai < auto01FD1831_ae) {
-        auto01FD1831_ai = auto01FD1831_ai+1;
-        auto01FD1831_ac = UserDataGetInt("MasteryUpgrades", UserDataInstance("MasteryUpgrades", auto01FD1831_ai), "Category", 1);
-        if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("MasteryUpgrades",UserDataInstance("MasteryUpgrades", auto01FD1831_ai),"Commander",1) ) {
-            lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto01FD1831_ai);
-            TextExpressionSetToken("Param/Expression/lib_COOC_039E4FF2", "A", IntToText(lp_player));
-            TextExpressionSetToken("Param/Expression/lib_COOC_039E4FF2", "B", IntToText(libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade)));
-            TextExpressionSetToken("Param/Expression/lib_COOC_039E4FF2", "C", IntToText(PlayerCommanderMasteryTalentRank(lp_player, libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade))));
-            TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_039E4FF2"), false);
-            libCOOC_gf_CC_PlayerMasteryUpgradeLevelSet(lp_player, lv_indexMasteryUpgrade, PlayerCommanderMasteryTalentRank(lp_player, libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade)));
+    return 0;
+}
+
+text libCOOC_gf_CC_PlayerMasteryName (string lp_masteryUpgrade) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade) == null)) {
+        return StringToText((lp_masteryUpgrade));
+    }
+
+    return StringExternal(CatalogFieldValueGet(c_gameCatalogButton, CatalogFieldValueGet(c_gameCatalogTalent, libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade), "Face", c_playerAny), "Name", c_playerAny));
+}
+
+text libCOOC_gf_CC_PlayerMasteryTooltip (string lp_masteryUpgrade) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade) == null)) {
+        return StringToText((lp_masteryUpgrade));
+    }
+
+    return StringExternal(CatalogFieldValueGet(c_gameCatalogButton, CatalogFieldValueGet(c_gameCatalogTalent, libCOOC_gf_CC_PlayerMasteryTalent(lp_masteryUpgrade), "Face", c_playerAny), "Tooltip", c_playerAny));
+}
+
+text libCOOC_gf_CC_PlayerMasteryValueFormat (string lp_masteryUpgrade) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UserDataGetText("MasteryUpgrades", lp_masteryUpgrade, "ValueFormat", 1);
+}
+
+fixed libCOOC_gf_CC_PlayerMasteryValueIncrement (string lp_masteryUpgrade, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UserDataGetFixed("MasteryUpgrades", lp_masteryUpgrade, "PointIncrement", lp_index);
+}
+
+bool libCOOC_gf_CC_PlayerMasteryEnabled (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOOC_gv_cC_PlayerMasteryEnabled[lp_player];
+}
+
+void libCOOC_gf_CC_PlayerMasteryUpgradeLevelSet (int lp_player, string lp_masteryUpgrade, int lp_level) {
+    // Automatic Variable Declarations
+    // Implementation
+    libCOOC_gv_cCX_PlayerMasteryPointsSpent[lp_player][libCOOC_gf_CC_CommanderInternalIndex(libCOOC_gf_CC_PlayerMasteryCommander(lp_masteryUpgrade))][libCOOC_gf_CC_PlayerMasteryInternalIndex(lp_masteryUpgrade)] = lp_level;
+    libCOOC_gf_CC_ScoreValueSet(lp_player, (("MasteryPoints" + IntToString(libCOOC_gf_CC_PlayerMasteryInternalIndex(lp_masteryUpgrade)))), lp_level);
+}
+
+void libCOOC_gf_CC_PlayerMasteryLevelSet (int lp_player, int lp_level) {
+    // Automatic Variable Declarations
+    // Implementation
+    libCOOC_gv_cCX_PlayerMasteryLevel[lp_player] = lp_level;
+}
+
+void libCOOC_gf_CC_PlayerMasteryEnabledSet (int lp_player, bool lp_enabled) {
+    // Automatic Variable Declarations
+    // Implementation
+    libCOOC_gv_cC_PlayerMasteryEnabled[lp_player] = lp_enabled;
+}
+
+void libCOOC_gf_CC_ApplyMasteryTech (int lp_player) {
+    // Variable Declarations
+    string lv_indexMasteryUpgrade;
+
+    // Automatic Variable Declarations
+    int auto37349ADB_ai;
+    int auto37349ADB_ae;
+    int auto37349ADB_ac;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libCOOC_gv_cC_PlayerMasteryEnabled[lp_player] == false)) {
+        return ;
+    }
+
+    auto37349ADB_ai = 0;
+    auto37349ADB_ae = UserDataInstanceCount("MasteryUpgrades")+1;
+    while (auto37349ADB_ai < auto37349ADB_ae) {
+        auto37349ADB_ai = auto37349ADB_ai+1;
+        auto37349ADB_ac = UserDataGetInt("MasteryUpgrades", UserDataInstance("MasteryUpgrades", auto37349ADB_ai), "Category", 1);
+        if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("MasteryUpgrades",UserDataInstance("MasteryUpgrades", auto37349ADB_ai),"Commander",1) ) {
+            lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto37349ADB_ai);
+            if ((libCOOC_gf_CC_PlayerMasteryUpgradeData(lv_indexMasteryUpgrade) != null)) {
+                libNtve_gf_SetUpgradeLevelForPlayer(lp_player, libCOOC_gf_CC_PlayerMasteryUpgradeData(lv_indexMasteryUpgrade), libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade));
+            }
+
         }    
     }
 }
 
-void libCOOC_gf_CC_SaveBNetChoices (int lp_player) {
-    // Automatic Variable Declarations
-}
-
-void libCOOC_gf_CC_SaveTransitionVars (int lp_player, bank lp_targetBank, bool lp_resultFromDefeat) {
+void libCOOC_gf_CC_SaveMasteryToBank (int lp_player, bank lp_bank, string lp_section) {
     // Variable Declarations
-    string lv__SectionName;
-    int lv_index;
+    string lv_indexMasteryUpgrade;
 
     // Automatic Variable Declarations
-    // Variable Initialization
-    lv__SectionName = "";
-
-    // Implementation
-    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignSetting");
-    libCOOC_gf_CC_SaveTransitionVarInteger(lp_targetBank, lv__SectionName, ("Bank Version"), libCOOC_gv_cCX_PlayerBankVersion[lp_player], 0);
-    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignCurrency");
-    libCOOC_gf_CC_SaveCommandersToBank(lp_player, lp_targetBank, lv__SectionName);
-    libCOOC_gf_CC_SaveChampionToBank3(lp_player, lp_targetBank, lv__SectionName);
-    libCOOC_gf_CC_SaveMasteryToBank(lp_player, lp_targetBank, lv__SectionName);
-    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignPerks");
-    BankSectionCreate(lp_targetBank, lv__SectionName);
-}
-
-void libCOOC_gf_CC_LoadTransitionVars (int lp_player, bank lp_sourceBank) {
-    // Variable Declarations
-    string lv__SectionName;
-    int lv_count;
-    int lv_index;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv__SectionName = "";
-
-    // Implementation
-    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignCurrency");
-    libCOOC_gf_CC_LoadCommandersFromBank(lp_player, lp_sourceBank, lv__SectionName);
-    libCOOC_gf_CC_LoadChampionFromBank3(lp_player, lp_sourceBank, lv__SectionName);
-    libCOOC_gf_CC_LoadMasteryFromBank(lp_player, lp_sourceBank, lv__SectionName);
-    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignSetting");
-    libCOOC_gv_cCX_PlayerBankVersion[lp_player] = libCOOC_gf_CC_LoadTransitionVarInteger(lp_sourceBank, lv__SectionName, ("Bank Version"), 0);
-    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignPerks");
-}
-
-void libCOOC_gf_CC_CustomStartupBegin () {
-    // Variable Declarations
-    int lv_indexPlayer;
-
-    // Automatic Variable Declarations
-    playergroup auto2C0024A3_g;
+    int auto984C9716_ai;
+    int auto984C9716_ae;
 
     // Variable Initialization
 
     // Implementation
-    GameSetMissionTimePaused(true);
-    AITimePause(true);
-    UnitPauseAll(true);
-    libNtve_gf_HideGameUI(false, PlayerGroupAll());
-    SoundtrackPause(PlayerGroupAll(), c_soundtrackCategoryMusic, true, false);
-    SoundtrackPause(PlayerGroupAll(), c_soundtrackCategoryAmbience, true, false);
-    auto2C0024A3_g = libCOOC_gf_HumanPlayers();
-    lv_indexPlayer = -1;
-    while (true) {
-        lv_indexPlayer = PlayerGroupNextPlayer(auto2C0024A3_g, lv_indexPlayer);
-        if (lv_indexPlayer < 0) { break; }
-        if ((PlayerType(lv_indexPlayer) == c_playerTypeNone)) {
-            PlayerSetDifficulty(lv_indexPlayer, 2);
+    libCOOC_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, "MasteryLevel", libCOOC_gf_CC_PlayerMasteryLevel(lp_player), 0);
+    auto984C9716_ai = 0;
+    auto984C9716_ae = UserDataInstanceCount("MasteryUpgrades")+1;
+    while (auto984C9716_ai < auto984C9716_ae) {
+        auto984C9716_ai = auto984C9716_ai+1;
+        lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto984C9716_ai);
+        libCOOC_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, (lv_indexMasteryUpgrade), libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade), 0);
+    }
+}
+
+void libCOOC_gf_CC_LoadMasteryFromBank (int lp_player, bank lp_bank, string lp_section) {
+    // Variable Declarations
+    string lv_indexMasteryUpgrade;
+
+    // Automatic Variable Declarations
+    int auto64BE67B0_ai;
+    int auto64BE67B0_ae;
+
+    // Variable Initialization
+
+    // Implementation
+    libCOOC_gv_cCX_PlayerMasteryLevel[lp_player] = libCOOC_gf_CC_LoadTransitionVarInteger(lp_bank, lp_section, "MasteryLevel", 0);
+    auto64BE67B0_ai = 0;
+    auto64BE67B0_ae = UserDataInstanceCount("MasteryUpgrades")+1;
+    while (auto64BE67B0_ai < auto64BE67B0_ae) {
+        auto64BE67B0_ai = auto64BE67B0_ai+1;
+        lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto64BE67B0_ai);
+        libCOOC_gv_cCX_PlayerMasteryPointsSpent[lp_player][libCOOC_gf_CC_CommanderInternalIndex(libCOOC_gf_CC_PlayerMasteryCommander(lv_indexMasteryUpgrade))][libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade)] = libCOOC_gf_CC_LoadTransitionVarInteger(lp_bank, lp_section, (lv_indexMasteryUpgrade), 0);
+        libCOOC_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, (lv_indexMasteryUpgrade), libCOOC_gf_CC_PlayerMasteryUpgradeLevel(lp_player, lv_indexMasteryUpgrade), 0);
+    }
+}
+
+string libCOOC_gf_CC_CommanderPrestigeIndexFace (string lp_commander, int lp_index) {
+    // Variable Declarations
+    int lv_prestigeindex;
+    string lv_prestigefacestring;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_prestigefacestring = "";
+
+    // Implementation
+    if ((lp_commander != null) && ((lp_index >= 1) && (lp_index <= libCOOC_gv_cCC_PLAYERPRESTIGEMAXRANK)) && (CatalogEntryIsValid(c_gameCatalogCommander, lp_commander) == true) && (CatalogFieldValueCount(c_gameCatalogCommander, lp_commander, "PrestigeArray", c_playerAny) >= lp_index)) {
+        lv_prestigefacestring = CatalogFieldValueGet(c_gameCatalogCommander, lp_commander, "PrestigeArray[" + IntToString((lp_index - 1)) + "]", c_playerAny);
+        if ((CatalogEntryIsValid(c_gameCatalogButton, lv_prestigefacestring) == true)) {
+            return (lv_prestigefacestring);
         }
 
-        libCOOC_gf_ShowHideWorldCover(true, 0.0, lv_indexPlayer);
     }
-    libCOMU_gf_CU_CustomMutatorDisplay();
+
+    if ((lp_index == 0)) {
+        return "CommanderPrestige";
+    }
+    else {
+        return null;
+    }
 }
 
-void libCOOC_gf_CC_CustomStartupLaunch () {
+int libCOOC_gf_CC_PlayerActivePrestigeIndex (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return libCOOC_gv_cCX_PlayerPrestigeIndex[lp_player];
+}
+
+string libCOOC_gf_CC_PlayerActivePrestigeInstance (int lp_player) {
     // Variable Declarations
-    int lv_indexPlayer;
+    string lv_commander;
+    string lv_commander2;
+    int lv_commander3;
 
     // Automatic Variable Declarations
-    playergroup autoB65BD54E_g;
+    // Variable Initialization
+    lv_commander = libCOOC_gf_ActiveCommanderForPlayer(lp_player);
+
+    // Implementation
+    if ((lv_commander != null)) {
+        lv_commander3 = libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player);
+        return UserDataGetUserInstance("PlayerCommanders", lv_commander, "Prestige", lv_commander3);
+    }
+
+    return null;
+}
+
+string libCOOC_gf_CC_PrestigeCommanderBankKey (string lp_commander, int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("PRESTIGE" + "_" + (lp_commander));
+}
+
+string libCOOC_gf_CC_PrestigeCommanderTableKey (string lp_commander, int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("PRESTIGE" + "_" + IntToString(lp_player) + "_" + (lp_commander));
+}
+
+bool libCOOC_gf_CC_PrestigeSuppressed (int lp_player, string lp_suppressionType) {
+    // Variable Declarations
+    string lv_prestige;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_prestige = libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player);
+
+    // Implementation
+    if ((lv_prestige != null)) {
+        if ((UserDataGetInt("PlayerPrestige", lv_prestige, lp_suppressionType, 1) == 1)) {
+            return true;
+        }
+
+    }
+
+    return false;
+}
+
+void libCOOC_gf_CC_SetPlayerPrestigeIndex (int lp_player, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    libCOOC_gv_cCX_PlayerPrestigeIndex[lp_player] = libNtve_gf_ArithmeticIntClamp(lp_index, 0, libCOOC_gv_cCC_PLAYERPRESTIGEMAXRANK);
+}
+
+void libCOOC_gf_CC_PlayerPrestigeEnable (int lp_player, string lp_prestige) {
+    // Variable Declarations
+    int lv_index;
+    string lv_upgrade;
+    string lv_script;
+    int lv_ally;
+
+    // Automatic Variable Declarations
+    int autoAF2781D7_ae;
+    const int autoAF2781D7_ai = 1;
+    int autoE6A4272A_ae;
+    const int autoE6A4272A_ai = 1;
+
+    // Variable Initialization
+    lv_script = "";
+
+    // Implementation
+    if ((lp_prestige == null)) {
+        return ;
+    }
+
+    autoAF2781D7_ae = UserDataFieldValueCount("PlayerPrestige", "UpgradeSupplements");
+    lv_index = 1;
+    for ( ; ( (autoAF2781D7_ai >= 0 && lv_index <= autoAF2781D7_ae) || (autoAF2781D7_ai < 0 && lv_index >= autoAF2781D7_ae) ) ; lv_index += autoAF2781D7_ai ) {
+        libCOOC_gf_CC_ApplyUpgradeSupplemental(lp_player, UserDataGetUserInstance("PlayerPrestige", lp_prestige, "UpgradeSupplements", lv_index));
+    }
+    if ((lv_upgrade != null)) {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_upgrade, 1);
+    }
+
+    if ((lv_script != "")) {
+        libNtve_gf_TriggerExecuteByName((lv_script + "_Func"), true, true);
+    }
+
+    autoE6A4272A_ae = UserDataFieldValueCount("PlayerPrestige", "PlayerResponses");
+    lv_index = 1;
+    for ( ; ( (autoE6A4272A_ai >= 0 && lv_index <= autoE6A4272A_ae) || (autoE6A4272A_ai < 0 && lv_index >= autoE6A4272A_ae) ) ; lv_index += autoE6A4272A_ai ) {
+        libCOOC_gf_CC_PlayerResponseEnable(lp_player, UserDataGetUserInstance("PlayerPrestige", lp_prestige, "PlayerResponses", lv_index), true);
+    }
+}
+
+void libCOOC_gf_CC_ApplyPrestigeTech (int lp_player) {
+    // Variable Declarations
+    string lv_upgrade;
+    string lv_button;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    TextExpressionSetToken("Param/Expression/lib_COOC_BCBD5063", "A", IntToText(libCOOC_gf_CC_PlayerActivePrestigeIndex(lp_player)));
+    TextExpressionSetToken("Param/Expression/lib_COOC_BCBD5063", "B", IntToText(lp_player));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_BCBD5063"), false);
+    libCOOC_gf_CC_PlayerPrestigeEnable(lp_player, libCOOC_gf_CC_PlayerActivePrestigeInstance(lp_player));
+}
+
+void libCOOC_gf_CC_SaveChampionToBank3 (int lp_player, bank lp_bank, string lp_section) {
+    // Variable Declarations
+    string lv_indexCommander;
+    string lv_indexPerk;
+
+    // Automatic Variable Declarations
+    int auto78F1F722_ai;
+    int auto78F1F722_ae;
 
     // Variable Initialization
 
     // Implementation
-    SoundtrackPause(PlayerGroupAll(), c_soundtrackCategoryMusic, false, true);
-    SoundtrackPause(PlayerGroupAll(), c_soundtrackCategoryAmbience, false, true);
-    GameSetMissionTimePaused(false);
-    AITimePause(false);
-    UnitPauseAll(false);
-    autoB65BD54E_g = libCOOC_gf_HumanPlayers();
-    lv_indexPlayer = -1;
-    while (true) {
-        lv_indexPlayer = PlayerGroupNextPlayer(autoB65BD54E_g, lv_indexPlayer);
-        if (lv_indexPlayer < 0) { break; }
-        libCOOC_gf_ShowHideWorldCover(false, 0.0, lv_indexPlayer);
-    }
-    libNtve_gf_HideGameUI(true, PlayerGroupAll());
-    TriggerExecute(libCOOC_gv_cC_StartupMissionTrigger, true, false);
-}
-
-void libCOOC_gf_CC_OpenCoopBank (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((libCOOC_gv_cC_CoopBank[lp_player] != null)) {
-        return ;
-    }
-
-    BankLoad(libCOOC_gv_cC_CoopBankName, lp_player);
-    libCOOC_gv_cC_CoopBank[lp_player] = BankLastCreated();
-}
-
-bool libCOOC_gf_CC_CoopBankExists (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    return BankExists(libCOOC_gv_cC_CoopBankName, lp_player);
-}
-
-void libCOOC_gf_CC_SaveCoopBank (int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((libCOOC_gv_cC_CoopBank[lp_player] == null)) {
-        return ;
-    }
-
-    BankSave(libCOOC_gv_cC_CoopBank[lp_player]);
-}
-
-string libCOOC_gf_CC_BankMIssionDifficultyKey6 (string lp_campaignPerk, string lp_commander) {
-    // Automatic Variable Declarations
-    // Implementation
-    return ((lp_commander) + "_" + (lp_campaignPerk));
-}
-
-string libCOOC_gf_CC_BankSectionName (string lp_section) {
-    // Automatic Variable Declarations
-    // Implementation
-    return ("CCampaign" + "|" + (lp_section));
-}
-
-int libCOOC_gf_CC_LoadTransitionVarInteger (bank lp_bank, string lp_section, string lp_key, int lp_default) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((BankKeyExists(lp_bank, lp_section, lp_key) == false)) {
-        return lp_default;
-    }
-    else {
-        return BankValueGetAsInt(lp_bank, lp_section, lp_key);
+    auto78F1F722_ai = 1;
+    auto78F1F722_ae = UserDataInstanceCount("PlayerCommander")+1;
+    while (auto78F1F722_ai < auto78F1F722_ae) {
+        lv_indexCommander = UserDataInstance("PlayerCommander", auto78F1F722_ai);
+        auto78F1F722_ai = auto78F1F722_ai+1;
+        libCOOC_gf_CC_SaveTransitionVarInteger(lp_bank, lp_section, libCOOC_gf_CC_PrestigeCommanderBankKey(lv_indexCommander, lp_player), DataTableGetInt(true, libCOOC_gf_CC_PrestigeCommanderTableKey(lv_indexCommander, lp_player)), 0);
     }
 }
 
-bool libCOOC_gf_CC_LoadTransitionVarBoolean (bank lp_bank, string lp_section, string lp_key, bool lp_default) {
+void libCOOC_gf_CC_LoadChampionFromBank3 (int lp_player, bank lp_bank, string lp_section) {
+    // Variable Declarations
+    string lv_indexPerk;
+    string lv_indexCommander;
+
     // Automatic Variable Declarations
+    int auto8D8097E9_ai;
+    int auto8D8097E9_ae;
+
+    // Variable Initialization
+
     // Implementation
-    if ((BankKeyExists(lp_bank, lp_section, lp_key) == false)) {
-        return lp_default;
-    }
-    else {
-        return BankValueGetAsFlag(lp_bank, lp_section, lp_key);
+    auto8D8097E9_ai = 1;
+    auto8D8097E9_ae = UserDataInstanceCount("PlayerCommander")+1;
+    while (auto8D8097E9_ai < auto8D8097E9_ae) {
+        lv_indexCommander = UserDataInstance("PlayerCommander", auto8D8097E9_ai);
+        auto8D8097E9_ai = auto8D8097E9_ai+1;
+        DataTableSetInt(true, libCOOC_gf_CC_PrestigeCommanderTableKey(lv_indexCommander, lp_player), libCOOC_gf_CC_LoadTransitionVarInteger(lp_bank, lp_section, libCOOC_gf_CC_PrestigeCommanderBankKey(lv_indexCommander, lp_player), 0));
     }
 }
 
-string libCOOC_gf_CC_LoadTransitionVarString (bank lp_bank, string lp_section, string lp_key, string lp_default) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((BankKeyExists(lp_bank, lp_section, lp_key) == false)) {
-        return lp_default;
-    }
-    else {
-        return BankValueGetAsString(lp_bank, lp_section, lp_key);
-    }
-}
+void libCOOC_gf_CC_ApplyUpgradeSupplemental (int lp_player, string lp_upgradeSupplemental) {
+    // Variable Declarations
+    string lv_upgrade;
+    string lv_supplement;
+    string lv_script;
 
-void libCOOC_gf_CC_SaveTransitionVarInteger (bank lp_bank, string lp_section, string lp_key, int lp_value, int lp_default) {
     // Automatic Variable Declarations
-    // Implementation
-    if ((lp_value == lp_default)) {
-        BankKeyRemove(lp_bank, lp_section, lp_key);
-    }
-    else {
-        BankValueSetFromInt(lp_bank, lp_section, lp_key, lp_value);
-    }
-}
+    // Variable Initialization
+    lv_upgrade = UserDataGetGameLink("PlayerPrestigeUpgradeSupplements", lp_upgradeSupplemental, "Upgrade", 1);
+    lv_supplement = UserDataGetGameLink("PlayerPrestigeUpgradeSupplements", lp_upgradeSupplemental, "Supplement", 1);
+    lv_script = "";
 
-void libCOOC_gf_CC_SaveTransitionVarBoolean (bank lp_bank, string lp_section, string lp_key, bool lp_value, bool lp_default) {
-    // Automatic Variable Declarations
     // Implementation
-    if ((lp_value == lp_default)) {
-        BankKeyRemove(lp_bank, lp_section, lp_key);
+    if ((lp_upgradeSupplemental != null) && (CatalogEntryIsValid(c_gameCatalogUpgrade, lv_upgrade) == true) && (CatalogEntryIsValid(c_gameCatalogUpgrade, lv_supplement) == true) && (TechTreeUpgradeCount(lp_player, lv_upgrade, c_techCountCompleteOnly) > 0)) {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_supplement, TechTreeUpgradeCount(lp_player, lv_upgrade, c_techCountCompleteOnly));
     }
-    else {
-        BankValueSetFromFlag(lp_bank, lp_section, lp_key, lp_value);
-    }
-}
 
-void libCOOC_gf_CC_SaveTransitionVarString (bank lp_bank, string lp_section, string lp_key, string lp_value, string lp_default) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((lp_value == lp_default)) {
-        BankKeyRemove(lp_bank, lp_section, lp_key);
-    }
-    else {
-        BankValueSetFromString(lp_bank, lp_section, lp_key, lp_value);
-    }
 }
 
 void libCOOC_gf_CC_ScoreInit () {
@@ -2591,10 +2191,6 @@ void libCOOC_gf_CC_ScoreInit () {
     // Variable Initialization
 
     // Implementation
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        return ;
-    }
-
     auto02AA62F0_g = libCOMI_gf_GetAlliedCommandersPlayers();
     lv_indexPlayer = -1;
     while (true) {
@@ -2844,10 +2440,6 @@ void libCOOC_gf_TrackUnitDamageTakenForScoreScreen (bool lp_enableDisable, unit 
 void libCOOC_gf_CC_ScoreValueSet (int lp_player, string lp_scoreType, int lp_value) {
     // Automatic Variable Declarations
     // Implementation
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        return ;
-    }
-
     PlayerScoreValueSetFromInt(lp_player, lp_scoreType, lp_value);
 }
 
@@ -2860,10 +2452,6 @@ int libCOOC_gf_CC_StatEventLast () {
 void libCOOC_gf_CC_StatEventCreate (string lp_name) {
     // Automatic Variable Declarations
     // Implementation
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        return ;
-    }
-
     StatEventCreate(lp_name);
     TriggerDebugOutput(13, StringToText(lp_name), false);
     libCOOC_gv_pC_StatEventLastCampaign = StatEventLastCreated();
@@ -2872,10 +2460,6 @@ void libCOOC_gf_CC_StatEventCreate (string lp_name) {
 void libCOOC_gf_CC_StatEventAddStr (string lp_key, string lp_value, int lp_event) {
     // Automatic Variable Declarations
     // Implementation
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        return ;
-    }
-
     TextExpressionSetToken("Param/Expression/lib_COOC_DB7366EF", "A", StringToText(lp_key));
     TextExpressionSetToken("Param/Expression/lib_COOC_DB7366EF", "B", StringToText(lp_value));
     TriggerDebugOutput(13, TextExpressionAssemble("Param/Expression/lib_COOC_DB7366EF"), false);
@@ -2885,10 +2469,6 @@ void libCOOC_gf_CC_StatEventAddStr (string lp_key, string lp_value, int lp_event
 void libCOOC_gf_CC_StatEventAddInt (string lp_key, int lp_value, int lp_event) {
     // Automatic Variable Declarations
     // Implementation
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        return ;
-    }
-
     TextExpressionSetToken("Param/Expression/lib_COOC_257AA7EE", "A", StringToText(lp_key));
     TextExpressionSetToken("Param/Expression/lib_COOC_257AA7EE", "B", IntToText(lp_value));
     TriggerDebugOutput(13, TextExpressionAssemble("Param/Expression/lib_COOC_257AA7EE"), false);
@@ -2898,10 +2478,6 @@ void libCOOC_gf_CC_StatEventAddInt (string lp_key, int lp_value, int lp_event) {
 void libCOOC_gf_CC_StatEventAddReal (string lp_key, fixed lp_value, int lp_event) {
     // Automatic Variable Declarations
     // Implementation
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        return ;
-    }
-
     TextExpressionSetToken("Param/Expression/lib_COOC_06D1E9EA", "A", StringToText(lp_key));
     TextExpressionSetToken("Param/Expression/lib_COOC_06D1E9EA", "B", FixedToText(lp_value, c_fixedPrecisionAny));
     TriggerDebugOutput(13, TextExpressionAssemble("Param/Expression/lib_COOC_06D1E9EA"), false);
@@ -2911,10 +2487,6 @@ void libCOOC_gf_CC_StatEventAddReal (string lp_key, fixed lp_value, int lp_event
 void libCOOC_gf_CC_StatEventDone (int lp_statEvent) {
     // Automatic Variable Declarations
     // Implementation
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        return ;
-    }
-
     TriggerDebugOutput(13, StringToText(""), false);
     StatEventSend(lp_statEvent);
     if ((lp_statEvent == libCOOC_gv_pC_StatEventLastCampaign)) {
@@ -2933,10 +2505,6 @@ void libCOOC_gf_CC_StatRecordMapStart () {
     // Variable Initialization
 
     // Implementation
-    if ((libCOOC_gv_cC_InContestMap == true)) {
-        return ;
-    }
-
     libCOOC_gf_CC_StatEventCreate("ACMapStart");
     libCOOC_gf_CC_StatEventAddInt("Version", libCOOC_gv_pCC_StatVersion, libCOOC_gf_CC_StatEventLast());
     libCOOC_gf_CC_StatEventDone(libCOOC_gf_CC_StatEventLast());
@@ -3020,118 +2588,61 @@ void libCOOC_gf_CC_TimeMissionTemporaryRestore () {
     libCOOC_gf_PauseMissionTimeCampaign(libCOOC_gv_cC_TimeMissionPaused);
 }
 
-void libCOOC_gf_ShowHideWorldCover (bool lp_showHide, fixed lp_transparency, int lp_player) {
+int libCOOC_gf_CC_DifficultyIndex (int lp_difficulty) {
     // Variable Declarations
-    playergroup lv_coverPlayers;
+    int lv_index;
 
     // Automatic Variable Declarations
+    int auto35BA92F5_val;
+
     // Variable Initialization
-    lv_coverPlayers = PlayerGroupEmpty();
 
     // Implementation
-    lv_coverPlayers = PlayerGroupSingle(lp_player);
-    if ((libCOOC_gv_cC_WorldCoverDlg == c_invalidDialogId)) {
-        if ((lp_showHide == true)) {
-            DialogCreate(500, 400, c_anchorCenter, 0, 0, true);
-            libCOOC_gv_cC_WorldCoverDlg = DialogLastCreated();
-            DialogSetFullscreen(DialogLastCreated(), true);
-            DialogSetImageVisible(DialogLastCreated(), false);
-            DialogControlCreate(DialogLastCreated(), c_triggerControlTypeImage);
-            libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), true, PlayerGroupAll());
-            DialogControlSetFullDialog(DialogControlLastCreated(), PlayerGroupAll(), true);
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\white32.dds", PlayerGroupAll());
-            libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(0.00, 0.00, 0.00), PlayerGroupAll());
-            libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 1, PlayerGroupAll());
-            libNtve_gf_SetDialogItemRenderType(DialogControlLastCreated(), c_triggerRenderTypeHDR, PlayerGroupAll());
-        }
-        else {
-            return ;
-        }
+    auto35BA92F5_val = lp_difficulty;
+    if (auto35BA92F5_val == 1) {
+        return 1;
     }
-
-    if ((lp_showHide == true)) {
-        DialogSetTransparency(libCOOC_gv_cC_WorldCoverDlg, lp_transparency);
+    else if (auto35BA92F5_val == 2) {
+        return 2;
     }
-
-    DialogSetVisible(libCOOC_gv_cC_WorldCoverDlg, lv_coverPlayers, lp_showHide);
-}
-
-void libCOOC_gf_CinematicFade (bool lp_fadeIn, fixed lp_duration, color lp_color, bool lp_waitUntilDone) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((lp_waitUntilDone == true)) {
-        libCOOC_gf_CinematicFade3(lp_fadeIn, lp_duration, lp_color);
+    else if (auto35BA92F5_val == 3) {
+        return 3;
+    }
+    else if (auto35BA92F5_val == 4) {
+        return 4;
+    }
+    else if (auto35BA92F5_val == 5) {
+        return 5;
+    }
+    else if (auto35BA92F5_val == 6) {
+        return 6;
     }
     else {
-        libCOOC_gf_CinematicFade4(lp_fadeIn, lp_duration, lp_color);
+        return 0;
     }
 }
 
-void libCOOC_gf_CinematicFade3 (bool lp_fadeIn, fixed lp_duration, color lp_color) {
+int libCOOC_gf_CC_DifficultyFromIndex (int lp_index) {
     // Automatic Variable Declarations
-    // Implementation
-    if ((lp_fadeIn == true)) {
-        if ((libCOOC_gv__FadeImage != c_invalidDialogControlId)) {
-            libNtve_gf_SetDialogItemColor(libCOOC_gv__FadeImage, lp_color, PlayerGroupAll());
-            DialogControlFadeTransparency(libCOOC_gv__FadeImage, PlayerGroupAll(), lp_duration, 100.0);
-        }
+    int auto3A457F69_val;
 
+    // Implementation
+    auto3A457F69_val = lp_index;
+    if (auto3A457F69_val == libCOOC_gf_CC_DifficultyIndex(1)) {
+        return 1;
+    }
+    else if (auto3A457F69_val == libCOOC_gf_CC_DifficultyIndex(2)) {
+        return 2;
+    }
+    else if (auto3A457F69_val == libCOOC_gf_CC_DifficultyIndex(3)) {
+        return 3;
+    }
+    else if (auto3A457F69_val == libCOOC_gf_CC_DifficultyIndex(4)) {
+        return 4;
     }
     else {
-        libCOOC_gf__FadeCreateDialog();
-        libNtve_gf_SetDialogItemColor(libCOOC_gv__FadeImage, lp_color, PlayerGroupAll());
-        DialogControlFadeTransparency(libCOOC_gv__FadeImage, PlayerGroupAll(), 0.0, 100.0);
-        DialogSetVisible(DialogLastCreated(), PlayerGroupAll(), true);
-        DialogControlFadeTransparency(libCOOC_gv__FadeImage, PlayerGroupAll(), lp_duration, 0.0);
+        return 2;
     }
-    if ((lp_duration > 0.0)) {
-        Wait(lp_duration, c_timeGame);
-    }
-
-}
-
-trigger auto_libCOOC_gf_CinematicFade4_Trigger = null;
-bool auto_libCOOC_gf_CinematicFade4_lp_fadeIn;
-fixed auto_libCOOC_gf_CinematicFade4_lp_duration;
-color auto_libCOOC_gf_CinematicFade4_lp_color;
-
-void libCOOC_gf_CinematicFade4 (bool lp_fadeIn, fixed lp_duration, color lp_color) {
-    auto_libCOOC_gf_CinematicFade4_lp_fadeIn = lp_fadeIn;
-    auto_libCOOC_gf_CinematicFade4_lp_duration = lp_duration;
-    auto_libCOOC_gf_CinematicFade4_lp_color = lp_color;
-
-    if (auto_libCOOC_gf_CinematicFade4_Trigger == null) {
-        auto_libCOOC_gf_CinematicFade4_Trigger = TriggerCreate("auto_libCOOC_gf_CinematicFade4_TriggerFunc");
-    }
-
-    TriggerExecute(auto_libCOOC_gf_CinematicFade4_Trigger, false, false);
-}
-
-bool auto_libCOOC_gf_CinematicFade4_TriggerFunc (bool testConds, bool runActions) {
-    bool lp_fadeIn = auto_libCOOC_gf_CinematicFade4_lp_fadeIn;
-    fixed lp_duration = auto_libCOOC_gf_CinematicFade4_lp_duration;
-    color lp_color = auto_libCOOC_gf_CinematicFade4_lp_color;
-
-    // Automatic Variable Declarations
-    // Implementation
-    libCOOC_gf_CinematicFade3(lp_fadeIn, lp_duration, lp_color);
-    return true;
-}
-
-void libCOOC_gf__FadeCreateDialog () {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((libCOOC_gv__FadeDialog != c_invalidDialogId)) {
-        DialogDestroy(libCOOC_gv__FadeDialog);
-    }
-
-    DialogCreate(500, 400, c_anchorCenter, 0, 0, true);
-    libCOOC_gv__FadeDialog = DialogLastCreated();
-    DialogSetImageVisible(DialogLastCreated(), false);
-    DialogSetFullscreen(DialogLastCreated(), true);
-    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 200, 50, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\white.dds", c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
-    libCOOC_gv__FadeImage = DialogControlLastCreated();
-    DialogControlSetFullDialog(DialogControlLastCreated(), PlayerGroupAll(), true);
 }
 
 void libCOOC_gf_PreventSpawningInRegion (region lp_region) {
@@ -3812,120 +3323,324 @@ void libCOOC_gf_CC_MuteUnmuteExclusive (bool lp_muteUnmute, int lp_muteChannel, 
 
 }
 
-// Triggers
-//--------------------------------------------------------------------------------------------------
-// Trigger: CC_DebugDefeatMultiplier
-//--------------------------------------------------------------------------------------------------
-bool libCOOC_gt_CC_DebugDefeatMultiplier_Func (bool testConds, bool runActions) {
+void libCOOC_gf_CinematicFade (bool lp_fadeIn, fixed lp_duration, color lp_color, bool lp_waitUntilDone) {
     // Automatic Variable Declarations
-    // Conditions
-    if (testConds) {
-        if (!((GameCheatsEnabled(c_gameCheatCategoryDevelopment) == true))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libCOOC_gv_cC_DebugDefeatMultiplierOverride = StringToFixed(StringWord(EventChatMessage(false), 2));
-    if ((libCOOC_gv_cC_DebugDefeatMultiplierOverride < 0.0)) {
-        TriggerDebugOutput(1, StringExternal("Param/Value/lib_COOC_55583EAD"), true);
+    // Implementation
+    if ((lp_waitUntilDone == true)) {
+        libCOOC_gf_CinematicFade3(lp_fadeIn, lp_duration, lp_color);
     }
     else {
-        TextExpressionSetToken("Param/Expression/lib_COOC_1F1F5B04", "A", FixedToText(libCOOC_gv_cC_DebugDefeatMultiplierOverride, c_fixedPrecisionAny));
-        TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_1F1F5B04"), true);
+        libCOOC_gf_CinematicFade4(lp_fadeIn, lp_duration, lp_color);
     }
-    return true;
 }
 
-//--------------------------------------------------------------------------------------------------
-void libCOOC_gt_CC_DebugDefeatMultiplier_Init () {
-    libCOOC_gt_CC_DebugDefeatMultiplier = TriggerCreate("libCOOC_gt_CC_DebugDefeatMultiplier_Func");
-    TriggerAddEventChatMessage(libCOOC_gt_CC_DebugDefeatMultiplier, c_playerAny, "-xpmult", false);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: CC_DebugToggleTechSpam
-//--------------------------------------------------------------------------------------------------
-bool libCOOC_gt_CC_DebugToggleTechSpam_Func (bool testConds, bool runActions) {
+void libCOOC_gf_CinematicFade3 (bool lp_fadeIn, fixed lp_duration, color lp_color) {
     // Automatic Variable Declarations
-    // Conditions
-    if (testConds) {
-        if (!((GameCheatsEnabled(c_gameCheatCategoryDevelopment) == true))) {
-            return false;
+    // Implementation
+    if ((lp_fadeIn == true)) {
+        if ((libCOOC_gv__FadeImage != c_invalidDialogControlId)) {
+            libNtve_gf_SetDialogItemColor(libCOOC_gv__FadeImage, lp_color, PlayerGroupAll());
+            DialogControlFadeTransparency(libCOOC_gv__FadeImage, PlayerGroupAll(), lp_duration, 100.0);
         }
+
+    }
+    else {
+        libCOOC_gf__FadeCreateDialog();
+        libNtve_gf_SetDialogItemColor(libCOOC_gv__FadeImage, lp_color, PlayerGroupAll());
+        DialogControlFadeTransparency(libCOOC_gv__FadeImage, PlayerGroupAll(), 0.0, 100.0);
+        DialogSetVisible(DialogLastCreated(), PlayerGroupAll(), true);
+        DialogControlFadeTransparency(libCOOC_gv__FadeImage, PlayerGroupAll(), lp_duration, 0.0);
+    }
+    if ((lp_duration > 0.0)) {
+        Wait(lp_duration, c_timeGame);
     }
 
-    // Actions
-    if (!runActions) {
-        return true;
+}
+
+trigger auto_libCOOC_gf_CinematicFade4_Trigger = null;
+bool auto_libCOOC_gf_CinematicFade4_lp_fadeIn;
+fixed auto_libCOOC_gf_CinematicFade4_lp_duration;
+color auto_libCOOC_gf_CinematicFade4_lp_color;
+
+void libCOOC_gf_CinematicFade4 (bool lp_fadeIn, fixed lp_duration, color lp_color) {
+    auto_libCOOC_gf_CinematicFade4_lp_fadeIn = lp_fadeIn;
+    auto_libCOOC_gf_CinematicFade4_lp_duration = lp_duration;
+    auto_libCOOC_gf_CinematicFade4_lp_color = lp_color;
+
+    if (auto_libCOOC_gf_CinematicFade4_Trigger == null) {
+        auto_libCOOC_gf_CinematicFade4_Trigger = TriggerCreate("auto_libCOOC_gf_CinematicFade4_TriggerFunc");
     }
 
-    libCOOC_gv_cC_DebugTechSpam = !(libCOOC_gv_cC_DebugTechSpam);
-    TextExpressionSetToken("Param/Expression/lib_COOC_346FD6AB", "A", libNtve_gf_ConvertBooleanToText(libCOOC_gv_cC_DebugTechSpam));
-    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_346FD6AB"), true);
-    return true;
+    TriggerExecute(auto_libCOOC_gf_CinematicFade4_Trigger, false, false);
 }
 
-//--------------------------------------------------------------------------------------------------
-void libCOOC_gt_CC_DebugToggleTechSpam_Init () {
-    libCOOC_gt_CC_DebugToggleTechSpam = TriggerCreate("libCOOC_gt_CC_DebugToggleTechSpam_Func");
-    TriggerAddEventChatMessage(libCOOC_gt_CC_DebugToggleTechSpam, c_playerAny, "techspam", true);
-}
+bool auto_libCOOC_gf_CinematicFade4_TriggerFunc (bool testConds, bool runActions) {
+    bool lp_fadeIn = auto_libCOOC_gf_CinematicFade4_lp_fadeIn;
+    fixed lp_duration = auto_libCOOC_gf_CinematicFade4_lp_duration;
+    color lp_color = auto_libCOOC_gf_CinematicFade4_lp_color;
 
-//--------------------------------------------------------------------------------------------------
-// Trigger: CC_DebugToggleTechSuperSpam
-//--------------------------------------------------------------------------------------------------
-bool libCOOC_gt_CC_DebugToggleTechSuperSpam_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
-    // Conditions
-    if (testConds) {
-        if (!((GameCheatsEnabled(c_gameCheatCategoryDevelopment) == true))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libCOOC_gv_cC_DebugTechSuperSpam = !(libCOOC_gv_cC_DebugTechSuperSpam);
-    TextExpressionSetToken("Param/Expression/lib_COOC_94BD8027", "A", libNtve_gf_ConvertBooleanToText(libCOOC_gv_cC_DebugTechSuperSpam));
-    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_94BD8027"), true);
+    // Implementation
+    libCOOC_gf_CinematicFade3(lp_fadeIn, lp_duration, lp_color);
     return true;
 }
 
-//--------------------------------------------------------------------------------------------------
-void libCOOC_gt_CC_DebugToggleTechSuperSpam_Init () {
-    libCOOC_gt_CC_DebugToggleTechSuperSpam = TriggerCreate("libCOOC_gt_CC_DebugToggleTechSuperSpam_Func");
-    TriggerAddEventChatMessage(libCOOC_gt_CC_DebugToggleTechSuperSpam, c_playerAny, "techsuperspam", true);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: CC_DebugUpdateTech
-//--------------------------------------------------------------------------------------------------
-bool libCOOC_gt_CC_DebugUpdateTech_Func (bool testConds, bool runActions) {
+void libCOOC_gf__FadeCreateDialog () {
     // Automatic Variable Declarations
-    // Conditions
-    if (testConds) {
-        if (!((GameCheatsEnabled(c_gameCheatCategoryDevelopment) == true))) {
-            return false;
-        }
+    // Implementation
+    if ((libCOOC_gv__FadeDialog != c_invalidDialogId)) {
+        DialogDestroy(libCOOC_gv__FadeDialog);
     }
 
-    return true;
+    DialogCreate(500, 400, c_anchorCenter, 0, 0, true);
+    libCOOC_gv__FadeDialog = DialogLastCreated();
+    DialogSetImageVisible(DialogLastCreated(), false);
+    DialogSetFullscreen(DialogLastCreated(), true);
+    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 200, 50, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\white.dds", c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
+    libCOOC_gv__FadeImage = DialogControlLastCreated();
+    DialogControlSetFullDialog(DialogControlLastCreated(), PlayerGroupAll(), true);
 }
 
-//--------------------------------------------------------------------------------------------------
-void libCOOC_gt_CC_DebugUpdateTech_Init () {
-    libCOOC_gt_CC_DebugUpdateTech = TriggerCreate("libCOOC_gt_CC_DebugUpdateTech_Func");
-    TriggerAddEventChatMessage(libCOOC_gt_CC_DebugUpdateTech, c_playerAny, "techupdate", true);
+string libCOOC_gf_CC_BankMIssionDifficultyKey6 (string lp_campaignPerk, string lp_commander) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ((lp_commander) + "_" + (lp_campaignPerk));
 }
 
+string libCOOC_gf_CC_BankSectionName (string lp_section) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("CCampaign" + "|" + (lp_section));
+}
+
+int libCOOC_gf_CC_LoadTransitionVarInteger (bank lp_bank, string lp_section, string lp_key, int lp_default) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((BankKeyExists(lp_bank, lp_section, lp_key) == false)) {
+        return lp_default;
+    }
+    else {
+        return BankValueGetAsInt(lp_bank, lp_section, lp_key);
+    }
+}
+
+bool libCOOC_gf_CC_LoadTransitionVarBoolean (bank lp_bank, string lp_section, string lp_key, bool lp_default) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((BankKeyExists(lp_bank, lp_section, lp_key) == false)) {
+        return lp_default;
+    }
+    else {
+        return BankValueGetAsFlag(lp_bank, lp_section, lp_key);
+    }
+}
+
+string libCOOC_gf_CC_LoadTransitionVarString (bank lp_bank, string lp_section, string lp_key, string lp_default) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((BankKeyExists(lp_bank, lp_section, lp_key) == false)) {
+        return lp_default;
+    }
+    else {
+        return BankValueGetAsString(lp_bank, lp_section, lp_key);
+    }
+}
+
+void libCOOC_gf_CC_SaveTransitionVarInteger (bank lp_bank, string lp_section, string lp_key, int lp_value, int lp_default) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((lp_value == lp_default)) {
+        BankKeyRemove(lp_bank, lp_section, lp_key);
+    }
+    else {
+        BankValueSetFromInt(lp_bank, lp_section, lp_key, lp_value);
+    }
+}
+
+void libCOOC_gf_CC_SaveTransitionVarBoolean (bank lp_bank, string lp_section, string lp_key, bool lp_value, bool lp_default) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((lp_value == lp_default)) {
+        BankKeyRemove(lp_bank, lp_section, lp_key);
+    }
+    else {
+        BankValueSetFromFlag(lp_bank, lp_section, lp_key, lp_value);
+    }
+}
+
+void libCOOC_gf_CC_SaveTransitionVarString (bank lp_bank, string lp_section, string lp_key, string lp_value, string lp_default) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((lp_value == lp_default)) {
+        BankKeyRemove(lp_bank, lp_section, lp_key);
+    }
+    else {
+        BankValueSetFromString(lp_bank, lp_section, lp_key, lp_value);
+    }
+}
+
+void libCOOC_gf_EnableArcadeContestMode () {
+    // Automatic Variable Declarations
+    // Implementation
+    libCOOC_gv_cC_InContestMap = true;
+}
+
+void libCOOC_gf_CC_SaveAllTransitionData (bool lp_resultFromDefeat, int lp_player) {
+    // Variable Declarations
+    int lv_saveType;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    libCOOC_gf_CC_OpenCoopBank(lp_player);
+    libCOOC_gf_CC_SaveTransitionVars(lp_player, libCOOC_gv_cC_CoopBank[lp_player], lp_resultFromDefeat);
+    libCOOC_gf_CC_SaveCoopBank(lp_player);
+}
+
+void libCOOC_gf_CC_LoadAllTransitionData (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((libCOOC_gf_CC_CoopBankExists(lp_player) == false)) {
+        TextExpressionSetToken("Param/Expression/lib_COOC_253EB9C4", "A", IntToText(lp_player));
+        TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_253EB9C4"), false);
+        return ;
+    }
+
+    TriggerDebugOutput(1, StringExternal("Param/Value/lib_COOC_6670EA63"), false);
+    libCOOC_gf_CC_OpenCoopBank(lp_player);
+    libCOOC_gf_CC_LoadTransitionVars(lp_player, libCOOC_gv_cC_CoopBank[lp_player]);
+    if ((libCOOC_gv_cCX_PlayerBankVersion[lp_player] < libCOOC_gv_cCC_BankVersion)) {
+        TextExpressionSetToken("Param/Expression/lib_COOC_6DCBB62D", "A", IntToText(lp_player));
+        TextExpressionSetToken("Param/Expression/lib_COOC_6DCBB62D", "B", IntToText(libCOOC_gv_cCX_PlayerBankVersion[lp_player]));
+        TextExpressionSetToken("Param/Expression/lib_COOC_6DCBB62D", "C", IntToText(libCOOC_gv_cCC_BankVersion));
+        TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_6DCBB62D"), false);
+        return ;
+    }
+
+}
+
+void libCOOC_gf_CC_LoadBNetChoices (int lp_player) {
+    // Variable Declarations
+    string lv_chosenCommander;
+    string lv_indexMasteryUpgrade;
+    int lv_currentLevel;
+
+    // Automatic Variable Declarations
+    int auto01FD1831_ai;
+    int auto01FD1831_ae;
+    int auto01FD1831_ac;
+
+    // Variable Initialization
+
+    // Implementation
+    TextExpressionSetToken("Param/Expression/lib_COOC_D5B22955", "A", IntToText(lp_player));
+    TextExpressionSetToken("Param/Expression/lib_COOC_D5B22955", "B", PlayerName(lp_player));
+    TextExpressionSetToken("Param/Expression/lib_COOC_D5B22955", "C", StringToText((libCOMI_gf_ActiveCommanderForPlayer4(lp_player))));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_D5B22955"), false);
+    lv_chosenCommander = libCOOC_gf_CC_CommanderUserInstance(libCOMI_gf_ActiveCommanderForPlayer4(lp_player));
+    libCOOC_gf_CC_PlayerCommanderSet(lp_player, lv_chosenCommander);
+    if ((PlayerRace(lp_player) != libCOOC_gf_CC_CommanderRace(lv_chosenCommander))) {
+        PlayerSetRace(lp_player, libCOOC_gf_CC_CommanderRace(lv_chosenCommander));
+    }
+
+    if ((libCOOC_gv_cC_InContestMap == true)) {
+        lv_currentLevel = 15;
+    }
+    else {
+        lv_currentLevel = PlayerCommanderLevel(lp_player);
+    }
+    libCOOC_gf_CC_PlayerLevelSet(lp_player, lv_currentLevel, lv_chosenCommander);
+    libCOOC_gf_CC_SetPlayerPrestigeIndex(lp_player, PlayerCommanderSelectedPrestige(lp_player));
+    libCOOC_gf_CC_PlayerMasteryLevelSet(lp_player, PlayerCommanderMasteryLevel(lp_player));
+    auto01FD1831_ai = 0;
+    auto01FD1831_ae = UserDataInstanceCount("MasteryUpgrades")+1;
+    while (auto01FD1831_ai < auto01FD1831_ae) {
+        auto01FD1831_ai = auto01FD1831_ai+1;
+        auto01FD1831_ac = UserDataGetInt("MasteryUpgrades", UserDataInstance("MasteryUpgrades", auto01FD1831_ai), "Category", 1);
+        if( libCOOC_gf_ActiveCommanderForPlayer(lp_player) == UserDataGetUserInstance("MasteryUpgrades",UserDataInstance("MasteryUpgrades", auto01FD1831_ai),"Commander",1) ) {
+            lv_indexMasteryUpgrade = UserDataInstance("MasteryUpgrades", auto01FD1831_ai);
+            TextExpressionSetToken("Param/Expression/lib_COOC_039E4FF2", "A", IntToText(lp_player));
+            TextExpressionSetToken("Param/Expression/lib_COOC_039E4FF2", "B", IntToText(libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade)));
+            TextExpressionSetToken("Param/Expression/lib_COOC_039E4FF2", "C", IntToText(PlayerCommanderMasteryTalentRank(lp_player, libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade))));
+            TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_COOC_039E4FF2"), false);
+            libCOOC_gf_CC_PlayerMasteryUpgradeLevelSet(lp_player, lv_indexMasteryUpgrade, PlayerCommanderMasteryTalentRank(lp_player, libCOOC_gf_CC_PlayerMasteryInternalIndex(lv_indexMasteryUpgrade)));
+        }    
+    }
+}
+
+void libCOOC_gf_CC_SaveBNetChoices (int lp_player) {
+    // Automatic Variable Declarations
+}
+
+void libCOOC_gf_CC_SaveTransitionVars (int lp_player, bank lp_targetBank, bool lp_resultFromDefeat) {
+    // Variable Declarations
+    string lv__SectionName;
+    int lv_index;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv__SectionName = "";
+
+    // Implementation
+    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignSetting");
+    libCOOC_gf_CC_SaveTransitionVarInteger(lp_targetBank, lv__SectionName, ("Bank Version"), libCOOC_gv_cCX_PlayerBankVersion[lp_player], 0);
+    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignCurrency");
+    libCOOC_gf_CC_SaveCommandersToBank(lp_player, lp_targetBank, lv__SectionName);
+    libCOOC_gf_CC_SaveChampionToBank3(lp_player, lp_targetBank, lv__SectionName);
+    libCOOC_gf_CC_SaveMasteryToBank(lp_player, lp_targetBank, lv__SectionName);
+    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignPerks");
+    BankSectionCreate(lp_targetBank, lv__SectionName);
+}
+
+void libCOOC_gf_CC_LoadTransitionVars (int lp_player, bank lp_sourceBank) {
+    // Variable Declarations
+    string lv__SectionName;
+    int lv_count;
+    int lv_index;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv__SectionName = "";
+
+    // Implementation
+    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignCurrency");
+    libCOOC_gf_CC_LoadCommandersFromBank(lp_player, lp_sourceBank, lv__SectionName);
+    libCOOC_gf_CC_LoadChampionFromBank3(lp_player, lp_sourceBank, lv__SectionName);
+    libCOOC_gf_CC_LoadMasteryFromBank(lp_player, lp_sourceBank, lv__SectionName);
+    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignSetting");
+    libCOOC_gv_cCX_PlayerBankVersion[lp_player] = libCOOC_gf_CC_LoadTransitionVarInteger(lp_sourceBank, lv__SectionName, ("Bank Version"), 0);
+    lv__SectionName = libCOOC_gf_CC_BankSectionName("CampaignPerks");
+}
+
+void libCOOC_gf_CC_OpenCoopBank (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((libCOOC_gv_cC_CoopBank[lp_player] != null)) {
+        return ;
+    }
+
+    BankLoad(libCOOC_gv_cC_CoopBankName, lp_player);
+    libCOOC_gv_cC_CoopBank[lp_player] = BankLastCreated();
+}
+
+bool libCOOC_gf_CC_CoopBankExists (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return BankExists(libCOOC_gv_cC_CoopBankName, lp_player);
+}
+
+void libCOOC_gf_CC_SaveCoopBank (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((libCOOC_gv_cC_CoopBank[lp_player] == null)) {
+        return ;
+    }
+
+    BankSave(libCOOC_gv_cC_CoopBank[lp_player]);
+}
+
+// Triggers
 //--------------------------------------------------------------------------------------------------
 // Trigger: CC_AchievementVorazunTimeStop
 //--------------------------------------------------------------------------------------------------
@@ -4052,27 +3767,6 @@ void libCOOC_gt_CC_PrestigeUpgradeSupplement_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: CC_CustomStartupSelectLaunch
-//--------------------------------------------------------------------------------------------------
-bool libCOOC_gt_CC_CustomStartupSelectLaunch_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libCOMU_gf_CU_CustomMutatorClose();
-    libCOOC_gf_CC_CustomStartupLaunch();
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libCOOC_gt_CC_CustomStartupSelectLaunch_Init () {
-    libCOOC_gt_CC_CustomStartupSelectLaunch = TriggerCreate("libCOOC_gt_CC_CustomStartupSelectLaunch_Func");
-    libCOMU_gf_CU_CustomMutatorStartGame(libCOOC_gt_CC_CustomStartupSelectLaunch);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: CC_ScoreArtanisAbsorb
 //--------------------------------------------------------------------------------------------------
 bool libCOOC_gt_CC_ScoreArtanisAbsorb_Func (bool testConds, bool runActions) {
@@ -4096,7 +3790,7 @@ bool libCOOC_gt_CC_ScoreArtanisAbsorb_Func (bool testConds, bool runActions) {
     libCOOC_gv_cC_ScoreArtanisAbsorb[UnitGetOwner(EventUnit())] += EventUnitDamageAbsorbed();
     PlayerScoreValueSetFromInt(UnitGetOwner(EventUnit()), "ArtanisShieldAbsorb", FixedToInt(libCOOC_gv_cC_ScoreArtanisAbsorb[UnitGetOwner(EventUnit())]));
     if ((libCOOC_gf_ActiveCommanderForPlayer(UnitGetOwner(EventUnit())) != "ProtossArtanis")) {
-        if ((libCOOC_gv_cC_InContestMap == false) && ((FixedToInt(libCOOC_gv_cC_ScoreArtanisAbsorb[UnitGetOwner(EventUnit())]) - FixedToInt(libCOOC_gv_cC_ScoreArtanisAbsorbLast[UnitGetOwner(EventUnit())])) > 5)) {
+        if (((FixedToInt(libCOOC_gv_cC_ScoreArtanisAbsorb[UnitGetOwner(EventUnit())]) - FixedToInt(libCOOC_gv_cC_ScoreArtanisAbsorbLast[UnitGetOwner(EventUnit())])) > 5)) {
             AchievementTermQuantityAdd(libCOOC_gf_CC_PlayerAlly(UnitGetOwner(EventUnit())), "CommanderArtanisSolalright", (FixedToInt(libCOOC_gv_cC_ScoreArtanisAbsorb[UnitGetOwner(EventUnit())]) - FixedToInt(libCOOC_gv_cC_ScoreArtanisAbsorbLast[UnitGetOwner(EventUnit())])));
             libCOOC_gv_cC_ScoreArtanisAbsorbLast[UnitGetOwner(EventUnit())] = libCOOC_gv_cC_ScoreArtanisAbsorb[UnitGetOwner(EventUnit())];
         }
@@ -4224,7 +3918,7 @@ bool libCOOC_gt_CC_ScoreVorazunBHDmg_Func (bool testConds, bool runActions) {
 
     libCOOC_gv_cC_ScoreVorazunBHDmg[EventUnitDamageSourcePlayer()] += EventUnitDamageAmount();
     PlayerScoreValueSetFromInt(EventUnitDamageSourcePlayer(), "VorazunBlackHoleDamage", FixedToInt(libCOOC_gv_cC_ScoreVorazunBHDmg[EventUnitDamageSourcePlayer()]));
-    if ((libCOOC_gv_cC_InContestMap == false) && ((libCOMI_gf_DifficultyLevelForPlayerCoop(EventUnitDamageSourcePlayer()) == 3) || (libCOMI_gf_DifficultyLevelForPlayerCoop(EventUnitDamageSourcePlayer()) == 4)) && (UnitIsAlive(EventUnit()) == false) && (libCOOC_gf_ActiveCommanderForPlayer(EventUnitDamageSourcePlayer()) == "ProtossVorazun")) {
+    if (((libCOMI_gf_DifficultyLevelForPlayerCoop(EventUnitDamageSourcePlayer()) == 3) || (libCOMI_gf_DifficultyLevelForPlayerCoop(EventUnitDamageSourcePlayer()) == 4)) && (UnitIsAlive(EventUnit()) == false) && (libCOOC_gf_ActiveCommanderForPlayer(EventUnitDamageSourcePlayer()) == "ProtossVorazun")) {
         AchievementTermQuantityAdd(EventUnitDamageSourcePlayer(), "CommanderVorazun1Shot15Kills", 1);
     }
 
@@ -4661,10 +4355,7 @@ bool libCOOC_gt_CC_ScoreZagaraFrenzyDmg_Func (bool testConds, bool runActions) {
     PlayerScoreValueSetFromInt(EventUnitDamageSourcePlayer(), "ZagaraFrenzyDamage", FixedToInt(libCOOC_gv_cC_ScoreZagaraFrenzyDmg[EventUnitDamageSourcePlayer()]));
     if ((libCOOC_gf_ActiveCommanderForPlayer(EventUnitDamageSourcePlayer()) != "ZergZagara")) {
         if (((FixedToInt(libCOOC_gv_cC_ScoreZagaraFrenzyDmg[EventUnitDamageSourcePlayer()]) - FixedToInt(libCOOC_gv_cC_ScoreZagaraFrenzyDmgLast[EventUnitDamageSourcePlayer()])) > 5)) {
-            if ((libCOOC_gv_cC_InContestMap == false)) {
-                AchievementTermQuantityAdd(libCOOC_gf_CC_PlayerAlly(EventUnitDamageSourcePlayer()), "CommanderZagaraFrenzy4Everyone", (FixedToInt(libCOOC_gv_cC_ScoreZagaraFrenzyDmg[EventUnitDamageSourcePlayer()]) - FixedToInt(libCOOC_gv_cC_ScoreZagaraFrenzyDmgLast[EventUnitDamageSourcePlayer()])));
-            }
-
+            AchievementTermQuantityAdd(libCOOC_gf_CC_PlayerAlly(EventUnitDamageSourcePlayer()), "CommanderZagaraFrenzy4Everyone", (FixedToInt(libCOOC_gv_cC_ScoreZagaraFrenzyDmg[EventUnitDamageSourcePlayer()]) - FixedToInt(libCOOC_gv_cC_ScoreZagaraFrenzyDmgLast[EventUnitDamageSourcePlayer()])));
             libCOOC_gv_cC_ScoreZagaraFrenzyDmgLast[EventUnitDamageSourcePlayer()] = libCOOC_gv_cC_ScoreZagaraFrenzyDmg[EventUnitDamageSourcePlayer()];
         }
 
@@ -6167,14 +5858,9 @@ void libCOOC_gt_CC_ScoreDynDmgTaken_Init () {
 }
 
 void libCOOC_InitTriggers () {
-    libCOOC_gt_CC_DebugDefeatMultiplier_Init();
-    libCOOC_gt_CC_DebugToggleTechSpam_Init();
-    libCOOC_gt_CC_DebugToggleTechSuperSpam_Init();
-    libCOOC_gt_CC_DebugUpdateTech_Init();
     libCOOC_gt_CC_AchievementVorazunTimeStop_Init();
     libCOOC_gt_CC_SharedUpgradesRecheck_Init();
     libCOOC_gt_CC_PrestigeUpgradeSupplement_Init();
-    libCOOC_gt_CC_CustomStartupSelectLaunch_Init();
     libCOOC_gt_CC_ScoreArtanisAbsorb_Init();
     libCOOC_gt_CC_ScoreArtanisKaraxOrbitalStrike_Init();
     libCOOC_gt_CC_ScoreArtanisBombardment_Init();
