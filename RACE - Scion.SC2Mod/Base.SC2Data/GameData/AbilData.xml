@@ -35,6 +35,15 @@
         <ConstructionMover value="Construction"/>
         <EffectArray index="Finish" value="DownloadPhase"/>
     </CAbilBuild>
+    <CAbilEffectInstant id="CitadelChargeMorph">
+        <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Resource index="Minerals" value="75"/>
+            <Resource index="Vespene" value="50"/>
+        </Cost>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ChargeCitadel"/>
+    </CAbilEffectInstant>
     <CAbilTransport id="DigesterTransport">
         <AbilSetId value="ULdM"/>
     </CAbilTransport>
@@ -77,6 +86,30 @@
         <Effect index="0" value="MoleTurnTurretCreateUnitDummy"/>
         <SmartPriority value="5"/>
         <AINotifyEffect value="MoleTurnTurretChannel"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="GyreAnnex">
+        <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
+        <Effect index="0" value="GyreAnnexABCaster"/>
+        <Flags index="Transient" value="1"/>
+        <AINotifyEffect value="GyreAnnexABCaster"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="GyreAnnex"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+            <Cooldown TimeUse="1.5"/>
+        </Cost>
+    </CAbilEffectInstant>
+    <CAbilEffectTarget id="GyreShackle">
+        <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
+        <Effect index="0" value="GyreShackleLM"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Range value="10"/>
+        <Arc value="360"/>
+        <CursorEffect value="GyreShackleSA"/>
+        <AINotifyEffect value="GyreShackleSA"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="GyreShackle"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+        </Cost>
     </CAbilEffectTarget>
     <CAbilEffectTarget id="ProcessingDroneAnalyzeWeakness">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
@@ -1634,27 +1667,6 @@
         </Cost>
         <CmdButtonArray index="Execute" DefaultButtonFace="Beholder"/>
     </CAbilEffectInstant>
-    <CAbilMorph id="CitadelCharge">
-        <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="ChargeCitadel" Requirements="HaveEdifice"/>
-        <CmdButtonArray index="Cancel" DefaultButtonFace="CancelUpgradeMorph"/>
-        <Flags index="BestUnit" value="1"/>
-        <Flags index="Birth" value="1"/>
-        <Flags index="FastBuild" value="1"/>
-        <Flags index="Interruptible" value="1"/>
-        <Flags index="Produce" value="1"/>
-        <Flags index="ShowProgress" value="1"/>
-        <RefundFraction>
-            <Resource index="Minerals" value="-1"/>
-            <Resource index="Vespene" value="-1"/>
-            <Resource index="Terrazine" value="-1"/>
-            <Resource index="Custom" value="-1"/>
-        </RefundFraction>
-        <InfoArray Score="1" Unit="CitadelCharged"/>
-        <Activity value="UI/Upgrading"/>
-        <AbilClassDisableArray index="CAbilQueue" value="0"/>
-        <AbilClassDisableArray index="CAbilTrain" value="1"/>
-    </CAbilMorph>
     <CAbilMorph id="DisguiseAsVolt" parent="DisguiseChangeling">
         <Name value="Abil/Name/DisguiseAsVolt"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="MaterializeVolt"/>
@@ -1990,19 +2002,20 @@
         <CmdButtonArray index="Execute" DefaultButtonFace="PlaceEmanator"/>
         <PlaceUnit value="Emanator"/>
     </CAbilEffectTarget>
-    <CAbilEffectTarget id="InvertFField">
+    <CAbilEffectTarget id="GyrePrison">
         <EditorCategories value="AbilityorEffectType:Units,Race:Keiron"/>
-        <Effect index="0" value="InvertFFieldCP"/>
-        <Range value="11"/>
-        <CursorEffect value="InvertFFieldSA"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="Prison"/>
-        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Effect index="0" value="GyrePrisonDuration"/>
+        <Flags index="AllowMovement" value="1"/>
         <Cost>
             <Vital index="Energy" value="100"/>
         </Cost>
+        <Range value="11"/>
         <Arc value="360"/>
         <CancelableArray index="Channel" value="1"/>
         <UninterruptibleArray index="Channel" value="1"/>
+        <CursorEffect value="GyrePrisonSearch"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="GyrePrison"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
     </CAbilEffectTarget>
     <CAbilBuild id="KeironBuild">
         <EditorCategories value="AbilityorEffectType:Units,Race:Keiron"/>
@@ -2240,14 +2253,14 @@
                 <Flags index="AllowMinimap" value="1"/>
             </Button>
         </InfoArray>
-        <InfoArray index="Train14" Time="5" Unit="Paradox">
+        <InfoArray index="Train14" Time="5" Unit="Gyre">
             <Charge>
                 <CountMax value="500000"/>
                 <CountUse value="1"/>
                 <Link value="Abil/KeironCitadelMaterializeHarPar"/>
                 <Location value="Player"/>
             </Charge>
-            <Button DefaultButtonFace="MaterializeParadox">
+            <Button DefaultButtonFace="MaterializeGyre">
                 <Flags index="AllowMinimap" value="1"/>
             </Button>
         </InfoArray>
@@ -2357,16 +2370,17 @@
             </SectionArray>
         </InfoArray>
     </CAbilMorph>
-    <CAbilEffectTarget id="ParadoxShield">
+    <CAbilEffectTarget id="GyreShield">
         <EditorCategories value="AbilityorEffectType:Units,Race:Keiron"/>
-        <Effect index="0" value="ParadoxShieldAB"/>
-        <TargetFilters value="-;Neutral,Enemy,Missile,Stasis,Dead,Hidden"/>
-        <Range value="8"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="ParadoxShield"/>
-        <Arc value="360"/>
+        <Effect index="0" value="GyreShieldAB"/>
+        <Flags index="AllowMovement" value="1"/>
         <Cost>
             <Vital index="Energy" value="75"/>
         </Cost>
+        <TargetFilters value="-;Neutral,Enemy,Missile,Stasis,Dead,Hidden"/>
+        <Range value="8"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="GyreShieldBoost"/>
     </CAbilEffectTarget>
     <CAbilEffectInstant id="ParagonDrop">
         <EditorCategories value="AbilityorEffectType:Units,Race:Keiron"/>
@@ -2468,6 +2482,7 @@
             <SortArray value="TSDistance"/>
         </TargetSorts>
         <LoadCargoEffect value="MyriadDestroyElytraIterate"/>
+        <UnloadCargoEffect value="ApertureTranportUnloadOrder"/>
     </CAbilTransport>
     <CAbilEffectInstant id="UmbraShieldCompulsion">
         <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
