@@ -1,0 +1,57 @@
+
+trigger LotC_MiningWorkerConstructionDeath;
+trigger LotC_MiningWorkerConstructionComplete;
+bool LotC_MiningWorkerConstructionDeathHandler(bool a, bool b){
+    bool trigRan = true;
+    unit building = EventUnit();
+    int buildingTag = UnitGetTag(building);
+    unit worker;
+    if(DataTableValueExists(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker")){
+        worker= DataTableGetUnit(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker");
+        DataTableValueRemove(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker");
+        UnitKill(worker);
+    }
+    else{trigRan=false;}
+    return trigRan;
+}
+
+
+bool LotC_MiningWorkerClearBuilder(bool a, bool b){
+    bool trigRan = true;
+    unit worker = EventUnit();
+    unit building = EventUnitProgressUnit();
+    int buildingTag = UnitGetTag(building);
+    if(DataTableValueExists(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker")){
+        DataTableValueRemove(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker");
+    }
+    else{trigRan=false;}    
+    return trigRan;
+}
+
+bool LotC_MiningWorkerTrackBuilder(bool a, bool b){
+    bool trigRan = true;
+    unit worker = EventUnit();
+    unit building = EventUnitProgressUnit();
+    int buildingTag = UnitGetTag(building);
+    if(UnitGetType(worker)=="MiningDrone"){
+        DataTableSetUnit(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker",worker);
+        TriggerAddEventUnitDied(LotC_MiningWorkerConstructionDeath, UnitRefFromUnit(building));
+        TriggerAddEventUnitConstructProgress(LotC_MiningWorkerConstructionComplete, UnitRefFromUnit(worker), c_unitProgressStageComplete);
+        TriggerAddEventUnitConstructProgress(LotC_MiningWorkerConstructionComplete, UnitRefFromUnit(worker), c_unitProgressStageCancel);
+    }
+    else{trigRan=false;}
+    return trigRan;
+}
+
+
+
+void LotC_MiningWorker_Init(){
+    trigger t;
+    t= TriggerCreate("LotC_MiningWorkerTrackBuilder");
+    TriggerAddEventUnitConstructProgress(t, null, c_unitProgressStageStart);
+    LotC_MiningWorkerConstructionDeath = TriggerCreate("LotC_MiningWorkerConstructionDeathHandler");
+    LotC_MiningWorkerConstructionComplete = TriggerCreate("LotC_MiningWorkerClearBuilder");
+    //TriggerAddEventUnitDied(t, null);
+}
+
+

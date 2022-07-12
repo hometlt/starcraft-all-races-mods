@@ -1,0 +1,441 @@
+
+const string KEY_PREFIX = "LotC_SpecOpsClaymoreHandler";
+static trigger gt_Activated;
+static trigger gt_ForceOff;
+static trigger gt_Deactivated;
+static trigger gt_PointChosen;
+static trigger gt_DirectionChosen;
+static trigger gt_EffectFired;
+static trigger gt_Cancel;
+static trigger gt_CancelFromUI;
+static trigger gt_CameraShake;
+
+static trigger gt_ExecuteAction;
+static trigger gt_OrderMine;
+
+static string KeyBase(string unitTag, string abilInstance){
+	return KEY_PREFIX + "["+unitTag+","+abilInstance+"]";
+}
+
+
+static string Key(string base, string suffix){
+	return base+"."+suffix;
+}
+
+
+static string KeyFull(string unitTag, string abilInstance, string suffix){
+	return Key(KeyBase(unitTag,abilInstance),suffix);
+}
+
+
+point LotC_SpecOpsClaymoreHandler_EventPoint(){
+	return DataTableGetPoint(false, TriggerEventParamName(EventGenericName(), "Point"));
+	
+}
+
+point LotC_SpecOpsClaymoreHandler_EventDirection(){
+	return DataTableGetPoint(false, TriggerEventParamName(EventGenericName(), "Direction"));
+	
+}
+
+unit LotC_SpecOpsClaymoreHandler_EventCaster(){
+	return DataTableGetUnit(false, TriggerEventParamName(EventGenericName(), "Caster"));
+}
+
+
+
+string LotC_SpecOpsClaymoreHandler_EventName(){
+	return KEY_PREFIX+"ExecuteAction";
+}
+
+void LotC_SpecOpsClaymoreHandler_SendTriggerEvent(string lp_unitTag, string lp_abil){
+	string lv_keyBase = KeyBase(lp_unitTag,lp_abil);
+	string event = KEY_PREFIX+"ExecuteAction";
+	int i = 0;
+	string key;
+	int lv_ChargesTotal = DataTableGetInt(true,Key(lv_keyBase,"ChargesTotal"));
+	point lv_point = DataTableGetPoint(true,Key(lv_keyBase,"Point["+IntToString(lv_ChargesTotal)+"]"));
+	point lv_direction = DataTableGetPoint(true,Key(lv_keyBase,"Direction["+IntToString(lv_ChargesTotal)+"]"));
+	unit lv_caster = DataTableGetUnit(true,Key(lv_keyBase,"CasterUnit"));
+	bool keyexists = false;
+	for(i=1;i<=lv_ChargesTotal;i+=1){
+		keyexists = false;
+		
+		key = "Point["+IntToString(i)+"]";
+		if(DataTableValueExists(true,Key(lv_keyBase,key))){
+			lv_point = DataTableGetPoint(true,Key(lv_keyBase,key));
+			DataTableSetPoint(false, TriggerEventParamName(event, "Point"), lv_point);
+			keyexists = true;
+		}
+		key = "Direction["+IntToString(i)+"]";
+		if(DataTableValueExists(true,Key(lv_keyBase,key))){
+			lv_direction = DataTableGetPoint(true,Key(lv_keyBase,key));
+			DataTableSetPoint(false, TriggerEventParamName(event, "Direction"), lv_direction);
+			keyexists = true;
+		}
+		if(keyexists){
+			lv_caster = DataTableGetUnit(true,Key(lv_keyBase,"CasterUnit"));
+			DataTableSetUnit(false, TriggerEventParamName(event, "Caster"), lv_caster);
+			TriggerSendEvent(event);
+		}
+	}
+}
+
+void LotC_SpecOpsClaymoreHandler_ClearDataTable(string lp_unitTag, string lp_abil){
+	string lv_keyBase = KeyBase(lp_unitTag,lp_abil);
+	
+	DataTableValueRemove(true,Key(lv_keyBase,"CasterUnit"));
+	DataTableValueRemove(true,Key(lv_keyBase,"CasterGroup"));
+	DataTableValueRemove(true,Key(lv_keyBase,"ActivateAbility"));
+	DataTableValueRemove(true,Key(lv_keyBase,"ExecuteCommand"));
+	DataTableValueRemove(true,Key(lv_keyBase,"Cooldown"));
+	DataTableValueRemove(true,Key(lv_keyBase,"Behavior"));
+	DataTableValueRemove(true,Key(lv_keyBase,"Model"));
+	DataTableValueRemove(true,Key(lv_keyBase,"Order"));
+	DataTableValueRemove(true,Key(lv_keyBase,"UnitType"));
+	DataTableValueRemove(true,Key(lv_keyBase,"ChargesTotal"));
+	DataTableValueRemove(true,Key(lv_keyBase,"InstructionsPrimary"));
+	DataTableValueRemove(true,Key(lv_keyBase,"InstructionsSecondary"));
+	//lv_HornerAirFleet_Cost = CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_ActivateAbility, "Cost[0].Resource[0]", lv_casterPlayer);
+	DataTableValueRemove(true,Key(lv_keyBase,"ChargesSpent"));
+	DataTableValueRemove(true,Key(lv_keyBase,"UsageCount"));
+	DataTableValueRemove(true,Key(lv_keyBase,"Phase"));
+	DataTableValueRemove(true,Key(lv_keyBase,"Transitioning"));
+	DataTableValueRemove(true,Key(lv_keyBase,"UnrefundableStageEntered"));
+	DataTableValueRemove(true,Key(lv_keyBase,"AlreadyCanceled"));
+	DataTableValueRemove(true,Key(lv_keyBase,"Unit[]"));
+	DataTableValueRemove(true,Key(lv_keyBase,"Actors[]"));
+	DataTableValueRemove(true,Key(lv_keyBase,"DirectionGroup"));
+	DataTableValueRemove(true,Key(lv_keyBase,"Cycling"));
+	DataTableValueRemove(true,Key(lv_keyBase,"ExitInstantly"));
+
+}
+
+void LotC_SpecOpsClaymoreHandler_InitDataTableFromUserData(string lp_unitTag, string lp_abil){
+	string lv_keyBase = KeyBase(lp_unitTag,lp_abil);
+	string lv_user = "LotC_Targetable";
+	DataTableSetString(true,Key(lv_keyBase,"ActivateAbility"),UserDataGetGameLink(lv_user,lp_abil,"ActivateAbility",1));//HornerAirFleetActivate
+	DataTableSetAbilCmd(true,Key(lv_keyBase,"ExecuteCommand"),UserDataGetAbilCmd(lv_user,lp_abil,"ExecuteCommand",1));
+	DataTableSetString(true,Key(lv_keyBase,"Cooldown"),UserDataGetString(lv_user,lp_abil,"Cooldown",1));
+	DataTableSetString(true,Key(lv_keyBase,"Behavior"),UserDataGetGameLink(lv_user,lp_abil,"Behavior",1));
+	DataTableSetString(true,Key(lv_keyBase,"Model"),UserDataGetGameLink(lv_user,lp_abil,"Model",1));
+	//DataTableSetOrder(true,Key(lv_keyBase,"Order"),OrderTargetingPoint(UserDataGetAbilCmd(lv_user,lp_abil,"Order",1), UnitGetPosition(lv_caster)));
+	DataTableSetString(true,Key(lv_keyBase,"UnitType"),UserDataGetGameLink(lv_user,lp_abil,"UnitType",1));
+	DataTableSetInt(true,Key(lv_keyBase,"ChargesTotal"),UserDataGetInt(lv_user,lp_abil,"ChargesTotal",1));
+	DataTableSetText(true,Key(lv_keyBase,"InstructionsPrimary"),UserDataGetText(lv_user,lp_abil,"InstructionsPrimary",1));
+	DataTableSetText(true,Key(lv_keyBase,"InstructionsSecondary"),UserDataGetText(lv_user,lp_abil,"InstructionsSecondary",1));
+	
+	
+}
+
+void LotC_SpecOpsClaymoreHandler_ModeEnter (int lp_player,unit lp_caster, string lp_abil) {
+	int lv_count;
+	string lv_unitTag = IntToString(UnitGetTag(lp_caster));
+	string lv_keyBase = KeyBase(lv_unitTag,lp_abil);
+	int lv_UsageCount = DataTableGetInt(true,Key(lv_keyBase,"UsageCount"));
+	order lv_order = DataTableGetOrder(true,Key(lv_keyBase,"Order"));
+	unitgroup lv_casterGroup = DataTableGetUnitGroup(true,Key(lv_keyBase,"CasterGroup"));
+
+	TriggerDebugOutput(1,StringToText("LotC_SpecOpsClaymoreHandler_ModeEnter"),true);
+
+	DataTableSetBool(true,Key(lv_keyBase,"UnrefundableStageEntered"),false);
+	DataTableSetBool(true,Key(lv_keyBase,"AlreadyCanceled"),false);
+	DataTableSetBool(true,Key(lv_keyBase,"Transitioning"),false);
+	while (!((DataTableGetBool(true,Key(lv_keyBase,"Transitioning")) == false))) {
+		Wait(0.0625, c_timeGame);
+	}
+
+	TriggerEnable(gt_Cancel, true);
+	DataTableSetInt(true,Key(lv_keyBase,"UsageCount"),lv_UsageCount+1);
+	DataTableSetBool(true,Key(lv_keyBase,"ExitInstantly"),false);
+	DataTableSetInt(true,Key(lv_keyBase,"ChargesSpent"),0);
+	if ((lv_order != null)) {
+		TriggerEnable(gt_PointChosen, true);
+		TriggerEnable(gt_DirectionChosen, true);
+		UISetTargetingOrder(PlayerGroupSingle(lp_player), lv_casterGroup, lv_order, false);
+		DataTableSetInt(true,Key(lv_keyBase,"Phase"),c_TargetingPhaseType_Location);
+	}
+	else {
+		DataTableSetInt(true,Key(lv_keyBase,"Phase"),c_TargetingPhaseType_None);
+	}
+	DataTableSetBool(true,Key(lv_keyBase,"Transitioning"),true);
+	DataTableSetBool(true,Key(lv_keyBase,"Transitioning"),false);
+	DataTableSetBool(true,Key(lv_keyBase,"Cycling"),true);
+	
+}
+
+
+void LotC_SpecOpsClaymoreHandler_ModeExit (int lp_player,unit lp_caster, string lp_abil) {
+	string lv_unitTag = IntToString(UnitGetTag(lp_caster));
+	string lv_keyBase = KeyBase(lv_unitTag,lp_abil);
+	int lv_UsageCount = DataTableGetInt(true,Key(lv_keyBase,"UsageCount"));
+
+	TriggerDebugOutput(1,StringToText("LotC_SpecOpsClaymoreHandler_ModeExit"),true);
+	LotC_SpecOpsClaymoreHandler_SendTriggerEvent(lv_unitTag,lp_abil);
+	DataTableSetInt(true,Key(lv_keyBase,"Phase"),c_TargetingPhaseType_None);
+	while (!((DataTableGetBool(true,Key(lv_keyBase,"Transitioning")) == false))) {
+		Wait(0.0625, c_timeGame);
+	}
+	DataTableSetBool(true,Key(lv_keyBase,"Transitioning"),true);
+	if ((DataTableGetBool(true,Key(lv_keyBase,"ExitInstantly")) == true)) {}
+	else {}
+	if ((DataTableGetBool(true,Key(lv_keyBase,"ExitInstantly")) == true)) {
+		VisResetFoWAlpha(lp_player);
+	}
+	else {}
+	//libNtve_gf_RestoreUnitSelection(lp_player);
+	DataTableSetString(true,Key(lv_keyBase,"ActivateAbility"),null);
+	DataTableSetBool(true,Key(lv_keyBase,"Transitioning"),false);
+	lv_UsageCount -= 1;
+	DataTableSetInt(true,Key(lv_keyBase,"UsageCount"),lv_UsageCount);
+	if ((lv_UsageCount == 0)) {
+		TriggerEnable(gt_Cancel, false);
+		TriggerEnable(gt_PointChosen, false);
+		TriggerEnable(gt_DirectionChosen, false);
+	}
+
+}
+
+
+bool LotC_SpecOpsClaymoreHandler_OrderMine_Func (bool testConds, bool runActions) {
+	unit lv_caster = EventUnit();
+	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
+	unit u = EventUnitCreatedUnit();
+	string abil = EventUnitCreatedAbil();
+	point lv_direction = DataTableGetPoint(true,KEY_PREFIX+"SetDirection:"+lv_unitTag+":"+abil);
+	order o = OrderTargetingPoint(AbilityCommand("ClaymoreMineLookAtPoint",0),lv_direction);
+	
+	UnitIssueOrder(u,o,c_orderQueueReplace);
+	return true;
+}
+
+bool LotC_SpecOpsClaymoreHandler_ExecuteAction_Func (bool testConds, bool runActions) {
+	point lv_point = LotC_SpecOpsClaymoreHandler_EventPoint();
+	point lv_direction = LotC_SpecOpsClaymoreHandler_EventDirection();
+	unit u = LotC_SpecOpsClaymoreHandler_EventCaster();
+	string lv_unitTag = IntToString(UnitGetTag(u));
+	string abil = "ClaymoreMinePlace";
+	order o = OrderTargetingPoint(AbilityCommand(abil,0),lv_point);
+
+	
+	DataTableSetPoint(true,KEY_PREFIX+"SetDirection:"+lv_unitTag+":"+abil,lv_direction);
+	TriggerAddEventUnitCreated(gt_OrderMine,UnitRefFromUnit(u),abil,"");
+	UnitIssueOrder(u,o,c_orderQueueReplace);
+	return true;
+}
+
+bool LotC_SpecOpsClaymoreHandler_DirectionChosen_Func (bool testConds, bool runActions) {
+	string lv_abil = "ClaymoreMinePlace";
+	string lv_unitTag = IntToString(UnitGetTag(EventUnit()));
+	unit lv_caster = DataTableGetUnit(true,Key(KEY_PREFIX,"TargeterParent["+lv_unitTag+"]"));
+	int lv_casterPlayer = EventPlayer();
+	point lv_targetPoint= OrderGetTargetPoint(EventUnitOrder());
+	
+	string lv_keyBase = KeyBase(IntToString(UnitGetTag(lv_caster)),lv_abil);
+	int lv_ChargesSpent = DataTableGetInt(true,Key(lv_keyBase,"ChargesSpent"));
+	int lv_ChargesTotal = DataTableGetInt(true,Key(lv_keyBase,"ChargesTotal"));
+	order lv_order = DataTableGetOrder(true,Key(lv_keyBase,"Order"));
+	unit u = DataTableGetUnit(true,Key(lv_keyBase,"Units["+IntToString(lv_ChargesSpent)+"]"));
+	//LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
+	if (testConds) {
+		if (!((DataTableGetInt(true,Key(lv_keyBase,"Phase")) == c_TargetingPhaseType_Direction))) {
+			return false;
+		}
+	}
+
+	DataTableSetBool(true,Key(lv_keyBase,"Cycling"),true);
+
+	DataTableSetBool(true,Key(lv_keyBase,"UnrefundableStageEntered"),true);
+	libNtve_gf_CreateActorAtPoint(DataTableGetString(true,Key(lv_keyBase,"ConfirmationSound")), lv_targetPoint);
+	DataTableSetPoint(true,Key(lv_keyBase,"Direction["+IntToString(lv_ChargesSpent)+"]"),lv_targetPoint);
+	ActorSend(DataTableGetActor(true,Key(lv_keyBase,"Actors["+IntToString(lv_ChargesSpent)+"]")), "Signal Destroy");
+	if ((UnitIsValid(u) == false)) {
+		return true;
+	}
+	libNtve_gf_MakeUnitFacePoint(u, lv_targetPoint, 0.0);
+	////libCOUI_gf_CU_TargetingSetCharges((Targeting.lv_ChargesTotal-Targeting.lv_ChargesSpent), Targeting.lv_ChargesTotal, lv_casterPlayer);
+	if ((lv_ChargesSpent == lv_ChargesTotal)) {
+		UnitBehaviorRemove(lv_caster, DataTableGetString(true,Key(lv_keyBase,"Behavior")), 1);
+		Wait(0.1, c_timeGame);
+		
+	}
+	else {
+		//libCOUI_gf_CU_TargetingSetInstructionText(Targeting.lv_InstructionsPrimary, lv_casterPlayer);
+		Wait(0.1, c_timeGame);
+		
+		if ((DataTableGetBool(true,Key(lv_keyBase,"AlreadyCanceled")) == false)) {
+			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,"CasterGroup")), lv_order, false);
+		}
+
+		DataTableSetInt(true,Key(lv_keyBase,"Phase"),c_TargetingPhaseType_Location);
+	}
+	DataTableSetBool(true,Key(lv_keyBase,"Cycling"),false);
+	return true;
+}
+
+bool LotC_SpecOpsClaymoreHandler_PointChosen_Func (bool testConds, bool runActions) {
+	unit lv_caster = EventUnit();
+	int lv_casterPlayer = EventPlayer();
+	point lv_targetPoint= OrderGetTargetPoint(EventUnitOrder());
+	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
+	string lv_abil = "ClaymoreMinePlace";
+	string lv_keyBase = KeyBase(lv_unitTag,lv_abil);
+	int lv_ChargesSpent = DataTableGetInt(true,Key(lv_keyBase,"ChargesSpent"));
+	int lv_ChargesTotal = DataTableGetInt(true,Key(lv_keyBase,"ChargesTotal"));
+	string lv_UnitType = DataTableGetString(true,Key(lv_keyBase,"UnitType"));
+	order lv_order = DataTableGetOrder(true,Key(lv_keyBase,"Order"));
+	abilcmd lv_executeCommand = DataTableGetAbilCmd(true,Key(lv_keyBase,"ExecuteCommand"));
+	unit u;
+	//LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
+	if (testConds) {
+
+		if (!(DataTableGetInt(true,Key(lv_keyBase,"Phase")) == c_TargetingPhaseType_Location)) {
+			return false;
+		}
+
+		if (!(lv_ChargesSpent < lv_ChargesTotal)) {
+			return false;
+		}
+	}
+
+	if ((VisIsVisibleForPlayer(lv_casterPlayer, lv_targetPoint) == false)) {
+		return true;
+	}
+
+	DataTableSetBool(true,Key(lv_keyBase,"Cycling"),true);
+	lv_ChargesSpent += 1;
+	DataTableSetInt(true,Key(lv_keyBase,"ChargesSpent"),lv_ChargesSpent);
+	libNtve_gf_CreateActorAtPoint(DataTableGetString(true,Key(lv_keyBase,"Model")), lv_targetPoint);
+	DataTableSetActor(true,Key(lv_keyBase,"Actors["+IntToString(lv_ChargesSpent)+"]"),libNtve_gf_ActorLastCreated());
+	DataTableSetPoint(true,Key(lv_keyBase,"Point["+IntToString(lv_ChargesSpent)+"]"),lv_targetPoint);
+	libNtve_gf_CreateActorAtPoint(DataTableGetString(true,Key(lv_keyBase,"ConfirmationSound")), lv_targetPoint);
+	if ((lv_UnitType == null)) {
+		UnitIssueOrder(lv_caster, OrderTargetingPoint(lv_executeCommand, lv_targetPoint), c_orderQueueAddToEnd);
+		if ((lv_ChargesSpent == lv_ChargesTotal)) {
+			Wait(0.125, c_timeGame);
+			UnitBehaviorRemove(lv_caster, DataTableGetString(true,Key(lv_keyBase,"Behavior")), 1);
+		}
+		else {
+			Wait(0.1, c_timeGame);
+			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,"CasterGroup")), lv_order, false);
+		}
+	}
+	else {
+		libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_UnitType, 0, lv_casterPlayer, lv_targetPoint);
+		u = UnitLastCreated();
+		DataTableSetUnit(true,Key(KEY_PREFIX,"TargeterParent["+IntToString(UnitGetTag(u))+"]"),lv_caster);
+		DataTableSetUnit(true,Key(lv_keyBase,"Units["+IntToString(lv_ChargesSpent)+"]"),u);
+		UnitSetState(u, c_unitStateTooltipable, false);
+		DataTableSetUnitGroup(true,Key(lv_keyBase,"DirectionGroup"),libNtve_gf_ConvertUnitToUnitGroup(u));
+		Wait(0.1, c_timeGame);
+		if ((UnitIsValid(u) == true)) {
+			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,"DirectionGroup")), OrderTargetingPoint(lv_executeCommand, UnitGetPosition(u)), false);
+			//libCOUI_gf_CU_TargetingSetInstructionText(Targeting.lv_InstructionsSecondary, lv_casterPlayer);
+			DataTableSetInt(true,Key(lv_keyBase,"Phase"),c_TargetingPhaseType_Direction);
+		}
+
+	}
+	DataTableSetBool(true,Key(lv_keyBase,"Cycling"),false);
+	return true;
+}
+
+bool LotC_SpecOpsClaymoreHandler_Deactivated_Func (bool testConds, bool runActions) {
+	int lv_casterPlayer = UnitGetOwner(EventUnit());
+	string lv_abil = "ClaymoreMinePlace";
+	unit lv_caster = EventUnit();
+	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
+	
+	string lv_keyBase = KeyBase(lv_unitTag,lv_abil);
+	//LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
+
+	if (!runActions) {
+		return true;
+	}
+
+	UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,"CasterGroup")), null, false);
+	DataTableSetInt(true,Key(lv_keyBase,"ChargesSpent"),0);
+	LotC_SpecOpsClaymoreHandler_ModeExit(lv_casterPlayer,lv_caster,lv_abil);
+	return true;
+}
+
+bool LotC_SpecOpsClaymoreHandler_Activated_Func (bool testConds, bool runActions) {
+	unit lv_caster = EventUnit();
+	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
+	int lv_casterPlayer = 1;//UnitGetOwner(lv_caster);
+	string lv_user = "LotC_Targetable";
+	string BehaviorActivated = EventUnitBehavior();
+	string lv_abil = "ClaymoreMinePlace";
+	int lv_HornerAirFleet_Cost;
+	string lv_keyBase = KeyBase(lv_unitTag,lv_abil);
+	
+	//order lv_Order = ;//"HornerAirFleetTargetingDummy"
+	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
+
+	DataTableSetUnit(true,Key(lv_keyBase,"CasterUnit"),lv_caster);
+	DataTableSetUnit(true,Key(lv_keyBase,"Targeter"),lv_caster);
+	DataTableSetUnitGroup(true,Key(lv_keyBase,"CasterGroup"),libNtve_gf_ConvertUnitToUnitGroup(lv_caster));
+	LotC_SpecOpsClaymoreHandler_InitDataTableFromUserData(lv_unitTag,lv_abil);
+	DataTableSetOrder(true,Key(lv_keyBase,"Order"),OrderTargetingPoint(UserDataGetAbilCmd(lv_user,lv_abil,"Order",1), UnitGetPosition(lv_caster)));
+	DataTableSetInt(true,Key(lv_keyBase,"ChargesSpent"),0);
+	DataTableSetInt(true,Key(lv_keyBase,"UsageCount"),0);
+	DataTableSetInt(true,Key(lv_keyBase,"Phase"),c_TargetingPhaseType_None);
+	DataTableSetBool(true,Key(lv_keyBase,"Transitioning"),false);
+	DataTableSetBool(true,Key(lv_keyBase,"UnrefundableStageEntered"),false);
+	DataTableSetBool(true,Key(lv_keyBase,"AlreadyCanceled"),false);
+	DataTableSetUnit(true,Key(lv_keyBase,"Unit[]"),null);
+	DataTableSetActor(true,Key(lv_keyBase,"Actors[]"),null);
+	DataTableSetUnitGroup(true,Key(lv_keyBase,"DirectionGroup"),UnitGroupEmpty());
+	DataTableSetBool(true,Key(lv_keyBase,"Cycling"),false);
+	DataTableSetBool(true,Key(lv_keyBase,"ExitInstantly"),false);
+	DataTableSetString(true,Key(lv_keyBase,"ConfirmationSound"),"SOATargetingModeConfirmationSound");
+	//lv_HornerAirFleet_Cost = CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_ActivateAbility, "Cost[0].Resource[0]", lv_casterPlayer);
+	DataTableSetUnit(true,Key(KEY_PREFIX,"TargeterParent["+lv_unitTag+"]"),lv_caster);
+
+	LotC_SpecOpsClaymoreHandler_ModeEnter(lv_casterPlayer, lv_caster,lv_abil);
+	return true;
+	
+}
+
+
+void LotC_SpecOpsClaymoreHandler_Init(){
+	trigger t;
+	string lv_user = "LotC_Targetable";
+	string lv_abil = "ClaymoreMinePlace";
+	string ActivateBehavior = "ClaymoreMinePlaceActivate";
+
+	//LOTC_Targeting_gt_Cancel;
+	//LOTC_Targeting_gt_CancelFromUI;
+	//LOTC_Targeting_gt_CameraShake;
+
+	gt_Activated = TriggerCreate("LotC_SpecOpsClaymoreHandler_Activated_Func");
+	TriggerAddEventUnitBehaviorChange(gt_Activated, null, ActivateBehavior, c_unitBehaviorChangeActivate);
+
+	gt_Deactivated = TriggerCreate("LotC_SpecOpsClaymoreHandler_Deactivated_Func");
+	TriggerAddEventUnitBehaviorChange(gt_Deactivated, null, ActivateBehavior, c_unitBehaviorChangeDeactivate);
+
+
+	gt_PointChosen = TriggerCreate("LotC_SpecOpsClaymoreHandler_PointChosen_Func");
+	TriggerEnable(gt_PointChosen, false);
+	UserDataGetAbilCmd(lv_user,lv_abil,"Order",1);
+	TriggerAddEventUnitOrder(gt_PointChosen, null, AbilityCommand("ClaymoreMinePlaceTargetingDummy", 0));
+
+	gt_DirectionChosen = TriggerCreate("LotC_SpecOpsClaymoreHandler_DirectionChosen_Func");
+	TriggerEnable(gt_DirectionChosen, false);
+	TriggerAddEventUnitOrder(gt_DirectionChosen, null, AbilityCommand("ClaymoreMinePlaceExecute", 0));
+
+	gt_ForceOff = TriggerCreate("LOTC_Targeting_TargetingForceOff_Func");
+	//TriggerAddEventGeneric(LOTC_Targeting_gt_ForceOff, "CinematicModeOn");
+
+	gt_EffectFired = TriggerCreate("LOTC_Targeting_EffectFired_Func");
+	//TriggerAddEventPlayerEffectUsed(LOTC_Targeting_gt_EffectFired, c_playerAny, "SOAOrbitalStrikeCP");
+	//TriggerAddEventPlayerEffectUsed(LOTC_Targeting_gt_EffectFired, c_playerAny, "SOAGravitonBombLM");
+
+	gt_ExecuteAction =TriggerCreate("LotC_SpecOpsClaymoreHandler_ExecuteAction_Func");
+	TriggerAddEventGeneric(gt_ExecuteAction,LotC_SpecOpsClaymoreHandler_EventName());
+	
+	gt_OrderMine= TriggerCreate("LotC_SpecOpsClaymoreHandler_OrderMine_Func");
+
+}
