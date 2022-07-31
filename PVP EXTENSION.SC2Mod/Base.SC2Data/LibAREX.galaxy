@@ -1,0 +1,266 @@
+include "TriggerLibs/NativeLib"
+include "LibARMP"
+include "LibARZM"
+include "LibARMB"
+
+include "LibAREX_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: ALL RACES EXTENSION
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libAREX_InitLibraries () {
+    libNtve_InitVariables();
+    libARMP_InitVariables();
+    libARZM_InitVariables();
+    libARMB_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Game Attributes
+//--------------------------------------------------------------------------------------------------
+bool libAREX_gt_GameAttributes_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_aG_Monobattle;
+    string lv_aG_GameType;
+    string lv_aG_Supplies;
+    string lv_aG_Money;
+    string lv_aG_Resources;
+    string lv_aG_Zomies;
+    string lv_aG_Bounty;
+    string lv_aP_AlternateRace;
+    string lv_aP_StandardRace;
+    int lv_zombies_Difficulty_Value;
+    int lv_zombies_BountyMineralsValue;
+    int lv_zombies_BountyVespeneValue;
+    int lv_monobattle_DraftMode;
+    int lv_race;
+
+    // Automatic Variable Declarations
+    playergroup auto44C2308F_g;
+    int auto44C2308F_var;
+    string auto1CC893C9_val;
+    string autoD2756630_val;
+    string auto5377E2DF_val;
+    string auto55E2259A_val;
+    playergroup auto23E49D68_g;
+    int auto23E49D68_var;
+    string autoA0A3093C_val;
+    string autoB4AE5E17_val;
+    string autoEC7683C1_val;
+
+    // Variable Initialization
+    lv_aG_Monobattle = GameAttributeGameValue("7");
+    lv_aG_GameType = GameAttributeGameValue("6");
+    lv_aG_Supplies = GameAttributeGameValue("2");
+    lv_aG_Money = GameAttributeGameValue("5");
+    lv_aG_Resources = GameAttributeGameValue("3");
+    lv_aG_Zomies = GameAttributeGameValue("8");
+    lv_aG_Bounty = GameAttributeGameValue("9");
+    lv_monobattle_DraftMode = libARMB_ge_MonobattleDraftMode_RandomSimple;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto44C2308F_g = PlayerGroupAll();
+    auto44C2308F_var = -1;
+    while (true) {
+        auto44C2308F_var = PlayerGroupNextPlayer(auto44C2308F_g, auto44C2308F_var);
+        if (auto44C2308F_var < 0) { break; }
+        lv_aP_StandardRace = GameAttributePlayerValue("[bnet:Liberty (Mod)/0.0/999,file:Mods/Liberty.SC2Mod]3001", auto44C2308F_var);
+        lv_aP_AlternateRace = GameAttributePlayerValue("1", auto44C2308F_var);
+        auto1CC893C9_val = lv_aP_AlternateRace;
+        if (auto1CC893C9_val == "0007") {
+            autoD2756630_val = lv_aP_StandardRace;
+            if (autoD2756630_val == "Prot") {
+                lv_race = libARMP_ge_RaceChoice_Protoss;
+            }
+            else if (autoD2756630_val == "Terr") {
+                lv_race = libARMP_ge_RaceChoice_Terran;
+            }
+            else if (autoD2756630_val == "Zerg") {
+                lv_race = libARMP_ge_RaceChoice_Zerg;
+            }
+            else {
+                lv_race = libARMP_ge_RaceChoice_RandomKoprulu;
+            }
+        }
+        else if (auto1CC893C9_val == "0010") {
+            lv_race = libARMP_ge_RaceChoice_Protoss;
+        }
+        else if (auto1CC893C9_val == "0009") {
+            lv_race = libARMP_ge_RaceChoice_Terran;
+        }
+        else if (auto1CC893C9_val == "0008") {
+            lv_race = libARMP_ge_RaceChoice_Zerg;
+        }
+        else if (auto1CC893C9_val == "0006") {
+            lv_race = libARMP_ge_RaceChoice_Keiron;
+        }
+        else if (auto1CC893C9_val == "0001") {
+            lv_race = libARMP_ge_RaceChoice_Genetron;
+        }
+        else if (auto1CC893C9_val == "0004") {
+            lv_race = libARMP_ge_RaceChoice_Xayid;
+        }
+        else if (auto1CC893C9_val == "0003") {
+            lv_race = libARMP_ge_RaceChoice_Hybrids;
+        }
+        else if (auto1CC893C9_val == "0005") {
+            lv_race = libARMP_ge_RaceChoice_UED;
+        }
+        else {
+            lv_race = libARMP_ge_RaceChoice_Random;
+        }
+        libARMP_gv_raceChoices[auto44C2308F_var] = lv_race;
+        if ((lv_aG_GameType == "0001")) {
+            PlayerSetRace(auto44C2308F_var, libARMP_gf_GetPlayerRaceChoice(auto44C2308F_var));
+        }
+        else {
+            libARMP_gf_ApplyPlayerCustomRace(auto44C2308F_var, libARMP_gf_GetPlayerRaceChoice(auto44C2308F_var));
+        }
+    }
+    auto5377E2DF_val = lv_aG_Money;
+    if (auto5377E2DF_val == "0002") {
+        libARMP_gf_ApplyStartResources(10000, 5000);
+    }
+    else {
+    }
+    if (((lv_aG_Resources == "0003") || (lv_aG_Resources == "0004"))) {
+        libARMP_gf_ApplyRichResources();
+    }
+
+    if (((lv_aG_Resources == "0002") || (lv_aG_Resources == "0004"))) {
+        libARMP_gf_ApplyBigGameHunters();
+    }
+
+    auto55E2259A_val = lv_aG_Supplies;
+    if (auto55E2259A_val == "0001") {
+        libARMP_gf_ApplySupplyLimit(100);
+    }
+    else if (auto55E2259A_val == "0003") {
+        libARMP_gf_ApplySupplyLimit(300);
+    }
+    else if (auto55E2259A_val == "0005") {
+        libARMP_gf_ApplySupplyLimit(400);
+    }
+    else if (auto55E2259A_val == "0004") {
+        libARMP_gf_ApplySupplyLimit(500);
+    }
+    else if (auto55E2259A_val == "0006") {
+        libARMP_gf_ApplySupplyLimit(1000);
+    }
+    else {
+    }
+    Wait(0.0, c_timeReal);
+    if ((lv_aG_GameType == "0003")) {
+        auto23E49D68_g = PlayerGroupAll();
+        auto23E49D68_var = -1;
+        while (true) {
+            auto23E49D68_var = PlayerGroupNextPlayer(auto23E49D68_g, auto23E49D68_var);
+            if (auto23E49D68_var < 0) { break; }
+            if ((PlayerType(auto23E49D68_var) == c_playerTypeUser)) {
+                if ((lv_aP_AlternateRace == "0007")) {
+                    libARMP_gf_ApplyWorkersAlliance(auto23E49D68_var, libARMP_ge_WorkersAlliance_Standart);
+                }
+                else {
+                    libARMP_gf_ApplyWorkersAlliance(auto23E49D68_var, libARMP_ge_WorkersAlliance_All);
+                }
+            }
+
+        }
+    }
+
+    if ((lv_aG_GameType == "0004")) {
+        autoA0A3093C_val = lv_aG_Zomies;
+        if (autoA0A3093C_val == "0004") {
+            lv_zombies_Difficulty_Value = 1;
+        }
+        else if (autoA0A3093C_val == "0001") {
+            lv_zombies_Difficulty_Value = 2;
+        }
+        else if (autoA0A3093C_val == "0002") {
+            lv_zombies_Difficulty_Value = 3;
+        }
+        else if (autoA0A3093C_val == "0003") {
+            lv_zombies_Difficulty_Value = 4;
+        }
+        else {
+        }
+        autoB4AE5E17_val = lv_aG_Bounty;
+        if (autoB4AE5E17_val == "0001") {
+            lv_zombies_BountyMineralsValue = 0;
+            lv_zombies_BountyVespeneValue = 0;
+        }
+        else if (autoB4AE5E17_val == "0002") {
+            lv_zombies_BountyMineralsValue = 1;
+            lv_zombies_BountyVespeneValue = 1;
+        }
+        else if (autoB4AE5E17_val == "0003") {
+            lv_zombies_BountyMineralsValue = 2;
+            lv_zombies_BountyVespeneValue = 2;
+        }
+        else if (autoB4AE5E17_val == "0004") {
+            lv_zombies_BountyMineralsValue = 3;
+            lv_zombies_BountyVespeneValue = 3;
+        }
+        else if (autoB4AE5E17_val == "0005") {
+            lv_zombies_BountyMineralsValue = 4;
+            lv_zombies_BountyVespeneValue = 4;
+        }
+        else {
+        }
+        libARZM_gf_RunZombiecatastrophe(lv_zombies_Difficulty_Value, lv_zombies_BountyMineralsValue, lv_zombies_BountyVespeneValue);
+    }
+
+    if ((lv_aG_GameType == "0001")) {
+        autoEC7683C1_val = lv_aG_Monobattle;
+        if (autoEC7683C1_val == "0006") {
+            lv_monobattle_DraftMode = libARMB_ge_MonobattleDraftMode_DraftSelection;
+        }
+        else if (autoEC7683C1_val == "0003") {
+            lv_monobattle_DraftMode = libARMB_ge_MonobattleDraftMode_BlindRandom;
+        }
+        else if (autoEC7683C1_val == "0005") {
+            lv_monobattle_DraftMode = libARMB_ge_MonobattleDraftMode_SingleDraft;
+        }
+        else if (autoEC7683C1_val == "0004") {
+            lv_monobattle_DraftMode = libARMB_ge_MonobattleDraftMode_TierDraft;
+        }
+        else {
+        }
+        libARMB_gf_MonobattleInit(lv_monobattle_DraftMode);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libAREX_gt_GameAttributes_Init () {
+    libAREX_gt_GameAttributes = TriggerCreate("libAREX_gt_GameAttributes_Func");
+    TriggerAddEventMapInit(libAREX_gt_GameAttributes);
+}
+
+void libAREX_InitTriggers () {
+    libAREX_gt_GameAttributes_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libAREX_InitLib_completed = false;
+
+void libAREX_InitLib () {
+    if (libAREX_InitLib_completed) {
+        return;
+    }
+
+    libAREX_InitLib_completed = true;
+
+    libAREX_InitLibraries();
+    libAREX_InitTriggers();
+}
+

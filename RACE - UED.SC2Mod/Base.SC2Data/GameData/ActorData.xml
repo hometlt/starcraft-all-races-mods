@@ -3,9 +3,36 @@
     <CActorModel id="CloakingDroneModel">
         <On Terms="Behavior.AlgoritmCloakingDroneUED.Off" Send="Destroy"/>
     </CActorModel>
+    <CActorModel id="DropModelBeacon" parent="ModelAnimationStyleOneShotNoOrphan">
+        <On Terms="Effect.EffectPeriodTimeDropTowerBeacon.Start" Send="Create"/>
+        <On Terms="Effect.EffectPeriodTimeDropTowerBeacon.Stop" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterOpening; AnimName BSD" Send="Create DropPodUnload"/>
+        <HostSiteOps Ops="MercDropSOpShadow"/>
+        <Model value="DropPodFalling"/>
+    </CActorModel>
+    <CActorRange id="AgentRangeComandCentr">
+        <Filter index="Neutral" value="1"/>
+        <Filter index="Enemy" value="1"/>
+        <Inherits index="Visibility" value="0"/>
+        <FogVisibility value="Hidden"/>
+        <On Terms="SelectionLocalUpdate.OperationHeadquarters.Start" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.OperationHeadquarters.Stop" Send="Destroy"/>
+        <Range value="10.000000"/>
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+    </CActorRange>
     <CActorModel id="GhostEMPAttackImpactEffect">
         <On Terms="Effect.SearchAreaBlidingFlash.Start" Send="Create"/>
         <On Terms="Effect.SearchAreaBlidingFlash.Stop" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorModel id="PeenemundeAgentPeriodDamage_2" parent="ModelAnimationStyleOneShot">
+        <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death OpeningPlayForever"/>
+        <On Terms="Effect.EffektPeriodPenemundeDamagePeriod.Start" Send="Create"/>
+        <On Terms="Effect.EffektPeriodPenemundeDamagePeriod.Stop" Send="Destroy"/>
+        <On Terms="Effect.EffektPeriodPenemundeDamagePeriod.Start" Send="SetTintColor 149,202,255"/>
+        <On Terms="Effect.EffektPeriodPenemundeDamagePeriod.Start" Send="SetOpacity 0.500000"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Model value="ModelAbilityPenemunde2"/>
+        <Scale value="1.750000"/>
     </CActorModel>
     <CActorSound id="SoundAgentAbilCrimsonEye" parent="SoundOneShot">
         <On Terms="Behavior.AlgoritmDetectorCrimsonEye.On" Send="Create"/>
@@ -28,20 +55,22 @@
     <CActorModel id="AgentCursorDetectionTowerLife" parent="ModelAnimationStyleOneShot">
         <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death OpeningPlayForever"/>
         <On Terms="Abil.AbilitiIrradiationBMField.Cursor" Send="Create"/>
-        <On Terms="Abil.AbilitiIrradiationBMField.Cursor" Send="SetOpacity 0.400000"/>
-        <On Terms="Abil.AbilitiIrradiationBMField.Cursor" Send="SetTintColor 66,160,255"/>
+        <On Terms="Abil.AbilitiIrradiationBMField.Cursor" Send="SetOpacity 0.200000"/>
+        <On Terms="Abil.AbilitiIrradiationBMField.Cursor" Send="SetTintColor 149,202,255"/>
+        <On Terms="Abil.AbilitiIrradiationBMField.Cursor" Send="Create"/>
         <HostSiteOps Ops="SOpShadow"/>
         <Model value="ModelCursorAbilitiTowerLife"/>
         <Scale value="2.000000"/>
     </CActorModel>
-    <CActorModel id="PeenemundeAgentPeriodDamage" parent="ModelAnimationStyleOneShot">
+    <CActorModel id="PeenemundeAgentPeriodDamage_1" parent="ModelAnimationStyleOneShot">
         <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death OpeningPlayForever"/>
         <On Terms="Effect.EffektPeriodPenemundeDamagePeriod.Start" Send="Create"/>
         <On Terms="Effect.EffektPeriodPenemundeDamagePeriod.Stop" Send="Destroy"/>
-        <On Terms="Effect.EffektPeriodPenemundeDamagePeriod.Start" Send="SetTintColor 255,0,0"/>
+        <On Terms="Effect.EffektPeriodPenemundeDamagePeriod.Start" Send="SetTintColor 128,233,255"/>
+        <On Terms="Effect.EffektPeriodPenemundeDamagePeriod.Start" Send="SetOpacity 1.000000"/>
         <HostSiteOps Ops="SOpShadow"/>
-        <Model value="ModelCursorAbilitiTowerLife"/>
-        <Scale value="0.700000"/>
+        <Model value="ModelAbilityPenemunde"/>
+        <Scale value="3.000000,8.000000,0.200000"/>
     </CActorModel>
     <CActorModel id="CursorSplatTowerMining" parent="ModelAnimationStyleOneShot">
         <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death OpeningPlayForever"/>
@@ -69,6 +98,39 @@
         <IconArcLength value="3.250000"/>
         <RangeFlags index="Minimap" value="1"/>
     </CActorRange>
+    <CActorModel id="SoundDropBeacon">
+        <Aliases value="_SnapshotExtra"/>
+        <Inherits index="CastShadows" value="1"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="CreepEngulfment" value="1"/>
+        <Inherits index="Decal" value="1"/>
+        <Inherits index="LocalTintColor" value="1"/>
+        <Inherits index="ModelMaterials" value="1"/>
+        <Inherits index="Opacity" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <Inherits index="TeamColor" value="1"/>
+        <Inherits index="TimeScale" value="1"/>
+        <Inherits index="TintColor" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Inherits index="WarpGroup" value="1"/>
+        <On Terms="Effect.EffectPeriodTimeDropTowerBeacon.Start; At Target" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 2.000000 DelayDropSupply"/>
+        <On Terms="Effect.EffectPeriodTimeDropTowerBeacon.Start; At Target" Send="Create OrbitalCommand_CalldownExtraSuppliesDrop"/>
+        <On Terms="TimerExpired; TimerName DelayDropSupply" Send="Create OrbitalCommand_CalldownExtraSuppliesImpact"/>
+        <On Terms="TimerExpired; TimerName DelayDropSupply" Target="OrbitalCommand_CalldownExtraSuppliesDrop" Send="Destroy"/>
+        <On Terms="AnimDone; AnimName Birth" Send="$Stand PlayForever"/>
+        <On Terms="AnimDone; AnimName Birth" Send="AliasAdd _Snapshot"/>
+        <On Terms="AnimDone; AnimName Spell" Send="$Stand PlayForever"/>
+        <On Terms="AnimDone; AnimName Spell" Send="AliasAdd _Snapshot"/>
+        <On Terms="AnimDone; AnimName Spell" Send="AnimGroupApply Burrow Burrow Unburrow ClosingFull,Instant"/>
+        <On Terms="UnitDeathCustomize" Send="Destroy"/>
+        <On Terms="UnitDeath; ModelIsLowQuality" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="AnimPlay Build01 Build,A,Start PlayForever"/>
+        <On Terms="TimerExpired; TimerName DelayDropSupply" Send="AnimClear Build01"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+        <Model value="Invisible9"/>
+    </CActorModel>
     <CActorSound id="SoundVuklDronUED" parent="SoundOneShot">
         <Terms value="ValidateUnit NotCloakedAndNotDead"/>
         <On Terms="Behavior.AlgoritmCloakingDroneUED.Off" Send="Create"/>
@@ -594,6 +656,7 @@
         <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death OpeningPlayForever"/>
         <On Terms="Abil.PeenemundeMRLSLM.Cursor" Send="Create"/>
         <On Terms="ActorCreation" Send="Create CursorRegion"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.650000"/>
         <HostSiteOps Ops="SOpShadow"/>
         <Model value="BossTargetCursorSplat"/>
     </CActorModel>
@@ -900,7 +963,7 @@
         <On Terms="ProgressLevel.TerranConstructionAttached2.Start; Level 0" Send="SetTransferOverrideAnim Stand,Work,Start"/>
         <On Terms="ProgressLevel.TerranConstructionAttached2.Stop; Level 0" Send="SetTransferOverrideAnim"/>
         <StageArray AnimProps="Stand,Work,Start" BlendTime="0.000000"/>
-        <StageArray AnimProps="Stand,Work"/>
+        <!--StageArray AnimProps="Stand,Work"/-->
     </CActorProgress>
     <CActorSound id="TerranConstructionSoundLevel02" parent="ProgressSound">
         <On Terms="ProgressLevel.UEDCalldownWithBeaconSounds.Start; Level 0" Send="Create"/>
@@ -3280,7 +3343,7 @@
         <On Terms="UnitConstruction.Arsenal.Cancel" Send="$Death"/>
         <On Terms="AbilMorph.*.Cancel; MorphFrom Arsenal" Send="$Death"/>
         <On Terms="AbilMorph.UpgradeToInfusionTower.Start" Send="TimerSet 41.000000 PlacementTimerOutro"/>
-        <On Terms="AbilMorph.UpgradeToMissileTower.Start" Send="TimerSet 26.000000 PlacementTimerOutro"/>
+        <On Terms="AbilMorph.UpgradeToMissileTower.Start" Send="TimerSet 25.000000 PlacementTimerOutro"/>
         <On Terms="AbilMorph.UpgradeToSuppressionTower.Start" Send="TimerSet 41.000000 PlacementTimerOutro"/>
         <Host Subject=""/>
         <Model value="Invisible"/>
@@ -3762,7 +3825,6 @@
         <On Terms="SelectionLocalUpdate.InfusionTower.Stop" Send="Destroy"/>
         <Range value="4.600000"/>
         <Icon value="Assets\Textures\RadarIcon2.dds"/>
-        <IconArcLength value="3.250000"/>
     </CActorRange>
     <CActorDoodad id="SprayZerg2" parent="SprayBase">
         <On Terms="Effect.SprayZerg2.Start" Send="Create"/>
@@ -4047,14 +4109,6 @@
         <BarHeight value="1"/>
         <BarWidth value="1"/>
     </CActorMissile>
-    <CActorRange id="OpticalFlareRange" parent="RangeAbil" abil="OpticalFlare">
-        <On index="1" Terms="SelectionLocalUpdate.OperationHeadquarters.Start" Send="Create"/>
-        <On index="2" Terms="SelectionLocalUpdate.OperationHeadquarters.Stop" Send="Destroy"/>
-        <On index="3" removed="1"/>
-        <On index="4" removed="1"/>
-        <Abil Link="CalldownEnrichmentTower"/>
-        <Icon value="Assets\Textures\radaricon2.dds"/>
-    </CActorRange>
     <CActorSound id="OpticalFlareSound">
         <EditorCategories value=""/>
         <On Terms="Effect.OpticalFlareLM.Launch" Send="Create"/>
@@ -4265,6 +4319,7 @@
         <On Terms="Abil.PeenemundeMRLSLM.TargetPrepStart" Send="Create"/>
         <On Terms="Abil.PeenemundeMRLSLM.TargetFinishStop" Send="Destroy"/>
         <On Terms="Abil.PeenemundeMRLSLM.SourcePrepStop" Send="Destroy"/>
+        <On Terms="Abil.PeenemundeMRLSLM.TargetPrepStart" Send="SetOpacity 0.650000"/>
         <HostSiteOps Ops="SOpShadow"/>
         <Host Subject="::HostBearings" Actor="Create"/>
     </CActorModel>

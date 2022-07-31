@@ -1,208 +1,47 @@
 include "TriggerLibs/NativeLib"
 
-include "LibNHbr_h"
+include "LibNHBR_h"
 
 //--------------------------------------------------------------------------------------------------
 // Library: Network Hybrid Race
 //--------------------------------------------------------------------------------------------------
 // External Library Initialization
-void libNHbr_InitLibraries () {
+void libNHBR_InitLibraries () {
     libNtve_InitVariables();
 }
 
 // Variable Initialization
-bool libNHbr_InitVariables_completed = false;
+bool libNHBR_InitVariables_completed = false;
 
-void libNHbr_InitVariables () {
+void libNHBR_InitVariables () {
     int init_i;
 
-    if (libNHbr_InitVariables_completed) {
+    if (libNHBR_InitVariables_completed) {
         return;
     }
 
-    libNHbr_InitVariables_completed = true;
+    libNHBR_InitVariables_completed = true;
 
-    libNHbr_gv_hybridBuildControllerRange = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogAbil, ("NHbrMinionBuild@Main"), "Range", c_playerAny);
-    for (init_i = 0; init_i <= libNHbr_gv_bALMaxEnginePlayerCount; init_i += 1) {
-        libNHbr_gv_hybridNetworkNewPowerSourceUnitGroup[init_i] = UnitGroupEmpty();
+    libNHBR_gv_hybridBuildControllerRange = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogAbil, ("NHbrMinionBuild@Main"), "Range", c_playerAny);
+    for (init_i = 0; init_i <= libNHBR_gv_bALMaxEnginePlayerCount; init_i += 1) {
+        libNHBR_gv_hybridNetworkNewPowerSourceUnitGroup[init_i] = UnitGroupEmpty();
     }
-    for (init_i = 0; init_i <= libNHbr_gv_bALMaxEnginePlayerCount; init_i += 1) {
-        libNHbr_gv_hybridTeleportUnitGroup[init_i] = UnitGroupEmpty();
+    for (init_i = 0; init_i <= libNHBR_gv_bALMaxEnginePlayerCount; init_i += 1) {
+        libNHBR_gv_hybridTeleportUnitGroup[init_i] = UnitGroupEmpty();
     }
-    libNHbr_gv_silentWeaponCooldown = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogWeapon, "NHbrSilentWeapon", "Period", c_playerAny);
-    libNHbr_gv_silentAttacksPerSecond = (1.0 / libNHbr_gv_silentWeaponCooldown);
+    libNHBR_gv_silentWeaponCooldown = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogWeapon, "NHbrSilentWeapon", "Period", c_playerAny);
+    libNHBR_gv_silentAttacksPerSecond = (1.0 / libNHBR_gv_silentWeaponCooldown);
 }
 
 // Presets
 // Functions
-string libNHbr_gf__UnitDataName (int lp_type, unit lp_unit, int lp_index) {
-    // Variable Declarations
-    string lv_name;
-
-    // Automatic Variable Declarations
-    int auto1EA6F447_val;
-
-    // Variable Initialization
-    lv_name = "";
-
-    // Implementation
-    auto1EA6F447_val = lp_type;
-    if (auto1EA6F447_val == libNHbr_ge__UnitDataType_Actor) {
-        lv_name = "UDACTOR_";
-    }
-    else if (auto1EA6F447_val == libNHbr_ge__UnitDataType_Integer) {
-        lv_name = "UDINTEGER_";
-    }
-    else if (auto1EA6F447_val == libNHbr_ge__UnitDataType_Ping) {
-        lv_name = "UDPING_";
-    }
-    else if (auto1EA6F447_val == libNHbr_ge__UnitDataType_Point) {
-        lv_name = "UDPOINT_";
-    }
-    else if (auto1EA6F447_val == libNHbr_ge__UnitDataType_Region) {
-        lv_name = "UDREGION_";
-    }
-    else if (auto1EA6F447_val == libNHbr_ge__UnitDataType_TextTag) {
-        lv_name = "UDTEXTTAG_";
-    }
-    else if (auto1EA6F447_val == libNHbr_ge__UnitDataType_Unit) {
-        lv_name = "UDUNIT_";
-    }
-    else if (auto1EA6F447_val == libNHbr_ge__UnitDataType_UnitGroup) {
-        lv_name = "UDUNITGROUP_";
-    }
-    else {
-    }
-    lv_name = (lv_name + IntToString(UnitGetTag(lp_unit)) + "_" + IntToString(lp_index));
-    return lv_name;
-}
-
-void libNHbr_gf_StoreActorForUnit (unit lp_unit, int lp_index, actor lp_actor) {
-    // Automatic Variable Declarations
-    // Implementation
-    DataTableSetActor(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Actor, lp_unit, lp_index), lp_actor);
-}
-
-actor libNHbr_gf_ActorStoredForUnit (unit lp_unit, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    return DataTableGetActor(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Actor, lp_unit, lp_index));
-}
-
-void libNHbr_gf_StoreTextTagForUnit (unit lp_unit, int lp_index, int lp_textTag) {
-    // Automatic Variable Declarations
-    // Implementation
-    libNtve_gf_SaveDataTableValueTextTag(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_TextTag, lp_unit, lp_index), lp_textTag);
-}
-
-int libNHbr_gf_TextTagStoredForUnit (unit lp_unit, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    return libNtve_gf_ValueFromDataTableTextTag(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_TextTag, lp_unit, lp_index));
-}
-
-void libNHbr_gf_StorePointForUnit (unit lp_unit, int lp_index, point lp_point) {
-    // Automatic Variable Declarations
-    // Implementation
-    DataTableSetPoint(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Point, lp_unit, lp_index), lp_point);
-}
-
-point libNHbr_gf_PointStoredForUnit (unit lp_unit, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    return DataTableGetPoint(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Point, lp_unit, lp_index));
-}
-
-void libNHbr_gf_StoreRegionForUnit (unit lp_unit, int lp_index, region lp_region) {
-    // Automatic Variable Declarations
-    // Implementation
-    DataTableSetRegion(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Point, lp_unit, lp_index), lp_region);
-}
-
-region libNHbr_gf_RegionStoredForUnit (unit lp_unit, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    return DataTableGetRegion(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Point, lp_unit, lp_index));
-}
-
-void libNHbr_gf_StorePingForUnit (unit lp_unit, int lp_index, int lp_ping) {
-    // Automatic Variable Declarations
-    // Implementation
-    DataTableSetPing(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Ping, lp_unit, lp_index), lp_ping);
-}
-
-int libNHbr_gf_PingStoredForUnit (unit lp_unit, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    return DataTableGetPing(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Ping, lp_unit, lp_index));
-}
-
-void libNHbr_gf_StoreIntegerForUnit (unit lp_unit, int lp_index, int lp_value) {
-    // Automatic Variable Declarations
-    // Implementation
-    DataTableSetInt(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Integer, lp_unit, lp_index), lp_value);
-}
-
-int libNHbr_gf_IntegerStoredForUnit (unit lp_unit, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    return DataTableGetInt(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Integer, lp_unit, lp_index));
-}
-
-void libNHbr_gf_StoreUnitForUnit (unit lp_unit, int lp_index, unit lp_value) {
-    // Automatic Variable Declarations
-    // Implementation
-    DataTableSetUnit(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Unit, lp_unit, lp_index), lp_value);
-}
-
-unit libNHbr_gf_UnitStoredForUnit (unit lp_unit, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    return DataTableGetUnit(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_Unit, lp_unit, lp_index));
-}
-
-void libNHbr_gf_StoreUnitGroupForUnit (unit lp_unit, int lp_index, unitgroup lp_value) {
-    // Automatic Variable Declarations
-    // Implementation
-    DataTableSetUnitGroup(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_UnitGroup, lp_unit, lp_index), lp_value);
-}
-
-unitgroup libNHbr_gf_UnitGroupStoredForUnit (unit lp_unit, int lp_index) {
-    // Automatic Variable Declarations
-    // Implementation
-    return DataTableGetUnitGroup(true, libNHbr_gf__UnitDataName(libNHbr_ge__UnitDataType_UnitGroup, lp_unit, lp_index));
-}
-
-void libNHbr_gf_RemoveDataFromUnit (string lp__UnitDataName, unit lp_unit) {
-    // Automatic Variable Declarations
-    // Implementation
-    DataTableValueRemove(true, lp__UnitDataName);
-}
-
-void libNHbr_gf_UpgradeButtontoButtonForPlayer (string lp_sourceButton, string lp_targetButton, int lp_player) {
-    // Automatic Variable Declarations
-    // Implementation
-    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "AlertIcon", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "AlertIcon", c_playerAny));
-    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "AlertName", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "AlertName", c_playerAny));
-    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "AlertTooltip", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "AlertTooltip", c_playerAny));
-    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "Icon", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "Icon", c_playerAny));
-    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "Name", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "Name", c_playerAny));
-    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "Tooltip", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "Tooltip", c_playerAny));
-}
-
-bool libNHbr_gf_RunValidatorOnUnit (string lp_validator, unit lp_sourceUnit, unit lp_targetUnit) {
-    // Automatic Variable Declarations
-    // Implementation
-    return (ValidatorExecute(lp_validator, lp_sourceUnit, lp_targetUnit) == 0);
-}
-
-int libNHbr_gf_CustomValueIndex (int lp_customValue) {
+int libNHBR_gf_CustomValueIndex (int lp_customValue) {
     // Automatic Variable Declarations
     // Implementation
     return (lp_customValue);
 }
 
-bool libNHbr_gf_HybridBuildControllerIsBuildOrder (order lp_order) {
+bool libNHBR_gf_HybridBuildControllerIsBuildOrder (order lp_order) {
     // Variable Declarations
     abilcmd lv_abilityCommand;
 
@@ -218,7 +57,7 @@ bool libNHbr_gf_HybridBuildControllerIsBuildOrder (order lp_order) {
     return false;
 }
 
-bool libNHbr_gf_HybridBuildControllerIsBuildOrderMain (order lp_order) {
+bool libNHBR_gf_HybridBuildControllerIsBuildOrderMain (order lp_order) {
     // Variable Declarations
     abilcmd lv_abilityCommand;
 
@@ -234,7 +73,7 @@ bool libNHbr_gf_HybridBuildControllerIsBuildOrderMain (order lp_order) {
     return false;
 }
 
-abilcmd libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand (order lp_order) {
+abilcmd libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand (order lp_order) {
     // Variable Declarations
     int lv_index;
 
@@ -246,7 +85,7 @@ abilcmd libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand (order lp_
     return AbilityCommand("NHbrMinionBuild@Main", lv_index);
 }
 
-abilcmd libNHbr_gf_HybridBuildControllerReturnDefaultBuildAbilityCommand (order lp_order) {
+abilcmd libNHBR_gf_HybridBuildControllerReturnDefaultBuildAbilityCommand (order lp_order) {
     // Variable Declarations
     int lv_index;
 
@@ -258,7 +97,7 @@ abilcmd libNHbr_gf_HybridBuildControllerReturnDefaultBuildAbilityCommand (order 
     return AbilityCommand("NHbrMinionBuild", lv_index);
 }
 
-int libNHbr_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex (unit lp_minion) {
+int libNHBR_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex (unit lp_minion) {
     // Variable Declarations
     int lv_itOrder;
 
@@ -272,7 +111,7 @@ int libNHbr_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex (unit lp
     autoC1436286_ae = (UnitOrderCount(lp_minion)-1);
     lv_itOrder = 0;
     for ( ; ( (autoC1436286_ai >= 0 && lv_itOrder <= autoC1436286_ae) || (autoC1436286_ai < 0 && lv_itOrder >= autoC1436286_ae) ) ; lv_itOrder += autoC1436286_ai ) {
-        if ((libNHbr_gf_HybridBuildControllerIsBuildOrderMain(UnitOrder(lp_minion, lv_itOrder)) == true)) {
+        if ((libNHBR_gf_HybridBuildControllerIsBuildOrderMain(UnitOrder(lp_minion, lv_itOrder)) == true)) {
             return lv_itOrder;
         }
 
@@ -280,7 +119,7 @@ int libNHbr_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex (unit lp
     return -1;
 }
 
-fixed libNHbr_gf_HybridBuildControllerReturnBuildUnitRadius (order lp_order) {
+fixed libNHBR_gf_HybridBuildControllerReturnBuildUnitRadius (order lp_order) {
     // Variable Declarations
     int lv_index;
 
@@ -292,13 +131,13 @@ fixed libNHbr_gf_HybridBuildControllerReturnBuildUnitRadius (order lp_order) {
     return libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, CatalogFieldValueGet(c_gameCatalogAbil, ("NHbrMinionBuild@Main"), "InfoArray[" + IntToString(lv_index) + "].Unit", c_playerAny), "Radius", c_playerAny);
 }
 
-void libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit (unit lp_unit) {
+void libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit (unit lp_unit) {
     // Automatic Variable Declarations
     // Implementation
     UnitCreateEffectUnit(lp_unit, "NHbrTimeScaleBuff@RemoveTimeScaleBuff", lp_unit);
 }
 
-void libNHbr_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit (unit lp_casterUnit, fixed lp_casterEnergyPerUsage, unit lp_targetUnit) {
+void libNHBR_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit (unit lp_casterUnit, fixed lp_casterEnergyPerUsage, unit lp_targetUnit) {
     // Variable Declarations
     fixed lv_percent;
     int lv_index;
@@ -307,12 +146,12 @@ void libNHbr_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit (unit lp_caste
     // Variable Initialization
 
     // Implementation
-    lv_percent = libNHbr_gf_HybridTimeScaleBuffBoosterPercentBuff(lp_casterUnit, lp_casterEnergyPerUsage);
+    lv_percent = libNHBR_gf_HybridTimeScaleBuffBoosterPercentBuff(lp_casterUnit, lp_casterEnergyPerUsage);
     lv_index = FixedToInt((lv_percent * 100.0));
-    UnitBehaviorAdd(lp_targetUnit, libNHbr_gv_hybridTimeScaleBuff[lv_index], lp_casterUnit, 1);
+    UnitBehaviorAdd(lp_targetUnit, libNHBR_gv_hybridTimeScaleBuff[lv_index], lp_casterUnit, 1);
 }
 
-fixed libNHbr_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit (unit lp_unit) {
+fixed libNHBR_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit (unit lp_unit) {
     // Variable Declarations
     fixed lv_energyUsage;
     int lv_energyMaximum;
@@ -323,21 +162,21 @@ fixed libNHbr_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit (unit lp_unit) {
     // Implementation
     lv_energyUsage = UnitGetPropertyFixed(lp_unit, c_unitPropEnergy, c_unitPropCurrent);
     if ((UnitGetType(lp_unit) == "NHbrMinion")) {
-        if ((lv_energyUsage > libNHbr_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Minion_C)) {
-            lv_energyUsage = libNHbr_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Minion_C;
+        if ((lv_energyUsage > libNHBR_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Minion_C)) {
+            lv_energyUsage = libNHBR_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Minion_C;
         }
 
     }
     else {
-        if ((lv_energyUsage > libNHbr_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Structure_C)) {
-            lv_energyUsage = libNHbr_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Structure_C;
+        if ((lv_energyUsage > libNHBR_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Structure_C)) {
+            lv_energyUsage = libNHBR_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Structure_C;
         }
 
     }
     return lv_energyUsage;
 }
 
-fixed libNHbr_gf_HybridTimeScaleBuffBoosterPercentBuff (unit lp_casterUnit, fixed lp_casterEnergyPerUsage) {
+fixed libNHBR_gf_HybridTimeScaleBuffBoosterPercentBuff (unit lp_casterUnit, fixed lp_casterEnergyPerUsage) {
     // Variable Declarations
     fixed lv_percent;
 
@@ -345,15 +184,15 @@ fixed libNHbr_gf_HybridTimeScaleBuffBoosterPercentBuff (unit lp_casterUnit, fixe
     // Variable Initialization
 
     // Implementation
-    lv_percent = (lp_casterEnergyPerUsage / libNHbr_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Structure_C);
-    if ((lv_percent > libNHbr_gv_hybridTimeScaleBuffMaximumTimeScaleBonus_C)) {
-        lv_percent = libNHbr_gv_hybridTimeScaleBuffMaximumTimeScaleBonus_C;
+    lv_percent = (lp_casterEnergyPerUsage / libNHBR_gv_hybridTimeScaleBuffMaximumEnergyPerUsage_Structure_C);
+    if ((lv_percent > libNHBR_gv_hybridTimeScaleBuffMaximumTimeScaleBonus_C)) {
+        lv_percent = libNHBR_gv_hybridTimeScaleBuffMaximumTimeScaleBonus_C;
     }
 
     return lv_percent;
 }
 
-fixed libNHbr_gf_HybridTimeScaleBuffUnitConstructionTime (unit lp_unit, string lp_ability) {
+fixed libNHBR_gf_HybridTimeScaleBuffUnitConstructionTime (unit lp_unit, string lp_ability) {
     // Variable Declarations
     string lv_unitType;
     string lv_itUnitType;
@@ -379,7 +218,7 @@ fixed libNHbr_gf_HybridTimeScaleBuffUnitConstructionTime (unit lp_unit, string l
     return 0.0;
 }
 
-fixed libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime (string lp_upgrade, string lp_ability) {
+fixed libNHBR_gf_HybridTimeScaleBuffUpgradeResearchTime (string lp_upgrade, string lp_ability) {
     // Variable Declarations
     string lv_itUnitType;
     int lv_itField;
@@ -403,11 +242,172 @@ fixed libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime (string lp_upgrade, stri
     return 0.0;
 }
 
+string libNHBR_gf__UnitDataName (int lp_type, unit lp_unit, int lp_index) {
+    // Variable Declarations
+    string lv_name;
+
+    // Automatic Variable Declarations
+    int auto1EA6F447_val;
+
+    // Variable Initialization
+    lv_name = "";
+
+    // Implementation
+    auto1EA6F447_val = lp_type;
+    if (auto1EA6F447_val == libNHBR_ge__UnitDataType_Actor) {
+        lv_name = "UDACTOR_";
+    }
+    else if (auto1EA6F447_val == libNHBR_ge__UnitDataType_Integer) {
+        lv_name = "UDINTEGER_";
+    }
+    else if (auto1EA6F447_val == libNHBR_ge__UnitDataType_Ping) {
+        lv_name = "UDPING_";
+    }
+    else if (auto1EA6F447_val == libNHBR_ge__UnitDataType_Point) {
+        lv_name = "UDPOINT_";
+    }
+    else if (auto1EA6F447_val == libNHBR_ge__UnitDataType_Region) {
+        lv_name = "UDREGION_";
+    }
+    else if (auto1EA6F447_val == libNHBR_ge__UnitDataType_TextTag) {
+        lv_name = "UDTEXTTAG_";
+    }
+    else if (auto1EA6F447_val == libNHBR_ge__UnitDataType_Unit) {
+        lv_name = "UDUNIT_";
+    }
+    else if (auto1EA6F447_val == libNHBR_ge__UnitDataType_UnitGroup) {
+        lv_name = "UDUNITGROUP_";
+    }
+    else {
+    }
+    lv_name = (lv_name + IntToString(UnitGetTag(lp_unit)) + "_" + IntToString(lp_index));
+    return lv_name;
+}
+
+void libNHBR_gf_StoreActorForUnit (unit lp_unit, int lp_index, actor lp_actor) {
+    // Automatic Variable Declarations
+    // Implementation
+    DataTableSetActor(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Actor, lp_unit, lp_index), lp_actor);
+}
+
+actor libNHBR_gf_ActorStoredForUnit (unit lp_unit, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return DataTableGetActor(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Actor, lp_unit, lp_index));
+}
+
+void libNHBR_gf_StoreTextTagForUnit (unit lp_unit, int lp_index, int lp_textTag) {
+    // Automatic Variable Declarations
+    // Implementation
+    libNtve_gf_SaveDataTableValueTextTag(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_TextTag, lp_unit, lp_index), lp_textTag);
+}
+
+int libNHBR_gf_TextTagStoredForUnit (unit lp_unit, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return libNtve_gf_ValueFromDataTableTextTag(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_TextTag, lp_unit, lp_index));
+}
+
+void libNHBR_gf_StorePointForUnit (unit lp_unit, int lp_index, point lp_point) {
+    // Automatic Variable Declarations
+    // Implementation
+    DataTableSetPoint(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Point, lp_unit, lp_index), lp_point);
+}
+
+point libNHBR_gf_PointStoredForUnit (unit lp_unit, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return DataTableGetPoint(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Point, lp_unit, lp_index));
+}
+
+void libNHBR_gf_StoreRegionForUnit (unit lp_unit, int lp_index, region lp_region) {
+    // Automatic Variable Declarations
+    // Implementation
+    DataTableSetRegion(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Point, lp_unit, lp_index), lp_region);
+}
+
+region libNHBR_gf_RegionStoredForUnit (unit lp_unit, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return DataTableGetRegion(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Point, lp_unit, lp_index));
+}
+
+void libNHBR_gf_StorePingForUnit (unit lp_unit, int lp_index, int lp_ping) {
+    // Automatic Variable Declarations
+    // Implementation
+    DataTableSetPing(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Ping, lp_unit, lp_index), lp_ping);
+}
+
+int libNHBR_gf_PingStoredForUnit (unit lp_unit, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return DataTableGetPing(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Ping, lp_unit, lp_index));
+}
+
+void libNHBR_gf_StoreIntegerForUnit (unit lp_unit, int lp_index, int lp_value) {
+    // Automatic Variable Declarations
+    // Implementation
+    DataTableSetInt(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Integer, lp_unit, lp_index), lp_value);
+}
+
+int libNHBR_gf_IntegerStoredForUnit (unit lp_unit, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return DataTableGetInt(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Integer, lp_unit, lp_index));
+}
+
+void libNHBR_gf_StoreUnitForUnit (unit lp_unit, int lp_index, unit lp_value) {
+    // Automatic Variable Declarations
+    // Implementation
+    DataTableSetUnit(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Unit, lp_unit, lp_index), lp_value);
+}
+
+unit libNHBR_gf_UnitStoredForUnit (unit lp_unit, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return DataTableGetUnit(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_Unit, lp_unit, lp_index));
+}
+
+void libNHBR_gf_StoreUnitGroupForUnit (unit lp_unit, int lp_index, unitgroup lp_value) {
+    // Automatic Variable Declarations
+    // Implementation
+    DataTableSetUnitGroup(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_UnitGroup, lp_unit, lp_index), lp_value);
+}
+
+unitgroup libNHBR_gf_UnitGroupStoredForUnit (unit lp_unit, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return DataTableGetUnitGroup(true, libNHBR_gf__UnitDataName(libNHBR_ge__UnitDataType_UnitGroup, lp_unit, lp_index));
+}
+
+void libNHBR_gf_RemoveDataFromUnit (string lp__UnitDataName, unit lp_unit) {
+    // Automatic Variable Declarations
+    // Implementation
+    DataTableValueRemove(true, lp__UnitDataName);
+}
+
+void libNHBR_gf_UpgradeButtontoButtonForPlayer (string lp_sourceButton, string lp_targetButton, int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "AlertIcon", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "AlertIcon", c_playerAny));
+    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "AlertName", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "AlertName", c_playerAny));
+    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "AlertTooltip", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "AlertTooltip", c_playerAny));
+    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "Icon", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "Icon", c_playerAny));
+    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "Name", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "Name", c_playerAny));
+    CatalogFieldValueSet(c_gameCatalogButton, lp_sourceButton, "Tooltip", lp_player, CatalogFieldValueGet(c_gameCatalogButton, lp_targetButton, "Tooltip", c_playerAny));
+}
+
+bool libNHBR_gf_RunValidatorOnUnit (string lp_validator, unit lp_sourceUnit, unit lp_targetUnit) {
+    // Automatic Variable Declarations
+    // Implementation
+    return (ValidatorExecute(lp_validator, lp_sourceUnit, lp_targetUnit) == 0);
+}
+
 // Triggers
 //--------------------------------------------------------------------------------------------------
 // Trigger: Initialize Network Hybrid Race
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_InitializeNetworkHybridRace_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_InitializeNetworkHybridRace_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
     playergroup autoB09074D1_g;
     int autoB09074D1_var;
@@ -428,36 +428,36 @@ bool libNHbr_gt_InitializeNetworkHybridRace_Func (bool testConds, bool runAction
 
     }
     UnitEventSetNullVariableInvalid(true);
-    TriggerExecute(libNHbr_gt_HybridTimeScaleBuffInitialization, true, false);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted, true);
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted, true);
-    TriggerExecute(libNHbr_gt_HybridNetworkPowerSourceUnitTypeInitialization, true, false);
-    TriggerEnable(libNHbr_gt_HybridProtectionUpdateArmorDataProperty, true);
-    TriggerEnable(libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator, true);
-    TriggerEnable(libNHbr_gt_HybridReaverUpgradeToAdvancedReaver, true);
-    TriggerEnable(libNHbr_gt_HybridNemesisUpgradeToAdvancedNemesis, true);
-    TriggerExecute(libNHbr_gt_HybridTeleportOverrideTPTime, true, false);
+    TriggerExecute(libNHBR_gt_HybridTimeScaleBuffInitialization, true, false);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffCommonConstructionCanceled, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffCommonConstructionCompleted, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffCommonConstructionStarted, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffMinionConstructionPaused, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffMinionConstructionResumed, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureTrainingCancelled, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureTrainingCompleted, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureTrainingStarted, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureResearchCancelled, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureResearchCompleted, true);
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureResearchStarted, true);
+    TriggerExecute(libNHBR_gt_HybridNetworkPowerSourceUnitTypeInitialization, true, false);
+    TriggerEnable(libNHBR_gt_HybridProtectionUpdateArmorDataProperty, true);
+    TriggerEnable(libNHBR_gt_HybridDominatorUpgradeToAdvancedDominator, true);
+    TriggerEnable(libNHBR_gt_HybridReaverUpgradeToAdvancedReaver, true);
+    TriggerEnable(libNHBR_gt_HybridNemesisUpgradeToAdvancedNemesis, true);
+    TriggerExecute(libNHBR_gt_HybridTeleportOverrideTPTime, true, false);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_InitializeNetworkHybridRace_Init () {
-    libNHbr_gt_InitializeNetworkHybridRace = TriggerCreate("libNHbr_gt_InitializeNetworkHybridRace_Func");
+void libNHBR_gt_InitializeNetworkHybridRace_Init () {
+    libNHBR_gt_InitializeNetworkHybridRace = TriggerCreate("libNHBR_gt_InitializeNetworkHybridRace_Func");
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Build Controller
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridBuildController_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_minion;
     int lv_owner;
@@ -466,12 +466,12 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
     order lv_order;
     order lv_buildOrder;
     order lv_closestBuildOrder;
-    order[libNHbr_gv_hybridBuildControllerMaxOrderCount_C + 1] lv_orderList;
+    order[libNHBR_gv_hybridBuildControllerMaxOrderCount_C + 1] lv_orderList;
     int lv_itOrder;
     int lv_closestBuildIndex;
     int lv_minionOrderCount;
     bool lv_pointVisible;
-    order[libNHbr_gv_hybridBuildControllerMaxOrderCount_C + 1] lv_reservedOrders;
+    order[libNHBR_gv_hybridBuildControllerMaxOrderCount_C + 1] lv_reservedOrders;
     int lv_unusedBuildIndex;
     int lv_lastMoveOrder;
     int lv_lastMoveOrder2;
@@ -481,7 +481,7 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
     const int auto9E753944_ai = 1;
     int auto23CF93A5_ae;
     const int auto23CF93A5_ai = 1;
-    const int auto6F826B1E_ae = libNHbr_gv_hybridBuildControllerMaxOrderCount_C;
+    const int auto6F826B1E_ae = libNHBR_gv_hybridBuildControllerMaxOrderCount_C;
     const int auto6F826B1E_ai = 1;
     int autoFCE0C0D4_ae;
     const int autoFCE0C0D4_ai = 1;
@@ -489,9 +489,9 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
     const int auto5FF4A042_ai = 1;
     int autoCAB908FE_ae;
     const int autoCAB908FE_ai = 1;
-    const int autoF7C90385_ae = libNHbr_gv_hybridBuildControllerMaxOrderCount_C;
+    const int autoF7C90385_ae = libNHBR_gv_hybridBuildControllerMaxOrderCount_C;
     int autoF7C90385_var;
-    const int autoB43DB405_ae = libNHbr_gv_hybridBuildControllerMaxOrderCount_C;
+    const int autoB43DB405_ae = libNHBR_gv_hybridBuildControllerMaxOrderCount_C;
     int autoB43DB405_var;
     int autoC094DA9D_ae;
     const int autoC094DA9D_ai = 1;
@@ -507,7 +507,7 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
     const int auto50320FB2_ai = 1;
     int auto4477E272_ae;
     const int auto4477E272_ai = 1;
-    const int auto86A4AA17_ae = libNHbr_gv_hybridBuildControllerMaxOrderCount_C;
+    const int auto86A4AA17_ae = libNHBR_gv_hybridBuildControllerMaxOrderCount_C;
     const int auto86A4AA17_ai = 1;
 
     // Variable Initialization
@@ -547,7 +547,7 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
     lv_itOrder = 0;
     for ( ; ( (auto9E753944_ai >= 0 && lv_itOrder <= auto9E753944_ae) || (auto9E753944_ai < 0 && lv_itOrder >= auto9E753944_ae) ) ; lv_itOrder += auto9E753944_ai ) {
         lv_orderList[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
-        libNHbr_gv_dEBUGOrderListBefore[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
+        libNHBR_gv_dEBUGOrderListBefore[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
         if ((lv_closestBuildIndex == -1) && (lv_orderList[lv_itOrder] == lv_buildOrder)) {
             lv_closestBuildIndex = lv_itOrder;
             lv_buildOrder = lv_orderList[lv_closestBuildIndex];
@@ -566,12 +566,12 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
     lv_itOrder = 0;
     for ( ; ( (auto23CF93A5_ai >= 0 && lv_itOrder <= auto23CF93A5_ae) || (auto23CF93A5_ai < 0 && lv_itOrder >= auto23CF93A5_ae) ) ; lv_itOrder += auto23CF93A5_ai ) {
         if ((lv_itOrder == 0) && (lv_itOrder != lv_closestBuildIndex)) {
-            if ((libNHbr_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
+            if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
                 if ((lv_targetUnit == null)) {
-                    UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueReplace);
+                    UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueReplace);
                 }
                 else {
-                    UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueReplace);
+                    UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueReplace);
                 }
             }
             else {
@@ -581,25 +581,25 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
         }
         else if ((lv_itOrder == lv_closestBuildIndex)) {
             if ((lv_itOrder == 0)) {
-                if ((libNHbr_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
+                if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
                     if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
                         if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
                         }
                         else {
                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
                         }
                     }
                     else {
                         if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
                         }
                         else {
                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
                         }
                     }
                 }
@@ -625,23 +625,23 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
                 }
             }
             else {
-                if ((libNHbr_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
+                if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
                     if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
                         if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
                         }
                         else {
                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
                         }
                     }
                     else {
                         if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
                         }
                         else {
                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
                         }
                     }
                 }
@@ -668,12 +668,12 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
             }
         }
         else if ((lv_itOrder != 0) && (lv_itOrder != lv_closestBuildIndex)) {
-            if ((libNHbr_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
+            if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
                 if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                    UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
+                    UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
                 }
                 else {
-                    UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetUnit(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
+                    UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetUnit(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
                 }
             }
             else {
@@ -682,7 +682,7 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
         }
     }
     while (true) {
-        if (((UnitHasBehavior2(lv_minion, "NHbrMinionBuild@InProgress") == false) || (UnitIsAlive(lv_minion) == false) || (libNHbr_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex(lv_minion) == -1))) {
+        if (((UnitHasBehavior2(lv_minion, "NHbrMinionBuild@InProgress") == false) || (UnitIsAlive(lv_minion) == false) || (libNHBR_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex(lv_minion) == -1))) {
             UnitBehaviorRemove(lv_minion, "NHbrMinionBuild@InProgress", 1);
             return true;
         }
@@ -690,25 +690,25 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
         lv_itOrder = 0;
         for ( ; ( (auto6F826B1E_ai >= 0 && lv_itOrder <= auto6F826B1E_ae) || (auto6F826B1E_ai < 0 && lv_itOrder >= auto6F826B1E_ae) ) ; lv_itOrder += auto6F826B1E_ai ) {
             lv_orderList[lv_itOrder] = null;
-            libNHbr_gv_dEBUGOrderListAfter[lv_itOrder] = null;
+            libNHBR_gv_dEBUGOrderListAfter[lv_itOrder] = null;
         }
         lv_minionOrderCount = (UnitOrderCount(lv_minion)-1);
         autoFCE0C0D4_ae = lv_minionOrderCount;
         lv_itOrder = 0;
         for ( ; ( (autoFCE0C0D4_ai >= 0 && lv_itOrder <= autoFCE0C0D4_ae) || (autoFCE0C0D4_ai < 0 && lv_itOrder >= autoFCE0C0D4_ae) ) ; lv_itOrder += autoFCE0C0D4_ai ) {
             lv_orderList[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
-            libNHbr_gv_dEBUGOrderListAfter[lv_itOrder] = lv_orderList[lv_itOrder];
+            libNHBR_gv_dEBUGOrderListAfter[lv_itOrder] = lv_orderList[lv_itOrder];
         }
-        lv_closestBuildIndex = libNHbr_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex(lv_minion);
+        lv_closestBuildIndex = libNHBR_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex(lv_minion);
         lv_buildOrder = lv_orderList[lv_closestBuildIndex];
         lv_targetPoint = OrderGetTargetPosition(lv_buildOrder);
-        if ((((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true) && (UnitPathableToPoint(lv_minion, lv_targetPoint, (libNHbr_gv_hybridBuildControllerRange + libNHbr_gf_HybridBuildControllerReturnBuildUnitRadius(lv_orderList[0])), 65535.0) == false)) || ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == false) && (UnitPathableToPoint(lv_minion, lv_targetPoint, 2.0, 65535.0) == false))) && ((lv_closestBuildIndex == 0) || ((lv_closestBuildIndex == 1) && (OrderGetAbilityCommand(lv_orderList[0]) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(lv_orderList[0]) == OrderGetTargetPosition(lv_orderList[lv_closestBuildIndex]))))) {
+        if ((((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true) && (UnitPathableToPoint(lv_minion, lv_targetPoint, (libNHBR_gv_hybridBuildControllerRange + libNHBR_gf_HybridBuildControllerReturnBuildUnitRadius(lv_orderList[0])), 65535.0) == false)) || ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == false) && (UnitPathableToPoint(lv_minion, lv_targetPoint, 2.0, 65535.0) == false))) && ((lv_closestBuildIndex == 0) || ((lv_closestBuildIndex == 1) && (OrderGetAbilityCommand(lv_orderList[0]) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(lv_orderList[0]) == OrderGetTargetPosition(lv_orderList[lv_closestBuildIndex]))))) {
             UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
             UnitBehaviorRemove(lv_minion, "NHbrMinionBuild@InProgress", 1);
             return true;
         }
 
-        auto5FF4A042_ae = (libNHbr_gv_hybridBuildControllerMaxOrderCount_C-1);
+        auto5FF4A042_ae = (libNHBR_gv_hybridBuildControllerMaxOrderCount_C-1);
         lv_itOrder = 0;
         for ( ; ( (auto5FF4A042_ai >= 0 && lv_itOrder <= auto5FF4A042_ae) || (auto5FF4A042_ai < 0 && lv_itOrder >= auto5FF4A042_ae) ) ; lv_itOrder += auto5FF4A042_ai ) {
             if ((OrderGetAbilityCommand(UnitOrder(lv_minion, 0)) == AbilityCommand("move", 0)) && (OrderGetAbilityCommand(UnitOrder(lv_minion, (lv_itOrder+1))) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, 0)) == OrderGetTargetPosition(UnitOrder(lv_minion, (lv_itOrder+1))))) {
@@ -727,7 +727,7 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
         }
 
         if (((lv_closestBuildIndex == 0) || (lv_closestBuildIndex == 1))) {
-            libNHbr_gv_dEBUGFirstOrder = UnitOrder(lv_minion, 0);
+            libNHBR_gv_dEBUGFirstOrder = UnitOrder(lv_minion, 0);
             if ((OrderGetAbilityCommand(UnitOrder(lv_minion, 0)) == AbilityCommand("move", 0))) {
                 if ((CliffLevel(UnitGetPosition(lv_minion)) >= CliffLevel(lv_targetPoint))) {
                     if ((lv_closestBuildIndex == 1) && (OrderGetAbilityCommand(UnitOrder(lv_minion, 0)) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, 0)) == OrderGetTargetPosition(UnitOrder(lv_minion, 1)))) {
@@ -736,7 +736,7 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
                         auto9368AED2_ae = lv_minionOrderCount;
                         lv_itOrder = (lv_closestBuildIndex+1);
                         for ( ; ( (auto9368AED2_ai >= 0 && lv_itOrder <= auto9368AED2_ae) || (auto9368AED2_ai < 0 && lv_itOrder >= auto9368AED2_ae) ) ; lv_itOrder += auto9368AED2_ai ) {
-                            if ((libNHbr_gf_HybridBuildControllerIsBuildOrderMain(lv_orderList[lv_itOrder]) == true)) {
+                            if ((libNHBR_gf_HybridBuildControllerIsBuildOrderMain(lv_orderList[lv_itOrder]) == true)) {
                                 if ((CliffLevel(UnitGetPosition(lv_minion)) < CliffLevel(lv_targetPoint))) {
                                     if ((lv_itOrder > 0) && (OrderGetAbilityCommand(UnitOrder(lv_minion, (lv_itOrder-1))) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, (lv_itOrder-1))) == OrderGetTargetPosition(UnitOrder(lv_minion, lv_itOrder)))) {
                                     }
@@ -753,14 +753,14 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
                                 }
                             }
                             else {
-                                if ((libNHbr_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
+                                if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
                                     if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
                                         UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                        UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
+                                        UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
                                     }
                                     else {
                                         UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPosition(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                        UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetUnit(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
+                                        UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetUnit(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
                                     }
                                 }
                                 else {
@@ -779,7 +779,7 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
                             autoC094DA9D_ae = lv_minionOrderCount;
                             lv_itOrder = (lv_closestBuildIndex+1);
                             for ( ; ( (autoC094DA9D_ai >= 0 && lv_itOrder <= autoC094DA9D_ae) || (autoC094DA9D_ai < 0 && lv_itOrder >= autoC094DA9D_ae) ) ; lv_itOrder += autoC094DA9D_ai ) {
-                                if ((libNHbr_gf_HybridBuildControllerIsBuildOrderMain(lv_orderList[lv_itOrder]) == true)) {
+                                if ((libNHBR_gf_HybridBuildControllerIsBuildOrderMain(lv_orderList[lv_itOrder]) == true)) {
                                     if ((CliffLevel(UnitGetPosition(lv_minion)) < CliffLevel(lv_targetPoint))) {
                                         if ((lv_itOrder > 0) && (OrderGetAbilityCommand(UnitOrder(lv_minion, (lv_itOrder-1))) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, (lv_itOrder-1))) == OrderGetTargetPosition(UnitOrder(lv_minion, lv_itOrder)))) {
                                         }
@@ -796,14 +796,14 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
                                     }
                                 }
                                 else {
-                                    if ((libNHbr_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
+                                    if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
                                         if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
                                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
+                                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
                                         }
                                         else {
                                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPosition(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetUnit(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
+                                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetUnit(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
                                         }
                                     }
                                     else {
@@ -841,13 +841,13 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
                     }
                     else {
                         if ((CliffLevel(UnitGetPosition(lv_minion)) < CliffLevel(lv_targetPoint))) {
-                            auto50320FB2_ae = (libNHbr_gv_hybridBuildControllerMaxOrderCount_C-1);
+                            auto50320FB2_ae = (libNHBR_gv_hybridBuildControllerMaxOrderCount_C-1);
                             lv_itOrder = 0;
                             for ( ; ( (auto50320FB2_ai >= 0 && lv_itOrder <= auto50320FB2_ae) || (auto50320FB2_ai < 0 && lv_itOrder >= auto50320FB2_ae) ) ; lv_itOrder += auto50320FB2_ai ) {
                                 lv_reservedOrders[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
                             }
                             UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-                            auto4477E272_ae = (libNHbr_gv_hybridBuildControllerMaxOrderCount_C-1);
+                            auto4477E272_ae = (libNHBR_gv_hybridBuildControllerMaxOrderCount_C-1);
                             lv_itOrder = 0;
                             for ( ; ( (auto4477E272_ai >= 0 && lv_itOrder <= auto4477E272_ae) || (auto4477E272_ai < 0 && lv_itOrder >= auto4477E272_ae) ) ; lv_itOrder += auto4477E272_ai ) {
                                 if ((lv_closestBuildIndex == lv_itOrder)) {
@@ -864,7 +864,7 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
                     autoEE8C50F4_ae = lv_minionOrderCount;
                     lv_itOrder = (lv_closestBuildIndex+1);
                     for ( ; ( (autoEE8C50F4_ai >= 0 && lv_itOrder <= autoEE8C50F4_ae) || (autoEE8C50F4_ai < 0 && lv_itOrder >= autoEE8C50F4_ae) ) ; lv_itOrder += autoEE8C50F4_ai ) {
-                        if ((libNHbr_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
+                        if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
                             lv_unusedBuildIndex = lv_itOrder;
                             break;
                         }
@@ -879,11 +879,11 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
                         }
                         if ((OrderGetTargetType(lv_orderList[lv_unusedBuildIndex]) == c_orderTargetPoint)) {
                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPoint(lv_orderList[lv_unusedBuildIndex])), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_unusedBuildIndex]), OrderGetTargetPoint(lv_orderList[lv_unusedBuildIndex])), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_unusedBuildIndex]), OrderGetTargetPoint(lv_orderList[lv_unusedBuildIndex])), c_orderQueueAddToEnd);
                         }
                         else {
                             UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), UnitGetPosition(OrderGetTargetUnit(lv_orderList[lv_unusedBuildIndex]))), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHbr_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_unusedBuildIndex]), OrderGetTargetUnit(lv_orderList[lv_unusedBuildIndex])), c_orderQueueAddToEnd);
+                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_unusedBuildIndex]), OrderGetTargetUnit(lv_orderList[lv_unusedBuildIndex])), c_orderQueueAddToEnd);
                         }
                         auto409B685D_ae = lv_minionOrderCount;
                         lv_itOrder = (lv_unusedBuildIndex+1);
@@ -899,7 +899,7 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
 
         lv_itOrder = 0;
         for ( ; ( (auto86A4AA17_ai >= 0 && lv_itOrder <= auto86A4AA17_ae) || (auto86A4AA17_ai < 0 && lv_itOrder >= auto86A4AA17_ae) ) ; lv_itOrder += auto86A4AA17_ai ) {
-            libNHbr_gv_dEBUGOrderListAfter[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
+            libNHBR_gv_dEBUGOrderListAfter[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
         }
         Wait(0.0, c_timeGame);
     }
@@ -908,28 +908,28 @@ bool libNHbr_gt_HybridBuildController_Func (bool testConds, bool runActions) {
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridBuildController_Init () {
-    libNHbr_gt_HybridBuildController = TriggerCreate("libNHbr_gt_HybridBuildController_Func");
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 1));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 4));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 17));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 16));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 10));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 9));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 0));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 8));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 5));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 11));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 12));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 6));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 13));
-    TriggerAddEventUnitOrder(libNHbr_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 2));
+void libNHBR_gt_HybridBuildController_Init () {
+    libNHBR_gt_HybridBuildController = TriggerCreate("libNHBR_gt_HybridBuildController_Func");
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 1));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 4));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 17));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 16));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 10));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 9));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 0));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 8));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 5));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 11));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 12));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 6));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 13));
+    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 2));
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Network New - Calculate
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridNetworkNewCalculate_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridNetworkNewCalculate_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_player;
     unit lv_powerSource;
@@ -939,7 +939,7 @@ bool libNHbr_gt_HybridNetworkNewCalculate_Func (bool testConds, bool runActions)
     int lv_itPowerSourceUnitType;
 
     // Automatic Variable Declarations
-    const int auto22AB836C_ae = libNHbr_gv_hybridNetworkPowerSourceUnitTypeMaxCount_C;
+    const int auto22AB836C_ae = libNHBR_gv_hybridNetworkPowerSourceUnitTypeMaxCount_C;
     const int auto22AB836C_ai = 1;
     unitgroup auto403B34CA_g;
     int auto403B34CA_u;
@@ -959,7 +959,7 @@ bool libNHbr_gt_HybridNetworkNewCalculate_Func (bool testConds, bool runActions)
 
     lv_itPowerSourceUnitType = 1;
     for ( ; ( (auto22AB836C_ai >= 0 && lv_itPowerSourceUnitType <= auto22AB836C_ae) || (auto22AB836C_ai < 0 && lv_itPowerSourceUnitType >= auto22AB836C_ae) ) ; lv_itPowerSourceUnitType += auto22AB836C_ai ) {
-        auto403B34CA_g = UnitGroup(libNHbr_gv_hybridNetworkPowerSourceUnitType[lv_itPowerSourceUnitType], lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto403B34CA_g = UnitGroup(libNHBR_gv_hybridNetworkPowerSourceUnitType[lv_itPowerSourceUnitType], lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
         auto403B34CA_u = UnitGroupCount(auto403B34CA_g, c_unitCountAll);
         for (;; auto403B34CA_u -= 1) {
             auto403B34CA_var = UnitGroupUnitFromEnd(auto403B34CA_g, auto403B34CA_u);
@@ -967,7 +967,7 @@ bool libNHbr_gt_HybridNetworkNewCalculate_Func (bool testConds, bool runActions)
             UnitGroupAdd(lv_powerSources, auto403B34CA_var);
         }
     }
-    libNHbr_gv_hybridNetworkNewPowerSourceUnitGroup[lv_player] = lv_powerSources;
+    libNHBR_gv_hybridNetworkNewPowerSourceUnitGroup[lv_player] = lv_powerSources;
     auto194BCFF4_g = lv_powerSources;
     auto194BCFF4_u = UnitGroupCount(auto194BCFF4_g, c_unitCountAll);
     for (;; auto194BCFF4_u -= 1) {
@@ -980,18 +980,18 @@ bool libNHbr_gt_HybridNetworkNewCalculate_Func (bool testConds, bool runActions)
             lv_nonChargedAmount += 1;
         }
     }
-    if ((lv_chargedAmount > libNHbr_gv_hybridNetworkMaximumPowerSourcesInNetwork)) {
-        libNHbr_gv_hybridNetworkNewCurrentChargedAmount[lv_player] = libNHbr_gv_hybridNetworkMaximumPowerSourcesInNetwork;
+    if ((lv_chargedAmount > libNHBR_gv_hybridNetworkMaximumPowerSourcesInNetwork)) {
+        libNHBR_gv_hybridNetworkNewCurrentChargedAmount[lv_player] = libNHBR_gv_hybridNetworkMaximumPowerSourcesInNetwork;
     }
     else {
-        libNHbr_gv_hybridNetworkNewCurrentChargedAmount[lv_player] = lv_chargedAmount;
+        libNHBR_gv_hybridNetworkNewCurrentChargedAmount[lv_player] = lv_chargedAmount;
     }
-    lv_nonChargedAmount = MinI((libNHbr_gv_hybridNetworkMaximumPowerSourcesInNetwork - lv_chargedAmount), lv_nonChargedAmount);
-    if ((libNHbr_gv_hybridNetworkNewCurrentChargedAmount[lv_player] > libNHbr_gv_hybridNetworkMaximumPowerSourcesInNetwork)) {
-        lv_chargedAmount = libNHbr_gv_hybridNetworkMaximumPowerSourcesInNetwork;
+    lv_nonChargedAmount = MinI((libNHBR_gv_hybridNetworkMaximumPowerSourcesInNetwork - lv_chargedAmount), lv_nonChargedAmount);
+    if ((libNHBR_gv_hybridNetworkNewCurrentChargedAmount[lv_player] > libNHBR_gv_hybridNetworkMaximumPowerSourcesInNetwork)) {
+        lv_chargedAmount = libNHBR_gv_hybridNetworkMaximumPowerSourcesInNetwork;
     }
     else {
-        lv_chargedAmount = libNHbr_gv_hybridNetworkNewCurrentChargedAmount[lv_player];
+        lv_chargedAmount = libNHBR_gv_hybridNetworkNewCurrentChargedAmount[lv_player];
     }
     CatalogFieldValueSet(c_gameCatalogAccumulator, ("NHbrNetworkNEW@PowerSourceChargedAdd"), "Amount", lv_player, IntToString(lv_chargedAmount));
     CatalogFieldValueSet(c_gameCatalogAccumulator, ("NHbrNetworkNEW@PowerSourceChargedMultiply"), "Amount", lv_player, IntToString(lv_chargedAmount));
@@ -1001,18 +1001,18 @@ bool libNHbr_gt_HybridNetworkNewCalculate_Func (bool testConds, bool runActions)
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridNetworkNewCalculate_Init () {
-    libNHbr_gt_HybridNetworkNewCalculate = TriggerCreate("libNHbr_gt_HybridNetworkNewCalculate_Func");
-    TriggerAddEventUnitBehaviorChange(libNHbr_gt_HybridNetworkNewCalculate, null, "NHbrNetworkCharging@Charged", c_unitBehaviorChangeActivate);
-    TriggerAddEventUnitBehaviorChange(libNHbr_gt_HybridNetworkNewCalculate, null, "NHbrNetworkCharging@Charged", c_unitBehaviorChangeDeactivate);
-    TriggerAddEventUnitBehaviorChange(libNHbr_gt_HybridNetworkNewCalculate, null, "NHbrNetworkCharging", c_unitBehaviorChangeActivate);
-    TriggerAddEventUnitBehaviorChange(libNHbr_gt_HybridNetworkNewCalculate, null, "NHbrNetworkCharging", c_unitBehaviorChangeDeactivate);
+void libNHBR_gt_HybridNetworkNewCalculate_Init () {
+    libNHBR_gt_HybridNetworkNewCalculate = TriggerCreate("libNHBR_gt_HybridNetworkNewCalculate_Func");
+    TriggerAddEventUnitBehaviorChange(libNHBR_gt_HybridNetworkNewCalculate, null, "NHbrNetworkCharging@Charged", c_unitBehaviorChangeActivate);
+    TriggerAddEventUnitBehaviorChange(libNHBR_gt_HybridNetworkNewCalculate, null, "NHbrNetworkCharging@Charged", c_unitBehaviorChangeDeactivate);
+    TriggerAddEventUnitBehaviorChange(libNHBR_gt_HybridNetworkNewCalculate, null, "NHbrNetworkCharging", c_unitBehaviorChangeActivate);
+    TriggerAddEventUnitBehaviorChange(libNHBR_gt_HybridNetworkNewCalculate, null, "NHbrNetworkCharging", c_unitBehaviorChangeDeactivate);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Network - Power Source Unit Type Initialization
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridNetworkPowerSourceUnitTypeInitialization_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridNetworkPowerSourceUnitTypeInitialization_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_itUnitType;
 
@@ -1025,23 +1025,23 @@ bool libNHbr_gt_HybridNetworkPowerSourceUnitTypeInitialization_Func (bool testCo
     }
 
     lv_itUnitType += 1;
-    libNHbr_gv_hybridNetworkPowerSourceUnitType[lv_itUnitType] = "NHbrIonicCrystal";
+    libNHBR_gv_hybridNetworkPowerSourceUnitType[lv_itUnitType] = "NHbrIonicCrystal";
     lv_itUnitType += 1;
-    libNHbr_gv_hybridNetworkPowerSourceUnitType[lv_itUnitType] = "NHbrIonicCrystal@Moveable";
+    libNHBR_gv_hybridNetworkPowerSourceUnitType[lv_itUnitType] = "NHbrIonicCrystal@Moveable";
     lv_itUnitType += 1;
-    libNHbr_gv_hybridNetworkPowerSourceUnitType[lv_itUnitType] = "NHbrNavigator";
+    libNHBR_gv_hybridNetworkPowerSourceUnitType[lv_itUnitType] = "NHbrNavigator";
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridNetworkPowerSourceUnitTypeInitialization_Init () {
-    libNHbr_gt_HybridNetworkPowerSourceUnitTypeInitialization = TriggerCreate("libNHbr_gt_HybridNetworkPowerSourceUnitTypeInitialization_Func");
+void libNHBR_gt_HybridNetworkPowerSourceUnitTypeInitialization_Init () {
+    libNHBR_gt_HybridNetworkPowerSourceUnitTypeInitialization = TriggerCreate("libNHBR_gt_HybridNetworkPowerSourceUnitTypeInitialization_Func");
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Network New - Case Controller
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridNetworkNewCaseController_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridNetworkNewCaseController_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_player;
     string lv_unitType;
@@ -1061,12 +1061,12 @@ bool libNHbr_gt_HybridNetworkNewCaseController_Func (bool testConds, bool runAct
     auto40B2DE4C_val = lv_unitType;
     if (auto40B2DE4C_val == "NHbrStasisCell") {
         if ((EventUnitBehaviorChange() == c_unitBehaviorChangeActivate)) {
-            libNHbr_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] += 1;
+            libNHBR_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] += 1;
         }
         else {
-            libNHbr_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] -= 1;
+            libNHBR_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] -= 1;
         }
-        if ((libNHbr_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] > 0)) {
+        if ((libNHBR_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] > 0)) {
             libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "NHbrStasisCell@StasisCell", 1);
         }
         else {
@@ -1075,12 +1075,12 @@ bool libNHbr_gt_HybridNetworkNewCaseController_Func (bool testConds, bool runAct
     }
     else if (auto40B2DE4C_val == "NHbrProcessingCore") {
         if ((EventUnitBehaviorChange() == c_unitBehaviorChangeActivate)) {
-            libNHbr_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] += 1;
+            libNHBR_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] += 1;
         }
         else {
-            libNHbr_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] -= 1;
+            libNHBR_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] -= 1;
         }
-        if ((libNHbr_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] > 0)) {
+        if ((libNHBR_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] > 0)) {
             libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "NHbrProcessingCore", 1);
         }
         else {
@@ -1089,12 +1089,12 @@ bool libNHbr_gt_HybridNetworkNewCaseController_Func (bool testConds, bool runAct
     }
     else if (auto40B2DE4C_val == "NHbrCrystallicShrine") {
         if ((EventUnitBehaviorChange() == c_unitBehaviorChangeActivate)) {
-            libNHbr_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] += 1;
+            libNHBR_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] += 1;
         }
         else {
-            libNHbr_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] -= 1;
+            libNHBR_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] -= 1;
         }
-        if ((libNHbr_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] > 0)) {
+        if ((libNHBR_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] > 0)) {
             libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "NHbrCrystallicShrine", 1);
         }
         else {
@@ -1107,16 +1107,16 @@ bool libNHbr_gt_HybridNetworkNewCaseController_Func (bool testConds, bool runAct
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridNetworkNewCaseController_Init () {
-    libNHbr_gt_HybridNetworkNewCaseController = TriggerCreate("libNHbr_gt_HybridNetworkNewCaseController_Func");
-    TriggerAddEventUnitBehaviorChange(libNHbr_gt_HybridNetworkNewCaseController, null, "NHbrNetworkNEW@NetworkController", c_unitBehaviorChangeActivate);
-    TriggerAddEventUnitBehaviorChange(libNHbr_gt_HybridNetworkNewCaseController, null, "NHbrNetworkNEW@NetworkController", c_unitBehaviorChangeDeactivate);
+void libNHBR_gt_HybridNetworkNewCaseController_Init () {
+    libNHBR_gt_HybridNetworkNewCaseController = TriggerCreate("libNHBR_gt_HybridNetworkNewCaseController_Func");
+    TriggerAddEventUnitBehaviorChange(libNHBR_gt_HybridNetworkNewCaseController, null, "NHbrNetworkNEW@NetworkController", c_unitBehaviorChangeActivate);
+    TriggerAddEventUnitBehaviorChange(libNHBR_gt_HybridNetworkNewCaseController, null, "NHbrNetworkNEW@NetworkController", c_unitBehaviorChangeDeactivate);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Network New - Case Controller (Removed)
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridNetworkNewCaseControllerRemoved_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridNetworkNewCaseControllerRemoved_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_player;
     string lv_unitType;
@@ -1135,8 +1135,8 @@ bool libNHbr_gt_HybridNetworkNewCaseControllerRemoved_Func (bool testConds, bool
 
     auto1747BF75_val = lv_unitType;
     if (auto1747BF75_val == "NHbrStasisCell") {
-        libNHbr_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] -= 1;
-        if ((libNHbr_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] > 0)) {
+        libNHBR_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] -= 1;
+        if ((libNHBR_gv_hybridNetworkNewCaseControllerStasisCell[lv_player] > 0)) {
             libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "NHbrStasisCell@StasisCell", 1);
         }
         else {
@@ -1144,8 +1144,8 @@ bool libNHbr_gt_HybridNetworkNewCaseControllerRemoved_Func (bool testConds, bool
         }
     }
     else if (auto1747BF75_val == "NHbrProcessingCore") {
-        libNHbr_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] -= 1;
-        if ((libNHbr_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] > 0)) {
+        libNHBR_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] -= 1;
+        if ((libNHBR_gv_hybridNetworkNewCaseControllerProcessingCore[lv_player] > 0)) {
             libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "NHbrProcessingCore", 1);
         }
         else {
@@ -1153,8 +1153,8 @@ bool libNHbr_gt_HybridNetworkNewCaseControllerRemoved_Func (bool testConds, bool
         }
     }
     else if (auto1747BF75_val == "NHbrCrystallicShrine") {
-        libNHbr_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] -= 1;
-        if ((libNHbr_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] > 0)) {
+        libNHBR_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] -= 1;
+        if ((libNHBR_gv_hybridNetworkNewCaseControllerCrystallicShrine[lv_player] > 0)) {
             libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "NHbrCrystallicShrine", 1);
         }
         else {
@@ -1167,15 +1167,15 @@ bool libNHbr_gt_HybridNetworkNewCaseControllerRemoved_Func (bool testConds, bool
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridNetworkNewCaseControllerRemoved_Init () {
-    libNHbr_gt_HybridNetworkNewCaseControllerRemoved = TriggerCreate("libNHbr_gt_HybridNetworkNewCaseControllerRemoved_Func");
-    TriggerAddEventUnitRemoved(libNHbr_gt_HybridNetworkNewCaseControllerRemoved, null);
+void libNHBR_gt_HybridNetworkNewCaseControllerRemoved_Init () {
+    libNHBR_gt_HybridNetworkNewCaseControllerRemoved = TriggerCreate("libNHBR_gt_HybridNetworkNewCaseControllerRemoved_Func");
+    TriggerAddEventUnitRemoved(libNHBR_gt_HybridNetworkNewCaseControllerRemoved, null);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Protection - Update Armor Data - Property
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridProtectionUpdateArmorDataProperty_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridProtectionUpdateArmorDataProperty_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_hybridUnit;
     fixed lv_shieldSpellArmor;
@@ -1207,29 +1207,29 @@ bool libNHbr_gt_HybridProtectionUpdateArmorDataProperty_Func (bool testConds, bo
         lv_shieldSpellArmor = lv_shields;
     }
 
-    UnitSetCustomValue(lv_hybridUnit, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_ProtectionSpellArmor), lv_shieldSpellArmor);
+    UnitSetCustomValue(lv_hybridUnit, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_ProtectionSpellArmor), lv_shieldSpellArmor);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridProtectionUpdateArmorDataProperty_Init () {
-    libNHbr_gt_HybridProtectionUpdateArmorDataProperty = TriggerCreate("libNHbr_gt_HybridProtectionUpdateArmorDataProperty_Func");
-    TriggerEnable(libNHbr_gt_HybridProtectionUpdateArmorDataProperty, false);
-    TriggerAddEventUnitProperty(libNHbr_gt_HybridProtectionUpdateArmorDataProperty, null, c_unitPropShieldArmor);
-    TriggerAddEventUnitRegion(libNHbr_gt_HybridProtectionUpdateArmorDataProperty, null, RegionEntireMap(), true);
+void libNHBR_gt_HybridProtectionUpdateArmorDataProperty_Init () {
+    libNHBR_gt_HybridProtectionUpdateArmorDataProperty = TriggerCreate("libNHBR_gt_HybridProtectionUpdateArmorDataProperty_Func");
+    TriggerEnable(libNHBR_gt_HybridProtectionUpdateArmorDataProperty, false);
+    TriggerAddEventUnitProperty(libNHBR_gt_HybridProtectionUpdateArmorDataProperty, null, c_unitPropShieldArmor);
+    TriggerAddEventUnitRegion(libNHBR_gt_HybridProtectionUpdateArmorDataProperty, null, RegionEntireMap(), true);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Teleport - Override TP Time
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTeleportOverrideTPTime_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTeleportOverrideTPTime_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_itPlayer;
     string lv_itUnitType;
     int lv_itField;
 
     // Automatic Variable Declarations
-    const int auto9DDEF7EA_ae = libNHbr_gv_bALMaxEnginePlayerCount;
+    const int auto9DDEF7EA_ae = libNHBR_gv_bALMaxEnginePlayerCount;
     const int auto9DDEF7EA_ai = 1;
     const int auto7AD4EE7E_ae = 29;
     const int auto7AD4EE7E_ai = 1;
@@ -1247,7 +1247,7 @@ bool libNHbr_gt_HybridTeleportOverrideTPTime_Func (bool testConds, bool runActio
         for ( ; ( (auto7AD4EE7E_ai >= 0 && lv_itField <= auto7AD4EE7E_ae) || (auto7AD4EE7E_ai < 0 && lv_itField >= auto7AD4EE7E_ae) ) ; lv_itField += auto7AD4EE7E_ai ) {
             lv_itUnitType = (CatalogFieldValueGet(c_gameCatalogAbil, ("NHbrIonicCrystalTeleport@Build"), "InfoArray[" + IntToString(lv_itField) + "].Unit", c_playerAny));
             if ((lv_itUnitType != null)) {
-                CatalogFieldValueSet(c_gameCatalogAbil, ("NHbrIonicCrystalTeleport@Build"), "InfoArray[" + IntToString(lv_itField) + "].Time", lv_itPlayer, FixedToString(libNHbr_gv_hybridTeleportConstructionTime, c_fixedPrecisionAny));
+                CatalogFieldValueSet(c_gameCatalogAbil, ("NHbrIonicCrystalTeleport@Build"), "InfoArray[" + IntToString(lv_itField) + "].Time", lv_itPlayer, FixedToString(libNHBR_gv_hybridTeleportConstructionTime, c_fixedPrecisionAny));
             }
 
         }
@@ -1256,14 +1256,14 @@ bool libNHbr_gt_HybridTeleportOverrideTPTime_Func (bool testConds, bool runActio
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTeleportOverrideTPTime_Init () {
-    libNHbr_gt_HybridTeleportOverrideTPTime = TriggerCreate("libNHbr_gt_HybridTeleportOverrideTPTime_Func");
+void libNHBR_gt_HybridTeleportOverrideTPTime_Init () {
+    libNHBR_gt_HybridTeleportOverrideTPTime = TriggerCreate("libNHBR_gt_HybridTeleportOverrideTPTime_Func");
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Teleport - Turn Targeting Order On
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTeleportTurnTargetingOrderOn_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTeleportTurnTargetingOrderOn_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_player;
     unit lv_targetUnit;
@@ -1289,7 +1289,7 @@ bool libNHbr_gt_HybridTeleportTurnTargetingOrderOn_Func (bool testConds, bool ru
     }
 
     UnitSetPropertyFixed(lv_casterUnit, c_unitPropEnergy, 100.0);
-    libNHbr_gv_hybridTeleportUnitGroup[lv_player] = libNtve_gf_ConvertUnitToUnitGroup(lv_casterUnit);
+    libNHBR_gv_hybridTeleportUnitGroup[lv_player] = libNtve_gf_ConvertUnitToUnitGroup(lv_casterUnit);
     UnitBehaviorAdd(lv_casterUnit, "NHbrIonicCrystalTeleport@FromTargetToCrystal", lv_targetUnit, 1);
     UnitBehaviorAdd(lv_targetUnit, "NHbrIonicCrystalTeleport@FromPylonToTarget", lv_casterUnit, 1);
     autoC94CA30A_val = lv_targetUnitType;
@@ -1338,8 +1338,8 @@ bool libNHbr_gt_HybridTeleportTurnTargetingOrderOn_Func (bool testConds, bool ru
     else {
     }
     if ((lv_order != null)) {
-        UISetTargetingOrder(PlayerGroupSingle(lv_player), libNHbr_gv_hybridTeleportUnitGroup[lv_player], lv_order, false);
-        auto961471E1_g = libNHbr_gv_hybridNetworkNewPowerSourceUnitGroup[lv_player];
+        UISetTargetingOrder(PlayerGroupSingle(lv_player), libNHBR_gv_hybridTeleportUnitGroup[lv_player], lv_order, false);
+        auto961471E1_g = libNHBR_gv_hybridNetworkNewPowerSourceUnitGroup[lv_player];
         auto961471E1_u = UnitGroupCount(auto961471E1_g, c_unitCountAll);
         for (;; auto961471E1_u -= 1) {
             auto961471E1_var = UnitGroupUnitFromEnd(auto961471E1_g, auto961471E1_u);
@@ -1352,15 +1352,15 @@ bool libNHbr_gt_HybridTeleportTurnTargetingOrderOn_Func (bool testConds, bool ru
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTeleportTurnTargetingOrderOn_Init () {
-    libNHbr_gt_HybridTeleportTurnTargetingOrderOn = TriggerCreate("libNHbr_gt_HybridTeleportTurnTargetingOrderOn_Func");
-    TriggerAddEventPlayerEffectUsed(libNHbr_gt_HybridTeleportTurnTargetingOrderOn, c_playerAny, "NHbrIonicCrystalTeleport@CrystalInitialSet");
+void libNHBR_gt_HybridTeleportTurnTargetingOrderOn_Init () {
+    libNHBR_gt_HybridTeleportTurnTargetingOrderOn = TriggerCreate("libNHBR_gt_HybridTeleportTurnTargetingOrderOn_Func");
+    TriggerAddEventPlayerEffectUsed(libNHBR_gt_HybridTeleportTurnTargetingOrderOn, c_playerAny, "NHbrIonicCrystalTeleport@CrystalInitialSet");
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Teleport - Turn Targeting Order Off
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTeleportTurnTargetingOrderOff_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTeleportTurnTargetingOrderOff_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_player;
     unit lv_crystal;
@@ -1382,9 +1382,9 @@ bool libNHbr_gt_HybridTeleportTurnTargetingOrderOff_Func (bool testConds, bool r
     }
 
     lv_player = EventPlayer();
-    lv_crystal = UnitGroupUnit(libNHbr_gv_hybridTeleportUnitGroup[lv_player], 1);
+    lv_crystal = UnitGroupUnit(libNHBR_gv_hybridTeleportUnitGroup[lv_player], 1);
     lv_builder = UnitBehaviorEffectUnit(lv_crystal, "NHbrIonicCrystalTeleport@FromTargetToCrystal", c_effectUnitCaster, 0);
-    auto19A3CA45_g = libNHbr_gv_hybridNetworkNewPowerSourceUnitGroup[lv_player];
+    auto19A3CA45_g = libNHBR_gv_hybridNetworkNewPowerSourceUnitGroup[lv_player];
     auto19A3CA45_u = UnitGroupCount(auto19A3CA45_g, c_unitCountAll);
     for (;; auto19A3CA45_u -= 1) {
         auto19A3CA45_var = UnitGroupUnitFromEnd(auto19A3CA45_g, auto19A3CA45_u);
@@ -1400,26 +1400,26 @@ bool libNHbr_gt_HybridTeleportTurnTargetingOrderOff_Func (bool testConds, bool r
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTeleportTurnTargetingOrderOff_Init () {
-    libNHbr_gt_HybridTeleportTurnTargetingOrderOff = TriggerCreate("libNHbr_gt_HybridTeleportTurnTargetingOrderOff_Func");
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 4), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 5), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 10), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 6), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 11), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 7), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 8), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 2), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 0), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 3), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 9), c_targetModeStateOff);
-    TriggerAddEventTargetModeUpdate(libNHbr_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 1), c_targetModeStateOff);
+void libNHBR_gt_HybridTeleportTurnTargetingOrderOff_Init () {
+    libNHBR_gt_HybridTeleportTurnTargetingOrderOff = TriggerCreate("libNHBR_gt_HybridTeleportTurnTargetingOrderOff_Func");
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 4), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 5), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 10), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 6), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 11), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 7), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 8), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 2), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 0), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 3), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 9), c_targetModeStateOff);
+    TriggerAddEventTargetModeUpdate(libNHBR_gt_HybridTeleportTurnTargetingOrderOff, c_playerAny, AbilityCommand("NHbrIonicCrystalTeleport@Build", 1), c_targetModeStateOff);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Teleport - Construction Progress
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTeleportConstructionProgress_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTeleportConstructionProgress_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_targetStructure;
     unit lv_builder;
@@ -1448,7 +1448,7 @@ bool libNHbr_gt_HybridTeleportConstructionProgress_Func (bool testConds, bool ru
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresHybrid", lv_ionicCrystalUnit, lv_ionicCrystalUnit) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresHybrid", lv_ionicCrystalUnit, lv_ionicCrystalUnit) == true))) {
             return false;
         }
 
@@ -1473,12 +1473,12 @@ bool libNHbr_gt_HybridTeleportConstructionProgress_Func (bool testConds, bool ru
     lv_targetPoint = UnitGetPosition(lv_targetStructure);
     UnitBehaviorAdd(lv_targetStructure, "NHbrIonicCrystalTeleport@Invulnerability", lv_builder, 1);
     UnitBehaviorAdd(lv_builder, "NHbrIonicCrystalTeleport@BuilderSilence", lv_builder, 1);
-    UnitSetCustomValue(lv_ionicCrystalUnit, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_ionicCrystalUnit, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    UnitSetCustomValue(lv_ionicCrystalUnit, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_ionicCrystalUnit, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     lv_energyUsage = UnitGetPropertyFixed(lv_ionicCrystalUnit, c_unitPropEnergyMax, c_unitPropCurrent);
-    lv_totalBuildTime = libNHbr_gv_hybridTeleportConstructionTime;
+    lv_totalBuildTime = libNHBR_gv_hybridTeleportConstructionTime;
     lv_drainedEnergyValue = ((lv_energyUsage/lv_totalBuildTime)/32);
-    UnitSetCustomValue(lv_ionicCrystalUnit, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
+    UnitSetCustomValue(lv_ionicCrystalUnit, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
     UnitCreateEffectUnit(lv_ionicCrystalUnit, "NHbrIonicCrystalTeleport@PersistentBuilder", lv_builder);
     libNtve_gf_SendActorMessageToUnit(lv_builder, "SetOpacity 0.650000 3.000000");
     while (true) {
@@ -1549,15 +1549,15 @@ bool libNHbr_gt_HybridTeleportConstructionProgress_Func (bool testConds, bool ru
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTeleportConstructionProgress_Init () {
-    libNHbr_gt_HybridTeleportConstructionProgress = TriggerCreate("libNHbr_gt_HybridTeleportConstructionProgress_Func");
-    TriggerAddEventUnitConstructProgress(libNHbr_gt_HybridTeleportConstructionProgress, null, c_unitProgressStageStart);
+void libNHBR_gt_HybridTeleportConstructionProgress_Init () {
+    libNHBR_gt_HybridTeleportConstructionProgress = TriggerCreate("libNHBR_gt_HybridTeleportConstructionProgress_Func");
+    TriggerAddEventUnitConstructProgress(libNHBR_gt_HybridTeleportConstructionProgress, null, c_unitProgressStageStart);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Teleport - Transfer Damage
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTeleportTransferDamage_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTeleportTransferDamage_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_builder;
     fixed lv_damage;
@@ -1587,21 +1587,21 @@ bool libNHbr_gt_HybridTeleportTransferDamage_Func (bool testConds, bool runActio
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTeleportTransferDamage_Init () {
-    libNHbr_gt_HybridTeleportTransferDamage = TriggerCreate("libNHbr_gt_HybridTeleportTransferDamage_Func");
-    TriggerAddEventUnitDamageAbsorbed(libNHbr_gt_HybridTeleportTransferDamage, null, "NHbrIonicCrystalTeleport@Invulnerability");
+void libNHBR_gt_HybridTeleportTransferDamage_Init () {
+    libNHBR_gt_HybridTeleportTransferDamage = TriggerCreate("libNHBR_gt_HybridTeleportTransferDamage_Func");
+    TriggerAddEventUnitDamageAbsorbed(libNHBR_gt_HybridTeleportTransferDamage, null, "NHbrIonicCrystalTeleport@Invulnerability");
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Initialization
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffInitialization_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffInitialization_Func (bool testConds, bool runActions) {
     // Variable Declarations
     int lv_itBuff;
     string lv_buffID;
 
     // Automatic Variable Declarations
-    const int auto49935673_ae = libNHbr_gv_hybridTimeScaleBuffMaxScale_C;
+    const int auto49935673_ae = libNHBR_gv_hybridTimeScaleBuffMaxScale_C;
     const int auto49935673_ai = 1;
 
     // Variable Initialization
@@ -1623,20 +1623,20 @@ bool libNHbr_gt_HybridTimeScaleBuffInitialization_Func (bool testConds, bool run
         else if ((lv_itBuff == 100)) {
             lv_buffID = ("NHbrTimeScaleBuff@" + IntToString(lv_itBuff));
         }
-        libNHbr_gv_hybridTimeScaleBuff[lv_itBuff] = (lv_buffID);
+        libNHBR_gv_hybridTimeScaleBuff[lv_itBuff] = (lv_buffID);
     }
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffInitialization_Init () {
-    libNHbr_gt_HybridTimeScaleBuffInitialization = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffInitialization_Func");
+void libNHBR_gt_HybridTimeScaleBuffInitialization_Init () {
+    libNHBR_gt_HybridTimeScaleBuffInitialization = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffInitialization_Func");
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Common - Construction Started
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffCommonConstructionStarted_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_targetStructure;
     unit lv_builder;
@@ -1653,7 +1653,7 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted_Func (bool testCond
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresNHbr", lv_targetStructure, lv_targetStructure) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresNHbr", lv_targetStructure, lv_targetStructure) == true))) {
             return false;
         }
 
@@ -1672,18 +1672,18 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted_Func (bool testCond
         lv_builderIsStructure = true;
     }
     else {
-        lv_totalBuildTime = libNHbr_gf_HybridTimeScaleBuffUnitConstructionTime(lv_targetStructure, "NHbrMinionBuild");
+        lv_totalBuildTime = libNHBR_gf_HybridTimeScaleBuffUnitConstructionTime(lv_targetStructure, "NHbrMinionBuild");
     }
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_targetStructure);
-    UnitSetCustomValue(lv_builder, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_builder, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_targetStructure);
+    UnitSetCustomValue(lv_builder, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_builder, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     UnitBehaviorAdd(lv_builder, "NHbrTimeScaleBuff@EnergyRegenSupressed", lv_builder, 1);
-    lv_energyUsage = libNHbr_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit(lv_builder);
-    lv_totalBuildTime *= (1/(libNHbr_gf_HybridTimeScaleBuffBoosterPercentBuff(lv_builder, lv_energyUsage)+1));
+    lv_energyUsage = libNHBR_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit(lv_builder);
+    lv_totalBuildTime *= (1/(libNHBR_gf_HybridTimeScaleBuffBoosterPercentBuff(lv_builder, lv_energyUsage)+1));
     lv_drainedEnergyValue = ((lv_energyUsage/lv_totalBuildTime)/16);
-    UnitSetCustomValue(lv_builder, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
+    UnitSetCustomValue(lv_builder, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
     UnitCreateEffectUnit(lv_targetStructure, "NHbrCommon@StoreBuilder", lv_builder);
-    libNHbr_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit(lv_builder, lv_energyUsage, lv_targetStructure);
+    libNHBR_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit(lv_builder, lv_energyUsage, lv_targetStructure);
     while (true) {
         if ((lv_builderIsStructure == true)) {
             lv_progress = UnitOrderGetProgress(lv_builder);
@@ -1696,7 +1696,7 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted_Func (bool testCond
         }
 
         UnitCreateEffectUnit(lv_builder, "NHbrTimeScaleBuff@DrainingEnergy", lv_builder);
-        UnitSetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), (UnitGetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage)) + lv_drainedEnergyValue));
+        UnitSetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), (UnitGetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage)) + lv_drainedEnergyValue));
         Wait(0.0625, c_timeGame);
     }
     UnitBehaviorRemove(lv_builder, "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
@@ -1704,16 +1704,16 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted_Func (bool testCond
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted_Init () {
-    libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted, false);
-    TriggerAddEventUnitConstructProgress(libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted, null, c_unitProgressStageStart);
+void libNHBR_gt_HybridTimeScaleBuffCommonConstructionStarted_Init () {
+    libNHBR_gt_HybridTimeScaleBuffCommonConstructionStarted = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffCommonConstructionStarted_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffCommonConstructionStarted, false);
+    TriggerAddEventUnitConstructProgress(libNHBR_gt_HybridTimeScaleBuffCommonConstructionStarted, null, c_unitProgressStageStart);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Common - Construction Completed
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffCommonConstructionCompleted_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_targetStructure;
     point lv_point;
@@ -1734,7 +1734,7 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted_Func (bool testCo
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresNHbr", lv_targetStructure, lv_targetStructure) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresNHbr", lv_targetStructure, lv_targetStructure) == true))) {
             return false;
         }
     }
@@ -1744,10 +1744,10 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted_Func (bool testCo
         return true;
     }
 
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_targetStructure);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_targetStructure);
     UnitBehaviorRemove(lv_targetStructure, "NHbrCommon@BuildersTracker", 1);
-    UnitSetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    UnitSetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     if ((UnitGetType(lv_builder) == "NHbrMinion")) {
         if ((UnitGroupCount(UnitGroupSearch("NHbrConstruct@AntiAir", UnitGetOwner(lv_builder), lv_point, 1.0, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
             auto44F2E05C_g = UnitGroupSearch("NHbrConstruct@AntiAir", UnitGetOwner(lv_builder), lv_point, 1.0, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
@@ -1777,16 +1777,16 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted_Func (bool testCo
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted_Init () {
-    libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted, false);
-    TriggerAddEventUnitConstructProgress(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted, null, c_unitProgressStageComplete);
+void libNHBR_gt_HybridTimeScaleBuffCommonConstructionCompleted_Init () {
+    libNHBR_gt_HybridTimeScaleBuffCommonConstructionCompleted = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffCommonConstructionCompleted_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffCommonConstructionCompleted, false);
+    TriggerAddEventUnitConstructProgress(libNHBR_gt_HybridTimeScaleBuffCommonConstructionCompleted, null, c_unitProgressStageComplete);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Common - Construction Canceled
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffCommonConstructionCanceled_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_targetStructure;
     unit lv_itBuilder;
@@ -1800,7 +1800,7 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresNHbr", lv_targetStructure, lv_targetStructure) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresNHbr", lv_targetStructure, lv_targetStructure) == true))) {
             return false;
         }
 
@@ -1819,23 +1819,23 @@ bool libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled_Func (bool testCon
     for (;; auto1FADCE83_u -= 1) {
         lv_itBuilder = UnitGroupUnitFromEnd(auto1FADCE83_g, auto1FADCE83_u);
         if (lv_itBuilder == null) { break; }
-        UnitSetPropertyFixed(lv_itBuilder, c_unitPropEnergy, (UnitGetPropertyFixed(lv_itBuilder, c_unitPropEnergy, c_unitPropCurrent) + UnitGetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage))));
+        UnitSetPropertyFixed(lv_itBuilder, c_unitPropEnergy, (UnitGetPropertyFixed(lv_itBuilder, c_unitPropEnergy, c_unitPropCurrent) + UnitGetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage))));
     }
     UnitBehaviorRemove(lv_targetStructure, "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled_Init () {
-    libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled, false);
-    TriggerAddEventUnitConstructProgress(libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled, null, c_unitProgressStageCancel);
+void libNHBR_gt_HybridTimeScaleBuffCommonConstructionCanceled_Init () {
+    libNHBR_gt_HybridTimeScaleBuffCommonConstructionCanceled = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffCommonConstructionCanceled_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffCommonConstructionCanceled, false);
+    TriggerAddEventUnitConstructProgress(libNHBR_gt_HybridTimeScaleBuffCommonConstructionCanceled, null, c_unitProgressStageCancel);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Minion - Construction Resumed
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffMinionConstructionResumed_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_targetStructure;
     unit lv_minion;
@@ -1870,9 +1870,9 @@ bool libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed_Func (bool testCond
         return true;
     }
 
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_targetStructure);
-    UnitSetCustomValue(lv_minion, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_minion, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_targetStructure);
+    UnitSetCustomValue(lv_minion, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_minion, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     UnitBehaviorAdd(lv_minion, "NHbrTimeScaleBuff@EnergyRegenSupressed", lv_minion, 1);
     auto2E38755A_g = UnitGetTrackedUnitGroup(lv_targetStructure, "NHbrCommon@BuildersTracker");
     auto2E38755A_u = UnitGroupCount(auto2E38755A_g, c_unitCountAll);
@@ -1880,28 +1880,28 @@ bool libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed_Func (bool testCond
         lv_itBuilder = UnitGroupUnitFromEnd(auto2E38755A_g, auto2E38755A_u);
         if (lv_itBuilder == null) { break; }
         if ((lv_itBuilder != lv_minion)) {
-            if ((UnitGetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage)) > UnitGetPropertyFixed(lv_minion, c_unitPropEnergy, c_unitPropCurrent))) {
+            if ((UnitGetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage)) > UnitGetPropertyFixed(lv_minion, c_unitPropEnergy, c_unitPropCurrent))) {
                 UnitSetPropertyFixed(lv_itBuilder, c_unitPropEnergy, (UnitGetPropertyFixed(lv_itBuilder, c_unitPropEnergy, c_unitPropCurrent) + UnitGetPropertyFixed(lv_minion, c_unitPropEnergy, c_unitPropCurrent)));
             }
             else {
-                UnitSetPropertyFixed(lv_itBuilder, c_unitPropEnergy, (UnitGetPropertyFixed(lv_itBuilder, c_unitPropEnergy, c_unitPropCurrent) + UnitGetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage))));
+                UnitSetPropertyFixed(lv_itBuilder, c_unitPropEnergy, (UnitGetPropertyFixed(lv_itBuilder, c_unitPropEnergy, c_unitPropCurrent) + UnitGetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage))));
             }
         }
 
         UnitCreateEffectUnit(lv_targetStructure, "NHbrCommon@ClearBuilder", lv_minion);
-        UnitSetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+        UnitSetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
     }
-    lv_totalBuildTime = libNHbr_gf_HybridTimeScaleBuffUnitConstructionTime(lv_targetStructure, "NHbrMinionBuild");
+    lv_totalBuildTime = libNHBR_gf_HybridTimeScaleBuffUnitConstructionTime(lv_targetStructure, "NHbrMinionBuild");
     lv_totalBuildTime -= (lv_totalBuildTime*(UnitGetProgressComplete(lv_targetStructure, 1)/100));
-    lv_energyUsage = libNHbr_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit(lv_minion);
-    lv_totalBuildTime *= (1/(libNHbr_gf_HybridTimeScaleBuffBoosterPercentBuff(lv_minion, lv_energyUsage)+1));
+    lv_energyUsage = libNHBR_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit(lv_minion);
+    lv_totalBuildTime *= (1/(libNHBR_gf_HybridTimeScaleBuffBoosterPercentBuff(lv_minion, lv_energyUsage)+1));
     lv_drainedEnergyValue = ((lv_energyUsage/lv_totalBuildTime)/16);
-    UnitSetCustomValue(lv_minion, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
+    UnitSetCustomValue(lv_minion, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
     UnitCreateEffectUnit(lv_targetStructure, "NHbrCommon@StoreBuilder", lv_minion);
-    libNHbr_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit(lv_minion, lv_energyUsage, lv_targetStructure);
+    libNHBR_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit(lv_minion, lv_energyUsage, lv_targetStructure);
     while ((UnitGetProgressComplete(lv_minion, 1) < 100.0) && (UnitGetPropertyFixed(lv_minion, c_unitPropEnergy, c_unitPropCurrent) > 0.0)) {
         UnitCreateEffectUnit(lv_minion, "NHbrTimeScaleBuff@DrainingEnergy", lv_minion);
-        UnitSetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), (UnitGetCustomValue(lv_targetStructure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage)) + lv_drainedEnergyValue));
+        UnitSetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), (UnitGetCustomValue(lv_targetStructure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage)) + lv_drainedEnergyValue));
         Wait(0.0625, c_timeGame);
     }
     UnitBehaviorRemove(lv_minion, "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
@@ -1909,16 +1909,16 @@ bool libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed_Func (bool testCond
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed_Init () {
-    libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed, false);
-    TriggerAddEventUnitConstructProgress(libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed, null, c_unitProgressStageResume);
+void libNHBR_gt_HybridTimeScaleBuffMinionConstructionResumed_Init () {
+    libNHBR_gt_HybridTimeScaleBuffMinionConstructionResumed = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffMinionConstructionResumed_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffMinionConstructionResumed, false);
+    TriggerAddEventUnitConstructProgress(libNHBR_gt_HybridTimeScaleBuffMinionConstructionResumed, null, c_unitProgressStageResume);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Minion - Construction Paused
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffMinionConstructionPaused_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_targetStructure;
 
@@ -1938,22 +1938,22 @@ bool libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused_Func (bool testConds
         return true;
     }
 
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_targetStructure);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_targetStructure);
     UnitBehaviorRemove(EventUnit(), "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused_Init () {
-    libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused, false);
-    TriggerAddEventUnitConstructProgress(libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused, null, c_unitProgressStagePause);
+void libNHBR_gt_HybridTimeScaleBuffMinionConstructionPaused_Init () {
+    libNHBR_gt_HybridTimeScaleBuffMinionConstructionPaused = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffMinionConstructionPaused_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffMinionConstructionPaused, false);
+    TriggerAddEventUnitConstructProgress(libNHBR_gt_HybridTimeScaleBuffMinionConstructionPaused, null, c_unitProgressStagePause);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Structure - Training Started
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffStructureTrainingStarted_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_structure;
     fixed lv_energyUsage;
@@ -1968,7 +1968,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted_Func (bool testConds
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
             return false;
         }
 
@@ -1982,23 +1982,23 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted_Func (bool testConds
         return true;
     }
 
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     UnitBehaviorAdd(lv_structure, "NHbrTimeScaleBuff@EnergyRegenSupressed", lv_structure, 1);
     lv_queueTime = UnitQueueItemTime(lv_structure, c_unitQueueTimeTotal, 1);
-    lv_energyUsage = libNHbr_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit(lv_structure);
-    lv_queueTime *= (1/(libNHbr_gf_HybridTimeScaleBuffBoosterPercentBuff(lv_structure, lv_energyUsage)+1));
+    lv_energyUsage = libNHBR_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit(lv_structure);
+    lv_queueTime *= (1/(libNHBR_gf_HybridTimeScaleBuffBoosterPercentBuff(lv_structure, lv_energyUsage)+1));
     lv_drainedEnergyValue = ((lv_energyUsage/lv_queueTime)/16);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
-    libNHbr_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit(lv_structure, lv_energyUsage, lv_structure);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
+    libNHBR_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit(lv_structure, lv_energyUsage, lv_structure);
     while (true) {
         if (((UnitQueueItemTime(lv_structure, c_unitQueueTimeRemaining, 1) == 0.0))) {
             break;
         }
 
         UnitCreateEffectUnit(lv_structure, "NHbrTimeScaleBuff@DrainingEnergy", lv_structure);
-        UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), (UnitGetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage)) + lv_drainedEnergyValue));
+        UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), (UnitGetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage)) + lv_drainedEnergyValue));
         Wait(0.0625, c_timeGame);
     }
     UnitBehaviorRemove(lv_structure, "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
@@ -2006,16 +2006,16 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted_Func (bool testConds
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted_Init () {
-    libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted, false);
-    TriggerAddEventUnitTrainProgress(libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted, null, c_unitProgressStageStart);
+void libNHBR_gt_HybridTimeScaleBuffStructureTrainingStarted_Init () {
+    libNHBR_gt_HybridTimeScaleBuffStructureTrainingStarted = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffStructureTrainingStarted_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureTrainingStarted, false);
+    TriggerAddEventUnitTrainProgress(libNHBR_gt_HybridTimeScaleBuffStructureTrainingStarted, null, c_unitProgressStageStart);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Structure - Training Completed
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffStructureTrainingCompleted_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_structure;
 
@@ -2025,7 +2025,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
             return false;
         }
     }
@@ -2035,24 +2035,24 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted_Func (bool testCon
         return true;
     }
 
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     UnitBehaviorRemove(lv_structure, "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted_Init () {
-    libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted, false);
-    TriggerAddEventUnitTrainProgress(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted, null, c_unitProgressStageComplete);
+void libNHBR_gt_HybridTimeScaleBuffStructureTrainingCompleted_Init () {
+    libNHBR_gt_HybridTimeScaleBuffStructureTrainingCompleted = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffStructureTrainingCompleted_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureTrainingCompleted, false);
+    TriggerAddEventUnitTrainProgress(libNHBR_gt_HybridTimeScaleBuffStructureTrainingCompleted, null, c_unitProgressStageComplete);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Structure - Training Cancelled
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffStructureTrainingCancelled_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_structure;
 
@@ -2062,7 +2062,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
             return false;
         }
     }
@@ -2072,25 +2072,25 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled_Func (bool testCon
         return true;
     }
 
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
-    UnitSetPropertyFixed(lv_structure, c_unitPropEnergy, (UnitGetPropertyFixed(lv_structure, c_unitPropEnergy, c_unitPropCurrent) + UnitGetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage))));
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
+    UnitSetPropertyFixed(lv_structure, c_unitPropEnergy, (UnitGetPropertyFixed(lv_structure, c_unitPropEnergy, c_unitPropCurrent) + UnitGetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage))));
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     UnitBehaviorRemove(lv_structure, "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled_Init () {
-    libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled, false);
-    TriggerAddEventUnitTrainProgress(libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled, null, c_unitProgressStageCancel);
+void libNHBR_gt_HybridTimeScaleBuffStructureTrainingCancelled_Init () {
+    libNHBR_gt_HybridTimeScaleBuffStructureTrainingCancelled = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffStructureTrainingCancelled_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureTrainingCancelled, false);
+    TriggerAddEventUnitTrainProgress(libNHBR_gt_HybridTimeScaleBuffStructureTrainingCancelled, null, c_unitProgressStageCancel);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Structure - Research Started
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffStructureResearchStarted_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_structure;
     fixed lv_energyUsage;
@@ -2110,7 +2110,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted_Func (bool testConds
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
             return false;
         }
 
@@ -2124,43 +2124,43 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted_Func (bool testConds
         return true;
     }
 
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     UnitBehaviorAdd(lv_structure, "NHbrTimeScaleBuff@EnergyRegenSupressed", lv_structure, 1);
     autoB945DF01_val = UnitGetType(lv_structure);
     if (autoB945DF01_val == "NHbrVespeneConcentrator") {
-        lv_totalResearchTime = libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrVespeneConcentratorResearch");
+        lv_totalResearchTime = libNHBR_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrVespeneConcentratorResearch");
     }
     else if (autoB945DF01_val == "NHbrStasisCell") {
-        lv_totalResearchTime = libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrStasisCellResearch");
+        lv_totalResearchTime = libNHBR_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrStasisCellResearch");
     }
     else if (autoB945DF01_val == "NHbrCrystallicShrine") {
-        lv_totalResearchTime = libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrCrystallicShrineResearch");
+        lv_totalResearchTime = libNHBR_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrCrystallicShrineResearch");
     }
     else if (autoB945DF01_val == "NHbrProcessingCore") {
-        lv_totalResearchTime = libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrProcessingCoreResearch");
+        lv_totalResearchTime = libNHBR_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrProcessingCoreResearch");
     }
     else if (autoB945DF01_val == "NHbrEngine") {
-        lv_totalResearchTime = libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrEngineResearch");
+        lv_totalResearchTime = libNHBR_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrEngineResearch");
     }
     else if (autoB945DF01_val == "NHbrProcessor") {
-        lv_totalResearchTime = libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrWorkshopResearch");
+        lv_totalResearchTime = libNHBR_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrWorkshopResearch");
     }
     else if (autoB945DF01_val == "NHbrVoidPortal") {
-        lv_totalResearchTime = libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrVoidPortalResearch");
+        lv_totalResearchTime = libNHBR_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrVoidPortalResearch");
     }
     else if (autoB945DF01_val == "NHbrNemesisCatacomb") {
-        lv_totalResearchTime = libNHbr_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrNemesisCatacombResearch@Research");
+        lv_totalResearchTime = libNHBR_gf_HybridTimeScaleBuffUpgradeResearchTime(libNtve_gf_TriggeringProgressUpgrade(), "NHbrNemesisCatacombResearch@Research");
     }
     else {
     }
     Wait(0.0625, c_timeGame);
-    lv_energyUsage = libNHbr_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit(lv_structure);
-    lv_totalResearchTime *= (1/(libNHbr_gf_HybridTimeScaleBuffBoosterPercentBuff(lv_structure, lv_energyUsage)+1));
+    lv_energyUsage = libNHBR_gf_HybridTimeScaleBuffCalculateEnergyUsageForUnit(lv_structure);
+    lv_totalResearchTime *= (1/(libNHBR_gf_HybridTimeScaleBuffBoosterPercentBuff(lv_structure, lv_energyUsage)+1));
     lv_drainedEnergyValue = ((lv_energyUsage/lv_totalResearchTime)/16);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
-    libNHbr_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit(lv_structure, lv_energyUsage, lv_structure);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), lv_drainedEnergyValue);
+    libNHBR_gf_HybridTimeScaleBuffAddTimeScaleBuffToUnitFromUnit(lv_structure, lv_energyUsage, lv_structure);
     lv_repeatTime = FixedToInt(Round((lv_totalResearchTime / 0.0625)));
     autoA870D26E_n = lv_repeatTime;
     for (autoA870D26E_i = 1; autoA870D26E_i <= autoA870D26E_n; autoA870D26E_i += 1) {
@@ -2170,7 +2170,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted_Func (bool testConds
         }
 
         UnitCreateEffectUnit(lv_structure, "NHbrTimeScaleBuff@DrainingEnergy", lv_structure);
-        UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), (UnitGetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage)) + lv_drainedEnergyValue));
+        UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), (UnitGetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage)) + lv_drainedEnergyValue));
         Wait(0.0625, c_timeGame);
     }
     UnitBehaviorRemove(lv_structure, "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
@@ -2178,16 +2178,16 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted_Func (bool testConds
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted_Init () {
-    libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted, false);
-    TriggerAddEventUnitResearchProgress(libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted, null, c_unitProgressStageStart);
+void libNHBR_gt_HybridTimeScaleBuffStructureResearchStarted_Init () {
+    libNHBR_gt_HybridTimeScaleBuffStructureResearchStarted = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffStructureResearchStarted_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureResearchStarted, false);
+    TriggerAddEventUnitResearchProgress(libNHBR_gt_HybridTimeScaleBuffStructureResearchStarted, null, c_unitProgressStageStart);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Structure - Research Completed
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffStructureResearchCompleted_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_structure;
 
@@ -2197,7 +2197,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
             return false;
         }
     }
@@ -2207,24 +2207,24 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted_Func (bool testCon
         return true;
     }
 
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     UnitBehaviorRemove(lv_structure, "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted_Init () {
-    libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted, false);
-    TriggerAddEventUnitResearchProgress(libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted, null, c_unitProgressStageComplete);
+void libNHBR_gt_HybridTimeScaleBuffStructureResearchCompleted_Init () {
+    libNHBR_gt_HybridTimeScaleBuffStructureResearchCompleted = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffStructureResearchCompleted_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureResearchCompleted, false);
+    TriggerAddEventUnitResearchProgress(libNHBR_gt_HybridTimeScaleBuffStructureResearchCompleted, null, c_unitProgressStageComplete);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Time Scale Buff - Structure - Research Cancelled
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridTimeScaleBuffStructureResearchCancelled_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_structure;
 
@@ -2234,7 +2234,7 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled_Func (bool testCon
 
     // Conditions
     if (testConds) {
-        if (!((libNHbr_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
+        if (!((libNHBR_gf_RunValidatorOnUnit("RequiresNHbr", lv_structure, lv_structure) == true))) {
             return false;
         }
     }
@@ -2244,25 +2244,25 @@ bool libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled_Func (bool testCon
         return true;
     }
 
-    libNHbr_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
-    UnitSetPropertyFixed(lv_structure, c_unitPropEnergy, (UnitGetPropertyFixed(lv_structure, c_unitPropEnergy, c_unitPropCurrent) + UnitGetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage))));
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
-    UnitSetCustomValue(lv_structure, libNHbr_gf_CustomValueIndex(libNHbr_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
+    libNHBR_gf_HybridTimeScaleBuffRemoveTimeScaleBuffFromUnit(lv_structure);
+    UnitSetPropertyFixed(lv_structure, c_unitPropEnergy, (UnitGetPropertyFixed(lv_structure, c_unitPropEnergy, c_unitPropCurrent) + UnitGetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage))));
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleEnergyUsage), 0.0);
+    UnitSetCustomValue(lv_structure, libNHBR_gf_CustomValueIndex(libNHBR_ge_CustomValueIndexes_TimeScaleDrainingEnergy), 0.0);
     UnitBehaviorRemove(lv_structure, "NHbrTimeScaleBuff@EnergyRegenSupressed", 1);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled_Init () {
-    libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled = TriggerCreate("libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled_Func");
-    TriggerEnable(libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled, false);
-    TriggerAddEventUnitResearchProgress(libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled, null, c_unitProgressStageCancel);
+void libNHBR_gt_HybridTimeScaleBuffStructureResearchCancelled_Init () {
+    libNHBR_gt_HybridTimeScaleBuffStructureResearchCancelled = TriggerCreate("libNHBR_gt_HybridTimeScaleBuffStructureResearchCancelled_Func");
+    TriggerEnable(libNHBR_gt_HybridTimeScaleBuffStructureResearchCancelled, false);
+    TriggerAddEventUnitResearchProgress(libNHBR_gt_HybridTimeScaleBuffStructureResearchCancelled, null, c_unitProgressStageCancel);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Dominator - Upgrade To Advanced Dominator
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridDominatorUpgradeToAdvancedDominator_Func (bool testConds, bool runActions) {
     // Variable Declarations
     string lv_dominator;
     string lv_advancedDominator;
@@ -2302,21 +2302,21 @@ bool libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator_Func (bool testConds, 
     CatalogFieldValueSet(c_gameCatalogUnit, lv_dominator, "Speed", lv_player, CatalogFieldValueGet(c_gameCatalogUnit, lv_advancedDominator, "Speed", c_playerAny));
     CatalogFieldValueSet(c_gameCatalogActor, lv_dominator, "HighlightTooltip", lv_player, CatalogFieldValueGet(c_gameCatalogActor, lv_advancedDominator, "HighlightTooltip", c_playerAny));
     CatalogFieldValueSet(c_gameCatalogActor, lv_dominator, "CustomUnitStatusFrame", lv_player, CatalogFieldValueGet(c_gameCatalogActor, lv_advancedDominator, "CustomUnitStatusFrame", c_playerAny));
-    libNHbr_gf_UpgradeButtontoButtonForPlayer("NHbrVoidRiftTrain@WarpInDominator", "NHbrVoidRiftTrain@WarpInAdvancedDominator", lv_player);
+    libNHBR_gf_UpgradeButtontoButtonForPlayer("NHbrVoidRiftTrain@WarpInDominator", "NHbrVoidRiftTrain@WarpInAdvancedDominator", lv_player);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator_Init () {
-    libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator = TriggerCreate("libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator_Func");
-    TriggerEnable(libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator, false);
-    TriggerAddEventUpgradeLevelChanged(libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator, c_playerAny);
+void libNHBR_gt_HybridDominatorUpgradeToAdvancedDominator_Init () {
+    libNHBR_gt_HybridDominatorUpgradeToAdvancedDominator = TriggerCreate("libNHBR_gt_HybridDominatorUpgradeToAdvancedDominator_Func");
+    TriggerEnable(libNHBR_gt_HybridDominatorUpgradeToAdvancedDominator, false);
+    TriggerAddEventUpgradeLevelChanged(libNHBR_gt_HybridDominatorUpgradeToAdvancedDominator, c_playerAny);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Reaver - Upgrade To Advanced Reaver
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridReaverUpgradeToAdvancedReaver_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridReaverUpgradeToAdvancedReaver_Func (bool testConds, bool runActions) {
     // Variable Declarations
     string lv_reaver;
     string lv_advancedReaver;
@@ -2356,21 +2356,21 @@ bool libNHbr_gt_HybridReaverUpgradeToAdvancedReaver_Func (bool testConds, bool r
     CatalogFieldValueSet(c_gameCatalogUnit, lv_reaver, "Speed", lv_player, CatalogFieldValueGet(c_gameCatalogUnit, lv_advancedReaver, "Speed", c_playerAny));
     CatalogFieldValueSet(c_gameCatalogActor, lv_reaver, "HighlightTooltip", lv_player, CatalogFieldValueGet(c_gameCatalogActor, lv_advancedReaver, "HighlightTooltip", c_playerAny));
     CatalogFieldValueSet(c_gameCatalogActor, lv_reaver, "CustomUnitStatusFrame", lv_player, CatalogFieldValueGet(c_gameCatalogActor, lv_advancedReaver, "CustomUnitStatusFrame", c_playerAny));
-    libNHbr_gf_UpgradeButtontoButtonForPlayer("NHbrVoidRiftTrain@WarpInReaver", "NHbrVoidRiftTrain@WarpInAdvancedReaver", lv_player);
+    libNHBR_gf_UpgradeButtontoButtonForPlayer("NHbrVoidRiftTrain@WarpInReaver", "NHbrVoidRiftTrain@WarpInAdvancedReaver", lv_player);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridReaverUpgradeToAdvancedReaver_Init () {
-    libNHbr_gt_HybridReaverUpgradeToAdvancedReaver = TriggerCreate("libNHbr_gt_HybridReaverUpgradeToAdvancedReaver_Func");
-    TriggerEnable(libNHbr_gt_HybridReaverUpgradeToAdvancedReaver, false);
-    TriggerAddEventUpgradeLevelChanged(libNHbr_gt_HybridReaverUpgradeToAdvancedReaver, c_playerAny);
+void libNHBR_gt_HybridReaverUpgradeToAdvancedReaver_Init () {
+    libNHBR_gt_HybridReaverUpgradeToAdvancedReaver = TriggerCreate("libNHBR_gt_HybridReaverUpgradeToAdvancedReaver_Func");
+    TriggerEnable(libNHBR_gt_HybridReaverUpgradeToAdvancedReaver, false);
+    TriggerAddEventUpgradeLevelChanged(libNHBR_gt_HybridReaverUpgradeToAdvancedReaver, c_playerAny);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Nemesis - Upgrade To Advanced Nemesis
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridNemesisUpgradeToAdvancedNemesis_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridNemesisUpgradeToAdvancedNemesis_Func (bool testConds, bool runActions) {
     // Variable Declarations
     string lv_nemesis;
     string lv_advancedNemesis;
@@ -2410,21 +2410,21 @@ bool libNHbr_gt_HybridNemesisUpgradeToAdvancedNemesis_Func (bool testConds, bool
     CatalogFieldValueSet(c_gameCatalogUnit, lv_nemesis, "Speed", lv_player, CatalogFieldValueGet(c_gameCatalogUnit, lv_advancedNemesis, "Speed", c_playerAny));
     CatalogFieldValueSet(c_gameCatalogActor, lv_nemesis, "HighlightTooltip", lv_player, CatalogFieldValueGet(c_gameCatalogActor, lv_advancedNemesis, "HighlightTooltip", c_playerAny));
     CatalogFieldValueSet(c_gameCatalogActor, lv_nemesis, "CustomUnitStatusFrame", lv_player, CatalogFieldValueGet(c_gameCatalogActor, lv_advancedNemesis, "CustomUnitStatusFrame", c_playerAny));
-    libNHbr_gf_UpgradeButtontoButtonForPlayer("NHbrVoidRiftTrain@WarpInNemesis", "NHbrVoidRiftTrain@WarpInAdvancedNemesis", lv_player);
+    libNHBR_gf_UpgradeButtontoButtonForPlayer("NHbrVoidRiftTrain@WarpInNemesis", "NHbrVoidRiftTrain@WarpInAdvancedNemesis", lv_player);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridNemesisUpgradeToAdvancedNemesis_Init () {
-    libNHbr_gt_HybridNemesisUpgradeToAdvancedNemesis = TriggerCreate("libNHbr_gt_HybridNemesisUpgradeToAdvancedNemesis_Func");
-    TriggerEnable(libNHbr_gt_HybridNemesisUpgradeToAdvancedNemesis, false);
-    TriggerAddEventUpgradeLevelChanged(libNHbr_gt_HybridNemesisUpgradeToAdvancedNemesis, c_playerAny);
+void libNHBR_gt_HybridNemesisUpgradeToAdvancedNemesis_Init () {
+    libNHBR_gt_HybridNemesisUpgradeToAdvancedNemesis = TriggerCreate("libNHBR_gt_HybridNemesisUpgradeToAdvancedNemesis_Func");
+    TriggerEnable(libNHBR_gt_HybridNemesisUpgradeToAdvancedNemesis, false);
+    TriggerAddEventUpgradeLevelChanged(libNHBR_gt_HybridNemesisUpgradeToAdvancedNemesis, c_playerAny);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Silent - Weapon Buff
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_SilentWeaponBuff_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_SilentWeaponBuff_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_silent;
     fixed lv_weaponCooldown;
@@ -2443,21 +2443,21 @@ bool libNHbr_gt_SilentWeaponBuff_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    UnitWeaponSetPeriodRemaining(lv_silent, 1, (lv_weaponCooldown/(libNHbr_gv_silentAttacksPerSecond*(1+lv_networkPercent))));
+    UnitWeaponSetPeriodRemaining(lv_silent, 1, (lv_weaponCooldown/(libNHBR_gv_silentAttacksPerSecond*(1+lv_networkPercent))));
     UnitCreateEffectUnit(lv_silent, "NHbrSilentWeapon@ReduceNetwork", lv_silent);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_SilentWeaponBuff_Init () {
-    libNHbr_gt_SilentWeaponBuff = TriggerCreate("libNHbr_gt_SilentWeaponBuff_Func");
-    TriggerAddEventPlayerEffectUsed(libNHbr_gt_SilentWeaponBuff, 1, "NHbrSilentWeapon@MUDummy");
+void libNHBR_gt_SilentWeaponBuff_Init () {
+    libNHBR_gt_SilentWeaponBuff = TriggerCreate("libNHBR_gt_SilentWeaponBuff_Func");
+    TriggerAddEventPlayerEffectUsed(libNHBR_gt_SilentWeaponBuff, 1, "NHbrSilentWeapon@MUDummy");
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Navigator - Cargo UI
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridNavigatorCargoUI_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridNavigatorCargoUI_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_navigator;
     int lv_spaceUsed;
@@ -2518,16 +2518,16 @@ bool libNHbr_gt_HybridNavigatorCargoUI_Func (bool testConds, bool runActions) {
         if (lv_itCargoUnit == null) { break; }
         autoA4CE4C6C_val = CatalogFieldValueGetAsInt(c_gameCatalogUnit, UnitGetType(lv_itCargoUnit), "CargoSize", c_playerAny);
         if (autoA4CE4C6C_val == 1) {
-            lv_cargoSizePerUnit[libNHbr_ge_HybridNavigatorCargoUI_Size1] += 1;
+            lv_cargoSizePerUnit[libNHBR_ge_HybridNavigatorCargoUI_Size1] += 1;
         }
         else if (autoA4CE4C6C_val == 2) {
-            lv_cargoSizePerUnit[libNHbr_ge_HybridNavigatorCargoUI_Size2] += 1;
+            lv_cargoSizePerUnit[libNHBR_ge_HybridNavigatorCargoUI_Size2] += 1;
         }
         else if (autoA4CE4C6C_val == 4) {
-            lv_cargoSizePerUnit[libNHbr_ge_HybridNavigatorCargoUI_Size4] += 1;
+            lv_cargoSizePerUnit[libNHBR_ge_HybridNavigatorCargoUI_Size4] += 1;
         }
         else if (autoA4CE4C6C_val == 8) {
-            lv_cargoSizePerUnit[libNHbr_ge_HybridNavigatorCargoUI_Size8] += 1;
+            lv_cargoSizePerUnit[libNHBR_ge_HybridNavigatorCargoUI_Size8] += 1;
         }
         else {
         }
@@ -2536,16 +2536,16 @@ bool libNHbr_gt_HybridNavigatorCargoUI_Func (bool testConds, bool runActions) {
     for ( ; ( (autoBDFCD470_ai >= 0 && lv_itCargoSizeType <= autoBDFCD470_ae) || (autoBDFCD470_ai < 0 && lv_itCargoSizeType >= autoBDFCD470_ae) ) ; lv_itCargoSizeType += autoBDFCD470_ai ) {
         if ((lv_cargoSizePerUnit[lv_itCargoSizeType] > 0)) {
             auto263FED96_val = lv_itCargoSizeType;
-            if (auto263FED96_val == libNHbr_ge_HybridNavigatorCargoUI_Size1) {
+            if (auto263FED96_val == libNHBR_ge_HybridNavigatorCargoUI_Size1) {
                 lv_size = 1;
             }
-            else if (auto263FED96_val == libNHbr_ge_HybridNavigatorCargoUI_Size2) {
+            else if (auto263FED96_val == libNHBR_ge_HybridNavigatorCargoUI_Size2) {
                 lv_size = 2;
             }
-            else if (auto263FED96_val == libNHbr_ge_HybridNavigatorCargoUI_Size4) {
+            else if (auto263FED96_val == libNHBR_ge_HybridNavigatorCargoUI_Size4) {
                 lv_size = 4;
             }
-            else if (auto263FED96_val == libNHbr_ge_HybridNavigatorCargoUI_Size8) {
+            else if (auto263FED96_val == libNHBR_ge_HybridNavigatorCargoUI_Size8) {
                 lv_size = 8;
             }
             else {
@@ -2576,16 +2576,16 @@ bool libNHbr_gt_HybridNavigatorCargoUI_Func (bool testConds, bool runActions) {
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridNavigatorCargoUI_Init () {
-    libNHbr_gt_HybridNavigatorCargoUI = TriggerCreate("libNHbr_gt_HybridNavigatorCargoUI_Func");
-    TriggerAddEventUnitCargo(libNHbr_gt_HybridNavigatorCargoUI, null, true);
-    TriggerAddEventUnitCargo(libNHbr_gt_HybridNavigatorCargoUI, null, false);
+void libNHBR_gt_HybridNavigatorCargoUI_Init () {
+    libNHBR_gt_HybridNavigatorCargoUI = TriggerCreate("libNHBR_gt_HybridNavigatorCargoUI_Func");
+    TriggerAddEventUnitCargo(libNHBR_gt_HybridNavigatorCargoUI, null, true);
+    TriggerAddEventUnitCargo(libNHBR_gt_HybridNavigatorCargoUI, null, false);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Reaver - Consume DNA - Autocast On
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridReaverConsumeDNAAutocastOn_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridReaverConsumeDNAAutocastOn_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
     // Actions
     if (!runActions) {
@@ -2597,15 +2597,15 @@ bool libNHbr_gt_HybridReaverConsumeDNAAutocastOn_Func (bool testConds, bool runA
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridReaverConsumeDNAAutocastOn_Init () {
-    libNHbr_gt_HybridReaverConsumeDNAAutocastOn = TriggerCreate("libNHbr_gt_HybridReaverConsumeDNAAutocastOn_Func");
-    TriggerAddEventUnitAbilityAutoCastChange(libNHbr_gt_HybridReaverConsumeDNAAutocastOn, null, AbilityCommand("NHbrReaverConsumeDNA", 0), c_unitAbilAutoCastChangeOn, false);
+void libNHBR_gt_HybridReaverConsumeDNAAutocastOn_Init () {
+    libNHBR_gt_HybridReaverConsumeDNAAutocastOn = TriggerCreate("libNHBR_gt_HybridReaverConsumeDNAAutocastOn_Func");
+    TriggerAddEventUnitAbilityAutoCastChange(libNHBR_gt_HybridReaverConsumeDNAAutocastOn, null, AbilityCommand("NHbrReaverConsumeDNA", 0), c_unitAbilAutoCastChangeOn, false);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Reaver - Consume DNA - Autocast Off
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridReaverConsumeDNAAutocastOff_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridReaverConsumeDNAAutocastOff_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
     // Actions
     if (!runActions) {
@@ -2617,15 +2617,15 @@ bool libNHbr_gt_HybridReaverConsumeDNAAutocastOff_Func (bool testConds, bool run
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridReaverConsumeDNAAutocastOff_Init () {
-    libNHbr_gt_HybridReaverConsumeDNAAutocastOff = TriggerCreate("libNHbr_gt_HybridReaverConsumeDNAAutocastOff_Func");
-    TriggerAddEventUnitAbilityAutoCastChange(libNHbr_gt_HybridReaverConsumeDNAAutocastOff, null, AbilityCommand("NHbrReaverConsumeDNA", 0), c_unitAbilAutoCastChangeOff, false);
+void libNHBR_gt_HybridReaverConsumeDNAAutocastOff_Init () {
+    libNHBR_gt_HybridReaverConsumeDNAAutocastOff = TriggerCreate("libNHBR_gt_HybridReaverConsumeDNAAutocastOff_Func");
+    TriggerAddEventUnitAbilityAutoCastChange(libNHBR_gt_HybridReaverConsumeDNAAutocastOff, null, AbilityCommand("NHbrReaverConsumeDNA", 0), c_unitAbilAutoCastChangeOff, false);
 }
 
 //--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Void Rift - Cargo UI
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_gt_HybridVoidRiftCargoUI_Func (bool testConds, bool runActions) {
+bool libNHBR_gt_HybridVoidRiftCargoUI_Func (bool testConds, bool runActions) {
     // Variable Declarations
     unit lv_navigator;
     int lv_spaceUsed;
@@ -2656,61 +2656,61 @@ bool libNHbr_gt_HybridVoidRiftCargoUI_Func (bool testConds, bool runActions) {
 }
 
 //--------------------------------------------------------------------------------------------------
-void libNHbr_gt_HybridVoidRiftCargoUI_Init () {
-    libNHbr_gt_HybridVoidRiftCargoUI = TriggerCreate("libNHbr_gt_HybridVoidRiftCargoUI_Func");
-    TriggerAddEventUnitCargo(libNHbr_gt_HybridVoidRiftCargoUI, null, true);
-    TriggerAddEventUnitCargo(libNHbr_gt_HybridVoidRiftCargoUI, null, false);
+void libNHBR_gt_HybridVoidRiftCargoUI_Init () {
+    libNHBR_gt_HybridVoidRiftCargoUI = TriggerCreate("libNHBR_gt_HybridVoidRiftCargoUI_Func");
+    TriggerAddEventUnitCargo(libNHBR_gt_HybridVoidRiftCargoUI, null, true);
+    TriggerAddEventUnitCargo(libNHBR_gt_HybridVoidRiftCargoUI, null, false);
 }
 
-void libNHbr_InitTriggers () {
-    libNHbr_gt_InitializeNetworkHybridRace_Init();
-    libNHbr_gt_HybridBuildController_Init();
-    libNHbr_gt_HybridNetworkNewCalculate_Init();
-    libNHbr_gt_HybridNetworkPowerSourceUnitTypeInitialization_Init();
-    libNHbr_gt_HybridNetworkNewCaseController_Init();
-    libNHbr_gt_HybridNetworkNewCaseControllerRemoved_Init();
-    libNHbr_gt_HybridProtectionUpdateArmorDataProperty_Init();
-    libNHbr_gt_HybridTeleportOverrideTPTime_Init();
-    libNHbr_gt_HybridTeleportTurnTargetingOrderOn_Init();
-    libNHbr_gt_HybridTeleportTurnTargetingOrderOff_Init();
-    libNHbr_gt_HybridTeleportConstructionProgress_Init();
-    libNHbr_gt_HybridTeleportTransferDamage_Init();
-    libNHbr_gt_HybridTimeScaleBuffInitialization_Init();
-    libNHbr_gt_HybridTimeScaleBuffCommonConstructionStarted_Init();
-    libNHbr_gt_HybridTimeScaleBuffCommonConstructionCompleted_Init();
-    libNHbr_gt_HybridTimeScaleBuffCommonConstructionCanceled_Init();
-    libNHbr_gt_HybridTimeScaleBuffMinionConstructionResumed_Init();
-    libNHbr_gt_HybridTimeScaleBuffMinionConstructionPaused_Init();
-    libNHbr_gt_HybridTimeScaleBuffStructureTrainingStarted_Init();
-    libNHbr_gt_HybridTimeScaleBuffStructureTrainingCompleted_Init();
-    libNHbr_gt_HybridTimeScaleBuffStructureTrainingCancelled_Init();
-    libNHbr_gt_HybridTimeScaleBuffStructureResearchStarted_Init();
-    libNHbr_gt_HybridTimeScaleBuffStructureResearchCompleted_Init();
-    libNHbr_gt_HybridTimeScaleBuffStructureResearchCancelled_Init();
-    libNHbr_gt_HybridDominatorUpgradeToAdvancedDominator_Init();
-    libNHbr_gt_HybridReaverUpgradeToAdvancedReaver_Init();
-    libNHbr_gt_HybridNemesisUpgradeToAdvancedNemesis_Init();
-    libNHbr_gt_SilentWeaponBuff_Init();
-    libNHbr_gt_HybridNavigatorCargoUI_Init();
-    libNHbr_gt_HybridReaverConsumeDNAAutocastOn_Init();
-    libNHbr_gt_HybridReaverConsumeDNAAutocastOff_Init();
-    libNHbr_gt_HybridVoidRiftCargoUI_Init();
+void libNHBR_InitTriggers () {
+    libNHBR_gt_InitializeNetworkHybridRace_Init();
+    libNHBR_gt_HybridBuildController_Init();
+    libNHBR_gt_HybridNetworkNewCalculate_Init();
+    libNHBR_gt_HybridNetworkPowerSourceUnitTypeInitialization_Init();
+    libNHBR_gt_HybridNetworkNewCaseController_Init();
+    libNHBR_gt_HybridNetworkNewCaseControllerRemoved_Init();
+    libNHBR_gt_HybridProtectionUpdateArmorDataProperty_Init();
+    libNHBR_gt_HybridTeleportOverrideTPTime_Init();
+    libNHBR_gt_HybridTeleportTurnTargetingOrderOn_Init();
+    libNHBR_gt_HybridTeleportTurnTargetingOrderOff_Init();
+    libNHBR_gt_HybridTeleportConstructionProgress_Init();
+    libNHBR_gt_HybridTeleportTransferDamage_Init();
+    libNHBR_gt_HybridTimeScaleBuffInitialization_Init();
+    libNHBR_gt_HybridTimeScaleBuffCommonConstructionStarted_Init();
+    libNHBR_gt_HybridTimeScaleBuffCommonConstructionCompleted_Init();
+    libNHBR_gt_HybridTimeScaleBuffCommonConstructionCanceled_Init();
+    libNHBR_gt_HybridTimeScaleBuffMinionConstructionResumed_Init();
+    libNHBR_gt_HybridTimeScaleBuffMinionConstructionPaused_Init();
+    libNHBR_gt_HybridTimeScaleBuffStructureTrainingStarted_Init();
+    libNHBR_gt_HybridTimeScaleBuffStructureTrainingCompleted_Init();
+    libNHBR_gt_HybridTimeScaleBuffStructureTrainingCancelled_Init();
+    libNHBR_gt_HybridTimeScaleBuffStructureResearchStarted_Init();
+    libNHBR_gt_HybridTimeScaleBuffStructureResearchCompleted_Init();
+    libNHBR_gt_HybridTimeScaleBuffStructureResearchCancelled_Init();
+    libNHBR_gt_HybridDominatorUpgradeToAdvancedDominator_Init();
+    libNHBR_gt_HybridReaverUpgradeToAdvancedReaver_Init();
+    libNHBR_gt_HybridNemesisUpgradeToAdvancedNemesis_Init();
+    libNHBR_gt_SilentWeaponBuff_Init();
+    libNHBR_gt_HybridNavigatorCargoUI_Init();
+    libNHBR_gt_HybridReaverConsumeDNAAutocastOn_Init();
+    libNHBR_gt_HybridReaverConsumeDNAAutocastOff_Init();
+    libNHBR_gt_HybridVoidRiftCargoUI_Init();
 }
 
 //--------------------------------------------------------------------------------------------------
 // Library Initialization
 //--------------------------------------------------------------------------------------------------
-bool libNHbr_InitLib_completed = false;
+bool libNHBR_InitLib_completed = false;
 
-void libNHbr_InitLib () {
-    if (libNHbr_InitLib_completed) {
+void libNHBR_InitLib () {
+    if (libNHBR_InitLib_completed) {
         return;
     }
 
-    libNHbr_InitLib_completed = true;
+    libNHBR_InitLib_completed = true;
 
-    libNHbr_InitLibraries();
-    libNHbr_InitVariables();
-    libNHbr_InitTriggers();
+    libNHBR_InitLibraries();
+    libNHBR_InitVariables();
+    libNHBR_InitTriggers();
 }
 
