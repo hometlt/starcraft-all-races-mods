@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CAbilEffectTarget id="HalseyHealingPatch">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Effect index="0" value="MyraDavisHealingPatchHeal2"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="RangeUsePathing" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="7"/>
+        </Cost>
+        <TargetFilters value="Biological,Visible;Enemy,Missile,Stasis,UnderConstruction,Dead,Hidden,Invulnerable"/>
+        <Range value="3"/>
+        <AutoCastFilters value="Biological,Visible;Neutral,Enemy"/>
+        <AutoCastRange value="4"/>
+        <AutoCastValidatorArray value="LifeLTHalf"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="MyraDavisHealingPatch2">
+            <Flags index="AllowSelfCast" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <TargetSorts>
+            <SortArray value="TSLife"/>
+        </TargetSorts>
+    </CAbilEffectTarget>
+    <CAbilBehavior id="KatherineHalseyBreathe2">
+        <AbilSetId value="Clok"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <SharedFlags index="RegisterCooldownEvent" value="1"/>
+        <DataCollection value="KatherineHalseyBreathe"/>
+        <CmdButtonArray index="On" DefaultButtonFace="KatherineHalseyBreatheOn2"/>
+        <CmdButtonArray index="Off" DefaultButtonFace="KatherineHalseyBreatheOff2"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="Toggle" value="1"/>
+        <Cost>
+            <Cooldown TimeStart="5" TimeUse="20"/>
+        </Cost>
+        <BehaviorArray value="KatherineHalseyBreathe2"/>
+        <AutoCastToggleOnValidatorArray value="EnemiesInRange8"/>
+        <AutoCastToggleOffValidatorArray value="NoEnemiesInRange8"/>
+    </CAbilBehavior>
+    <CAbilHarvest id="MiningDroneGather">
+        <ResourceTimeMultiplier index="Minerals" value="0.8"/>
+        <ResourceTimeMultiplier index="Vespene" value="0.8"/>
+        <ResourceTimeMultiplier index="Terrazine" value="0.8"/>
+        <ResourceTimeMultiplier index="Custom" value="0.8"/>
+    </CAbilHarvest>
+    <CAbilBehavior id="MiningDroneSwitchMode">
+        <Cost index="0">
+            <Resource index="Minerals" value="0"/>
+        </Cost>
+        <OffCost index="0">
+            <Resource index="Minerals" value="15"/>
+        </OffCost>
+    </CAbilBehavior>
+
+
+
+
+    <CActorUnit id="KatherineHalsey">
+        <UnitIcon value="Assets\Textures\ui-heroicon-halsey.dds"/>
+    </CActorUnit>
+    <CActorUnit id="KatherineHalseyPistol">
+        <On index="64" Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On index="65" Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <On index="66" Terms="WeaponStart.*.AttackStart" Send="AnimPlay Attack Attack"/>
+        <On index="67" Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimPlay Attack Attack,Superior"/>
+        <On index="68" Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimPlay Attack Attack,Inferior"/>
+        <On index="69" Terms="WeaponStop.*.AttackStop" Send="AnimClear Attack"/>
+        <On index="70" Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On index="71" removed="1"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="0"/>
+    </CActorUnit>
+    <CActorSound id="KatherineHalsey_Exhale">
+        <On Terms="Behavior.KatherineHalseyBreathe2.Off" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="KatherineHalsey_HoldBreath">
+        <On Terms="Behavior.KatherineHalseyBreathe2.On" Send="Create"/>
+    </CActorSound>
+    <CActorUnit id="NewsHelicopter">
+        <Wireframe>
+            <Image value="newshelicopterwireframe.dds"/>
+        </Wireframe>
+        <HeroIcon value="btn-unit-UPL-newshelicopter.dds"/>
+        <UnitIcon value="btn-unit-UPL-newshelicopter.dds"/>
+    </CActorUnit>
+    <CActorUnit id="Z2" parent="GenericUnitBase" unitName="Z2">
+        <Aliases value="_UnitMedium"/>
+        <Macros value="Z1ShieldPortraitMacro"/>
+        <Macros value="LOTC_ReadyAnimationMacroNoEndAnim"/>
+        <Macros value="LOTC_ReadyAnimationRemoveDefaultTime"/>
+        <Macros value="LOTC_ReadyAnimationShortTime"/>
+        <On Terms="Abil.RileyJericoJumpJet.SourceCastStart" Send="AnimPlay Cover Cover PlayForever 1.500000"/>
+        <On Terms="Abil.RileyJericoJumpJet.SourceCastStart" Send="AnimBracketStart Jump IGNORE Jump,Start Jump ContentPlayOnce 1.700000 AsDuration"/>
+        <On Terms="Abil.RileyJericoJumpJet.SourceChannelStart" Send="AnimSetTimeScale Jump 1.320000"/>
+        <On Terms="Abil.RileyJericoJumpJet.SourceCastStart" Send="Create RileyJerico_JumpJet_Cast"/>
+        <On Terms="Abil.RileyJericoJumpJet.SourceCancel" Target="RileyJerico_JumpJet_Cast" Send="Destroy"/>
+        <On Terms="Abil.RileyJericoJumpJet.SourceCancel" Send="AnimBracketStop Jump"/>
+        <On Terms="Abil.RileyJericoJumpJet.SourceCancel" Send="AnimClear Jump"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName Jump" Send="AnimPlay Jump2 Jump,End"/>
+        <On Terms="UnitHeightUpdate.*.Land; ValidateUnit NotHidden" Send="Create RileyJericoJumpJetLand"/>
+        <On Terms="Effect.RileyJericoJumpJetImpact.Start" Send="AnimSetTime Jump2 1.750000"/>
+        <On Terms="Effect.RileyJericoJumpJetImpact.Start" Send="AnimClear Cover"/>
+        <On Terms="Abil.RileyJericoLorna.SourceCastStart" Send="$Spell,02 0 -1.000000 0.800000 2.450000 AsDuration"/>
+        <On Terms="Effect.RileyJericoLornaEnum.Start; At Caster" Send="AnimSetTimeScale Spell 0.570000"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Jump2"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Spell 0.500000"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimClear Spell"/>
+        <Model value="RileyJerico"/>
+        <BuildModel value="RileyJerico"/>
+        <DeathArray index="Normal" ModelLink="RileyJericoDeath" SoundLink="RileyJerico_Explode" VoiceLink=""/>
+        <DeathArray index="Blast" ActorModel="UnitDeathModel" ModelLink="Z1DeathBlast"/>
+        <DeathCustoms ActorModel="UnitDeathRagdollWithTeamColor" ModelLink="Z1DeathRagdoll" Name="RagdollBasic">
+            <BodySquibs Name="FireOnMetal"/>
+        </DeathCustoms>
+        <DeathCustoms/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="FireOnMetal"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="FireOnMetal"/>
+        </DeathCustoms>
+        <DeathCustoms/>
+        <DeathCustoms/>
+        <DeathCustoms/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollWithTeamColorBloodPrevent" ModelLink="RileyJericoDeathRagdoll" Name="RagdollSpineCrawlerHurl"/>
+        <DeathCustomData index="6" Name="RagdollSpineCrawlerHurl" SyncPassChance="0"/>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
+        <PlacementModel value="RileyJerico"/>
+        <PortraitModel value="RileyJericoPortrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.800000"/>
+            <RangeDown value="0.800000"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLarge"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="1.8476"/>
+        <BarOffset value="80"/>
+        <BarWidth value="50"/>
+        <ErrorArray Error="CantSeeBuildLocation" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <ErrorArray Error="CantSeeLandLocation" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <ErrorArray Error="CantBuildLocationInvalid" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <ErrorArray Error="CantLandLocationInvalid" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <ErrorArray Error="CouldntReachTarget" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <ErrorArray Error="CantSeeBuildLocation" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <ErrorArray Error="CantSeeLandLocation" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <ErrorArray Error="CantBuildLocationInvalid" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <ErrorArray Error="CantLandLocationInvalid" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <ErrorArray Error="CouldntReachTarget" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-upl-z2.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-upl-Z2.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrades-upl-vehicleplating-lvl0.dds"/>
+        <SoundArray index="Ready" value="RileyJerico_Ready"/>
+        <SoundArray index="Help" value="RileyJerico_Help"/>
+        <SoundArray index="What" value="RileyJerico_What"/>
+        <SoundArray index="Yes" value="RileyJerico_Yes"/>
+        <SoundArray index="Attack" value="RileyJerico_Attack"/>
+        <SoundArray index="Pissed" value="RileyJerico_Pissed"/>
+        <UnitIcon value="Assets\Textures\btn-unit-upl-Z2.dds"/>
+        <UnitKillRank Text="UnitKillRank/Z2"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-upl-z2.dds"/>
+        </Wireframe>
+        <Scale value="0.910000"/>
+    </CActorUnit>
+
+
+
+
+    <CBehaviorBuff id="KatherineHalseyBreathe2" parent="KatherineHalseyBreathe">
+        <Modification>
+            <StateFlags index="Cloak" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+
+    <CButton id="KatherineHalseyBreatheOff2">
+        <Icon value="Assets\Textures\btn-ability-terran-weaponsfree.dds"/>
+    </CButton>
+    <CButton id="KatherineHalseyBreatheOn2">
+        <Icon value="Assets\Textures\btn-ability-upl-holdbreath.dds"/>
+    </CButton>
+    <CButton id="MyraDavisHealingPatch2">
+        <Icon value="Assets\Textures\btn-ability-UPL-FirstAid.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-UPL-FirstAid.dds"/>
+        <EditorCategories value="Race:Terran"/>
+    </CButton>
+
+
+
+    <CEffectDamage id="KatherineHalseyPistolDamage">
+        <Amount value="4"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="MyraDavisHealingPatchHeal2">
+        <ValidatorArray value="LifeNotFull"/>
+        <VitalArray index="Life">
+            <Change value="25"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+
+
+
+
+    <CUnit id="CSVDeployed">
+        <BehaviorArray Link="Detector12"/>
+    </CUnit>
+    <CUnit id="InfantryOfficer">
+        <BehaviorArray Link="Detector10"/>
+    </CUnit>
+    <CUnit id="KatherineHalsey">
+        <LifeStart value="25"/>
+        <LifeMax value="25"/>
+    </CUnit>
+    <CUnit id="KatherineHalseyPistol">
+        <Name value="Unit/Name/KatherineHalseyPistol"/>
+        <FlagArray index="Unclickable" value="0"/>
+        <FlagArray index="Unhighlightable" value="0"/>
+        <FlagArray index="Untooltipable" value="0"/>
+        <LifeStart value="25"/>
+        <LifeMax value="25"/>
+        <Speed value="2.8476"/>
+        <Acceleration value="15"/>
+        <AbilArray Link="KatherineHalseyBreathe2"/>
+        <AbilArray Link="HalseyHealingPatch"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="5" Column="1"/>
+            <LayoutButtons index="6" Column="1"/>
+            <LayoutButtons Face="KatherineHalseyBreatheOn" Type="AbilCmd" AbilCmd="KatherineHalseyBreathe2,On" Row="2" Column="2"/>
+            <LayoutButtons Face="MyraDavisHealingPatch" Type="AbilCmd" AbilCmd="HalseyHealingPatch,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="KatherineHalseyBreatheOff" Type="AbilCmd" AbilCmd="KatherineHalseyBreathe2,Off" Row="2" Column="3"/>
+            <LayoutButtons Face="CommanderStetmannLevel15" Type="AbilCmd" Row="2" Column="4"/>
+        </CardLayouts>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="MiningDrone">
+        <CostResource index="Minerals" value="75"/>
+    </CUnit>
+    <CUnit id="NewsHelicopter">
+        <BehaviorArray Link="Detector12"/>
+    </CUnit>
+    <CUnit id="UPLExhumer">
+        <BuiltOn value="VespeneGeyser"/>
+        <BuiltOn value="SpacePlatformGeyser"/>
+        <BuiltOn value="RichVespeneGeyser"/>
+        <BuiltOn value="ProtossVespeneGeyser"/>
+        <BuiltOn value="PurifierVespeneGeyser"/>
+        <BuiltOn value="ShakurasVespeneGeyser"/>
+        <BehaviorArray index="0" Link="HarvestableVespeneGeyserGas"/>
+        <BehaviorArray index="1" removed="1"/>
+        <BehaviorArray index="2" removed="1"/>
+    </CUnit>
+    <CUnit id="UPLExhumerRich">
+        <BehaviorArray index="1" removed="1"/>
+        <BuiltOn value="RichVespeneGeyser"/>
+    </CUnit>
+    <CUnit id="Z2" parent="UPLInfantryBase">
+        <Subtitle value="Unit/Subtitle/Z2"/>
+        <Gender value="Female"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="125"/>
+        <LifeMax value="125"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/UPLVehiclePlating"/>
+        <EnergyStart value="150"/>
+        <EnergyMax value="150"/>
+        <EnergyRegenRate value="1"/>
+        <Speed value="3.5"/>
+        <AbilArray Link="RileyJericoJumpJet"/>
+        <AbilArray Link="RileyJericoLorna"/>
+        <AbilArray Link="RileyJericoBadgerBomb"/>
+        <AbilArray Link="AltonPetersZ1Adrenaline"/>
+        <WeaponArray Link="RileyJerico"/>
+        <WeaponArray Link="Z1DummyWeapon"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="RileyJericoJumpJet" Type="AbilCmd" AbilCmd="RileyJericoJumpJet,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="RileyJericoLorna" Type="AbilCmd" AbilCmd="RileyJericoLorna,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="AltonPetersZ1Adrenaline" Type="AbilCmd" AbilCmd="AltonPetersZ1Adrenaline,Execute" Row="2" Column="2"/>
+        </CardLayouts>
+        <Radius value="0.625"/>
+        <InnerRadius value="0.5"/>
+        <CargoSize value="2"/>
+        <SubgroupPriority value="94"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
+        <GlossaryPriority value="40"/>
+        <HotkeyCategory value="Unit/Category/UPLStory"/>
+    </CUnit>
+    <CValidatorLocationEnumArea id="EnemiesInRange8">
+        <AreaArray Compare="GT" Count="0" Radius="8"/>
+        <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="NoEnemiesInRange8">
+        <AreaArray Compare="LT" Count="1" Radius="8"/>
+        <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden"/>
+    </CValidatorLocationEnumArea>
+
+
+    <CUpgrade id="InfantryFlamethrower3xBurning">
+        <Icon value="Assets\icons\Button_InfantryFlameThrower\btn-ability-UPL-NaniteIgnition.dds"/>
+    </CUpgrade>
+    <CUpgrade id="InfantryHeavyAttackmove">
+        <Icon value="Assets\Textures\btn-ability-UPL-Sprint.dds"/>
+    </CUpgrade>
+    <CUpgrade id="InfantryMortarRangeUpgrade">
+        <Icon value="Assets\icons\Button_InfantryMortar\btn-ability-UPL-LongRangeMortarShells.dds"/>
+    </CUpgrade>
+    <CUpgrade id="InfantryOfficerAuraUpgrade">
+        <Icon value="Assets\Textures\btn-ability-UPL-InfantryOfficerCharge.dds"/>
+    </CUpgrade>
+    <CUpgrade id="InfantryRifleRangeUpgrade">
+        <Icon value="Assets\Textures\btn-ability-UPL-AssaultRifle.dds"/>
+    </CUpgrade>
+    <CUpgrade id="InfantryRocket1Range">
+        <Icon value="Assets\Textures\btn-ability-UPL-Longshot.dds"/>
+    </CUpgrade>
+    <CUpgrade id="InfantryRocketAOE">
+        <Icon value="Assets\Textures\btn-ability-UPL-GrenadeLauncher.dds"/>
+    </CUpgrade>
+    <CUpgrade id="RaptorCloakAbilUpgrade">
+        <Icon value="Assets\Textures\btn-ability-UPL-Metamateria-Suit.dds"/>
+    </CUpgrade>
+    <CUpgrade id="RoutheTankArmorPlating">
+        <Icon value="Assets\Textures\btn-ability-UPL-UnobtaniumArmorPlating.dds"/>
+    </CUpgrade>
+    <CUpgrade id="RoutheTankExplosiveShells">
+        <Icon value="Assets\Textures\btn-ability-UPL-ExplosiveRounds.dds"/>
+    </CUpgrade>
+    <CUpgrade id="Z1SpeedUpgrade">
+        <Icon value="Assets\Textures\btn-ability-stetmann-stetelliteoverloadspeed.dds"/>
+    </CUpgrade>
+
+
+</Catalog>
