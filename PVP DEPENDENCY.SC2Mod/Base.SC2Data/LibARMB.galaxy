@@ -25,6 +25,7 @@ void libARMB_InitVariables () {
 
     libARMB_InitVariables_completed = true;
 
+    libARMB_gv_monobattleMode = libARMB_ge_MonobattleMode_None;
     libARMB_gv_monobattlesProfilesBriefDialog = c_invalidDialogId;
     for (init_i = 0; init_i <= libARMB_gv_pLAYERS; init_i += 1) {
         libARMB_gv_dIALOG[init_i] = c_invalidDialogId;
@@ -6023,7 +6024,7 @@ void gf_Cleanupactorsunitsandstart () {
     gf_CleanArena();
     libARMB_gf_ShowTerrainObjects();
    // libARMB_gf_ClearPreplacedBuildings();
-    Wait(0.1, c_timeGame);
+    Wait(0.01, c_timeGame);
     auto5DB0C3ED_g = PlayerGroupActive();
     auto5DB0C3ED_var = -1;
     while (true) {
@@ -6031,7 +6032,7 @@ void gf_Cleanupactorsunitsandstart () {
         if (auto5DB0C3ED_var < 0) { break; }
         VisFillArea(auto5DB0C3ED_var, RegionEntireMap(), c_fillTypeUnexplored, false);
     }
-    Wait(0.1, c_timeGame);
+    Wait(0.01, c_timeGame);
     libARMB_gf_MonobattleStart();
   //  MeleeInitResources();
    // MeleeInitUnits();
@@ -6284,108 +6285,6 @@ void libARMB_InitCustomScript () {
 
 // Presets
 // Functions
-void libARMB_gf_MonobattleInit (int lp_draftmode) {
-    // Automatic Variable Declarations
-    playergroup autoFE3FE146_g;
-    int autoFE3FE146_var;
-    int auto20DBC9C3_val;
-    playergroup auto8BF0DEFA_g;
-    int auto8BF0DEFA_var;
-    playergroup auto975E1306_g;
-    int auto975E1306_var;
-
-    // Implementation
-    autoFE3FE146_g = libARMB_gv_startactiveplayers;
-    autoFE3FE146_var = -1;
-    while (true) {
-        autoFE3FE146_var = PlayerGroupNextPlayer(autoFE3FE146_g, autoFE3FE146_var);
-        if (autoFE3FE146_var < 0) { break; }
-        if ((PlayerType(autoFE3FE146_var) == c_playerTypeUser)) {
-            libARMB_gf_DisallowAll(autoFE3FE146_var);
-        }
-
-    }
-    auto20DBC9C3_val = lp_draftmode;
-    if (auto20DBC9C3_val == libARMB_ge_MonobattleDraftMode_RandomSimple) {
-        auto8BF0DEFA_g = libARMB_gv_startactiveplayers;
-        auto8BF0DEFA_var = -1;
-        while (true) {
-            auto8BF0DEFA_var = PlayerGroupNextPlayer(auto8BF0DEFA_g, auto8BF0DEFA_var);
-            if (auto8BF0DEFA_var < 0) { break; }
-            if ((PlayerType(auto8BF0DEFA_var) == c_playerTypeUser)) {
-                libARMB_gf_ActivateMonobattleProfile(auto8BF0DEFA_var, "Random");
-            }
-
-        }
-        libARMB_gf_MonobattleStart();
-        TriggerExecute(libARMB_gt_CreateUnitBriefUI, true, false);
-        return ;
-    }
-    else if (auto20DBC9C3_val == libARMB_ge_MonobattleDraftMode_InGameSimple) {
-        auto975E1306_g = libARMB_gv_startactiveplayers;
-        auto975E1306_var = -1;
-        while (true) {
-            auto975E1306_var = PlayerGroupNextPlayer(auto975E1306_g, auto975E1306_var);
-            if (auto975E1306_var < 0) { break; }
-            if ((PlayerType(auto975E1306_var) == c_playerTypeUser)) {
-                libARMB_gf_UnitSelectionPanel(auto975E1306_var);
-            }
-
-        }
-        libARMB_gf_MonobattleStart();
-        TriggerExecute(libARMB_gt_CreateUnitBriefUI, true, false);
-        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_ARMB_4D4CE8A8"));
-        return ;
-    }
-    else if (auto20DBC9C3_val == libARMB_ge_MonobattleDraftMode_DraftSelection) {
-        libARMB_gv_draftMode = 0;
-        MonobattleInitGlobals();
-    }
-    else if (auto20DBC9C3_val == libARMB_ge_MonobattleDraftMode_BlindRandom) {
-        libARMB_gv_draftMode = 1;
-        MonobattleInitGlobals();
-    }
-    else if (auto20DBC9C3_val == libARMB_ge_MonobattleDraftMode_SingleDraft) {
-        libARMB_gv_draftMode = 2;
-        MonobattleInitGlobals();
-    }
-    else if (auto20DBC9C3_val == libARMB_ge_MonobattleDraftMode_TierDraft) {
-        libARMB_gv_draftMode = 3;
-        MonobattleInitGlobals();
-    }
-    else {
-    }
-}
-
-void libARMB_gf_MonobattleStart () {
-    // Automatic Variable Declarations
-    playergroup autoE8A30DA8_g;
-    int autoE8A30DA8_var;
-    unitgroup auto3C69F1A6_g;
-    int auto3C69F1A6_u;
-    unit auto3C69F1A6_var;
-
-    // Implementation
-    autoE8A30DA8_g = libARMB_gv_startactiveplayers;
-    autoE8A30DA8_var = -1;
-    while (true) {
-        autoE8A30DA8_var = PlayerGroupNextPlayer(autoE8A30DA8_g, autoE8A30DA8_var);
-        if (autoE8A30DA8_var < 0) { break; }
-        auto3C69F1A6_g = UnitGroup("MonobattlePlayer", autoE8A30DA8_var, RegionEntireMap(), UnitFilter(0, 0, 0, 0), 0);
-        auto3C69F1A6_u = UnitGroupCount(auto3C69F1A6_g, c_unitCountAll);
-        for (;; auto3C69F1A6_u -= 1) {
-            auto3C69F1A6_var = UnitGroupUnitFromEnd(auto3C69F1A6_g, auto3C69F1A6_u);
-            if (auto3C69F1A6_var == null) { break; }
-            UnitRemove(auto3C69F1A6_var);
-        }
-    }
-    libARMB_gf_Therangethataerialbuildingscanstay();
-    TriggerEnable(libARMB_gt_MBForcingastationaryaerialbuildingtomove, true);
-    TriggerEnable(libARMB_gt_MBForcingaerialbuildingstomove, true);
-    TriggerEnable(libARMB_gt_MBUnitCreated, true);
-    TriggerEnable(libARMB_gt_MBUnitChanges, true);
-}
-
 playergroup libARMB_gf_Aplayeronateamwithaplayer (int lp_index) {
     // Variable Declarations
     int lv_indexoftheteamwithplayers;
@@ -6522,10 +6421,6 @@ void libARMB_gf_CreateMeleeStartingUnitsForTeams () {
     // Automatic Variable Declarations
     playergroup autoF189D3D9_g;
     int autoF189D3D9_var;
-    string auto89231A5D_val;
-    unitgroup auto4475F80A_g;
-    int auto4475F80A_u;
-    unit auto4475F80A_var;
 
     // Variable Initialization
 
@@ -6535,31 +6430,10 @@ void libARMB_gf_CreateMeleeStartingUnitsForTeams () {
     while (true) {
         autoF189D3D9_var = PlayerGroupNextPlayer(autoF189D3D9_g, autoF189D3D9_var);
         if (autoF189D3D9_var < 0) { break; }
-        if (((PlayerGroupHasPlayer(PlayerGroupAlliance(c_playerGroupAlly, 1), autoF189D3D9_var) == true) || (autoF189D3D9_var == 1))) {
-            lv_teams[1] += 1;
-            lv_point = libARMB_gv_points[1][lv_teams[1]];
-        }
-        else {
-            lv_teams[2] += 1;
-            lv_point = libARMB_gv_points[2][lv_teams[2]];
-        }
-        MeleeInitUnitsForPlayer(autoF189D3D9_var, PlayerRace(autoF189D3D9_var), lv_point);
+        libARMP_gf_CreateStartingUnitsForPlayer(autoF189D3D9_var, PlayerStartLocation(autoF189D3D9_var));
         lv_camera = CameraInfoDefault();
-        CameraInfoSetTarget(lv_camera, lv_point);
+        CameraInfoSetTarget(lv_camera, PlayerStartLocation(autoF189D3D9_var));
         CameraApplyInfo(autoF189D3D9_var, lv_camera, 0.0, -1, 0.0, true);
-        auto89231A5D_val = PlayerRace(autoF189D3D9_var);
-        if (auto89231A5D_val == "Zerg") {
-            CreepModify(lv_point, 10.0, true, false);
-            auto4475F80A_g = UnitGroup("Hatchery", autoF189D3D9_var, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-            auto4475F80A_u = UnitGroupCount(auto4475F80A_g, c_unitCountAll);
-            for (;; auto4475F80A_u -= 1) {
-                auto4475F80A_var = UnitGroupUnitFromEnd(auto4475F80A_g, auto4475F80A_u);
-                if (auto4475F80A_var == null) { break; }
-                UnitBehaviorAdd(auto4475F80A_var, "SpawnLarvaInstant", auto4475F80A_var, 1);
-            }
-        }
-        else {
-        }
     }
 }
 
@@ -6587,36 +6461,40 @@ void libARMB_gf_initUnitData () {
         while (true) {
             auto6BE51D12_var = PlayerGroupNextPlayer(auto6BE51D12_g, auto6BE51D12_var);
             if (auto6BE51D12_var < 0) { break; }
+            if ((PlayerRace(auto6BE51D12_var) == "Dragon")) {
+                libARMP_gv_acceptedRaces.lv_dragon = true;
+            }
+
             if ((PlayerRace(auto6BE51D12_var) == "Gen")) {
-                libARMP_gv_acceptedGenetron = true;
+                libARMP_gv_acceptedRaces.lv_genetron = true;
             }
 
             if ((PlayerRace(auto6BE51D12_var) == "NHbr")) {
-                libARMP_gv_acceptedHybrids = true;
+                libARMP_gv_acceptedRaces.lv_hybrids = true;
             }
 
             if ((PlayerRace(auto6BE51D12_var) == "Keir")) {
-                libARMP_gv_acceptedKeiron = true;
+                libARMP_gv_acceptedRaces.lv_keiron = true;
             }
 
             if ((PlayerRace(auto6BE51D12_var) == "Prot")) {
-                libARMP_gv_acceptedProtoss = true;
+                libARMP_gv_acceptedRaces.lv_protoss = true;
             }
 
             if ((PlayerRace(auto6BE51D12_var) == "Terr")) {
-                libARMP_gv_acceptedTerran = true;
+                libARMP_gv_acceptedRaces.lv_terran = true;
             }
 
             if ((PlayerRace(auto6BE51D12_var) == "UED")) {
-                libARMP_gv_acceptedUED = true;
+                libARMP_gv_acceptedRaces.lv_uED = true;
             }
 
             if ((PlayerRace(auto6BE51D12_var) == "Xayi")) {
-                libARMP_gv_acceptedXayid = true;
+                libARMP_gv_acceptedRaces.lv_xayid = true;
             }
 
             if ((PlayerRace(auto6BE51D12_var) == "Zerg")) {
-                libARMP_gv_acceptedZerg = true;
+                libARMP_gv_acceptedRaces.lv_zerg = true;
             }
 
         }
@@ -6641,7 +6519,7 @@ void libARMB_gf_initUnitData () {
         }
 
         lv_unit = UserDataGetUnit("MonobattlesProfiles", lv_profile, "Unit", 1);
-        if (((libARMB_gv_draftMode == 1) || ((libARMB_gf_GetUnitRace(lv_unit) == "Gen") && (libARMP_gv_acceptedGenetron == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "NHbr") && (libARMP_gv_acceptedHybrids == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Keir") && (libARMP_gv_acceptedKeiron == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Prot") && (libARMP_gv_acceptedProtoss == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Terr") && (libARMP_gv_acceptedTerran == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Zerg") && (libARMP_gv_acceptedZerg == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "UED") && (libARMP_gv_acceptedUED == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Xayi") && (libARMP_gv_acceptedXayid == true)))) {
+        if (((libARMB_gv_draftMode == 1) || ((libARMB_gf_GetUnitRace(lv_unit) == "Gen") && (libARMP_gv_acceptedRaces.lv_genetron == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "NHbr") && (libARMP_gv_acceptedRaces.lv_hybrids == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Keir") && (libARMP_gv_acceptedRaces.lv_keiron == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Prot") && (libARMP_gv_acceptedRaces.lv_protoss == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Terr") && (libARMP_gv_acceptedRaces.lv_terran == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Zerg") && (libARMP_gv_acceptedRaces.lv_zerg == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "UED") && (libARMP_gv_acceptedRaces.lv_uED == true)) || ((libARMB_gf_GetUnitRace(lv_unit) == "Xayi") && (libARMP_gv_acceptedRaces.lv_xayid == true)))) {
             libARMB_gv_unitDataCount += 1;
             lv_actor = ((lv_unit));
             libARMB_gv_unitData.lv_unitName[libARMB_gv_unitDataCount] = StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_unit, "Name", c_playerAny));
@@ -7745,11 +7623,11 @@ void libARMB_gf_ActivateMonobattleProfile (int lp_player, string lp_profile) {
         libARMB_gv_profiles[lp_player] = libARMB_gf_GetRandomProfile(PlayerRace(lp_player));
     }
     else if (auto0D5B503C_val == "Default") {
-        auto1DB50109_ae = UserDataInstanceCount("MonobattlesRules");
+        auto1DB50109_ae = UserDataInstanceCount("Rules");
         auto1DB50109_var = 1;
         for ( ; auto1DB50109_var <= auto1DB50109_ae; auto1DB50109_var += 1 ) {
-            lv_pROFILE = UserDataInstance("MonobattlesRules", auto1DB50109_var);
-            if ((UserDataGetGameLink("MonobattlesRules", lv_pROFILE, "Race", 1) == PlayerRace(lp_player))) {
+            lv_pROFILE = UserDataInstance("Rules", auto1DB50109_var);
+            if ((UserDataGetGameLink("Rules", lv_pROFILE, "Race", 1) == PlayerRace(lp_player))) {
                 libARMB_gv_profiles[lp_player] = lv_pROFILE;
                 break;
             }
@@ -7762,7 +7640,7 @@ void libARMB_gf_ActivateMonobattleProfile (int lp_player, string lp_profile) {
         auto6D7A84BD_var = 1;
         for ( ; auto6D7A84BD_var <= auto6D7A84BD_ae; auto6D7A84BD_var += 1 ) {
             lv_pROFILE = UserDataInstance("MonobattlesProfiles", auto6D7A84BD_var);
-            if ((UserDataGetGameLink("MonobattlesRules", lv_pROFILE, "Race", 1) == PlayerRace(lp_player))) {
+            if ((UserDataGetGameLink("Rules", lv_pROFILE, "Race", 1) == PlayerRace(lp_player))) {
                 auto1AB0B8AB_ae = UserDataFieldValueCount("MonobattlesProfiles", "Unit");
                 lv_i = 1;
                 for ( ; ( (auto1AB0B8AB_ai >= 0 && lv_i <= auto1AB0B8AB_ae) || (auto1AB0B8AB_ai < 0 && lv_i >= auto1AB0B8AB_ae) ) ; lv_i += auto1AB0B8AB_ai ) {
@@ -7784,11 +7662,11 @@ void libARMB_gf_ActivateMonobattleProfile (int lp_player, string lp_profile) {
         return ;
     }
 
-    autoFB2FC87B_ae = UserDataInstanceCount("MonobattlesRules");
+    autoFB2FC87B_ae = UserDataInstanceCount("Rules");
     autoFB2FC87B_var = 1;
     for ( ; autoFB2FC87B_var <= autoFB2FC87B_ae; autoFB2FC87B_var += 1 ) {
-        if ((UserDataGetGameLink("MonobattlesRules", UserDataInstance("MonobattlesRules", autoFB2FC87B_var), "Race", 1) == PlayerRace(lp_player))) {
-            libARMB_gv_xvujuokcnexsxlip[lp_player] = UserDataInstance("MonobattlesRules", autoFB2FC87B_var);
+        if ((UserDataGetGameLink("Rules", UserDataInstance("Rules", autoFB2FC87B_var), "Race", 1) == PlayerRace(lp_player))) {
+            libARMB_gv_rriqxsfaplytmxlg[lp_player] = UserDataInstance("Rules", autoFB2FC87B_var);
             break;
         }
 
@@ -7806,10 +7684,10 @@ void libARMB_gf_ActivateMonobattleProfile (int lp_player, string lp_profile) {
         libARMB_gv_cACHESIZE_UPGRADES += 1;
         libARMB_gv_cACHE_UPGRADES[libARMB_gv_cACHESIZE_UPGRADES] = UserDataGetUpgrade("MonobattlesProfiles", libARMB_gv_profiles[lp_player], "UpgradesExcludes", lv_i);
     }
-    auto9E2FC5A1_ae = UserDataFieldValueCount("MonobattlesRules", "Unit");
+    auto9E2FC5A1_ae = UserDataFieldValueCount("Rules", "Unit");
     lv_i = 1;
     for ( ; ( (auto9E2FC5A1_ai >= 0 && lv_i <= auto9E2FC5A1_ae) || (auto9E2FC5A1_ai < 0 && lv_i >= auto9E2FC5A1_ae) ) ; lv_i += auto9E2FC5A1_ai ) {
-        lv_uNIT = UserDataGetUnit("MonobattlesRules", libARMB_gv_xvujuokcnexsxlip[lp_player], "Unit", lv_i);
+        lv_uNIT = UserDataGetUnit("Rules", libARMB_gv_rriqxsfaplytmxlg[lp_player], "Unit", lv_i);
         libARMB_gf_ArmUnitType(lp_player, lv_uNIT);
         libARMB_gf_CacheUnit(lp_player, lv_uNIT, true);
     }
@@ -7942,7 +7820,7 @@ int libARMB_gf_AllowCommonUnit (int lp_player, string lp_unit) {
     lv_cAbilityEffectAttack = CatalogEntryClass(c_gameCatalogAbil, "attack");
 
     // Implementation
-    if ((UserDataGetInt("MonobattlesRules", libARMB_gv_xvujuokcnexsxlip[lp_player], "Supply", 1) > 0)) {
+    if ((UserDataGetInt("Rules", libARMB_gv_rriqxsfaplytmxlg[lp_player], "Supply", 1) > 0)) {
         lv_fOOD = true;
     }
     else {
@@ -8138,7 +8016,7 @@ void libARMB_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
     int lv_b;
     int lv_cl;
     int lv_lb;
-    string lv_ioaqiigxuhrbfvpv;
+    string lv_ippbfshcsiygocrf;
 
     // Automatic Variable Declarations
     int auto7AF52903_ae;
@@ -8172,7 +8050,7 @@ void libARMB_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
 
     // Variable Initialization
     lv_hasDangerAbilities = libARMB_gf_UnitTypeisArmed(lp_player, lp_unit);
-    lv_ioaqiigxuhrbfvpv = ("Race:" + UserDataGetString("MonobattlesRules", libARMB_gv_xvujuokcnexsxlip[lp_player], "Category", 1));
+    lv_ippbfshcsiygocrf = ("Race:" + UserDataGetString("Rules", libARMB_gv_rriqxsfaplytmxlg[lp_player], "Category", 1));
 
     // Implementation
     if ((CatalogEntryIsValid(c_gameCatalogUnit, lp_unit) == false)) {
@@ -8264,7 +8142,7 @@ void libARMB_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
         autoC27BFAB7_i = 1;
         for ( ; autoC27BFAB7_i <= CatalogEntryCount(c_gameCatalogAbil) ; autoC27BFAB7_i += 1 ) {
             lv_aBILITY = CatalogEntryGet(autoC27BFAB7_catalog, autoC27BFAB7_i);
-            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_ioaqiigxuhrbfvpv, c_stringNoCase) == -1)) {
+            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_ippbfshcsiygocrf, c_stringNoCase) == -1)) {
                 continue;
             }
             else {
@@ -8341,7 +8219,7 @@ void libARMB_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
         autoE49603C3_i = 1;
         for ( ; autoE49603C3_i <= CatalogEntryCount(c_gameCatalogBehavior) ; autoE49603C3_i += 1 ) {
             lv_bEHAVIOR = CatalogEntryGet(autoE49603C3_catalog, autoE49603C3_i);
-            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogBehavior, lv_bEHAVIOR, "EditorCategories", lp_player), lv_ioaqiigxuhrbfvpv, c_stringNoCase) == -1)) {
+            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogBehavior, lv_bEHAVIOR, "EditorCategories", lp_player), lv_ippbfshcsiygocrf, c_stringNoCase) == -1)) {
                 continue;
             }
             else {
@@ -8468,7 +8346,7 @@ void libARMB_gf_CacheUpgrade (int lp_player, string lp_upgrade, bool lp_scan) {
     int lv_abilityCommandIndex;
     int lv_effectArrayIndex;
     string lv_effeectArrayReference;
-    string lv_rlaenuxboqdypbqu;
+    string lv_pnexesxgdcywnsha;
 
     // Automatic Variable Declarations
     int auto12842CA5_ae;
@@ -8480,7 +8358,7 @@ void libARMB_gf_CacheUpgrade (int lp_player, string lp_upgrade, bool lp_scan) {
 
     // Variable Initialization
     lv_effeectArrayReference = "";
-    lv_rlaenuxboqdypbqu = ("Race:" + UserDataGetString("MonobattlesRules", libARMB_gv_xvujuokcnexsxlip[lp_player], "Category", 1));
+    lv_pnexesxgdcywnsha = ("Race:" + UserDataGetString("Rules", libARMB_gv_rriqxsfaplytmxlg[lp_player], "Category", 1));
 
     // Implementation
     if ((CatalogEntryIsValid(c_gameCatalogUpgrade, lp_upgrade) == false)) {
@@ -8503,7 +8381,7 @@ void libARMB_gf_CacheUpgrade (int lp_player, string lp_upgrade, bool lp_scan) {
         auto8C652024_i = 1;
         for ( ; auto8C652024_i <= CatalogEntryCount(c_gameCatalogAbil) ; auto8C652024_i += 1 ) {
             lv_aBILITY = CatalogEntryGet(auto8C652024_catalog, auto8C652024_i);
-            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_rlaenuxboqdypbqu, c_stringNoCase) == -1)) {
+            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_pnexesxgdcywnsha, c_stringNoCase) == -1)) {
                 continue;
             }
             else {
@@ -9274,7 +9152,120 @@ void libARMB_gf_Therangethataerialbuildingscanstay () {
 
 }
 
+void libARMB_gf_MonobattleStart () {
+    // Automatic Variable Declarations
+    playergroup autoE8A30DA8_g;
+    int autoE8A30DA8_var;
+    unitgroup auto3C69F1A6_g;
+    int auto3C69F1A6_u;
+    unit auto3C69F1A6_var;
+
+    // Implementation
+    autoE8A30DA8_g = libARMB_gv_startactiveplayers;
+    autoE8A30DA8_var = -1;
+    while (true) {
+        autoE8A30DA8_var = PlayerGroupNextPlayer(autoE8A30DA8_g, autoE8A30DA8_var);
+        if (autoE8A30DA8_var < 0) { break; }
+        auto3C69F1A6_g = UnitGroup("MonobattlePlayer", autoE8A30DA8_var, RegionEntireMap(), UnitFilter(0, 0, 0, 0), 0);
+        auto3C69F1A6_u = UnitGroupCount(auto3C69F1A6_g, c_unitCountAll);
+        for (;; auto3C69F1A6_u -= 1) {
+            auto3C69F1A6_var = UnitGroupUnitFromEnd(auto3C69F1A6_g, auto3C69F1A6_u);
+            if (auto3C69F1A6_var == null) { break; }
+            UnitRemove(auto3C69F1A6_var);
+        }
+    }
+    libARMB_gf_Therangethataerialbuildingscanstay();
+    TriggerEnable(libARMB_gt_MBForcingastationaryaerialbuildingtomove, true);
+    TriggerEnable(libARMB_gt_MBForcingaerialbuildingstomove, true);
+    TriggerEnable(libARMB_gt_MBUnitCreated, true);
+    TriggerEnable(libARMB_gt_MBUnitChanges, true);
+}
+
 // Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Run Monobattle
+//--------------------------------------------------------------------------------------------------
+bool libARMB_gt_RunMonobattle_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup autoFE3FE146_g;
+    int autoFE3FE146_var;
+    int auto20DBC9C3_val;
+    playergroup auto8BF0DEFA_g;
+    int auto8BF0DEFA_var;
+    playergroup auto975E1306_g;
+    int auto975E1306_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoFE3FE146_g = libARMB_gv_startactiveplayers;
+    autoFE3FE146_var = -1;
+    while (true) {
+        autoFE3FE146_var = PlayerGroupNextPlayer(autoFE3FE146_g, autoFE3FE146_var);
+        if (autoFE3FE146_var < 0) { break; }
+        if ((PlayerType(autoFE3FE146_var) == c_playerTypeUser)) {
+            libARMB_gf_DisallowAll(autoFE3FE146_var);
+        }
+
+    }
+    auto20DBC9C3_val = libARMB_gv_monobattleMode;
+    if (auto20DBC9C3_val == libARMB_ge_MonobattleMode_RandomSimple) {
+        auto8BF0DEFA_g = libARMB_gv_startactiveplayers;
+        auto8BF0DEFA_var = -1;
+        while (true) {
+            auto8BF0DEFA_var = PlayerGroupNextPlayer(auto8BF0DEFA_g, auto8BF0DEFA_var);
+            if (auto8BF0DEFA_var < 0) { break; }
+            if ((PlayerType(auto8BF0DEFA_var) == c_playerTypeUser)) {
+                libARMB_gf_ActivateMonobattleProfile(auto8BF0DEFA_var, "Random");
+            }
+
+        }
+        libARMB_gf_MonobattleStart();
+        TriggerExecute(libARMB_gt_CreateUnitBriefUI, true, false);
+    }
+    else if (auto20DBC9C3_val == libARMB_ge_MonobattleMode_InGameSimple) {
+        auto975E1306_g = libARMB_gv_startactiveplayers;
+        auto975E1306_var = -1;
+        while (true) {
+            auto975E1306_var = PlayerGroupNextPlayer(auto975E1306_g, auto975E1306_var);
+            if (auto975E1306_var < 0) { break; }
+            if ((PlayerType(auto975E1306_var) == c_playerTypeUser)) {
+                libARMB_gf_UnitSelectionPanel(auto975E1306_var);
+            }
+
+        }
+        libARMB_gf_MonobattleStart();
+        TriggerExecute(libARMB_gt_CreateUnitBriefUI, true, false);
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_ARMB_4D4CE8A8"));
+    }
+    else if (auto20DBC9C3_val == libARMB_ge_MonobattleMode_DraftSelection) {
+        libARMB_gv_draftMode = 0;
+        MonobattleInitGlobals();
+    }
+    else if (auto20DBC9C3_val == libARMB_ge_MonobattleMode_BlindRandom) {
+        libARMB_gv_draftMode = 1;
+        MonobattleInitGlobals();
+    }
+    else if (auto20DBC9C3_val == libARMB_ge_MonobattleMode_SingleDraft) {
+        libARMB_gv_draftMode = 2;
+        MonobattleInitGlobals();
+    }
+    else if (auto20DBC9C3_val == libARMB_ge_MonobattleMode_TierDraft) {
+        libARMB_gv_draftMode = 3;
+        MonobattleInitGlobals();
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARMB_gt_RunMonobattle_Init () {
+    libARMB_gt_RunMonobattle = TriggerCreate("libARMB_gt_RunMonobattle_Func");
+}
+
 //--------------------------------------------------------------------------------------------------
 // Trigger: show monobattle profiles
 //--------------------------------------------------------------------------------------------------
@@ -9466,6 +9457,96 @@ void libARMB_gt_Unitselected_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: MB Forcing aerial buildings to move 
+//--------------------------------------------------------------------------------------------------
+bool libARMB_gt_MBForcingaerialbuildingstomove_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+    point lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998;
+    point lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_unit = EventUnit();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    while ((libARMB_gf_StructureIsFlying(lv_unit) == true)) {
+        lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998 = UnitGetPosition(lv_unit);
+        if ((libARMB_gv_restrictedmovementofaerialbuildings[UnitGetOwner(lv_unit)] == true) && (libARMB_gf_Canbebuilton(lv_unit, lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998) == false) && ((libARMB_gf_Canbebuilton(lv_unit, UnitGetGoalPosition(lv_unit)) == false) || (UnitTestState(lv_unit, c_unitStateIdle) == true) || (OrderGetAbilityCommand(UnitOrder(lv_unit, 0)) == AbilityCommand("move", 2)))) {
+            if ((lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090 == null)) {
+                lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090 = libNtve_gf_PointOffsetTowardsPoint(libARMB_gf_Thenearestbuildablepointtothepoint(lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998, libARMB_gv_enemyDefenseBuildingTickCount[UnitGetOwner(lv_unit)]), (libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, UnitGetType(lv_unit), "Radius", UnitGetOwner(lv_unit)) + libARMB_gv_maximumdistancefromthebuildingstoppedsurfacetothenearestshoreline[UnitGetOwner(lv_unit)] + -0.1), lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998);
+            }
+
+            UnitIssueOrder(lv_unit, OrderTargetingPoint(AbilityCommand("move", 0), lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090), c_orderQueueReplace);
+        }
+        else {
+            lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090 = null;
+        }
+        Wait(0.0625, c_timeGame);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARMB_gt_MBForcingaerialbuildingstomove_Init () {
+    libARMB_gt_MBForcingaerialbuildingstomove = TriggerCreate("libARMB_gt_MBForcingaerialbuildingstomove_Func");
+    TriggerEnable(libARMB_gt_MBForcingaerialbuildingstomove, false);
+    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("CommandCenterLiftOff", 0), c_unitAbilStageComplete, false);
+    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("OrbitalLiftOff", 0), c_unitAbilStageComplete, false);
+    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("BarracksLiftOff", 0), c_unitAbilStageComplete, false);
+    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("FactoryLiftOff", 0), c_unitAbilStageComplete, false);
+    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("StarportLiftOff", 0), c_unitAbilStageComplete, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MB Forcing a stationary aerial building to move 
+//--------------------------------------------------------------------------------------------------
+bool libARMB_gt_MBForcingastationaryaerialbuildingtomove_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_eCA095ECA780ED959CEC9CA0EB8B9B;
+    point lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_eCA095ECA780ED959CEC9CA0EB8B9B = EventUnit();
+    lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998 = UnitGetPosition(lv_eCA095ECA780ED959CEC9CA0EB8B9B);
+
+    // Conditions
+    if (testConds) {
+        if (!((libARMB_gf_StructureIsFlying(lv_eCA095ECA780ED959CEC9CA0EB8B9B) == true))) {
+            return false;
+        }
+
+        if (!((libARMB_gv_restrictedmovementofaerialbuildings[UnitGetOwner(lv_eCA095ECA780ED959CEC9CA0EB8B9B)] == true))) {
+            return false;
+        }
+
+        if (!((libARMB_gf_Canbebuilton(lv_eCA095ECA780ED959CEC9CA0EB8B9B, lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998) == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitIssueOrder(lv_eCA095ECA780ED959CEC9CA0EB8B9B, OrderTargetingPoint(AbilityCommand("move", 0), libNtve_gf_PointOffsetTowardsPoint(libARMB_gf_Thenearestbuildablepointtothepoint(lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998, libARMB_gv_enemyDefenseBuildingTickCount[UnitGetOwner(lv_eCA095ECA780ED959CEC9CA0EB8B9B)]), (libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, UnitGetType(lv_eCA095ECA780ED959CEC9CA0EB8B9B), "Radius", UnitGetOwner(lv_eCA095ECA780ED959CEC9CA0EB8B9B)) + libARMB_gv_maximumdistancefromthebuildingstoppedsurfacetothenearestshoreline[UnitGetOwner(lv_eCA095ECA780ED959CEC9CA0EB8B9B)] + -0.1), lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998)), c_orderQueueReplace);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARMB_gt_MBForcingastationaryaerialbuildingtomove_Init () {
+    libARMB_gt_MBForcingastationaryaerialbuildingtomove = TriggerCreate("libARMB_gt_MBForcingastationaryaerialbuildingtomove_Func");
+    TriggerEnable(libARMB_gt_MBForcingastationaryaerialbuildingtomove, false);
+    TriggerAddEventUnitAbility(libARMB_gt_MBForcingastationaryaerialbuildingtomove, null, AbilityCommand("stop", 0), c_unitAbilStageComplete, false);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: MB Unit Created
 //--------------------------------------------------------------------------------------------------
 bool libARMB_gt_MBUnitCreated_Func (bool testConds, bool runActions) {
@@ -9561,104 +9642,15 @@ void libARMB_gt_MBUnitChanges_Init () {
     TriggerAddEventUnitAbility(libARMB_gt_MBUnitChanges, null, null, c_unitAbilStageComplete, false);
 }
 
-//--------------------------------------------------------------------------------------------------
-// Trigger: MB Forcing aerial buildings to move 
-//--------------------------------------------------------------------------------------------------
-bool libARMB_gt_MBForcingaerialbuildingstomove_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_unit;
-    point lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998;
-    point lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_unit = EventUnit();
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    while ((libARMB_gf_StructureIsFlying(lv_unit) == true)) {
-        lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998 = UnitGetPosition(lv_unit);
-        if ((libARMB_gv_restrictedmovementofaerialbuildings[UnitGetOwner(lv_unit)] == true) && (libARMB_gf_Canbebuilton(lv_unit, lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998) == false) && ((libARMB_gf_Canbebuilton(lv_unit, UnitGetGoalPosition(lv_unit)) == false) || (UnitTestState(lv_unit, c_unitStateIdle) == true) || (OrderGetAbilityCommand(UnitOrder(lv_unit, 0)) == AbilityCommand("move", 2)))) {
-            if ((lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090 == null)) {
-                lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090 = libNtve_gf_PointOffsetTowardsPoint(libARMB_gf_Thenearestbuildablepointtothepoint(lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998, libARMB_gv_enemyDefenseBuildingTickCount[UnitGetOwner(lv_unit)]), (libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, UnitGetType(lv_unit), "Radius", UnitGetOwner(lv_unit)) + libARMB_gv_maximumdistancefromthebuildingstoppedsurfacetothenearestshoreline[UnitGetOwner(lv_unit)] + -0.1), lv_eC9DB4EBA599ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998);
-            }
-
-            UnitIssueOrder(lv_unit, OrderTargetingPoint(AbilityCommand("move", 0), lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090), c_orderQueueReplace);
-        }
-        else {
-            lv_eC9DB4EB8F99EC8B9CED82ACECA780ECA090 = null;
-        }
-        Wait(0.0625, c_timeGame);
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libARMB_gt_MBForcingaerialbuildingstomove_Init () {
-    libARMB_gt_MBForcingaerialbuildingstomove = TriggerCreate("libARMB_gt_MBForcingaerialbuildingstomove_Func");
-    TriggerEnable(libARMB_gt_MBForcingaerialbuildingstomove, false);
-    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("CommandCenterLiftOff", 0), c_unitAbilStageComplete, false);
-    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("OrbitalLiftOff", 0), c_unitAbilStageComplete, false);
-    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("BarracksLiftOff", 0), c_unitAbilStageComplete, false);
-    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("FactoryLiftOff", 0), c_unitAbilStageComplete, false);
-    TriggerAddEventUnitAbility(libARMB_gt_MBForcingaerialbuildingstomove, null, AbilityCommand("StarportLiftOff", 0), c_unitAbilStageComplete, false);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: MB Forcing a stationary aerial building to move 
-//--------------------------------------------------------------------------------------------------
-bool libARMB_gt_MBForcingastationaryaerialbuildingtomove_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_eCA095ECA780ED959CEC9CA0EB8B9B;
-    point lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_eCA095ECA780ED959CEC9CA0EB8B9B = EventUnit();
-    lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998 = UnitGetPosition(lv_eCA095ECA780ED959CEC9CA0EB8B9B);
-
-    // Conditions
-    if (testConds) {
-        if (!((libARMB_gf_StructureIsFlying(lv_eCA095ECA780ED959CEC9CA0EB8B9B) == true))) {
-            return false;
-        }
-
-        if (!((libARMB_gv_restrictedmovementofaerialbuildings[UnitGetOwner(lv_eCA095ECA780ED959CEC9CA0EB8B9B)] == true))) {
-            return false;
-        }
-
-        if (!((libARMB_gf_Canbebuilton(lv_eCA095ECA780ED959CEC9CA0EB8B9B, lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998) == false))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    UnitIssueOrder(lv_eCA095ECA780ED959CEC9CA0EB8B9B, OrderTargetingPoint(AbilityCommand("move", 0), libNtve_gf_PointOffsetTowardsPoint(libARMB_gf_Thenearestbuildablepointtothepoint(lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998, libARMB_gv_enemyDefenseBuildingTickCount[UnitGetOwner(lv_eCA095ECA780ED959CEC9CA0EB8B9B)]), (libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, UnitGetType(lv_eCA095ECA780ED959CEC9CA0EB8B9B), "Radius", UnitGetOwner(lv_eCA095ECA780ED959CEC9CA0EB8B9B)) + libARMB_gv_maximumdistancefromthebuildingstoppedsurfacetothenearestshoreline[UnitGetOwner(lv_eCA095ECA780ED959CEC9CA0EB8B9B)] + -0.1), lv_eCA095ECA780ED959CEC9CA0EB8B9BEC9D98EC9C84ECB998)), c_orderQueueReplace);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libARMB_gt_MBForcingastationaryaerialbuildingtomove_Init () {
-    libARMB_gt_MBForcingastationaryaerialbuildingtomove = TriggerCreate("libARMB_gt_MBForcingastationaryaerialbuildingtomove_Func");
-    TriggerEnable(libARMB_gt_MBForcingastationaryaerialbuildingtomove, false);
-    TriggerAddEventUnitAbility(libARMB_gt_MBForcingastationaryaerialbuildingtomove, null, AbilityCommand("stop", 0), c_unitAbilStageComplete, false);
-}
-
 void libARMB_InitTriggers () {
+    libARMB_gt_RunMonobattle_Init();
     libARMB_gt_showmonobattleprofiles_Init();
     libARMB_gt_CreateUnitBriefUI_Init();
     libARMB_gt_Unitselected_Init();
-    libARMB_gt_MBUnitCreated_Init();
-    libARMB_gt_MBUnitChanges_Init();
     libARMB_gt_MBForcingaerialbuildingstomove_Init();
     libARMB_gt_MBForcingastationaryaerialbuildingtomove_Init();
+    libARMB_gt_MBUnitCreated_Init();
+    libARMB_gt_MBUnitChanges_Init();
 }
 
 //--------------------------------------------------------------------------------------------------
