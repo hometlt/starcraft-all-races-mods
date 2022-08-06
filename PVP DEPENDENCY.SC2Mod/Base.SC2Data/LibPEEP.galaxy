@@ -1,6 +1,7 @@
 include "TriggerLibs/NativeLib"
 include "LibNHBR"
 include "LibARMP_h"
+include "LibARMB_h"
 
 include "LibPEEP_h"
 
@@ -12,6 +13,7 @@ void libPEEP_InitLibraries () {
     libNtve_InitVariables();
     libNHBR_InitVariables();
     libARMP_InitVariables();
+    libARMB_InitVariables();
 }
 
 // Variable Initialization
@@ -6876,7 +6878,7 @@ void libPEEP_gf_DebugTeams () {
             lv_intIndex = 1;
             for ( ; ( (auto7264368B_ai >= 0 && lv_intIndex <= auto7264368B_ae) || (auto7264368B_ai < 0 && lv_intIndex >= auto7264368B_ae) ) ; lv_intIndex += auto7264368B_ai ) {
                 lv_intPlayer = libPEEP_gv_recTeams[lv_intTeam].lv_intPlayerList[lv_intIndex];
-                lv_txtMessage = (lv_txtMessage + libPEEP_gv_recPlayers[lv_intPlayer].lv_txtPlayerName + StringExternal("Param/Value/lib_PEEP_1A062574") + IntToText(lv_intPlayer) + StringExternal("Param/Value/lib_PEEP_8E1742DD"));
+                lv_txtMessage = (lv_txtMessage + libPEEP_gv_recPlayers[lv_intPlayer].lv_txtPlayerName + StringToText("") + IntToText(lv_intPlayer) + StringExternal("Param/Value/lib_PEEP_8E1742DD"));
             }
             UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, lv_txtMessage);
         }
@@ -8268,7 +8270,7 @@ void libPEEP_gf_RefreshBettingPayoutsForPlayer (int lp_intPlayer, bool lp_boolIn
 
         lv_txtText = (libPEEP_gf_formatIntegerAsText(lv_intAvailableChips) + TextWithColor(StringExternal("Param/Value/lib_PEEP_E0CBF767"), (Color(149*100/255,150*100/255,151*100/255))));
         if ((lv_intPotentialBet > 0)) {
-            lv_txtText = (lv_txtText + StringExternal("Param/Value/lib_PEEP_14B0A3DE") + lv_txtPotentialBet);
+            lv_txtText = (lv_txtText + StringToText("") + lv_txtPotentialBet);
         }
 
         lv_txtText = (lv_txtText + StringExternal("Param/Value/lib_PEEP_91051247"));
@@ -14729,7 +14731,7 @@ void libPEEP_gf_CreateOptionTabsDialog () {
     lv_intIndex = 1;
     for ( ; ( (autoADA64FB0_ai >= 0 && lv_intIndex <= autoADA64FB0_ae) || (autoADA64FB0_ai < 0 && lv_intIndex >= autoADA64FB0_ae) ) ; lv_intIndex += autoADA64FB0_ai ) {
         if (((libPEEP_gv_recGlobals.lv_iNT_MAX_TEAM_SIZE == 2) || (lv_intIndex < 6))) {
-            libNtve_gf_CreateDialogItemButton(DialogLastCreated(), lv_intWidth, 45, c_anchorTop, 0, lv_intY, libPEEP_gv_recGlobals.lv_recOptionTabs[lv_intIndex].lv_txtTooltip, (StringExternal("Param/Value/lib_PEEP_041CEB78") + libPEEP_gv_recGlobals.lv_recOptionTabs[lv_intIndex].lv_txtTitle), "");
+            libNtve_gf_CreateDialogItemButton(DialogLastCreated(), lv_intWidth, 45, c_anchorTop, 0, lv_intY, libPEEP_gv_recGlobals.lv_recOptionTabs[lv_intIndex].lv_txtTooltip, (StringToText("") + libPEEP_gv_recGlobals.lv_recOptionTabs[lv_intIndex].lv_txtTitle), "");
             libPEEP_gv_recUI.lv_diOptionTabsButtons[lv_intIndex] = DialogControlLastCreated();
             TriggerAddEventDialogControl(libPEEP_gt_ButtonsOptionTabs, c_playerAny, libPEEP_gv_recUI.lv_diOptionTabsButtons[lv_intIndex], c_triggerControlEventTypeClick);
             libNtve_gf_SetDialogItemStyle(DialogControlLastCreated(), "CommandTooltipRequirements", PlayerGroupAll());
@@ -20754,6 +20756,10 @@ void libPEEP_gf_ClearAllUnitsExploration () {
         for (;; auto4A9D5130_u -= 1) {
             auto4A9D5130_var = UnitGroupUnitFromEnd(auto4A9D5130_g, auto4A9D5130_u);
             if (auto4A9D5130_var == null) { break; }
+            if ((UnitGetType(auto4A9D5130_var) == "MonobattlePlayer")) {
+                continue;
+            }
+
             if (((UnitGetType(auto4A9D5130_var) == "Edifice") || (UnitGetType(auto4A9D5130_var) == "Sanctum") || (UnitGetType(auto4A9D5130_var) == "Foundry") || (UnitGetType(auto4A9D5130_var) == "Atrium") || (UnitGetType(auto4A9D5130_var) == "Pantheon") || (UnitGetType(auto4A9D5130_var) == "Conduit") || (UnitGetType(auto4A9D5130_var) == "Empyrean") || (UnitGetType(auto4A9D5130_var) == "Zenith") || (UnitGetType(auto4A9D5130_var) == "Outlet") || (UnitGetType(auto4A9D5130_var) == "Elysium"))) {
                 UnitKill(auto4A9D5130_var);
             }
@@ -23322,6 +23328,10 @@ bool libPEEP_gt_PeriodicBettingCountdowns_Func (bool testConds, bool runActions)
 
     // Actions
     if (!runActions) {
+        return true;
+    }
+
+    if ((libPEEP_gv_recUI.lv_diBettingCountdownLabel == c_invalidDialogControlId)) {
         return true;
     }
 
@@ -36168,6 +36178,9 @@ bool libPEEP_gt_RunpeepMode_Func (bool testConds, bool runActions) {
     int lv_intPlayer;
 
     // Automatic Variable Declarations
+    playergroup auto703DD23A_g;
+    int auto703DD23A_var;
+
     // Variable Initialization
 
     // Actions
@@ -36175,6 +36188,13 @@ bool libPEEP_gt_RunpeepMode_Func (bool testConds, bool runActions) {
         return true;
     }
 
+    auto703DD23A_g = libARMB_gv_startactiveplayers;
+    auto703DD23A_var = -1;
+    while (true) {
+        auto703DD23A_var = PlayerGroupNextPlayer(auto703DD23A_g, auto703DD23A_var);
+        if (auto703DD23A_var < 0) { break; }
+        libNtve_gf_CreateUnitsWithDefaultFacing(1, "MonobattlePlayer", 0, auto703DD23A_var, PlayerStartLocation(auto703DD23A_var));
+    }
     libPEEP_gf_TurnKeyboradShurtkeyson();
     TriggerEnable(libPEEP_gt_SliderChangePotentialBet, true);
     TriggerEnable(libPEEP_gt_SliderHelpScroll, true);
@@ -36647,4 +36667,5 @@ void libPEEP_InitLib () {
 }
 
 include "LibARMP"
+include "LibARMB"
 
