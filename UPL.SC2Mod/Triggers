@@ -5,6 +5,7 @@
             <Item Type="Trigger" Library="UPLR" Id="2152A427"/>
             <Item Type="Category" Library="UPLR" Id="C878F104"/>
             <Item Type="Category" Library="UPLR" Id="3BD8FE74"/>
+            <Item Type="Category" Library="UPLR" Id="AA1A1666"/>
         </Root>
         <Element Type="Trigger" Id="2152A427">
             <Label Type="Label" Library="Ntve" Id="00000008"/>
@@ -102,12 +103,9 @@
             <Item Type="CustomScript" Library="UPLR" Id="37CD2ABC"/>
             <Item Type="CustomScript" Library="UPLR" Id="F791CC37"/>
             <Item Type="CustomScript" Library="UPLR" Id="5208A8C6"/>
-            <Item Type="CustomScript" Library="UPLR" Id="2776E493"/>
             <Item Type="CustomScript" Library="UPLR" Id="FA3B06BE"/>
             <Item Type="Category" Library="UPLR" Id="B4545515"/>
             <Item Type="Category" Library="UPLR" Id="D6843B1B"/>
-            <Item Type="Category" Library="UPLR" Id="3E4F75AD"/>
-            <Item Type="Category" Library="UPLR" Id="CD85A393"/>
             <Item Type="Category" Library="UPLR" Id="97B59014"/>
         </Element>
         <Element Type="CustomScript" Id="2BD1F227">
@@ -618,395 +616,6 @@
                 }
             </ScriptCode>
             <InitFunc>LotC_MiningWorker_Init</InitFunc>
-        </Element>
-        <Element Type="CustomScript" Id="2776E493">
-            <Label Type="Label" Library="Ntve" Id="196A8DD2"/>
-            <ScriptCode>
-                const string KEY_PREFIX = &quot;LotC_SpecOpsClaymoreHandler&quot;;
-                static trigger gt_Activated;
-                static trigger gt_ForceOff;
-                static trigger gt_Deactivated;
-                static trigger gt_PointChosen;
-                static trigger gt_DirectionChosen;
-                static trigger gt_EffectFired;
-                static trigger gt_Cancel;
-                static trigger gt_CancelFromUI;
-                static trigger gt_CameraShake;
-                static trigger gt_ExecuteAction;
-                static trigger gt_OrderMine;
-                static string KeyBase(string unitTag, string abilInstance){
-                	return KEY_PREFIX + &quot;[&quot;+unitTag+&quot;,&quot;+abilInstance+&quot;]&quot;;
-                }
-                static string Key(string base, string suffix){
-                	return base+&quot;.&quot;+suffix;
-                }
-                static string KeyFull(string unitTag, string abilInstance, string suffix){
-                	return Key(KeyBase(unitTag,abilInstance),suffix);
-                }
-                point LotC_SpecOpsClaymoreHandler_EventPoint(){
-                	return DataTableGetPoint(false, TriggerEventParamName(EventGenericName(), &quot;Point&quot;));
-                	
-                }
-                point LotC_SpecOpsClaymoreHandler_EventDirection(){
-                	return DataTableGetPoint(false, TriggerEventParamName(EventGenericName(), &quot;Direction&quot;));
-                	
-                }
-                unit LotC_SpecOpsClaymoreHandler_EventCaster(){
-                	return DataTableGetUnit(false, TriggerEventParamName(EventGenericName(), &quot;Caster&quot;));
-                }
-                string LotC_SpecOpsClaymoreHandler_EventName(){
-                	return KEY_PREFIX+&quot;ExecuteAction&quot;;
-                }
-                void LotC_SpecOpsClaymoreHandler_SendTriggerEvent(string lp_unitTag, string lp_abil){
-                	string lv_keyBase = KeyBase(lp_unitTag,lp_abil);
-                	string event = KEY_PREFIX+&quot;ExecuteAction&quot;;
-                	int i = 0;
-                	string key;
-                	int lv_ChargesTotal = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesTotal&quot;));
-                	point lv_point = DataTableGetPoint(true,Key(lv_keyBase,&quot;Point[&quot;+IntToString(lv_ChargesTotal)+&quot;]&quot;));
-                	point lv_direction = DataTableGetPoint(true,Key(lv_keyBase,&quot;Direction[&quot;+IntToString(lv_ChargesTotal)+&quot;]&quot;));
-                	unit lv_caster = DataTableGetUnit(true,Key(lv_keyBase,&quot;CasterUnit&quot;));
-                	bool keyexists = false;
-                	for(i=1;i&lt;=lv_ChargesTotal;i+=1){
-                		keyexists = false;
-                		
-                		key = &quot;Point[&quot;+IntToString(i)+&quot;]&quot;;
-                		if(DataTableValueExists(true,Key(lv_keyBase,key))){
-                			lv_point = DataTableGetPoint(true,Key(lv_keyBase,key));
-                			DataTableSetPoint(false, TriggerEventParamName(event, &quot;Point&quot;), lv_point);
-                			keyexists = true;
-                		}
-                		key = &quot;Direction[&quot;+IntToString(i)+&quot;]&quot;;
-                		if(DataTableValueExists(true,Key(lv_keyBase,key))){
-                			lv_direction = DataTableGetPoint(true,Key(lv_keyBase,key));
-                			DataTableSetPoint(false, TriggerEventParamName(event, &quot;Direction&quot;), lv_direction);
-                			keyexists = true;
-                		}
-                		if(keyexists){
-                			lv_caster = DataTableGetUnit(true,Key(lv_keyBase,&quot;CasterUnit&quot;));
-                			DataTableSetUnit(false, TriggerEventParamName(event, &quot;Caster&quot;), lv_caster);
-                			TriggerSendEvent(event);
-                		}
-                	}
-                }
-                void LotC_SpecOpsClaymoreHandler_ClearDataTable(string lp_unitTag, string lp_abil){
-                	string lv_keyBase = KeyBase(lp_unitTag,lp_abil);
-                	
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;CasterUnit&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;CasterGroup&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ActivateAbility&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ExecuteCommand&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Cooldown&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Behavior&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Model&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Order&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;UnitType&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ChargesTotal&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;InstructionsPrimary&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;InstructionsSecondary&quot;));
-                	//lv_HornerAirFleet_Cost = CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_ActivateAbility, &quot;Cost[0].Resource[0]&quot;, lv_casterPlayer);
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ChargesSpent&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;UsageCount&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Phase&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Transitioning&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;UnrefundableStageEntered&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;AlreadyCanceled&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Unit[]&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Actors[]&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;DirectionGroup&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Cycling&quot;));
-                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ExitInstantly&quot;));
-                }
-                void LotC_SpecOpsClaymoreHandler_InitDataTableFromUserData(string lp_unitTag, string lp_abil){
-                	string lv_keyBase = KeyBase(lp_unitTag,lp_abil);
-                	string lv_user = &quot;LotC_Targetable&quot;;
-                	DataTableSetString(true,Key(lv_keyBase,&quot;ActivateAbility&quot;),UserDataGetGameLink(lv_user,lp_abil,&quot;ActivateAbility&quot;,1));//HornerAirFleetActivate
-                	DataTableSetAbilCmd(true,Key(lv_keyBase,&quot;ExecuteCommand&quot;),UserDataGetAbilCmd(lv_user,lp_abil,&quot;ExecuteCommand&quot;,1));
-                	DataTableSetString(true,Key(lv_keyBase,&quot;Cooldown&quot;),UserDataGetString(lv_user,lp_abil,&quot;Cooldown&quot;,1));
-                	DataTableSetString(true,Key(lv_keyBase,&quot;Behavior&quot;),UserDataGetGameLink(lv_user,lp_abil,&quot;Behavior&quot;,1));
-                	DataTableSetString(true,Key(lv_keyBase,&quot;Model&quot;),UserDataGetGameLink(lv_user,lp_abil,&quot;Model&quot;,1));
-                	//DataTableSetOrder(true,Key(lv_keyBase,&quot;Order&quot;),OrderTargetingPoint(UserDataGetAbilCmd(lv_user,lp_abil,&quot;Order&quot;,1), UnitGetPosition(lv_caster)));
-                	DataTableSetString(true,Key(lv_keyBase,&quot;UnitType&quot;),UserDataGetGameLink(lv_user,lp_abil,&quot;UnitType&quot;,1));
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesTotal&quot;),UserDataGetInt(lv_user,lp_abil,&quot;ChargesTotal&quot;,1));
-                	DataTableSetText(true,Key(lv_keyBase,&quot;InstructionsPrimary&quot;),UserDataGetText(lv_user,lp_abil,&quot;InstructionsPrimary&quot;,1));
-                	DataTableSetText(true,Key(lv_keyBase,&quot;InstructionsSecondary&quot;),UserDataGetText(lv_user,lp_abil,&quot;InstructionsSecondary&quot;,1));
-                	
-                	
-                }
-                void LotC_SpecOpsClaymoreHandler_ModeEnter (int lp_player,unit lp_caster, string lp_abil) {
-                	int lv_count;
-                	string lv_unitTag = IntToString(UnitGetTag(lp_caster));
-                	string lv_keyBase = KeyBase(lv_unitTag,lp_abil);
-                	int lv_UsageCount = DataTableGetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;));
-                	order lv_order = DataTableGetOrder(true,Key(lv_keyBase,&quot;Order&quot;));
-                	unitgroup lv_casterGroup = DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;));
-                	TriggerDebugOutput(1,StringToText(&quot;LotC_SpecOpsClaymoreHandler_ModeEnter&quot;),true);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;UnrefundableStageEntered&quot;),false);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;AlreadyCanceled&quot;),false);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),false);
-                	while (!((DataTableGetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;)) == false))) {
-                		Wait(0.0625, c_timeGame);
-                	}
-                	TriggerEnable(gt_Cancel, true);
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;),lv_UsageCount+1);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;ExitInstantly&quot;),false);
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;),0);
-                	if ((lv_order != null)) {
-                		TriggerEnable(gt_PointChosen, true);
-                		TriggerEnable(gt_DirectionChosen, true);
-                		UISetTargetingOrder(PlayerGroupSingle(lp_player), lv_casterGroup, lv_order, false);
-                		DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_Location);
-                	}
-                	else {
-                		DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_None);
-                	}
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),true);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),false);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),true);
-                	
-                }
-                void LotC_SpecOpsClaymoreHandler_ModeExit (int lp_player,unit lp_caster, string lp_abil) {
-                	string lv_unitTag = IntToString(UnitGetTag(lp_caster));
-                	string lv_keyBase = KeyBase(lv_unitTag,lp_abil);
-                	int lv_UsageCount = DataTableGetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;));
-                	TriggerDebugOutput(1,StringToText(&quot;LotC_SpecOpsClaymoreHandler_ModeExit&quot;),true);
-                	LotC_SpecOpsClaymoreHandler_SendTriggerEvent(lv_unitTag,lp_abil);
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_None);
-                	while (!((DataTableGetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;)) == false))) {
-                		Wait(0.0625, c_timeGame);
-                	}
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),true);
-                	if ((DataTableGetBool(true,Key(lv_keyBase,&quot;ExitInstantly&quot;)) == true)) {}
-                	else {}
-                	if ((DataTableGetBool(true,Key(lv_keyBase,&quot;ExitInstantly&quot;)) == true)) {
-                		VisResetFoWAlpha(lp_player);
-                	}
-                	else {}
-                	//libNtve_gf_RestoreUnitSelection(lp_player);
-                	DataTableSetString(true,Key(lv_keyBase,&quot;ActivateAbility&quot;),null);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),false);
-                	lv_UsageCount -= 1;
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;),lv_UsageCount);
-                	if ((lv_UsageCount == 0)) {
-                		TriggerEnable(gt_Cancel, false);
-                		TriggerEnable(gt_PointChosen, false);
-                		TriggerEnable(gt_DirectionChosen, false);
-                	}
-                }
-                bool LotC_SpecOpsClaymoreHandler_OrderMine_Func (bool testConds, bool runActions) {
-                	unit lv_caster = EventUnit();
-                	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
-                	unit u = EventUnitCreatedUnit();
-                	string abil = EventUnitCreatedAbil();
-                	point lv_direction = DataTableGetPoint(true,KEY_PREFIX+&quot;SetDirection:&quot;+lv_unitTag+&quot;:&quot;+abil);
-                	order o = OrderTargetingPoint(AbilityCommand(&quot;ClaymoreMineLookAtPoint&quot;,0),lv_direction);
-                	
-                	UnitIssueOrder(u,o,c_orderQueueReplace);
-                	return true;
-                }
-                bool LotC_SpecOpsClaymoreHandler_ExecuteAction_Func (bool testConds, bool runActions) {
-                	point lv_point = LotC_SpecOpsClaymoreHandler_EventPoint();
-                	point lv_direction = LotC_SpecOpsClaymoreHandler_EventDirection();
-                	unit u = LotC_SpecOpsClaymoreHandler_EventCaster();
-                	string lv_unitTag = IntToString(UnitGetTag(u));
-                	string abil = &quot;ClaymoreMinePlace&quot;;
-                	order o = OrderTargetingPoint(AbilityCommand(abil,0),lv_point);
-                	
-                	DataTableSetPoint(true,KEY_PREFIX+&quot;SetDirection:&quot;+lv_unitTag+&quot;:&quot;+abil,lv_direction);
-                	TriggerAddEventUnitCreated(gt_OrderMine,UnitRefFromUnit(u),abil,&quot;&quot;);
-                	UnitIssueOrder(u,o,c_orderQueueReplace);
-                	return true;
-                }
-                bool LotC_SpecOpsClaymoreHandler_DirectionChosen_Func (bool testConds, bool runActions) {
-                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
-                	string lv_unitTag = IntToString(UnitGetTag(EventUnit()));
-                	unit lv_caster = DataTableGetUnit(true,Key(KEY_PREFIX,&quot;TargeterParent[&quot;+lv_unitTag+&quot;]&quot;));
-                	int lv_casterPlayer = EventPlayer();
-                	point lv_targetPoint= OrderGetTargetPoint(EventUnitOrder());
-                	
-                	string lv_keyBase = KeyBase(IntToString(UnitGetTag(lv_caster)),lv_abil);
-                	int lv_ChargesSpent = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;));
-                	int lv_ChargesTotal = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesTotal&quot;));
-                	order lv_order = DataTableGetOrder(true,Key(lv_keyBase,&quot;Order&quot;));
-                	unit u = DataTableGetUnit(true,Key(lv_keyBase,&quot;Units[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;));
-                	//LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
-                	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
-                	if (testConds) {
-                		if (!((DataTableGetInt(true,Key(lv_keyBase,&quot;Phase&quot;)) == c_TargetingPhaseType_Direction))) {
-                			return false;
-                		}
-                	}
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),true);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;UnrefundableStageEntered&quot;),true);
-                	libNtve_gf_CreateActorAtPoint(DataTableGetString(true,Key(lv_keyBase,&quot;ConfirmationSound&quot;)), lv_targetPoint);
-                	DataTableSetPoint(true,Key(lv_keyBase,&quot;Direction[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;),lv_targetPoint);
-                	ActorSend(DataTableGetActor(true,Key(lv_keyBase,&quot;Actors[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;)), &quot;Signal Destroy&quot;);
-                	if ((UnitIsValid(u) == false)) {
-                		return true;
-                	}
-                	libNtve_gf_MakeUnitFacePoint(u, lv_targetPoint, 0.0);
-                	////libCOUI_gf_CU_TargetingSetCharges((Targeting.lv_ChargesTotal-Targeting.lv_ChargesSpent), Targeting.lv_ChargesTotal, lv_casterPlayer);
-                	if ((lv_ChargesSpent == lv_ChargesTotal)) {
-                		UnitBehaviorRemove(lv_caster, DataTableGetString(true,Key(lv_keyBase,&quot;Behavior&quot;)), 1);
-                		Wait(0.1, c_timeGame);
-                		
-                	}
-                	else {
-                		//libCOUI_gf_CU_TargetingSetInstructionText(Targeting.lv_InstructionsPrimary, lv_casterPlayer);
-                		Wait(0.1, c_timeGame);
-                		
-                		if ((DataTableGetBool(true,Key(lv_keyBase,&quot;AlreadyCanceled&quot;)) == false)) {
-                			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;)), lv_order, false);
-                		}
-                		DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_Location);
-                	}
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),false);
-                	return true;
-                }
-                bool LotC_SpecOpsClaymoreHandler_PointChosen_Func (bool testConds, bool runActions) {
-                	unit lv_caster = EventUnit();
-                	int lv_casterPlayer = EventPlayer();
-                	point lv_targetPoint= OrderGetTargetPoint(EventUnitOrder());
-                	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
-                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
-                	string lv_keyBase = KeyBase(lv_unitTag,lv_abil);
-                	int lv_ChargesSpent = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;));
-                	int lv_ChargesTotal = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesTotal&quot;));
-                	string lv_UnitType = DataTableGetString(true,Key(lv_keyBase,&quot;UnitType&quot;));
-                	order lv_order = DataTableGetOrder(true,Key(lv_keyBase,&quot;Order&quot;));
-                	abilcmd lv_executeCommand = DataTableGetAbilCmd(true,Key(lv_keyBase,&quot;ExecuteCommand&quot;));
-                	unit u;
-                	//LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
-                	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
-                	if (testConds) {
-                		if (!(DataTableGetInt(true,Key(lv_keyBase,&quot;Phase&quot;)) == c_TargetingPhaseType_Location)) {
-                			return false;
-                		}
-                		if (!(lv_ChargesSpent &lt; lv_ChargesTotal)) {
-                			return false;
-                		}
-                	}
-                	if ((VisIsVisibleForPlayer(lv_casterPlayer, lv_targetPoint) == false)) {
-                		return true;
-                	}
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),true);
-                	lv_ChargesSpent += 1;
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;),lv_ChargesSpent);
-                	libNtve_gf_CreateActorAtPoint(DataTableGetString(true,Key(lv_keyBase,&quot;Model&quot;)), lv_targetPoint);
-                	DataTableSetActor(true,Key(lv_keyBase,&quot;Actors[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;),libNtve_gf_ActorLastCreated());
-                	DataTableSetPoint(true,Key(lv_keyBase,&quot;Point[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;),lv_targetPoint);
-                	libNtve_gf_CreateActorAtPoint(DataTableGetString(true,Key(lv_keyBase,&quot;ConfirmationSound&quot;)), lv_targetPoint);
-                	if ((lv_UnitType == null)) {
-                		UnitIssueOrder(lv_caster, OrderTargetingPoint(lv_executeCommand, lv_targetPoint), c_orderQueueAddToEnd);
-                		if ((lv_ChargesSpent == lv_ChargesTotal)) {
-                			Wait(0.125, c_timeGame);
-                			UnitBehaviorRemove(lv_caster, DataTableGetString(true,Key(lv_keyBase,&quot;Behavior&quot;)), 1);
-                		}
-                		else {
-                			Wait(0.1, c_timeGame);
-                			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;)), lv_order, false);
-                		}
-                	}
-                	else {
-                		libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_UnitType, 0, lv_casterPlayer, lv_targetPoint);
-                		u = UnitLastCreated();
-                		DataTableSetUnit(true,Key(KEY_PREFIX,&quot;TargeterParent[&quot;+IntToString(UnitGetTag(u))+&quot;]&quot;),lv_caster);
-                		DataTableSetUnit(true,Key(lv_keyBase,&quot;Units[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;),u);
-                		UnitSetState(u, c_unitStateTooltipable, false);
-                		DataTableSetUnitGroup(true,Key(lv_keyBase,&quot;DirectionGroup&quot;),libNtve_gf_ConvertUnitToUnitGroup(u));
-                		Wait(0.1, c_timeGame);
-                		if ((UnitIsValid(u) == true)) {
-                			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;DirectionGroup&quot;)), OrderTargetingPoint(lv_executeCommand, UnitGetPosition(u)), false);
-                			//libCOUI_gf_CU_TargetingSetInstructionText(Targeting.lv_InstructionsSecondary, lv_casterPlayer);
-                			DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_Direction);
-                		}
-                	}
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),false);
-                	return true;
-                }
-                bool LotC_SpecOpsClaymoreHandler_Deactivated_Func (bool testConds, bool runActions) {
-                	int lv_casterPlayer = UnitGetOwner(EventUnit());
-                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
-                	unit lv_caster = EventUnit();
-                	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
-                	
-                	string lv_keyBase = KeyBase(lv_unitTag,lv_abil);
-                	//LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
-                	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
-                	if (!runActions) {
-                		return true;
-                	}
-                	UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;)), null, false);
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;),0);
-                	LotC_SpecOpsClaymoreHandler_ModeExit(lv_casterPlayer,lv_caster,lv_abil);
-                	return true;
-                }
-                bool LotC_SpecOpsClaymoreHandler_Activated_Func (bool testConds, bool runActions) {
-                	unit lv_caster = EventUnit();
-                	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
-                	int lv_casterPlayer = 1;//UnitGetOwner(lv_caster);
-                	string lv_user = &quot;LotC_Targetable&quot;;
-                	string BehaviorActivated = EventUnitBehavior();
-                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
-                	int lv_HornerAirFleet_Cost;
-                	string lv_keyBase = KeyBase(lv_unitTag,lv_abil);
-                	
-                	//order lv_Order = ;//&quot;HornerAirFleetTargetingDummy&quot;
-                	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
-                	DataTableSetUnit(true,Key(lv_keyBase,&quot;CasterUnit&quot;),lv_caster);
-                	DataTableSetUnit(true,Key(lv_keyBase,&quot;Targeter&quot;),lv_caster);
-                	DataTableSetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;),libNtve_gf_ConvertUnitToUnitGroup(lv_caster));
-                	LotC_SpecOpsClaymoreHandler_InitDataTableFromUserData(lv_unitTag,lv_abil);
-                	DataTableSetOrder(true,Key(lv_keyBase,&quot;Order&quot;),OrderTargetingPoint(UserDataGetAbilCmd(lv_user,lv_abil,&quot;Order&quot;,1), UnitGetPosition(lv_caster)));
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;),0);
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;),0);
-                	DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_None);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),false);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;UnrefundableStageEntered&quot;),false);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;AlreadyCanceled&quot;),false);
-                	DataTableSetUnit(true,Key(lv_keyBase,&quot;Unit[]&quot;),null);
-                	DataTableSetActor(true,Key(lv_keyBase,&quot;Actors[]&quot;),null);
-                	DataTableSetUnitGroup(true,Key(lv_keyBase,&quot;DirectionGroup&quot;),UnitGroupEmpty());
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),false);
-                	DataTableSetBool(true,Key(lv_keyBase,&quot;ExitInstantly&quot;),false);
-                	DataTableSetString(true,Key(lv_keyBase,&quot;ConfirmationSound&quot;),&quot;SOATargetingModeConfirmationSound&quot;);
-                	//lv_HornerAirFleet_Cost = CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_ActivateAbility, &quot;Cost[0].Resource[0]&quot;, lv_casterPlayer);
-                	DataTableSetUnit(true,Key(KEY_PREFIX,&quot;TargeterParent[&quot;+lv_unitTag+&quot;]&quot;),lv_caster);
-                	LotC_SpecOpsClaymoreHandler_ModeEnter(lv_casterPlayer, lv_caster,lv_abil);
-                	return true;
-                	
-                }
-                void LotC_SpecOpsClaymoreHandler_Init(){
-                	trigger t;
-                	string lv_user = &quot;LotC_Targetable&quot;;
-                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
-                	string ActivateBehavior = &quot;ClaymoreMinePlaceActivate&quot;;
-                	//LOTC_Targeting_gt_Cancel;
-                	//LOTC_Targeting_gt_CancelFromUI;
-                	//LOTC_Targeting_gt_CameraShake;
-                	gt_Activated = TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_Activated_Func&quot;);
-                	TriggerAddEventUnitBehaviorChange(gt_Activated, null, ActivateBehavior, c_unitBehaviorChangeActivate);
-                	gt_Deactivated = TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_Deactivated_Func&quot;);
-                	TriggerAddEventUnitBehaviorChange(gt_Deactivated, null, ActivateBehavior, c_unitBehaviorChangeDeactivate);
-                	gt_PointChosen = TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_PointChosen_Func&quot;);
-                	TriggerEnable(gt_PointChosen, false);
-                	UserDataGetAbilCmd(lv_user,lv_abil,&quot;Order&quot;,1);
-                	TriggerAddEventUnitOrder(gt_PointChosen, null, AbilityCommand(&quot;ClaymoreMinePlaceTargetingDummy&quot;, 0));
-                	gt_DirectionChosen = TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_DirectionChosen_Func&quot;);
-                	TriggerEnable(gt_DirectionChosen, false);
-                	TriggerAddEventUnitOrder(gt_DirectionChosen, null, AbilityCommand(&quot;ClaymoreMinePlaceExecute&quot;, 0));
-                	gt_ForceOff = TriggerCreate(&quot;LOTC_Targeting_TargetingForceOff_Func&quot;);
-                	//TriggerAddEventGeneric(LOTC_Targeting_gt_ForceOff, &quot;CinematicModeOn&quot;);
-                	gt_EffectFired = TriggerCreate(&quot;LOTC_Targeting_EffectFired_Func&quot;);
-                	//TriggerAddEventPlayerEffectUsed(LOTC_Targeting_gt_EffectFired, c_playerAny, &quot;SOAOrbitalStrikeCP&quot;);
-                	//TriggerAddEventPlayerEffectUsed(LOTC_Targeting_gt_EffectFired, c_playerAny, &quot;SOAGravitonBombLM&quot;);
-                	gt_ExecuteAction =TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_ExecuteAction_Func&quot;);
-                	TriggerAddEventGeneric(gt_ExecuteAction,LotC_SpecOpsClaymoreHandler_EventName());
-                	
-                	gt_OrderMine= TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_OrderMine_Func&quot;);
-                }
-            </ScriptCode>
-            <InitFunc>LotC_SpecOpsClaymoreHandler_Init</InitFunc>
         </Element>
         <Element Type="CustomScript" Id="FA3B06BE">
             <ScriptCode>
@@ -2460,6 +2069,967 @@
         <Element Type="FunctionCall" Id="85248029">
             <FunctionDef Type="FunctionDef" Library="Ntve" Id="19CE733E"/>
         </Element>
+        <Element Type="Category" Id="97B59014">
+            <Identifier>S</Identifier>
+            <Label Type="Label" Library="Ntve" Id="196A8DD2"/>
+            <Item Type="Trigger" Library="UPLR" Id="D2747742"/>
+            <Item Type="Trigger" Library="UPLR" Id="D9B9D631"/>
+            <Item Type="Variable" Library="UPLR" Id="D69CE059"/>
+            <Item Type="Trigger" Library="UPLR" Id="A91F9202"/>
+        </Element>
+        <Element Type="Trigger" Id="D2747742">
+            <Internal/>
+            <Event Type="FunctionCall" Library="UPLR" Id="9D91D291"/>
+            <Action Type="FunctionCall" Library="UPLR" Id="CED0246F"/>
+            <Action Type="FunctionCall" Library="UPLR" Id="E9350FDA"/>
+        </Element>
+        <Element Type="FunctionCall" Id="9D91D291">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="7603DD9E"/>
+            <Parameter Type="Param" Library="UPLR" Id="756DF285"/>
+            <Parameter Type="Param" Library="UPLR" Id="88FAB3BD"/>
+            <Parameter Type="Param" Library="UPLR" Id="AFA6EACD"/>
+        </Element>
+        <Element Type="Param" Id="756DF285">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="EC8B59CA"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="2999701E"/>
+        </Element>
+        <Element Type="Param" Id="88FAB3BD">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="6AD8EEF9"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="8378D0D9"/>
+        </Element>
+        <Element Type="Param" Id="AFA6EACD">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="1B9EE3A9"/>
+            <CustomType Type="preset"/>
+            <ScriptCode>
+                c_hotkeyHeroCharacterSheetPanel
+            </ScriptCode>
+        </Element>
+        <Element Type="FunctionCall" Id="CED0246F">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000136"/>
+            <Parameter Type="Param" Library="UPLR" Id="17B24140"/>
+            <Parameter Type="Param" Library="UPLR" Id="31F246FC"/>
+        </Element>
+        <Element Type="Param" Id="17B24140">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000219"/>
+            <Variable Type="Variable" Library="UPLR" Id="D69CE059"/>
+        </Element>
+        <Element Type="Param" Id="31F246FC">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000220"/>
+            <Value>true</Value>
+            <ValueType Type="bool"/>
+        </Element>
+        <Element Type="FunctionCall" Id="E9350FDA">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000111"/>
+            <Parameter Type="Param" Library="UPLR" Id="CA7ACA22"/>
+            <Parameter Type="Param" Library="UPLR" Id="212BA192"/>
+        </Element>
+        <Element Type="Param" Id="CA7ACA22">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000176"/>
+            <ValueType Type="trigger"/>
+            <ValueElement Type="Trigger" Library="UPLR" Id="A91F9202"/>
+        </Element>
+        <Element Type="Param" Id="212BA192">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000177"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="00000538"/>
+        </Element>
+        <Element Type="Trigger" Id="D9B9D631">
+            <Internal/>
+            <Event Type="FunctionCall" Library="UPLR" Id="47D39288"/>
+            <Action Type="FunctionCall" Library="UPLR" Id="0EAC7C72"/>
+            <Action Type="FunctionCall" Library="UPLR" Id="BA4D5487"/>
+        </Element>
+        <Element Type="FunctionCall" Id="47D39288">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="7603DD9E"/>
+            <Parameter Type="Param" Library="UPLR" Id="67369FAE"/>
+            <Parameter Type="Param" Library="UPLR" Id="A51507CB"/>
+            <Parameter Type="Param" Library="UPLR" Id="E8CC3299"/>
+        </Element>
+        <Element Type="Param" Id="67369FAE">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="EC8B59CA"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="2999701E"/>
+        </Element>
+        <Element Type="Param" Id="A51507CB">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="6AD8EEF9"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="57F0678C"/>
+        </Element>
+        <Element Type="Param" Id="E8CC3299">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="1B9EE3A9"/>
+            <CustomType Type="preset"/>
+            <ScriptCode>
+                c_hotkeyHeroCharacterSheetPanel
+            </ScriptCode>
+        </Element>
+        <Element Type="FunctionCall" Id="0EAC7C72">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000136"/>
+            <Parameter Type="Param" Library="UPLR" Id="B82E48CC"/>
+            <Parameter Type="Param" Library="UPLR" Id="D6F39E1A"/>
+        </Element>
+        <Element Type="Param" Id="B82E48CC">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000219"/>
+            <Variable Type="Variable" Library="UPLR" Id="D69CE059"/>
+        </Element>
+        <Element Type="Param" Id="D6F39E1A">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000220"/>
+            <Value>false</Value>
+            <ValueType Type="bool"/>
+        </Element>
+        <Element Type="FunctionCall" Id="BA4D5487">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000111"/>
+            <Parameter Type="Param" Library="UPLR" Id="496D6372"/>
+            <Parameter Type="Param" Library="UPLR" Id="BAE3B98F"/>
+        </Element>
+        <Element Type="Param" Id="496D6372">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000176"/>
+            <ValueType Type="trigger"/>
+            <ValueElement Type="Trigger" Library="UPLR" Id="A91F9202"/>
+        </Element>
+        <Element Type="Param" Id="BAE3B98F">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000177"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="00000545"/>
+        </Element>
+        <Element Type="Variable" Id="D69CE059">
+            <Internal/>
+            <VariableType>
+                <Type Value="bool"/>
+            </VariableType>
+            <Value Type="Param" Library="UPLR" Id="999A560B"/>
+        </Element>
+        <Element Type="Param" Id="999A560B">
+            <Value>false</Value>
+            <ValueType Type="bool"/>
+        </Element>
+        <Element Type="Trigger" Id="A91F9202">
+            <InitOff/>
+            <Internal/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+            <Variable Type="Variable" Library="UPLR" Id="20ABC5CF"/>
+            <Event Type="FunctionCall" Library="UPLR" Id="6FD04C58"/>
+            <Condition Type="FunctionCall" Library="UPLR" Id="BE3C69D7"/>
+            <Action Type="FunctionCall" Library="UPLR" Id="24040CE4"/>
+            <Action Type="FunctionCall" Library="UPLR" Id="33985C30"/>
+        </Element>
+        <Element Type="Variable" Id="EF0390E1">
+            <VariableType>
+                <Type Value="unit"/>
+            </VariableType>
+            <Value Type="Param" Library="UPLR" Id="1167603A"/>
+        </Element>
+        <Element Type="Param" Id="1167603A">
+            <Preset Type="PresetValue" Library="Ntve" Id="D6EA4D09"/>
+        </Element>
+        <Element Type="Variable" Id="20ABC5CF">
+            <VariableType>
+                <Type Value="order"/>
+            </VariableType>
+            <Value Type="Param" Library="UPLR" Id="7156F63E"/>
+        </Element>
+        <Element Type="Param" Id="7156F63E">
+            <Preset Type="PresetValue" Library="Ntve" Id="99AB77FB"/>
+        </Element>
+        <Element Type="FunctionCall" Id="6FD04C58">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="098A1488"/>
+            <Parameter Type="Param" Library="UPLR" Id="E4BD5BFD"/>
+            <Parameter Type="Param" Library="UPLR" Id="E1F24480"/>
+            <Parameter Type="Param" Library="UPLR" Id="2B25A92C"/>
+        </Element>
+        <Element Type="Param" Id="E4BD5BFD">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="ADA16315"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="2999701E"/>
+        </Element>
+        <Element Type="Param" Id="E1F24480">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="77D0F830"/>
+            <Value>MyraDavisHealingPatch</Value>
+            <ValueType Type="abilcmd"/>
+        </Element>
+        <Element Type="Param" Id="2B25A92C">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="47CAA6D2"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="A7C4229B"/>
+        </Element>
+        <Element Type="FunctionCall" Id="BE3C69D7">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
+            <Parameter Type="Param" Library="UPLR" Id="3AF24BDD"/>
+            <Parameter Type="Param" Library="UPLR" Id="75F1AB58"/>
+            <Parameter Type="Param" Library="UPLR" Id="6439B3C2"/>
+        </Element>
+        <Element Type="Param" Id="3AF24BDD">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
+            <Variable Type="Variable" Library="UPLR" Id="D69CE059"/>
+        </Element>
+        <Element Type="Param" Id="75F1AB58">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
+        </Element>
+        <Element Type="Param" Id="6439B3C2">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
+            <Value>true</Value>
+            <ValueType Type="bool"/>
+        </Element>
+        <Element Type="FunctionCall" Id="24040CE4">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000327"/>
+            <Parameter Type="Param" Library="UPLR" Id="AA98002D"/>
+            <Parameter Type="Param" Library="UPLR" Id="4F0828E9"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="E4DD2911"/>
+        </Element>
+        <Element Type="Param" Id="AA98002D">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000618"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="6C9A3CDF"/>
+        </Element>
+        <Element Type="FunctionCall" Id="6C9A3CDF">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000179"/>
+            <Parameter Type="Param" Library="UPLR" Id="4CC2F311"/>
+        </Element>
+        <Element Type="Param" Id="4CC2F311">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000298"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="0AF7566C"/>
+        </Element>
+        <Element Type="FunctionCall" Id="0AF7566C">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000053"/>
+        </Element>
+        <Element Type="Param" Id="4F0828E9">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000617"/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+        </Element>
+        <Element Type="FunctionCall" Id="E4DD2911">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000137"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000007"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="E93FCCF6"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="4A7B7FD4"/>
+        </Element>
+        <Element Type="FunctionCall" Id="E93FCCF6">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000137"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000004"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="52EE10AF"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="DCCEF642"/>
+        </Element>
+        <Element Type="FunctionCall" Id="52EE10AF">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
+            <Parameter Type="Param" Library="UPLR" Id="03C04789"/>
+            <Parameter Type="Param" Library="UPLR" Id="F586F941"/>
+            <Parameter Type="Param" Library="UPLR" Id="DCC0B97E"/>
+        </Element>
+        <Element Type="Param" Id="03C04789">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="86F452A0"/>
+        </Element>
+        <Element Type="FunctionCall" Id="86F452A0">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C65CC121"/>
+            <Parameter Type="Param" Library="UPLR" Id="9438A77C"/>
+            <Parameter Type="Param" Library="UPLR" Id="778C40AA"/>
+            <Parameter Type="Param" Library="UPLR" Id="849CC459"/>
+        </Element>
+        <Element Type="Param" Id="9438A77C">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="9ADE2B3B"/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+        </Element>
+        <Element Type="Param" Id="778C40AA">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="D1035B0C"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="C9B8C640"/>
+        </Element>
+        <Element Type="Param" Id="849CC459">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="D006774F"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="E66C6645"/>
+        </Element>
+        <Element Type="Param" Id="F586F941">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="684CA9CE"/>
+        </Element>
+        <Element Type="Param" Id="DCC0B97E">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
+            <Value>100.0</Value>
+            <ValueType Type="fixed"/>
+        </Element>
+        <Element Type="FunctionCall" Id="DCCEF642">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000137"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000004"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="5CB4314F"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="2610D165"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="F6C87701"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="4561174D"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="A7F22E7A"/>
+        </Element>
+        <Element Type="FunctionCall" Id="5CB4314F">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000089"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000004"/>
+            <Parameter Type="Param" Library="UPLR" Id="91C0E02A"/>
+            <Parameter Type="Param" Library="UPLR" Id="C5F6855B"/>
+            <Parameter Type="Param" Library="UPLR" Id="5F3F521F"/>
+        </Element>
+        <Element Type="Param" Id="91C0E02A">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000156"/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+        </Element>
+        <Element Type="Param" Id="C5F6855B">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000157"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="8C7B1239"/>
+        </Element>
+        <Element Type="FunctionCall" Id="8C7B1239">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="F6F9120D"/>
+            <Parameter Type="Param" Library="UPLR" Id="6265C37B"/>
+            <Parameter Type="Param" Library="UPLR" Id="FB5171DA"/>
+        </Element>
+        <Element Type="Param" Id="6265C37B">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="402665EE"/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+        </Element>
+        <Element Type="Param" Id="FB5171DA">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="BF82A2BC"/>
+            <Value>MyraDavisHealingPatch</Value>
+            <ValueType Type="abilcmd"/>
+        </Element>
+        <Element Type="Param" Id="5F3F521F">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000158"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="00000041"/>
+        </Element>
+        <Element Type="FunctionCall" Id="2610D165">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="7B4A4D9D"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000004"/>
+        </Element>
+        <Element Type="FunctionCall" Id="F6C87701">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
+            <Parameter Type="Param" Library="UPLR" Id="D3528E6D"/>
+            <Parameter Type="Param" Library="UPLR" Id="13EA9242"/>
+            <Parameter Type="Param" Library="UPLR" Id="9F566856"/>
+        </Element>
+        <Element Type="Param" Id="D3528E6D">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="39F21F8D"/>
+        </Element>
+        <Element Type="FunctionCall" Id="39F21F8D">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="69CE5404"/>
+            <Parameter Type="Param" Library="UPLR" Id="DA773A06"/>
+            <Parameter Type="Param" Library="UPLR" Id="865694C7"/>
+        </Element>
+        <Element Type="Param" Id="DA773A06">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="C460B7DA"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="E3DC8FA1"/>
+        </Element>
+        <Element Type="FunctionCall" Id="E3DC8FA1">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000053"/>
+        </Element>
+        <Element Type="Param" Id="865694C7">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="3F99BFE2"/>
+            <Value>MyraDavisHealingPatch</Value>
+            <ValueType Type="abilcmd"/>
+        </Element>
+        <Element Type="Param" Id="13EA9242">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
+        </Element>
+        <Element Type="Param" Id="9F566856">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
+            <Value>true</Value>
+            <ValueType Type="bool"/>
+        </Element>
+        <Element Type="FunctionCall" Id="4561174D">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
+            <Parameter Type="Param" Library="UPLR" Id="A5AA8D20"/>
+            <Parameter Type="Param" Library="UPLR" Id="55AF8E0E"/>
+            <Parameter Type="Param" Library="UPLR" Id="85152D7E"/>
+        </Element>
+        <Element Type="Param" Id="A5AA8D20">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="282396C6"/>
+        </Element>
+        <Element Type="FunctionCall" Id="282396C6">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000154"/>
+            <Parameter Type="Param" Library="UPLR" Id="2F48D7EB"/>
+            <Parameter Type="Param" Library="UPLR" Id="F0FE03BD"/>
+            <Parameter Type="Param" Library="UPLR" Id="632A2C08"/>
+        </Element>
+        <Element Type="Param" Id="2F48D7EB">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000246"/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+        </Element>
+        <Element Type="Param" Id="F0FE03BD">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="F497783A"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="26A9A86C"/>
+        </Element>
+        <Element Type="Param" Id="632A2C08">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000247"/>
+            <Value>MyraDavisHealingPatch</Value>
+            <ValueType Type="gamelink"/>
+            <ValueGameType Type="Abil"/>
+        </Element>
+        <Element Type="Param" Id="55AF8E0E">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
+        </Element>
+        <Element Type="Param" Id="85152D7E">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
+            <Value>true</Value>
+            <ValueType Type="bool"/>
+        </Element>
+        <Element Type="FunctionCall" Id="A7F22E7A">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
+            <Parameter Type="Param" Library="UPLR" Id="ABF58E5D"/>
+            <Parameter Type="Param" Library="UPLR" Id="150F09D2"/>
+            <Parameter Type="Param" Library="UPLR" Id="1F327921"/>
+        </Element>
+        <Element Type="Param" Id="ABF58E5D">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="4A7851D7"/>
+        </Element>
+        <Element Type="FunctionCall" Id="4A7851D7">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="56B8B8AF"/>
+            <Parameter Type="Param" Library="UPLR" Id="5FDB23E5"/>
+            <Parameter Type="Param" Library="UPLR" Id="8F550325"/>
+            <Parameter Type="Param" Library="UPLR" Id="15257BC1"/>
+        </Element>
+        <Element Type="Param" Id="5FDB23E5">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="D5F1C56F"/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+        </Element>
+        <Element Type="Param" Id="8F550325">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="F6AE21AD"/>
+            <Value>MyraDavisHealingPatch</Value>
+            <ValueType Type="gamelink"/>
+            <ValueGameType Type="Abil"/>
+        </Element>
+        <Element Type="Param" Id="15257BC1">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="785F1E7F"/>
+            <Value>Abil/MyraDavisHealingPatch</Value>
+            <ValueType Type="cooldown"/>
+        </Element>
+        <Element Type="Param" Id="150F09D2">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
+        </Element>
+        <Element Type="Param" Id="1F327921">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
+            <Value>0.0</Value>
+            <ValueType Type="fixed"/>
+        </Element>
+        <Element Type="FunctionCall" Id="4A7B7FD4">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000133"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="F4304D3E"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="3721E110"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="51EE1E03"/>
+        </Element>
+        <Element Type="FunctionCall" Id="F4304D3E">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000001"/>
+            <Parameter Type="Param" Library="UPLR" Id="D7B915C3"/>
+            <Parameter Type="Param" Library="UPLR" Id="CE9C10E4"/>
+            <Parameter Type="Param" Library="UPLR" Id="2109AB3D"/>
+        </Element>
+        <Element Type="Param" Id="D7B915C3">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="DDF815F0"/>
+        </Element>
+        <Element Type="FunctionCall" Id="DDF815F0">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000079"/>
+            <Parameter Type="Param" Library="UPLR" Id="D81DB4E7"/>
+        </Element>
+        <Element Type="Param" Id="D81DB4E7">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000138"/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+        </Element>
+        <Element Type="Param" Id="CE9C10E4">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
+        </Element>
+        <Element Type="Param" Id="2109AB3D">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
+            <Value>MyraDavisOfficer</Value>
+            <ValueType Type="gamelink"/>
+            <ValueGameType Type="Unit"/>
+        </Element>
+        <Element Type="FunctionCall" Id="3721E110">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000001"/>
+            <Parameter Type="Param" Library="UPLR" Id="39FB1243"/>
+            <Parameter Type="Param" Library="UPLR" Id="EC1BC2D4"/>
+            <Parameter Type="Param" Library="UPLR" Id="4448C185"/>
+        </Element>
+        <Element Type="Param" Id="39FB1243">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="D40DAB1F"/>
+        </Element>
+        <Element Type="FunctionCall" Id="D40DAB1F">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000079"/>
+            <Parameter Type="Param" Library="UPLR" Id="D58CEB09"/>
+        </Element>
+        <Element Type="Param" Id="D58CEB09">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000138"/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+        </Element>
+        <Element Type="Param" Id="EC1BC2D4">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
+        </Element>
+        <Element Type="Param" Id="4448C185">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
+            <Value>MyraDavisRiotOfficer</Value>
+            <ValueType Type="gamelink"/>
+            <ValueGameType Type="Unit"/>
+        </Element>
+        <Element Type="FunctionCall" Id="51EE1E03">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
+            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000001"/>
+            <Parameter Type="Param" Library="UPLR" Id="C7C3F219"/>
+            <Parameter Type="Param" Library="UPLR" Id="83791C63"/>
+            <Parameter Type="Param" Library="UPLR" Id="8BFA39FE"/>
+        </Element>
+        <Element Type="Param" Id="C7C3F219">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="006AA823"/>
+        </Element>
+        <Element Type="FunctionCall" Id="006AA823">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000079"/>
+            <Parameter Type="Param" Library="UPLR" Id="BC581434"/>
+        </Element>
+        <Element Type="Param" Id="BC581434">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000138"/>
+            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
+        </Element>
+        <Element Type="Param" Id="83791C63">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
+        </Element>
+        <Element Type="Param" Id="8BFA39FE">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
+            <Value>RusellPeters</Value>
+            <ValueType Type="gamelink"/>
+            <ValueGameType Type="Unit"/>
+        </Element>
+        <Element Type="FunctionCall" Id="33985C30">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="0B3D8934"/>
+            <Parameter Type="Param" Library="UPLR" Id="332BF250"/>
+            <Parameter Type="Param" Library="UPLR" Id="03490CEE"/>
+            <Parameter Type="Param" Library="UPLR" Id="1040B832"/>
+            <Parameter Type="Param" Library="UPLR" Id="32640847"/>
+        </Element>
+        <Element Type="Param" Id="332BF250">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="DEEDBCBE"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="0A5019C8"/>
+        </Element>
+        <Element Type="FunctionCall" Id="0A5019C8">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000057"/>
+            <Parameter Type="Param" Library="UPLR" Id="EE5A4112"/>
+        </Element>
+        <Element Type="Param" Id="EE5A4112">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000094"/>
+            <FunctionCall Type="FunctionCall" Library="UPLR" Id="49EFB32C"/>
+        </Element>
+        <Element Type="FunctionCall" Id="49EFB32C">
+            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000053"/>
+        </Element>
+        <Element Type="Param" Id="03490CEE">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="A21D1423"/>
+            <CustomType Type="unitgroup"/>
+            <ScriptCode>
+                null
+            </ScriptCode>
+        </Element>
+        <Element Type="Param" Id="1040B832">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="0CA083F2"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="99AB77FB"/>
+        </Element>
+        <Element Type="Param" Id="32640847">
+            <ParameterDef Type="ParamDef" Library="Ntve" Id="B35E76BE"/>
+            <Preset Type="PresetValue" Library="Ntve" Id="00000072"/>
+        </Element>
+        <Element Type="Category" Id="AA1A1666">
+            <Label Type="Label" Library="Ntve" Id="8B88800F"/>
+            <Item Type="CustomScript" Library="UPLR" Id="2776E493"/>
+            <Item Type="Category" Library="UPLR" Id="3E4F75AD"/>
+            <Item Type="Category" Library="UPLR" Id="CD85A393"/>
+        </Element>
+        <Element Type="CustomScript" Id="2776E493">
+            <Label Type="Label" Library="Ntve" Id="196A8DD2"/>
+            <Disabled/>
+            <ScriptCode>
+                const string KEY_PREFIX = &quot;LotC_SpecOpsClaymoreHandler&quot;;
+                static trigger gt_Activated;
+                static trigger gt_ForceOff;
+                static trigger gt_Deactivated;
+                static trigger gt_PointChosen;
+                static trigger gt_DirectionChosen;
+                static trigger gt_EffectFired;
+                static trigger gt_Cancel;
+                static trigger gt_CancelFromUI;
+                static trigger gt_CameraShake;
+                static trigger gt_ExecuteAction;
+                static trigger gt_OrderMine;
+                static string KeyBase(string unitTag, string abilInstance){
+                	return KEY_PREFIX + &quot;[&quot;+unitTag+&quot;,&quot;+abilInstance+&quot;]&quot;;
+                }
+                static string Key(string base, string suffix){
+                	return base+&quot;.&quot;+suffix;
+                }
+                static string KeyFull(string unitTag, string abilInstance, string suffix){
+                	return Key(KeyBase(unitTag,abilInstance),suffix);
+                }
+                point LotC_SpecOpsClaymoreHandler_EventPoint(){
+                	return DataTableGetPoint(false, TriggerEventParamName(EventGenericName(), &quot;Point&quot;));
+                	
+                }
+                point LotC_SpecOpsClaymoreHandler_EventDirection(){
+                	return DataTableGetPoint(false, TriggerEventParamName(EventGenericName(), &quot;Direction&quot;));
+                	
+                }
+                unit LotC_SpecOpsClaymoreHandler_EventCaster(){
+                	return DataTableGetUnit(false, TriggerEventParamName(EventGenericName(), &quot;Caster&quot;));
+                }
+                string LotC_SpecOpsClaymoreHandler_EventName(){
+                	return KEY_PREFIX+&quot;ExecuteAction&quot;;
+                }
+                void LotC_SpecOpsClaymoreHandler_SendTriggerEvent(string lp_unitTag, string lp_abil){
+                	string lv_keyBase = KeyBase(lp_unitTag,lp_abil);
+                	string event = KEY_PREFIX+&quot;ExecuteAction&quot;;
+                	int i = 0;
+                	string key;
+                	int lv_ChargesTotal = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesTotal&quot;));
+                	point lv_point = DataTableGetPoint(true,Key(lv_keyBase,&quot;Point[&quot;+IntToString(lv_ChargesTotal)+&quot;]&quot;));
+                	point lv_direction = DataTableGetPoint(true,Key(lv_keyBase,&quot;Direction[&quot;+IntToString(lv_ChargesTotal)+&quot;]&quot;));
+                	unit lv_caster = DataTableGetUnit(true,Key(lv_keyBase,&quot;CasterUnit&quot;));
+                	bool keyexists = false;
+                	for(i=1;i&lt;=lv_ChargesTotal;i+=1){
+                		keyexists = false;
+                		
+                		key = &quot;Point[&quot;+IntToString(i)+&quot;]&quot;;
+                		if(DataTableValueExists(true,Key(lv_keyBase,key))){
+                			lv_point = DataTableGetPoint(true,Key(lv_keyBase,key));
+                			DataTableSetPoint(false, TriggerEventParamName(event, &quot;Point&quot;), lv_point);
+                			keyexists = true;
+                		}
+                		key = &quot;Direction[&quot;+IntToString(i)+&quot;]&quot;;
+                		if(DataTableValueExists(true,Key(lv_keyBase,key))){
+                			lv_direction = DataTableGetPoint(true,Key(lv_keyBase,key));
+                			DataTableSetPoint(false, TriggerEventParamName(event, &quot;Direction&quot;), lv_direction);
+                			keyexists = true;
+                		}
+                		if(keyexists){
+                			lv_caster = DataTableGetUnit(true,Key(lv_keyBase,&quot;CasterUnit&quot;));
+                			DataTableSetUnit(false, TriggerEventParamName(event, &quot;Caster&quot;), lv_caster);
+                			TriggerSendEvent(event);
+                		}
+                	}
+                }
+                void LotC_SpecOpsClaymoreHandler_ClearDataTable(string lp_unitTag, string lp_abil){
+                	string lv_keyBase = KeyBase(lp_unitTag,lp_abil);
+                	
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;CasterUnit&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;CasterGroup&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ActivateAbility&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ExecuteCommand&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Cooldown&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Behavior&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Model&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Order&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;UnitType&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ChargesTotal&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;InstructionsPrimary&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;InstructionsSecondary&quot;));
+                	//lv_HornerAirFleet_Cost = CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_ActivateAbility, &quot;Cost[0].Resource[0]&quot;, lv_casterPlayer);
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ChargesSpent&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;UsageCount&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Phase&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Transitioning&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;UnrefundableStageEntered&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;AlreadyCanceled&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Unit[]&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Actors[]&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;DirectionGroup&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;Cycling&quot;));
+                	DataTableValueRemove(true,Key(lv_keyBase,&quot;ExitInstantly&quot;));
+                }
+                void LotC_SpecOpsClaymoreHandler_InitDataTableFromUserData(string lp_unitTag, string lp_abil){
+                	string lv_keyBase = KeyBase(lp_unitTag,lp_abil);
+                	string lv_user = &quot;LotC_Targetable&quot;;
+                	DataTableSetString(true,Key(lv_keyBase,&quot;ActivateAbility&quot;),UserDataGetGameLink(lv_user,lp_abil,&quot;ActivateAbility&quot;,1));//HornerAirFleetActivate
+                	DataTableSetAbilCmd(true,Key(lv_keyBase,&quot;ExecuteCommand&quot;),UserDataGetAbilCmd(lv_user,lp_abil,&quot;ExecuteCommand&quot;,1));
+                	DataTableSetString(true,Key(lv_keyBase,&quot;Cooldown&quot;),UserDataGetString(lv_user,lp_abil,&quot;Cooldown&quot;,1));
+                	DataTableSetString(true,Key(lv_keyBase,&quot;Behavior&quot;),UserDataGetGameLink(lv_user,lp_abil,&quot;Behavior&quot;,1));
+                	DataTableSetString(true,Key(lv_keyBase,&quot;Model&quot;),UserDataGetGameLink(lv_user,lp_abil,&quot;Model&quot;,1));
+                	//DataTableSetOrder(true,Key(lv_keyBase,&quot;Order&quot;),OrderTargetingPoint(UserDataGetAbilCmd(lv_user,lp_abil,&quot;Order&quot;,1), UnitGetPosition(lv_caster)));
+                	DataTableSetString(true,Key(lv_keyBase,&quot;UnitType&quot;),UserDataGetGameLink(lv_user,lp_abil,&quot;UnitType&quot;,1));
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesTotal&quot;),UserDataGetInt(lv_user,lp_abil,&quot;ChargesTotal&quot;,1));
+                	DataTableSetText(true,Key(lv_keyBase,&quot;InstructionsPrimary&quot;),UserDataGetText(lv_user,lp_abil,&quot;InstructionsPrimary&quot;,1));
+                	DataTableSetText(true,Key(lv_keyBase,&quot;InstructionsSecondary&quot;),UserDataGetText(lv_user,lp_abil,&quot;InstructionsSecondary&quot;,1));
+                	
+                	
+                }
+                void LotC_SpecOpsClaymoreHandler_ModeEnter (int lp_player,unit lp_caster, string lp_abil) {
+                	int lv_count;
+                	string lv_unitTag = IntToString(UnitGetTag(lp_caster));
+                	string lv_keyBase = KeyBase(lv_unitTag,lp_abil);
+                	int lv_UsageCount = DataTableGetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;));
+                	order lv_order = DataTableGetOrder(true,Key(lv_keyBase,&quot;Order&quot;));
+                	unitgroup lv_casterGroup = DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;));
+                	TriggerDebugOutput(1,StringToText(&quot;LotC_SpecOpsClaymoreHandler_ModeEnter&quot;),true);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;UnrefundableStageEntered&quot;),false);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;AlreadyCanceled&quot;),false);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),false);
+                	while (!((DataTableGetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;)) == false))) {
+                		Wait(0.0625, c_timeGame);
+                	}
+                	TriggerEnable(gt_Cancel, true);
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;),lv_UsageCount+1);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;ExitInstantly&quot;),false);
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;),0);
+                	if ((lv_order != null)) {
+                		TriggerEnable(gt_PointChosen, true);
+                		TriggerEnable(gt_DirectionChosen, true);
+                		UISetTargetingOrder(PlayerGroupSingle(lp_player), lv_casterGroup, lv_order, false);
+                		DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_Location);
+                	}
+                	else {
+                		DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_None);
+                	}
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),true);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),false);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),true);
+                	
+                }
+                void LotC_SpecOpsClaymoreHandler_ModeExit (int lp_player,unit lp_caster, string lp_abil) {
+                	string lv_unitTag = IntToString(UnitGetTag(lp_caster));
+                	string lv_keyBase = KeyBase(lv_unitTag,lp_abil);
+                	int lv_UsageCount = DataTableGetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;));
+                	TriggerDebugOutput(1,StringToText(&quot;LotC_SpecOpsClaymoreHandler_ModeExit&quot;),true);
+                	LotC_SpecOpsClaymoreHandler_SendTriggerEvent(lv_unitTag,lp_abil);
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_None);
+                	while (!((DataTableGetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;)) == false))) {
+                		Wait(0.0625, c_timeGame);
+                	}
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),true);
+                	if ((DataTableGetBool(true,Key(lv_keyBase,&quot;ExitInstantly&quot;)) == true)) {}
+                	else {}
+                	if ((DataTableGetBool(true,Key(lv_keyBase,&quot;ExitInstantly&quot;)) == true)) {
+                		VisResetFoWAlpha(lp_player);
+                	}
+                	else {}
+                	//libNtve_gf_RestoreUnitSelection(lp_player);
+                	DataTableSetString(true,Key(lv_keyBase,&quot;ActivateAbility&quot;),null);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),false);
+                	lv_UsageCount -= 1;
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;),lv_UsageCount);
+                	if ((lv_UsageCount == 0)) {
+                		TriggerEnable(gt_Cancel, false);
+                		TriggerEnable(gt_PointChosen, false);
+                		TriggerEnable(gt_DirectionChosen, false);
+                	}
+                }
+                bool LotC_SpecOpsClaymoreHandler_OrderMine_Func (bool testConds, bool runActions) {
+                	unit lv_caster = EventUnit();
+                	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
+                	unit u = EventUnitCreatedUnit();
+                	string abil = EventUnitCreatedAbil();
+                	point lv_direction = DataTableGetPoint(true,KEY_PREFIX+&quot;SetDirection:&quot;+lv_unitTag+&quot;:&quot;+abil);
+                	order o = OrderTargetingPoint(AbilityCommand(&quot;ClaymoreMineLookAtPoint&quot;,0),lv_direction);
+                	
+                	UnitIssueOrder(u,o,c_orderQueueReplace);
+                	return true;
+                }
+                bool LotC_SpecOpsClaymoreHandler_ExecuteAction_Func (bool testConds, bool runActions) {
+                	point lv_point = LotC_SpecOpsClaymoreHandler_EventPoint();
+                	point lv_direction = LotC_SpecOpsClaymoreHandler_EventDirection();
+                	unit u = LotC_SpecOpsClaymoreHandler_EventCaster();
+                	string lv_unitTag = IntToString(UnitGetTag(u));
+                	string abil = &quot;ClaymoreMinePlace&quot;;
+                	order o = OrderTargetingPoint(AbilityCommand(abil,0),lv_point);
+                	
+                	DataTableSetPoint(true,KEY_PREFIX+&quot;SetDirection:&quot;+lv_unitTag+&quot;:&quot;+abil,lv_direction);
+                	TriggerAddEventUnitCreated(gt_OrderMine,UnitRefFromUnit(u),abil,&quot;&quot;);
+                	UnitIssueOrder(u,o,c_orderQueueReplace);
+                	return true;
+                }
+                bool LotC_SpecOpsClaymoreHandler_DirectionChosen_Func (bool testConds, bool runActions) {
+                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
+                	string lv_unitTag = IntToString(UnitGetTag(EventUnit()));
+                	unit lv_caster = DataTableGetUnit(true,Key(KEY_PREFIX,&quot;TargeterParent[&quot;+lv_unitTag+&quot;]&quot;));
+                	int lv_casterPlayer = EventPlayer();
+                	point lv_targetPoint= OrderGetTargetPoint(EventUnitOrder());
+                	
+                	string lv_keyBase = KeyBase(IntToString(UnitGetTag(lv_caster)),lv_abil);
+                	int lv_ChargesSpent = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;));
+                	int lv_ChargesTotal = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesTotal&quot;));
+                	order lv_order = DataTableGetOrder(true,Key(lv_keyBase,&quot;Order&quot;));
+                	unit u = DataTableGetUnit(true,Key(lv_keyBase,&quot;Units[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;));
+                	//LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+                	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
+                	if (testConds) {
+                		if (!((DataTableGetInt(true,Key(lv_keyBase,&quot;Phase&quot;)) == c_TargetingPhaseType_Direction))) {
+                			return false;
+                		}
+                	}
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),true);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;UnrefundableStageEntered&quot;),true);
+                	libNtve_gf_CreateActorAtPoint(DataTableGetString(true,Key(lv_keyBase,&quot;ConfirmationSound&quot;)), lv_targetPoint);
+                	DataTableSetPoint(true,Key(lv_keyBase,&quot;Direction[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;),lv_targetPoint);
+                	ActorSend(DataTableGetActor(true,Key(lv_keyBase,&quot;Actors[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;)), &quot;Signal Destroy&quot;);
+                	if ((UnitIsValid(u) == false)) {
+                		return true;
+                	}
+                	libNtve_gf_MakeUnitFacePoint(u, lv_targetPoint, 0.0);
+                	////libCOUI_gf_CU_TargetingSetCharges((Targeting.lv_ChargesTotal-Targeting.lv_ChargesSpent), Targeting.lv_ChargesTotal, lv_casterPlayer);
+                	if ((lv_ChargesSpent == lv_ChargesTotal)) {
+                		UnitBehaviorRemove(lv_caster, DataTableGetString(true,Key(lv_keyBase,&quot;Behavior&quot;)), 1);
+                		Wait(0.1, c_timeGame);
+                		
+                	}
+                	else {
+                		//libCOUI_gf_CU_TargetingSetInstructionText(Targeting.lv_InstructionsPrimary, lv_casterPlayer);
+                		Wait(0.1, c_timeGame);
+                		
+                		if ((DataTableGetBool(true,Key(lv_keyBase,&quot;AlreadyCanceled&quot;)) == false)) {
+                			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;)), lv_order, false);
+                		}
+                		DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_Location);
+                	}
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),false);
+                	return true;
+                }
+                bool LotC_SpecOpsClaymoreHandler_PointChosen_Func (bool testConds, bool runActions) {
+                	unit lv_caster = EventUnit();
+                	int lv_casterPlayer = EventPlayer();
+                	point lv_targetPoint= OrderGetTargetPoint(EventUnitOrder());
+                	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
+                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
+                	string lv_keyBase = KeyBase(lv_unitTag,lv_abil);
+                	int lv_ChargesSpent = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;));
+                	int lv_ChargesTotal = DataTableGetInt(true,Key(lv_keyBase,&quot;ChargesTotal&quot;));
+                	string lv_UnitType = DataTableGetString(true,Key(lv_keyBase,&quot;UnitType&quot;));
+                	order lv_order = DataTableGetOrder(true,Key(lv_keyBase,&quot;Order&quot;));
+                	abilcmd lv_executeCommand = DataTableGetAbilCmd(true,Key(lv_keyBase,&quot;ExecuteCommand&quot;));
+                	unit u;
+                	//LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+                	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
+                	if (testConds) {
+                		if (!(DataTableGetInt(true,Key(lv_keyBase,&quot;Phase&quot;)) == c_TargetingPhaseType_Location)) {
+                			return false;
+                		}
+                		if (!(lv_ChargesSpent &lt; lv_ChargesTotal)) {
+                			return false;
+                		}
+                	}
+                	if ((VisIsVisibleForPlayer(lv_casterPlayer, lv_targetPoint) == false)) {
+                		return true;
+                	}
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),true);
+                	lv_ChargesSpent += 1;
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;),lv_ChargesSpent);
+                	libNtve_gf_CreateActorAtPoint(DataTableGetString(true,Key(lv_keyBase,&quot;Model&quot;)), lv_targetPoint);
+                	DataTableSetActor(true,Key(lv_keyBase,&quot;Actors[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;),libNtve_gf_ActorLastCreated());
+                	DataTableSetPoint(true,Key(lv_keyBase,&quot;Point[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;),lv_targetPoint);
+                	libNtve_gf_CreateActorAtPoint(DataTableGetString(true,Key(lv_keyBase,&quot;ConfirmationSound&quot;)), lv_targetPoint);
+                	if ((lv_UnitType == null)) {
+                		UnitIssueOrder(lv_caster, OrderTargetingPoint(lv_executeCommand, lv_targetPoint), c_orderQueueAddToEnd);
+                		if ((lv_ChargesSpent == lv_ChargesTotal)) {
+                			Wait(0.125, c_timeGame);
+                			UnitBehaviorRemove(lv_caster, DataTableGetString(true,Key(lv_keyBase,&quot;Behavior&quot;)), 1);
+                		}
+                		else {
+                			Wait(0.1, c_timeGame);
+                			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;)), lv_order, false);
+                		}
+                	}
+                	else {
+                		libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_UnitType, 0, lv_casterPlayer, lv_targetPoint);
+                		u = UnitLastCreated();
+                		DataTableSetUnit(true,Key(KEY_PREFIX,&quot;TargeterParent[&quot;+IntToString(UnitGetTag(u))+&quot;]&quot;),lv_caster);
+                		DataTableSetUnit(true,Key(lv_keyBase,&quot;Units[&quot;+IntToString(lv_ChargesSpent)+&quot;]&quot;),u);
+                		UnitSetState(u, c_unitStateTooltipable, false);
+                		DataTableSetUnitGroup(true,Key(lv_keyBase,&quot;DirectionGroup&quot;),libNtve_gf_ConvertUnitToUnitGroup(u));
+                		Wait(0.1, c_timeGame);
+                		if ((UnitIsValid(u) == true)) {
+                			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;DirectionGroup&quot;)), OrderTargetingPoint(lv_executeCommand, UnitGetPosition(u)), false);
+                			//libCOUI_gf_CU_TargetingSetInstructionText(Targeting.lv_InstructionsSecondary, lv_casterPlayer);
+                			DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_Direction);
+                		}
+                	}
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),false);
+                	return true;
+                }
+                bool LotC_SpecOpsClaymoreHandler_Deactivated_Func (bool testConds, bool runActions) {
+                	int lv_casterPlayer = UnitGetOwner(EventUnit());
+                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
+                	unit lv_caster = EventUnit();
+                	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
+                	
+                	string lv_keyBase = KeyBase(lv_unitTag,lv_abil);
+                	//LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+                	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
+                	if (!runActions) {
+                		return true;
+                	}
+                	UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), DataTableGetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;)), null, false);
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;),0);
+                	LotC_SpecOpsClaymoreHandler_ModeExit(lv_casterPlayer,lv_caster,lv_abil);
+                	return true;
+                }
+                bool LotC_SpecOpsClaymoreHandler_Activated_Func (bool testConds, bool runActions) {
+                	unit lv_caster = EventUnit();
+                	string lv_unitTag = IntToString(UnitGetTag(lv_caster));
+                	int lv_casterPlayer = 1;//UnitGetOwner(lv_caster);
+                	string lv_user = &quot;LotC_Targetable&quot;;
+                	string BehaviorActivated = EventUnitBehavior();
+                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
+                	int lv_HornerAirFleet_Cost;
+                	string lv_keyBase = KeyBase(lv_unitTag,lv_abil);
+                	
+                	//order lv_Order = ;//&quot;HornerAirFleetTargetingDummy&quot;
+                	TriggerDebugOutput(1,StringToText(TriggerGetFunction(EventTrigger())),true);
+                	DataTableSetUnit(true,Key(lv_keyBase,&quot;CasterUnit&quot;),lv_caster);
+                	DataTableSetUnit(true,Key(lv_keyBase,&quot;Targeter&quot;),lv_caster);
+                	DataTableSetUnitGroup(true,Key(lv_keyBase,&quot;CasterGroup&quot;),libNtve_gf_ConvertUnitToUnitGroup(lv_caster));
+                	LotC_SpecOpsClaymoreHandler_InitDataTableFromUserData(lv_unitTag,lv_abil);
+                	DataTableSetOrder(true,Key(lv_keyBase,&quot;Order&quot;),OrderTargetingPoint(UserDataGetAbilCmd(lv_user,lv_abil,&quot;Order&quot;,1), UnitGetPosition(lv_caster)));
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;ChargesSpent&quot;),0);
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;UsageCount&quot;),0);
+                	DataTableSetInt(true,Key(lv_keyBase,&quot;Phase&quot;),c_TargetingPhaseType_None);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Transitioning&quot;),false);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;UnrefundableStageEntered&quot;),false);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;AlreadyCanceled&quot;),false);
+                	DataTableSetUnit(true,Key(lv_keyBase,&quot;Unit[]&quot;),null);
+                	DataTableSetActor(true,Key(lv_keyBase,&quot;Actors[]&quot;),null);
+                	DataTableSetUnitGroup(true,Key(lv_keyBase,&quot;DirectionGroup&quot;),UnitGroupEmpty());
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;Cycling&quot;),false);
+                	DataTableSetBool(true,Key(lv_keyBase,&quot;ExitInstantly&quot;),false);
+                	DataTableSetString(true,Key(lv_keyBase,&quot;ConfirmationSound&quot;),&quot;SOATargetingModeConfirmationSound&quot;);
+                	//lv_HornerAirFleet_Cost = CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_ActivateAbility, &quot;Cost[0].Resource[0]&quot;, lv_casterPlayer);
+                	DataTableSetUnit(true,Key(KEY_PREFIX,&quot;TargeterParent[&quot;+lv_unitTag+&quot;]&quot;),lv_caster);
+                	LotC_SpecOpsClaymoreHandler_ModeEnter(lv_casterPlayer, lv_caster,lv_abil);
+                	return true;
+                	
+                }
+                void LotC_SpecOpsClaymoreHandler_Init(){
+                	trigger t;
+                	string lv_user = &quot;LotC_Targetable&quot;;
+                	string lv_abil = &quot;ClaymoreMinePlace&quot;;
+                	string ActivateBehavior = &quot;ClaymoreMinePlaceActivate&quot;;
+                	//LOTC_Targeting_gt_Cancel;
+                	//LOTC_Targeting_gt_CancelFromUI;
+                	//LOTC_Targeting_gt_CameraShake;
+                	gt_Activated = TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_Activated_Func&quot;);
+                	TriggerAddEventUnitBehaviorChange(gt_Activated, null, ActivateBehavior, c_unitBehaviorChangeActivate);
+                	gt_Deactivated = TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_Deactivated_Func&quot;);
+                	TriggerAddEventUnitBehaviorChange(gt_Deactivated, null, ActivateBehavior, c_unitBehaviorChangeDeactivate);
+                	gt_PointChosen = TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_PointChosen_Func&quot;);
+                	TriggerEnable(gt_PointChosen, false);
+                	UserDataGetAbilCmd(lv_user,lv_abil,&quot;Order&quot;,1);
+                	TriggerAddEventUnitOrder(gt_PointChosen, null, AbilityCommand(&quot;ClaymoreMinePlaceTargetingDummy&quot;, 0));
+                	gt_DirectionChosen = TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_DirectionChosen_Func&quot;);
+                	TriggerEnable(gt_DirectionChosen, false);
+                	TriggerAddEventUnitOrder(gt_DirectionChosen, null, AbilityCommand(&quot;ClaymoreMinePlaceExecute&quot;, 0));
+                	gt_ForceOff = TriggerCreate(&quot;LOTC_Targeting_TargetingForceOff_Func&quot;);
+                	//TriggerAddEventGeneric(LOTC_Targeting_gt_ForceOff, &quot;CinematicModeOn&quot;);
+                	gt_EffectFired = TriggerCreate(&quot;LOTC_Targeting_EffectFired_Func&quot;);
+                	//TriggerAddEventPlayerEffectUsed(LOTC_Targeting_gt_EffectFired, c_playerAny, &quot;SOAOrbitalStrikeCP&quot;);
+                	//TriggerAddEventPlayerEffectUsed(LOTC_Targeting_gt_EffectFired, c_playerAny, &quot;SOAGravitonBombLM&quot;);
+                	gt_ExecuteAction =TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_ExecuteAction_Func&quot;);
+                	TriggerAddEventGeneric(gt_ExecuteAction,LotC_SpecOpsClaymoreHandler_EventName());
+                	
+                	gt_OrderMine= TriggerCreate(&quot;LotC_SpecOpsClaymoreHandler_OrderMine_Func&quot;);
+                }
+            </ScriptCode>
+            <InitFunc>LotC_SpecOpsClaymoreHandler_Init</InitFunc>
+        </Element>
         <Element Type="Category" Id="3E4F75AD">
             <Identifier>PsionicProjection</Identifier>
             <Label Type="Label" Library="Ntve" Id="196A8DD2"/>
@@ -2471,6 +3041,7 @@
             <Item Type="Variable" Library="UPLR" Id="E79AFCA8"/>
         </Element>
         <Element Type="Trigger" Id="E82E8FAB">
+            <Disabled/>
             <Internal/>
             <Variable Type="Variable" Library="UPLR" Id="3C5DA42A"/>
             <Variable Type="Variable" Library="UPLR" Id="07EE9BF2"/>
@@ -2697,6 +3268,7 @@
             <ValueType Type="bool"/>
         </Element>
         <Element Type="Trigger" Id="084D9902">
+            <Disabled/>
             <Internal/>
             <Variable Type="Variable" Library="UPLR" Id="E4FBB906"/>
             <Variable Type="Variable" Library="UPLR" Id="771083A2"/>
@@ -2858,6 +3430,7 @@
             <Variable Type="Variable" Library="UPLR" Id="E4FBB906"/>
         </Element>
         <Element Type="Trigger" Id="6874C5CF">
+            <Disabled/>
             <Internal/>
             <Variable Type="Variable" Library="UPLR" Id="F29A2BFB"/>
             <Variable Type="Variable" Library="UPLR" Id="988A2865"/>
@@ -3020,6 +3593,7 @@
             <Variable Type="Variable" Library="UPLR" Id="988A2865"/>
         </Element>
         <Element Type="Trigger" Id="B622E88C">
+            <Disabled/>
             <Internal/>
             <Event Type="FunctionCall" Library="UPLR" Id="20F5DF9C"/>
             <Action Type="FunctionCall" Library="UPLR" Id="9190C320"/>
@@ -3061,6 +3635,7 @@
         </Element>
         <Element Type="Variable" Id="D77D9228">
             <Label Type="Label" Library="Ntve" Id="CE915C5A"/>
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="unit"/>
@@ -3072,6 +3647,7 @@
         </Element>
         <Element Type="Variable" Id="E79AFCA8">
             <Label Type="Label" Library="Ntve" Id="CE915C5A"/>
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="unit"/>
@@ -3109,6 +3685,7 @@
         </Element>
         <Element Type="Trigger" Id="D8314BD0">
             <Identifier>KhalaPerceptionMissileLaunch</Identifier>
+            <Disabled/>
             <InitOff/>
             <Internal/>
             <Variable Type="Variable" Library="UPLR" Id="BB0D7D7B"/>
@@ -3451,6 +4028,7 @@
         </Element>
         <Element Type="Trigger" Id="5338FFDC">
             <Identifier>KhalaPerceptionMiss3</Identifier>
+            <Disabled/>
             <InitOff/>
             <Internal/>
             <Variable Type="Variable" Library="UPLR" Id="93F2E348"/>
@@ -3732,6 +4310,7 @@
             <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000004"/>
         </Element>
         <Element Type="Trigger" Id="E2F91EA7">
+            <Disabled/>
             <InitOff/>
             <Internal/>
             <Event Type="FunctionCall" Library="UPLR" Id="B4F04EB3"/>
@@ -3851,6 +4430,7 @@
         </Element>
         <Element Type="FunctionDef" Id="9F18C817">
             <Label Type="Label" Library="Ntve" Id="00000009"/>
+            <Disabled/>
             <Internal/>
             <FlagAction/>
             <Parameter Type="ParamDef" Library="UPLR" Id="AFA8A334"/>
@@ -4636,6 +5216,7 @@
         </Element>
         <Element Type="FunctionDef" Id="C742F9FF">
             <Label Type="Label" Library="Ntve" Id="00000009"/>
+            <Disabled/>
             <Internal/>
             <FlagAction/>
             <FlagCreateThread/>
@@ -5329,6 +5910,7 @@
             <Preset Type="PresetValue" Library="Ntve" Id="06588939"/>
         </Element>
         <Element Type="FunctionDef" Id="AC13A0BD">
+            <Disabled/>
             <Internal/>
             <FlagAction/>
             <Parameter Type="ParamDef" Library="UPLR" Id="419FA610"/>
@@ -6064,6 +6646,7 @@
         <Element Type="Comment" Id="7E23CEEA">
         </Element>
         <Element Type="Variable" Id="98B5D0D4">
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="bool"/>
@@ -6075,6 +6658,7 @@
             <ValueType Type="bool"/>
         </Element>
         <Element Type="Variable" Id="55A3F9BC">
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="unit"/>
@@ -6085,6 +6669,7 @@
             <Preset Type="PresetValue" Library="Ntve" Id="D6EA4D09"/>
         </Element>
         <Element Type="Variable" Id="A7001D65">
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="int"/>
@@ -6096,6 +6681,7 @@
             <ValueType Type="int"/>
         </Element>
         <Element Type="Variable" Id="D31CBA9D">
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="fixed"/>
@@ -6107,6 +6693,7 @@
             <ValueType Type="fixed"/>
         </Element>
         <Element Type="Variable" Id="1D887760">
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="fixed"/>
@@ -6118,6 +6705,7 @@
             <ValueType Type="fixed"/>
         </Element>
         <Element Type="Variable" Id="F35336CF">
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="fixed"/>
@@ -6130,6 +6718,7 @@
             <ValueType Type="fixed"/>
         </Element>
         <Element Type="Variable" Id="8F941E18">
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="fixed"/>
@@ -6142,6 +6731,7 @@
             <ValueType Type="fixed"/>
         </Element>
         <Element Type="Variable" Id="76FC8D0D">
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="sound"/>
@@ -6152,6 +6742,7 @@
             <Preset Type="PresetValue" Library="Ntve" Id="7B90D057"/>
         </Element>
         <Element Type="Variable" Id="18EDF0DC">
+            <Disabled/>
             <Internal/>
             <VariableType>
                 <Type Value="control"/>
@@ -6164,6 +6755,7 @@
         <Element Type="FunctionDef" Id="DC021E1B">
             <Identifier>TurnTurnOffKhalaPerception</Identifier>
             <Label Type="Label" Library="Ntve" Id="196A8DD2"/>
+            <Disabled/>
             <FlagAction/>
             <Parameter Type="ParamDef" Library="UPLR" Id="176980B1"/>
             <FunctionCall Type="FunctionCall" Library="UPLR" Id="65688F6A"/>
@@ -6210,6 +6802,7 @@
         <Element Type="FunctionDef" Id="545F1804">
             <Identifier>StopKhalaPerception</Identifier>
             <Label Type="Label" Library="Ntve" Id="196A8DD2"/>
+            <Disabled/>
             <FlagAction/>
             <Variable Type="Variable" Library="UPLR" Id="57A0590B"/>
             <FunctionCall Type="FunctionCall" Library="UPLR" Id="33E4594D"/>
@@ -6586,6 +7179,7 @@
         <Element Type="FunctionDef" Id="A232327B">
             <Identifier>GetKhalaPerceptionActive</Identifier>
             <Label Type="Label" Library="Ntve" Id="CE915C5A"/>
+            <Disabled/>
             <FlagCall/>
             <FlagInline/>
             <ReturnType>
@@ -6600,571 +7194,6 @@
         <Element Type="Param" Id="CBB9252D">
             <ParameterDef Type="ParamDef" Library="Ntve" Id="00000488"/>
             <Variable Type="Variable" Library="UPLR" Id="98B5D0D4"/>
-        </Element>
-        <Element Type="Category" Id="97B59014">
-            <Identifier>S</Identifier>
-            <Label Type="Label" Library="Ntve" Id="196A8DD2"/>
-            <Item Type="Trigger" Library="UPLR" Id="D2747742"/>
-            <Item Type="Trigger" Library="UPLR" Id="D9B9D631"/>
-            <Item Type="Variable" Library="UPLR" Id="D69CE059"/>
-            <Item Type="Trigger" Library="UPLR" Id="A91F9202"/>
-        </Element>
-        <Element Type="Trigger" Id="D2747742">
-            <Internal/>
-            <Event Type="FunctionCall" Library="UPLR" Id="9D91D291"/>
-            <Action Type="FunctionCall" Library="UPLR" Id="CED0246F"/>
-            <Action Type="FunctionCall" Library="UPLR" Id="E9350FDA"/>
-        </Element>
-        <Element Type="FunctionCall" Id="9D91D291">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="7603DD9E"/>
-            <Parameter Type="Param" Library="UPLR" Id="756DF285"/>
-            <Parameter Type="Param" Library="UPLR" Id="88FAB3BD"/>
-            <Parameter Type="Param" Library="UPLR" Id="AFA6EACD"/>
-        </Element>
-        <Element Type="Param" Id="756DF285">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="EC8B59CA"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="2999701E"/>
-        </Element>
-        <Element Type="Param" Id="88FAB3BD">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="6AD8EEF9"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="8378D0D9"/>
-        </Element>
-        <Element Type="Param" Id="AFA6EACD">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="1B9EE3A9"/>
-            <CustomType Type="preset"/>
-            <ScriptCode>
-                c_hotkeyHeroCharacterSheetPanel
-            </ScriptCode>
-        </Element>
-        <Element Type="FunctionCall" Id="CED0246F">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000136"/>
-            <Parameter Type="Param" Library="UPLR" Id="17B24140"/>
-            <Parameter Type="Param" Library="UPLR" Id="31F246FC"/>
-        </Element>
-        <Element Type="Param" Id="17B24140">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000219"/>
-            <Variable Type="Variable" Library="UPLR" Id="D69CE059"/>
-        </Element>
-        <Element Type="Param" Id="31F246FC">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000220"/>
-            <Value>true</Value>
-            <ValueType Type="bool"/>
-        </Element>
-        <Element Type="FunctionCall" Id="E9350FDA">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000111"/>
-            <Parameter Type="Param" Library="UPLR" Id="CA7ACA22"/>
-            <Parameter Type="Param" Library="UPLR" Id="212BA192"/>
-        </Element>
-        <Element Type="Param" Id="CA7ACA22">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000176"/>
-            <ValueType Type="trigger"/>
-            <ValueElement Type="Trigger" Library="UPLR" Id="A91F9202"/>
-        </Element>
-        <Element Type="Param" Id="212BA192">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000177"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="00000538"/>
-        </Element>
-        <Element Type="Trigger" Id="D9B9D631">
-            <Internal/>
-            <Event Type="FunctionCall" Library="UPLR" Id="47D39288"/>
-            <Action Type="FunctionCall" Library="UPLR" Id="0EAC7C72"/>
-            <Action Type="FunctionCall" Library="UPLR" Id="BA4D5487"/>
-        </Element>
-        <Element Type="FunctionCall" Id="47D39288">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="7603DD9E"/>
-            <Parameter Type="Param" Library="UPLR" Id="67369FAE"/>
-            <Parameter Type="Param" Library="UPLR" Id="A51507CB"/>
-            <Parameter Type="Param" Library="UPLR" Id="E8CC3299"/>
-        </Element>
-        <Element Type="Param" Id="67369FAE">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="EC8B59CA"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="2999701E"/>
-        </Element>
-        <Element Type="Param" Id="A51507CB">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="6AD8EEF9"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="57F0678C"/>
-        </Element>
-        <Element Type="Param" Id="E8CC3299">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="1B9EE3A9"/>
-            <CustomType Type="preset"/>
-            <ScriptCode>
-                c_hotkeyHeroCharacterSheetPanel
-            </ScriptCode>
-        </Element>
-        <Element Type="FunctionCall" Id="0EAC7C72">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000136"/>
-            <Parameter Type="Param" Library="UPLR" Id="B82E48CC"/>
-            <Parameter Type="Param" Library="UPLR" Id="D6F39E1A"/>
-        </Element>
-        <Element Type="Param" Id="B82E48CC">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000219"/>
-            <Variable Type="Variable" Library="UPLR" Id="D69CE059"/>
-        </Element>
-        <Element Type="Param" Id="D6F39E1A">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000220"/>
-            <Value>false</Value>
-            <ValueType Type="bool"/>
-        </Element>
-        <Element Type="FunctionCall" Id="BA4D5487">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000111"/>
-            <Parameter Type="Param" Library="UPLR" Id="496D6372"/>
-            <Parameter Type="Param" Library="UPLR" Id="BAE3B98F"/>
-        </Element>
-        <Element Type="Param" Id="496D6372">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000176"/>
-            <ValueType Type="trigger"/>
-            <ValueElement Type="Trigger" Library="UPLR" Id="A91F9202"/>
-        </Element>
-        <Element Type="Param" Id="BAE3B98F">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000177"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="00000545"/>
-        </Element>
-        <Element Type="Variable" Id="D69CE059">
-            <Internal/>
-            <VariableType>
-                <Type Value="bool"/>
-            </VariableType>
-            <Value Type="Param" Library="UPLR" Id="999A560B"/>
-        </Element>
-        <Element Type="Param" Id="999A560B">
-            <Value>false</Value>
-            <ValueType Type="bool"/>
-        </Element>
-        <Element Type="Trigger" Id="A91F9202">
-            <InitOff/>
-            <Internal/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-            <Variable Type="Variable" Library="UPLR" Id="20ABC5CF"/>
-            <Event Type="FunctionCall" Library="UPLR" Id="6FD04C58"/>
-            <Condition Type="FunctionCall" Library="UPLR" Id="BE3C69D7"/>
-            <Action Type="FunctionCall" Library="UPLR" Id="24040CE4"/>
-            <Action Type="FunctionCall" Library="UPLR" Id="33985C30"/>
-        </Element>
-        <Element Type="Variable" Id="EF0390E1">
-            <VariableType>
-                <Type Value="unit"/>
-            </VariableType>
-            <Value Type="Param" Library="UPLR" Id="1167603A"/>
-        </Element>
-        <Element Type="Param" Id="1167603A">
-            <Preset Type="PresetValue" Library="Ntve" Id="D6EA4D09"/>
-        </Element>
-        <Element Type="Variable" Id="20ABC5CF">
-            <VariableType>
-                <Type Value="order"/>
-            </VariableType>
-            <Value Type="Param" Library="UPLR" Id="7156F63E"/>
-        </Element>
-        <Element Type="Param" Id="7156F63E">
-            <Preset Type="PresetValue" Library="Ntve" Id="99AB77FB"/>
-        </Element>
-        <Element Type="FunctionCall" Id="6FD04C58">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="098A1488"/>
-            <Parameter Type="Param" Library="UPLR" Id="E4BD5BFD"/>
-            <Parameter Type="Param" Library="UPLR" Id="E1F24480"/>
-            <Parameter Type="Param" Library="UPLR" Id="2B25A92C"/>
-        </Element>
-        <Element Type="Param" Id="E4BD5BFD">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="ADA16315"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="2999701E"/>
-        </Element>
-        <Element Type="Param" Id="E1F24480">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="77D0F830"/>
-            <Value>MyraDavisHealingPatch</Value>
-            <ValueType Type="abilcmd"/>
-        </Element>
-        <Element Type="Param" Id="2B25A92C">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="47CAA6D2"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="A7C4229B"/>
-        </Element>
-        <Element Type="FunctionCall" Id="BE3C69D7">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
-            <Parameter Type="Param" Library="UPLR" Id="3AF24BDD"/>
-            <Parameter Type="Param" Library="UPLR" Id="75F1AB58"/>
-            <Parameter Type="Param" Library="UPLR" Id="6439B3C2"/>
-        </Element>
-        <Element Type="Param" Id="3AF24BDD">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
-            <Variable Type="Variable" Library="UPLR" Id="D69CE059"/>
-        </Element>
-        <Element Type="Param" Id="75F1AB58">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
-        </Element>
-        <Element Type="Param" Id="6439B3C2">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
-            <Value>true</Value>
-            <ValueType Type="bool"/>
-        </Element>
-        <Element Type="FunctionCall" Id="24040CE4">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000327"/>
-            <Parameter Type="Param" Library="UPLR" Id="AA98002D"/>
-            <Parameter Type="Param" Library="UPLR" Id="4F0828E9"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="E4DD2911"/>
-        </Element>
-        <Element Type="Param" Id="AA98002D">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000618"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="6C9A3CDF"/>
-        </Element>
-        <Element Type="FunctionCall" Id="6C9A3CDF">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000179"/>
-            <Parameter Type="Param" Library="UPLR" Id="4CC2F311"/>
-        </Element>
-        <Element Type="Param" Id="4CC2F311">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000298"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="0AF7566C"/>
-        </Element>
-        <Element Type="FunctionCall" Id="0AF7566C">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000053"/>
-        </Element>
-        <Element Type="Param" Id="4F0828E9">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000617"/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-        </Element>
-        <Element Type="FunctionCall" Id="E4DD2911">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000137"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000007"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="E93FCCF6"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="4A7B7FD4"/>
-        </Element>
-        <Element Type="FunctionCall" Id="E93FCCF6">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000137"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000004"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="52EE10AF"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="DCCEF642"/>
-        </Element>
-        <Element Type="FunctionCall" Id="52EE10AF">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
-            <Parameter Type="Param" Library="UPLR" Id="03C04789"/>
-            <Parameter Type="Param" Library="UPLR" Id="F586F941"/>
-            <Parameter Type="Param" Library="UPLR" Id="DCC0B97E"/>
-        </Element>
-        <Element Type="Param" Id="03C04789">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="86F452A0"/>
-        </Element>
-        <Element Type="FunctionCall" Id="86F452A0">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C65CC121"/>
-            <Parameter Type="Param" Library="UPLR" Id="9438A77C"/>
-            <Parameter Type="Param" Library="UPLR" Id="778C40AA"/>
-            <Parameter Type="Param" Library="UPLR" Id="849CC459"/>
-        </Element>
-        <Element Type="Param" Id="9438A77C">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="9ADE2B3B"/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-        </Element>
-        <Element Type="Param" Id="778C40AA">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="D1035B0C"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="C9B8C640"/>
-        </Element>
-        <Element Type="Param" Id="849CC459">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="D006774F"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="E66C6645"/>
-        </Element>
-        <Element Type="Param" Id="F586F941">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="684CA9CE"/>
-        </Element>
-        <Element Type="Param" Id="DCC0B97E">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
-            <Value>100.0</Value>
-            <ValueType Type="fixed"/>
-        </Element>
-        <Element Type="FunctionCall" Id="DCCEF642">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000137"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000004"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="5CB4314F"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="2610D165"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="F6C87701"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="4561174D"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="A7F22E7A"/>
-        </Element>
-        <Element Type="FunctionCall" Id="5CB4314F">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000089"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000004"/>
-            <Parameter Type="Param" Library="UPLR" Id="91C0E02A"/>
-            <Parameter Type="Param" Library="UPLR" Id="C5F6855B"/>
-            <Parameter Type="Param" Library="UPLR" Id="5F3F521F"/>
-        </Element>
-        <Element Type="Param" Id="91C0E02A">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000156"/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-        </Element>
-        <Element Type="Param" Id="C5F6855B">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000157"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="8C7B1239"/>
-        </Element>
-        <Element Type="FunctionCall" Id="8C7B1239">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="F6F9120D"/>
-            <Parameter Type="Param" Library="UPLR" Id="6265C37B"/>
-            <Parameter Type="Param" Library="UPLR" Id="FB5171DA"/>
-        </Element>
-        <Element Type="Param" Id="6265C37B">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="402665EE"/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-        </Element>
-        <Element Type="Param" Id="FB5171DA">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="BF82A2BC"/>
-            <Value>MyraDavisHealingPatch</Value>
-            <ValueType Type="abilcmd"/>
-        </Element>
-        <Element Type="Param" Id="5F3F521F">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000158"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="00000041"/>
-        </Element>
-        <Element Type="FunctionCall" Id="2610D165">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="7B4A4D9D"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000004"/>
-        </Element>
-        <Element Type="FunctionCall" Id="F6C87701">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
-            <Parameter Type="Param" Library="UPLR" Id="D3528E6D"/>
-            <Parameter Type="Param" Library="UPLR" Id="13EA9242"/>
-            <Parameter Type="Param" Library="UPLR" Id="9F566856"/>
-        </Element>
-        <Element Type="Param" Id="D3528E6D">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="39F21F8D"/>
-        </Element>
-        <Element Type="FunctionCall" Id="39F21F8D">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="69CE5404"/>
-            <Parameter Type="Param" Library="UPLR" Id="DA773A06"/>
-            <Parameter Type="Param" Library="UPLR" Id="865694C7"/>
-        </Element>
-        <Element Type="Param" Id="DA773A06">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="C460B7DA"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="E3DC8FA1"/>
-        </Element>
-        <Element Type="FunctionCall" Id="E3DC8FA1">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000053"/>
-        </Element>
-        <Element Type="Param" Id="865694C7">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="3F99BFE2"/>
-            <Value>MyraDavisHealingPatch</Value>
-            <ValueType Type="abilcmd"/>
-        </Element>
-        <Element Type="Param" Id="13EA9242">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
-        </Element>
-        <Element Type="Param" Id="9F566856">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
-            <Value>true</Value>
-            <ValueType Type="bool"/>
-        </Element>
-        <Element Type="FunctionCall" Id="4561174D">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
-            <Parameter Type="Param" Library="UPLR" Id="A5AA8D20"/>
-            <Parameter Type="Param" Library="UPLR" Id="55AF8E0E"/>
-            <Parameter Type="Param" Library="UPLR" Id="85152D7E"/>
-        </Element>
-        <Element Type="Param" Id="A5AA8D20">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="282396C6"/>
-        </Element>
-        <Element Type="FunctionCall" Id="282396C6">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000154"/>
-            <Parameter Type="Param" Library="UPLR" Id="2F48D7EB"/>
-            <Parameter Type="Param" Library="UPLR" Id="F0FE03BD"/>
-            <Parameter Type="Param" Library="UPLR" Id="632A2C08"/>
-        </Element>
-        <Element Type="Param" Id="2F48D7EB">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000246"/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-        </Element>
-        <Element Type="Param" Id="F0FE03BD">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="F497783A"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="26A9A86C"/>
-        </Element>
-        <Element Type="Param" Id="632A2C08">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000247"/>
-            <Value>MyraDavisHealingPatch</Value>
-            <ValueType Type="gamelink"/>
-            <ValueGameType Type="Abil"/>
-        </Element>
-        <Element Type="Param" Id="55AF8E0E">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
-        </Element>
-        <Element Type="Param" Id="85152D7E">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
-            <Value>true</Value>
-            <ValueType Type="bool"/>
-        </Element>
-        <Element Type="FunctionCall" Id="A7F22E7A">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
-            <Parameter Type="Param" Library="UPLR" Id="ABF58E5D"/>
-            <Parameter Type="Param" Library="UPLR" Id="150F09D2"/>
-            <Parameter Type="Param" Library="UPLR" Id="1F327921"/>
-        </Element>
-        <Element Type="Param" Id="ABF58E5D">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="4A7851D7"/>
-        </Element>
-        <Element Type="FunctionCall" Id="4A7851D7">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="56B8B8AF"/>
-            <Parameter Type="Param" Library="UPLR" Id="5FDB23E5"/>
-            <Parameter Type="Param" Library="UPLR" Id="8F550325"/>
-            <Parameter Type="Param" Library="UPLR" Id="15257BC1"/>
-        </Element>
-        <Element Type="Param" Id="5FDB23E5">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="D5F1C56F"/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-        </Element>
-        <Element Type="Param" Id="8F550325">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="F6AE21AD"/>
-            <Value>MyraDavisHealingPatch</Value>
-            <ValueType Type="gamelink"/>
-            <ValueGameType Type="Abil"/>
-        </Element>
-        <Element Type="Param" Id="15257BC1">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="785F1E7F"/>
-            <Value>Abil/MyraDavisHealingPatch</Value>
-            <ValueType Type="cooldown"/>
-        </Element>
-        <Element Type="Param" Id="150F09D2">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
-        </Element>
-        <Element Type="Param" Id="1F327921">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
-            <Value>0.0</Value>
-            <ValueType Type="fixed"/>
-        </Element>
-        <Element Type="FunctionCall" Id="4A7B7FD4">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000133"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000003"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="F4304D3E"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="3721E110"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="51EE1E03"/>
-        </Element>
-        <Element Type="FunctionCall" Id="F4304D3E">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000001"/>
-            <Parameter Type="Param" Library="UPLR" Id="D7B915C3"/>
-            <Parameter Type="Param" Library="UPLR" Id="CE9C10E4"/>
-            <Parameter Type="Param" Library="UPLR" Id="2109AB3D"/>
-        </Element>
-        <Element Type="Param" Id="D7B915C3">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="DDF815F0"/>
-        </Element>
-        <Element Type="FunctionCall" Id="DDF815F0">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000079"/>
-            <Parameter Type="Param" Library="UPLR" Id="D81DB4E7"/>
-        </Element>
-        <Element Type="Param" Id="D81DB4E7">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000138"/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-        </Element>
-        <Element Type="Param" Id="CE9C10E4">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
-        </Element>
-        <Element Type="Param" Id="2109AB3D">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
-            <Value>MyraDavisOfficer</Value>
-            <ValueType Type="gamelink"/>
-            <ValueGameType Type="Unit"/>
-        </Element>
-        <Element Type="FunctionCall" Id="3721E110">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000001"/>
-            <Parameter Type="Param" Library="UPLR" Id="39FB1243"/>
-            <Parameter Type="Param" Library="UPLR" Id="EC1BC2D4"/>
-            <Parameter Type="Param" Library="UPLR" Id="4448C185"/>
-        </Element>
-        <Element Type="Param" Id="39FB1243">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="D40DAB1F"/>
-        </Element>
-        <Element Type="FunctionCall" Id="D40DAB1F">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000079"/>
-            <Parameter Type="Param" Library="UPLR" Id="D58CEB09"/>
-        </Element>
-        <Element Type="Param" Id="D58CEB09">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000138"/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-        </Element>
-        <Element Type="Param" Id="EC1BC2D4">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
-        </Element>
-        <Element Type="Param" Id="4448C185">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
-            <Value>MyraDavisRiotOfficer</Value>
-            <ValueType Type="gamelink"/>
-            <ValueGameType Type="Unit"/>
-        </Element>
-        <Element Type="FunctionCall" Id="51EE1E03">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="C439C375"/>
-            <SubFunctionType Type="SubFuncType" Library="Ntve" Id="00000001"/>
-            <Parameter Type="Param" Library="UPLR" Id="C7C3F219"/>
-            <Parameter Type="Param" Library="UPLR" Id="83791C63"/>
-            <Parameter Type="Param" Library="UPLR" Id="8BFA39FE"/>
-        </Element>
-        <Element Type="Param" Id="C7C3F219">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="ABB380C4"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="006AA823"/>
-        </Element>
-        <Element Type="FunctionCall" Id="006AA823">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000079"/>
-            <Parameter Type="Param" Library="UPLR" Id="BC581434"/>
-        </Element>
-        <Element Type="Param" Id="BC581434">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000138"/>
-            <Variable Type="Variable" Library="UPLR" Id="EF0390E1"/>
-        </Element>
-        <Element Type="Param" Id="83791C63">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="51567265"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="1E7A4625"/>
-        </Element>
-        <Element Type="Param" Id="8BFA39FE">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="4A15EC5F"/>
-            <Value>RusellPeters</Value>
-            <ValueType Type="gamelink"/>
-            <ValueGameType Type="Unit"/>
-        </Element>
-        <Element Type="FunctionCall" Id="33985C30">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="0B3D8934"/>
-            <Parameter Type="Param" Library="UPLR" Id="332BF250"/>
-            <Parameter Type="Param" Library="UPLR" Id="03490CEE"/>
-            <Parameter Type="Param" Library="UPLR" Id="1040B832"/>
-            <Parameter Type="Param" Library="UPLR" Id="32640847"/>
-        </Element>
-        <Element Type="Param" Id="332BF250">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="DEEDBCBE"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="0A5019C8"/>
-        </Element>
-        <Element Type="FunctionCall" Id="0A5019C8">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000057"/>
-            <Parameter Type="Param" Library="UPLR" Id="EE5A4112"/>
-        </Element>
-        <Element Type="Param" Id="EE5A4112">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="00000094"/>
-            <FunctionCall Type="FunctionCall" Library="UPLR" Id="49EFB32C"/>
-        </Element>
-        <Element Type="FunctionCall" Id="49EFB32C">
-            <FunctionDef Type="FunctionDef" Library="Ntve" Id="00000053"/>
-        </Element>
-        <Element Type="Param" Id="03490CEE">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="A21D1423"/>
-            <CustomType Type="unitgroup"/>
-            <ScriptCode>
-                null
-            </ScriptCode>
-        </Element>
-        <Element Type="Param" Id="1040B832">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="0CA083F2"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="99AB77FB"/>
-        </Element>
-        <Element Type="Param" Id="32640847">
-            <ParameterDef Type="ParamDef" Library="Ntve" Id="B35E76BE"/>
-            <Preset Type="PresetValue" Library="Ntve" Id="00000072"/>
         </Element>
     </Library>
 </TriggerData>
