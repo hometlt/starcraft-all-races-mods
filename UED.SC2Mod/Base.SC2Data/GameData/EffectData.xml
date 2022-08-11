@@ -2,7 +2,6 @@
 <Catalog>
     <CEffectDamage id="157mmGaussCannon" parent="DU_WEAP">
         <EditorCategories value="Race:UED"/>
-        <AttributeBonus index="Light" value="15"/>
         <Kind value="Ranged"/>
         <Amount value="30"/>
         <Death value="Blast"/>
@@ -18,7 +17,7 @@
         <EditorCategories value="Race:UED"/>
         <AttributeBonus index="Armored" value="20"/>
         <Kind value="Ranged"/>
-        <Amount value="25"/>
+        <Amount value="20"/>
         <Death value="Blast"/>
     </CEffectDamage>
     <CEffectDamage id="90mmCannonsDummy2" parent="DU_WEAP">
@@ -79,7 +78,7 @@
     </CEffectLaunchMissile>
     <CEffectDamage id="AcidSalivaU2" parent="DU_WEAP_MISSILE">
         <EditorCategories value="Race:UED"/>
-        <AttributeBonus index="Light" value="6"/>
+        <AttributeBonus index="Light" value="3"/>
         <Amount value="6"/>
         <Death value="Fire"/>
     </CEffectDamage>
@@ -87,10 +86,19 @@
         <EditorCategories value="Race:UED"/>
         <Behavior value="BeaconrAlgoritmBoost"/>
     </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ApplyAlgoritmLazarusRegenHelf">
+        <ValidatorArray index="0" removed="1"/>
+        <EditorCategories value="Race:UED"/>
+        <Behavior value="AlgoritmVoskreshenie2Times"/>
+    </CEffectApplyBehavior>
     <CEffectApplyBehavior id="ApplyAlgoritmOtklAbilLazarus">
         <ValidatorArray index="0" removed="1"/>
         <EditorCategories value="Race:UED"/>
         <Behavior value="DrakkarAlgoritmOtklLazarus"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ApplyAlgoritmBloodGarmr">
+        <EditorCategories value="Race:UED"/>
+        <Behavior value="AlgoritmGarmrPeriodAttack"/>
     </CEffectApplyBehavior>
     <CEffectApplyBehavior id="ApplyIncapBehavior">
         <EditorCategories value="Race:UED"/>
@@ -122,10 +130,15 @@
         <Behavior value="AlgoritmResurrected"/>
     </CEffectApplyBehavior>
     <CEffectApplyBehavior id="ApplyAlgoritmStrikeGrenate">
-        <ValidatorArray index="0" value="NotMassive"/>
+        <ValidatorArray index="0" removed="1"/>
         <EditorCategories value="Race:UED"/>
         <Behavior value="AlgoritmStrikeGrenade"/>
     </CEffectApplyBehavior>
+    <CEffectSet id="SetGarmrExploing">
+        <EditorCategories value="Race:UED"/>
+        <EffectArray value="ExplodingBarrelLargeExplosion"/>
+        <EffectArray value="SearchAreaGarmrExploed"/>
+    </CEffectSet>
     <CEffectCreateUnit id="CreatUnitBeacon">
         <ValidatorArray value="MULETargetCheck"/>
         <ValidatorArray value="ValidateComandCentrInRadius10UED"/>
@@ -134,6 +147,25 @@
         <SpawnEffect value="EffectPeriodTimeDropTowerBeacon"/>
         <SpawnUnit value="BeaconUED"/>
     </CEffectCreateUnit>
+    <CEffectDamage id="ExplodingGarmrSlow">
+        <EditorCategories value="Race:UED"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Amount value="0.75"/>
+        <Death value="Blast"/>
+        <SearchFilters value="Ground;Self,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="LaunchMissileLazarusRegenHealf">
+        <ValidatorArray index="0" removed="1"/>
+        <EditorCategories value="Race:UED"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <FinishEffect value="SearchAreaLazarusRegenHelf"/>
+        <AmmoUnit value="PsionicSuppressionField2"/>
+    </CEffectLaunchMissile>
     <CEffectCreatePersistent id="EffectPeriodTimeDropTowerBeacon">
         <EditorCategories value="Race:UED"/>
         <WhichLocation Value="TargetUnitOrPoint"/>
@@ -144,6 +176,18 @@
         <PeriodicEffectArray value="ApplyAlgoritmBeaconBoost"/>
         <PeriodicPeriodArray value="0.1"/>
     </CEffectCreatePersistent>
+    <CEffectEnumArea id="SearchAreaLazarusRegenHelf">
+        <EditorCategories value="Race:UED"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground,Biological;Neutral,Enemy,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="ApplyAlgoritmLazarusRegenHelf"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="SearchAreaGarmrExploed">
+        <EditorCategories value="Race:UED"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground;Player,Ally,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.25" Effect="ApplyAlgoritmBloodGarmr"/>
+    </CEffectEnumArea>
     <CEffectSet id="SetGranateDamage">
         <EditorCategories value="Race:UED"/>
         <EffectArray value="BonesTossGrenadeDamage"/>
@@ -197,7 +241,7 @@
     </CEffectEnumArea>
     <CEffectEnumArea id="SearchAreaStrikeGrenate">
         <EditorCategories value="Race:UED"/>
-        <SearchFilters value="-;Air,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFilters value="Ground;Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <AreaArray Radius="2" Effect="SetGranateDamage"/>
     </CEffectEnumArea>
     <CEffectEnumArea id="SearchAreaBlidingFlash">
@@ -215,7 +259,7 @@
         <ValidatorArray value="ValidateCountDruseMaks"/>
         <EditorCategories value="Race:UED"/>
         <SearchFilters value="HarvestableResource;Player,Ally,Enemy"/>
-        <AreaArray Radius="4" Effect="EffektPeriodConnektVSTowerMining"/>
+        <AreaArray Radius="4.5" Effect="EffektPeriodConnektVSTowerMining"/>
         <MaxCount value="1"/>
     </CEffectEnumArea>
     <CEffectEnumArea id="SearchAreaBMIrradiation">
@@ -337,7 +381,7 @@
         <EditorCategories value="Race:UED"/>
         <ResponseFlags index="Acquire" value="1"/>
         <ResponseFlags index="Flee" value="1"/>
-        <Amount value="16"/>
+        <Amount value="23"/>
     </CEffectDamage>
     <CEffectCreatePersistent id="BonesTossGrenadeDelay">
         <EditorCategories value="Race:UED"/>
@@ -714,8 +758,8 @@
         <EditorCategories value="Race:UED"/>
         <LaunchLocation Value="TargetPoint"/>
         <ImpactLocation Value="TargetPoint"/>
-        <SearchFilters value="-;Hidden,Invulnerable"/>
-        <AreaArray Radius="1.5" Effect="EMPSet2"/>
+        <SearchFilters value="-;Structure,Stasis,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="EMPSet2"/>
     </CEffectEnumArea>
     <CEffectSet id="EMPSet2">
         <EditorCategories value="Race:UED"/>
@@ -843,8 +887,8 @@
     </CEffectApplyBehavior>
     <CEffectEnumArea id="OnwardComradesSearch">
         <EditorCategories value="Race:UED"/>
-        <SearchFilters value="Ground;Neutral,Enemy,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
-        <AreaArray Radius="3" Effect="Onwards"/>
+        <SearchFilters value="Ground;Neutral,Enemy,Structure,Missile,Stasis,Dead,Invulnerable"/>
+        <AreaArray Radius="4" Effect="Onwards"/>
     </CEffectEnumArea>
     <CEffectCreatePersistent id="OracleWeaponCreatePersistent2">
         <EditorCategories value="Race:UED"/>
@@ -884,6 +928,7 @@
     <CEffectApplyBehavior id="Onwards">
         <EditorCategories value="Race:UED"/>
         <Behavior value="OnwardComrades"/>
+        <ValidatorArray index="0" value="ValidateForHiddenAdvisorAbility"/>
     </CEffectApplyBehavior>
     <CEffectDamage id="SuicideRemove3">
         <ImpactLocation Value="SourceUnit"/>
@@ -1035,9 +1080,9 @@
         <EditorCategories value="Race:UED"/>
         <WhichLocation Value="TargetUnit"/>
         <ExpireDelay value="0.8"/>
-        <PeriodCount value="2"/>
+        <PeriodCount value="3"/>
         <PeriodicEffectArray value="BacklashRocketsLM2"/>
-        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.265"/>
     </CEffectCreatePersistent>
     <CEffectLaunchMissile id="BacklashRocketsLM2">
         <ValidatorArray index="0" value="RangeCheckLE15"/>
@@ -1048,11 +1093,9 @@
     </CEffectLaunchMissile>
     <CEffectDamage id="BacklashRocketsU2" parent="DU_WEAP_MISSILE">
         <EditorCategories value="Race:UED"/>
-        <AttributeBonus index="Armored" value="3"/>
-        <AttributeBonus index="Biological" value="2"/>
-        <Visibility value="Visible"/>
-        <Amount value="5"/>
+        <Amount value="8"/>
         <Death value="Fire"/>
+        <AttributeBonus index="Mechanical" value="4"/>
     </CEffectDamage>
     <CEffectSet id="BattlecruiserDamageSet2">
         <EditorCategories value="Race:UED"/>
@@ -1329,7 +1372,8 @@
         <KindSplash value="Splash"/>
         <Amount value="8"/>
         <Death value="Blast"/>
-        <AreaArray Radius="1.2" Fraction="0.5"/>
+        <AreaArray Radius="0.75" Fraction="0.5"/>
+        <AreaArray Radius="1.25" Fraction="0.4"/>
         <ExcludeArray Value="Target"/>
         <SearchFilters value="Ground;Air,RawResource,HarvestableResource,Missile,Stasis,Dead,Hidden,Invulnerable"/>
     </CEffectDamage>
@@ -1358,7 +1402,7 @@
     <CEffectEnumArea id="ArsenalSearch">
         <EditorCategories value="Race:UED"/>
         <SearchFilters value="-;Neutral,Enemy,Missile,Stasis,Dead,Hidden,Invulnerable"/>
-        <AreaArray Radius="5.6" Effect="ArsenalHealAB"/>
+        <AreaArray Radius="5.5" Effect="ArsenalHealAB"/>
     </CEffectEnumArea>
     <CEffectDamage id="PsiDecimatorDamage">
         <EditorCategories value="Race:UED"/>
@@ -1605,7 +1649,7 @@
         <ResponseFlags index="Flee" value="1"/>
         <SearchFlags index="CallForHelp" value="1"/>
         <DamageModifierSource Value="Caster"/>
-        <AttributeBonus index="Light" value="6"/>
+        <AttributeBonus index="Light" value="3"/>
         <EditorCategories value="Race:UED"/>
     </CEffectDamage>
     <CEffectEnumArea id="BurrowChargeTargetSearch">
@@ -2064,18 +2108,16 @@
         <Flags index="Notification" value="1"/>
         <Kind value="Splash"/>
         <KindSplash value="Splash"/>
-        <Amount value="30"/>
+        <Amount value="15"/>
         <Death value="Blast"/>
-        <AreaArray Radius="0.69" Fraction="1"/>
-        <AreaArray Radius="1.17" Fraction="0.5"/>
-        <AreaArray Radius="1.87" Fraction="0.25"/>
+        <AreaArray Radius="0.8" Fraction="1"/>
         <SearchFilters value="Ground;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <SearchFlags index="CallForHelp" value="1"/>
         <EditorCategories value="Race:UED"/>
     </CEffectDamage>
     <CEffectCreatePersistent id="ExplodingBarrelLargeExplosionPersistent">
         <ExpireDelay value="0.125"/>
-        <ExpireEffect value="ExplodingBarrelLargeExplosion"/>
+        <ExpireEffect value="SetGarmrExploing"/>
         <ValidatorArray value="HaveIcarusCatalyst"/>
         <EditorCategories value="Race:UED"/>
     </CEffectCreatePersistent>
