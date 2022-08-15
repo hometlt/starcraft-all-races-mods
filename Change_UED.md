@@ -1,8 +1,8 @@
-**\=======Здания ОЗД=======**
+**=======Здания ОЗД=======**
 
 > Узел телепортации: 200 минералов -> 225 минералов, время производства 41 сек -> 47 сек.
 > 
-> Тактика академии: 200 минералов -> 150 минералов, время производства 36 сек -> 30 сек. Для постройки требуется узел телепортации.
+> Тактика академии: 200 минералов -> 150 минералов, время производства 36 сек -> 32 сек. Для постройки требуется узел телепортации.
 > 
 > Полевое бюро: 200 минералов -> 125 минералов 50 газа.
 > 
@@ -14,7 +14,7 @@
 > 
 > Тахионное реле: время производства 25 сек -> 36 сек.
 > 
-> Башня обогащения: 100 хп -> 75, добавлен тег легкий, броня 0, при отключении +4 брони.
+> Башня обогащения: 100 хп -> 75, добавлен тег легкий, броня 0, при отключении +4 брони. КД увеличено с 64 сек до 71 сек.
 > 
 > Башня подавления: 325 хп -> 350 хп, 125 минералов -> 100 минералов, скорость атаки 0.4 -> 0.45.
 > 
@@ -22,7 +22,7 @@
 > 
 > Башня восстановления: 350 хп -> 450 хп, 75 газа-> 50 газа.
 
-**\=======Юниты и способности ОЗД=======**
+**=======Юниты и способности ОЗД=======**
 
 > Маяк ОЗД: стоимость уменьшена с 75 минералов до 50 минералов, количество хп со 150 до 120.
 > 
@@ -50,11 +50,11 @@
 > 
 > Штурмовик: цена увеличена со 150 минералов 75 газа до 150 минералов 100 газа, урон 8 (11 по механическим).
 > 
-> БМП “Драккар”:  скорость передвижения снижена до 4.87. Стоимость увеличена до 175 минералов.
+> БМП “Драккар”:  скорость передвижения снижена с 5.18 до 4.87. Стоимость увеличена до 175 минералов. Стрельба изнутри требует улучшения.
 > 
 > Таранис:  атака уменьшена с 10+6 по бронированным до 8+6 по бронированным, сплешь уменьшен с 9+5 по бронированным до 6+4 по бронированным.
 
-**\=======Время производства юнитов=======**
+**======Время производства юнитов=======**
 
 > Гармр: 20 -> 19.
 > 
@@ -84,10 +84,12 @@
 > 
 > Шаттл поддержки: 46 -> 36.
 
-**\=======Улучшения ОЗД=======**
+**=======Улучшения ОЗД=======**
 
 > Запрос авторизации: башня обогащения (новое) – 75 минералов 75 газа, 43 сек, находится в академии тактики. Позволяет всем штабам операций вызывать башни обогащения.
-> 
+>
+> Запрос авторизации: внутренний стабилизатор (новое) – 125 минералов 75 газа, 64 сек, находится в академии тактики. Позволяет вести огонь из драккара.
+>
 > Запрос авторизации: тандемная динамическая защита (возвращается) – 150 минералов 150 газа, 71 сек, находится в фабрике боеприпасов. Дает +40 к макс хп наполеона.
 > 
 > Запрос авторизации: дополнительный аккумулятор перемещен из военно-исследовательской станции в фабрику боеприпасов.
@@ -96,7 +98,7 @@
 > 
 > Запрос авторизации: нагрузка для атмосферных операций – теперь дает +1 к количеству атак штурмовика.
 > 
-> Запрос авторизации: фосфорный огонь (новое) - 150 минералов 100 газа, 64 сек, находится в военно-исследовательской станции. Дает хуракану бонус по строениям +20 ед.
+> Запрос авторизации: фосфорный напалм (новое) - 150 минералов 100 газа, 64 сек, находится в военно-исследовательской станции. Дает хуракану бонус по строениям +20 ед.
 > 
 > Улучшение брони ОЗД перемещено из завода обслуживания звездолетов в военно-исследовательскую станцию.
 > 
@@ -104,11 +106,11 @@
 > 
 > Улучшение атаки 2 и 3 уровня техники ОЗД требует наличие военно-исследовательской станции.
 
-**\======= Buildings UED=======** 
+**======= Buildings UED=======** 
 
 > Teleportation node: 200 minerals -> 225 minerals, production time 41sec -> 47 sec. 
 > 
-> Academy tactics: 200 minerals -> 150 minerals, production time 36 sec -> 30 sec. A teleportation node is required for construction.
+> Academy tactics: 200 minerals -> 150 minerals, production time 36 sec -> 32 sec. A teleportation node is required for construction.
 > 
 > Field Bureau: 200 minerals -> 125 minerals 50 gas. 
 > 
@@ -120,7 +122,7 @@
 > 
 > Tachyon relay: production time 25 sec -> 36 sec. 
 > 
-> Enrichment tower: 100 hp -> 75, light tag added, armor 0, when disabled +4 armor. 
+> Enrichment tower: 100 hp -> 75, light tag added, armor 0, when disabled +4 armor. Recharge time increased from 64 sec up to 71 sec.
 > 
 > Suppression Tower: 325 hp -> 350 hp, 125 minerals -> 100 minerals, attack speed 0.4 -> 0.45. 
 > 
@@ -128,7 +130,7 @@
 > 
 > Infusion Tower: 350 hp -> 450 hp, 75 gas -> 50 gas.
 
-**\=======Units and abilities UED=======**
+**=======Units and abilities UED=======**
 
 > UED Beacon: the cost has been reduced from 75 minerals to 50 minerals, the number of hp from 150 to 120. 
 > 
@@ -156,11 +158,11 @@
 > 
 > Strikefighter: the price has been increased from 150 minerals 75 gas to 150 minerals 100 gas, damage 8 (11 mechanical).
 > 
-> Drakkar APC: the speed of movement is reduced to 4.87. The cost is increased to 175 minerals.
+> Drakkar APC: the speed of movement is reduced from 5.18 to 4.87. The cost is increased to 175 minerals. Shooting from the inside requires improvement.
 > 
 > Taranis: Attack reduced from 10+6 on armored to 8+6 on armored, splash reduced from 9+5 on armored to 6+4 on armored.
 
-**\=======Unit production time=======**
+**=======Unit production time=======**
 
 > Garmr: 20 -> 19. 
 > 
@@ -186,10 +188,12 @@
 > 
 > Support shuttle: 46 -> 36.
 
-**\======= Improvements UED=======**
+**======= Improvements UED=======**
 
 > Authorization request: Enrichment Tower (new) – 75 minerals 75 gas, 43 sec, located at the Academy of Tactics. Allows all operations headquarters to summon enrichment towers. 
 > 
+> Authorization request: internal stabilizer (new) – 125 minerals 75 gas, 64 sec, located at the Academy of Tactics. Allows you to fire from a drakkar.
+>
 > Authorization request: Tandem dynamic protection (returns) – 150 minerals 150 gas, 71 sec, located in the ammunition factory. Gives +40 to Napoleon's max hp.
 > 
 > Authorization request: An additional battery has been moved from the military research station to the ammunition factory. 
@@ -198,7 +202,7 @@
 > 
 > Authorization request: Load for atmospheric operations – now gives +1 to the number of strikefighter attacks.
 > 
-> Authorization request: Phosphoric fire (new) - 150 minerals, 100 gas, 64 sec, located in the military research station. Gives Huracan a bonus on buildings +20 units.
+> Authorization request: Phosphoric napalm (new) - 150 minerals, 100 gas, 64 sec, located in the military research station. Gives Huracan a bonus on buildings +20.
 > 
 > The upgrade of the UED armor has been moved from the starship maintenance plant to the military research station. 
 > 
