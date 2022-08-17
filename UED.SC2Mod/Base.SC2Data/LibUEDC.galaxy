@@ -35,8 +35,7 @@ void libUEDC_InitVariables () {
     libUEDC_gv_loadedInfusionTowers = UnitGroupEmpty();
     libUEDC_gv_loadedMissileTowers = UnitGroupEmpty();
     libUEDC_gv_loadedSuppressionTowers = UnitGroupEmpty();
-    libUEDC_gv_d183D0BFD0B0D0B2D188D0B8D0B5D182D180D183D0BFD0B5D180D18B = UnitGroupEmpty();
-    libUEDC_gv_player = 1;
+    libUEDC_gv_fallenTroopers = UnitGroupEmpty();
 }
 
 // Presets
@@ -175,6 +174,12 @@ bool libUEDC_gt_InitializeUEDRace_Func (bool testConds, bool runActions) {
         auto4E1CD846_var = PlayerGroupNextPlayer(auto4E1CD846_g, auto4E1CD846_var);
         if (auto4E1CD846_var < 0) { break; }
         if ((PlayerRace(auto4E1CD846_var) == "UED")) {
+            PlayerSetCommander(auto4E1CD846_var, "UED");
+            PlayerSetSpray(auto4E1CD846_var, 1, "Decal_Spray_0059_01");
+            SoundChannelDSPInsert(PlayerGroupSingle(auto4E1CD846_var), c_soundCategoryVoice, "ReverbForest");
+            SoundChannelDSPInsert(PlayerGroupSingle(auto4E1CD846_var), c_soundCategoryReady, "ReverbForest");
+            SoundChannelDSPInsert(PlayerGroupSingle(auto4E1CD846_var), c_soundCategoryAlert, "ReverbForest");
+            libNtve_gf_SetUpgradeLevelForPlayer(auto4E1CD846_var, "UEDAdvisorUpgradeBecauseEditorIsFunctionalHelp", 1);
             PlayerGroupAdd(libUEDC_gv_uEDPlayers, auto4E1CD846_var);
         }
 
@@ -955,9 +960,9 @@ void libUEDC_gt_PrerapeTransportshuttle_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: ???????????? ???????? - ????????????
+// Trigger: FallenTrooper - Effect
 //--------------------------------------------------------------------------------------------------
-bool libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD18DD184D184D0B5D0BAD182_Func (bool testConds, bool runActions) {
+bool libUEDC_gt_FallenTrooperEffect_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
     // Actions
     if (!runActions) {
@@ -966,7 +971,7 @@ bool libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD18DD184D184D0B5D0BAD182
 
     Wait(0.1, c_timeGame);
     if ((UnitHasBehavior2(EventUnit(), "Incapacitated") == true) && (UnitIsAlive(EventUnit()) == true)) {
-        UnitGroupAdd(libUEDC_gv_d183D0BFD0B0D0B2D188D0B8D0B5D182D180D183D0BFD0B5D180D18B, EventUnit());
+        UnitGroupAdd(libUEDC_gv_fallenTroopers, EventUnit());
         libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(EventUnit()), c_animNameDefault, "Death", 0, c_animTimeDefault);
         UnitBehaviorAdd(EventUnit(), "GlazeTrooperDown", EventUnit(), 1);
         UnitBehaviorAdd(EventUnit(), "VisionBuffTrooperDown", EventUnit(), 1);
@@ -978,15 +983,15 @@ bool libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD18DD184D184D0B5D0BAD182
 }
 
 //--------------------------------------------------------------------------------------------------
-void libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD18DD184D184D0B5D0BAD182_Init () {
-    libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD18DD184D184D0B5D0BAD182 = TriggerCreate("libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD18DD184D184D0B5D0BAD182_Func");
-    TriggerAddEventUnitDamaged(libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD18DD184D184D0B5D0BAD182, null, c_unitDamageTypeAny, c_unitDamageEither, null);
+void libUEDC_gt_FallenTrooperEffect_Init () {
+    libUEDC_gt_FallenTrooperEffect = TriggerCreate("libUEDC_gt_FallenTrooperEffect_Func");
+    TriggerAddEventUnitDamaged(libUEDC_gt_FallenTrooperEffect, null, c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: ???????????? ???????? - ????????????????
+// Trigger: FallenTrooper - Healing
 //--------------------------------------------------------------------------------------------------
-bool libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD181D0BFD0B0D181D0B5D0BDD0B8D0B5_Func (bool testConds, bool runActions) {
+bool libUEDC_gt_FallenTrooperHealing_Func (bool testConds, bool runActions) {
     // Variable Declarations
     timer lv_shieldtimer;
     int lv_energyunit;
@@ -1011,7 +1016,7 @@ bool libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD181D0BFD0B0D181D0B5D0BD
         return true;
     }
 
-    UnitGroupRemove(libUEDC_gv_d183D0BFD0B0D0B2D188D0B8D0B5D182D180D183D0BFD0B5D180D18B, EventUnit());
+    UnitGroupRemove(libUEDC_gv_fallenTroopers, EventUnit());
     libNtve_gf_ClearAnimation(libNtve_gf_MainActorofUnit(EventUnit()), c_animNameDefault);
     UnitBehaviorRemove(EventUnit(), "GlazeTrooperDown", 1);
     UnitBehaviorRemove(EventUnit(), "Incapacitated", 1);
@@ -1041,9 +1046,9 @@ bool libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD181D0BFD0B0D181D0B5D0BD
 }
 
 //--------------------------------------------------------------------------------------------------
-void libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD181D0BFD0B0D181D0B5D0BDD0B8D0B5_Init () {
-    libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD181D0BFD0B0D181D0B5D0BDD0B8D0B5 = TriggerCreate("libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD181D0BFD0B0D181D0B5D0BDD0B8D0B5_Func");
-    TriggerAddEventUnitBehaviorChange(libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD181D0BFD0B0D181D0B5D0BDD0B8D0B5, null, "LazarusDeviceTarget", c_unitBehaviorChangeCreate);
+void libUEDC_gt_FallenTrooperHealing_Init () {
+    libUEDC_gt_FallenTrooperHealing = TriggerCreate("libUEDC_gt_FallenTrooperHealing_Func");
+    TriggerAddEventUnitBehaviorChange(libUEDC_gt_FallenTrooperHealing, null, "LazarusDeviceTarget", c_unitBehaviorChangeCreate);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1217,8 +1222,8 @@ void libUEDC_InitTriggers () {
     libUEDC_gt_OrderArsenalUnload_Init();
     libUEDC_gt_RemoveDropArsenalHelpUnit_Init();
     libUEDC_gt_PrerapeTransportshuttle_Init();
-    libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD18DD184D184D0B5D0BAD182_Init();
-    libUEDC_gt_D0A2D180D183D0BFD0B5D180D183D0BFD0B0D0BBD181D0BFD0B0D181D0B5D0BDD0B8D0B5_Init();
+    libUEDC_gt_FallenTrooperEffect_Init();
+    libUEDC_gt_FallenTrooperHealing_Init();
     libUEDC_gt_BeaconBuild_Init();
     libUEDC_gt_StrengtheningShield_Init();
     libUEDC_gt_ResoursesInfusionTower_Init();
