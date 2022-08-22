@@ -10,18 +10,6 @@ void libUPLR_InitLibraries () {
     libNtve_InitVariables();
 }
 
-// Variable Initialization
-bool libUPLR_InitVariables_completed = false;
-
-void libUPLR_InitVariables () {
-    if (libUPLR_InitVariables_completed) {
-        return;
-    }
-
-    libUPLR_InitVariables_completed = true;
-
-}
-
 // Custom Script
 //--------------------------------------------------------------------------------------------------
 // Custom Script: RangeValueToRange
@@ -807,111 +795,12 @@ void libUPLR_gt_ClaymoreMineSetDirectionCancel_Init () {
     TriggerAddEventTargetModeUpdate(libUPLR_gt_ClaymoreMineSetDirectionCancel, c_playerAny, AbilityCommand("ClaymoreMineSetDirection", 0), c_targetModeStateOff);
 }
 
-//--------------------------------------------------------------------------------------------------
-// Trigger: SelfCastOn
-//--------------------------------------------------------------------------------------------------
-bool libUPLR_gt_SelfCastOn_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libUPLR_gv_selfCasting = true;
-    TriggerEnable(libUPLR_gt_SelfCastMyraHeal, true);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUPLR_gt_SelfCastOn_Init () {
-    libUPLR_gt_SelfCastOn = TriggerCreate("libUPLR_gt_SelfCastOn_Func");
-    TriggerAddEventHotkeyPressed(libUPLR_gt_SelfCastOn, c_playerAny, c_hotkeyHeroCharacterSheetPanel, true);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: SelfCastOff
-//--------------------------------------------------------------------------------------------------
-bool libUPLR_gt_SelfCastOff_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libUPLR_gv_selfCasting = false;
-    TriggerEnable(libUPLR_gt_SelfCastMyraHeal, false);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUPLR_gt_SelfCastOff_Init () {
-    libUPLR_gt_SelfCastOff = TriggerCreate("libUPLR_gt_SelfCastOff_Func");
-    TriggerAddEventHotkeyPressed(libUPLR_gt_SelfCastOff, c_playerAny, c_hotkeyHeroCharacterSheetPanel, false);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: SelfCastMyraHeal
-//--------------------------------------------------------------------------------------------------
-bool libUPLR_gt_SelfCastMyraHeal_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_u;
-    order lv_order;
-
-    // Automatic Variable Declarations
-    unitgroup auto24040CE4_g;
-    int auto24040CE4_u;
-
-    // Variable Initialization
-
-    // Conditions
-    if (testConds) {
-        if (!((libUPLR_gv_selfCasting == true))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    auto24040CE4_g = UnitGroupSelected(EventPlayer());
-    auto24040CE4_u = UnitGroupCount(auto24040CE4_g, c_unitCountAll);
-    for (;; auto24040CE4_u -= 1) {
-        lv_u = UnitGroupUnitFromEnd(auto24040CE4_g, auto24040CE4_u);
-        if (lv_u == null) { break; }
-        if (((UnitGetType(lv_u) == "MyraDavisOfficer") || (UnitGetType(lv_u) == "MyraDavisRiotOfficer") || (UnitGetType(lv_u) == "RusellPeters"))) {
-            if ((UnitGetPropertyFixed(lv_u, c_unitPropLifePercent, c_unitPropCurrent) < 100.0)) {
-                if ((TechTreeAbilityIsAllowed(EventPlayer(), AbilityCommand("MyraDavisHealingPatch", 0)) == true) && (UnitAbilityCheck(lv_u, "MyraDavisHealingPatch", true) == true) && (UnitAbilityGetCooldown(lv_u, "MyraDavisHealingPatch", "Abil/MyraDavisHealingPatch") == 0.0)) {
-                    UnitIssueOrder(lv_u, OrderTargetingUnit(AbilityCommand("MyraDavisHealingPatch", 0), lv_u), c_orderQueueAddToFront);
-                    break;
-                }
-
-            }
-
-        }
-
-    }
-    UISetTargetingOrder(PlayerGroupSingle(EventPlayer()), null, null, false);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUPLR_gt_SelfCastMyraHeal_Init () {
-    libUPLR_gt_SelfCastMyraHeal = TriggerCreate("libUPLR_gt_SelfCastMyraHeal_Func");
-    TriggerEnable(libUPLR_gt_SelfCastMyraHeal, false);
-    TriggerAddEventTargetModeUpdate(libUPLR_gt_SelfCastMyraHeal, c_playerAny, AbilityCommand("MyraDavisHealingPatch", 0), c_targetModeStateOn);
-}
-
 void libUPLR_InitTriggers () {
     libUPLR_gt_InitializeUPLRace_Init();
     libUPLR_gt_InfantryMortarLaunch_Init();
     libUPLR_gt_ClaymoreMinePlaceDummy_Init();
     libUPLR_gt_ClaymoreMineSetDirection_Init();
     libUPLR_gt_ClaymoreMineSetDirectionCancel_Init();
-    libUPLR_gt_SelfCastOn_Init();
-    libUPLR_gt_SelfCastOff_Init();
-    libUPLR_gt_SelfCastMyraHeal_Init();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -927,7 +816,6 @@ void libUPLR_InitLib () {
     libUPLR_InitLib_completed = true;
 
     libUPLR_InitLibraries();
-    libUPLR_InitVariables();
     libUPLR_InitCustomScript();
     libUPLR_InitTriggers();
 }
