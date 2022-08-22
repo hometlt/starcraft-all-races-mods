@@ -90,7 +90,7 @@
 
 > Запрос авторизации: башня обогащения (новое) – 75 минералов 75 газа, 43 сек, находится в академии тактики. Позволяет всем штабам операций вызывать башни обогащения.
 >
-> Запрос авторизации: внутренний стабилизатор (новое) – 125 минералов 75 газа, 64 сек, находится в академии тактики. Позволяет вести огонь из драккара.
+> Запрос авторизации: внутренний стабилизатор (новое) – 100 минералов 100 газа, 60 сек, находится в академии тактики. Позволяет вести огонь из драккара.
 >
 > Запрос авторизации: тандемная динамическая защита (возвращается) – 150 минералов 150 газа, 71 сек, находится в фабрике боеприпасов. Дает +40 к макс хп наполеона.
 > 
@@ -194,7 +194,7 @@
 
 > Authorization request: Enrichment Tower (new) – 75 minerals 75 gas, 43 sec, located at the Academy of Tactics. Allows all operations headquarters to summon enrichment towers. 
 > 
-> Authorization request: internal stabilizer (new) – 125 minerals 75 gas, 64 sec, located at the Academy of Tactics. Allows you to fire from a drakkar.
+> Authorization request: internal stabilizer (new) – 100 minerals 100 gas, 60 sec, located at the Academy of Tactics. Allows you to fire from a drakkar.
 >
 > Authorization request: Tandem dynamic protection (returns) – 150 minerals 150 gas, 71 sec, located in the ammunition factory. Gives +40 to Napoleon's max hp.
 > 
