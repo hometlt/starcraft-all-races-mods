@@ -1,15 +1,168 @@
 <Catalog>
 
-
-
-
-
+    <CActorUnit default="1" id="War3_Destructible" parent="DestructibleUnitStandard">
+        <BarDistance value="16"/>
+        <!--Remove Terms="UnitRevive.##unitName##" Send="Create"/-->
+        <On index="2" Send="AnimBaselineStart"/>
+        <!--On Terms="UnitRevive.##unitName##; !ScopeContains ##id##" Send="Create"/-->
+        <On Terms="UnitDamaged" Send="AnimPlay Hit Hit"/>
+        <DeathArray index="Normal" AnimProps="IGNORE"/>
+        <PortraitActor value="War3_PortraitActor"/>
+        <PortraitModel value="##id##_Portrait"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <Macros index="0" value="War3_ExtraAnimationMacro"/>
+        <Macros value="War3_DeadAnimationMacroDestructible"/>
+        <UnitIcon value="EditorData\Images\TriggerLabels\Destructibles.tga"/>
+        <VitalColors index="Life">
+            <ColorArray value="0,0,0,0"/>
+        </VitalColors>
+        <Aliases value="_Destructible"/>
+    </CActorUnit>
+<!--Trees And Destructibles-->
     <CActorDoodad default="1" id="War3_Doodad">
         <Radius value="0.000000"/>
     </CActorDoodad>
     <CActorDoodad default="1" id="War3_TreeDoodad" parent="War3_Doodad">
         <Model value="War3_LordaeronTreeStatic"/>
     </CActorDoodad>
+    <CActorText default="1" id="LumberText">
+        <?token id="dropEffect" type="CEffectLink" value="Bogus"?>
+        <?token id="dropBehavior" type="CBehaviorLink" value="Bogus"?>
+        <Filter index="Ally" value="1"/>
+        <Filter index="Neutral" value="1"/>
+        <Filter index="Enemy" value="1"/>
+        <On Terms="Behavior.##dropBehavior##.Create" Send="Create"/>
+        <On Terms="Behavior.##dropBehavior##.Create" Send="SetVisibility"/>
+        <On Terms="Behavior.##dropBehavior##.Destroy" Send="SetVisibility 1"/>
+        <On Terms="Behavior.##dropBehavior##.Destroy" Send="Signal Show"/>
+        <On Terms="Effect.##dropEffect##.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.##dropEffect##.Start; At Caster" Send="Signal Show"/>
+        <On Terms="Signal.*.Show" Send="TimerSet 0.010000 StartMover"/>
+        <On Terms="Signal.*.Show" Send="TimerSet 2.000000 Die"/>
+        <On Terms="Signal.*.Show" Send="SetOpacity 0.000000 2.000000"/>
+        <On Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
+        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <!--Host Subject="_FloatingText"/-->
+        <FixedSize value="28"/>
+        <AlignV value="Bottom"/>
+        <HeightOffset value="1.000000"/>
+        <Color value="255,0,200,80"/>
+        <Text value="##id##/Text"/>
+    </CActorText>
+    <CActorText default="1" id="GoldText">
+        <?token id="dropBehavior" value="Bogus"?>
+        <?token id="dropEffect" value="Bogus"?>
+        <Filter index="Ally" value="1"/>
+        <Filter index="Neutral" value="1"/>
+        <Filter index="Enemy" value="1"/>
+        <On Terms="Behavior.##dropBehavior##.Create" Send="Create"/>
+        <On Terms="Behavior.##dropBehavior##.Create" Send="SetVisibility"/>
+        <On Terms="Behavior.##dropBehavior##.Destroy" Send="SetVisibility 1"/>
+        <On Terms="Behavior.##dropBehavior##.Destroy" Send="Signal Show"/>
+        <On Terms="Effect.##dropEffect##.Start; At Target" Send="Create"/>
+        <On Terms="Effect.##dropEffect##.Start; At Target" Send="Signal Show"/>
+        <On Terms="Signal.*.Show" Send="TimerSet 0.010000 StartMover"/>
+        <On Terms="Signal.*.Show" Send="TimerSet 2.000000 Die"/>
+        <On Terms="Signal.*.Show" Send="SetOpacity 0.000000 2.000000"/>
+        <On Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
+        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <!--Host Subject="_FloatingText"/-->
+        <FixedSize value="28"/>
+        <AlignV value="Bottom"/>
+        <HeightOffset value="1.000000"/>
+        <Color value="255,255,220,0"/>
+        <Text value="##id##/Text"/>
+    </CActorText>
+    <CActorText default="1" id="MissText">
+        <?token id="effect" value="Bogus"?>
+        <On Terms="Effect.##effect##.Start" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.010000 StartMover"/>
+        <On Terms="ActorCreation" Send="TimerSet 2.000000 Die"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.000000 2.000000"/>
+        <On Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
+        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <!--Host Subject="_FloatingText"/-->
+        <FixedSize value="28"/>
+        <AlignV value="Bottom"/>
+        <HeightOffset value="1.000000"/>
+        <Color value="255,255,0,0"/>
+        <Text value="Miss/Text"/>
+    </CActorText>
+
+    <CActorText id="WispLumberText" parent="LumberText" dropEffect="AwhaHarvest">
+        <Filter index="Neutral" value="0"/>
+    </CActorText>
+    <CActorText id="DefaultLumberText" parent="LumberText" dropBehavior="CarryLumber">
+        <On index="0" Terms="Behavior.CarryLumber.Create; ValidateUnit HasDefaultHarvest" Send="Create"/>
+        <On index="2" Terms="Behavior.CarryLumber.Destroy; ValidateUnit DefaultWorkerIsReturningResource" Send="SetVisibility 1"/>
+        <On Terms="Behavior.CarryLumber.Destroy; ValidateUnit Militia" Send="SetVisibility 1"/>
+    </CActorText>
+    <CActorText id="GhoulLumberText" parent="LumberText" dropBehavior="CarryLumber">
+        <On index="0" Terms="Behavior.CarryLumber.Create; ValidateUnit HasGhoulHarvest" Send="Create"/>
+        <On index="2" Terms="Behavior.CarryLumber.Destroy; ValidateUnit GhoulIsReturningResource" Send="SetVisibility 1"/>
+    </CActorText>
+
+    <CActorText id="WispGoldText" parent="GoldText" dropEffect="AegmHarvestingNoUpkeeper">
+        <On index="0" Terms="Effect.AegmHarvestingNoUpkeeper.Start; At Target" Send="Create"/>
+        <On index="1" Terms="ActorCreation" Send="TimerSet 0.010000 StartMover"/>
+        <On index="2" Terms="ActorCreation" Send="TimerSet 2.000000 Die"/>
+        <On index="3" Terms="ActorCreation" Send="SetOpacity 0.000000 2.000000"/>
+        <On index="4" Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
+        <On index="5" Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <On index="6" removed="1"/>
+        <On index="7" removed="1"/>
+        <On index="8" removed="1"/>
+        <On index="9" removed="1"/>
+        <On index="10" removed="1"/>
+    </CActorText>
+    <CActorText id="WispGoldTextLU" parent="GoldText" dropEffect="AegmHarvestingLowUpkeeper">
+        <On index="0" Terms="Effect.AegmHarvestingLowUpkeeper.Start; At Target" Send="Create"/>
+        <On index="1" Terms="ActorCreation" Send="TimerSet 0.010000 StartMover"/>
+        <On index="2" Terms="ActorCreation" Send="TimerSet 2.000000 Die"/>
+        <On index="3" Terms="ActorCreation" Send="SetOpacity 0.000000 2.000000"/>
+        <On index="4" Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
+        <On index="5" Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <On index="6" removed="1"/>
+        <On index="7" removed="1"/>
+        <On index="8" removed="1"/>
+        <On index="9" removed="1"/>
+        <On index="10" removed="1"/>
+    </CActorText>
+    <CActorText id="WispGoldTextHU" parent="GoldText" dropEffect="AegmHarvestingHighUpkeeper">
+        <On index="0" Terms="Effect.AegmHarvestingHighUpkeeper.Start; At Target" Send="Create"/>
+        <On index="1" Terms="ActorCreation" Send="TimerSet 0.010000 StartMover"/>
+        <On index="2" Terms="ActorCreation" Send="TimerSet 2.000000 Die"/>
+        <On index="3" Terms="ActorCreation" Send="SetOpacity 0.000000 2.000000"/>
+        <On index="4" Terms="TimerExpired; TimerName StartMover" Send="Create ResourceTextMover"/>
+        <On index="5" Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <On index="6" removed="1"/>
+        <On index="7" removed="1"/>
+        <On index="8" removed="1"/>
+        <On index="9" removed="1"/>
+        <On index="10" removed="1"/>
+    </CActorText>
+    <CActorText id="DefaultGoldText" parent="GoldText" dropBehavior="CarryGold">
+        <On index="0" Terms="Behavior.CarryGold.Create; ValidateUnit HasDefaultHarvest; ValidatePlayer UPKEEP_NONE" Send="Create"/>
+        <On index="2" Terms="Behavior.CarryGold.Destroy; ValidateUnit DefaultWorkerIsReturningResource" Send="SetVisibility 1"/>
+        <On Terms="Behavior.CarryGold.Destroy; ValidateUnit Militia" Send="SetVisibility 1"/>
+    </CActorText>
+    <CActorText id="DefaultGoldTextLU" parent="GoldText" dropBehavior="CarryGold">
+        <On index="0" Terms="Behavior.CarryGold.Create; ValidateUnit HasDefaultHarvest; ValidatePlayer UpkeepGT50LE80" Send="Create"/>
+        <On index="2" Terms="Behavior.CarryGold.Destroy; ValidateUnit DefaultWorkerIsReturningResource" Send="SetVisibility 1"/>
+        <On Terms="Behavior.CarryGold.Destroy; ValidateUnit Militia" Send="SetVisibility 1"/>
+    </CActorText>
+    <CActorText id="DefaultGoldTextHU" parent="GoldText" dropBehavior="CarryGold">
+        <On index="0" Terms="Behavior.CarryGold.Create; ValidateUnit HasDefaultHarvest; ValidatePlayer UPKEEP_HIGH" Send="Create"/>
+        <On index="2" Terms="Behavior.CarryGold.Destroy; ValidateUnit DefaultWorkerIsReturningResource" Send="SetVisibility 1"/>
+        <On Terms="Behavior.CarryGold.Destroy; ValidateUnit Militia" Send="SetVisibility 1"/>
+    </CActorText>
+
+
+    <CActorText id="HighGroundMissText" parent="MissText" effect="War3_MissileHigherGroundMiss"/>
+    <CActorText id="AEevMissText" parent="MissText"/>
+    <CActorText id="AttackMissText" parent="MissText"/>
+
+
     <CActorDoodad id="YTpcDoodad" parent="War3_Doodad">
         <EditorModel value="War3_ClickHelper"/>
         <Footprint value="4x4Default"/>
@@ -35,8 +188,6 @@
     <CActorDoodad id="LTltDoodadDead" parent="War3_TreeDoodad">
         <On Terms="ActorCreation" Send="AnimBracketStart Death Death {} {} OpeningPlayForever,Instant"/>
     </CActorDoodad>
-
-
 
     <CActorUnit id="ATtr" parent="War3_Destructible" unitName="ATtr">
         <RandomScaleRange value="0.800000,1.200000"/>
@@ -4775,5 +4926,6 @@
     <CActorUnit id="Volc" parent="War3_Destructible" unitName="Volc">
         <HostSiteOps Ops="SOpShadowSyncGround"/>
     </CActorUnit>
+    <!--Trees And Destructibles-->
 
 </Catalog>
