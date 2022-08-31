@@ -25,6 +25,8 @@
 **=======Юниты и способности ОЗД=======**
 
 > Маяк ОЗД: стоимость уменьшена с 75 минералов до 50 минералов, количество хп со 150 до 120.
+>
+> Валькирия: урон увеличен с 8 до 9, скорость атаки с 2.29 до 1.79, сплеш уменьшен до 40% в радиусе 1.25.
 > 
 > Гармр: бонус по легким 12 -> 9, скорость атаки 1.29 -> 0.89.
 > 
@@ -34,9 +36,9 @@
 > 
 > Способность Оптическая вспышка перенесена к политическому советнику (75 энергии) и демаскирует юнитов.
 > 
-> Способность В бой товарищи: длительность увеличена с 8 сек до 12 сек, радиус с 3 до 4. Может применяться из драккара и также действует на юнитов внутри.
+> Способность В бой товарищи: радиус увеличен с 3 до 4, скорость атаки с +17% до +30%, сила атаки с +12% до +20%. Может применяться из драккара и также действует на юнитов внутри. Распростроняется только на биологические цели.
 > 
-> Способность Ударная граната: стоимость увеличена с 50 до 75, урон с 16 до 23, теперь замедляет скорость атаки на 30%.
+> Способность Ударная граната: стоимость увеличена с 50 до 75, теперь замедляет скорость атаки на 30% в течении 6 сек.
 > 
 > Политический советник: цена уменьшена со 150 минералов 125 газа до 125 минералов 100 газа.
 > 
@@ -48,11 +50,14 @@
 > 
 > Хуракан: дальность атаки уменьшена с 3.5 до 1.5, скорость передвижения увеличена с 4.2 до 4.48, атака теперь 8+8 по легким.
 > 
-> Штурмовик: цена увеличена со 150 минералов 75 газа до 150 минералов 100 газа, урон 8 (11 по механическим).
+> Штурмовик: цена увеличена со 150 минералов 75 газа до 150 минералов 100 газа, урон 8 (11 по бронированным).
 > 
 > БМП “Драккар”:  скорость передвижения снижена с 5.18 до 4.44. Стоимость уменьшена до 125 минералов. Стрельба на ходу требует улучшения.
 > 
 > Таранис:  атака уменьшена с 10+6 по бронированным до 8+6 по бронированным, сплешь уменьшен с 9+5 по бронированным до 6+4 по бронированным.
+>
+> МРУ «Пенемюнде»: Время приыеливания увеличено до 2.1 сек, теперь 100% стартового урона наносит только выбранной цели, остальные получают 25%, поджог по своим наносит 50% урона.
+
 
 **======Время производства юнитов=======**
 
@@ -90,7 +95,9 @@
 
 > Запрос авторизации: башня обогащения (новое) – 75 минералов 75 газа, 43 сек, находится в академии тактики. Позволяет всем штабам операций вызывать башни обогащения.
 >
-> Запрос авторизации: внутренний стабилизатор (новое) – 100 минералов 100 газа, 60 сек, находится в академии тактики. Позволяет вести огонь из драккара на ходу и увеличивает скорость передвижения на 15%.
+> Запрос авторизации: Расширенные ракетные пакеты - теперь только увеличивает радиус сплеш урона до 2.
+>
+> Запрос авторизации: внутренний стабилизатор (новое) – 100 минералов 100 газа, 65 сек, находится в академии тактики. Позволяет вести огонь из драккара на ходу и увеличивает скорость передвижения на 15%.
 >
 > Запрос авторизации: тандемная динамическая защита (возвращается) – 150 минералов 150 газа, 71 сек, находится в фабрике боеприпасов. Дает +40 к макс хп наполеона.
 > 
@@ -135,7 +142,9 @@
 **=======Units and abilities UED=======**
 
 > UED Beacon: the cost has been reduced from 75 minerals to 50 minerals, the number of hp from 150 to 120. 
-> 
+>
+> Valkyrie: Damage increased from 8 to 9, attack speed from 2.29 to 1.79, splash reduced to 40% in a radius of 1.25.
+>
 > Garmr: Light bonus 12 -> 9, attack speed 1.29 -> 0.89. 
 > 
 > The Icarus Catalyst ability now deals 15 damage in a radius of 0.8 and another 15 damage and slows down the movement speed by 30% for 5 seconds in a radius of 1.25. Adds up to 3 times. 
@@ -144,9 +153,9 @@
 > 
 > The Optical Flash ability is transferred to the Political Advisor (75 energy) and unmasks units. 
 > 
-> Ability to fight comrades: duration increased from 8 seconds to 12 seconds, radius from 3 to 4. Can be used from a drakkar and also acts on units inside. 
+> Ability to fight comrades: radius increased from 3 to 4, attack speed from +17% to +30%, attack power from +12% to +20%. Can be used from a drakkar and also acts on units inside. It is distributed only for biological purposes.
 > 
-> Strike Grenade ability: Cost increased from 50 to 75, damage from 16 to 23, now slows attack speed by 30%.
+> Strike Grenade ability: Cost increased from 50 to 75, now slows attack speed by 30% within 6 seconds.
 > 
 > Political Advisor: The price has been reduced from 150 minerals 125 gas to 125 minerals 100 gas.
 > 
@@ -158,11 +167,13 @@
 > 
 > Hurakan: attack range reduced from 3.5 to 1.5, movement speed increased from 4.2 to 4.48, the attack is now 8+8 on the lungs.
 > 
-> Strikefighter: the price has been increased from 150 minerals 75 gas to 150 minerals 100 gas, damage 8 (11 mechanical).
+> Strikefighter: the price has been increased from 150 minerals 75 gas to 150 minerals 100 gas, damage 8 (11 by armored).
 > 
 > Drakkar APC: the speed of movement is reduced from 5.18 to 4.87. The cost is reduced to 125 minerals. Shooting on the move requires improvement.
 > 
 > Taranis: Attack reduced from 10+6 on armored to 8+6 on armored, splash reduced from 9+5 on armored to 6+4 on armored.
+>
+> Peenemunde MRLS: Targeting time increased to 2.1 sec, now 100% the starting damage is dealt only to the selected target, the rest receive 25%, fire on allies deals 50% damage.
 
 **=======Unit production time=======**
 
@@ -195,8 +206,10 @@
 **======= Improvements UED=======**
 
 > Authorization request: Enrichment Tower (new) – 75 minerals 75 gas, 43 sec, located at the Academy of Tactics. Allows all operations headquarters to summon enrichment towers. 
-> 
-> Authorization request: internal stabilizer (new) – 100 minerals 100 gas, 60 sec, located at the Academy of Tactics. Allows you to fire from a drakkar on the move and increases the movement speed by 15%.
+>
+> Authorization Request: Extended Missile Payloads - now only increases the splash damage radius to 2.
+>
+> Authorization request: internal stabilizer (new) – 100 minerals 100 gas, 65 sec, located at the Academy of Tactics. Allows you to fire from a drakkar on the move and increases the movement speed by 15%.
 >
 > Authorization request: Tandem dynamic protection (returns) – 150 minerals 150 gas, 71 sec, located in the ammunition factory. Gives +40 to Napoleon's max hp.
 > 
