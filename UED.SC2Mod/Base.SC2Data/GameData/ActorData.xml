@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+    <CActorModel id="AgentTowerHightRegenerationUED" parent="ModelAnimationStyleOneShot">
+        <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death OpeningPlayForever"/>
+        <On Terms="Effect.SearchAreaHightRegeneration.Start" Send="Create"/>
+        <On Terms="ActorCreation" Send="SetScale 2.000000"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.150000"/>
+        <On Terms="Effect.EffectPeriodHightRegeneration.Stop" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="SetTintColor 255,255,0"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Model value="ModelUEDAnimationHightRegeneration"/>
+    </CActorModel>
     <CActorModel id="CloakingDroneModel">
         <On Terms="Behavior.AlgoritmCloakingDroneUED.Off" Send="Destroy"/>
     </CActorModel>
+    <CActorSimple id="ColourTargetBlandingCloud">
+        <Aliases value="_AngryTinter"/>
+        <On Terms="Behavior.OpticalFlare.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 0,117,234 0.500000 OneShot SeekerTarget"/>
+        <On Terms="Behavior.OpticalFlare.Off" Target="_Unit" Send="ClearTintColor 0.500000 SeekerTarget"/>
+        <On Terms="Behavior.OpticalFlare.Off" Send="Destroy"/>
+    </CActorSimple>
     <CActorModel id="DropModelBeacon" parent="ModelAnimationStyleOneShotNoOrphan">
         <On Terms="Effect.EffectPeriodTimeDropTowerBeacon.Start" Send="Create"/>
         <On Terms="Effect.EffectPeriodTimeDropTowerBeacon.Stop" Send="AnimBracketStop BSD"/>
@@ -42,6 +59,10 @@
         <Model value="ModelAbilityPenemunde2"/>
         <Scale value="1.750000"/>
     </CActorModel>
+    <CActorSound id="SoundAgentAbilHightRegeneration" parent="SoundOneShot">
+        <On Terms="Abil.AbilityHightRegeneration.SourceCastStart" Send="Create"/>
+        <Sound value="SondUEDHightRegeneration"/>
+    </CActorSound>
     <CActorSound id="SoundAgentLaunchMissleLazarusRegenHealf" parent="SoundOneShot">
         <On Terms="Effect.LaunchMissileLazarusRegenHealf.Start" Send="Create"/>
         <HostSiteOps Ops="SOpTargetPointStationary"/>
@@ -675,12 +696,12 @@
         <HostSiteOps Ops="SOpShadow"/>
         <Model value="BossTargetCursorSplat"/>
     </CActorModel>
-    <CActorSimple id="ColourFlashGrenade">
+    <CActorSimple id="ColourTargetPenemunde">
         <Aliases value="_AngryTinter"/>
-        <On Terms="Behavior.OpticalFlare.On" Send="Create"/>
-        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 108,108,255 0.500000 OneShot SeekerTarget"/>
-        <On Terms="Behavior.OpticalFlare.Off" Target="_Unit" Send="ClearTintColor 0.500000 SeekerTarget"/>
-        <On Terms="Behavior.OpticalFlare.Off" Send="Destroy"/>
+        <On Terms="Behavior.PenemundeAlgoritmTargetAbility.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 255,66,66 0.500000 OneShot SeekerTarget"/>
+        <On Terms="Behavior.PenemundeAlgoritmTargetAbility.Off" Target="_Unit" Send="ClearTintColor 0.500000 SeekerTarget"/>
+        <On Terms="Behavior.PenemundeAlgoritmTargetAbility.Off" Send="Destroy"/>
     </CActorSimple>
     <CActorSimple id="ColourDruseOnFieldBeatan">
         <Aliases value="_AngryTinter"/>
@@ -707,9 +728,10 @@
         <On Terms="TurretEnable.SuppressionTower" Send="Create"/>
         <On Terms="AbilMorph.*.Start; MorphFrom SiegeTank" Send="Destroy"/>
     </CActorTurret>
-    <CActorSound id="OpticalFlareSound2">
+    <CActorSound id="OpticalFlareSound2" parent="SoundOneShot">
         <EditorCategories value=""/>
-        <On Terms="Behavior.OpticalFlare.On" Send="Create"/>
+        <On index="0" Terms="Behavior.OpticalFlare.On" Send="Create"/>
+        <On Terms="SoundDone; SoundIsFinalSound" Send="Destroy"/>
         <Sound value="Medic_OpticalFlareHit"/>
     </CActorSound>
     <CActorTurret id="CitadelAATTurret">
@@ -1777,12 +1799,13 @@
         </Wireframe>
         <HeroIcon value="Assets\Textures\BTN-UED-Peenemudre.dds"/>
     </CActorUnit>
-    <CActorAction id="PeenemundeMRLSAttack" parent="GenericAttack" effectImpact="PeenemundeMRLS_Damage" effectLaunch="PeenemundeMRLSLM">
+    <CActorAction id="PeenemundeMRLSAttack" parent="GenericAttack" effectImpact="PeenemundeMRLS_Damage" effectLaunch="PeenemundeMRLSLMTarget">
         <LaunchAssets Sound="PeenemundeMRLS_AttackILaunch"/>
         <BeamScope value="Caster"/>
         <ImpactMap index="None" Sound="PeenemundeMRLS_AttackImpact"/>
         <ImpactPhysics Name="RailgunImpact" MatchKeys="Basic" Physics="RailgunAttackDeathForce"/>
         <ActionFlags index="LaunchForceSite" value="1"/>
+        <On Terms="Effect.PeenemundeMRLSLMPoint.Start; At Caster" Send="Create"/>
     </CActorAction>
     <CActorMissile id="PeenemundeMRLSAttackMissile" parent="GenericAttackMissile" unitName="PeenemundeMRLSWeapon">
         <Model value="PeenemundeMRLSBeam"/>
@@ -4129,9 +4152,10 @@
         <BarHeight value="1"/>
         <BarWidth value="1"/>
     </CActorMissile>
-    <CActorSound id="OpticalFlareSound">
+    <CActorSound id="OpticalFlareSound" parent="SoundOneShot">
         <EditorCategories value=""/>
-        <On Terms="Effect.OpticalFlareLM.Launch" Send="Create"/>
+        <On index="0" Terms="Effect.OpticalFlareLM.Launch" Send="Create"/>
+        <On Terms="SoundDone; SoundIsFinalSound" Send="Destroy"/>
         <Sound value="Medic_OpticalFlare"/>
     </CActorSound>
     <CActorAction id="Yoink2" parent="GenericAttack" effectImpact="YoinkSet2" effectLaunch="YoinkLaunchMissile2">
@@ -4336,15 +4360,15 @@
     </CActorMissile>
     <CActorModel id="PeenemundeMRLSLMAttackTargetingUI" parent="ModelAnimationStyleOneShot">
         <Model value="BossTargetCursorSplat"/>
-        <On Terms="Abil.PeenemundeMRLSLM.TargetPrepStart" Send="Create"/>
-        <On Terms="Abil.PeenemundeMRLSLM.TargetFinishStop" Send="Destroy"/>
-        <On Terms="Abil.PeenemundeMRLSLM.SourcePrepStop" Send="Destroy"/>
-        <On Terms="Abil.PeenemundeMRLSLM.TargetPrepStart" Send="SetOpacity 0.650000"/>
+        <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="Effect.EffectPeriodHelpAnimacionPenemunde.Start" Send="Create"/>
+        <On Terms="Effect.EffectPeriodHelpAnimacionPenemunde.Stop" Send="Destroy"/>
         <HostSiteOps Ops="SOpShadow"/>
-        <Host Subject="::HostBearings" Actor="Create"/>
+        <Host Subject="_Unit" Scope="Target"/>
     </CActorModel>
     <CActorSound id="PeenemundeMRLSLMAttackTargetingSound" parent="SoundOneShot">
-        <On Terms="Effect.PeenemundeMRLSLM.Start" Send="Create"/>
+        <On Terms="Effect.PeenemundeMRLSLMTarget.Start" Send="Create"/>
+        <On Terms="Effect.PeenemundeMRLSLMPoint.Start" Send="Create"/>
     </CActorSound>
     <CActorSimple id="AgentDronCloackUED">
         <On Terms="Behavior.AlgoritmCloakingDroneUED.On" Send="Create"/>

@@ -3,7 +3,7 @@
     <CEffectDamage id="157mmGaussCannon" parent="DU_WEAP">
         <EditorCategories value="Race:UED"/>
         <Kind value="Ranged"/>
-        <Amount value="30"/>
+        <Amount value="27"/>
         <Death value="Blast"/>
     </CEffectDamage>
     <CEffectDamage id="90mmCannons22" parent="DU_WEAP">
@@ -38,6 +38,20 @@
         <ValidatorArray index="0" removed="1"/>
         <EditorCategories value="Race:UED"/>
         <Behavior value="DrakkarAlgoritmOtklAttack"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ApplyAlgoritmHightRegeneraishonHealf">
+        <EditorCategories value="Race:UED"/>
+        <Behavior value="AlgoritmHightRegeneraishonHealf"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ApplyAlgoritmHightRegeneraishonEnergy">
+        <ValidatorArray index="0" value="IsBiological"/>
+        <ValidatorArray value="TargetIsGround"/>
+        <EditorCategories value="Race:UED"/>
+        <Behavior value="AlgoritmHightRegeneraishonEnergy"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ApplyAlgoritmTargetPenemunde">
+        <EditorCategories value="Race:UED"/>
+        <Behavior value="PenemundeAlgoritmTargetAbility"/>
     </CEffectApplyBehavior>
     <CEffectDamage id="DamageOnBuildingHurakan" parent="DU_WEAP">
         <ValidatorArray value="IsStructureTarget"/>
@@ -141,6 +155,22 @@
         <EditorCategories value="Race:UED"/>
         <Behavior value="AlgoritmStrikeGrenade"/>
     </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="EffectPeriodHelpAnimacionPenemunde">
+        <EditorCategories value="Race:UED"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <InitialEffect value="ApplyAlgoritmTargetPenemunde"/>
+        <FinalEffect value="CancelPenemundeAbility"/>
+        <PeriodCount value="30"/>
+        <PeriodicValidator value="ValidatePenemundeAplyAbility"/>
+        <PeriodicPeriodArray value="0.1"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="EffectPeriodHightRegeneration">
+        <EditorCategories value="Race:UED"/>
+        <WhichLocation Value="CasterUnit"/>
+        <PeriodCount value="60"/>
+        <PeriodicEffectArray value="SearchAreaHightRegeneration"/>
+        <PeriodicPeriodArray value="0.7"/>
+    </CEffectCreatePersistent>
     <CEffectDamage id="KillUnitDrakkar">
         <ValidatorArray value="CasterIsDead"/>
         <ValidatorArray value="IsHiddenSelf"/>
@@ -149,6 +179,35 @@
         <Flags index="Kill" value="1"/>
         <Death value="Remove"/>
     </CEffectDamage>
+    <CEffectRemoveBehavior id="CancelPenemundeAbility">
+        <EditorCategories value="Race:UED"/>
+        <BehaviorLink value="PenemundeAlgoritmTargetAbility"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="MinusSlowingStrikeGranade">
+        <ValidatorArray index="0" removed="1"/>
+        <EditorCategories value="Race:UED"/>
+        <BehaviorLink value="AlgoritmStrikeGrenade"/>
+    </CEffectRemoveBehavior>
+    <CEffectLaunchMissile id="PeenemundeMRLSLMPoint">
+        <ValidatorArray index="0" value="ValidatePointUED"/>
+        <EditorCategories value="Race:UED"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <FinishEffect value="SetPenemunde"/>
+        <AmmoUnit value="PeenemundeMRLSWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="PenemundeDamageSmallFrandly">
+        <ValidatorArray value="TargetIsAllyorPlayer"/>
+        <EditorCategories value="Race:UED"/>
+        <AttributeBonus index="Structure" value="0.75"/>
+        <Amount value="1.5"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="SearchAreaHightRegeneration">
+        <ValidatorArray value="NotHiddenSelf"/>
+        <EditorCategories value="Race:UED"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="-;Neutral,Enemy,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="5.5" Effect="ApplyAlgoritmHightRegeneraishonHealf"/>
+    </CEffectEnumArea>
     <CEffectSet id="SetGarmrExploing">
         <EditorCategories value="Race:UED"/>
         <EffectArray value="ExplodingBarrelLargeExplosion"/>
@@ -203,19 +262,38 @@
         <SearchFilters value="Ground;Player,Ally,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <AreaArray Radius="1.25" Effect="ApplyAlgoritmBloodGarmr"/>
     </CEffectEnumArea>
+    <CEffectSet id="SetLauncMissilePenemunde">
+        <EditorCategories value="Race:UED"/>
+        <EffectArray value="PeenemundeMRLSLMTarget"/>
+        <EffectArray value="PeenemundeMRLSLMPoint"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSet>
+    <CEffectSet id="SetPenemundeFireDamage">
+        <EditorCategories value="Race:UED"/>
+        <EffectArray value="PenemundeDamageSmallEnemy"/>
+        <EffectArray value="PenemundeDamageSmallFrandly"/>
+    </CEffectSet>
+    <CEffectSet id="SetPenemunde">
+        <EditorCategories value="Race:UED"/>
+        <EffectArray value="PeenemundeMRLS_Damage"/>
+        <EffectArray value="EffektPeriodPenemundeDamagePeriod"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSet>
     <CEffectSet id="SetGranateDamage">
         <EditorCategories value="Race:UED"/>
+        <EffectArray value="MinusSlowingStrikeGranade"/>
         <EffectArray value="BonesTossGrenadeDamage"/>
         <EffectArray value="ApplyAlgoritmStrikeGrenate"/>
     </CEffectSet>
-    <CEffectDamage id="PenemundeDamageSmall">
+    <CEffectDamage id="PenemundeDamageSmallEnemy">
+        <ValidatorArray value="TargetIsEnemyOrNeutral"/>
         <EditorCategories value="Race:UED"/>
-        <Amount value="3"/>
         <AttributeBonus index="Structure" value="1.5"/>
+        <Amount value="3"/>
     </CEffectDamage>
     <CEffectCreatePersistent id="EffektPeriodPenemundeDamagePeriod">
         <EditorCategories value="Race:UED"/>
-        <InitialEffect value="PeenemundeMRLS_Damage"/>
+        <WhichLocation Value="TargetOuterPoint"/>
         <PeriodCount value="39"/>
         <PeriodicEffectArray value="SearchAreaDamagePenemunde"/>
         <PeriodicPeriodArray value="0.35"/>
@@ -396,7 +474,7 @@
         <EditorCategories value="Race:UED"/>
         <ResponseFlags index="Acquire" value="1"/>
         <ResponseFlags index="Flee" value="1"/>
-        <Amount value="23"/>
+        <Amount value="16"/>
     </CEffectDamage>
     <CEffectCreatePersistent id="BonesTossGrenadeDelay">
         <EditorCategories value="Race:UED"/>
@@ -628,8 +706,8 @@
     <CEffectDamage id="FirebatUFull" parent="DU_WEAP_SPLASH">
         <ValidatorArray value="noMarkers"/>
         <EditorCategories value="Race:UED"/>
-        <AttributeBonus index="Light" value="7"/>
-        <Amount value="6"/>
+        <AttributeBonus index="Light" value="8"/>
+        <Amount value="8"/>
         <Death value="Fire"/>
         <AreaArray Arc="74.9926" RadiusBonus="1" Bonus="1"/>
         <SearchFilters value="-;Player,Ally"/>
@@ -732,10 +810,11 @@
         <KindSplash value="Splash"/>
         <Amount value="8"/>
         <Death value="Blast"/>
-        <AreaArray Radius="0.75" Fraction="0.5"/>
+        <AreaArray Radius="0.75" Fraction="0.4"/>
         <ExcludeArray Value="Target"/>
-        <SearchFilters value="Air;Ground,RawResource,HarvestableResource,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFilters value="Air;Player,Ally,Ground,RawResource,HarvestableResource,Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <SearchFlags index="SameCliff" value="0"/>
+        <AttributeBonus index="Armored" value="3"/>
     </CEffectDamage>
     <CEffectApplyBehavior id="VisionBuffTrooperDownApplyBehavior">
         <ValidatorArray index="0" removed="1"/>
@@ -944,6 +1023,8 @@
         <EditorCategories value="Race:UED"/>
         <Behavior value="OnwardComrades"/>
         <ValidatorArray index="0" value="ValidateForHiddenAdvisorAbility"/>
+        <ValidatorArray value="ValidateDrakkarOtklAttack"/>
+        <ValidatorArray value="IsBiological"/>
     </CEffectApplyBehavior>
     <CEffectDamage id="SuicideRemove3">
         <ImpactLocation Value="SourceUnit"/>
@@ -1038,14 +1119,15 @@
         <AttributeBonus index="Structure" value="40"/>
         <Kind value="Ranged"/>
         <Amount value="80"/>
-        <AreaArray Radius="2" Fraction="1"/>
+        <AreaArray Radius="2" Fraction="0.25"/>
         <SearchFilters value="Ground;RawResource,HarvestableResource,Missile,Stasis,Dead,Hidden"/>
+        <ExcludeArray Value="Target"/>
     </CEffectDamage>
-    <CEffectLaunchMissile id="PeenemundeMRLSLM">
+    <CEffectLaunchMissile id="PeenemundeMRLSLMTarget">
+        <ValidatorArray index="0" value="ValidateAnyTargetUED"/>
         <EditorCategories value="Race:UED"/>
+        <FinishEffect value="SetPenemunde"/>
         <AmmoUnit value="PeenemundeMRLSWeapon"/>
-        <ImpactLocation Value="TargetPoint"/>
-        <FinishEffect value="EffektPeriodPenemundeDamagePeriod"/>
     </CEffectLaunchMissile>
     <CEffectCreatePersistent id="TyphoonRockets">
         <EditorCategories value="Race:UED"/>
@@ -1072,7 +1154,7 @@
         <WhichLocation Value="TargetUnit"/>
         <ExpireDelay value="0.8"/>
         <PeriodCount value="6"/>
-        <PeriodicEffectArray value="PeenemundeMRLSLM"/>
+        <PeriodicEffectArray value="PeenemundeMRLSLMTarget"/>
         <PeriodicPeriodArray value="0.2"/>
     </CEffectCreatePersistent>
     <CEffectDamage id="TwinGatlingCannons2" parent="DU_WEAP">
@@ -1110,7 +1192,7 @@
         <EditorCategories value="Race:UED"/>
         <Amount value="8"/>
         <Death value="Fire"/>
-        <AttributeBonus index="Mechanical" value="3"/>
+        <AttributeBonus index="Armored" value="3"/>
     </CEffectDamage>
     <CEffectSet id="BattlecruiserDamageSet2">
         <EditorCategories value="Race:UED"/>
@@ -1313,9 +1395,9 @@
     <CEffectDamage id="ValkyrieMissileDamage" parent="DU_WEAP_MISSILE">
         <EditorCategories value="Race:UED"/>
         <LaunchLocation Value="SourceUnitOrPoint"/>
-        <Amount value="8"/>
+        <Amount value="9"/>
         <Death value="Fire"/>
-        <AreaArray Radius="0.75" Fraction="0.75"/>
+        <AreaArray Radius="1.25" Fraction="0.4"/>
         <ExcludeArray Value="Target"/>
         <SearchFilters value="Air;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
     </CEffectDamage>
@@ -1379,6 +1461,7 @@
         <EditorCategories value="Race:UED"/>
         <ResponseFlags index="Acquire" value="1"/>
         <ResponseFlags index="Flee" value="1"/>
+        <AttributeBonus index="Armored" value="3"/>
         <ArmorReduction value="1"/>
         <Kind value="Ranged"/>
         <KindSplash value="Splash"/>
@@ -1414,6 +1497,7 @@
         <EditorCategories value="Race:UED"/>
         <SearchFilters value="-;Neutral,Enemy,Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <AreaArray Radius="5.5" Effect="ArsenalHealAB"/>
+        <ValidatorArray value="NotHiddenSelf"/>
     </CEffectEnumArea>
     <CEffectDamage id="PsiDecimatorDamage">
         <EditorCategories value="Race:UED"/>
@@ -1573,7 +1657,7 @@
     </CEffectIssueOrder>
     <CEffectCreatePersistent id="BurrowChargePoint">
         <EditorCategories value="Race:UED"/>
-        <PeriodCount value="4"/>
+        <PeriodCount value="3"/>
         <WhichLocation Value="CasterUnit"/>
         <InitialEffect value="BurrowChargeIssueOrder"/>
         <FinalEffect value="BurrowChargeImpactSet"/>
