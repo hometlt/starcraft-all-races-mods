@@ -26,6 +26,8 @@
 
 > Маяк ОЗД: стоимость уменьшена с 75 минералов до 50 минералов, количество хп со 150 до 120.
 >
+> Тайфун: добавлен бонус +3 по бронированным.
+>
 > Валькирия: урон увеличен с 8 до 9, скорость атаки с 2.29 до 1.79, сплеш уменьшен до 40% в радиусе 1.25.
 > 
 > Гармр: бонус по легким 12 -> 9, скорость атаки 1.29 -> 0.89.
@@ -106,6 +108,10 @@
 > Запрос авторизации: беатановый реактор перемещен из тахионное реле в завод обслуживания звездолетов.
 > 
 > Запрос авторизации: нагрузка для атмосферных операций – теперь дает +1 к количеству атак штурмовика.
+>
+> Запрос авторизации: ударная граната – 150 минералов 150 газа, 75 сек, находится в полевом бюро, позволяет складываться эффекту ранаты до 2 раз.
+> 
+> Запрос авторизации: оптическая вспышка – 150 минералов 150 газа, 75 сек, находится в полевом бюро, увеличивает радиус вспышки но 0.5 ед.
 > 
 > Запрос авторизации: фосфорный огонь (новое) - 150 минералов 100 газа, 64 сек, находится в военно-исследовательской станции. Дает хуракану бонус по строениям +20 ед.
 > 
@@ -143,7 +149,9 @@
 
 > UED Beacon: the cost has been reduced from 75 minerals to 50 minerals, the number of hp from 150 to 120. 
 >
-> Valkyrie: Damage increased from 8 to 9, attack speed from 2.29 to 1.79, splash reduced to 40% in a radius of 1.25.
+> Typhoon: added +3 bonus on armored.
+>
+> Valkyrie: damage increased from 8 to 9, attack speed from 2.29 to 1.79, splash reduced to 40% in a radius of 1.25.
 >
 > Garmr: Light bonus 12 -> 9, attack speed 1.29 -> 0.89. 
 > 
@@ -218,6 +226,10 @@
 > Authorization request: The Beatan reactor has been moved from the tachyon relay to the starship maintenance plant. 
 > 
 > Authorization request: Load for atmospheric operations – now gives +1 to the number of strikefighter attacks.
+>
+> Authorization request: strike grenade – 150 minerals, 150 gas, 75 seconds, located in the field office, allows you to fold the grenade effect up to 2 times.
+>
+> Authorization request: optical flash – 150 minerals 150 gas, 75 seconds, located in the field office, increases the flash radius on 0.5 units.
 > 
 > Authorization request: Phosphoric fire (new) - 150 minerals, 100 gas, 64 sec, located in the military research station. Gives Huracan a bonus on buildings +20.
 > 
