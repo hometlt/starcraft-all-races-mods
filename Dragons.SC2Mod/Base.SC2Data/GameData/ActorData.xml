@@ -762,8 +762,8 @@
     <CActorRange id="HornedMagusFireShieldRange" parent="RangeAbil" abil="HornedMagusFireShield"/>
     <CActorRange id="HornedMagusShroudRange" parent="RangeAbil" abil="HornedMagusShroud"/>
     <CActorSplat id="HornedMagusShroudSplat" parent="ZergCursorSplat" abil="HornedMagusShroud"/>
-    <CActorModel id="HunterFeast" parent="ModelAnimationStyleOneShotUNIT">
-        <On Terms="Effect.HunterMeleeModifyUnit.Start" Send="Create"/>
+    <CActorModel id="DragonHunterFeast" parent="ModelAnimationStyleOneShotUNIT">
+        <On Terms="Effect.DragonHunterMeleeModifyUnit.Start" Send="Create"/>
         <On Terms="Effect.HunterTongueLashModifyUnit.Start" Send="Create"/>
     </CActorModel>
     <CActorRange id="LesserDeepOneBuildRange" parent="RangeAbil" abil="LesserDeepOneBuild">
@@ -1850,28 +1850,33 @@
         <ImpactPhysics Name="Force" MatchKeys="Basic" Physics="HornedMagusAttackForce"/>
     </CActorAction>
     <CActorMissile id="HornedMagusAttackMissile" parent="GenericAttackMissile" unitName="HornedMagusAttackMissile"/>
-    <CActorAction id="HunterMelee" parent="GenericAttack" effectAttack="HunterMeleeDamage">
+    <CActorAction id="DragonHunterMelee" parent="GenericAttack" effectAttack="DragonHunterMeleeDamage">
         <ShieldFlashType value="Header"/>
     </CActorAction>
     <CActorSound id="HunterAttackStart" parent="SoundOneShot">
-        <On Terms="WeaponStart.HunterClaws.AttackStart" Send="Create"/>
+        <On Terms="WeaponStart.DragonHunterClaws.AttackStart" Send="Create"/>
     </CActorSound>
-    <CActorSound id="Hunter_Death" parent="SoundOneShot">
-        <On Terms="UnitDeath.Hunter; PassChance 25.000000" Send="Create"/>
+    <CActorSound id="DragonHunter_Death" parent="SoundOneShot">
+        <On Terms="UnitDeath.DragonHunter; PassChance 25.000000" Send="Create"/>
     </CActorSound>
-    <CActorAction id="HunterAttack" parent="GenericAttack" effectImpact="HunterTongueLashDamage" effectLaunch="HunterTongueLashLaunchMissile">
+    <CActorAction id="DragonHunterAttack" parent="GenericAttack" effectImpact="HunterTongueLashDamage" effectLaunch="HunterTongueLashLaunchMissile">
         <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeStandard SOpForwardLaunchGuide"/>
         <ImpactSiteOpsReaction Ops="SOp2DRotation SOp180" HoldPosition="1" HoldRotation="1"/>
-        <ActionFlags index="VictimRevealsAttacker" value="1"/>
         <ImpactMap index="Flesh" Model="BloodTargetImpact"/>
         <ImpactMap index="LightArmor" Model="LightArmorTargetImpact"/>
         <ImpactMap index="Metal" Model="MetalTargetImpact"/>
+        <ImpactPhysics Name="Force" MatchKeys="Basic" Physics="HunterAttackForce"/>
         <AcquisitionYawHalfArc value="5.000000"/>
         <AcquisitionPitchHalfArc value="5.000000"/>
         <AccuracyHalfArc value="5.000000"/>
-        <ImpactPhysics Name="Force" MatchKeys="Basic" Physics="HunterAttackForce"/>
+        <ActionFlags index="VictimRevealsAttacker" value="1"/>
     </CActorAction>
-    <CActorMissile id="HunterAttackMissile" parent="GenericTentacleMissile" unitName="HunterAttackMissile">
+    <CActorMissile id="DragonHunterAttackMissile" parent="GenericTentacleMissile" unitName="DragonHunterAttackMissile">
+        <Inherits index="CastShadows" value="1"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="LocalTintColor" value="1"/>
+        <Inherits index="Opacity" value="1"/>
+        <Inherits index="TintColor" value="1"/>
         <Supporter>
             <Subject value="_Selectable"/>
             <Scope value="Caster"/>
@@ -1879,6 +1884,12 @@
             <Effect value="HunterTongueLashLaunchMissile"/>
         </Supporter>
         <Remove Terms="UnitBirth" Send="AnimBracketStart Lifetime Birth Stand"/>
+        <HostForProps>
+            <Subject value="_Selectable"/>
+            <Scope value="Caster"/>
+            <Actor value="Find"/>
+            <Effect value="HunterTongueLashLaunchMissile"/>
+        </HostForProps>
         <HostReturn>
             <Subject value="_Selectable"/>
             <Scope value="Caster"/>
@@ -1886,33 +1897,22 @@
             <Effect value="HunterTongueLashLaunchMissile"/>
         </HostReturn>
         <HostReturnSiteOps Ops="SOpAttachWeapon"/>
-        <Inherits index="CastShadows" value="1"/>
-        <Inherits index="CloakEffect" value="1"/>
-        <Inherits index="LocalTintColor" value="1"/>
-        <Inherits index="Opacity" value="1"/>
-        <Inherits index="TintColor" value="1"/>
-        <HostForProps>
-            <Subject value="_Selectable"/>
-            <Scope value="Caster"/>
-            <Actor value="Find"/>
-            <Effect value="HunterTongueLashLaunchMissile"/>
-        </HostForProps>
     </CActorMissile>
-    <CActorUnit id="Hunter" parent="DragonUnitGroundArmored" unitName="Hunter">
+    <CActorUnit id="DragonHunter" parent="DragonUnitGroundArmored" unitName="DragonHunter">
         <On index="61" Send="SetScale 1.200000"/>
         <On index="62" Send="SetScale 1.200000 0.500000"/>
-        <On Terms="WeaponStart.HunterTongueLash.AttackStart" Send="AnimPlay Attack Spell"/>
-        <On Terms="WeaponStart.HunterClaws.AttackStart" Send="AnimPlay Attack Attack,04 0 -1.000000 -1.000000 1.500000 AsTimeScale"/>
+        <On Terms="WeaponStart.DragonHunterTongueLash.AttackStart" Send="AnimPlay Attack Spell"/>
+        <On Terms="WeaponStart.DragonHunterClaws.AttackStart" Send="AnimPlay Attack Attack,04 0 -1.000000 -1.000000 1.500000 AsTimeScale"/>
         <On Terms="WeaponStop.*.AttackStop" Send="AnimClear Attack"/>
-        <On Terms="Behavior.Hunter.Launch" Send="AnimBaselineStop"/>
-        <On Terms="Behavior.Hunter.Launch" Send="AnimPlay Jump Walk,01"/>
-        <On Terms="Behavior.Hunter.Launch" Send="AnimSetTime Jump 0.375000"/>
-        <On Terms="Behavior.Hunter.LandDown" Send="AnimBaselineStart"/>
-        <On Terms="Behavior.Hunter.LandDown" Send="AnimClear Jump 0.250000"/>
-        <On Terms="Behavior.Hunter.LandUp" Send="AnimBaselineStart"/>
-        <On Terms="Behavior.Hunter.LandUp" Send="AnimClear Jump 0.250000"/>
+        <On Terms="Behavior.DragonHunter.Launch" Send="AnimBaselineStop"/>
+        <On Terms="Behavior.DragonHunter.Launch" Send="AnimPlay Jump Walk,01"/>
+        <On Terms="Behavior.DragonHunter.Launch" Send="AnimSetTime Jump 0.375000"/>
+        <On Terms="Behavior.DragonHunter.LandDown" Send="AnimBaselineStart"/>
+        <On Terms="Behavior.DragonHunter.LandDown" Send="AnimClear Jump 0.250000"/>
+        <On Terms="Behavior.DragonHunter.LandUp" Send="AnimBaselineStart"/>
+        <On Terms="Behavior.DragonHunter.LandUp" Send="AnimClear Jump 0.250000"/>
         <Baselines index="Walk" AnimProps="Walk,00"/>
-        <PortraitModel value="HunterPortrait"/>
+        <PortraitModel value="DragonHunterPortrait"/>
         <WalkAnimMoveSpeed value="5"/>
         <BarOffset value="40"/>
         <BarWidth value="40"/>
