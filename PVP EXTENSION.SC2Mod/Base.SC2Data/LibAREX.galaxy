@@ -1,0 +1,210 @@
+include "TriggerLibs/NativeLib"
+include "LibARMP"
+
+include "LibAREX_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: ALL RACES MELEE EXTENSION
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libAREX_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Functions
+string libAREX_gf_GetStandardRace (int lp_player) {
+    // Variable Declarations
+    string lv_aP_StandardRace;
+    string lv_race;
+
+    // Automatic Variable Declarations
+    string autoA3B816DF_val;
+    int auto853FD919_val;
+
+    // Variable Initialization
+    lv_aP_StandardRace = GameAttributePlayerValue("[bnet:Liberty (Mod)/0.0/999,file:Mods/Liberty.SC2Mod]3001", lp_player);
+
+    // Implementation
+    autoA3B816DF_val = lv_aP_StandardRace;
+    if (autoA3B816DF_val == "Prot") {
+        lv_race = "Prot";
+    }
+    else if (autoA3B816DF_val == "Terr") {
+        lv_race = "Terr";
+    }
+    else if (autoA3B816DF_val == "Zerg") {
+        lv_race = "Zerg";
+    }
+    else {
+        auto853FD919_val = RandomInt(1, 3);
+        if (auto853FD919_val == 1) {
+            lv_race = "Prot";
+        }
+        else if (auto853FD919_val == 2) {
+            lv_race = "Terr";
+        }
+        else if (auto853FD919_val == 3) {
+            lv_race = "Zerg";
+        }
+        else {
+        }
+    }
+    return lv_race;
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Game Attributes
+//--------------------------------------------------------------------------------------------------
+bool libAREX_gt_GameAttributes_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_aG_GameType;
+    string lv_aG_Supplies;
+    string lv_aG_Money;
+    string lv_aG_Resources;
+    string lv_aG_Factions;
+    string lv_aP_AlternateRace;
+    int lv_AttributeValueIndex;
+    string lv_race;
+    int lv_player;
+    int lv_availableRacesCount;
+    string lv_availableFactions;
+    string lv_playerFactionGameAtrribute;
+
+    // Automatic Variable Declarations
+    string autoD4944814_val;
+    playergroup auto874EE02E_g;
+    int auto95365A2C_val;
+    string autoBF819B9B_val;
+    string auto9AE61E81_val;
+    string autoDA350B19_val;
+    string auto1D8C5AD4_val;
+
+    // Variable Initialization
+    lv_aG_GameType = GameAttributeGameValue("6");
+    lv_aG_Supplies = GameAttributeGameValue("2");
+    lv_aG_Money = GameAttributeGameValue("5");
+    lv_aG_Resources = GameAttributeGameValue("3");
+    lv_aG_Factions = GameAttributeGameValue("12");
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoD4944814_val = lv_aG_Factions;
+    if (autoD4944814_val == "0009") {
+        lv_availableFactions = "ALL";
+        lv_playerFactionGameAtrribute = "16";
+    }
+    else if (autoD4944814_val == "0001") {
+        lv_availableFactions = "ExcludeA";
+        lv_playerFactionGameAtrribute = "17";
+    }
+    else if (autoD4944814_val == "0002") {
+        lv_availableFactions = "ExcludeDA";
+        lv_playerFactionGameAtrribute = "18";
+    }
+    else if (autoD4944814_val == "0003") {
+        lv_availableFactions = "ExcludeHA";
+        lv_playerFactionGameAtrribute = "19";
+    }
+    else if (autoD4944814_val == "0004") {
+        lv_availableFactions = "ExcludeUA";
+        lv_playerFactionGameAtrribute = "20";
+    }
+    else {
+    }
+    libARMP_gf_SetAvailableFactions(lv_availableFactions);
+    lv_availableRacesCount = libARMP_gf_AllowedRacesCount();
+    auto874EE02E_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto874EE02E_g, lv_player);
+        if (lv_player < 0) { break; }
+        lv_aP_AlternateRace = GameAttributePlayerValue(lv_playerFactionGameAtrribute, lv_player);
+        lv_AttributeValueIndex = StringToInt(lv_aP_AlternateRace);
+        auto95365A2C_val = lv_AttributeValueIndex;
+        if (auto95365A2C_val == 1) {
+            lv_race = libAREX_gf_GetStandardRace(lv_player);
+        }
+        else if (auto95365A2C_val == 2) {
+            lv_race = UserDataGetGameLink("GameSettings_AvailableFactions", lv_availableFactions, "Race", (RandomInt(1, lv_availableRacesCount) + 2));
+        }
+        else {
+            lv_race = UserDataGetGameLink("GameSettings_AvailableFactions", lv_availableFactions, "Race", (lv_AttributeValueIndex + 2));
+        }
+        PlayerSetRace(lv_player, lv_race);
+    }
+    autoBF819B9B_val = lv_aG_Money;
+    if (autoBF819B9B_val == "0002") {
+        libARMP_gf_SetInitialResources("Rich");
+    }
+    else {
+    }
+    auto9AE61E81_val = lv_aG_Resources;
+    if (auto9AE61E81_val == "0003") {
+        libARMP_gf_SetHarvestableResources("Rich");
+    }
+    else if (auto9AE61E81_val == "0002") {
+        libARMP_gf_SetHarvestableResources("BGH");
+    }
+    else if (auto9AE61E81_val == "0004") {
+        libARMP_gf_SetHarvestableResources("BGH Rich");
+    }
+    else {
+    }
+    autoDA350B19_val = lv_aG_Supplies;
+    if (autoDA350B19_val == "0001") {
+        libARMP_gf_SetSupplyCap("100");
+    }
+    else if (autoDA350B19_val == "0003") {
+        libARMP_gf_SetSupplyCap("300");
+    }
+    else if (autoDA350B19_val == "0005") {
+        libARMP_gf_SetSupplyCap("400");
+    }
+    else if (autoDA350B19_val == "0004") {
+        libARMP_gf_SetSupplyCap("500");
+    }
+    else if (autoDA350B19_val == "0006") {
+        libARMP_gf_SetSupplyCap("1000");
+    }
+    else {
+    }
+    auto1D8C5AD4_val = lv_aG_GameType;
+    if (auto1D8C5AD4_val == "0003") {
+        libARMP_gf_SetWorkersMode("All Races Alliance");
+    }
+    else {
+    }
+    libARMP_gf_InitializeMeleeGame();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libAREX_gt_GameAttributes_Init () {
+    libAREX_gt_GameAttributes = TriggerCreate("libAREX_gt_GameAttributes_Func");
+    TriggerAddEventMapInit(libAREX_gt_GameAttributes);
+}
+
+void libAREX_InitTriggers () {
+    libAREX_gt_GameAttributes_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libAREX_InitLib_completed = false;
+
+void libAREX_InitLib () {
+    if (libAREX_InitLib_completed) {
+        return;
+    }
+
+    libAREX_InitLib_completed = true;
+
+    libAREX_InitLibraries();
+    libAREX_InitTriggers();
+}
+
