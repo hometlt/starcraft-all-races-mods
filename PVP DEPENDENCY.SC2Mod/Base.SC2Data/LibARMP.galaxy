@@ -117,7 +117,7 @@ int libARMP_gf_AllowedRacesCount () {
     lv_availableFactionsInstance = UserDataGetUserInstance("GameSettings", "CurrentGame", "AvailableFactions", 1);
 
     // Implementation
-    while ((lv_allowedRacesCount < UserDataFieldValueCount("GameSettings_AvailableFactions", "Race")) && (UserDataGetGameLink("GameSettings_AvailableFactions", UserDataInstance("GameSettings_AvailableFactions", (lv_allowedRacesCount + 1)), "Race", 1) != null)) {
+    while ((lv_allowedRacesCount < UserDataFieldValueCount("GameSettings_AvailableFactions", "Race")) && (UserDataGetGameLink("GameSettings_AvailableFactions", lv_availableFactionsInstance, "Race", (lv_allowedRacesCount + 1)) != null) && (UserDataGetGameLink("GameSettings_AvailableFactions", lv_availableFactionsInstance, "Race", (lv_allowedRacesCount + 1)) != "None")) {
         lv_allowedRacesCount += 1;
     }
     return lv_allowedRacesCount;
@@ -166,7 +166,7 @@ string libARMP_gf_GetUnitUserData (string lp_unit) {
         }
 
     }
-    return UserDataInstance("UnitData", 1);
+    return null;
 }
 
 bool libARMP_gf_IsUnitGenerateCreep (string lp_unit) {
@@ -481,7 +481,12 @@ bool libARMP_gt_CreateStartingUnitsForPlayers_Func (bool testConds, bool runActi
         lv_townHall_Unit = UnitLastCreated();
         lv_townHall_ClosestMineral = UnitGroupClosestToPoint(lv_worker_TargetMinerals, lv_player_StartPoint);
         lv_townHall_UserData = libARMP_gf_GetUnitUserData(lv_townHall_UnitType);
-        lv_townHall_RallyAbility_CommandIndex = UserDataGetInt("UnitData", lv_townHall_UserData, "WorkersRallyIndex", 1);
+        if ((lv_townHall_UserData != null)) {
+            lv_townHall_RallyAbility_CommandIndex = UserDataGetInt("UnitData", lv_townHall_UserData, "WorkersRallyIndex", 1);
+        }
+        else {
+            lv_townHall_RallyAbility_CommandIndex = 0;
+        }
         lv_townHall_RallyAbility = AbilityCommand(libNtve_gf_UnitAbilityGetByType(lv_townHall_Unit, c_classIdCAbilRally, 1), lv_townHall_RallyAbility_CommandIndex);
         UnitGroupIssueOrder(libNtve_gf_ConvertUnitToUnitGroup(lv_townHall_Unit), OrderTargetingUnit(lv_townHall_RallyAbility, lv_townHall_ClosestMineral), c_orderQueueReplace);
         lv_player_StartPoint = UnitGetPosition(lv_townHall_Unit);
@@ -500,6 +505,7 @@ bool libARMP_gt_CreateStartingUnitsForPlayers_Func (bool testConds, bool runActi
         lv_worker_UnitType = (CatalogFieldValueGet(c_gameCatalogRace, lv_player_Race, "StartingUnitArray[" + IntToString(1) + "].Unit", c_playerAny));
         lv_worker_SpawnIteration = 1;
         lv_worker_SpawnRound = 1;
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, IntToText(lv_allowedRacesCount));
         auto1E830B08_var = 1;
         for ( ; auto1E830B08_var <= auto1E830B08_ae; auto1E830B08_var += 1 ) {
             if ((lv_workersSettings == "All Races Alliance") && (auto1E830B08_var <= lv_allowedRacesCount)) {
@@ -512,7 +518,7 @@ bool libARMP_gt_CreateStartingUnitsForPlayers_Func (bool testConds, bool runActi
             lv_worker_TargetMineral = UnitGroupUnit(lv_worker_TargetMinerals, lv_worker_SpawnIteration);
             lv_worker_TargetMineralPosition = UnitGetPosition(UnitGroupUnit(lv_worker_TargetMinerals, lv_worker_SpawnIteration));
             if ((lv_worker_SpawnRound == 1)) {
-                lv_worker_SpawnPoint = PointInterpolate(lv_player_StartPoint, lv_worker_TargetMineralPosition, 0.8);
+                lv_worker_SpawnPoint = PointInterpolate(lv_player_StartPoint, lv_worker_TargetMineralPosition, 0.85);
             }
             else {
                 lv_worker_SpawnPoint = PointInterpolate(lv_player_StartPoint, lv_worker_TargetMineralPosition, 0.3);
@@ -625,10 +631,11 @@ void libARMP_gt_InitializeZergRace_Init () {
 bool libARMP_gt_InitializeUEDRace2_Func (bool testConds, bool runActions) {
     // Variable Declarations
     string lv_workersSettings;
+    unit lv_townhall;
+    point lv_casterPoint;
+    point lv_targetPoint;
 
     // Automatic Variable Declarations
-    playergroup auto1A4181C6_g;
-    int auto1A4181C6_var;
     unitgroup autoD7FAF423_g;
     int autoD7FAF423_u;
     unit autoD7FAF423_var;
@@ -643,19 +650,15 @@ bool libARMP_gt_InitializeUEDRace2_Func (bool testConds, bool runActions) {
 
     TriggerExecute(libUEDC_gt_InitializeUEDRace, true, false);
     if ((lv_workersSettings == "All Races Alliance")) {
-        auto1A4181C6_g = PlayerGroupAll();
-        auto1A4181C6_var = -1;
-        while (true) {
-            auto1A4181C6_var = PlayerGroupNextPlayer(auto1A4181C6_g, auto1A4181C6_var);
-            if (auto1A4181C6_var < 0) { break; }
-            autoD7FAF423_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterPreventReveal), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-            autoD7FAF423_u = UnitGroupCount(autoD7FAF423_g, c_unitCountAll);
-            for (;; autoD7FAF423_u -= 1) {
-                autoD7FAF423_var = UnitGroupUnitFromEnd(autoD7FAF423_g, autoD7FAF423_u);
-                if (autoD7FAF423_var == null) { break; }
-                UnitAbilityAdd(autoD7FAF423_var, "CalldownBeacon");
-                UnitIssueOrder(autoD7FAF423_var, OrderTargetingPoint(AbilityCommand("WarpUEDBeacon", 0), libNtve_gf_PointOffsetTowardsPoint(UnitGroupCenterOfGroup(UnitGroup(null, c_playerAny, RegionCircle(UnitGetPosition(autoD7FAF423_var), 12.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0)), 10.0, UnitGetPosition(autoD7FAF423_var))), c_orderQueueReplace);
-            }
+        autoD7FAF423_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterPreventReveal), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        autoD7FAF423_u = UnitGroupCount(autoD7FAF423_g, c_unitCountAll);
+        for (;; autoD7FAF423_u -= 1) {
+            autoD7FAF423_var = UnitGroupUnitFromEnd(autoD7FAF423_g, autoD7FAF423_u);
+            if (autoD7FAF423_var == null) { break; }
+            lv_townhall = autoD7FAF423_var;
+            lv_casterPoint = UnitGetPosition(lv_townhall);
+            lv_targetPoint = libNtve_gf_PointOffsetTowardsPoint(UnitGroupCenterOfGroup(UnitGroup(null, c_playerAny, RegionCircle(lv_casterPoint, 12.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0)), 10.0, lv_casterPoint);
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, "BeaconUED", c_unitCreateIgnorePlacement, UnitGetOwner(lv_townhall), lv_targetPoint);
         }
     }
 
@@ -679,9 +682,12 @@ bool libARMP_gt_MOCK_Func (bool testConds, bool runActions) {
     }
 
     libARMP_gv_mOCK = true;
-    PlayerSetRace(1, "Zerg");
+    PlayerSetRace(1, "Dragon");
     PlayerSetRace(2, "Dragon");
+    libARMP_gf_SetAvailableFactions("ALL");
     libARMP_gf_SetWorkersMode("All Races Alliance");
+    libARMP_gf_SetInitialResources("Rich");
+    libARMP_gf_SetHarvestableResources("BGH Rich");
     libARMP_gf_SetSupplyCap("100");
     libARMP_gf_InitializeMeleeGame();
     return true;
