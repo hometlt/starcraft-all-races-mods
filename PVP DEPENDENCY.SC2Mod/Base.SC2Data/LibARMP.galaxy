@@ -39,6 +39,40 @@ void libARMP_gf_SetInitialResources (string lp_value) {
     UserDataSetUser("GameSettings", "CurrentGame", "InitialResources", 1, "GameSettings_InitialResources", lp_value);
 }
 
+void libARMP_gf_SetPlayerRaceARC (int lp_player, string lp_value) {
+    // Variable Declarations
+    int lv_player;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_player = lp_player;
+
+    // Implementation
+    if ((lp_player == 0)) {
+        lv_player = 16;
+    }
+
+    UserDataSetGameLink("PlayersSettings", UserDataInstance("PlayersSettings", lv_player), "Race", 1, lp_value);
+}
+
+string libARMP_gf_GetPlayerRaceARC (int lp_player) {
+    // Variable Declarations
+    int lv_playerDataIndex;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_playerDataIndex = lp_player;
+
+    // Implementation
+    if ((lp_player == 0)) {
+        lv_playerDataIndex = 16;
+    }
+    else {
+        lv_playerDataIndex = lp_player;
+    }
+    return UserDataGetGameLink("PlayersSettings", UserDataInstance("PlayersSettings", lv_playerDataIndex), "Race", 1);
+}
+
 void libARMP_gf_SetHarvestableResources (string lp_value) {
     // Automatic Variable Declarations
     // Implementation
@@ -550,18 +584,17 @@ bool libARMP_gt_CreateStartingUnitsForPlayers_Func (bool testConds, bool runActi
     while (true) {
         lv_player = PlayerGroupNextPlayer(auto5A7A6EF3_g, lv_player);
         if (lv_player < 0) { break; }
-        lv_player_Race = PlayerRace(lv_player);
+        lv_player_Race = libARMP_gf_GetPlayerRaceARC(lv_player);
         if ((lv_player_Race == "_Default_")) {
             lv_player_Race = libARMP_gf_GetStandardRace(lv_player);
             libARMP_gf_SetAvailableFactionsForPlayer(lv_player, "Default");
-            PlayerSetRace(lv_player, lv_player_Race);
         }
 
         if ((lv_player_Race == "_Random_")) {
             lv_player_Race = libARMP_gf_GetRandomRace(lv_player);
-            PlayerSetRace(lv_player, lv_player_Race);
         }
 
+        PlayerSetRace(lv_player, lv_player_Race);
         lv_player_StartPoint = libARMP_gf_ARCGetPlayerStartPosition(lv_player);
         lv_worker_TargetMinerals = UnitGroup(null, c_playerAny, RegionCircle(lv_player_StartPoint, 12.0), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
         lv_townHall_UnitType = (CatalogFieldValueGet(c_gameCatalogRace, lv_player_Race, "StartingUnitArray[" + IntToString(0) + "].Unit", c_playerAny));
@@ -707,42 +740,6 @@ void libARMP_gt_InitializeZergRace_Init () {
     libARMP_gt_InitializeZergRace = TriggerCreate("libARMP_gt_InitializeZergRace_Func");
 }
 
-//--------------------------------------------------------------------------------------------------
-// Trigger: Offline Debug
-//--------------------------------------------------------------------------------------------------
-bool libARMP_gt_OfflineDebug_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Conditions
-    if (testConds) {
-        if (!((GameIsOnline() == false))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    PlayerSetRace(1, "_Random_");
-    PlayerSetRace(2, "_Random_");
-    libARMP_gv_dEBUGGING_AI = 1;
-    libARMP_gf_SetAvailableFactions("ArcAll");
-    libARMP_gf_SetAvailableFactionsForPlayer(1, "Scion");
-    libARMP_gf_SetInitialResources("Rich");
-    libARMP_gf_SetHarvestableResources("BGH Rich");
-    libARMP_gf_SetSupplyCap("100");
-    libARMP_gf_InitializeMeleeGame();
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libARMP_gt_OfflineDebug_Init () {
-    libARMP_gt_OfflineDebug = TriggerCreate("libARMP_gt_OfflineDebug_Func");
-    TriggerEnable(libARMP_gt_OfflineDebug, false);
-    TriggerAddEventMapInit(libARMP_gt_OfflineDebug);
-}
-
 void libARMP_InitTriggers () {
     libARMP_gt_ApplyInitialResources_Init();
     libARMP_gt_ApplyHarvestableResources_Init();
@@ -750,7 +747,6 @@ void libARMP_InitTriggers () {
     libARMP_gt_CreateStartingUnitsForPlayers_Init();
     libARMP_gt_RunRaceSpecificTriggers_Init();
     libARMP_gt_InitializeZergRace_Init();
-    libARMP_gt_OfflineDebug_Init();
 }
 
 //--------------------------------------------------------------------------------------------------

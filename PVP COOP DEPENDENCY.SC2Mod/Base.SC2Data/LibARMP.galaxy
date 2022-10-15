@@ -1,6 +1,5 @@
 include "TriggerLibs/NativeLib"
 include "LibCOMI"
-include "LibARRA"
 
 include "LibARMP_h"
 
@@ -11,7 +10,6 @@ include "LibARMP_h"
 void libARMP_InitLibraries () {
     libNtve_InitVariables();
     libCOMI_InitVariables();
-    libARRA_InitVariables();
 }
 
 // Variable Initialization
@@ -27,247 +25,43 @@ void libARMP_InitVariables () {
 }
 
 // Functions
-void libARMP_gf_CC_ApplyTechNew (int lp_player, string lp_commander, string lp_prestige, int lp_player2) {
-    // Variable Declarations
-    int lv_i;
-    string lv_tech;
-    string lv_playerCommander;
-    string lv_playerPrestige;
-    int lv_playerLevel;
-    string lv_cheat;
-    string lv_skin;
-    string lv_score;
-    string lv_upgrade;
-    string lv_unit;
-    abilcmd lv_ability;
-    string lv_behavior;
-    string lv_state;
-    string lv_prestige;
-    string lv_commander;
-    int lv_level;
-    int lv_cheatValue;
-    string lv_techUnitsArrayName;
-    string lv_techAbilitiesArrayName;
-    string lv_techDisabledAbilitiesArrayName;
-    string lv_techUpgradesArrayName;
-    string lv_techBehaviorsArrayName;
-
-    // Automatic Variable Declarations
-    string auto091F5611_userType;
-    int auto091F5611_i;
-    int auto7720A41E_ae;
-    int auto7720A41E_var;
-    int autoD52A759D_ae;
-    int autoD52A759D_var;
-    string autoFF35712F_userType;
-    int autoFF35712F_i;
-    string auto9F2450CB_val;
-    int autoF91EA697_ae;
-    int autoF91EA697_var;
-    int auto9C1A4A2F_ae;
-    int auto9C1A4A2F_var;
-    int auto0F4C9786_ae;
-    int auto0F4C9786_var;
-    int auto20371299_ae;
-    int auto20371299_var;
-    int autoC112AE75_ae;
-    const int autoC112AE75_ai = 1;
-    int autoF8F1C8BE_ae;
-    const int autoF8F1C8BE_ai = 1;
-
-    // Variable Initialization
-    lv_playerLevel = lp_player2;
-    lv_techUnitsArrayName = ("TechUnits" + IntToString(lp_player));
-    lv_techAbilitiesArrayName = ("TechAbilities" + IntToString(lp_player));
-    lv_techDisabledAbilitiesArrayName = ("TechDisabledAbilities" + IntToString(lp_player));
-    lv_techUpgradesArrayName = ("TechUpgrades" + IntToString(lp_player));
-    lv_techBehaviorsArrayName = ("TechBehaviors" + IntToString(lp_player));
-
-    // Implementation
-    libCOMI_gv_cCX_PlayerCommander[lp_player] = lp_commander;
-    PlayerSetRace(lp_player, libCOMI_gf_CC_CommanderRace(lp_commander));
-    TechTreeRestrictionsEnable(lp_player, true);
-    TechTreeRequirementsEnable(lp_player, true);
-    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "CommanderLevel", lv_playerLevel);
-    libARRA_gf_ListCreate(lv_techDisabledAbilitiesArrayName);
-    auto091F5611_userType = "Tech";
-    auto091F5611_i = 1;
-    for ( ; auto091F5611_i <= UserDataInstanceCount(auto091F5611_userType) ; auto091F5611_i += 1 ) {
-        lv_tech = UserDataInstance(auto091F5611_userType, auto091F5611_i);
-        lv_state = UserDataGetUserInstance("Tech", lv_tech, "state", 1);
-        if ((lv_state != "OFF")) {
-            lv_upgrade = UserDataGetUpgrade("Tech", lv_tech, "upgrade", 1);
-            if ((lv_upgrade != null) && (lv_upgrade != "NONE")) {
-                TechTreeUpgradeAllow(lp_player, lv_upgrade, false);
-                libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_upgrade, 0);
-                auto7720A41E_ae = TechTreeUpgradeProducedAbilCmdCount(lv_upgrade);
-                auto7720A41E_var = 1;
-                for ( ; auto7720A41E_var <= auto7720A41E_ae; auto7720A41E_var += 1 ) {
-                    TechTreeAbilityAllow(lp_player, TechTreeUpgradeProducedAbilCmd(lv_upgrade, auto7720A41E_var), false);
-                }
-            }
-
-            lv_unit = UserDataGetUnit("Tech", lv_tech, "unit", 1);
-            if ((lv_unit != null) && (lv_unit != "NONE")) {
-                TechTreeUnitAllow(lp_player, lv_unit, false);
-                autoD52A759D_ae = TechTreeUnitProducedAbilCmdCount(lv_unit);
-                autoD52A759D_var = 1;
-                for ( ; autoD52A759D_var <= autoD52A759D_ae; autoD52A759D_var += 1 ) {
-                    TechTreeAbilityAllow(lp_player, TechTreeUnitProducedAbilCmd(lv_unit, autoD52A759D_var), false);
-                }
-            }
-
-            lv_ability = UserDataGetAbilCmd("Tech", lv_tech, "ability", 1);
-            if ((lv_ability != null)) {
-                TechTreeAbilityAllow(lp_player, lv_ability, false);
-                libARRA_gf_ListAbilCmdInclude(lv_techDisabledAbilitiesArrayName, lv_ability);
-            }
-
-            lv_behavior = UserDataGetGameLink("Tech", lv_tech, "behavior", 1);
-            if ((lv_behavior != null)) {
-                TechTreeBehaviorAllow(lp_player, lv_behavior, false);
-            }
-
-        }
-
-    }
-    autoFF35712F_userType = "Tech";
-    autoFF35712F_i = 1;
-    for ( ; autoFF35712F_i <= UserDataInstanceCount(autoFF35712F_userType) ; autoFF35712F_i += 1 ) {
-        lv_tech = UserDataInstance(autoFF35712F_userType, autoFF35712F_i);
-        lv_commander = UserDataGetUserInstance("Tech", lv_tech, "commander", 1);
-        lv_prestige = UserDataGetUserInstance("Tech", lv_tech, "prestige", 1);
-        lv_level = UserDataGetInt("Tech", lv_tech, "level", 1);
-        if (((lv_commander == lv_playerCommander) || (lv_commander == null)) && (lv_level <= lv_playerLevel) && ((lv_prestige == null) || (lv_prestige == lv_playerPrestige))) {
-            lv_state = UserDataGetUserInstance("Tech", lv_tech, "state", 1);
-            lv_upgrade = UserDataGetUpgrade("Tech", lv_tech, "upgrade", 1);
-            if ((lv_upgrade != null) && (lv_upgrade != "NONE")) {
-                if ((lv_state == "OFF")) {
-                    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_upgrade, 0);
-                    TechTreeUpgradeAllow(lp_player, lv_upgrade, false);
-                    libARRA_gf_ListStringExclude(lv_techUpgradesArrayName, (lv_upgrade));
-                    auto9C1A4A2F_ae = TechTreeUpgradeProducedAbilCmdCount(lv_upgrade);
-                    auto9C1A4A2F_var = 1;
-                    for ( ; auto9C1A4A2F_var <= auto9C1A4A2F_ae; auto9C1A4A2F_var += 1 ) {
-                        if ((libARRA_gf_ListAbilCmdIncludes(lv_techAbilitiesArrayName, TechTreeUpgradeProducedAbilCmd(lv_upgrade, auto9C1A4A2F_var)) == true)) {
-                            TechTreeAbilityAllow(lp_player, TechTreeUpgradeProducedAbilCmd(lv_upgrade, auto9C1A4A2F_var), false);
-                        }
-
-                    }
-                }
-                else {
-                    TechTreeUpgradeAllow(lp_player, lv_upgrade, true);
-                    libARRA_gf_ListStringInclude(lv_techUpgradesArrayName, (lv_upgrade));
-                    auto9F2450CB_val = lv_state;
-                    if (auto9F2450CB_val == "CHEAT") {
-                        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_upgrade, 1);
-                    }
-                    else if (auto9F2450CB_val == "SET50") {
-                        TechTreeUpgradeAddLevel(lp_player, lv_upgrade, 10);
-                    }
-                    else if (auto9F2450CB_val == "SET100") {
-                        TechTreeUpgradeAddLevel(lp_player, lv_upgrade, 20);
-                    }
-                    else if (auto9F2450CB_val == "SET200") {
-                        TechTreeUpgradeAddLevel(lp_player, lv_upgrade, 40);
-                    }
-                    else {
-                        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, lv_upgrade, 0);
-                    }
-                    autoF91EA697_ae = TechTreeUpgradeProducedAbilCmdCount(lv_upgrade);
-                    autoF91EA697_var = 1;
-                    for ( ; autoF91EA697_var <= autoF91EA697_ae; autoF91EA697_var += 1 ) {
-                        if ((libARRA_gf_ListAbilCmdIncludes(lv_techDisabledAbilitiesArrayName, TechTreeUpgradeProducedAbilCmd(lv_upgrade, autoF91EA697_var)) == true)) {
-                            TechTreeAbilityAllow(lp_player, TechTreeUpgradeProducedAbilCmd(lv_upgrade, autoF91EA697_var), true);
-                        }
-
-                    }
-                }
-            }
-
-            lv_unit = UserDataGetUnit("Tech", lv_tech, "unit", 1);
-            if ((lv_unit != null) && (lv_unit != "NONE")) {
-                if ((lv_state != "OFF")) {
-                    TechTreeUnitAllow(lp_player, lv_unit, true);
-                    libARRA_gf_ListStringInclude(lv_techUnitsArrayName, (lv_unit));
-                    auto20371299_ae = TechTreeUnitProducedAbilCmdCount(lv_unit);
-                    auto20371299_var = 1;
-                    for ( ; auto20371299_var <= auto20371299_ae; auto20371299_var += 1 ) {
-                        if ((libARRA_gf_ListAbilCmdIncludes(lv_techDisabledAbilitiesArrayName, TechTreeUnitProducedAbilCmd(lv_unit, auto20371299_var)) == true)) {
-                            TechTreeAbilityAllow(lp_player, TechTreeUnitProducedAbilCmd(lv_unit, auto20371299_var), true);
-                        }
-
-                    }
-                }
-                else {
-                    TechTreeUnitAllow(lp_player, lv_unit, false);
-                    libARRA_gf_ListStringExclude(lv_techUnitsArrayName, (lv_unit));
-                    auto0F4C9786_ae = TechTreeUnitProducedAbilCmdCount(lv_unit);
-                    auto0F4C9786_var = 1;
-                    for ( ; auto0F4C9786_var <= auto0F4C9786_ae; auto0F4C9786_var += 1 ) {
-                        if ((libARRA_gf_ListAbilCmdIncludes(lv_techAbilitiesArrayName, TechTreeUnitProducedAbilCmd(lv_unit, auto0F4C9786_var)) == true)) {
-                            TechTreeAbilityAllow(lp_player, TechTreeUnitProducedAbilCmd(lv_unit, auto0F4C9786_var), false);
-                        }
-
-                    }
-                }
-            }
-
-            lv_ability = UserDataGetAbilCmd("Tech", lv_tech, "ability", 1);
-            if ((lv_ability != null)) {
-                if ((lv_state != "OFF")) {
-                    TechTreeAbilityAllow(lp_player, lv_ability, true);
-                    libARRA_gf_ListAbilCmdInclude(lv_techAbilitiesArrayName, lv_ability);
-                    libARRA_gf_ListAbilCmdExclude(lv_techDisabledAbilitiesArrayName, lv_ability);
-                }
-                else {
-                    TechTreeAbilityAllow(lp_player, lv_ability, false);
-                    libARRA_gf_ListAbilCmdExclude(lv_techAbilitiesArrayName, lv_ability);
-                    libARRA_gf_ListAbilCmdInclude(lv_techDisabledAbilitiesArrayName, lv_ability);
-                }
-            }
-
-            lv_behavior = UserDataGetGameLink("Tech", lv_tech, "behavior", 1);
-            if ((lv_behavior != null)) {
-                if ((lv_state != "OFF")) {
-                    TechTreeBehaviorAllow(lp_player, lv_behavior, true);
-                    libARRA_gf_ListStringInclude(lv_techBehaviorsArrayName, (lv_behavior));
-                }
-                else {
-                    TechTreeBehaviorAllow(lp_player, lv_behavior, false);
-                    libARRA_gf_ListStringExclude(lv_techBehaviorsArrayName, (lv_behavior));
-                }
-            }
-
-        }
-
-    }
-    if ((lv_playerPrestige != null)) {
-        autoC112AE75_ae = UserDataFieldValueCount("Prestiges", "PlayerResponses");
-        lv_i = 1;
-        for ( ; ( (autoC112AE75_ai >= 0 && lv_i <= autoC112AE75_ae) || (autoC112AE75_ai < 0 && lv_i >= autoC112AE75_ae) ) ; lv_i += autoC112AE75_ai ) {
-            libCOMI_gf_CC_PlayerResponseEnable(lp_player, UserDataGetUserInstance("Prestiges", lv_playerPrestige, "PlayerResponses", lv_i), true);
-        }
-        autoF8F1C8BE_ae = UserDataFieldValueCount("Prestiges", "ZZ_UpgradeSupplements");
-        lv_i = 1;
-        for ( ; ( (autoF8F1C8BE_ai >= 0 && lv_i <= autoF8F1C8BE_ae) || (autoF8F1C8BE_ai < 0 && lv_i >= autoF8F1C8BE_ae) ) ; lv_i += autoF8F1C8BE_ai ) {
-            libCOMI_gf_CC_ApplyUpgradeSupplemental(lp_player, UserDataGetUserInstance("Prestiges", lv_playerPrestige, "ZZ_UpgradeSupplements", lv_i));
-        }
-    }
-
-    libCOMI_gf_CC_ApplyMasteryTech(lp_player);
-    libARRA_gf_ListDestroy(lv_techDisabledAbilitiesArrayName);
-    TechTreeAbilityAllow(lp_player, AbilityCommand("OrbitalCommandSupplyDepotDrop", 0), false);
-}
-
 void libARMP_gf_InitializeMeleeGame () {
     // Automatic Variable Declarations
+    playergroup auto1A3D9FB4_g;
+    int auto1A3D9FB4_var;
+    playergroup auto3656A015_g;
+    int auto3656A015_var;
+
     // Implementation
+    libCOMI_gv_vU_AlliedCommanders = PlayerGroupAll();
+    auto1A3D9FB4_g = PlayerGroupActive();
+    auto1A3D9FB4_var = -1;
+    while (true) {
+        auto1A3D9FB4_var = PlayerGroupNextPlayer(auto1A3D9FB4_g, auto1A3D9FB4_var);
+        if (auto1A3D9FB4_var < 0) { break; }
+        TechTreeUpgradeAddLevel(1, "IsPlayerCommanderUpgrade", 1);
+    }
     TriggerExecute(libARMP_gt_ApplyInitialResources, true, false);
     TriggerExecute(libARMP_gt_ApplyHarvestableResources, true, false);
     TriggerExecute(libARMP_gt_ApplySupplyCap, true, false);
     TriggerExecute(libARMP_gt_CreateStartingUnitsForPlayers, true, false);
     TriggerExecute(libARMP_gt_RunRaceSpecificTriggers, true, false);
+    libCOMI_gf_CC_SharedUpgradesEnable();
+    TriggerEnable(libCOMI_gt_CC_PrestigeUpgradeSupplement, true);
+    UnitEventSetNullVariableInvalid(true);
+    libCOMI_gf_CM_CommanderVOInit();
+    libCOMI_gf_CreateHeroes();
+    auto3656A015_g = PlayerGroupActive();
+    auto3656A015_var = -1;
+    while (true) {
+        auto3656A015_var = PlayerGroupNextPlayer(auto3656A015_g, auto3656A015_var);
+        if (auto3656A015_var < 0) { break; }
+        if ((UnitGroupCount(libCOMI_gv_yY_GPCasterGroup[auto3656A015_var], c_unitCountAlive) > 0)) {
+            libNtve_gf_SetDialogItemUnitGroup(libCOMI_gv_cU_GPCmdPanel[auto3656A015_var], libCOMI_gv_yY_GPCasterGroup[auto3656A015_var], PlayerGroupSingle(auto3656A015_var));
+        }
+
+        libCOMI_gf_CU_GPShowHide(true, auto3656A015_var, c_transitionDurationDefault);
+    }
 }
 
 void libARMP_gf_SetInitialResources (string lp_value) {
@@ -515,43 +309,6 @@ bool libARMP_gf_IsUnitGenerateCreep (string lp_unit) {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
-// Trigger: Offline Debug
-//--------------------------------------------------------------------------------------------------
-bool libARMP_gt_OfflineDebug_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Conditions
-    if (testConds) {
-        if (!((GameIsOnline() == false))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libCOMI_gv_vU_AlliedCommanders = PlayerGroupAll();
-    libCOMI_gf_InitializeTechArrays();
-    libARMP_gf_CC_ApplyTechNew(1, "Zerg", "Amon", 15);
-    PlayerSetRace(2, "_Random_");
-    libARMP_gv_dEBUGGING_AI = 1;
-    libARMP_gf_SetAvailableFactions("ArcAll");
-    libARMP_gf_SetAvailableFactionsForPlayer(1, "Scion");
-    libARMP_gf_SetInitialResources("Rich");
-    libARMP_gf_SetHarvestableResources("BGH Rich");
-    libARMP_gf_SetSupplyCap("100");
-    libARMP_gf_InitializeMeleeGame();
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libARMP_gt_OfflineDebug_Init () {
-    libARMP_gt_OfflineDebug = TriggerCreate("libARMP_gt_OfflineDebug_Func");
-    TriggerAddEventMapInit(libARMP_gt_OfflineDebug);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: Apply Initial Resources
 //--------------------------------------------------------------------------------------------------
 bool libARMP_gt_ApplyInitialResources_Func (bool testConds, bool runActions) {
@@ -789,6 +546,9 @@ bool libARMP_gt_CreateStartingUnitsForPlayers_Func (bool testConds, bool runActi
     int lv_player;
     string lv_player_Race;
     point lv_player_StartPoint;
+    string lv_commander;
+    string lv_prestige;
+    string lv_raceData;
     unit lv_townHall_Unit;
     unit lv_townHall_ClosestMineral;
     string lv_townHall_UnitType;
@@ -836,6 +596,21 @@ bool libARMP_gt_CreateStartingUnitsForPlayers_Func (bool testConds, bool runActi
             PlayerSetRace(lv_player, lv_player_Race);
         }
 
+        lv_raceData = libARMP_gf_GetRaceUserData(lv_player_Race);
+        lv_commander = UserDataGetUserInstance("RaceData", lv_raceData, "Commander", 1);
+        lv_prestige = UserDataGetUserInstance("RaceData", lv_raceData, "Prestige", 1);
+        if ((lv_commander != null)) {
+            if ((lv_prestige == null)) {
+                lv_prestige = "Amon";
+            }
+
+            libCOMI_gv_cCX_PlayerCommander[lv_player] = lv_commander;
+            libCOMI_gf_AddAlliedCommanderPlayer(lv_player);
+            libCOMI_gf_CC_ApplyTechNew(lv_player, 15, lv_commander, lv_prestige);
+        }
+        else {
+            PlayerSetRace(lv_player, lv_player_Race);
+        }
         lv_player_StartPoint = libARMP_gf_ARCGetPlayerStartPosition(lv_player);
         lv_worker_TargetMinerals = UnitGroup(null, c_playerAny, RegionCircle(lv_player_StartPoint, 12.0), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
         lv_townHall_UnitType = (CatalogFieldValueGet(c_gameCatalogRace, lv_player_Race, "StartingUnitArray[" + IntToString(0) + "].Unit", c_playerAny));
@@ -982,7 +757,6 @@ void libARMP_gt_InitializeZergRace_Init () {
 }
 
 void libARMP_InitTriggers () {
-    libARMP_gt_OfflineDebug_Init();
     libARMP_gt_ApplyInitialResources_Init();
     libARMP_gt_ApplyHarvestableResources_Init();
     libARMP_gt_ApplySupplyCap_Init();
