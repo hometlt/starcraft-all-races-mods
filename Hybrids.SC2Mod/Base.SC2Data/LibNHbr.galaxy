@@ -455,478 +455,6 @@ void libNHBR_gt_InitializeNetworkHybridRace_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: Hybrid - Build Controller
-//--------------------------------------------------------------------------------------------------
-bool libNHBR_gt_HybridBuildController_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_minion;
-    int lv_owner;
-    point lv_targetPoint;
-    unit lv_targetUnit;
-    order lv_order;
-    order lv_buildOrder;
-    order lv_closestBuildOrder;
-    order[libNHBR_gv_hybridBuildControllerMaxOrderCount_C + 1] lv_orderList;
-    int lv_itOrder;
-    int lv_closestBuildIndex;
-    int lv_minionOrderCount;
-    bool lv_pointVisible;
-    order[libNHBR_gv_hybridBuildControllerMaxOrderCount_C + 1] lv_reservedOrders;
-    int lv_unusedBuildIndex;
-    int lv_lastMoveOrder;
-    int lv_lastMoveOrder2;
-
-    // Automatic Variable Declarations
-    int auto9E753944_ae;
-    const int auto9E753944_ai = 1;
-    int auto23CF93A5_ae;
-    const int auto23CF93A5_ai = 1;
-    const int auto6F826B1E_ae = libNHBR_gv_hybridBuildControllerMaxOrderCount_C;
-    const int auto6F826B1E_ai = 1;
-    int autoFCE0C0D4_ae;
-    const int autoFCE0C0D4_ai = 1;
-    int auto5FF4A042_ae;
-    const int auto5FF4A042_ai = 1;
-    int autoCAB908FE_ae;
-    const int autoCAB908FE_ai = 1;
-    const int autoF7C90385_ae = libNHBR_gv_hybridBuildControllerMaxOrderCount_C;
-    int autoF7C90385_var;
-    const int autoB43DB405_ae = libNHBR_gv_hybridBuildControllerMaxOrderCount_C;
-    int autoB43DB405_var;
-    int autoC094DA9D_ae;
-    const int autoC094DA9D_ai = 1;
-    int auto9368AED2_ae;
-    const int auto9368AED2_ai = 1;
-    int autoEE8C50F4_ae;
-    const int autoEE8C50F4_ai = 1;
-    int autoC8F0D98E_ae;
-    const int autoC8F0D98E_ai = 1;
-    int auto409B685D_ae;
-    const int auto409B685D_ai = 1;
-    int auto50320FB2_ae;
-    const int auto50320FB2_ai = 1;
-    int auto4477E272_ae;
-    const int auto4477E272_ai = 1;
-    const int auto86A4AA17_ae = libNHBR_gv_hybridBuildControllerMaxOrderCount_C;
-    const int auto86A4AA17_ai = 1;
-
-    // Variable Initialization
-    lv_closestBuildIndex = -1;
-    lv_unusedBuildIndex = -1;
-    lv_lastMoveOrder = -1;
-    lv_lastMoveOrder2 = -1;
-
-    // Conditions
-    if (testConds) {
-        if (!((UnitHasBehavior2(EventUnit(), "NHbrMinionBuild@InProgress") == false))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    UnitBehaviorAdd(EventUnit(), "NHbrMinionBuild@InProgress", EventUnit(), 1);
-    lv_buildOrder = EventUnitOrder();
-    lv_minion = EventUnit();
-    lv_owner = UnitGetOwner(lv_minion);
-    if ((OrderGetTargetType(EventUnitOrder()) == c_orderTargetPoint)) {
-        lv_targetPoint = OrderGetTargetPoint(lv_buildOrder);
-    }
-    else {
-        lv_targetUnit = OrderGetTargetUnit(lv_buildOrder);
-        lv_targetPoint = UnitGetPosition(lv_targetUnit);
-    }
-    while (((OrderGetAbilityCommand(UnitOrder(lv_minion, 0)) == AbilityCommand("NHbrMinionHarvest", 0)) || (OrderGetAbilityCommand(UnitOrder(lv_minion, 0)) == AbilityCommand("NHbrMinionHarvest", 1)))) {
-        Wait(0.0, c_timeGame);
-    }
-    lv_minionOrderCount = UnitOrderCount(lv_minion);
-    auto9E753944_ae = (lv_minionOrderCount-1);
-    lv_itOrder = 0;
-    for ( ; ( (auto9E753944_ai >= 0 && lv_itOrder <= auto9E753944_ae) || (auto9E753944_ai < 0 && lv_itOrder >= auto9E753944_ae) ) ; lv_itOrder += auto9E753944_ai ) {
-        lv_orderList[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
-        libNHBR_gv_dEBUGOrderListBefore[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
-        if ((lv_closestBuildIndex == -1) && (lv_orderList[lv_itOrder] == lv_buildOrder)) {
-            lv_closestBuildIndex = lv_itOrder;
-            lv_buildOrder = lv_orderList[lv_closestBuildIndex];
-            if ((OrderGetTargetType(lv_buildOrder) == c_orderTargetPoint)) {
-                lv_targetUnit = null;
-                lv_targetPoint = OrderGetTargetPoint(lv_buildOrder);
-            }
-            else {
-                lv_targetUnit = OrderGetTargetUnit(lv_buildOrder);
-                lv_targetPoint = UnitGetPosition(lv_targetUnit);
-            }
-        }
-
-    }
-    auto23CF93A5_ae = (lv_minionOrderCount-1);
-    lv_itOrder = 0;
-    for ( ; ( (auto23CF93A5_ai >= 0 && lv_itOrder <= auto23CF93A5_ae) || (auto23CF93A5_ai < 0 && lv_itOrder >= auto23CF93A5_ae) ) ; lv_itOrder += auto23CF93A5_ai ) {
-        if ((lv_itOrder == 0) && (lv_itOrder != lv_closestBuildIndex)) {
-            if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
-                if ((lv_targetUnit == null)) {
-                    UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueReplace);
-                }
-                else {
-                    UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueReplace);
-                }
-            }
-            else {
-                UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-                UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueReplace);
-            }
-        }
-        else if ((lv_itOrder == lv_closestBuildIndex)) {
-            if ((lv_itOrder == 0)) {
-                if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
-                    if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                        if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
-                        }
-                        else {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
-                        }
-                    }
-                    else {
-                        if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
-                        }
-                        else {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
-                        }
-                    }
-                }
-                else {
-                    if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                        if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueReplace);
-                        }
-                        else {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                        }
-                    }
-                    else {
-                        if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueReplace);
-                        }
-                        else {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                        }
-                    }
-                }
-            }
-            else {
-                if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
-                    if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                        if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
-                        }
-                        else {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetPoint), c_orderQueueAddToEnd);
-                        }
-                    }
-                    else {
-                        if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
-                        }
-                        else {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), lv_targetUnit), c_orderQueueAddToEnd);
-                        }
-                    }
-                }
-                else {
-                    if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                        if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                        }
-                        else {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                        }
-                    }
-                    else {
-                        if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                        }
-                        else {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), lv_targetPoint), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                        }
-                    }
-                }
-            }
-        }
-        else if ((lv_itOrder != 0) && (lv_itOrder != lv_closestBuildIndex)) {
-            if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
-                if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                    UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                }
-                else {
-                    UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetUnit(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                }
-            }
-            else {
-                UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-            }
-        }
-    }
-    while (true) {
-        if (((UnitHasBehavior2(lv_minion, "NHbrMinionBuild@InProgress") == false) || (UnitIsAlive(lv_minion) == false) || (libNHBR_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex(lv_minion) == -1))) {
-            UnitBehaviorRemove(lv_minion, "NHbrMinionBuild@InProgress", 1);
-            return true;
-        }
-
-        lv_itOrder = 0;
-        for ( ; ( (auto6F826B1E_ai >= 0 && lv_itOrder <= auto6F826B1E_ae) || (auto6F826B1E_ai < 0 && lv_itOrder >= auto6F826B1E_ae) ) ; lv_itOrder += auto6F826B1E_ai ) {
-            lv_orderList[lv_itOrder] = null;
-            libNHBR_gv_dEBUGOrderListAfter[lv_itOrder] = null;
-        }
-        lv_minionOrderCount = (UnitOrderCount(lv_minion)-1);
-        autoFCE0C0D4_ae = lv_minionOrderCount;
-        lv_itOrder = 0;
-        for ( ; ( (autoFCE0C0D4_ai >= 0 && lv_itOrder <= autoFCE0C0D4_ae) || (autoFCE0C0D4_ai < 0 && lv_itOrder >= autoFCE0C0D4_ae) ) ; lv_itOrder += autoFCE0C0D4_ai ) {
-            lv_orderList[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
-            libNHBR_gv_dEBUGOrderListAfter[lv_itOrder] = lv_orderList[lv_itOrder];
-        }
-        lv_closestBuildIndex = libNHBR_gf_HybridBuildControllerClosestMainBuildAbilityCommandIndex(lv_minion);
-        lv_buildOrder = lv_orderList[lv_closestBuildIndex];
-        lv_targetPoint = OrderGetTargetPosition(lv_buildOrder);
-        if ((((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true) && (UnitPathableToPoint(lv_minion, lv_targetPoint, (libNHBR_gv_hybridBuildControllerRange + libNHBR_gf_HybridBuildControllerReturnBuildUnitRadius(lv_orderList[0])), 65535.0) == false)) || ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == false) && (UnitPathableToPoint(lv_minion, lv_targetPoint, 2.0, 65535.0) == false))) && ((lv_closestBuildIndex == 0) || ((lv_closestBuildIndex == 1) && (OrderGetAbilityCommand(lv_orderList[0]) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(lv_orderList[0]) == OrderGetTargetPosition(lv_orderList[lv_closestBuildIndex]))))) {
-            UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-            UnitBehaviorRemove(lv_minion, "NHbrMinionBuild@InProgress", 1);
-            return true;
-        }
-
-        auto5FF4A042_ae = (libNHBR_gv_hybridBuildControllerMaxOrderCount_C-1);
-        lv_itOrder = 0;
-        for ( ; ( (auto5FF4A042_ai >= 0 && lv_itOrder <= auto5FF4A042_ae) || (auto5FF4A042_ai < 0 && lv_itOrder >= auto5FF4A042_ae) ) ; lv_itOrder += auto5FF4A042_ai ) {
-            if ((OrderGetAbilityCommand(UnitOrder(lv_minion, 0)) == AbilityCommand("move", 0)) && (OrderGetAbilityCommand(UnitOrder(lv_minion, (lv_itOrder+1))) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, 0)) == OrderGetTargetPosition(UnitOrder(lv_minion, (lv_itOrder+1))))) {
-                lv_lastMoveOrder = lv_itOrder;
-            }
-
-        }
-        if ((lv_lastMoveOrder != -1)) {
-            UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-            autoCAB908FE_ae = lv_minionOrderCount;
-            lv_itOrder = (lv_lastMoveOrder+1);
-            for ( ; ( (autoCAB908FE_ai >= 0 && lv_itOrder <= autoCAB908FE_ae) || (autoCAB908FE_ai < 0 && lv_itOrder >= autoCAB908FE_ae) ) ; lv_itOrder += autoCAB908FE_ai ) {
-                UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-            }
-            lv_lastMoveOrder = -1;
-        }
-
-        if (((lv_closestBuildIndex == 0) || (lv_closestBuildIndex == 1))) {
-            libNHBR_gv_dEBUGFirstOrder = UnitOrder(lv_minion, 0);
-            if ((OrderGetAbilityCommand(UnitOrder(lv_minion, 0)) == AbilityCommand("move", 0))) {
-                if ((CliffLevel(UnitGetPosition(lv_minion)) >= CliffLevel(lv_targetPoint))) {
-                    if ((lv_closestBuildIndex == 1) && (OrderGetAbilityCommand(UnitOrder(lv_minion, 0)) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, 0)) == OrderGetTargetPosition(UnitOrder(lv_minion, 1)))) {
-                        UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-                        UnitIssueOrder(lv_minion, lv_buildOrder, c_orderQueueReplace);
-                        auto9368AED2_ae = lv_minionOrderCount;
-                        lv_itOrder = (lv_closestBuildIndex+1);
-                        for ( ; ( (auto9368AED2_ai >= 0 && lv_itOrder <= auto9368AED2_ae) || (auto9368AED2_ai < 0 && lv_itOrder >= auto9368AED2_ae) ) ; lv_itOrder += auto9368AED2_ai ) {
-                            if ((libNHBR_gf_HybridBuildControllerIsBuildOrderMain(lv_orderList[lv_itOrder]) == true)) {
-                                if ((CliffLevel(UnitGetPosition(lv_minion)) < CliffLevel(lv_targetPoint))) {
-                                    if ((lv_itOrder > 0) && (OrderGetAbilityCommand(UnitOrder(lv_minion, (lv_itOrder-1))) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, (lv_itOrder-1))) == OrderGetTargetPosition(UnitOrder(lv_minion, lv_itOrder)))) {
-                                    }
-                                    else {
-                                        UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPosition(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                    }
-                                }
-
-                                if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                                    UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                                }
-                                else {
-                                    UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                                }
-                            }
-                            else {
-                                if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
-                                    if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                                        UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                        UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                    }
-                                    else {
-                                        UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPosition(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                        UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetUnit(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                    }
-                                }
-                                else {
-                                    UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                                }
-                            }
-                        }
-                    }
-
-                }
-                else {
-                    if ((lv_closestBuildIndex == 1) && (OrderGetAbilityCommand(UnitOrder(lv_minion, 0)) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, 0)) == OrderGetTargetPosition(UnitOrder(lv_minion, 1)))) {
-                        if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == true)) {
-                            UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-                            UnitIssueOrder(lv_minion, lv_buildOrder, c_orderQueueReplace);
-                            autoC094DA9D_ae = lv_minionOrderCount;
-                            lv_itOrder = (lv_closestBuildIndex+1);
-                            for ( ; ( (autoC094DA9D_ai >= 0 && lv_itOrder <= autoC094DA9D_ae) || (autoC094DA9D_ai < 0 && lv_itOrder >= autoC094DA9D_ae) ) ; lv_itOrder += autoC094DA9D_ai ) {
-                                if ((libNHBR_gf_HybridBuildControllerIsBuildOrderMain(lv_orderList[lv_itOrder]) == true)) {
-                                    if ((CliffLevel(UnitGetPosition(lv_minion)) < CliffLevel(lv_targetPoint))) {
-                                        if ((lv_itOrder > 0) && (OrderGetAbilityCommand(UnitOrder(lv_minion, (lv_itOrder-1))) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, (lv_itOrder-1))) == OrderGetTargetPosition(UnitOrder(lv_minion, lv_itOrder)))) {
-                                        }
-                                        else {
-                                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPosition(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                        }
-                                    }
-
-                                    if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                                        UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                                    }
-                                    else {
-                                        UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                                    }
-                                }
-                                else {
-                                    if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
-                                        if ((OrderGetTargetType(lv_orderList[lv_itOrder]) == c_orderTargetPoint)) {
-                                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetPoint(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                        }
-                                        else {
-                                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPosition(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_itOrder]), OrderGetTargetUnit(lv_orderList[lv_itOrder])), c_orderQueueAddToEnd);
-                                        }
-                                    }
-                                    else {
-                                        UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                                    }
-                                }
-                            }
-                        }
-                        else {
-                            if ((lv_closestBuildIndex == 1) && (OrderGetAbilityCommand(UnitOrder(lv_minion, (lv_closestBuildIndex-1))) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, (lv_closestBuildIndex-1))) == OrderGetTargetPosition(lv_buildOrder))) {
-                            }
-                            else {
-                                autoF7C90385_var = 0;
-                                for ( ; autoF7C90385_var <= autoF7C90385_ae; autoF7C90385_var += 1 ) {
-                                    lv_reservedOrders[autoF7C90385_var] = UnitOrder(lv_minion, autoF7C90385_var);
-                                }
-                                UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-                                autoB43DB405_var = 0;
-                                for ( ; autoB43DB405_var <= autoB43DB405_ae; autoB43DB405_var += 1 ) {
-                                    if ((lv_closestBuildIndex == autoB43DB405_var)) {
-                                        UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPoint(lv_buildOrder)), c_orderQueueAddToEnd);
-                                    }
-
-                                    UnitIssueOrder(lv_minion, lv_reservedOrders[autoB43DB405_var], c_orderQueueAddToEnd);
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-            else {
-                if ((VisIsVisibleForPlayer(lv_owner, lv_targetPoint) == false)) {
-                    if ((lv_closestBuildIndex == 1) && (OrderGetAbilityCommand(UnitOrder(lv_minion, (lv_closestBuildIndex-1))) == AbilityCommand("move", 0)) && (OrderGetTargetPosition(UnitOrder(lv_minion, (lv_closestBuildIndex-1))) == OrderGetTargetPosition(lv_buildOrder))) {
-                    }
-                    else {
-                        if ((CliffLevel(UnitGetPosition(lv_minion)) < CliffLevel(lv_targetPoint))) {
-                            auto50320FB2_ae = (libNHBR_gv_hybridBuildControllerMaxOrderCount_C-1);
-                            lv_itOrder = 0;
-                            for ( ; ( (auto50320FB2_ai >= 0 && lv_itOrder <= auto50320FB2_ae) || (auto50320FB2_ai < 0 && lv_itOrder >= auto50320FB2_ae) ) ; lv_itOrder += auto50320FB2_ai ) {
-                                lv_reservedOrders[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
-                            }
-                            UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-                            auto4477E272_ae = (libNHBR_gv_hybridBuildControllerMaxOrderCount_C-1);
-                            lv_itOrder = 0;
-                            for ( ; ( (auto4477E272_ai >= 0 && lv_itOrder <= auto4477E272_ae) || (auto4477E272_ai < 0 && lv_itOrder >= auto4477E272_ae) ) ; lv_itOrder += auto4477E272_ai ) {
-                                if ((lv_closestBuildIndex == lv_itOrder)) {
-                                    UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPoint(lv_buildOrder)), c_orderQueueAddToEnd);
-                                }
-
-                                UnitIssueOrder(lv_minion, lv_reservedOrders[lv_itOrder], c_orderQueueAddToEnd);
-                            }
-                        }
-
-                    }
-                }
-                else {
-                    autoEE8C50F4_ae = lv_minionOrderCount;
-                    lv_itOrder = (lv_closestBuildIndex+1);
-                    for ( ; ( (autoEE8C50F4_ai >= 0 && lv_itOrder <= autoEE8C50F4_ae) || (autoEE8C50F4_ai < 0 && lv_itOrder >= autoEE8C50F4_ae) ) ; lv_itOrder += autoEE8C50F4_ai ) {
-                        if ((libNHBR_gf_HybridBuildControllerIsBuildOrder(lv_orderList[lv_itOrder]) == true)) {
-                            lv_unusedBuildIndex = lv_itOrder;
-                            break;
-                        }
-
-                    }
-                    if ((lv_unusedBuildIndex != -1)) {
-                        UnitIssueOrder(lv_minion, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
-                        autoC8F0D98E_ae = (lv_unusedBuildIndex-1);
-                        lv_itOrder = 0;
-                        for ( ; ( (autoC8F0D98E_ai >= 0 && lv_itOrder <= autoC8F0D98E_ae) || (autoC8F0D98E_ai < 0 && lv_itOrder >= autoC8F0D98E_ae) ) ; lv_itOrder += autoC8F0D98E_ai ) {
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                        }
-                        if ((OrderGetTargetType(lv_orderList[lv_unusedBuildIndex]) == c_orderTargetPoint)) {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), OrderGetTargetPoint(lv_orderList[lv_unusedBuildIndex])), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_unusedBuildIndex]), OrderGetTargetPoint(lv_orderList[lv_unusedBuildIndex])), c_orderQueueAddToEnd);
-                        }
-                        else {
-                            UnitIssueOrder(lv_minion, OrderTargetingPoint(AbilityCommand("move", 0), UnitGetPosition(OrderGetTargetUnit(lv_orderList[lv_unusedBuildIndex]))), c_orderQueueAddToEnd);
-                            UnitIssueOrder(lv_minion, OrderTargetingUnit(libNHBR_gf_HybridBuildControllerReturnMainBuildAbilityCommand(lv_orderList[lv_unusedBuildIndex]), OrderGetTargetUnit(lv_orderList[lv_unusedBuildIndex])), c_orderQueueAddToEnd);
-                        }
-                        auto409B685D_ae = lv_minionOrderCount;
-                        lv_itOrder = (lv_unusedBuildIndex+1);
-                        for ( ; ( (auto409B685D_ai >= 0 && lv_itOrder <= auto409B685D_ae) || (auto409B685D_ai < 0 && lv_itOrder >= auto409B685D_ae) ) ; lv_itOrder += auto409B685D_ai ) {
-                            UnitIssueOrder(lv_minion, lv_orderList[lv_itOrder], c_orderQueueAddToEnd);
-                        }
-                        lv_unusedBuildIndex = -1;
-                    }
-
-                }
-            }
-        }
-
-        lv_itOrder = 0;
-        for ( ; ( (auto86A4AA17_ai >= 0 && lv_itOrder <= auto86A4AA17_ae) || (auto86A4AA17_ai < 0 && lv_itOrder >= auto86A4AA17_ae) ) ; lv_itOrder += auto86A4AA17_ai ) {
-            libNHBR_gv_dEBUGOrderListAfter[lv_itOrder] = UnitOrder(lv_minion, lv_itOrder);
-        }
-        Wait(0.0, c_timeGame);
-    }
-    UnitBehaviorRemove(lv_minion, "NHbrMinionBuild@InProgress", 1);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libNHBR_gt_HybridBuildController_Init () {
-    libNHBR_gt_HybridBuildController = TriggerCreate("libNHBR_gt_HybridBuildController_Func");
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 1));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 4));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 17));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 16));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 10));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 9));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 0));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 8));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 5));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 11));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 12));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 6));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 13));
-    TriggerAddEventUnitOrder(libNHBR_gt_HybridBuildController, null, AbilityCommand("NHbrMinionBuild", 2));
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: Hybrid - Network New - Calculate
 //--------------------------------------------------------------------------------------------------
 bool libNHBR_gt_HybridNetworkNewCalculate_Func (bool testConds, bool runActions) {
@@ -1294,45 +822,59 @@ bool libNHBR_gt_HybridTeleportTurnTargetingOrderOn_Func (bool testConds, bool ru
     UnitBehaviorAdd(lv_targetUnit, "NHbrIonicCrystalTeleport@FromPylonToTarget", lv_casterUnit, 1);
     autoC94CA30A_val = lv_targetUnitType;
     if (autoC94CA30A_val == "NHbrTemple") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportTemple", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 0), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrHarvester") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportHarvester", lv_casterUnit, 1);
         lv_order = OrderTargetingUnit(AbilityCommand("NHbrIonicCrystalTeleport@Build", 1), lv_casterUnit);
     }
     else if (autoC94CA30A_val == "NHbrHarvesterRich") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportHarvesterRich", lv_casterUnit, 1);
         lv_order = OrderTargetingUnit(AbilityCommand("NHbrIonicCrystalTeleport@Build", 1), lv_casterUnit);
     }
     else if (autoC94CA30A_val == "NHbrVoidRift") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportVoidRift", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 2), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrStasisCell") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportStasisCell", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 3), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrVespeneConcentrator") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportConcentrator", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 4), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrConstruct@AntiAir") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportConstructAA", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 5), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrConstruct@AntiGround") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportConstructAG", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 6), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrEngine") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportEngine", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 7), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrProcessingCore") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportProcessingCore", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 8), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrProcessor") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportProcessor", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 9), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrVoidPortal") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportVoidPortal", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 10), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrCrystallicShrine") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportCrystallicShrine", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 11), UnitGetPosition(lv_casterUnit));
     }
     else if (autoC94CA30A_val == "NHbrNemesisCatacomb") {
+        UnitBehaviorAdd(lv_casterUnit, "NHbr@TeleportNemesisCatacomb", lv_casterUnit, 1);
         lv_order = OrderTargetingPoint(AbilityCommand("NHbrIonicCrystalTeleport@Build", 12), UnitGetPosition(lv_casterUnit));
     }
     else {
@@ -1384,6 +926,20 @@ bool libNHBR_gt_HybridTeleportTurnTargetingOrderOff_Func (bool testConds, bool r
     lv_player = EventPlayer();
     lv_crystal = UnitGroupUnit(libNHBR_gv_hybridTeleportUnitGroup[lv_player], 1);
     lv_builder = UnitBehaviorEffectUnit(lv_crystal, "NHbrIonicCrystalTeleport@FromTargetToCrystal", c_effectUnitCaster, 0);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportConcentrator", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportConstructAA", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportConstructAG", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportCrystallicShrine", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportEngine", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportHarvester", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportHarvesterRich", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportNemesisCatacomb", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportProcessingCore", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportProcessor", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportStasisCell", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportTemple", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportVoidPortal", 1);
+    UnitBehaviorRemove(lv_crystal, "NHbr@TeleportVoidRift", 1);
     auto19A3CA45_g = libNHBR_gv_hybridNetworkNewPowerSourceUnitGroup[lv_player];
     auto19A3CA45_u = UnitGroupCount(auto19A3CA45_g, c_unitCountAll);
     for (;; auto19A3CA45_u -= 1) {
@@ -2664,7 +2220,6 @@ void libNHBR_gt_HybridVoidRiftCargoUI_Init () {
 
 void libNHBR_InitTriggers () {
     libNHBR_gt_InitializeNetworkHybridRace_Init();
-    libNHBR_gt_HybridBuildController_Init();
     libNHBR_gt_HybridNetworkNewCalculate_Init();
     libNHBR_gt_HybridNetworkPowerSourceUnitTypeInitialization_Init();
     libNHBR_gt_HybridNetworkNewCaseController_Init();
