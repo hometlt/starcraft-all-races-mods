@@ -1,0 +1,1187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectApplyBehavior id="CommanderPrestigeAlarakDeathFleetDamage">
+        <EditorCategories value=""/>
+        <Chance value="0"/>
+    </CEffectApplyBehavior>
+
+    <CEffectSet id="AlarakACSummonDeathFleetInitialSet">
+        <ValidatorArray value="HasVision"/>
+        <EditorCategories value=""/>
+        <EffectArray value="DeathFleetClearOldUnits"/>
+        <EffectArray value="AlarakACSummonDeathfleet"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="AlarakBaneBladesHoldPosition">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="AlarakBaneBladesSet"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.28"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="AlarakTheStrongestSurvivePrestigeMechBuffDouble">
+        <EditorCategories value=""/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodCount value="2"/>
+        <PeriodicEffectArray value="AlarakTheStrongestSurvivePrestigeMechBuffTrigger"/>
+    </CEffectCreatePersistent>
+    <CEffectSwitch id="AlarakTheStrongestSurvivePrestigeMechBuffSwitch">
+        <ValidatorArray value="CommanderPrestigeAlarakMechBuffNotMaxed"/>
+        <ValidatorArray value="TargetCanHaveWeapon"/>
+        <ValidatorArray value="TargetIsNotHavoc"/>
+        <EditorCategories value=""/>
+        <CaseArray Validator="SupplyUsedGT0andLTE2" Effect="AlarakTheStrongestSurvivePrestigeMechBuffDouble"/>
+        <CaseDefault value="AlarakTheStrongestSurvivePrestigeMechBuffTrigger"/>
+    </CEffectSwitch>
+    <CEffectSet id="AlarakTheStrongestSurvivePrestigeMechBuffTrigger">
+        <ValidatorArray value="CommanderPrestigeAlarakMechBuffNotMaxed"/>
+        <EditorCategories value=""/>
+    </CEffectSet>
+    <CEffectEnumArea id="AlarakTheStrongestSurvivePrestigeMechBuffSearch">
+        <EditorCategories value=""/>
+        <Chance value="0"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Mechanical;Ally,Neutral,Enemy,Structure,Heroic,Worker,RawResource,HarvestableResource,Missile,Uncommandable,Dead,Summoned"/>
+        <TargetSorts>
+            <SortArray value="TSNotDeathFleet"/>
+            <SortArray value="TSSupply"/>
+            <SortArray value="TSDistanceToTarget"/>
+        </TargetSorts>
+        <AreaArray Radius="15" Effect="AlarakTheStrongestSurvivePrestigeMechBuffSwitch"/>
+        <MaxCount value="1"/>
+        <ValidatorArray value="NotTrackedAsUnderConstructionorDead"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="DeathFleetClearMothership">
+        <EditorCategories value=""/>
+        <Behavior value="SOAMothershipWarpAway"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="DeathFleetClearOldUnits">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Air;Ally,Neutral,Enemy,Ground,Structure,RawResource,HarvestableResource,Missile,Dead"/>
+        <AreaArray Radius="500" Effect="DeathFleetClearSwitch"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="DeathFleetClearSwitch">
+        <ValidatorArray value="IsDeathFleetMothership"/>
+        <EditorCategories value=""/>
+        <CaseArray Validator="IsDeathFleetMothership" Effect="DeathFleetClearMothership"/>
+        <CaseDefault value="DeathFleetClearDestroyer"/>
+    </CEffectSwitch>
+    <CEffectDamage id="DeathFleetClearDestroyer">
+        <ValidatorArray value="IsDeathFleet"/>
+        <EditorCategories value=""/>
+        <Flags index="Kill" value="1"/>
+        <Death value="Timeout"/>
+    </CEffectDamage>
+    <CEffectSet id="AlarakEmpowerMe">
+        <EditorCategories value=""/>
+        <EffectArray value="AlarakEmpowerCaster"/>
+        <EffectArray value="AlarakACDeadlyChargeResetCD"/>
+        <EffectArray value="AlarakACDestructionWaveResetCD"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="AlarakACDeadlyChargeResetCD">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="AlarakACDeadlyCharge,Execute" CooldownOperation="Set"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="AlarakACDestructionWaveResetCD">
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="AlarakKnockback,Execute" CooldownOperation="Set"/>
+    </CEffectModifyUnit>
+    <CEffectEnumArea id="ImmortalTaldarimWeaponSearch">
+        <AreaArray index="0" Radius="1.2"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="AlarakParticleDisruptorsU" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Protoss"/>
+        <AttributeBonus index="Armored" value="5"/>
+        <Amount value="13"/>
+    </CEffectDamage>
+    <CEffectRemoveBehavior id="PhaseBlinkDamageRB">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="PhaseBlinkDamage"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="PhaseBlinkSet">
+        <EditorCategories value=""/>
+        <EffectArray value="Blink"/>
+        <EffectArray value="PhaseBlinkDamageAB"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectEnumArea id="AlarakBaneBladesAoeSearch">
+        <ValidatorArray value="HaveAlarakEmpoweredCasterAndHaveAlarakAreaDamageUpgrade"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ExcludeArray Effect="AlarakBaneBladesAoeSearch" Value="Target"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Missile,Stasis,Dead,Invulnerable,Unstoppable"/>
+        <AreaArray Arc="180" Radius="2" Effect="AlarakBaneBladesAoEDamage"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="AlarakBaneBladesAoEDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Amount value="30"/>
+        <Death value="Eviscerate"/>
+    </CEffectDamage>
+    <CEffectSet id="AlarakBeaconReviveSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="SamePlaceReviveSet"/>
+        <EffectArray value="AlarakReviveWarpIn"/>
+    </CEffectSet>
+    <CEffectEnumArea id="AlarakKnockbackSearchN1">
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="AlarakKnockbackSearchN2">
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="AlarakKnockbackSearchN3">
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="AlarakKnockbackSearchN4">
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="AlarakKnockbackSearchP">
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="AlarakKnockbackSecondCP">
+        <PeriodCount value="17"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicEffectArray value="AlarakKnockbackConjoinedUnitSearch"/>
+        <PeriodicOffsetArray value="0,5,0"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="AlarakReviveWarpIn"/>
+    <CEffectApplyBehavior id="AlarakReviveWarpInIntro">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="AlarakTheStrongestSurviveDummySecondaryAttackMissile">
+        <EditorCategories value="Race:Protoss"/>
+        <LaunchLocation Value="TargetUnit"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <FinishEffect value="AlarakTheStrongestSurviveDummySecondaryAttackMissileImpact"/>
+        <AmmoUnit value="AlarakTheStrongestSurviveDummySecondaryAttackMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="AlarakTheStrongestSurviveDummyAttackMissileImpact">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakTheStrongestSurviveDummySecondaryAttackMissileImpact">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectSet>
+    <CEffectEnumArea id="AlarakKnockbackConjoinedUnitSearch">
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray RectangleWidth="6" RectangleHeight="14" Effect="DestructionWaveConjoinedDamage"/>
+    </CEffectEnumArea>
+    <CEffectSet id="ImmortalTaldarimWeaponLMSmallTarget">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="ImmortalTaldarimWeaponLM"/>
+        <ValidatorArray value="TargetRadiusLE0Dot125"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="AlarakBaneBlades">
+        <PeriodicEffectArray index="0" value="AlarakBaneBladesSet"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="AlarakBaneBladesRanged">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="AlarakBaneBladesSet"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.28"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="AlarakBaneBladesDamage">
+        <!--AreaArray>
+            <Arc value="180"/>
+            <Radius value="2"/>
+            <Fraction value="1"/>
+            <Validator value="HaveAlarakEmpoweredCasterAndHaveAlarakAreaDamageUpgrade"/>
+        </AreaArray>
+        <ExcludeArray Effect="AlarakBaneBladesDamage" Value="Target"/-->
+        <Amount value="30"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="AlarakBaneBladesAoeStunSlowSearch">
+        <ValidatorArray value="HaveAlarakEmpoweredCasterAndHaveAlarakAreaDamageUpgradeAndHaveAlarakAttackStunUpgrade"/>
+        <ValidatorArray value="HaveAlarakAttackStunUpgrade"/>
+        <!--ValidatorArray value="HaveAlarakAttackStunUpgrade"/-->
+        <EditorCategories value="Race:Protoss"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Invulnerable,Unstoppable"/>
+        <AreaArray Arc="180" Radius="2" Effect="AlarakBaneBladesAoeStunAB"/>
+        <AreaArray Arc="180" Radius="2" Effect="AlarakBaneBladesAoeSlowAB"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="AlarakBaneBladesSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="AlarakBaneBladesDamage"/>
+        <EffectArray value="AlarakBaneBladesDamageSlow"/>
+        <EffectArray value="AlarakBaneBladesDamageStun"/>
+        <EffectArray value="AlarakBaneBladesAoeSearch"/>
+        <EffectArray value="AlarakBaneBladesAoeStunSlowSearch"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakPsionicLightningSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="AlarakAADamage"/>
+        <EffectArray value="AlarakBaneBladesDamageSlow"/>
+        <EffectArray value="AlarakBaneBladesDamageStun"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="AlarakDestroyerCreationCP">
+        <EditorCategories value="Race:Protoss"/>
+        <OffsetVectorStartLocation Value="TargetPoint"/>
+        <PeriodCount value="4"/>
+        <PeriodicOffsetArray value="4.25,0,0"/>
+        <PeriodicOffsetArray value="-4.25,0,0"/>
+        <PeriodicOffsetArray value="0,4.25,0"/>
+        <PeriodicOffsetArray value="0,-4.25,0"/>
+        <PeriodicOffsetArray value="3,3,0"/>
+        <PeriodicOffsetArray value="-3,-3,0"/>
+        <PeriodicOffsetArray value="-3,3,0"/>
+        <PeriodicOffsetArray value="3,-3,0"/>
+        <PeriodicPeriodArray value="0.25"/>
+        <OffsetRandMode value="RandomNoRepeat"/>
+        <PeriodicEffectArray value="AlarakDestroyerCU"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="AlarakDestroyerCreationSet">
+        <EditorCategories value="Race:Protoss"/>
+        <!--EffectArray value="AlarakDestroyerEnableMove2s"/-->
+        <EffectArray value="WarpInEffect"/>
+        <EffectArray value="AlarakDestroyerTimedLife"/>
+        <EffectArray value="NoScrapDropAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="AlarakDestroyerEnableMove2s">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="AlarakDestroyerTimedLife">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="AlarakKnockback">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="AlarakKnockbackInitialCP"/>
+        <EffectArray value="MakeCasterFacingTargetPoint"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectSwitch id="AlarakKnockbackSearchPSwitch">
+        <CaseArray index="1" Validator="IsMassiveAndNotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy2"/>
+        <CaseArray Validator="NotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy4"/>
+        <CaseArray Validator="IsMassive" Effect="AlarakKnockbackBy4"/>
+    </CEffectSwitch>
+    <CEffectSwitch id="AlarakKnockbackSearchN1Switch">
+        <CaseArray index="1" Validator="IsMassiveAndNotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy2"/>
+        <CaseArray Validator="NotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy4"/>
+        <CaseArray Validator="IsMassive" Effect="AlarakKnockbackBy5"/>
+    </CEffectSwitch>
+    <CEffectSwitch id="AlarakKnockbackSearchN2Switch">
+        <CaseArray index="1" Validator="IsMassiveAndNotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy3"/>
+        <CaseArray Validator="NotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy5"/>
+        <CaseArray Validator="IsMassive" Effect="AlarakKnockbackBy6"/>
+    </CEffectSwitch>
+    <CEffectSwitch id="AlarakKnockbackSearchN3Switch">
+        <CaseArray index="1" Validator="IsMassiveAndNotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy3"/>
+        <CaseArray Validator="NotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy5"/>
+        <CaseArray Validator="IsMassive" Effect="AlarakKnockbackBy7"/>
+    </CEffectSwitch>
+    <CEffectSwitch id="AlarakKnockbackSearchN4Switch">
+        <CaseArray index="1" Validator="IsMassiveAndNotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy4"/>
+        <CaseArray Validator="NotHaveAlarakDestructionWaveDistance" Effect="AlarakKnockbackBy6"/>
+        <CaseArray Validator="IsMassive" Effect="AlarakKnockbackBy8"/>
+    </CEffectSwitch>
+    <CEffectDamage id="ImmortalTaldarimWeaponDamage">
+        <AttributeBonus index="Armored" value="0"/>
+    </CEffectDamage>
+    <CEffectSet id="ImmortalTaldarimWeaponDamageSet">
+        <EffectArray index="2" removed="1"/>
+        <EffectArray index="3" removed="1"/>
+    </CEffectSet>
+    <CEffectDamage id="MasteryAlarakStructureOverchargeDamageDisplayDummy"/>
+    <CEffectDamage id="MasteryAlarakStructureOverchargeDamageDisplayDummyPercent"/>
+    <CEffectEnumArea id="AscendantSacrificeSearch">
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="-;Self,Ally,Neutral,Enemy,Structure,Worker,Missile,Item,Dead,Hidden"/>
+        <AreaArray MaxCount="1" Radius="12" Effect="AscendantSacrificeSelfBuffSet"/>
+        <MinCountError value="CantFindEnoughTargets,Error/SupplicantNotInRange"/>
+        <MinCount value="1"/>
+        <MaxCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectModifyUnit id="AscendantSacrificeSupplicantRemoveShield">
+        <EditorCategories value="Race:Terran"/>
+        <VitalArray index="Shields">
+            <ChangeFraction value="-1"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectDamage id="AscendantSacrificeKillSupplicant">
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+    </CEffectDamage>
+    <CEffectSet id="AscendantSacrificeSelfBuffSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="AscendantSacrificeSupplicantRemoveShield"/>
+        <EffectArray value="AscendantSacrificeKillSupplicant"/>
+        <EffectArray value="CasterHealtoFullEnergy"/>
+        <EffectArray value="AlarakSupplicantSacrificeCDR"/>
+        <!--EffectArray value="AlarakTheStrongestSurviveSupplicantSacrificeDamageUD"/-->
+        <EffectArray value="AscendantSacrificeSelfBuffAB"/>
+        <ValidatorArray value="TargetNotDeadAndCasterNotDead"/>
+        <ValidatorArray value="IsSupplicant"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="noMarkers"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="AscendantSacrificeSelfBuffAB">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="AscendantSacrificeSelfBuff"/>
+        <ValidatorArray index="0" value="HaveHighTemplarImprovedSacrifice"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="AlarakLightningStrikesAB">
+        <Behavior value="AlarakLightningStrikes"/>
+        <ValidatorArray index="0" value="HaveAlarakLightningStrikes"/>
+        <ValidatorArray value="IsSupplicant"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="AlarakSupplicantDevotionCDR">
+        <EffectArray value="AlarakSupplicantDevotionCDR_A"/>
+        <EffectArray value="AlarakSupplicantDevotionCDR_B"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ValidatorArray value="IsSupplicant"/>
+        <ValidatorArray value="AlarakSupplicantSacrificeCDR"/>
+    </CEffectSet>
+    <CEffectModifyPlayer id="AlarakSupplicantDevotionCDR_A">
+        <EditorCategories value="Race:Protoss"/>
+        <Cost Abil="AlarakACDeadlyCharge">
+            <Cooldown>
+                <Link value="Abil/AlarakACDeadlyCharge"/>
+                <Location value="Player"/>
+                <Operation value="Add"/>
+                <TimeUse value="-10"/>
+            </Cooldown>
+        </Cost>
+    </CEffectModifyPlayer>
+    <CEffectModifyPlayer id="AlarakSupplicantDevotionCDR_B">
+        <EditorCategories value="Race:Protoss"/>
+        <Cost Abil="AlarakKnockback">
+            <Cooldown>
+                <Link value="Abil/AlarakKnockback"/>
+                <Location value="Player"/>
+                <Operation value="Add"/>
+                <TimeUse value="-5"/>
+            </Cooldown>
+        </Cost>
+    </CEffectModifyPlayer>
+    <CEffectSet id="AlarakSupplicantSacrificeCDR">
+        <EffectArray value="AlarakSupplicantSacrificeCDR_A"/>
+        <EffectArray value="AlarakSupplicantSacrificeCDR_B"/>
+        <!--EffectArray value="AlarakSupplicantSacrificeCDR_C"/>
+        <EffectArray value="AlarakSupplicantSacrificeCDR_D"/-->
+        <EditorCategories value="Race:Protoss"/>
+        <ValidatorArray value="IsSupplicant"/>
+        <ValidatorArray value="AlarakSupplicantSacrificeCDR"/>
+    </CEffectSet>
+    <CEffectModifyPlayer id="AlarakSupplicantSacrificeCDR_A">
+        <EditorCategories value="Race:Protoss"/>
+        <Cost Abil="AlarakACDeadlyCharge">
+            <Cooldown>
+                <Link value="Abil/AlarakACDeadlyCharge"/>
+                <Location value="Player"/>
+                <Operation value="Add"/>
+                <TimeUse value="-10"/>
+            </Cooldown>
+        </Cost>
+        <ValidatorArray value="CoopAlarakSacrificeInRange"/>
+    </CEffectModifyPlayer>
+    <CEffectModifyPlayer id="AlarakSupplicantSacrificeCDR_B">
+        <EditorCategories value="Race:Protoss"/>
+        <Cost Abil="AlarakKnockback">
+            <Cooldown>
+                <Link value="Abil/AlarakKnockback"/>
+                <Location value="Player"/>
+                <Operation value="Add"/>
+                <TimeUse value="-5"/>
+            </Cooldown>
+        </Cost>
+        <ValidatorArray value="CoopAlarakSacrificeInRange"/>
+    </CEffectModifyPlayer>
+    <CEffectModifyPlayer id="AlarakSupplicantSacrificeCDR_C">
+        <EditorCategories value="Race:Protoss"/>
+        <Cost Abil="AlarakEmpower">
+            <Cooldown>
+                <Link value="Abil/AlarakEmpower"/>
+                <Location value="Player"/>
+                <Operation value="Add"/>
+                <TimeUse value="-5"/>
+            </Cooldown>
+        </Cost>
+    </CEffectModifyPlayer>
+    <CEffectModifyPlayer id="AlarakSupplicantSacrificeCDR_D">
+        <EditorCategories value="Race:Protoss"/>
+        <Cost Abil="AlarakACSummonDeathfleet">
+            <Cooldown>
+                <Link value="Abil/AlarakACSummonDeathfleet"/>
+                <Location value="Player"/>
+                <Operation value="Add"/>
+                <TimeUse value="-5"/>
+            </Cooldown>
+        </Cost>
+    </CEffectModifyPlayer>
+    <CEffectApplyBehavior id="AlarakTheStrongestSurviveSupplicantSacrificeDamageAB">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="AlarakTheStrongestSurviveSupplicantSacrificeDamage"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="AlarakStructureOverchargeRefresh"/>
+    <CEffectLaunchMissile id="SoulAbsorptionLM">
+        <LaunchEffect value="AlarakSoulAbsorptionLaunchDummy"/>
+        <EditorCategories value="Race:Undead"/>
+        <FinishEffect value="AlarakSoulAbsorptionImpactDummy"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="AlarakTheStrongestSurviveDummyAttackMissile">
+        <EditorCategories value="Race:Protoss"/>
+        <LaunchLocation Value="TargetUnit"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <FinishEffect value="AlarakTheStrongestSurviveDummyAttackMissileImpact"/>
+        <!--LaunchEffect value="AlarakSoulAbsorptionLaunchDummy"/>
+        <ImpactEffect value="AlarakSoulAbsorptionImpactDummy"/-->
+        <AmmoUnit value="AlarakTheStrongestSurviveDummyAttackMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="SuicideIfSupplicantWarpIn">
+        <ValidatorArray value="IsSupplicantWarpingIn"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+    </CEffectDamage>
+    <CEffectSet id="SupplicantBirth">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SupplicantWarpPowerCheck">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="SupplicantDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Kind value="Ranged"/>
+        <Amount value="5"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="SupplicantLM">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactEffect value="SupplicantDamage"/>
+        <AmmoUnit value="SupplicantWeapon"/>
+        <Movers Link="AdeptWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectTeleport id="AlarakACMoveToMotherShip">
+        <WhichUnit Value="Caster"/>
+        <MinDistance value="0"/>
+        <PlacementAround Value="SourcePoint"/>
+        <TargetLocation Value="SourcePoint"/>
+        <TeleportFlags index="TestCliff" value="1"/>
+        <TeleportFlags index="TestFog" value="0"/>
+        <TeleportFlags index="TestZone" value="1"/>
+        <PlacementRange value="15"/>
+    </CEffectTeleport>
+    <CEffectApplyBehavior id="AlarakACTeleportOut">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="AlarakACTeleportOutRB">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="AlarakACTeleportOut"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="AlarakEmpowerCaster">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="AlarakEmpowerCasterSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <SearchFilters value="-;Self,Neutral,Enemy,Structure,RawResource,HarvestableResource,Missile,Item,Dead,Hidden,MapBoss"/>
+        <AreaArray Radius="10" Effect="AlarakEmpowerTargetApplySet"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="AlarakEmpowerTarget">
+        <ValidatorArray index="0" value="EmpowerValidator"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="AlarakEmpowerTargetApplySet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="AlarakEmpowerTargetPlayerStart"/>
+        <EffectArray value="AlarakEmpowerTarget"/>
+        <ValidatorArray value="EmpowerValidator"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakEmpowerTargetPlayerFinal">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakEmpowerTargetPlayerStart">
+        <ValidatorArray value="NotAlarakEmpowerTargetPlayerRefresh"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="AlarakJustReviveCheck">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="AlarakStalkerForceBlastCP">
+        <EditorCategories value=""/>
+        <WhichLocation Value="CasterUnit"/>
+        <InitialEffect value="AlarakStalkerForceBlastSearch"/>
+        <ValidatorArray value="HaveAlarakStalkerForceBlast"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="AlarakStalkerForceBlastSearch">
+        <EditorCategories value=""/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="AlarakStalkerForceBlastSet"/>
+        <AINotifyFlags index="HelpFriend" value="1"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <AINotifyFlags index="MinorDanger" value="1"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="AlarakTheStrongestSurviveSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <SearchFilters value="-;Self,Ally,Neutral,Enemy,Structure,Worker,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,MapBoss"/>
+        <AreaArray Radius="15" Effect="AlarakTheStrongestSurviveSearchImpact"/>
+        <MinCount value="1"/>
+        <MaxCount value="1"/>
+        <TargetSorts>
+            <SortArray value="HighestUnitLevel"/>
+            <SortArray value="CommanderPrestigeAlarakMechLowestStacks"/>
+            <SortArray value="LowestAscendantStacks"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectSet id="AlarakTheStrongestSurviveSearchImpact">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="AlarakTheStrongestSurviveStealShield"/>
+        <EffectArray value="AlarakTheStrongestSurviveStealLife"/>
+        <EffectArray value="AlarakSupplicantDevotionCDR"/>
+        <EffectArray value="AlarakLightningStrikesAB"/>
+        <EffectArray value="AlarakTheStrongestSurviveDummyAttackMissile"/>
+        <EffectArray value="AlarakTheStrongestSurviveDummySecondaryAttackMissile"/>
+        <EffectArray value="AlarakTheStrongestSurviveDummySecondaryAttackMissile"/>
+        <ValidatorArray value="NotWarpingIn"/>
+    </CEffectSet>
+    <CEffectCreateHealer id="AlarakTheStrongestSurviveStealLife">
+        <EditorCategories value="Race:Protoss"/>
+        <LaunchUnit Value="Target"/>
+        <ImpactUnit Value="Caster"/>
+        <Flags index="Channeled" value="0"/>
+        <DrainVitalCostFactor value="1"/>
+        <RechargeVitalRate value="500000"/>
+        <!--FinalEffect value="AlarakTheStrongestSurviveHeal"/-->
+    </CEffectCreateHealer>
+    <CEffectCreateHealer id="AlarakTheStrongestSurviveStealShield">
+        <EditorCategories value="Race:Protoss"/>
+        <LaunchUnit Value="Target"/>
+        <ImpactUnit Value="Caster"/>
+        <Flags index="Channeled" value="0"/>
+        <DrainVitalCostFactor value="1"/>
+        <RechargeVitalRate value="500000"/>
+        <DrainVital value="Shields"/>
+        <RechargeVital value="Shields"/>
+    </CEffectCreateHealer>
+    <CEffectModifyUnit id="AlarakTheStrongestSurviveHeal">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactUnit Value="Caster"/>
+        <VitalArray index="Life">
+            <ChangeFraction value="1"/>
+        </VitalArray>
+        <VitalArray index="Shields">
+            <ChangeFraction value="1"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectSet id="AlarakZealotFrenziedOverloadSet">
+        <EditorCategories value=""/>
+        <EffectArray value="PsiBlades"/>
+        <EffectArray value="AlarakZealotFrenziedOverloadMU"/>
+    </CEffectSet>
+    <CEffectTeleport id="Blink">
+        <TeleportEffect value="AlarakStalkerForceBlastCP"/>
+    </CEffectTeleport>
+    <CEffectSet id="AlarakACDeadlyChargeImpactSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="AlarakACDeadlyChargeDamage"/>
+        <EffectArray value="PrimalSlashAttackOrder"/>
+        <EffectArray value="AlarakLightningStrikesSet"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="AlarakACDeadlyChargeRushOnly">
+        <ValidatorArray value="Pathable"/>
+        <EditorCategories value="Race:Protoss"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetUnitOrPoint"/>
+        <FinishEffect value="AlarakACDeadlyChargePointSearchImpactSet"/>
+        <Flags index="2D" value="1"/>
+        <Flags index="Placement" value="1"/>
+        <PlacementRange value="15"/>
+        <Movers Link="AlarakACDeadlyCharge"/>
+        <DeathType value="Unknown"/>
+        <PlaceholderUnit value="AlarakRushPlaceholder"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="AlarakACDeadlyChargeRushOnlyUnit">
+        <EditorCategories value="Race:Protoss"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetUnitOrPoint"/>
+        <FinishEffect value="AlarakACDeadlyChargePointSearchImpactSet"/>
+        <Flags index="2D" value="1"/>
+        <Flags index="Placement" value="1"/>
+        <PlacementRange value="15"/>
+        <Movers Link="AlarakACDeadlyCharge"/>
+        <DeathType value="Unknown"/>
+        <PlaceholderUnit value="AlarakRushPlaceholder"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="AlarakACDeadlyChargePointSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="AlarakACDeadlyChargePointSearchSet"/>
+        <MaxCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="AlarakACDeadlyChargePointSearchImpactSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="AlarakACDeadlyChargePointSearch"/>
+        <EffectArray value="AlarakLightningStrikesSet"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakACDeadlyChargePointSearchSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="AlarakACDeadlyChargeDamage"/>
+    </CEffectSet>
+    <CEffectSwitch id="AlarakACDeadlyCharge">
+        <EditorCategories value="Race:Protoss"/>
+        <CaseArray Validator="PrimalSlashTargetChecksClose" Effect="AlarakACDeadlyChargeImpactSet"/>
+        <CaseArray Validator="PrimalSlashTargetFilters" Effect="AlarakACDeadlyChargeLMTarget"/>
+        <CaseArray Validator="PrimalSlashTargetFiltersFriendly" Effect="AlarakACDeadlyChargeRushOnlyUnit"/>
+        <CaseDefault value="AlarakACDeadlyChargeRushOnly"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSwitch>
+    <CEffectLaunchMissile id="AlarakACDeadlyChargeLMTarget">
+        <EditorCategories value="Race:Protoss"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <FinishEffect value="AlarakACDeadlyChargeImpactSet"/>
+        <Flags index="2D" value="1"/>
+        <Flags index="Placement" value="1"/>
+        <Flags index="PointFallback" value="0"/>
+        <PlacementRange value="15"/>
+        <Movers Link="AlarakACDeadlyCharge"/>
+        <DeathType value="Unknown"/>
+        <PlaceholderUnit value="AlarakRushPlaceholder"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="AlarakACDeadlyChargeDamage">
+        <EditorCategories value="Race:Protoss"/>
+        <Amount value="200"/>
+        <Death value="Eviscerate"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="AlarakLightningStrikesInitialCP">
+        <EditorCategories value="Race:Protoss"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="AlarakLightningStrikesSet"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="AlarakLightningStrikesSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="AlarakLightningStrikesSearch"/>
+        <EffectArray value="AlarakLightningStrikesRB"/>
+        <ValidatorArray value="HaveAlarakLightningStrikesBehavior"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectEnumArea id="AlarakLightningStrikesSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="4" Radius="6" Effect="AlarakLightningStrikesDamage"/>
+        <MaxCount value="4"/>
+        <ExcludeArray Effect="AlarakACDeadlyChargeDamage" Value="Target"/>
+        <TargetSorts>
+            <SortArray value="TSRandom"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectDamage id="AlarakLightningStrikesDamage">
+        <EditorCategories value="Race:Protoss"/>
+        <Amount value="50"/>
+        <Death value="Electrocute"/>
+    </CEffectDamage>
+    <CEffectRemoveBehavior id="AlarakLightningStrikesRB">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="AlarakLightningStrikes"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreateUnit id="AlarakDestroyerCU">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="SelectControlGroups" value="1"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="AlarakDestroyerCreationSet"/>
+        <SpawnUnit value="VoidRayTaldarim"/>
+        <Origin Value="TargetPoint"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="AlarakACSummonDeathfleet">
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="SelectControlGroups" value="1"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="SOAMothershipv4CreationSet"/>
+        <SpawnUnit value="SOAMothershipv4"/>
+        <WhichLocation Value="TargetPoint"/>
+        <ValidatorArray value="HasVision"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="SOAMothershipv4CreationSet">
+        <EffectArray value="WarpInEffect"/>
+        <!--EffectArray value="SOAMothershipv4Select"/-->
+        <!--EffectArray value="WarpInEffect"/-->
+        <!--EffectArray value="AlarakACTeleportOut"/-->
+        <EffectArray value="SOAMothershipTimedLifeAB"/>
+        <EffectArray value="AlarakDestroyerCreationCP"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="SOAMothershipv4Select">
+        <SelectTransferUnit Value="Caster"/>
+        <SelectTransferFlags index="DeselectSource" value="1"/>
+        <SelectTransferFlags index="IncludeControlGroups" value="1"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="AlarakACSelect">
+        <SelectTransferUnit Value="Source"/>
+        <SelectTransferFlags index="DeselectSource" value="1"/>
+        <SelectTransferFlags index="IncludeControlGroups" value="1"/>
+        <ImpactUnit Value="Caster"/>
+    </CEffectModifyUnit>
+    <CEffectSet id="SOAMothershipv4WarpAwaySet">
+        <!--EffectArray value="AlarakACMoveToMotherShip"/-->
+        <!--EffectArray value="AlarakACTeleportOutRB"/-->
+        <EffectArray value="SOAMothershipv4WarpAwayAB"/>
+        <!--EffectArray value="AlarakACSelect"/-->
+    </CEffectSet>
+    <CEffectTeleport id="SOAMothershipBlinkTeleportVoidray">
+        <EditorCategories value="Race:Protoss"/>
+        <MinDistance value="0"/>
+        <SourceLocation Value="TargetUnit"/>
+        <TeleportFlags index="TestFog" value="0"/>
+        <TeleportEffect value="SoAMothershipVoidrayDisableWeaponFor1s"/>
+    </CEffectTeleport>
+    <CEffectCreatePersistent id="PsiBladesBurst">
+        <PeriodicEffectArray index="0" value="AlarakZealotFrenziedOverloadSet"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="SoulAbsorptionAB">
+        <ValidatorArray index="0" value="TargetHasFoodLT0"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="AlarakSoulAbsorptionImpactDummy"/>
+    <CEffectSet id="AlarakSoulAbsorptionLaunchDummy"/>
+    <CEffectEnumArea id="SoulAbsorptionSearch">
+        <ValidatorArray index="0" removed="1"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray index="0" Radius="15"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="AlarakZealotFrenziedOverloadAB">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="AlarakZealotFrenziedOverload"/>
+        <WhichUnit Effect="AlarakZealotFrenziedOverloadAB" Value="Caster"/>
+        <ValidatorArray value="HaveAlarakZealotFrenziedOverload"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyUnit id="AlarakZealotFrenziedOverloadMU">
+        <VitalArray index="Shields">
+            <Change value="5"/>
+        </VitalArray>
+        <ImpactUnit Value="Caster"/>
+        <ValidatorArray value="HaveAlarakZealotFrenziedOverload"/>
+        <ValidatorArray value="HaveAlarakZealotFrenziedOverloadBehavior"/>
+    </CEffectModifyUnit>
+    <CEffectDamage id="MasteryAlarakAutoAttackDamageDisplayDummy"/>
+    <CEffectDamage id="MasteryAlarakUnitAttackSpeedDisplayDummy"/>
+    <CEffectDamage id="MasteryAlarakEmpowerMeSlavesDurationDisplayDummy"/>
+    <CEffectDamage id="MasteryAlarakDeathFleetCDRDisplayDummy"/>
+    <CEffectDamage id="MasteryAlarakCocoonTimerDisplayDummy"/>
+    <CEffectDamage id="MasteryAlarakChronoBoostDisplayDummy"/>
+    <CEffectDamage id="AlarakSupplicantMaxShieldsDisplayDummy">
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectSet id="AlarakStalkerForceBlastSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="AlarakStalkerForceBlastDamage"/>
+        <EffectArray value="UnitKnockbackBy2"/>
+    </CEffectSet>
+    <CEffectDamage id="AlarakStalkerForceBlastDamage" parent="DU_WEAP_SPLASH">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Spell"/>
+        <Amount value="10"/>
+        <Death value="Blast"/>
+        <ArmorReduction value="0"/>
+        <ValidatorArray value="IsNotPhasedUnit"/>
+    </CEffectDamage>
+    <CEffectSet id="AlarakMothershipMassRecallPrepare">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="MothershipMassRecallSearch"/>
+        <ValidatorArray value="NotLarva"/>
+        <ValidatorArray value="NotAbducted"/>
+        <ValidatorArray value="NotReleasedInterceptor"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="AlarakStalkerPhasingArmorBuffApply">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="AlarakStalkerPhasingArmorBuff"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="AlarakStructureOverchargeLM">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactEffect value="AlarakStructureOverchargeDamage"/>
+        <AmmoUnit value="AlarakStructureOverchargeWeapon"/>
+        <Movers Link="MothershipCoreWeaponWeaponClose" IfRangeLTE="4"/>
+        <Movers Link="MothershipCoreWeaponWeapon" IfRangeLTE="20"/>
+        <Flags index="ValidateAbil" value="0"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="AlarakStructureOverchargeSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="15" Effect="AlarakStructureOverchargePriority1"/>
+        <AreaArray MaxCount="1" Radius="15" Effect="AlarakStructureOverchargePriority2"/>
+        <AreaArray MaxCount="1" Radius="15" Effect="AlarakStructureOverchargePriority3"/>
+        <AreaArray MaxCount="1" Radius="15" Effect="AlarakStructureOverchargePriority4"/>
+        <AreaArray MaxCount="1" Radius="15" Effect="AlarakStructureOverchargePriority5"/>
+        <AreaArray MaxCount="1" Radius="15" Effect="AlarakStructureOverchargePriority6"/>
+        <MaxCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="AlarakStructureOverchargePriority1">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority1"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority1Upgrade1">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority1Upgrade1"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority1Upgrade2">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority1Upgrade2"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority1Upgrade3">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority1Upgrade3"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority2">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority2"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority2Upgrade1">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority2Upgrade1"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority2Upgrade2">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority2Upgrade2"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority2Upgrade3">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority2Upgrade3"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority3">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority3"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority3Upgrade1">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority3Upgrade1"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority3Upgrade2">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority3Upgrade2"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority3Upgrade3">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority3Upgrade3"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority4">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority4"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority4Upgrade1">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority4Upgrade1"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority4Upgrade2">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority4Upgrade2"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority4Upgrade3">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority4Upgrade3"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority5">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority5"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+    </CEffectSet>
+    <CEffectSet id="AlarakStructureOverchargePriority6">
+        <EffectArray value="AlarakStructureOverchargeLM"/>
+        <ValidatorArray value="AlarakStructureOverchargePriority6"/>
+        <ValidatorArray value="TargetNotUntargetable"/>
+        <ValidatorArray value="IsNotPitMalash"/>
+        <ValidatorArray value="NotTerrazineHarvester"/>
+        <ValidatorArray value="NotCOOPTerrazineTank"/>
+    </CEffectSet>
+    <CEffectDamage id="AlarakStructureOverchargeDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Kind value="Spell"/>
+        <Amount value="40"/>
+        <ArmorReduction value="0"/>
+    </CEffectDamage>
+    <CEffectSet id="AlarakStructureOverchargeSet">
+        <EffectArray value="AlarakStructureOverchargeAB"/>
+        <EffectArray value="AlarakStructureOverchargeShieldAB"/>
+        <ValidatorArray value="NotCreepTumor"/>
+        <ValidatorArray value="NotCreepTumorBurrowed"/>
+        <ValidatorArray value="NotCreepTumorUsed"/>
+        <ValidatorArray value="NotToxicNest"/>
+        <ValidatorArray value="NotToxicNestBurrowed"/>
+        <ValidatorArray value="TargetNotSummonedUnit"/>
+        <ValidatorArray value="NotSpiderMineBurrowed"/>
+        <ValidatorArray value="IsStructureorWarpPrismPhasing"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="AlarakStructureOverchargeAB">
+        <EditorCategories value=""/>
+        <Behavior value="AlarakStructureOvercharge"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="AlarakStructureOverchargeShieldAB">
+        <EditorCategories value=""/>
+        <Behavior value="AlarakStructureOverchargeShield"/>
+        <ValidatorArray value="HaveAlarakImprovedOvercharge"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="AlarakTheStrongestSurviveSupplicantSacrificeDamageUD">
+        <EditorCategories value="Race:Protoss"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Amount value="40"/>
+        <Death value="Disintegrate"/>
+        <AreaArray Radius="2.2" Fraction="1"/>
+        <SearchFilters value="Ground;Player,Ally,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <ValidatorArray value="IsSupplicant"/>
+        <ValidatorArray value="AlarakTheStrongestSurviveSupplicantSacrificeDamagePlayerRequirement"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="AlarakBaneBladesAoeSlowAB">
+        <ValidatorArray index="0" value="TargetNotStunned"/>
+        <ValidatorArray value="NotUltraliskFrenzy"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="AlarakBaneBladesSlow"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="AlarakBaneBladesAoeStunAB">
+        <ValidatorArray index="0" value="NotHeroic"/>
+        <ValidatorArray value="NotMassive"/>
+        <ValidatorArray value="TargetIsNotUnstoppable"/>
+        <ValidatorArray value="NotStructureTarget"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="AlarakBaneBladesStun"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="AlarakBaneBladesDamageSlow">
+        <ValidatorArray index="0" value="HaveAlarakAttackStunUpgrade"/>
+        <ValidatorArray value="NotStructureTarget"/>
+        <ValidatorArray value="EnemyTarget"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <ValidatorArray value="NotUltraliskFrenzy"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="AlarakBaneBladesSlow"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="AlarakBaneBladesDamageStun">
+        <ValidatorArray index="0" value="NotHeroic"/>
+        <ValidatorArray value="NotMassive"/>
+        <ValidatorArray value="TargetIsNotUnstoppable"/>
+        <ValidatorArray value="HaveAlarakAttackStunUpgrade"/>
+        <ValidatorArray value="NotStructureTarget"/>
+        <ValidatorArray value="EnemyTarget"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="AlarakBaneBladesStun"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="AlarakKnockbackBy3">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="AlarakKnockbackBy3CPOffset"/>
+        <InitialOffset value="0,1,0"/>
+        <PeriodCount value="1"/>
+        <OffsetVectorStartLocation Effect="AlarakKnockbackSecondCP" Value="OriginPoint"/>
+        <OffsetVectorEndLocation Effect="AlarakKnockbackSecondCP"/>
+        <PeriodicEffectArray value="DestructionWaveDamageSet"/>
+        <PeriodicPeriodArray value="0.25"/>
+        <ValidatorArray value="NoUnitKnockback"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="AlarakKnockbackBy3CPOffset">
+        <EditorCategories value="Race:Protoss"/>
+        <InitialEffect value="AlarakKnockbackBy3CU"/>
+        <ValidatorArray value="NotHaveAlarakKnockbackTriggerOverride"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="AlarakKnockbackBy3CU">
+        <EditorCategories value="Race:Protoss"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <CreateFlags index="NormalizeSpawnOffset" value="0"/>
+        <SpawnOffset value="0,3"/>
+        <SpawnRange value="4"/>
+        <SpawnEffect value="AlarakKnockbackBy3CreatePHSet"/>
+        <SpawnOwner Value="Source"/>
+        <TypeFallbackUnit Effect="AlarakKnockbackBy3" Value="Target"/>
+        <WhichLocation Effect="AlarakKnockbackBy3"/>
+        <Origin Effect="AlarakKnockbackBy3CPOffset" Value="TargetPoint"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="AlarakKnockbackBy3CreatePHSet">
+        <EffectArray value="PrecursorUnitKnockbackAB"/>
+        <EffectArray value="AlarakKnockbackBy3AB"/>
+        <EffectArray value="AlarakKnockbackBy3PHLM"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="AlarakKnockbackBy3AB">
+        <WhichUnit Effect="AlarakKnockbackBy3"/>
+        <Behavior value="UnitKnockback"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="AlarakKnockbackBy3PHLM">
+        <LaunchLocation Effect="AlarakKnockbackBy3" Value="TargetUnit"/>
+        <ImpactEffect value="AlarakKnockbackBy3ImpactCP"/>
+        <Flags index="2D" value="1"/>
+        <Movers Link="UnitKnockbackMover3"/>
+        <DeathType value="Unknown"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="AlarakKnockbackBy3ImpactCP">
+        <WhichLocation Value="CasterUnit"/>
+        <PeriodCount value="1"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodicEffectArray value="AlarakKnockbackBy3RB"/>
+    </CEffectCreatePersistent>
+    <CEffectRemoveBehavior id="AlarakKnockbackBy3RB">
+        <WhichUnit Effect="AlarakKnockbackBy3"/>
+        <BehaviorLink value="UnitKnockback"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreatePersistent id="AlarakKnockbackBy2">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="AlarakKnockbackBy2CPOffset"/>
+        <InitialOffset value="0,1,0"/>
+        <PeriodCount value="1"/>
+        <OffsetVectorStartLocation Effect="AlarakKnockbackSecondCP" Value="OriginPoint"/>
+        <OffsetVectorEndLocation Effect="AlarakKnockbackSecondCP"/>
+        <PeriodicEffectArray value="DestructionWaveDamageSet"/>
+        <PeriodicPeriodArray value="0.25"/>
+        <ValidatorArray value="NoUnitKnockback"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="AlarakKnockbackBy2CPOffset">
+        <EditorCategories value="Race:Protoss"/>
+        <InitialEffect value="AlarakKnockbackBy2CU"/>
+        <ValidatorArray value="NotHaveAlarakKnockbackTriggerOverride"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="AlarakKnockbackBy2CU">
+        <EditorCategories value="Race:Protoss"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <CreateFlags index="NormalizeSpawnOffset" value="0"/>
+        <SpawnOffset value="0,2"/>
+        <SpawnRange value="3"/>
+        <SpawnEffect value="AlarakKnockbackBy2CreatePHSet"/>
+        <SpawnOwner Value="Source"/>
+        <TypeFallbackUnit Effect="AlarakKnockbackBy2" Value="Target"/>
+        <WhichLocation Effect="AlarakKnockbackBy2"/>
+        <Origin Effect="AlarakKnockbackBy2CPOffset" Value="TargetPoint"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="AlarakKnockbackBy2CreatePHSet">
+        <EffectArray value="PrecursorUnitKnockbackAB"/>
+        <EffectArray value="AlarakKnockbackBy2AB"/>
+        <EffectArray value="AlarakKnockbackBy2PHLM"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="AlarakKnockbackBy2AB">
+        <WhichUnit Effect="AlarakKnockbackBy2"/>
+        <Behavior value="UnitKnockback"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="AlarakKnockbackBy2PHLM">
+        <LaunchLocation Effect="AlarakKnockbackBy2" Value="TargetUnit"/>
+        <ImpactEffect value="AlarakKnockbackBy2ImpactCP"/>
+        <Flags index="2D" value="1"/>
+        <Movers Link="UnitKnockbackMover2"/>
+        <DeathType value="Unknown"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="AlarakKnockbackBy2ImpactCP">
+        <WhichLocation Value="CasterUnit"/>
+        <PeriodCount value="1"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodicEffectArray value="AlarakKnockbackBy2RB"/>
+    </CEffectCreatePersistent>
+    <CEffectRemoveBehavior id="AlarakKnockbackBy2RB">
+        <WhichUnit Effect="AlarakKnockbackBy2"/>
+        <BehaviorLink value="UnitKnockback"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectDamage id="AlarakAADamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Amount value="30"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="AlarakAADisableAB">
+        <Behavior value="AlarakAADisable"/>
+        <ValidatorArray index="0" value="HaveGroundEnemiesNearby"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectSwitch id="AlarakBaneBladesSwitch">
+        <EditorCategories value="Race:Protoss"/>
+        <CaseArray Validator="AlarakInDashRange" Effect="AlarakBaneBladesLM"/>
+        <CaseDefault value="AlarakBaneBlades"/>
+        <ValidatorArray value="CasterNotHoldingPosition"/>
+    </CEffectSwitch>
+    <CEffectLaunchMissile id="AlarakBaneBladesLM">
+        <EditorCategories value="Race:Protoss"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <FinishEffect value="AlarakBaneBlades"/>
+        <Flags index="2D" value="1"/>
+        <Flags index="Placement" value="1"/>
+        <Flags index="PointFallback" value="0"/>
+        <PlacementRange value="15"/>
+        <Movers Link="AlarakACBaneBladesCharge"/>
+        <DeathType value="Unknown"/>
+        <PlaceholderUnit value="AlarakRushPlaceholder"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="WarpPrismTaldarimWeaponLaunch">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactEffect value="WarpPrismTaldarimWeaponDamage"/>
+        <AmmoUnit value="WarpPrismTaldarimWeaponMissile"/>
+        <Movers Link="MissileDefault" IfRangeLTE="1"/>
+        <Movers Link="ArbiterMPWeaponMissile" IfRangeLTE="4"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="WarpPrismTaldarimWeaponDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Kind value="Ranged"/>
+        <Amount value="10"/>
+        <Visibility value="Visible"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="ImmortalTaldarimLookAt"/>
+    <CEffectIssueOrder id="SuplicantWarpCancel">
+        <EditorCategories value="Race:Terran"/>
+        <Abil value="WarpableAnywhere"/>
+    </CEffectIssueOrder>
+</Catalog>
