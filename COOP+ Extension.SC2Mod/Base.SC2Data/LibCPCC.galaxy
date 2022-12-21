@@ -1,0 +1,91 @@
+include "TriggerLibs/NativeLib"
+
+include "LibCPCC_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Coop+Core
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libCPCC_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Variable Initialization
+bool libCPCC_InitVariables_completed = false;
+
+void libCPCC_InitVariables () {
+    if (libCPCC_InitVariables_completed) {
+        return;
+    }
+
+    libCPCC_InitVariables_completed = true;
+
+    libCPCC_gv_cC_WorldCoverDlg = c_invalidDialogId;
+}
+
+// Functions
+void libCPCC_gf_ShowHideWorldCover (bool lp_showHide, fixed lp_transparency, int lp_player) {
+    // Variable Declarations
+    playergroup lv_coverPlayers;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_coverPlayers = PlayerGroupEmpty();
+
+    // Implementation
+    lv_coverPlayers = PlayerGroupSingle(lp_player);
+    if ((libCPCC_gv_cC_WorldCoverDlg == c_invalidDialogId)) {
+        if ((lp_showHide == true)) {
+            DialogCreate(500, 400, c_anchorCenter, 0, 0, true);
+            libCPCC_gv_cC_WorldCoverDlg = DialogLastCreated();
+            DialogSetFullscreen(DialogLastCreated(), true);
+            DialogSetImageVisible(DialogLastCreated(), false);
+            DialogControlCreate(DialogLastCreated(), c_triggerControlTypeImage);
+            libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), true, PlayerGroupAll());
+            DialogControlSetFullDialog(DialogControlLastCreated(), PlayerGroupAll(), true);
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\white32.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(0.00, 0.00, 0.00), PlayerGroupAll());
+            libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 1, PlayerGroupAll());
+            libNtve_gf_SetDialogItemRenderType(DialogControlLastCreated(), c_triggerRenderTypeHDR, PlayerGroupAll());
+        }
+        else {
+            return ;
+        }
+    }
+
+    if ((lp_showHide == true)) {
+        DialogSetTransparency(libCPCC_gv_cC_WorldCoverDlg, lp_transparency);
+    }
+
+    DialogSetVisible(libCPCC_gv_cC_WorldCoverDlg, lv_coverPlayers, lp_showHide);
+}
+
+string libCPCC_gf_CC_CatalogGetFieldArrayValue (int lp_catalog, string lp_entry, string lp_field, int lp_index, int lp_player) {
+    // Variable Declarations
+    string lv_fieldPath;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_fieldPath = "";
+
+    // Implementation
+    lv_fieldPath = (lp_field + "[" + IntToString((lp_index - 1)) + "]");
+    return CatalogFieldValueGet(lp_catalog, lp_entry, lv_fieldPath, lp_player);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libCPCC_InitLib_completed = false;
+
+void libCPCC_InitLib () {
+    if (libCPCC_InitLib_completed) {
+        return;
+    }
+
+    libCPCC_InitLib_completed = true;
+
+    libCPCC_InitLibraries();
+    libCPCC_InitVariables();
+}
+
