@@ -1,5 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+
+    <CModel id="KaraxReviveGlaze" parent="Glaze">
+        <Model value="Assets\Effects\Glaze\Glaze_Purifier_Zealot_Resurrection_Alarm\Glaze_Purifier_Zealot_Resurrection_Alarm.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Priority value="32"/>
+    </CModel>
+    <CModel id="KaraxReviveGlow">
+        <Model value="Assets\Effects\Zerg\ZergHeroRevive\ZergHeroRevive.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CModel>
+    <CModel id="KaraxRevivePad">
+        <Model value="Assets\Doodads\Purifier_Warp_In_Pad\Purifier_Warp_In_Pad.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ScaleMax value="1.000000,1.000000,0.750000"/>
+        <ScaleMin value="1.000000,1.000000,0.750000"/>
+    </CModel>
+    <CModel id="Karax_RespawnBase" parent="Unit" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Karax\Karax.m3"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="AlarakReviveBeacon_RingExplosion2"/>
+            <Type value="Sound"/>
+            <Time value="0.125000"/>
+            <Payload value="AlarakReviveBeacon_RingExplosion2"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="AlarakReviveBeacon_RingExplosion"/>
+            <Type value="Sound"/>
+            <Time value="3.998000"/>
+            <Payload value="AlarakReviveBeacon_RingExplosion"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="AlarakReviveBeacon_NearCompletion"/>
+            <Type value="Sound"/>
+            <Time value="0.100000"/>
+            <Payload value="AlarakReviveBeacon_NearCompletion"/>
+        </Events>
+    </CModel>
+
+    <CActorUnit id="KaraxReviveBeacon" parent="GenericUnitMorph" unitName="KaraxReviveBeacon">
+        <Macros value="SnowVisualBuildingMacro"/>
+        <On Terms="ActorCreation" Send="Create AlarakReviveBeacon_BirthSound"/>
+        <On Terms="ActorCreation" Send="Create KaraxRevivePad"/>
+        <On Terms="Signal.*.Revive" Target="KaraxRevivePad" Send="Signal Revive"/>
+        <On Terms="ActorCreation" Send="AnimBaselineStop"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.000000 0.000000 BaseO"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.300000 1.000000 BaseO"/>
+        <On Terms="ActorCreation" Send="SetTintColorBlendPair {192,64,0 4.500000} {192,128,64 3.000000} 3.000000 Bounce BaseT"/>
+        <On Terms="Signal.*.Revive" Send="ClearOpacity 1.000000 BaseO"/>
+        <On Terms="Signal.*.Revive" Send="ClearTintColor 1.000000 BaseT"/>
+        <On Terms="Signal.*.Revive" Target="KaraxReviveGlaze" Send="Signal End"/>
+        <On Terms="Signal.*.Revive" Send="AnimBaselineStart"/>
+        <On Terms="UnitDeath.KaraxReviveBeacon" Send="Create KaraxReviveGlow"/>
+        <HostSiteOps Ops="KaraxReviveOffset"/>
+        <Model value="Karax_RespawnBase"/>
+        <BuildModel value="Karax_RespawnBase"/>
+        <DeathArray index="Normal" ModelLink="Invisible"/>
+        <PlacementModel value="Karax_RespawnBase"/>
+        <PortraitActor value="KaraxEx2Portrait"/>
+        <PortraitModel value="KaraxEx2Portrait"/>
+        <BarOffset value="80"/>
+        <BarWidth value="78"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-protoss-karax-respawnbeacon.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-upgrade-karax-solarefficiencylevel1.dds"/>
+        <SoundArray index="Birth" value="AlarakReviveBeacon_Birth"/>
+        <SoundArray index="What" value="AlarakReviveBeacon_What"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-upgrade-karax-solarefficiencylevel1.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-karax-respawnbeacon.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorModelMaterial id="KaraxReviveGlaze" parent="GlazeParent">
+        <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death 0 2.000000 AsTimeScale"/>
+        <On Terms="ActorCreation" Send="ModelMaterialApplyTo ::Main"/>
+        <On Terms="Signal.*.End" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimDone; AnimName Death" Send="ModelMaterialRemoveFrom ::Main"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModelMaterial>
+    <CActorModel id="KaraxReviveGlow" parent="ModelAnimationStyleOneShot">
+        <On index="0" Terms="ActorCreation" Send="$Birth"/>
+        <On index="1" Terms="AnimDone; AnimName Birth" Send="Destroy"/>
+        <On index="2" removed="1"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+    </CActorModel>
+    <CActorSiteOpLocalOffset id="KaraxReviveOffset">
+        <LocalOffset value="0.000000,-0.100000,0.100000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorSiteOpLocalOffset id="KaraxReviveOffsetReverse">
+        <LocalOffset value="0.000000,0.100000,-0.050000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorModel id="KaraxRevivePad">
+        <On Terms="ActorCreation" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="Signal.*.Revive" Send="AnimBracketStop Work"/>
+        <On Terms="ActorCreation" Send="Create KaraxReviveGlaze"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <HostSiteOps Ops="KaraxReviveOffsetReverse"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModel>
+
+
     <CEffectSet id="KaraxReviveSet">
         <EditorCategories value=""/>
         <EffectArray value="SamePlaceReviveSet"/>
@@ -42,15 +148,39 @@
         <BehaviorArray Link="Unrepairable"/>
         <BehaviorArray Link="DisableRallyFor1Second"/>
         <BehaviorArray Link="SuppressCollision"/>
+
+        <AbilArray Link="MakeServitors"/>
+        <AbilArray Link="Reclamation"/>
+        <AbilArray Link="PhaseCannon"/>
+        
         <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
             <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="RallyReviveBeacon,Rally1" Row="2" Column="4"/>
+            
+            <LayoutButtons Face="Reclamation" Type="AbilCmd" AbilCmd="Reclamation,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="ProdigalEngineer" Type="Passive" Row="2" Column="1"/>
+            <LayoutButtons Face="PhaseCannon" Type="AbilCmd" AbilCmd="PhaseCannon,Execute" Row="2" Column="2"/>
         </CardLayouts>
+        <BehaviorArray Link="KaraxReviveDisable"/>
         <Radius value="1"/>
         <SubgroupPriority value="1"/>
         <EditorCategories value="ObjectType:Hero,ObjectFamily:Coop"/>
         <AIEvalFactor value="0"/>
         <HotkeyCategory value="Unit/Category/ProtossTaldarim"/>
     </CUnit>
+
+    <CBehaviorBuff id="KaraxReviveDisable">
+        <InfoFlags index="Hidden" value="1"/>
+        <Modification>
+            <AbilLinkDisableArray value="MakeServitors"/>
+            <AbilLinkDisableArray value="Reclamation"/>
+            <AbilLinkDisableArray value="PhaseCannon"/>
+        </Modification>
+    </CBehaviorBuff>
     <CUnit id="KaraxChampion">
         <FlagArray index="ArmySelect" value="1"/>
         <EditorCategories value="ObjectType:Hero,ObjectFamily:Coop"/>
