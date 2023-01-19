@@ -1,0 +1,150 @@
+include "TriggerLibs/NativeLib"
+include "LibARMP"
+
+include "LibAREX_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: ALL RACES MELEE EXTENSION
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libAREX_InitLibraries () {
+    libNtve_InitVariables();
+    libARMP_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Game Attributes
+//--------------------------------------------------------------------------------------------------
+bool libAREX_gt_GameAttributes_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_aG_GameType;
+    string lv_aG_Supplies;
+    string lv_aG_Money;
+    string lv_aG_Resources;
+    string lv_aG_Factions;
+    string lv_race;
+    int lv_player;
+    int lv_availableRacesCount;
+    string lv_availableFactions;
+    string lv_playerFactionGameAtrribute;
+
+    // Automatic Variable Declarations
+    string autoD4944814_val;
+    playergroup autoC3410F3B_g;
+    string autoBF819B9B_val;
+    string auto9AE61E81_val;
+    string autoDA350B19_val;
+
+    // Variable Initialization
+    lv_aG_GameType = GameAttributeGameValue("6");
+    lv_aG_Supplies = GameAttributeGameValue("2");
+    lv_aG_Money = GameAttributeGameValue("5");
+    lv_aG_Resources = GameAttributeGameValue("3");
+    lv_aG_Factions = GameAttributeGameValue("12");
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoD4944814_val = lv_aG_Factions;
+    if (autoD4944814_val == "0009") {
+        lv_availableFactions = "ArcAll";
+        lv_playerFactionGameAtrribute = "16";
+    }
+    else if (autoD4944814_val == "0001") {
+        lv_availableFactions = "ArcExcludeA";
+        lv_playerFactionGameAtrribute = "1";
+    }
+    else if (autoD4944814_val == "0002") {
+        lv_availableFactions = "ArcExcludeD";
+        lv_playerFactionGameAtrribute = "4";
+    }
+    else if (autoD4944814_val == "0003") {
+        lv_availableFactions = "ArcExcludeH";
+        lv_playerFactionGameAtrribute = "7";
+    }
+    else if (autoD4944814_val == "0004") {
+        lv_availableFactions = "ArcExcludeU";
+        lv_playerFactionGameAtrribute = "8";
+    }
+    else {
+    }
+    libARMP_gf_SetAvailableFactions(lv_availableFactions);
+    autoC3410F3B_g = libARMP_gf_ARCGetActivePlayers();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(autoC3410F3B_g, lv_player);
+        if (lv_player < 0) { break; }
+        libARMP_gf_SetPlayerRaceARC(lv_player, libARMP_gf_GetCustomRace(lv_player, lv_playerFactionGameAtrribute, lv_availableFactions));
+    }
+    autoBF819B9B_val = lv_aG_Money;
+    if (autoBF819B9B_val == "0002") {
+        libARMP_gf_SetInitialResources("Rich");
+    }
+    else if (autoBF819B9B_val == "0003") {
+        libARMP_gf_SetInitialResources("Jeff Bezos");
+    }
+    else {
+    }
+    auto9AE61E81_val = lv_aG_Resources;
+    if (auto9AE61E81_val == "0003") {
+        libARMP_gf_SetHarvestableResources("Rich");
+    }
+    else if (auto9AE61E81_val == "0002") {
+        libARMP_gf_SetHarvestableResources("BGH");
+    }
+    else if (auto9AE61E81_val == "0004") {
+        libARMP_gf_SetHarvestableResources("BGH Rich");
+    }
+    else {
+    }
+    autoDA350B19_val = lv_aG_Supplies;
+    if (autoDA350B19_val == "0001") {
+        libARMP_gf_SetSupplyCap("100");
+    }
+    else if (autoDA350B19_val == "0003") {
+        libARMP_gf_SetSupplyCap("300");
+    }
+    else if (autoDA350B19_val == "0005") {
+        libARMP_gf_SetSupplyCap("400");
+    }
+    else if (autoDA350B19_val == "0004") {
+        libARMP_gf_SetSupplyCap("500");
+    }
+    else if (autoDA350B19_val == "0006") {
+        libARMP_gf_SetSupplyCap("1000");
+    }
+    else {
+    }
+    libARMP_gf_InitializeMeleeGame();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libAREX_gt_GameAttributes_Init () {
+    libAREX_gt_GameAttributes = TriggerCreate("libAREX_gt_GameAttributes_Func");
+    TriggerAddEventMapInit(libAREX_gt_GameAttributes);
+}
+
+void libAREX_InitTriggers () {
+    libAREX_gt_GameAttributes_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libAREX_InitLib_completed = false;
+
+void libAREX_InitLib () {
+    if (libAREX_InitLib_completed) {
+        return;
+    }
+
+    libAREX_InitLib_completed = true;
+
+    libAREX_InitLibraries();
+    libAREX_InitTriggers();
+}
+
