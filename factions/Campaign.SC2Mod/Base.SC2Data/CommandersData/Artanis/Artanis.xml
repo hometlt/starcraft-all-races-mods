@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+
+    <CModel id="ArtanisReviveGlaze" parent="Glaze">
+        <Model value="Assets\Effects\Glaze\Glaze_PhaseArmor\Glaze_PhaseArmor.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Priority value="32"/>
+    </CModel>
+    <CModel id="ArtanisReviveGlow">
+        <Model value="Assets\Effects\Protoss\Artanis_Resurgence\Artanis_Resurgence.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ScaleMax value="0.300000,0.300000,0.300000"/>
+        <ScaleMin value="0.300000,0.300000,0.300000"/>
+    </CModel>
+    <CModel id="ArtanisRevivePad">
+        <Model value="Assets\Doodads\ProtossWarpInPadFlat\ProtossWarpInPadFlat.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ScaleMax value="1.000000,1.000000,0.750000"/>
+        <ScaleMin value="1.000000,1.000000,0.750000"/>
+    </CModel>
+    <CModel id="Artanis_RespawnBase" parent="Unit" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Artanis\Artanis.m3"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="AlarakReviveBeacon_RingExplosion2"/>
+            <Type value="Sound"/>
+            <Time value="0.125000"/>
+            <Payload value="AlarakReviveBeacon_RingExplosion2"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="AlarakReviveBeacon_RingExplosion"/>
+            <Type value="Sound"/>
+            <Time value="3.998000"/>
+            <Payload value="AlarakReviveBeacon_RingExplosion"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="AlarakReviveBeacon_NearCompletion"/>
+            <Type value="Sound"/>
+            <Time value="0.100000"/>
+            <Payload value="AlarakReviveBeacon_NearCompletion"/>
+        </Events>
+    </CModel>
+
+
+    <CActorUnit id="ArtanisReviveBeacon" parent="GenericUnitMorph" unitName="ArtanisReviveBeacon">
+        <On Terms="ActorCreation" Send="Create AlarakReviveBeacon_BirthSound"/>
+        <On Terms="ActorCreation" Send="Create ArtanisRevivePad"/>
+        <On Terms="Signal.*.Revive" Target="ArtanisRevivePad" Send="Signal Revive"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart Work Spell,F,Start Spell,F Spell,F,End"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.000000 0.000000 BaseO"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.750000 1.000000 BaseO"/>
+        <On Terms="ActorCreation" Send="SetTintColorBlendPair {0,64,192 4.500000} {64,128,192 3.000000} 3.000000 Bounce BaseT"/>
+        <On Terms="Signal.*.Revive" Send="ClearOpacity 1.000000 BaseO"/>
+        <On Terms="Signal.*.Revive" Send="ClearTintColor 1.000000 BaseT"/>
+        <On Terms="Signal.*.Revive" Target="ArtanisReviveGlaze" Send="Signal End"/>
+        <On Terms="Signal.*.Revive" Send="AnimBracketStop Work"/>
+        <On Terms="UnitDeath.ArtanisReviveBeacon" Send="Create ArtanisReviveGlow"/>
+        <HostSiteOps Ops="ArtanisReviveOffset"/>
+        <Model value="Artanis_RespawnBase"/>
+        <BuildModel value="Artanis_RespawnBase"/>
+        <DeathArray index="Normal" ModelLink="Invisible"/>
+        <PlacementModel value="Artanis_RespawnBase"/>
+        <PortraitActor value="ArtanisEx2Portrait"/>
+        <PortraitModel value="ArtanisEx2Portrait"/>
+        <BarOffset value="80"/>
+        <BarWidth value="78"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-protoss-artanis-respawnbeacon.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-ability-protoss-purifierstasis.dds"/>
+        <SoundArray index="Birth" value="AlarakReviveBeacon_Birth"/>
+        <SoundArray index="What" value="AlarakReviveBeacon_What"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-ability-protoss-purifierstasis.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-artanis-respawnbeacon.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorModelMaterial id="ArtanisReviveGlaze" parent="GlazeParent">
+        <On Terms="ActorCreation" Send="ModelMaterialApplyTo ::Main"/>
+        <On Terms="Signal.*.End" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimDone; AnimName Death" Send="ModelMaterialRemoveFrom ::Main"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModelMaterial>
+    <CActorModel id="ArtanisReviveGlow" parent="ModelAnimationStyleOneShot">
+        <On index="0" Terms="ActorCreation" Send="$Birth"/>
+        <On index="1" Terms="AnimDone; AnimName Birth" Send="Destroy"/>
+        <On index="2" removed="1"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+    </CActorModel>
+    <CActorSiteOpLocalOffset id="ArtanisReviveOffset">
+        <LocalOffset value="0.000000,0.000000,0.100000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorSiteOpLocalOffset id="ArtanisReviveOffsetReverse"/>
+    <CActorModel id="ArtanisRevivePad">
+        <On Terms="ActorCreation" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="Signal.*.Revive" Send="AnimBracketStop Work"/>
+        <On Terms="ActorCreation" Send="Create ArtanisReviveGlaze"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <HostSiteOps Ops="ArtanisReviveOffsetReverse"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModel>
+    <CEffectSet id="ArtanisReviveSet">
+        <EditorCategories value=""/>
+        <EffectArray value="SamePlaceReviveSet"/>
+        <EffectArray value="ArtanisReviveWarpIn"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="ArtanisReviveWarpIn">
+        <EditorCategories value=""/>
+    </CEffectApplyBehavior>
+    <CAbilRevive id="ArtanisRevive" parent="ReviveSelf">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Revive1" DefaultButtonFace="KerriganRevive"/>
+        <CmdButtonArray index="ReviveAtTarget1" DefaultButtonFace="KerriganRevivePlacement"/>
+        <Flags index="UnitOrderQueue" value="1"/>
+        <BaseInfo>
+            <Cooldown Location="Player" TimeUse="0.1"/>
+        </BaseInfo>
+        <Effect value="ArtanisReviveSet"/>
+        <Offset value="0,0"/>
+        <Range value="10"/>
+        <Alert value="KerriganReviveComplete"/>
+    </CAbilRevive>
+    <CActorMissile id="ArtanisVoid">
+        <HeroIcon value="Assets\Textures\btn-commander-artanis.dds"/>
+        <MinimapIcon value="Assets\Textures\ui_minimap_icon_protossresearch.dds"/>
+        <MinimapRenderPriority value="Hero"/>
+        <MinimapUseSelfColor value="0"/>
+        <MinimapUseSelectionColor value="0"/>
+    </CActorMissile>
+    <CUnit id="ArtanisVoid">
+        <FlagArray index="ArmySelect" value="1"/>
+        <SubgroupPriority value="199"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <EditorCategories value="ObjectType:Hero,ObjectFamily:Coop"/>
+        <DeathTime value="-1"/>
+        <BehaviorArray Link="HeroCCImmunity"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <ShieldsStart value="250"/>
+        <ShieldsMax value="250"/>
+        <LifeStart value="250"/>
+        <LifeMax value="250"/>
+        <AbilArray Link="PrologueVoidArmor"/>
+        <EffectArray index="Revive" value="ArtanisJustReviveCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="5" Face="ArtanisLightningDash" AbilCmd="ArtanisLightningDash,Execute" Column="0"/>
+            <LayoutButtons index="6" Face="ArtanisResurgence" Type="Passive" AbilCmd="" Requirements="ArtanisResurgenceReviveOffCooldown" Column="3"/>
+            <LayoutButtons index="7" Behavior="ArtanisResurgenceReviveSupressed" Requirements="" Column="3"/>
+            <LayoutButtons index="8" Face="ArtanisAstralWind" Type="AbilCmd" AbilCmd="ArtanisAstralWind,Execute" Behavior=""/>
+            <LayoutButtons index="9" Face="ArtanisForceOfWill" Type="Passive" AbilCmd=""/>
+            <LayoutButtons index="10" removed="1"/>
+        </CardLayouts>
+        <ReviveInfoBase>
+            <Charge Link="Abil/KerriganRevive"/>
+            <Cooldown Link="Abil/KerriganRevive" Location="Player" TimeUse="0.1"/>
+        </ReviveInfoBase>
+        <AlliedPushPriority value="11"/>
+    </CUnit>
+    <CEffectApplyBehavior id="ArtanisJustReviveCheck">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectApplyBehavior>
+    <CBehaviorBuff id="ArtanisJustReviveCheck">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Duration value="2"/>
+    </CBehaviorBuff>
+    <CUnit id="ArtanisReviveBeacon">
+        <Facing value="315"/>
+        <Race value="Prot"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <Attributes index="MapBoss" value="1"/>
+        <LifeStart value="100"/>
+        <LifeMax value="100"/>
+        <AbilArray Link="ArtanisRevive"/>
+        <AbilArray Link="RallyReviveBeacon"/>
+        <AbilArray Link="ArtanisAstralWind"/>
+        <AbilArray Link="ArtanisLightningDash"/>
+        <AbilArray Link="que1"/>
+        <BehaviorArray Link="Unmoved"/>
+        <BehaviorArray Link="Unrepairable"/>
+        <BehaviorArray Link="DisableRallyFor1Second"/>
+        <BehaviorArray Link="SuppressCollision"/>
+        <BehaviorArray Link="ArtanisReviveDisable"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="RallyReviveBeacon,Rally1" Row="2" Column="4"/>
+            <LayoutButtons Face="ArtanisLightningDash" Type="AbilCmd" AbilCmd="ArtanisLightningDash,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="ArtanisResurgence" Type="Passive" Requirements="ArtanisResurgenceReviveOffCooldown" Row="2" Column="1"/>
+            <LayoutButtons Face="ArtanisResurgence" Type="Passive" Behavior="ArtanisResurgenceReviveSupressed" Row="2" Column="1"/>
+            <LayoutButtons Face="ArtanisAstralWind" Type="AbilCmd" AbilCmd="ArtanisAstralWind,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="ArtanisForceOfWill" Type="Passive" Row="2" Column="3"/>
+
+        </CardLayouts>
+        <Radius value="1"/>
+        <SubgroupPriority value="1"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Coop"/>
+        <AIEvalFactor value="0"/>
+        <HotkeyCategory value="Unit/Category/ProtossTaldarim"/>
+    </CUnit>
+    <CEffectSet id="ArtanisBeaconReviveSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="SamePlaceReviveSet"/>
+        <EffectArray value="ArtanisReviveWarpIn"/>
+    </CEffectSet>
+
+    <CEffectApplyBehavior id="ArtanisReviveWarpInIntro">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectApplyBehavior>
+
+    <CBehaviorBuff id="ArtanisReviveWarpInIntro">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Duration value="0.5"/>
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="Stun" value="1"/>
+            <StateFlags index="SuppressCollision" value="1"/>
+            <StateFlags index="Uncommandable" value="1"/>
+            <StateFlags index="Untargetable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    
+    
+    
+    
+    
+    
+    
+    <CBehaviorBuff id="ArtanisReviveDisable">
+        <InfoFlags index="Hidden" value="1"/>
+        <Modification>
+            <AbilLinkDisableArray value="ArtanisAstralWind"/>
+            <AbilLinkDisableArray value="ArtanisResurgence"/>
+            <AbilLinkDisableArray value="ArtanisLightningDash"/>
+            <AbilLinkDisableArray value="ArtanisForceOfWill"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ArtanisReviveWarpIn">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Duration value="1"/>
+        <Modification>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="Stun" value="1"/>
+            <StateFlags index="SuppressCollision" value="1"/>
+            <StateFlags index="NoDraw" value="1"/>
+            <StateFlags index="Uncommandable" value="1"/>
+            <!--StateFlags index="Unselectable" value="1"/-->
+            <StateFlags index="Untargetable" value="1"/>
+        </Modification>
+        <InitialEffect value="KerriganReviveHeal"/>
+        <RefreshEffect value="KerriganReviveHeal"/>
+        <ExpireEffect value="ZeratulReviveDecloak"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ArtanisFirstReviveTimer">
+        <InfoFlags index="Hidden" value="1"/>
+        <Alignment value="Positive"/>
+        <BuffFlags index="Countdown" value="0"/>
+        <DisplayDuration index="Self" value="1"/>
+        <DisplayDuration index="Ally" value="1"/>
+        <DisplayDuration index="Enemy" value="1"/>
+        <Duration value="240"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ArtanisNormalReviveTimer">
+        <InfoFlags index="Hidden" value="1"/>
+        <Alignment value="Positive"/>
+        <BuffFlags index="Countdown" value="0"/>
+        <DisplayDuration index="Self" value="1"/>
+        <DisplayDuration index="Ally" value="1"/>
+        <DisplayDuration index="Enemy" value="1"/>
+        <Duration value="60"/>
+    </CBehaviorBuff>
+</Catalog>
