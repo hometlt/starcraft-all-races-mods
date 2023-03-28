@@ -1,5 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+    <CEffectSwitch id="DisguiseEx3">
+        <CaseArray Validator="ZerojanDisguiseAsMarineWithShield" Effect="ZerojanDisguiseAsPretorianWithShieldCU"/>
+        <CaseArray Validator="ZerojanDisguiseAsMarineWithoutShield" Effect="ZerojanDisguiseAsPretorianWithoutShieldCU"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="UmojanMistDecoyABDeepCloak">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="UmojanDeepCloakDecoy"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="UmojanMistDecoyABDeepCloakCaster">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="UmojanDeepCloakDecoy"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="UmojanMistDecoySet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="UmojanMistDecoyCreateDecoy"/>
+        <EffectArray value="UmojanMistDecoyABDeepCloakCaster"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="UmojanMistDecoyTimer">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="UmojanMistDecoyTimedLife"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="UmojanMistDecoyCreateDecoy">
+        <EditorCategories value="Race:Terran"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="UmojanMistDecoyApplyBehavior"/>
+        <SpawnUnit value="UmojanMist"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="UmojanMistDecoyApplyBehavior">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="HallucinationCreateUnitBHal"/>
+        <EffectArray value="UmojanMistDecoyTimer"/>
+        <EffectArray value="UmojanMistDecoyABDeepCloak"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="ZerojanDisguiseAsPretorianWithShieldCU" parent="DisguiseEx3CU">
+        <SpawnUnit value="UmojanChangelingMarineShield"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="ZerojanDisguiseAsPretorianWithoutShieldCU" parent="DisguiseEx3CU">
+        <SpawnUnit value="UmojanChangelingMarine"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="UmojanCrowRecallApplyPostRecallBehavior">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="UmojanCrowRecalled"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="UmojanCrowRecallApplyPreRecallBehavior">
+        <ValidatorArray index="0" value="NotLarvaEgg"/>
+        <ValidatorArray value="NotLarva"/>
+        <ValidatorArray value="NotAbducted"/>
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="UmojanCrowRecalling"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="UmojanCrowRecallSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Self,Ally,Neutral,Enemy,Structure,Missile,Item,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="6.5" Effect="UmojanCrowRecallApplyPreRecallBehavior"/>
+        <MinCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="UmojanCrowRecallSet">
+        <ValidatorArray value="NotLarvaEgg"/>
+        <ValidatorArray value="NotLarva"/>
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="UmojanCrowRecallTeleport"/>
+        <EffectArray value="UmojanCrowRecallApplyPostRecallBehavior"/>
+    </CEffectSet>
+    <CEffectTeleport id="UmojanCrowRecallTeleport">
+        <EditorCategories value="Race:Terran"/>
+        <PlacementArc value="360"/>
+        <PlacementAround Effect="ArbiterMPRecallSearch" Value="SourcePoint"/>
+        <PlacementRange value="15"/>
+        <SourceLocation Effect="ArbiterMPRecallSearch" Value="TargetPoint"/>
+        <TargetLocation Effect="ArbiterMPRecallSearch" Value="SourcePoint"/>
+        <TeleportFlags index="TestCliff" value="1"/>
+        <TeleportFlags index="TestFog" value="0"/>
+    </CEffectTeleport>
     <CEffectModifyUnit id="UmojanAloeSendReconActiveReconCDIniTarget">
         <EditorCategories value="Race:Terran"/>
         <Cost Abil="UmojanSendRecon,Execute" CooldownOperation="Set" CooldownTimeUse="30"/>
@@ -227,6 +306,10 @@
         <EditorCategories value="Race:Terran"/>
         <MagazineAbil value="UmojanAloeHangar"/>
     </CEffectUseMagazine>
+    <CEffectEnumArea id="UmojanAloeSendReconFakeSearch">
+        <EditorCategories value="Race:Terran"/>
+        <AreaArray Radius="9"/>
+    </CEffectEnumArea>
     <CEffectDamage id="UmojanRaptorBeamDamage" parent="DU_WEAP">
         <EditorCategories value="Race:Terran"/>
         <Visibility value="Visible"/>
@@ -514,15 +597,6 @@
         <EditorCategories value="Race:Terran"/>
         <BehaviorLink value="UmojanBattlecatStayatRange"/>
     </CEffectRemoveBehavior>
-    <CEffectApplyBehavior id="UmojanLockdownABHeroic">
-        <EditorCategories value="Race:Terran"/>
-        <Behavior value="UmojanLockdownHeroic"/>
-    </CEffectApplyBehavior>
-    <CEffectSwitch id="UmojanLockdownSwitch">
-        <EditorCategories value="Race:Terran"/>
-        <CaseArray Validator="UmojanIsHeroic" Effect="UmojanLockdownABHeroic"/>
-        <CaseDefault value="UmojanLockdownAB"/>
-    </CEffectSwitch>
     <CEffectDamage id="UmojanPlasmaThrowerDamageShow" parent="DU_WEAP_SPLASH">
         <ValidatorArray value="noMarkers"/>
         <EditorCategories value="Race:Terran"/>
@@ -599,7 +673,7 @@
     </CEffectApplyBehavior>
     <CEffectLaunchMissile id="UmojanLockdownLM">
         <EditorCategories value="Race:Terran"/>
-        <ImpactEffect value="UmojanLockdownSwitch"/>
+        <ImpactEffect value="UmojanLockdownAB"/>
         <AmmoUnit value="UmojanLockdownWeapon"/>
     </CEffectLaunchMissile>
     <CEffectModifyUnit id="UmojanBattlecatDismountSetHealth">
@@ -1082,7 +1156,6 @@
         <InitialEffect value="UmojanShieldTransferGiverSet"/>
     </CEffectCreateHealer>
     <CEffectApplyBehavior id="UmojanStasisFieldApply">
-        <ValidatorArray index="0" value="UmojanIsStasisProtected"/>
         <EditorCategories value="Race:Terran"/>
         <Behavior value="UmojanStasisField"/>
     </CEffectApplyBehavior>
@@ -1214,6 +1287,7 @@
     <CEffectEnumArea id="UmojanDisruptionWebSearch">
         <EditorCategories value="Race:Terran"/>
         <AreaArray Radius="3" Effect="UmojanDisruptionWebApply"/>
+        <SearchFilters value="-;Dead"/>
     </CEffectEnumArea>
     <CEffectDamage id="UmojanPhaseDisruptors">
         <EditorCategories value="Race:Terran"/>
@@ -1251,9 +1325,9 @@
     </CEffectLaunchMissile>
     <CEffectDamage id="UmojanATAPlasmaBatteryU" parent="DU_WEAP_MISSILE">
         <EditorCategories value="Race:Terran"/>
-        <AttributeBonus index="Armored" value="8"/>
+        <AttributeBonus index="Armored" value="10"/>
         <Visibility value="Visible"/>
-        <Amount value="16"/>
+        <Amount value="18"/>
         <Death value="Fire"/>
     </CEffectDamage>
     <CEffectCreatePersistent id="UmojanATSPlasmaBatteryCP">
@@ -1288,9 +1362,9 @@
     </CEffectLaunchMissile>
     <CEffectDamage id="UmojanATSPlasmaBatteryU" parent="DU_WEAP_MISSILE">
         <EditorCategories value="Race:Terran"/>
-        <AttributeBonus index="Armored" value="10"/>
+        <AttributeBonus index="Armored" value="12"/>
         <Visibility value="Visible"/>
-        <Amount value="20"/>
+        <Amount value="24"/>
         <Death value="Fire"/>
     </CEffectDamage>
     <CEffectCreatePersistent id="UmojanHowlerAirburstCP">
@@ -1538,11 +1612,6 @@
         <EffectArray value="UmojanStrikeMinesDamage"/>
         <EffectArray value="Suicide"/>
     </CEffectSet>
-    <CEffectSwitch id="AegisFlakCannonSwitch">
-        <EditorCategories value="Race:Terran"/>
-        <CaseArray Validator="TargetRadiusSmall" Effect="AegisFlakCannonBlast"/>
-        <CaseArray Validator="TargetRadiusLarge" Effect="AegisFlakCannonDirected"/>
-    </CEffectSwitch>
     <CEffectApplyBehavior id="ArbiterMPCloakingFieldApply">
         <ValidatorArray value="UmojanNotCrow"/>
     </CEffectApplyBehavior>
@@ -1709,31 +1778,8 @@
         <TargetLocation Value="TargetPoint"/>
         <TeleportFlags index="TestCliff" value="1"/>
     </CEffectTeleport>
-    <CEffectDamage id="AegisFlakCannonBlast" parent="DU_WEAP">
-        <EditorCategories value="Race:Terran"/>
-        <AttributeBonus index="Armored" value="5"/>
-        <Kind value="Ranged"/>
-        <KindSplash value="Splash"/>
-        <Amount value="15"/>
-        <Death value="Blast"/>
-        <AreaArray Radius="0.4687" Fraction="1"/>
-        <AreaArray Radius="0.7812" Fraction="0.5"/>
-        <AreaArray Radius="1.25" Fraction="0.25"/>
-        <ExcludeArray Value="Target"/>
-        <SearchFilters value="Air;Self,Missile,Stasis,Dead,Hidden,Invulnerable"/>
-        <SearchFlags index="OffsetByUnitRadius" value="0"/>
-    </CEffectDamage>
-    <CEffectDamage id="AegisFlakCannonDirected" parent="DU_WEAP">
-        <EditorCategories value="Race:Terran"/>
-        <AttributeBonus index="Armored" value="5"/>
-        <Kind value="Ranged"/>
-        <KindSplash value="Splash"/>
-        <Amount value="15"/>
-        <Death value="Blast"/>
-        <SearchFilters value="Air;Self,Missile,Stasis,Dead,Hidden,Invulnerable"/>
-    </CEffectDamage>
     <CEffectDamage id="UmojanShadowguardSabotageDamage">
-        <ValidatorArray value="UmojanIsBeeningSabotaged"/>
+        <ValidatorArray value="noMarkers"/>
         <EditorCategories value="Race:Terran"/>
         <Amount value="750"/>
         <Death value="Blast"/>
@@ -1936,11 +1982,6 @@
         <PeriodicEffectArray value="UmojanWhirlwindAttackWeaponLaunchMissileSideSwitch"/>
         <PeriodicPeriodArray value="4"/>
     </CEffectCreatePersistent>
-    <CEffectSet id="AegisFlakCannonSet">
-        <EffectArray value="AegisFlakCannonDirected"/>
-        <EffectArray value="AegisFlakCannonBlast"/>
-        <EditorCategories value="Race:Terran"/>
-    </CEffectSet>
     <CEffectCreatePersistent id="UmojanTornadoMissileCP">
         <ValidatorArray value="TornadoMaxDistance"/>
         <ValidatorArray value="UmojanTornadoMissileFilters"/>
