@@ -116,11 +116,6 @@ void libCOMI_InitVariables () {
         }
     }
     for (init_i = 0; init_i <= libCOMI_gv_oBSOLETE_CUC_HeroMaxCount; init_i += 1) {
-        for (init_j = 0; init_j <= libCOMI_gv_cCC_MAXPLAYERS; init_j += 1) {
-            libCOMI_gv_cU_HeroShowLevel[init_i][init_j] = true;
-        }
-    }
-    for (init_i = 0; init_i <= libCOMI_gv_oBSOLETE_CUC_HeroMaxCount; init_i += 1) {
         libCOMI_gv_cU_HeroPanel[init_i] = c_invalidDialogControlId;
     }
     for (init_i = 0; init_i <= libCOMI_gv_oBSOLETE_CUC_HeroMaxCount; init_i += 1) {
@@ -5234,37 +5229,31 @@ void libCOMI_gf_SetHeroPanelUnitOverride (int lp_index, unit lp_heroUnit, int lp
     bool lv_noValidHeroes;
     int lv_heroHotkey;
     playergroup lv_heroGroup;
+    string lv_heroGroup2;
+    string lv_heroGroup3;
+    string lv_heroGroup4;
 
     // Automatic Variable Declarations
-    int auto1F2DF990_val;
     unit autoCFE0773D_val;
     int autoEDB3F93B_val;
 
     // Variable Initialization
     lv_heroGroup = PlayerGroupEmpty();
+    lv_heroGroup2 = libCOMI_gf_ActiveCommanderForPlayer(lp_player);
+    lv_heroGroup3 = UserDataGetUserInstance("Commanders", lv_heroGroup2, "Faction", 1);
+    lv_heroGroup4 = UserDataGetGameLink("Factions", lv_heroGroup3, "MainRace", 1);
 
     // Implementation
     lv_heroGroup = PlayerGroupSingle(lp_player);
     libCOMI_gv_cU_HeroUnit[lp_index][lp_player] = lp_heroUnit;
-    libCOMI_gv_cU_HeroType[lp_index][lp_player] = libCOMI_gf_CU_HeroTypeFromUnitType(UnitGetType(lp_heroUnit));
-    auto1F2DF990_val = libCOMI_gv_cU_HeroType[lp_index][lp_player];
-    if (auto1F2DF990_val == libCOMI_ge_CampaignHeroes_Hyperion) {
-        libCOMI_gv_cU_HeroShowLevel[lp_index][lp_player] = false;
-    }
-    else if (auto1F2DF990_val == libCOMI_ge_CampaignHeroes_LaserDrill) {
-        libCOMI_gv_cU_HeroShowLevel[lp_index][lp_player] = false;
-    }
-    else {
-        libCOMI_gv_cU_HeroShowLevel[lp_index][lp_player] = true;
-    }
     libCOMI_gf_CU_UpdateHeroPanel(lp_index, lp_player);
-    if ((PlayerRace(lp_player) == "Zerg")) {
+    if ((lv_heroGroup4 == "Zerg")) {
         DialogControlSendAnimationEvent(libCOMI_gv_cU_HeroPanel[lp_index], PlayerGroupSingle(lp_player), "SwitchZerg");
     }
-    else if ((PlayerRace(lp_player) == "Terr")) {
+    else if ((lv_heroGroup4 == "Terr")) {
         DialogControlSendAnimationEvent(libCOMI_gv_cU_HeroPanel[lp_index], PlayerGroupSingle(lp_player), "SwitchTerran");
     }
-    else if ((libCOMI_gf_CU_ChampionHasShields2(libCOMI_gf_CU_HeroTypeFromUnitType(UnitGetType(lp_heroUnit))) == true)) {
+    else if ((UnitGetPropertyFixed(lp_heroUnit, c_unitPropEnergyMax, c_unitPropCurrent) == 0)) {
         DialogControlSendAnimationEvent(libCOMI_gv_cU_HeroPanel[lp_index], PlayerGroupSingle(lp_player), "DefaultBarOffset");
     }
     else if (true) {
@@ -5393,188 +5382,6 @@ void libCOMI_gf_CU_CreateHeroPanel (int lp_index) {
     libNtve_gf_SetDialogItemRenderPriority(libCOMI_gv_cU_HeroDialogShieldBarBackground[lp_index], 510, PlayerGroupAll());
 }
 
-int libCOMI_gf_CU_HeroTypeFromUnitType (string lp_unitType) {
-    // Automatic Variable Declarations
-    string auto487EC2D7_val;
-
-    // Implementation
-    auto487EC2D7_val = lp_unitType;
-    if (auto487EC2D7_val == "K5Kerrigan") {
-        return libCOMI_ge_CampaignHeroes_Kerrigan;
-    }
-    else if (auto487EC2D7_val == "K5KerriganBurrowed") {
-        return libCOMI_ge_CampaignHeroes_Kerrigan;
-    }
-    else if (auto487EC2D7_val == "ZagaraVoidCoop") {
-        return libCOMI_ge_CampaignHeroes_Zagara;
-    }
-    else if (auto487EC2D7_val == "ZagaraVoidCoopBurrowed") {
-        return libCOMI_ge_CampaignHeroes_Zagara;
-    }
-    else if (auto487EC2D7_val == "HyperionVoidCoop") {
-        return libCOMI_ge_CampaignHeroes_Hyperion;
-    }
-    else if (auto487EC2D7_val == "DrakkenLaserDrillCoop") {
-        return libCOMI_ge_CampaignHeroes_LaserDrill;
-    }
-    else if (auto487EC2D7_val == "ZagaraReviveCocoon") {
-        return libCOMI_ge_CampaignHeroes_ZagaraReviveCocoon;
-    }
-    else if (auto487EC2D7_val == "KerriganReviveCocoon") {
-        return libCOMI_ge_CampaignHeroes_KerriganReviveCocoon;
-    }
-    else if (auto487EC2D7_val == "AlarakReviveBeacon") {
-        return libCOMI_ge_CampaignHeroes_AlarakReviveBeacon;
-    }
-    else if (auto487EC2D7_val == "AlarakCoop") {
-        return libCOMI_ge_CampaignHeroes_Alarak;
-    }
-    else if (auto487EC2D7_val == "NovaCoop") {
-        return libCOMI_ge_CampaignHeroes_Nova;
-    }
-    else if (auto487EC2D7_val == "NovaReviveBeacon") {
-        return libCOMI_ge_CampaignHeroes_NovaReviveBeacon;
-    }
-    else if (auto487EC2D7_val == "SelendisCoop") {
-        return libCOMI_ge_CampaignHeroes_Selendis;
-    }
-    else if (auto487EC2D7_val == "FenixCoop") {
-        return libCOMI_ge_CampaignHeroes_Fenix;
-    }
-    else if (auto487EC2D7_val == "FenixDragoon") {
-        return libCOMI_ge_CampaignHeroes_FenixDragoon;
-    }
-    else if (auto487EC2D7_val == "FenixArbiter") {
-        return libCOMI_ge_CampaignHeroes_FenixArbiter;
-    }
-    else if (auto487EC2D7_val == "DehakaCoop") {
-        return libCOMI_ge_CampaignHeroes_Dehaka;
-    }
-    else if (auto487EC2D7_val == "DehakaCoopClone") {
-        return libCOMI_ge_CampaignHeroes_Dehaka;
-    }
-    else if (auto487EC2D7_val == "DehakaCoopReviveCocoon") {
-        return libCOMI_ge_CampaignHeroes_DehakasDen;
-    }
-    else if (auto487EC2D7_val == "CODFlatbedTruck") {
-        return libCOMI_ge_CampaignHeroes_ArtifactTruck;
-    }
-    else if (auto487EC2D7_val == "TychusCoop") {
-        return libCOMI_ge_CampaignHeroes_Tychus;
-    }
-    else if (auto487EC2D7_val == "TychusReviveBeacon") {
-        return libCOMI_ge_CampaignHeroes_TychusReviveBeacon;
-    }
-    else if (auto487EC2D7_val == "ZeratulCoop") {
-        return libCOMI_ge_CampaignHeroes_Zeratul;
-    }
-    else if (auto487EC2D7_val == "ZeratulCoopReviveBeacon") {
-        return libCOMI_ge_CampaignHeroes_ZeratulReviveBeacon;
-    }
-    else if (auto487EC2D7_val == "GaryStetmann") {
-        return libCOMI_ge_CampaignHeroes_Gary;
-    }
-    else if (auto487EC2D7_val == "SuperGaryStetmann") {
-        return libCOMI_ge_CampaignHeroes_SuperGary;
-    }
-    else if (auto487EC2D7_val == "GarysDen") {
-        return libCOMI_ge_CampaignHeroes_GaryReviveBeacon;
-    }
-    else {
-    }
-    return libCOMI_ge_CampaignHeroes_None;
-}
-
-string libCOMI_gf_CU_HeroIcon (int lp_heroType, unit lp_heroUnit) {
-    // Automatic Variable Declarations
-    int autoB23AD090_val;
-
-    // Implementation
-    autoB23AD090_val = lp_heroType;
-    if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Kerrigan) {
-        if ((UnitIsAlive(lp_heroUnit) == true)) {
-            return "Assets\\Textures\\btn-hero-kerriganqueenofblades.dds";
-        }
-        else {
-            return "Assets\\Textures\\chrysalisportrait_static.dds";
-        }
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_KerriganReviveCocoon) {
-        return "Assets\\Textures\\chrysalisportrait_static.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Artanis) {
-        return "Assets\\Textures\\ui-heroicon-artanis.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Alarak) {
-        return "Assets\\Textures\\alarakex3_ingame_heroportrait.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_AlarakReviveBeacon) {
-        return "Assets\\Textures\\alarakdeath_ingame_heroportrait.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Hyperion) {
-        return "Assets\\Textures\\btn-unit-terran-hyperion.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_LaserDrill) {
-        return "Assets\\Textures\\btn-tips-laserdrillcontrol.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Zagara) {
-        if ((UnitIsAlive(lp_heroUnit) == true)) {
-            return "Assets\\Textures\\ui_commanderportrait_zagara.dds";
-        }
-        else {
-            return "Assets\\Textures\\cocoonportrait_static.dds";
-        }
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_ZagaraReviveCocoon) {
-        return "Assets\\Textures\\cocoonportrait_static.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_NovaReviveBeacon) {
-        return "Assets\\Textures\\btn-upgrade-nova-novarespawn.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Nova) {
-        return "Assets\\Textures\\novaex3_ingame_heroportrait.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Selendis) {
-        return "Assets\\Textures\\ui-heroicon-selendis.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Fenix) {
-        return "Assets\\Textures\\btn-hero-fenix.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_FenixDragoon) {
-        return "Assets\\Textures\\btn-hero-fenix-dragoon.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_FenixArbiter) {
-        return "Assets\\Textures\\btn-hero-fenix-arbiter.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Dehaka) {
-        return "Assets\\Textures\\btn-hero-dehaka.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_DehakasDen) {
-        return "Assets\\Textures\\btn-hero-dehaka-death.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_ArtifactTruck) {
-        return "Assets\\Textures\\btn-cradleofdeath-truck.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Zeratul) {
-        return "Assets\\Textures\\zeratul_ingame_heroportrait.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_ZeratulReviveBeacon) {
-        return "Assets\\Textures\\btn-building-protoss-zeratulbeacon.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_Gary) {
-        return "Assets\\Textures\\gary_ingame_heroportrait.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_SuperGary) {
-        return "Assets\\Textures\\supergary_ingame_heroportrait.dds";
-    }
-    else if (autoB23AD090_val == libCOMI_ge_CampaignHeroes_GaryReviveBeacon) {
-        return "Assets\\Textures\\btn-building-stetmann-garysroom.dds";
-    }
-    else {
-        return "Assets\\Textures\\ui_ingame_help_techtree_questionmark.dds";
-    }
-}
-
 void libCOMI_gf_CU_UpdateHeroPanel (int lp_index, int lp_player) {
     // Variable Declarations
     text lv_hotkey;
@@ -5582,12 +5389,17 @@ void libCOMI_gf_CU_UpdateHeroPanel (int lp_index, int lp_player) {
     int lv_shields;
     int lv_energy;
     playergroup lv_updateGroup;
+    int lv_heroUnitIndex;
+    string lv_heroUnitUserDataInstance;
+    string lv_heroUnitActor;
+    string lv_heroReviveLink;
 
     // Automatic Variable Declarations
     int autoC70421CF_val;
 
     // Variable Initialization
     lv_updateGroup = PlayerGroupEmpty();
+    lv_heroReviveLink = "";
 
     // Implementation
     lv_updateGroup = PlayerGroupSingle(lp_player);
@@ -5616,7 +5428,10 @@ void libCOMI_gf_CU_UpdateHeroPanel (int lp_index, int lp_player) {
     TextExpressionSetToken("Param/Expression/lib_COMI_8743E7EB", "A", UnitGetName(libCOMI_gv_cU_HeroUnit[lp_index][lp_player]));
     TextExpressionSetToken("Param/Expression/lib_COMI_8743E7EB", "B", lv_hotkey);
     libNtve_gf_SetDialogItemText(libCOMI_gv_cU_HeroDialogNameLabel[lp_index], TextExpressionAssemble("Param/Expression/lib_COMI_8743E7EB"), lv_updateGroup);
-    libNtve_gf_SetDialogItemImage(libCOMI_gv_cU_HeroDialogIconImage[lp_index], libCOMI_gf_CU_HeroIcon(libCOMI_gv_cU_HeroType[lp_index][lp_player], libCOMI_gv_cU_HeroUnit[lp_index][lp_player]), lv_updateGroup);
+    lv_heroUnitIndex = libCOMI_gf_GetHeroUnitIndex(libCOMI_gv_cU_HeroUnit[lp_index][lp_player]);
+    lv_heroUnitUserDataInstance = libCOMI_gv_heroUnitsData[lv_heroUnitIndex].lv_userData;
+    lv_heroUnitActor = ((UnitGetType(libCOMI_gv_cU_HeroUnit[lp_index][lp_player])));
+    libNtve_gf_SetDialogItemImage(libCOMI_gv_cU_HeroDialogIconImage[lp_index], (CatalogFieldValueGet(c_gameCatalogActor, lv_heroUnitActor, "HeroIcon", c_playerAny)), lv_updateGroup);
     TextExpressionSetToken("Param/Expression/lib_COMI_F450DB7C", "CurrentLife", FixedToText(UnitGetPropertyFixed(libCOMI_gv_cU_HeroUnit[lp_index][lp_player], c_unitPropLife, c_unitPropCurrent), 0));
     TextExpressionSetToken("Param/Expression/lib_COMI_F450DB7C", "MaxLife", FixedToText(UnitGetPropertyFixed(libCOMI_gv_cU_HeroUnit[lp_index][lp_player], c_unitPropLifeMax, c_unitPropCurrent), 0));
     libNtve_gf_SetDialogItemText(libCOMI_gv_cU_HeroDialogHealthLabel[lp_index], TextExpressionAssemble("Param/Expression/lib_COMI_F450DB7C"), lv_updateGroup);
@@ -5652,7 +5467,7 @@ void libCOMI_gf_CU_UpdateHeroPanel (int lp_index, int lp_player) {
     libNtve_gf_SetDialogItemText(libCOMI_gv_cU_HeroDialogEnergyLabel[lp_index], TextExpressionAssemble("Param/Expression/lib_COMI_AA9BB8FA"), lv_updateGroup);
     if ((UnitGetPropertyFixed(libCOMI_gv_cU_HeroUnit[lp_index][lp_player], c_unitPropEnergyMax, c_unitPropCurrent) == 0)) {
         lv_energy = 0;
-        if ((libCOMI_gf_CU_ChampionHasShields2(libCOMI_gv_cU_HeroType[lp_index][lp_player]) == true)) {
+        if ((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, (UnitGetType(libCOMI_gv_cU_HeroUnit[lp_index][lp_player])), "ShieldsMax", c_playerAny) > 0.0)) {
             DialogControlSetVisible(libCOMI_gv_cU_HeroDialogBorderImageNoEnergy[lp_index], lv_updateGroup, false);
             DialogControlSetVisible(libCOMI_gv_cU_HeroDialogBorderImage[lp_index], lv_updateGroup, true);
             DialogControlSetVisible(libCOMI_gv_cU_HeroDialogBorderImageAll[lp_index], lv_updateGroup, false);
@@ -5667,7 +5482,7 @@ void libCOMI_gf_CU_UpdateHeroPanel (int lp_index, int lp_player) {
     }
     else {
         lv_energy = FixedToInt((UnitGetPropertyFixed(libCOMI_gv_cU_HeroUnit[lp_index][lp_player], c_unitPropEnergyPercent, c_unitPropCurrent) * (IntToFixed(libCOMI_gv_cUC_HEROUIBARWIDTH) / 100.0)));
-        if ((libCOMI_gf_CU_ChampionHasShields(libCOMI_gv_cU_HeroType[lp_index][lp_player]) == true)) {
+        if ((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, (UnitGetType(libCOMI_gv_cU_HeroUnit[lp_index][lp_player])), "ShieldsMax", c_playerAny) > 0.0)) {
             DialogControlSetVisible(libCOMI_gv_cU_HeroDialogBorderImageAll[lp_index], lv_updateGroup, true);
             DialogControlSetVisible(libCOMI_gv_cU_HeroDialogBorderImageNoEnergy[lp_index], lv_updateGroup, false);
             DialogControlSetVisible(libCOMI_gv_cU_HeroDialogBorderImage[lp_index], lv_updateGroup, false);
@@ -5697,7 +5512,9 @@ void libCOMI_gf_CU_UpdateHeroPanel (int lp_index, int lp_player) {
     }
 
     if ((UnitIsAlive(libCOMI_gv_cU_HeroUnit[lp_index][lp_player]) == false) && (libCOMI_gf_GameIsOver() == false)) {
-        if ((libCOMI_gv_cU_VoidHeroUIRevivable[lp_index][lp_player] == true)) {
+        lv_heroReviveLink = libCOMI_gf_GetHeroReviveLink(libCOMI_gv_cU_HeroUnit[lp_index][lp_player]);
+        if ((libCOMI_gv_cU_VoidHeroUIRevivable[lp_index][lp_player] == true) && (PlayerGetCooldown(lp_player, lv_heroReviveLink) > 0.0)) {
+            libNtve_gf_SetDialogItemAnimationTime(libCOMI_gv_cU_HeroDialogCooldownImage[lp_index], (60.0 * (1 - PlayerGetCooldown(lp_player, lv_heroReviveLink)/libCOMI_gv_oBSOLETE_CU_HeroReviveTimer[lp_index][lp_player]) ), lv_updateGroup);
             DialogControlSetVisible(libCOMI_gv_cU_HeroDialogCooldownImage[lp_index], lv_updateGroup, true);
         }
         else if (true) {
@@ -5712,42 +5529,6 @@ void libCOMI_gf_CU_UpdateHeroPanel (int lp_index, int lp_player) {
         DialogControlSetVisible(libCOMI_gv_cU_HeroDialogCooldownImage[lp_index], lv_updateGroup, false);
     }
     libNtve_gf_SetDialogItemUnit(libCOMI_gv_cU_HeroDialogButton[lp_index], libCOMI_gv_cU_HeroUnit[lp_index][lp_player], lv_updateGroup);
-}
-
-string libCOMI_gf_CU_PresetToHeroGameLink (int lp_championPreset) {
-    // Automatic Variable Declarations
-    int autoCEF0E741_val;
-
-    // Implementation
-    autoCEF0E741_val = lp_championPreset;
-    if (autoCEF0E741_val == libCOMI_ge_CampaignHeroes_Kerrigan) {
-        return "Kerrigan";
-    }
-    else {
-        return null;
-    }
-}
-
-bool libCOMI_gf_CU_ChampionHasShields (int lp_heroType) {
-    // Automatic Variable Declarations
-    // Implementation
-    if (((lp_heroType == libCOMI_ge_CampaignHeroes_Kerrigan) || (lp_heroType == libCOMI_ge_CampaignHeroes_Fenix) || (lp_heroType == libCOMI_ge_CampaignHeroes_FenixArbiter) || (lp_heroType == libCOMI_ge_CampaignHeroes_FenixDragoon))) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-bool libCOMI_gf_CU_ChampionHasShields2 (int lp_heroType) {
-    // Automatic Variable Declarations
-    // Implementation
-    if (((lp_heroType == libCOMI_ge_CampaignHeroes_Alarak))) {
-        return true;
-    }
-    else {
-        return false;
-    }
 }
 
 void libCOMI_gf_CreateHeroes () {

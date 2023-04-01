@@ -64,21 +64,15 @@ void libARRA_InitVariables () {
     libARRA_gv_cBehaviorSpawn = CatalogEntryClass(c_gameCatalogBehavior, "SpawnLarva");
     libARRA_gv_cBehaviorBuff = CatalogEntryClass(c_gameCatalogBehavior, "AdeptPhaseShiftCaster");
     libARRA_gv_cBehaviorCreep = CatalogEntryClass(c_gameCatalogBehavior, "MakeCreep5x5");
-    libARRA_gv_startactiveplayers = PlayerGroupActive();
+    libARRA_gv_byPassUnits = "ByPassUnitsList";
     libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Agressive;
-    for (init_i = 0; init_i <= libARRA_gv_pLAYERS; init_i += 1) {
-        libARRA_gv_cACHE_DISARMED[init_i] = " ";
-    }
-    for (init_i = 0; init_i <= libARRA_gv_pLAYERS; init_i += 1) {
-        libARRA_gv_cACHE_ARMED[init_i] = " ";
-    }
     libARRA_gv_cACHE_DANGER_UNITS = " ";
     libARRA_gv_cACHE_DANGER_ABILITIES = " ";
     libARRA_gv_cACHE_DANGER_BEHAVIOR = " ";
     libARRA_gv_cACHE_SAFE_UNITS = " ";
     libARRA_gv_cACHE_SAFE_ABILITIES = " ";
     libARRA_gv_cACHE_SAFE_BEHAVIOR = " ";
-    libARRA_gv_byPassUnits = "ByPassUnitsList";
+    libARRA_gv_startactiveplayers = PlayerGroupActive();
     for (init_i = 0; init_i <= 15; init_i += 1) {
         libARRA_gv_teams[init_i] = PlayerGroupEmpty();
     }
@@ -154,6 +148,12 @@ void libARRA_InitVariables () {
         libARRA_gv_cU_MinimapAllyViewPing[init_i] = c_invalidPingId;
     }
     libARRA_gv_cU_MinimapAllyViewEnabled = true;
+    for (init_i = 0; init_i <= libARRA_gv_pLAYERS; init_i += 1) {
+        libARRA_gv_cACHE_DISARMED[init_i] = " ";
+    }
+    for (init_i = 0; init_i <= libARRA_gv_pLAYERS; init_i += 1) {
+        libARRA_gv_cACHE_ARMED[init_i] = " ";
+    }
     libARRA_gv_emittedEvent = "";
     libARRA_gv_emittedMessage = "";
     libARRA_gv_pERIODICEVENTS = "PERIODIC EVENTS";
@@ -165,297 +165,6 @@ void libARRA_InitVariables () {
 
 // Presets
 // Functions
-void libARRA_gf_ClearArmedCache (int lp_player) {
-    // Variable Declarations
-    int lv_i;
-    int lv_p;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_p = lp_player;
-
-    // Implementation
-    libARRA_gv_cACHE_ARMED[lv_p] = " ";
-    libARRA_gv_cACHE_DISARMED[lv_p] = " ";
-}
-
-void libARRA_gf_Armunit (int lp_player, unit lp_unit) {
-    // Variable Declarations
-    string lv_unitType;
-    int lv_i;
-    string lv_weapon;
-    string lv_turret;
-    string lv_aBILITY;
-    string lv_behavior;
-
-    // Automatic Variable Declarations
-    int auto4DFE723F_ae;
-    const int auto4DFE723F_ai = 1;
-    int auto2166497D_ae;
-    const int auto2166497D_ai = 1;
-
-    // Variable Initialization
-    lv_unitType = UnitGetType(lp_unit);
-
-    // Implementation
-    if ((UnitHasBehavior2(lp_unit, "Monobattle") == false)) {
-        return ;
-    }
-
-    UnitBehaviorRemove(lp_unit, "Monobattle", 1);
-    auto4DFE723F_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "AbilArray", lp_player) - 1);
-    lv_i = 0;
-    for ( ; ( (auto4DFE723F_ai >= 0 && lv_i <= auto4DFE723F_ae) || (auto4DFE723F_ai < 0 && lv_i >= auto4DFE723F_ae) ) ; lv_i += auto4DFE723F_ai ) {
-        lv_aBILITY = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitType, "AbilArray[" + IntToString(lv_i) + "].Link", c_playerAny));
-        if (((libARRA_gf_AbilityIsDanger(lp_player, lv_aBILITY) == true))) {
-            UnitAbilityAdd(lp_unit, lv_aBILITY);
-        }
-
-    }
-    auto2166497D_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "BehaviorArray", lp_player) - 1);
-    lv_i = 0;
-    for ( ; ( (auto2166497D_ai >= 0 && lv_i <= auto2166497D_ae) || (auto2166497D_ai < 0 && lv_i >= auto2166497D_ae) ) ; lv_i += auto2166497D_ai ) {
-        lv_behavior = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitType, "BehaviorArray[" + IntToString(lv_i) + "].Link", lp_player));
-        if ((libARRA_gf_BehaviorisDanger(lp_player, lv_behavior) == true)) {
-            UnitBehaviorAdd(lp_unit, lv_behavior, lp_unit, 1);
-        }
-
-    }
-}
-
-void libARRA_gf_Disarmunit (int lp_player, unit lp_unit) {
-    // Variable Declarations
-    string lv_unitType;
-    int lv_i;
-    string lv_weapon;
-    string lv_turret;
-    string lv_ability;
-    int lv_cAbilityEffectAttack;
-    string lv_behavior;
-
-    // Automatic Variable Declarations
-    int autoC4FD923B_ae;
-    const int autoC4FD923B_ai = 1;
-    int autoA833025E_ae;
-    const int autoA833025E_ai = 1;
-
-    // Variable Initialization
-    lv_unitType = UnitGetType(lp_unit);
-    lv_cAbilityEffectAttack = CatalogEntryClass(c_gameCatalogAbil, "attack");
-
-    // Implementation
-    if ((UnitHasBehavior2(lp_unit, "Monobattle") == true)) {
-        return ;
-    }
-
-    UnitBehaviorAdd(lp_unit, "Monobattle", lp_unit, 1);
-    autoC4FD923B_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "AbilArray", lp_player) - 1);
-    lv_i = 0;
-    for ( ; ( (autoC4FD923B_ai >= 0 && lv_i <= autoC4FD923B_ae) || (autoC4FD923B_ai < 0 && lv_i >= autoC4FD923B_ae) ) ; lv_i += autoC4FD923B_ai ) {
-        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitType, "AbilArray[" + IntToString(lv_i) + "].Link", c_playerAny));
-        if (((libARRA_gf_AbilityIsDanger(lp_player, lv_ability) == true))) {
-            UnitAbilityRemove(lp_unit, lv_ability);
-        }
-
-    }
-    autoA833025E_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "BehaviorArray", lp_player) - 1);
-    lv_i = 0;
-    for ( ; ( (autoA833025E_ai >= 0 && lv_i <= autoA833025E_ae) || (autoA833025E_ai < 0 && lv_i >= autoA833025E_ae) ) ; lv_i += autoA833025E_ai ) {
-        lv_behavior = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitType, "BehaviorArray[" + IntToString(lv_i) + "].Link", lp_player));
-        if ((libARRA_gf_BehaviorisDanger(lp_player, lv_behavior) == true)) {
-            UnitBehaviorRemove(lp_unit, lv_behavior, 1);
-        }
-
-    }
-}
-
-void libARRA_gf_ArmUnitType (int lp_player, string lp_unit) {
-    // Variable Declarations
-    int lv_i;
-    string lv_weapon;
-    string lv_turret;
-    string lv_ability;
-    bool lv_danger;
-    string lv_behavior;
-
-    // Automatic Variable Declarations
-    int auto1B8D0EC0_ae;
-    const int auto1B8D0EC0_ai = 1;
-    int auto8C8FD1C9_ae;
-    const int auto8C8FD1C9_ai = 1;
-
-    // Variable Initialization
-
-    // Implementation
-    if (((CatalogEntryIsValid(c_gameCatalogUnit, lp_unit) == false) || (libARRA_gf_UnitTypeisArmed(lp_player, lp_unit) == true))) {
-        return ;
-    }
-
-    if ((libARRA_gf_UnitTypeisDisArmed(lp_player, lp_unit) == true)) {
-        libARRA_gv_cACHE_DISARMED[lp_player] = StringReplaceWord(libARRA_gv_cACHE_DISARMED[lp_player], (" " + (lp_unit)), "", c_stringReplaceAll, c_stringCase);
-    }
-
-    auto1B8D0EC0_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "WeaponArray", lp_player) - 1);
-    lv_i = 0;
-    for ( ; ( (auto1B8D0EC0_ai >= 0 && lv_i <= auto1B8D0EC0_ae) || (auto1B8D0EC0_ai < 0 && lv_i >= auto1B8D0EC0_ae) ) ; lv_i += auto1B8D0EC0_ai ) {
-        lv_weapon = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Link", lp_player));
-        lv_turret = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Turret", lp_player));
-        lv_danger = true;
-    }
-    auto8C8FD1C9_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "AbilArray", lp_player) - 1);
-    lv_i = 0;
-    for ( ; ( (auto8C8FD1C9_ai >= 0 && lv_i <= auto8C8FD1C9_ae) || (auto8C8FD1C9_ai < 0 && lv_i >= auto8C8FD1C9_ae) ) ; lv_i += auto8C8FD1C9_ai ) {
-        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "AbilArray[" + IntToString(lv_i) + "].Link", c_playerAny));
-        if ((CatalogEntryIsValid(c_gameCatalogAbil, lv_ability) == false)) {
-            continue;
-        }
-
-        if (((CatalogEntryClass(c_gameCatalogAbil, lv_ability) == libARRA_gv_cAbilityAttack) || (libARRA_gf_AbilityIsDanger(lp_player, lv_ability) == true))) {
-            lv_danger = true;
-        }
-
-    }
-    if ((lv_danger == true)) {
-        libARRA_gv_cACHE_ARMED[lp_player] = (libARRA_gv_cACHE_ARMED[lp_player] + (lp_unit) + " ");
-    }
-
-}
-
-void libARRA_gf_Disarmunittype (int lp_player, string lp_unit) {
-    // Variable Declarations
-    int lv_i;
-    string lv_weapon;
-    string lv_turret;
-    string lv_ability;
-    bool lv_danger;
-    string lv_behavior;
-
-    // Automatic Variable Declarations
-    int auto64A3CCD9_ae;
-    const int auto64A3CCD9_ai = 1;
-    int auto6BA8EC08_ae;
-    const int auto6BA8EC08_ai = 1;
-
-    // Variable Initialization
-
-    // Implementation
-    if (((CatalogEntryIsValid(c_gameCatalogUnit, lp_unit) == false) || (libARRA_gf_UnitTypeisDisArmed(lp_player, lp_unit) == true))) {
-        return ;
-    }
-
-    if ((libARRA_gf_UnitTypeisArmed(lp_player, lp_unit) == true)) {
-        libARRA_gv_cACHE_ARMED[lp_player] = StringReplaceWord(libARRA_gv_cACHE_ARMED[lp_player], (" " + (lp_unit)), "", c_stringReplaceAll, c_stringCase);
-    }
-
-    auto64A3CCD9_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "WeaponArray", lp_player) - 1);
-    lv_i = 0;
-    for ( ; ( (auto64A3CCD9_ai >= 0 && lv_i <= auto64A3CCD9_ae) || (auto64A3CCD9_ai < 0 && lv_i >= auto64A3CCD9_ae) ) ; lv_i += auto64A3CCD9_ai ) {
-        lv_weapon = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Link", lp_player));
-        lv_turret = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Turret", lp_player));
-        lv_danger = true;
-    }
-    auto6BA8EC08_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "AbilArray", lp_player) - 1);
-    lv_i = 0;
-    for ( ; ( (auto6BA8EC08_ai >= 0 && lv_i <= auto6BA8EC08_ae) || (auto6BA8EC08_ai < 0 && lv_i >= auto6BA8EC08_ae) ) ; lv_i += auto6BA8EC08_ai ) {
-        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "AbilArray[" + IntToString(lv_i) + "].Link", c_playerAny));
-        if ((CatalogEntryIsValid(c_gameCatalogAbil, lv_ability) == false)) {
-            continue;
-        }
-
-        if (((CatalogEntryClass(c_gameCatalogAbil, lv_ability) == libARRA_gv_cAbilityAttack) || (libARRA_gf_AbilityIsDanger(lp_player, lv_ability) == true))) {
-            lv_danger = true;
-        }
-
-    }
-    if ((lv_danger == true)) {
-        libARRA_gv_cACHE_DISARMED[lp_player] = (libARRA_gv_cACHE_DISARMED[lp_player] + (lp_unit) + " ");
-    }
-
-}
-
-bool libARRA_gf_UnitTypeisArmed (int lp_player, string lp_unit) {
-    // Variable Declarations
-    int lv_i;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    if ((StringFind(libARRA_gv_cACHE_ARMED[lp_player], (" " + (lp_unit) + " "), c_stringCase) > 0)) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-bool libARRA_gf_UnitTypeisDisArmed (int lp_player, string lp_unit) {
-    // Variable Declarations
-    int lv_i;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    if ((StringFind(libARRA_gv_cACHE_DISARMED[lp_player], (" " + (lp_unit) + " "), c_stringCase) > 0)) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-bool libARRA_gf_BehaviorisDetector (int lp_player, string lp_behavior) {
-    // Automatic Variable Declarations
-    // Implementation
-    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Detection;
-    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
-    return libARRA_gf_ByPassBehavior(lp_player, lp_behavior);
-}
-
-bool libARRA_gf_AbilityIsDetector (int lp_player, string lp_ability) {
-    // Automatic Variable Declarations
-    // Implementation
-    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Detection;
-    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
-    return libARRA_gf_ByPassAbility(lp_player, lp_ability);
-}
-
-bool libARRA_gf_UnitisDetector (int lp_player, string lp_unitType) {
-    // Variable Declarations
-    string lv_ability;
-    string lv_behavior;
-
-    // Automatic Variable Declarations
-    int auto9CE1E6D2_ae;
-    int auto9CE1E6D2_var;
-    int auto4657E62F_ae;
-    int auto4657E62F_var;
-
-    // Variable Initialization
-
-    // Implementation
-    auto9CE1E6D2_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unitType, "AbilArray", lp_player) - 1);
-    auto9CE1E6D2_var = 0;
-    for ( ; auto9CE1E6D2_var <= auto9CE1E6D2_ae; auto9CE1E6D2_var += 1 ) {
-        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unitType, "AbilArray[" + IntToString(auto9CE1E6D2_var) + "].Link", lp_player));
-        if ((CatalogEntryIsValid(c_gameCatalogAbil, lv_ability) == true) && (libARRA_gf_AbilityIsDetector(lp_player, lv_ability) == true)) {
-            continue;
-        }
-
-    }
-    auto4657E62F_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unitType, "BehaviorArray", lp_player) - 1);
-    auto4657E62F_var = 0;
-    for ( ; auto4657E62F_var <= auto4657E62F_ae; auto4657E62F_var += 1 ) {
-        lv_behavior = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unitType, "BehaviorArray[" + IntToString(auto4657E62F_var) + "].Link", lp_player));
-        if ((CatalogEntryIsValid(c_gameCatalogBehavior, lv_behavior) == true) && (libARRA_gf_BehaviorisDetector(lp_player, lv_behavior) == true)) {
-            return true;
-        }
-
-    }
-    return false;
-}
-
 bool libARRA_gf_FilterEnemyisExcluded (string lp_filter) {
     // Variable Declarations
     string lv_excludedString;
@@ -472,107 +181,6 @@ bool libARRA_gf_FilterEnemyisExcluded (string lp_filter) {
     else {
         return false;
     }
-}
-
-bool libARRA_gf_UnitIsDanger (int lp_player, string lp_unit) {
-    // Variable Declarations
-    int lv_i;
-    string lv_ability;
-    string lv_behavior;
-    bool lv_isDanger;
-
-    // Automatic Variable Declarations
-    int auto320EDB39_ae;
-    const int auto320EDB39_ai = 1;
-
-    // Variable Initialization
-
-    // Implementation
-    if ((CatalogEntryIsValid(c_gameCatalogUnit, lp_unit) == false)) {
-        return false;
-    }
-
-    if ((StringFind(libARRA_gv_cACHE_DANGER_UNITS, (" " + (lp_unit) + " "), c_stringCase) > 0)) {
-        return true;
-    }
-
-    if ((StringFind(libARRA_gv_cACHE_SAFE_UNITS, (" " + (lp_unit) + " "), c_stringCase) > 0)) {
-        return false;
-    }
-
-    if ((CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "WeaponArray", lp_player) > 0)) {
-        libARRA_gv_cACHE_DANGER_UNITS = (libARRA_gv_cACHE_DANGER_UNITS + (lp_unit) + " ");
-        return true;
-    }
-
-    auto320EDB39_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "AbilArray", lp_player) - 1);
-    lv_i = 0;
-    for ( ; ( (auto320EDB39_ai >= 0 && lv_i <= auto320EDB39_ae) || (auto320EDB39_ai < 0 && lv_i >= auto320EDB39_ae) ) ; lv_i += auto320EDB39_ai ) {
-        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "AbilArray[" + IntToString(lv_i) + "].Link", lp_player));
-        if ((libARRA_gf_AbilityIsDanger(lp_player, lv_ability) == true)) {
-            libARRA_gv_cACHE_DANGER_UNITS = (libARRA_gv_cACHE_DANGER_UNITS + (lp_unit) + " ");
-            return true;
-        }
-
-    }
-    libARRA_gv_cACHE_SAFE_UNITS = (libARRA_gv_cACHE_SAFE_UNITS + (lp_unit) + " ");
-    return false;
-}
-
-bool libARRA_gf_AbilityIsDanger (int lp_player, string lp_ability) {
-    // Variable Declarations
-    bool lv_isDanger;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    if ((StringFind(libARRA_gv_cACHE_DANGER_ABILITIES, (" " + (lp_ability) + " "), c_stringCase) > 0)) {
-        return true;
-    }
-
-    if ((StringFind(libARRA_gv_cACHE_SAFE_ABILITIES, (" " + (lp_ability) + " "), c_stringCase) > 0)) {
-        return false;
-    }
-
-    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Agressive;
-    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
-    lv_isDanger = libARRA_gf_ByPassAbility(lp_player, lp_ability);
-    if ((lv_isDanger == true)) {
-        libARRA_gv_cACHE_DANGER_ABILITIES = (libARRA_gv_cACHE_DANGER_ABILITIES + (lp_ability) + " ");
-    }
-    else {
-        libARRA_gv_cACHE_SAFE_ABILITIES = (libARRA_gv_cACHE_SAFE_ABILITIES + (lp_ability) + " ");
-    }
-    return lv_isDanger;
-}
-
-bool libARRA_gf_BehaviorisDanger (int lp_player, string lp_behavior) {
-    // Variable Declarations
-    bool lv_isDanger;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    if ((StringFind(libARRA_gv_cACHE_DANGER_BEHAVIOR, (" " + (lp_behavior) + " "), c_stringCase) > 0)) {
-        return true;
-    }
-
-    if ((StringFind(libARRA_gv_cACHE_SAFE_BEHAVIOR, (" " + (lp_behavior) + " "), c_stringCase) > 0)) {
-        return false;
-    }
-
-    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Agressive;
-    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
-    lv_isDanger = libARRA_gf_ByPassBehavior(lp_player, lp_behavior);
-    if ((lv_isDanger == true)) {
-        libARRA_gv_cACHE_DANGER_BEHAVIOR = (libARRA_gv_cACHE_DANGER_BEHAVIOR + (lp_behavior) + " ");
-    }
-    else {
-        libARRA_gv_cACHE_SAFE_BEHAVIOR = (libARRA_gv_cACHE_SAFE_BEHAVIOR + (lp_behavior) + " ");
-    }
-    return lv_isDanger;
 }
 
 void libARRA_gf_ClearCache () {
@@ -660,7 +268,7 @@ void libARRA_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
     int lv_b;
     int lv_cl;
     int lv_lb;
-    string lv_oimlfjdoibsgabwt;
+    string lv_tkyvxgiiutvokftm;
 
     // Automatic Variable Declarations
     int auto9FD56787_ae;
@@ -694,7 +302,7 @@ void libARRA_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
 
     // Variable Initialization
     lv_hasDangerAbilities = libARRA_gf_UnitTypeisArmed(lp_player, lp_unit);
-    lv_oimlfjdoibsgabwt = ("Race:" + UserDataGetString("Rules", libARRA_gv_byirfqbkgbagpiov[lp_player], "Category", 1));
+    lv_tkyvxgiiutvokftm = ("Race:" + UserDataGetString("Rules", libARRA_gv_mBRules[lp_player], "Category", 1));
 
     // Implementation
     if ((CatalogEntryIsValid(c_gameCatalogUnit, lp_unit) == false)) {
@@ -786,7 +394,7 @@ void libARRA_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
         autoBD08B882_i = 1;
         for ( ; autoBD08B882_i <= CatalogEntryCount(c_gameCatalogAbil) ; autoBD08B882_i += 1 ) {
             lv_aBILITY = CatalogEntryGet(autoBD08B882_catalog, autoBD08B882_i);
-            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_oimlfjdoibsgabwt, c_stringNoCase) == -1)) {
+            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_tkyvxgiiutvokftm, c_stringNoCase) == -1)) {
                 continue;
             }
             else {
@@ -863,7 +471,7 @@ void libARRA_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
         auto389A8403_i = 1;
         for ( ; auto389A8403_i <= CatalogEntryCount(c_gameCatalogBehavior) ; auto389A8403_i += 1 ) {
             lv_bEHAVIOR = CatalogEntryGet(auto389A8403_catalog, auto389A8403_i);
-            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogBehavior, lv_bEHAVIOR, "EditorCategories", lp_player), lv_oimlfjdoibsgabwt, c_stringNoCase) == -1)) {
+            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogBehavior, lv_bEHAVIOR, "EditorCategories", lp_player), lv_tkyvxgiiutvokftm, c_stringNoCase) == -1)) {
                 continue;
             }
             else {
@@ -990,7 +598,7 @@ void libARRA_gf_CacheUpgrade (int lp_player, string lp_upgrade, bool lp_scan) {
     int lv_abilityCommandIndex;
     int lv_effectArrayIndex;
     string lv_effeectArrayReference;
-    string lv_ayxaacuilcghqjqd;
+    string lv_mBRules;
 
     // Automatic Variable Declarations
     int autoCE14043B_ae;
@@ -1002,7 +610,7 @@ void libARRA_gf_CacheUpgrade (int lp_player, string lp_upgrade, bool lp_scan) {
 
     // Variable Initialization
     lv_effeectArrayReference = "";
-    lv_ayxaacuilcghqjqd = ("Race:" + UserDataGetString("Rules", libARRA_gv_byirfqbkgbagpiov[lp_player], "Category", 1));
+    lv_mBRules = ("Race:" + UserDataGetString("Rules", libARRA_gv_mBRules[lp_player], "Category", 1));
 
     // Implementation
     if ((CatalogEntryIsValid(c_gameCatalogUpgrade, lp_upgrade) == false)) {
@@ -1025,7 +633,7 @@ void libARRA_gf_CacheUpgrade (int lp_player, string lp_upgrade, bool lp_scan) {
         autoF1811AFF_i = 1;
         for ( ; autoF1811AFF_i <= CatalogEntryCount(c_gameCatalogAbil) ; autoF1811AFF_i += 1 ) {
             lv_aBILITY = CatalogEntryGet(autoF1811AFF_catalog, autoF1811AFF_i);
-            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_ayxaacuilcghqjqd, c_stringNoCase) == -1)) {
+            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_mBRules, c_stringNoCase) == -1)) {
                 continue;
             }
             else {
@@ -1571,273 +1179,6 @@ void libARRA_gf_CacheRequirementNode (int lp_player, string lp_requirementNode) 
 
 }
 
-bool libARRA_gf_UnitIsAntiAir (string lp_unit, int lp_player) {
-    // Variable Declarations
-    int lv_i;
-    int lv_weapons;
-    string lv_weapon;
-    bool lv_isAntiAir;
-
-    // Automatic Variable Declarations
-    int autoA61938BE_ae;
-    const int autoA61938BE_ai = 1;
-
-    // Variable Initialization
-    lv_weapons = CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "WeaponArray", lp_player);
-
-    // Implementation
-    if ((lv_weapons > 0)) {
-        autoA61938BE_ae = (lv_weapons - 1);
-        lv_i = 0;
-        for ( ; ( (autoA61938BE_ai >= 0 && lv_i <= autoA61938BE_ae) || (autoA61938BE_ai < 0 && lv_i >= autoA61938BE_ae) ) ; lv_i += autoA61938BE_ai ) {
-            lv_weapon = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Link", lp_player));
-            if ((lv_weapon != null) && (UnitFilterGetState(libNtve_gf_ConvertTargetFilterStringToUnitFilter(CatalogFieldValueGet(c_gameCatalogWeapon, lv_weapon, "TargetFilters", lp_player)), c_targetFilterGround) != c_unitFilterRequired) && (UnitFilterGetState(libNtve_gf_ConvertTargetFilterStringToUnitFilter(CatalogFieldValueGet(c_gameCatalogWeapon, lv_weapon, "TargetFilters", lp_player)), c_targetFilterAir) != c_unitFilterExcluded)) {
-                return true;
-            }
-
-        }
-    }
-
-    return false;
-}
-
-bool libARRA_gf_UnitIsAir (string lp_unit, int lp_player) {
-    // Variable Declarations
-    const int lv_pLANE_AIR = 0;
-    int lv_plane;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_plane = CatalogFieldValueGetAsInt(c_gameCatalogUnit, lp_unit, "PlaneArray[" + IntToString(0) + "]", lp_player);
-
-    // Implementation
-    if ((lv_plane == lv_pLANE_AIR)) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-void libARRA_gf_ResolveUnitAffectedUpgrades (int lp_player) {
-    // Variable Declarations
-    int lv_i;
-    string lv_unitEntry;
-    string lv_upgrade;
-    string lv_behavior;
-    int lv_affectedUnitIndex;
-    int lv_effectArrayIndex;
-    string lv_effectArrayReference;
-    string lv_effectArrayType;
-    string lv_effectArrayLink;
-
-    // Automatic Variable Declarations
-    int autoE972E0B3_catalog;
-    int autoE972E0B3_i;
-
-    // Variable Initialization
-    lv_effectArrayReference = "";
-    lv_effectArrayType = "";
-    lv_effectArrayLink = "";
-
-    // Implementation
-    autoE972E0B3_catalog = c_gameCatalogUpgrade;
-    autoE972E0B3_i = 1;
-    for ( ; autoE972E0B3_i <= CatalogEntryCount(c_gameCatalogUpgrade) ; autoE972E0B3_i += 1 ) {
-        lv_upgrade = CatalogEntryGet(autoE972E0B3_catalog, autoE972E0B3_i);
-        if ((libARRA_gf_UpgradeIsUseful(lp_player, lv_upgrade) == true)) {
-            libARRA_gf_CacheUpgrade(lp_player, lv_upgrade, true);
-        }
-
-    }
-}
-
-bool libARRA_gf_UpgradeIsUseful (int lp_player, string lp_upgrade) {
-    // Variable Declarations
-    int lv_i;
-    string lv_upgradeEntry;
-    string lv_unitEntry;
-    string lv_behavior;
-    int lv_affectedUnitIndex;
-    int lv_effectArrayIndex;
-    string lv_effectArrayReference;
-    string lv_effectArrayType;
-    string lv_effectArrayLink;
-
-    // Automatic Variable Declarations
-    int autoC0A5C3C4_ae;
-    const int autoC0A5C3C4_ai = 1;
-    int autoB02A8668_ae;
-    const int autoB02A8668_ai = 1;
-    string auto3B6A055B_val;
-    int auto4E31220C_ae;
-    const int auto4E31220C_ai = 1;
-    int autoD30E7FEC_ae;
-    const int autoD30E7FEC_ai = 1;
-    int auto7F51832E_ae;
-    const int auto7F51832E_ai = 1;
-    int autoACCADCC9_ae;
-    const int autoACCADCC9_ai = 1;
-    int autoD6E36BA7_ae;
-    const int autoD6E36BA7_ai = 1;
-
-    // Variable Initialization
-    lv_upgradeEntry = lp_upgrade;
-    lv_effectArrayReference = "";
-    lv_effectArrayType = "";
-    lv_effectArrayLink = "";
-
-    // Implementation
-    autoC0A5C3C4_ae = libARRA_gv_cACHESIZE_UPGRADES;
-    lv_i = 1;
-    for ( ; ( (autoC0A5C3C4_ai >= 0 && lv_i <= autoC0A5C3C4_ae) || (autoC0A5C3C4_ai < 0 && lv_i >= autoC0A5C3C4_ae) ) ; lv_i += autoC0A5C3C4_ai ) {
-        if ((libARRA_gv_cACHE_UPGRADES[lv_i] == lv_upgradeEntry)) {
-            return false;
-        }
-
-    }
-    if ((PlayerRace(lp_player) != "Neut") && (libARRA_gf_GetUpgradeRace(lv_upgradeEntry) != PlayerRace(lp_player))) {
-        return false;
-    }
-
-    autoB02A8668_ae = (CatalogFieldValueCount(c_gameCatalogUpgrade, lv_upgradeEntry, "EffectArray", lp_player) - 1);
-    lv_effectArrayIndex = 0;
-    for ( ; ( (autoB02A8668_ai >= 0 && lv_effectArrayIndex <= autoB02A8668_ae) || (autoB02A8668_ai < 0 && lv_effectArrayIndex >= autoB02A8668_ae) ) ; lv_effectArrayIndex += autoB02A8668_ai ) {
-        lv_effectArrayReference = StringReplaceWord(CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgradeEntry, "EffectArray[" + IntToString(lv_effectArrayIndex) + "].Reference", lp_player), ",", " ", c_stringReplaceAll, c_stringCase);
-        lv_effectArrayType = StringWord(lv_effectArrayReference, 1);
-        lv_effectArrayLink = StringWord(lv_effectArrayReference, 2);
-        auto3B6A055B_val = lv_effectArrayType;
-        if (auto3B6A055B_val == "Behavior") {
-            auto4E31220C_ae = libARRA_gv_cACHESIZE_BEHAVIORS;
-            lv_i = 1;
-            for ( ; ( (auto4E31220C_ai >= 0 && lv_i <= auto4E31220C_ae) || (auto4E31220C_ai < 0 && lv_i >= auto4E31220C_ae) ) ; lv_i += auto4E31220C_ai ) {
-                if ((libARRA_gv_cACHE_BEHAVIORS[lv_i] == (lv_effectArrayLink))) {
-                    return true;
-                }
-
-            }
-        }
-        else if (auto3B6A055B_val == "Abil") {
-            autoD30E7FEC_ae = libARRA_gv_cACHESIZE_ABILITIES;
-            lv_i = 1;
-            for ( ; ( (autoD30E7FEC_ai >= 0 && lv_i <= autoD30E7FEC_ae) || (autoD30E7FEC_ai < 0 && lv_i >= autoD30E7FEC_ae) ) ; lv_i += autoD30E7FEC_ai ) {
-                if ((libARRA_gv_cACHE_ABILITIES[lv_i] == (lv_effectArrayLink))) {
-                    return true;
-                }
-
-            }
-        }
-        else if (auto3B6A055B_val == "Effect") {
-            auto7F51832E_ae = libARRA_gv_cACHESIZE_EFFECTS;
-            lv_i = 1;
-            for ( ; ( (auto7F51832E_ai >= 0 && lv_i <= auto7F51832E_ae) || (auto7F51832E_ai < 0 && lv_i >= auto7F51832E_ae) ) ; lv_i += auto7F51832E_ai ) {
-                if ((libARRA_gv_cACHE_EFFECTS[lv_i] == (lv_effectArrayLink))) {
-                    return true;
-                }
-
-            }
-        }
-        else if (auto3B6A055B_val == "Weapon") {
-            autoACCADCC9_ae = libARRA_gv_cACHESIZE_WEAPONS;
-            lv_i = 1;
-            for ( ; ( (autoACCADCC9_ai >= 0 && lv_i <= autoACCADCC9_ae) || (autoACCADCC9_ai < 0 && lv_i >= autoACCADCC9_ae) ) ; lv_i += autoACCADCC9_ai ) {
-                if ((libARRA_gv_cACHE_WEAPONS[lv_i] == (lv_effectArrayLink))) {
-                    return true;
-                }
-
-            }
-        }
-        else if (auto3B6A055B_val == "Unit") {
-            autoD6E36BA7_ae = libARRA_gv_cACHESIZE_UNITS;
-            lv_i = 1;
-            for ( ; ( (autoD6E36BA7_ai >= 0 && lv_i <= autoD6E36BA7_ae) || (autoD6E36BA7_ai < 0 && lv_i >= autoD6E36BA7_ae) ) ; lv_i += autoD6E36BA7_ai ) {
-                if ((libARRA_gv_cACHE_UNITS[lv_i] == (lv_effectArrayLink))) {
-                    return true;
-                }
-
-            }
-        }
-        else {
-        }
-    }
-    return false;
-}
-
-bool libARRA_gf_AbilityIsIgnored (int lp_player, string lp_ability) {
-    // Variable Declarations
-    int lv_i;
-    string lv_requirement;
-    int lv_cAbilityArmMagazine;
-    int lv_cAbilityAugment;
-    int lv_cAbilityBehavior;
-    int lv_cAbilityBuild;
-    int lv_cAbilityEffectInstant;
-    int lv_cAbilityEffectTarget;
-    int lv_cAbilityEffectMorph;
-
-    // Automatic Variable Declarations
-    int auto4034020C_ae;
-    const int auto4034020C_ai = 1;
-
-    // Variable Initialization
-    lv_cAbilityArmMagazine = CatalogEntryClass(c_gameCatalogAbil, "CarrierHangar");
-    lv_cAbilityAugment = CatalogEntryClass(c_gameCatalogAbil, "TornadoMissile");
-    lv_cAbilityBehavior = CatalogEntryClass(c_gameCatalogAbil, "BansheeCloak");
-    lv_cAbilityBuild = CatalogEntryClass(c_gameCatalogAbil, "ProtossBuild");
-    lv_cAbilityEffectInstant = CatalogEntryClass(c_gameCatalogAbil, "Overcharge");
-    lv_cAbilityEffectTarget = CatalogEntryClass(c_gameCatalogAbil, "BlindingCloud");
-    lv_cAbilityEffectMorph = CatalogEntryClass(c_gameCatalogAbil, "VoidRaySwarmDamageBoost");
-
-    // Implementation
-    if ((CatalogEntryIsValid(c_gameCatalogAbil, lp_ability) == false)) {
-        return false;
-    }
-
-    auto4034020C_ae = UserDataInstanceCount("MonobattlesIgnore");
-    lv_i = 1;
-    for ( ; ( (auto4034020C_ai >= 0 && lv_i <= auto4034020C_ae) || (auto4034020C_ai < 0 && lv_i >= auto4034020C_ae) ) ; lv_i += auto4034020C_ai ) {
-        if ((UserDataGetGameLink("MonobattlesIgnore", UserDataInstance("MonobattlesIgnore", lv_i), "Ability", 1) == lp_ability)) {
-            return true;
-        }
-
-    }
-    return false;
-}
-
-string libARRA_gf_GetUnitRace2 (string lp_unit) {
-    // Automatic Variable Declarations
-    // Implementation
-    return (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "Race", c_playerAny));
-}
-
-string libARRA_gf_GetUpgradeRace (string lp_upgrade) {
-    // Variable Declarations
-    string lv_editorCategories;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_editorCategories = CatalogFieldValueGet(c_gameCatalogUpgrade, lp_upgrade, "Race", c_playerAny);
-
-    // Implementation
-    return (CatalogFieldValueGet(c_gameCatalogUpgrade, lp_upgrade, "Race", c_playerAny));
-}
-
-bool libARRA_gf_BehaviorUsesAbilityCommand (int lp_player, string lp_behavior, abilcmd lp_abil) {
-    // Variable Declarations
-    bool lv_value;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Ability;
-    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
-    libARRA_gv_bYPASS_SEARCH_ABILITY_COMMAND = lp_abil;
-    lv_value = libARRA_gf_ByPassBehavior(lp_player, lp_behavior);
-    libARRA_gv_bYPASS_SEARCH_ABILITY_COMMAND = null;
-    return lv_value;
-}
-
 bool libARRA_gf_ByPassBehavior (int lp_player, string lp_behavior) {
     // Variable Declarations
     int lv_i;
@@ -2201,15 +1542,295 @@ bool libARRA_gf_ByPassAbility (int lp_player, string lp_ability) {
     return false;
 }
 
-bool libARRA_gf_StructureIsFlying (unit lp_unit) {
+bool libARRA_gf_UpgradeIsUsefulForPlayer (int lp_player, string lp_upgrade) {
+    // Variable Declarations
+    int lv_i;
+    string lv_upgradeEntry;
+    string lv_unitEntry;
+    string lv_behavior;
+    int lv_affectedUnitIndex;
+    int lv_effectArrayIndex;
+    string lv_effectArrayReference;
+    string lv_effectArrayType;
+    string lv_effectArrayLink;
+
     // Automatic Variable Declarations
+    int autoC0A5C3C4_ae;
+    const int autoC0A5C3C4_ai = 1;
+    int autoB02A8668_ae;
+    const int autoB02A8668_ai = 1;
+    string auto3B6A055B_val;
+    int auto4E31220C_ae;
+    const int auto4E31220C_ai = 1;
+    int autoD30E7FEC_ae;
+    const int autoD30E7FEC_ai = 1;
+    int auto7F51832E_ae;
+    const int auto7F51832E_ai = 1;
+    int autoACCADCC9_ae;
+    const int autoACCADCC9_ai = 1;
+    int autoD6E36BA7_ae;
+    const int autoD6E36BA7_ai = 1;
+
+    // Variable Initialization
+    lv_upgradeEntry = lp_upgrade;
+    lv_effectArrayReference = "";
+    lv_effectArrayType = "";
+    lv_effectArrayLink = "";
+
     // Implementation
-    if (((UnitGetType(lp_unit) == "CommandCenterFlying") || (UnitGetType(lp_unit) == "OrbitalCommandFlying") || (UnitGetType(lp_unit) == "BarracksFlying") || (UnitGetType(lp_unit) == "FactoryFlying") || (UnitGetType(lp_unit) == "StarportFlying"))) {
-        return true;
+    autoC0A5C3C4_ae = libARRA_gv_cACHESIZE_UPGRADES;
+    lv_i = 1;
+    for ( ; ( (autoC0A5C3C4_ai >= 0 && lv_i <= autoC0A5C3C4_ae) || (autoC0A5C3C4_ai < 0 && lv_i >= autoC0A5C3C4_ae) ) ; lv_i += autoC0A5C3C4_ai ) {
+        if ((libARRA_gv_cACHE_UPGRADES[lv_i] == lv_upgradeEntry)) {
+            return false;
+        }
+
     }
-    else {
+    if ((PlayerRace(lp_player) != "Neut") && (libARRA_gf_GetUpgradeRace(lv_upgradeEntry) != PlayerRace(lp_player))) {
         return false;
     }
+
+    autoB02A8668_ae = (CatalogFieldValueCount(c_gameCatalogUpgrade, lv_upgradeEntry, "EffectArray", lp_player) - 1);
+    lv_effectArrayIndex = 0;
+    for ( ; ( (autoB02A8668_ai >= 0 && lv_effectArrayIndex <= autoB02A8668_ae) || (autoB02A8668_ai < 0 && lv_effectArrayIndex >= autoB02A8668_ae) ) ; lv_effectArrayIndex += autoB02A8668_ai ) {
+        lv_effectArrayReference = StringReplaceWord(CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgradeEntry, "EffectArray[" + IntToString(lv_effectArrayIndex) + "].Reference", lp_player), ",", " ", c_stringReplaceAll, c_stringCase);
+        lv_effectArrayType = StringWord(lv_effectArrayReference, 1);
+        lv_effectArrayLink = StringWord(lv_effectArrayReference, 2);
+        auto3B6A055B_val = lv_effectArrayType;
+        if (auto3B6A055B_val == "Behavior") {
+            auto4E31220C_ae = libARRA_gv_cACHESIZE_BEHAVIORS;
+            lv_i = 1;
+            for ( ; ( (auto4E31220C_ai >= 0 && lv_i <= auto4E31220C_ae) || (auto4E31220C_ai < 0 && lv_i >= auto4E31220C_ae) ) ; lv_i += auto4E31220C_ai ) {
+                if ((libARRA_gv_cACHE_BEHAVIORS[lv_i] == (lv_effectArrayLink))) {
+                    return true;
+                }
+
+            }
+        }
+        else if (auto3B6A055B_val == "Abil") {
+            autoD30E7FEC_ae = libARRA_gv_cACHESIZE_ABILITIES;
+            lv_i = 1;
+            for ( ; ( (autoD30E7FEC_ai >= 0 && lv_i <= autoD30E7FEC_ae) || (autoD30E7FEC_ai < 0 && lv_i >= autoD30E7FEC_ae) ) ; lv_i += autoD30E7FEC_ai ) {
+                if ((libARRA_gv_cACHE_ABILITIES[lv_i] == (lv_effectArrayLink))) {
+                    return true;
+                }
+
+            }
+        }
+        else if (auto3B6A055B_val == "Effect") {
+            auto7F51832E_ae = libARRA_gv_cACHESIZE_EFFECTS;
+            lv_i = 1;
+            for ( ; ( (auto7F51832E_ai >= 0 && lv_i <= auto7F51832E_ae) || (auto7F51832E_ai < 0 && lv_i >= auto7F51832E_ae) ) ; lv_i += auto7F51832E_ai ) {
+                if ((libARRA_gv_cACHE_EFFECTS[lv_i] == (lv_effectArrayLink))) {
+                    return true;
+                }
+
+            }
+        }
+        else if (auto3B6A055B_val == "Weapon") {
+            autoACCADCC9_ae = libARRA_gv_cACHESIZE_WEAPONS;
+            lv_i = 1;
+            for ( ; ( (autoACCADCC9_ai >= 0 && lv_i <= autoACCADCC9_ae) || (autoACCADCC9_ai < 0 && lv_i >= autoACCADCC9_ae) ) ; lv_i += autoACCADCC9_ai ) {
+                if ((libARRA_gv_cACHE_WEAPONS[lv_i] == (lv_effectArrayLink))) {
+                    return true;
+                }
+
+            }
+        }
+        else if (auto3B6A055B_val == "Unit") {
+            autoD6E36BA7_ae = libARRA_gv_cACHESIZE_UNITS;
+            lv_i = 1;
+            for ( ; ( (autoD6E36BA7_ai >= 0 && lv_i <= autoD6E36BA7_ae) || (autoD6E36BA7_ai < 0 && lv_i >= autoD6E36BA7_ae) ) ; lv_i += autoD6E36BA7_ai ) {
+                if ((libARRA_gv_cACHE_UNITS[lv_i] == (lv_effectArrayLink))) {
+                    return true;
+                }
+
+            }
+        }
+        else {
+        }
+    }
+    return false;
+}
+
+string libARRA_gf_GetUpgradeRace (string lp_upgrade) {
+    // Variable Declarations
+    string lv_editorCategories;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_editorCategories = CatalogFieldValueGet(c_gameCatalogUpgrade, lp_upgrade, "Race", c_playerAny);
+
+    // Implementation
+    return (CatalogFieldValueGet(c_gameCatalogUpgrade, lp_upgrade, "Race", c_playerAny));
+}
+
+bool libARRA_gf_UnitIsDanger (int lp_player, string lp_unit) {
+    // Variable Declarations
+    int lv_i;
+    string lv_ability;
+    string lv_behavior;
+    bool lv_isDanger;
+
+    // Automatic Variable Declarations
+    int auto320EDB39_ae;
+    const int auto320EDB39_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((CatalogEntryIsValid(c_gameCatalogUnit, lp_unit) == false)) {
+        return false;
+    }
+
+    if ((StringFind(libARRA_gv_cACHE_DANGER_UNITS, (" " + (lp_unit) + " "), c_stringCase) > 0)) {
+        return true;
+    }
+
+    if ((StringFind(libARRA_gv_cACHE_SAFE_UNITS, (" " + (lp_unit) + " "), c_stringCase) > 0)) {
+        return false;
+    }
+
+    if ((CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "WeaponArray", lp_player) > 0)) {
+        libARRA_gv_cACHE_DANGER_UNITS = (libARRA_gv_cACHE_DANGER_UNITS + (lp_unit) + " ");
+        return true;
+    }
+
+    auto320EDB39_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "AbilArray", lp_player) - 1);
+    lv_i = 0;
+    for ( ; ( (auto320EDB39_ai >= 0 && lv_i <= auto320EDB39_ae) || (auto320EDB39_ai < 0 && lv_i >= auto320EDB39_ae) ) ; lv_i += auto320EDB39_ai ) {
+        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "AbilArray[" + IntToString(lv_i) + "].Link", lp_player));
+        if ((libARRA_gf_AbilityIsDanger(lp_player, lv_ability) == true)) {
+            libARRA_gv_cACHE_DANGER_UNITS = (libARRA_gv_cACHE_DANGER_UNITS + (lp_unit) + " ");
+            return true;
+        }
+
+    }
+    libARRA_gv_cACHE_SAFE_UNITS = (libARRA_gv_cACHE_SAFE_UNITS + (lp_unit) + " ");
+    return false;
+}
+
+bool libARRA_gf_UnitisDetector (int lp_player, string lp_unitType) {
+    // Variable Declarations
+    string lv_ability;
+    string lv_behavior;
+
+    // Automatic Variable Declarations
+    int auto9CE1E6D2_ae;
+    int auto9CE1E6D2_var;
+    int auto4657E62F_ae;
+    int auto4657E62F_var;
+
+    // Variable Initialization
+
+    // Implementation
+    auto9CE1E6D2_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unitType, "AbilArray", lp_player) - 1);
+    auto9CE1E6D2_var = 0;
+    for ( ; auto9CE1E6D2_var <= auto9CE1E6D2_ae; auto9CE1E6D2_var += 1 ) {
+        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unitType, "AbilArray[" + IntToString(auto9CE1E6D2_var) + "].Link", lp_player));
+        if ((CatalogEntryIsValid(c_gameCatalogAbil, lv_ability) == true) && (libARRA_gf_AbilityIsDetector(lp_player, lv_ability) == true)) {
+            continue;
+        }
+
+    }
+    auto4657E62F_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unitType, "BehaviorArray", lp_player) - 1);
+    auto4657E62F_var = 0;
+    for ( ; auto4657E62F_var <= auto4657E62F_ae; auto4657E62F_var += 1 ) {
+        lv_behavior = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unitType, "BehaviorArray[" + IntToString(auto4657E62F_var) + "].Link", lp_player));
+        if ((CatalogEntryIsValid(c_gameCatalogBehavior, lv_behavior) == true) && (libARRA_gf_BehaviorisDetector(lp_player, lv_behavior) == true)) {
+            return true;
+        }
+
+    }
+    return false;
+}
+
+bool libARRA_gf_AbilityIsDanger (int lp_player, string lp_ability) {
+    // Variable Declarations
+    bool lv_isDanger;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((StringFind(libARRA_gv_cACHE_DANGER_ABILITIES, (" " + (lp_ability) + " "), c_stringCase) > 0)) {
+        return true;
+    }
+
+    if ((StringFind(libARRA_gv_cACHE_SAFE_ABILITIES, (" " + (lp_ability) + " "), c_stringCase) > 0)) {
+        return false;
+    }
+
+    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Agressive;
+    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
+    lv_isDanger = libARRA_gf_ByPassAbility(lp_player, lp_ability);
+    if ((lv_isDanger == true)) {
+        libARRA_gv_cACHE_DANGER_ABILITIES = (libARRA_gv_cACHE_DANGER_ABILITIES + (lp_ability) + " ");
+    }
+    else {
+        libARRA_gv_cACHE_SAFE_ABILITIES = (libARRA_gv_cACHE_SAFE_ABILITIES + (lp_ability) + " ");
+    }
+    return lv_isDanger;
+}
+
+bool libARRA_gf_AbilityIsDetector (int lp_player, string lp_ability) {
+    // Automatic Variable Declarations
+    // Implementation
+    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Detection;
+    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
+    return libARRA_gf_ByPassAbility(lp_player, lp_ability);
+}
+
+bool libARRA_gf_BehaviorisDanger (int lp_player, string lp_behavior) {
+    // Variable Declarations
+    bool lv_isDanger;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((StringFind(libARRA_gv_cACHE_DANGER_BEHAVIOR, (" " + (lp_behavior) + " "), c_stringCase) > 0)) {
+        return true;
+    }
+
+    if ((StringFind(libARRA_gv_cACHE_SAFE_BEHAVIOR, (" " + (lp_behavior) + " "), c_stringCase) > 0)) {
+        return false;
+    }
+
+    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Agressive;
+    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
+    lv_isDanger = libARRA_gf_ByPassBehavior(lp_player, lp_behavior);
+    if ((lv_isDanger == true)) {
+        libARRA_gv_cACHE_DANGER_BEHAVIOR = (libARRA_gv_cACHE_DANGER_BEHAVIOR + (lp_behavior) + " ");
+    }
+    else {
+        libARRA_gv_cACHE_SAFE_BEHAVIOR = (libARRA_gv_cACHE_SAFE_BEHAVIOR + (lp_behavior) + " ");
+    }
+    return lv_isDanger;
+}
+
+bool libARRA_gf_BehaviorisDetector (int lp_player, string lp_behavior) {
+    // Automatic Variable Declarations
+    // Implementation
+    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Detection;
+    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
+    return libARRA_gf_ByPassBehavior(lp_player, lp_behavior);
+}
+
+bool libARRA_gf_BehaviorUsesAbilityCommand (int lp_player, string lp_behavior, abilcmd lp_abil) {
+    // Variable Declarations
+    bool lv_value;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Ability;
+    libARRA_gv_cACHE_TMPEFFECTS_SIZE = 0;
+    libARRA_gv_bYPASS_SEARCH_ABILITY_COMMAND = lp_abil;
+    lv_value = libARRA_gf_ByPassBehavior(lp_player, lp_behavior);
+    libARRA_gv_bYPASS_SEARCH_ABILITY_COMMAND = null;
+    return lv_value;
 }
 
 bool libARRA_gf_Canbebuilton (unit lp_unit, point lp_point) {
@@ -2280,6 +1901,80 @@ bool libARRA_gf_Canbebuiltonabranch (point lp_point, int lp_number) {
         }
     }
     return true;
+}
+
+void libARRA_gf_ResolveUnitAffectedUpgrades (int lp_player) {
+    // Variable Declarations
+    int lv_i;
+    string lv_unitEntry;
+    string lv_upgrade;
+    string lv_behavior;
+    int lv_affectedUnitIndex;
+    int lv_effectArrayIndex;
+    string lv_effectArrayReference;
+    string lv_effectArrayType;
+    string lv_effectArrayLink;
+
+    // Automatic Variable Declarations
+    int autoE972E0B3_catalog;
+    int autoE972E0B3_i;
+
+    // Variable Initialization
+    lv_effectArrayReference = "";
+    lv_effectArrayType = "";
+    lv_effectArrayLink = "";
+
+    // Implementation
+    autoE972E0B3_catalog = c_gameCatalogUpgrade;
+    autoE972E0B3_i = 1;
+    for ( ; autoE972E0B3_i <= CatalogEntryCount(c_gameCatalogUpgrade) ; autoE972E0B3_i += 1 ) {
+        lv_upgrade = CatalogEntryGet(autoE972E0B3_catalog, autoE972E0B3_i);
+        if ((libARRA_gf_UpgradeIsUsefulForPlayer(lp_player, lv_upgrade) == true)) {
+            libARRA_gf_CacheUpgrade(lp_player, lv_upgrade, true);
+        }
+
+    }
+}
+
+bool libARRA_gf_AbilityIsIgnored (int lp_player, string lp_ability) {
+    // Variable Declarations
+    int lv_i;
+    string lv_requirement;
+    int lv_cAbilityArmMagazine;
+    int lv_cAbilityAugment;
+    int lv_cAbilityBehavior;
+    int lv_cAbilityBuild;
+    int lv_cAbilityEffectInstant;
+    int lv_cAbilityEffectTarget;
+    int lv_cAbilityEffectMorph;
+
+    // Automatic Variable Declarations
+    int auto4034020C_ae;
+    const int auto4034020C_ai = 1;
+
+    // Variable Initialization
+    lv_cAbilityArmMagazine = CatalogEntryClass(c_gameCatalogAbil, "CarrierHangar");
+    lv_cAbilityAugment = CatalogEntryClass(c_gameCatalogAbil, "TornadoMissile");
+    lv_cAbilityBehavior = CatalogEntryClass(c_gameCatalogAbil, "BansheeCloak");
+    lv_cAbilityBuild = CatalogEntryClass(c_gameCatalogAbil, "ProtossBuild");
+    lv_cAbilityEffectInstant = CatalogEntryClass(c_gameCatalogAbil, "Overcharge");
+    lv_cAbilityEffectTarget = CatalogEntryClass(c_gameCatalogAbil, "BlindingCloud");
+    lv_cAbilityEffectMorph = CatalogEntryClass(c_gameCatalogAbil, "VoidRaySwarmDamageBoost");
+
+    // Implementation
+    if ((CatalogEntryIsValid(c_gameCatalogAbil, lp_ability) == false)) {
+        return false;
+    }
+
+    auto4034020C_ae = UserDataInstanceCount("MonobattlesIgnore");
+    lv_i = 1;
+    for ( ; ( (auto4034020C_ai >= 0 && lv_i <= auto4034020C_ae) || (auto4034020C_ai < 0 && lv_i >= auto4034020C_ae) ) ; lv_i += auto4034020C_ai ) {
+        if ((UserDataGetGameLink("MonobattlesIgnore", UserDataInstance("MonobattlesIgnore", lv_i), "Ability", 1) == lp_ability)) {
+            return true;
+        }
+
+    }
+    return false;
 }
 
 text libARRA_gf_UTC_NameOfUnitType (string lp_pUnitType) {
@@ -4835,30 +4530,236 @@ void libARRA_gf_AddRegionIfExists (region lp_sourceRegion, region lp_targetRegio
 
 }
 
-unitgroup libARRA_gf_UnitsInRegionWithSpecifiedTypes (int lp_player, string lp_units, region lp_region) {
+void libARRA_gf_ClearArmedCache (int lp_player) {
     // Variable Declarations
-    string lv_compareUnitName;
-    string lv_compareUnitType;
-    unitgroup lv_resultGroup;
+    int lv_i;
+    int lv_p;
 
     // Automatic Variable Declarations
-    int auto3F0101C7_ai;
-    int auto3F0101C7_ae;
-
     // Variable Initialization
-    lv_compareUnitName = "";
-    lv_resultGroup = UnitGroupEmpty();
+    lv_p = lp_player;
 
     // Implementation
-    auto3F0101C7_ai = 1;
-    auto3F0101C7_ae = libARRA_gf_ListSize(lp_units);
-    while (auto3F0101C7_ai <= auto3F0101C7_ae) {
-        lv_compareUnitName = libARRA_gf_ListStringGet(lp_units, auto3F0101C7_ai);
-        auto3F0101C7_ai = auto3F0101C7_ai+1;
-        lv_compareUnitType = UnitTypeFromString(lv_compareUnitName);
-        UnitGroupAddUnitGroup(lv_resultGroup, UnitGroup(lv_compareUnitType, lp_player, lp_region, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    libARRA_gv_cACHE_ARMED[lv_p] = " ";
+    libARRA_gv_cACHE_DISARMED[lv_p] = " ";
+}
+
+void libARRA_gf_Armunit (int lp_player, unit lp_unit) {
+    // Variable Declarations
+    string lv_unitType;
+    int lv_i;
+    string lv_weapon;
+    string lv_turret;
+    string lv_aBILITY;
+    string lv_behavior;
+
+    // Automatic Variable Declarations
+    int auto4DFE723F_ae;
+    const int auto4DFE723F_ai = 1;
+    int auto2166497D_ae;
+    const int auto2166497D_ai = 1;
+
+    // Variable Initialization
+    lv_unitType = UnitGetType(lp_unit);
+
+    // Implementation
+    UnitBehaviorRemove(lp_unit, "Monobattle", 1);
+    auto4DFE723F_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "AbilArray", lp_player) - 1);
+    lv_i = 0;
+    for ( ; ( (auto4DFE723F_ai >= 0 && lv_i <= auto4DFE723F_ae) || (auto4DFE723F_ai < 0 && lv_i >= auto4DFE723F_ae) ) ; lv_i += auto4DFE723F_ai ) {
+        lv_aBILITY = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitType, "AbilArray[" + IntToString(lv_i) + "].Link", c_playerAny));
+        if (((libARRA_gf_AbilityIsDanger(lp_player, lv_aBILITY) == true))) {
+            UnitAbilityAdd(lp_unit, lv_aBILITY);
+        }
+
     }
-    return lv_resultGroup;
+    auto2166497D_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "BehaviorArray", lp_player) - 1);
+    lv_i = 0;
+    for ( ; ( (auto2166497D_ai >= 0 && lv_i <= auto2166497D_ae) || (auto2166497D_ai < 0 && lv_i >= auto2166497D_ae) ) ; lv_i += auto2166497D_ai ) {
+        lv_behavior = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitType, "BehaviorArray[" + IntToString(lv_i) + "].Link", lp_player));
+        if ((libARRA_gf_BehaviorisDanger(lp_player, lv_behavior) == true)) {
+            UnitBehaviorAdd(lp_unit, lv_behavior, lp_unit, 1);
+        }
+
+    }
+}
+
+void libARRA_gf_Disarmunit (int lp_player, unit lp_unit) {
+    // Variable Declarations
+    string lv_unitType;
+    int lv_i;
+    string lv_weapon;
+    string lv_turret;
+    string lv_ability;
+    int lv_cAbilityEffectAttack;
+    string lv_behavior;
+
+    // Automatic Variable Declarations
+    int autoC4FD923B_ae;
+    const int autoC4FD923B_ai = 1;
+    int autoA833025E_ae;
+    const int autoA833025E_ai = 1;
+
+    // Variable Initialization
+    lv_unitType = UnitGetType(lp_unit);
+    lv_cAbilityEffectAttack = CatalogEntryClass(c_gameCatalogAbil, "attack");
+
+    // Implementation
+    UnitBehaviorAdd(lp_unit, "Monobattle", lp_unit, 1);
+    autoC4FD923B_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "AbilArray", lp_player) - 1);
+    lv_i = 0;
+    for ( ; ( (autoC4FD923B_ai >= 0 && lv_i <= autoC4FD923B_ae) || (autoC4FD923B_ai < 0 && lv_i >= autoC4FD923B_ae) ) ; lv_i += autoC4FD923B_ai ) {
+        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitType, "AbilArray[" + IntToString(lv_i) + "].Link", c_playerAny));
+        if (((libARRA_gf_AbilityIsDanger(lp_player, lv_ability) == true))) {
+            UnitAbilityRemove(lp_unit, lv_ability);
+        }
+
+    }
+    autoA833025E_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "BehaviorArray", lp_player) - 1);
+    lv_i = 0;
+    for ( ; ( (autoA833025E_ai >= 0 && lv_i <= autoA833025E_ae) || (autoA833025E_ai < 0 && lv_i >= autoA833025E_ae) ) ; lv_i += autoA833025E_ai ) {
+        lv_behavior = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitType, "BehaviorArray[" + IntToString(lv_i) + "].Link", lp_player));
+        if ((libARRA_gf_BehaviorisDanger(lp_player, lv_behavior) == true)) {
+            UnitBehaviorRemove(lp_unit, lv_behavior, 1);
+        }
+
+    }
+}
+
+void libARRA_gf_ArmUnitType (int lp_player, string lp_unit) {
+    // Variable Declarations
+    int lv_i;
+    string lv_weapon;
+    string lv_turret;
+    string lv_ability;
+    bool lv_danger;
+    string lv_behavior;
+
+    // Automatic Variable Declarations
+    int auto1B8D0EC0_ae;
+    const int auto1B8D0EC0_ai = 1;
+    int auto8C8FD1C9_ae;
+    const int auto8C8FD1C9_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if (((CatalogEntryIsValid(c_gameCatalogUnit, lp_unit) == false) || (libARRA_gf_UnitTypeisArmed(lp_player, lp_unit) == true))) {
+        return ;
+    }
+
+    if ((libARRA_gf_UnitTypeisDisArmed(lp_player, lp_unit) == true)) {
+        libARRA_gv_cACHE_DISARMED[lp_player] = StringReplaceWord(libARRA_gv_cACHE_DISARMED[lp_player], (" " + (lp_unit)), "", c_stringReplaceAll, c_stringCase);
+    }
+
+    auto1B8D0EC0_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "WeaponArray", lp_player) - 1);
+    lv_i = 0;
+    for ( ; ( (auto1B8D0EC0_ai >= 0 && lv_i <= auto1B8D0EC0_ae) || (auto1B8D0EC0_ai < 0 && lv_i >= auto1B8D0EC0_ae) ) ; lv_i += auto1B8D0EC0_ai ) {
+        lv_weapon = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Link", lp_player));
+        lv_turret = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Turret", lp_player));
+        lv_danger = true;
+    }
+    auto8C8FD1C9_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "AbilArray", lp_player) - 1);
+    lv_i = 0;
+    for ( ; ( (auto8C8FD1C9_ai >= 0 && lv_i <= auto8C8FD1C9_ae) || (auto8C8FD1C9_ai < 0 && lv_i >= auto8C8FD1C9_ae) ) ; lv_i += auto8C8FD1C9_ai ) {
+        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "AbilArray[" + IntToString(lv_i) + "].Link", c_playerAny));
+        if ((CatalogEntryIsValid(c_gameCatalogAbil, lv_ability) == false)) {
+            continue;
+        }
+
+        if (((CatalogEntryClass(c_gameCatalogAbil, lv_ability) == libARRA_gv_cAbilityAttack) || (libARRA_gf_AbilityIsDanger(lp_player, lv_ability) == true))) {
+            lv_danger = true;
+        }
+
+    }
+    if ((lv_danger == true)) {
+        libARRA_gv_cACHE_ARMED[lp_player] = (libARRA_gv_cACHE_ARMED[lp_player] + (lp_unit) + " ");
+    }
+
+}
+
+void libARRA_gf_Disarmunittype (int lp_player, string lp_unit) {
+    // Variable Declarations
+    int lv_i;
+    string lv_weapon;
+    string lv_turret;
+    string lv_ability;
+    bool lv_danger;
+    string lv_behavior;
+
+    // Automatic Variable Declarations
+    int auto64A3CCD9_ae;
+    const int auto64A3CCD9_ai = 1;
+    int auto6BA8EC08_ae;
+    const int auto6BA8EC08_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if (((CatalogEntryIsValid(c_gameCatalogUnit, lp_unit) == false) || (libARRA_gf_UnitTypeisDisArmed(lp_player, lp_unit) == true))) {
+        return ;
+    }
+
+    if ((libARRA_gf_UnitTypeisArmed(lp_player, lp_unit) == true)) {
+        libARRA_gv_cACHE_ARMED[lp_player] = StringReplaceWord(libARRA_gv_cACHE_ARMED[lp_player], (" " + (lp_unit)), "", c_stringReplaceAll, c_stringCase);
+    }
+
+    auto64A3CCD9_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "WeaponArray", lp_player) - 1);
+    lv_i = 0;
+    for ( ; ( (auto64A3CCD9_ai >= 0 && lv_i <= auto64A3CCD9_ae) || (auto64A3CCD9_ai < 0 && lv_i >= auto64A3CCD9_ae) ) ; lv_i += auto64A3CCD9_ai ) {
+        lv_weapon = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Link", lp_player));
+        lv_turret = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Turret", lp_player));
+        lv_danger = true;
+    }
+    auto6BA8EC08_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "AbilArray", lp_player) - 1);
+    lv_i = 0;
+    for ( ; ( (auto6BA8EC08_ai >= 0 && lv_i <= auto6BA8EC08_ae) || (auto6BA8EC08_ai < 0 && lv_i >= auto6BA8EC08_ae) ) ; lv_i += auto6BA8EC08_ai ) {
+        lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "AbilArray[" + IntToString(lv_i) + "].Link", c_playerAny));
+        if ((CatalogEntryIsValid(c_gameCatalogAbil, lv_ability) == false)) {
+            continue;
+        }
+
+        if (((CatalogEntryClass(c_gameCatalogAbil, lv_ability) == libARRA_gv_cAbilityAttack) || (libARRA_gf_AbilityIsDanger(lp_player, lv_ability) == true))) {
+            lv_danger = true;
+        }
+
+    }
+    if ((lv_danger == true)) {
+        libARRA_gv_cACHE_DISARMED[lp_player] = (libARRA_gv_cACHE_DISARMED[lp_player] + (lp_unit) + " ");
+    }
+
+}
+
+bool libARRA_gf_UnitTypeisArmed (int lp_player, string lp_unit) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((StringFind(libARRA_gv_cACHE_ARMED[lp_player], (" " + (lp_unit) + " "), c_stringCase) > 0)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool libARRA_gf_UnitTypeisDisArmed (int lp_player, string lp_unit) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((StringFind(libARRA_gv_cACHE_DISARMED[lp_player], (" " + (lp_unit) + " "), c_stringCase) > 0)) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 unitgroup libARRA_gf_GetResourcesNearPoint (point lp_point, fixed lp_radius, int lp_type) {
@@ -4947,6 +4848,80 @@ void libARRA_gf_CM_Resources_FindWork (unit lp_worker, unit lp_townHall, fixed l
 
 }
 
+bool libARRA_gf_UnitIsAntiAir (string lp_unit, int lp_player) {
+    // Variable Declarations
+    int lv_i;
+    int lv_weapons;
+    string lv_weapon;
+    bool lv_isAntiAir;
+
+    // Automatic Variable Declarations
+    int autoA61938BE_ae;
+    const int autoA61938BE_ai = 1;
+
+    // Variable Initialization
+    lv_weapons = CatalogFieldValueCount(c_gameCatalogUnit, lp_unit, "WeaponArray", lp_player);
+
+    // Implementation
+    if ((lv_weapons > 0)) {
+        autoA61938BE_ae = (lv_weapons - 1);
+        lv_i = 0;
+        for ( ; ( (autoA61938BE_ai >= 0 && lv_i <= autoA61938BE_ae) || (autoA61938BE_ai < 0 && lv_i >= autoA61938BE_ae) ) ; lv_i += autoA61938BE_ai ) {
+            lv_weapon = (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "WeaponArray[" + IntToString(lv_i) + "].Link", lp_player));
+            if ((lv_weapon != null) && (UnitFilterGetState(libNtve_gf_ConvertTargetFilterStringToUnitFilter(CatalogFieldValueGet(c_gameCatalogWeapon, lv_weapon, "TargetFilters", lp_player)), c_targetFilterGround) != c_unitFilterRequired) && (UnitFilterGetState(libNtve_gf_ConvertTargetFilterStringToUnitFilter(CatalogFieldValueGet(c_gameCatalogWeapon, lv_weapon, "TargetFilters", lp_player)), c_targetFilterAir) != c_unitFilterExcluded)) {
+                return true;
+            }
+
+        }
+    }
+
+    return false;
+}
+
+bool libARRA_gf_UnitIsAir (string lp_unit, int lp_player) {
+    // Variable Declarations
+    const int lv_pLANE_AIR = 0;
+    int lv_plane;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_plane = CatalogFieldValueGetAsInt(c_gameCatalogUnit, lp_unit, "PlaneArray[" + IntToString(0) + "]", lp_player);
+
+    // Implementation
+    if ((lv_plane == lv_pLANE_AIR)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+unitgroup libARRA_gf_UnitsInRegionWithSpecifiedTypes (int lp_player, string lp_units, region lp_region) {
+    // Variable Declarations
+    string lv_compareUnitName;
+    string lv_compareUnitType;
+    unitgroup lv_resultGroup;
+
+    // Automatic Variable Declarations
+    int auto3F0101C7_ai;
+    int auto3F0101C7_ae;
+
+    // Variable Initialization
+    lv_compareUnitName = "";
+    lv_resultGroup = UnitGroupEmpty();
+
+    // Implementation
+    auto3F0101C7_ai = 1;
+    auto3F0101C7_ae = libARRA_gf_ListSize(lp_units);
+    while (auto3F0101C7_ai <= auto3F0101C7_ae) {
+        lv_compareUnitName = libARRA_gf_ListStringGet(lp_units, auto3F0101C7_ai);
+        auto3F0101C7_ai = auto3F0101C7_ai+1;
+        lv_compareUnitType = UnitTypeFromString(lv_compareUnitName);
+        UnitGroupAddUnitGroup(lv_resultGroup, UnitGroup(lv_compareUnitType, lp_player, lp_region, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0));
+    }
+    return lv_resultGroup;
+}
+
 fixed libARRA_gf_CombinedPropertyofUnitGroup (unitgroup lp_unitGroup, int lp_unitProperty, bool lp_currentDefault) {
     // Variable Declarations
     unit lv_unititer;
@@ -4993,6 +4968,12 @@ string libARRA_gf_GetUnitRace (unit lp_unit) {
     return (CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lp_unit), "Race", UnitGetOwner(lp_unit)));
 }
 
+string libARRA_gf_GetUnitRace2 (string lp_unit) {
+    // Automatic Variable Declarations
+    // Implementation
+    return (CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "Race", c_playerAny));
+}
+
 int libARRA_gf_GetUnitCargoSize (unit lp_unit) {
     // Variable Declarations
     string lv_ability;
@@ -5005,6 +4986,17 @@ int libARRA_gf_GetUnitCargoSize (unit lp_unit) {
     lv_ability = libNtve_gf_UnitAbilityByFilters(lp_unit, c_classIdCAbilTransport, "");
     lv_cargo = CatalogFieldValueGetAsInt(c_gameCatalogAbil, lv_ability, "TotalCargoSpace", UnitGetOwner(lp_unit));
     return lv_cargo;
+}
+
+bool libARRA_gf_StructureIsFlying (unit lp_unit) {
+    // Automatic Variable Declarations
+    // Implementation
+    if (((UnitGetType(lp_unit) == "CommandCenterFlying") || (UnitGetType(lp_unit) == "OrbitalCommandFlying") || (UnitGetType(lp_unit) == "BarracksFlying") || (UnitGetType(lp_unit) == "FactoryFlying") || (UnitGetType(lp_unit) == "StarportFlying"))) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 unit libARRA_gf_LowestVitalityUnitfromUnitGroup (unitgroup lp_canidates) {
