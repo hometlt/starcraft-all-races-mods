@@ -26,6 +26,112 @@
         <On index="12" Terms="StateChange; !StateValid HeavySmoke" Target="UmojanFlameSetHeavySmokeTransition" Send="Destroy"/>
         <On Terms="StateChange; !StateValid Fire" Target="UmojanFlameSetFireTransition" Send="Destroy"/>
     </CActorStateMonitor>
+    <CActorSound id="Changeling_Death">
+        <On Terms="UnitDeath.UmojanChangelingMarine; PassChance 100.000000" Send="Create"/>
+        <On Terms="UnitDeath.UmojanChangelingMarineShield; PassChance 100.000000" Send="Create"/>
+    </CActorSound>
+    <CActorUnit id="UmojanChangelingMarine2" parent="GenericUnitMorph" unitName="UmojanChangelingMarineShield">
+        <Aliases value="_UnitSmall"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <AcceptedHostedPropTransfers index="Scale" value="0"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create ChangelingMarineShield_Land"/>
+        <On Terms="ActorCreation" Send="SetLocalTintColor 255,128,255"/>
+        <Model value="Marine_Umojan"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <EventDataFootprint index="0" Model="ChangelingMarineFootprint"/>
+        <BuildModel value="Marine_Umojan"/>
+        <DeathArray index="Normal" ModelLink="ChangelingDeathMarine" SoundLink="Changling_Explode" VoiceLink="ChangelingMarineDeathVoice"/>
+        <PlacementModel value="Marine_Umojan"/>
+        <PortraitModel value="Marine_Umojan_Portrait"/>
+        <StandAnimTurnTime value="5"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.600000"/>
+            <RangeDown value="0.600000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleSmall"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <AbilSoundArray AbilCmd="Stimpack,Execute" Sound="Marine_StimPackVO"/>
+        <BarOffset value="40"/>
+        <BarWidth value="36"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Marine.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="What" value="MarineGroupWhat"/>
+        <GroupSoundArray index="Yes" value="MarineGroupYes"/>
+        <GroupSoundArray index="Attack" value="MarineGroupAttack"/>
+        <GroupSoundArray index="Board" value="MarineGroupBoard"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-marine-umojan.dds"/>
+        <HighlightTooltip value="Unit/Name/UmojanChangelingMarine2"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Birth" value="MarineBirth"/>
+        <SoundArray index="Ready" value="Changeling_MarineReady"/>
+        <SoundArray index="Help" value=""/>
+        <SoundArray index="What" value="Changeling_MarineWhat"/>
+        <SoundArray index="Yes" value="Changeling_MarineYes"/>
+        <SoundArray index="Attack" value="Marine_Attack"/>
+        <SoundArray index="Pissed" value="Changeling_MarinePissed"/>
+        <SoundArray index="Movement" value="MarineMovement"/>
+        <SoundArray index="Turning" value="MarineTurning"/>
+        <SoundArray index="Board" value="MarineBoard"/>
+        <SoundArray index="Click" value="MarineClick"/>
+        <SoundArray index="ClickError" value="MarineClickError"/>
+        <SoundArray index="Highlight" value="MarineHighlight"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-marine-umojan.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Marine.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-terran-marine-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-terran-marine-shield02.dds"/>
+            <Image value="Assets\Textures\wireframe-terran-marine-shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="UmojanCrowRecallCursorSplat" parent="ProtossCursorSplat" abil="UmojanCrowRecall"/>
+    <CActorSimple id="UmojanCrowRecallOpacity">
+        <On Terms="Behavior.UmojanCrowRecalling.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetOpacity 0.400000 0.250000 MassRecallOpacity"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 100,100,255 0.250000 OneShot MassRecallTint"/>
+        <On Terms="Behavior.UmojanCrowRecalled.Off" Send="TimerSet 0.150000 ClearRecallOpacity"/>
+        <On Terms="Behavior.Yoink.On" Target="_Unit" Send="ClearOpacity 0.250000 MassRecallOpacity"/>
+        <On Terms="Behavior.Yoink.On" Target="_Unit" Send="ClearTintColor 0.250000 MassRecallTint"/>
+        <On Terms="Behavior.Yoink.On" Send="Destroy"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity; ValidateUnit NoRecallingBehaviors" Target="_Unit" Send="ClearOpacity 0.250000 MassRecallOpacity"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity; ValidateUnit NoRecallingBehaviors" Target="_Unit" Send="ClearTintColor 0.250000 MassRecallTint"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity; ValidateUnit NoRecallingBehaviors" Send="Destroy"/>
+    </CActorSimple>
+    <CActorRange id="UmojanCrowRecallRange" parent="RangeAbil" abil="UmojanCrowRecall">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
+    </CActorRange>
+    <CActorModel id="UmojanCrowRecalledImpact" parent="ModelAnimationStyleOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.UmojanCrowRecalled.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <AutoScaleFactor value="0.450000"/>
+    </CActorModel>
+    <CActorSound id="UmojanCrowRecalledImpactSound" parent="SoundOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.UmojanCrowRecalled.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="ArbiterMP_RecallEnd"/>
+    </CActorSound>
+    <CActorModel id="UmojanCrowRecallingImpact" parent="ModelAnimationStyleOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.UmojanCrowRecalling.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <AutoScaleFactor value="0.450000"/>
+    </CActorModel>
+    <CActorSound id="UmojanCrowRecallingImpactSound" parent="SoundOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.UmojanCrowRecalling.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="ArbiterMP_RecallStart"/>
+    </CActorSound>
     <CActorBeamSimple id="UmojanAloeSendReconLink" parent="BeamSimpleAnimationStyleContinuous">
         <EditorCategories value=""/>
         <Supporter Subject="_Unit" Scope="Target" Actor="Find"/>
@@ -141,6 +247,32 @@
         <On Terms="Effect.UmojanAloeTemporalFieldCreatePersistent.Stop" Send="Destroy"/>
         <Sound value="Mothership_TimeWarpLoop"/>
     </CActorSound>
+    <CActorUnit id="UmojanChangelingMarine" parent="ChangelingMarine" unitName="UmojanChangelingMarine">
+        <Model value="Marine_Umojan"/>
+        <BuildModel value="Marine_Umojan"/>
+        <PlacementModel value="Marine_Umojan"/>
+        <PortraitModel value="Marine_Umojan_Portrait"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-marine-umojan.dds"/>
+        <HighlightTooltip value="Unit/Name/UmojanChangelingMarine"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-marine-umojan.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-terran-marine-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-terran-marine-shield02.dds"/>
+            <Image value="Assets\Textures\wireframe-terran-marine-shield03.dds"/>
+        </WireframeShield>
+        <On index="0" Terms="UnitBirth.UmojanChangelingMarine" Send="Create SoundEmitter UmojanChangelingMarine_Ambience"/>
+        <On index="1" Terms="UnitBirth.UmojanChangelingMarine"/>
+        <On index="2" Terms="UnitRevive.UmojanChangelingMarine"/>
+        <On index="3" Terms="UnitRevive.UmojanChangelingMarine"/>
+        <On index="4" Terms="UnitConstruction.UmojanChangelingMarine.Start"/>
+        <On index="5" Terms="UnitConstruction.UmojanChangelingMarine.Finish"/>
+        <On index="69" Terms="AbilMorph.*.Finish; MorphTo UmojanChangelingMarine"/>
+        <On index="70" Terms="AbilMorph.*.Start; MorphFrom UmojanChangelingMarine"/>
+        <On index="71" Terms="UnitHeightUpdate.*.Land" Target="" Send="Create ChangelingMarine_Land"/>
+        <On index="72" Terms="UnitDeath.UmojanChangelingMarine" Target="_DeathModel"/>
+        <On index="73" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
+        <On index="74" Terms="ActorCreation" Send="SetLocalTintColor 255,128,255"/>
+    </CActorUnit>
     <CActorModel id="UmojanOverchargeGeneratorModel" parent="ModelAddition">
         <On Terms="Behavior.UmojanOverchargeGenerator.On" Send="Create"/>
         <On Terms="Behavior.UmojanOverchargeGenerator.Off" Send="Destroy"/>
@@ -3296,7 +3428,7 @@
         <Macros value="PhysicsDeathsVoidAir"/>
         <On Terms="WeaponStart.UmojanCrowPlasmaCannon.AttackStart" Send="$Spell"/>
         <On Terms="Abil.ArbiterMPRecall.SourceCastStart" Send="$Spell"/>
-        <On Terms="Abil.UmojanDefensiveMatrixTarget" Send="$Spell"/>
+        <On Terms="Abil.UmojanDefensiveMatrixTarget.SourceCastStart" Send="$Spell"/>
         <On Terms="UnitHeightUpdate.*.Land" Send="Create Raven_Land"/>
         <HostSiteOps Ops="SOpBankerRaven"/>
         <Model value="Raven_Umojan"/>
@@ -3341,7 +3473,7 @@
             <AttachQuery Methods="AMFilterCenter"/>
             <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMassive15"/>
         </TerrainSquibs>
-        <AbilSoundArray AbilCmd="ArbiterMPRecall,Execute" Sound="Raven_Yes"/>
+        <AbilSoundArray AbilCmd="UmojanCrowRecall,255" Sound="Raven_Yes"/>
         <AbilSoundArray AbilCmd="UmojanDefensiveMatrixTarget,Execute" Sound="Raven_TargetingDroneVO"/>
         <BarOffset value="55"/>
         <ErrorArray Error="CantBuildLocationInvalid" Sound="e_cmdBuildTechRequirementsNotMet_Terr"/>
@@ -3594,7 +3726,7 @@
         </Wireframe>
     </CActorUnit>
     <CActorAction id="UmojanShadowguardSabotageBoom" parent="GenericAttack" effectAttack="UmojanShadowguardSabotageDamage">
-        <LaunchAssets Model="SiegeTankSiegedAttackDirectedLaunch" Sound="SiegeTank_SiegedAttackLaunch"/>
+        <LaunchAssets Model="" Sound="SiegeTank_SiegedAttackLaunch"/>
         <ContainerAssets Sound="SiegeTankSiegedDirectedBunkerAttackLaunch"/>
         <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeStandard SOpForwardLaunchGuide"/>
         <ImpactMap index="None" Model="SiegeTankSiegedAttackDirectedImpact" Sound="SiegeTank_SiegedAttackImpact"/>
@@ -4384,7 +4516,7 @@
         <Macros value="PhysicsDeathsSwarmGround"/>
         <Macros value="TerrainSquibAnimations"/>
         <Macros value="PhysicsDeathsVoidGround"/>
-        <On Terms="ActorCreation; ValidatePlayer NoMarineShield" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
+        <On Terms="ActorCreation; ValidatePlayer UmojanNoMarineShield" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
         <On Terms="Upgrade.UmojanCombatShield.Add" Send="AnimClear Cover"/>
         <On Terms="Upgrade.UmojanCombatShield.Remove" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
         <On Terms="UnitDeath.UmojanMarine; AnimPlaying Cover" Target="_DeathModel" Send="AnimPlay Cover Cover PlayForever 0.000000"/>
@@ -4498,16 +4630,19 @@
         <On Terms="WeaponStart.UmojanBurstLasers.AttackStart" Send="AnimBracketStart Attack Attack"/>
         <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
         <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
-        <HostSiteOps Ops="UmojanSOpBankerMist"/>
-        <AnimBlendTime value="0.300000"/>
-        <ModelFlags index="OutlineEmitter" value="1"/>
-        <DeathArray index="Normal" ModelLink="UmojanMistDeath" SoundLink="Wraith_Explode" VoiceLink="WraithDeathVoice"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundMedium"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathMedium" Name="Hallucination"/>
         <DeathCustoms>
             <ModelLink value="DeathVoidShadowMedium"/>
             <SoundLink value="ShadowUnit_DeathFX"/>
             <VoiceLink value="ShadowUnit_DeathVox"/>
             <Name value="Shadow"/>
         </DeathCustoms>
+        <HostSiteOps Ops="UmojanSOpBankerMist"/>
+        <AnimBlendTime value="0.300000"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="UmojanMistDeath" SoundLink="Wraith_Explode" VoiceLink="WraithDeathVoice"/>
         <PortraitModel value="UmojanPortraitMist"/>
         <BarOffset value="55"/>
         <BarWidth value="66"/>
