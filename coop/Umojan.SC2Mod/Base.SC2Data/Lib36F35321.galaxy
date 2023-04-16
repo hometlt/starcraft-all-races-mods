@@ -12,6 +12,19 @@ void lib36F35321_InitLibraries () {
     libCOMI_InitVariables();
 }
 
+// Variable Initialization
+bool lib36F35321_InitVariables_completed = false;
+
+void lib36F35321_InitVariables () {
+    if (lib36F35321_InitVariables_completed) {
+        return;
+    }
+
+    lib36F35321_InitVariables_completed = true;
+
+    lib36F35321_gv_cM_CommanderKerriganZergSupplyMax = 2;
+}
+
 // Functions
 void lib36F35321_gf_CM_MasteryKerriganArmyVespeneCostList (int lp_player) {
     // Variable Declarations
@@ -278,6 +291,7 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
         return true;
     }
 
+    TriggerEnable(lib36F35321_gt_CM_UmojanZergSupply, true);
     auto90444C1F_g = lv_players;
     auto90444C1F_var = -1;
     while (true) {
@@ -292,6 +306,7 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
 
         if ((libCOMI_gf_TechUnitAvailable(auto90444C1F_var, "UmojanArtificialHatchery") == true)) {
             libCOMI_gf_CreateACStructure(auto90444C1F_var, "UmojanArtificialHatchery");
+            PlayerModifyPropertyInt(auto90444C1F_var, c_playerPropCustom, c_playerPropOperSetTo, 2);
         }
 
     }
@@ -302,6 +317,70 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
 void lib36F35321_gt_DUT_CommanderUmojanKerrigan_Init () {
     lib36F35321_gt_DUT_CommanderUmojanKerrigan = TriggerCreate("lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func");
     TriggerAddEventGeneric(lib36F35321_gt_DUT_CommanderUmojanKerrigan, libCOMI_gv_mISSIONINITIALIZED);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_UmojanZergSupply
+//--------------------------------------------------------------------------------------------------
+bool lib36F35321_gt_CM_UmojanZergSupply_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_realSupplyMax;
+    fixed lv_realSupplyConsummed;
+    int lv_supplyAvailable;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((libCOMI_gf_ActiveCommanderForPlayer(EventPlayer()) == "UmojanCMD"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "Overlord", c_techCountCompleteOnly)) * 8.0);
+    lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "UmojanArtificialHatchery", c_techCountCompleteOnly)) * 2.0);
+    lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "UmojanArtificialHive", c_techCountCompleteOnly)) * 2.0);
+    lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "UmojanArtificialLair", c_techCountCompleteOnly)) * 2.0);
+    lv_realSupplyMax = MinF(lv_realSupplyMax, (50.0 + IntToFixed(TechTreeUpgradeCount(EventPlayer(), "MasteryUmojanMaximumZergControl", c_techCountCompleteOnly))));
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Drone", c_techCountQueuedOrBetter)) * 1.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "DroneBurrowed", c_techCountQueuedOrBetter)) * 1.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Zergling", c_techCountQueuedOrBetter)) * 0.5);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "ZerglingBurrowed", c_techCountQueuedOrBetter)) * 0.5);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Hydralisk", c_techCountQueuedOrBetter)) * 2.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "HydraliskBurrowed", c_techCountQueuedOrBetter)) * 2.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Mutalisk", c_techCountQueuedOrBetter)) * 2.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "LurkerMP", c_techCountQueuedOrBetter)) * 3.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "LurkerMPBurrowed", c_techCountQueuedOrBetter)) * 3.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "GuardianMP", c_techCountQueuedOrBetter)) * 2.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Ultralisk", c_techCountQueuedOrBetter)) * 6.0);
+    lib36F35321_gv_cM_CommanderKerriganZergSupplyMax = TruncI(lv_realSupplyMax);
+    lib36F35321_gv_cM_CommanderKerriganZergSupplyConsummed = TruncI(lv_realSupplyConsummed);
+    lv_supplyAvailable = TruncI((lv_realSupplyMax - lv_realSupplyConsummed));
+    PlayerModifyPropertyInt(EventPlayer(), c_playerPropCustom, c_playerPropOperSetTo, lv_supplyAvailable);
+    TextExpressionSetToken("Param/Expression/lib_36F35321_6ECCEC43", "A", IntToText(TechTreeUpgradeCount(EventPlayer(), "MasteryUmojanZergEnergyRegen", c_techCountQueuedOrBetter)));
+    TextExpressionSetToken("Param/Expression/lib_36F35321_6ECCEC43", "B", IntToText(TechTreeUpgradeCount(EventPlayer(), "MasteryUmojanKerriganEnergyRegen", c_techCountQueuedOrBetter)));
+    TextExpressionSetToken("Param/Expression/lib_36F35321_6ECCEC43", "C", IntToText(TechTreeUpgradeCount(EventPlayer(), "MasteryUmojanZergCost", c_techCountQueuedOrBetter)));
+    TextExpressionSetToken("Param/Expression/lib_36F35321_6ECCEC43", "D", IntToText(TechTreeUpgradeCount(EventPlayer(), "MasteryUmojanMaximumShield", c_techCountQueuedOrBetter)));
+    TextExpressionSetToken("Param/Expression/lib_36F35321_6ECCEC43", "E", IntToText(TechTreeUpgradeCount(EventPlayer(), "MasteryUmojanMaximumZergControl", c_techCountQueuedOrBetter)));
+    TextExpressionSetToken("Param/Expression/lib_36F35321_6ECCEC43", "F", IntToText(TechTreeUpgradeCount(EventPlayer(), "MasteryUmojanBuildingCost", c_techCountQueuedOrBetter)));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_36F35321_6ECCEC43"));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib36F35321_gt_CM_UmojanZergSupply_Init () {
+    lib36F35321_gt_CM_UmojanZergSupply = TriggerCreate("lib36F35321_gt_CM_UmojanZergSupply_Func");
+    TriggerEnable(lib36F35321_gt_CM_UmojanZergSupply, false);
+    TriggerAddEventUnitDied(lib36F35321_gt_CM_UmojanZergSupply, null);
+    TriggerAddEventUnitTrainProgress(lib36F35321_gt_CM_UmojanZergSupply, null, c_unitProgressStageStart);
+    TriggerAddEventUnitTrainProgress(lib36F35321_gt_CM_UmojanZergSupply, null, c_unitProgressStageCancel);
+    TriggerAddEventUnitTrainProgress(lib36F35321_gt_CM_UmojanZergSupply, null, c_unitProgressStageComplete);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -441,6 +520,7 @@ void lib36F35321_gt_CM_MasteryCMDKerriganEnergySelf_Init () {
 
 void lib36F35321_InitTriggers () {
     lib36F35321_gt_DUT_CommanderUmojanKerrigan_Init();
+    lib36F35321_gt_CM_UmojanZergSupply_Init();
     lib36F35321_gt_CM_MasteryCMDKerriganArmyCostList_Init();
     lib36F35321_gt_CM_MasteryCMDKerriganBuildingCostList_Init();
     lib36F35321_gt_CM_MasteryCMDKerriganShieldList_Init();
@@ -461,6 +541,7 @@ void lib36F35321_InitLib () {
     lib36F35321_InitLib_completed = true;
 
     lib36F35321_InitLibraries();
+    lib36F35321_InitVariables();
     lib36F35321_InitTriggers();
 }
 
