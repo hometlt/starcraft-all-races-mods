@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+    <CActorSplat id="UmojanKerriganT3EMPCursorSplat" parent="TerranCursorSplat" abil="UmojanKerriganT3EMP"/>
+    <CActorRange id="UmojanKerriganT3EMPRange" parent="RangeAbil" abil="UmojanKerriganT3EMP">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
+    </CActorRange>
+    <CActorAction id="UmojanKerriganT2ConsumeAttack" parent="GenericAttackBase">
+        <On Terms="Effect.ConsumeDNAImpact.Start; FromEffectTreeDescendant" Send="ActionImpact"/>
+        <On Terms="Effect.ConsumeDNAImpact.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics"/>
+        <On Terms="Effect.UmojanKerriganT2ConsumeFeedbackLM.Start; At Caster" Send="Create"/>
+        <LaunchAttachQuery Methods="Center"/>
+        <Missile value="ConsumeDNAAttackMissile2"/>
+        <ImpactSiteOps Ops="SOpAttachHarness"/>
+        <ImpactAttachQuery Methods="Center"/>
+        <ShieldFlashType value="Full"/>
+        <ForceCommencementFrom value="ConsumeDNAFeedbackLM"/>
+    </CActorAction>
     <CActorUnit id="CoopCasterUmojan" parent="ProtossBuilding" unitName="CoopCasterUmojan">
         <Macros value="GlobalLoopMacro"/>
         <Macros value="QueueAnim"/>
@@ -53,10 +69,33 @@
         <VitalNames index="Shields" value="Vital/ZergShields"/>
         <WireframeShieldColor value="255,0,128,0"/>
     </CActorUnit>
-    <CActorUnit id="Mutalisk">
-        <On Terms="AbilTrain.UmojanMutaliskMorphToGuardian.Cancel" Send="Create"/>
-        <On Terms="AbilTrain.UmojanMutaliskMorphToDevourer.Cancel" Send="Create"/>
-    </CActorUnit>
+    <CActorSplat id="HighArchonPsiStormCursorSplat2" parent="ProtossCursorSplat" abil="UmojanKerriganT2PsiStorm">
+        <Model value="PsiStormCursorSplat"/>
+    </CActorSplat>
+    <CActorModel id="HighArchonPsiStormImpact">
+        <On Terms="Behavior.UmojanKerriganT2PsiStorm.Start" Send="Create"/>
+        <On Terms="Behavior.UmojanKerriganT2PsiStorm.Off" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorModel id="HighArchonPsiStormModel">
+        <On Terms="Effect.UmojanKerriganT2PsiStormCP.Start" Send="Create"/>
+        <On Terms="Effect.UmojanKerriganT2PsiStormCP.Stop" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorRange id="HighArchonPsiStormRange2" parent="RangeAbil" abil="UmojanKerriganT2PsiStorm">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
+    </CActorRange>
+    <CActorSound id="HighArchonPsiStormSound">
+        <On Terms="Effect.UmojanKerriganT2PsiStormCP.Start" Send="Create"/>
+        <On Terms="Effect.UmojanKerriganT2PsiStormCP.Stop" Send="Destroy"/>
+    </CActorSound>
+    <CActorSound id="UmojanKerriganT2ConsumeImpact" parent="SoundOneShot">
+        <On Terms="Effect.UmojanKerriganT2ConsumeCreatePersistant.Start" Send="Create"/>
+        <Sound value="HybridF_ConsumeDNAImpact"/>
+    </CActorSound>
+    <CActorSound id="UmojanKerriganT2ConsumeLaunch" parent="SoundOneShot">
+        <On Terms="Abil.UmojanKerriganT2Consume.SourceCastStart" Send="Create"/>
+        <Sound value="HybridF_ConsumeDNALaunch"/>
+    </CActorSound>
     <CActorUnit id="UmojanGhostAcademy">
         <AbilSoundArray AbilCmd="UmojanInsertionTeamCreateTeam,Execute" Sound="Ghost_Ready"/>
     </CActorUnit>
@@ -68,11 +107,23 @@
     </CActorProgress>
     <CActorRange id="UmojanConstructionBotsRangeTowerUpgraded" parent="RangeAbil" abil="UmojanBuildTowerUpgraded"/>
     <CActorRange id="UmojanInsertionTeamBeaconRange">
+        <Inherits index="Visibility" value="0"/>
         <On Terms="UnitBirth.UmojanInsertionTeamBeacon" Send="Create"/>
         <On Terms="UnitDeath.UmojanInsertionTeamBeacon" Send="Destroy"/>
-        <Range value="10.000000"/>
+        <Abil Link="UmojanInsertionTeamAttack"/>
         <Icon value="Assets\Textures\decalspacelines09_diffuse.dds"/>
-        <Inherits index="Visibility" value="0"/>
+    </CActorRange>
+    <CActorAction id="UmojanKerriganT3LockdownAttack" parent="GenericAttack" effectImpact="UmojanKerriganT3LockdownAB" effectLaunch="UmojanKerriganT3LockdownLM">
+        <LaunchSite value="UmojanBattlecatRiderShadowguardSite"/>
+        <LaunchSiteFallback value="GenericAttackLaunchSite"/>
+        <LaunchAssets Sound="Ghost_EMPAttackLaunch"/>
+        <Beam value="UmojanBattlecatFakeBeam"/>
+        <Missile value="UmojanLockdownAttackMissile"/>
+        <ImpactMap index="None" Model="GhostEMPAttackImpactEffect" Sound="Ghost_EMPAttackImpact"/>
+    </CActorAction>
+    <CActorRange id="UmojanKerriganT3LockdownRange" parent="RangeAbil" abil="UmojanKerriganT3Lockdown">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
     </CActorRange>
     <CActorModel id="UmojanScienceFacilityZergBuild" parent="TerranBuildingBuild">
         <On index="4" Send="Create UmojanConstructionAttached"/>
@@ -245,7 +296,6 @@
         <On Terms="UnitBirth.UmojanArtificialLair; PlayerHasClanDecal" Send="Create ZergClanFlag"/>
         <On Terms="UnitBirth.UmojanArtificialLair; PlayerHasTrophy" Send="Create ZergPlayerTrophy"/>
         <On Terms="UnitBirth.UmojanArtificialLair" Send="Create SoundEmitter Lair_Ambience"/>
-        <On Terms="UnitBirth" Send="Create StetmannBlob"/>
         <Model value="HatcheryStetmann"/>
         <EventDataFootprint index="0" Model="LairFootprint"/>
         <CreepHeightClass value="Small"/>
@@ -256,7 +306,7 @@
         <DeathArray index="UnderConstruction" ModelLink="HatcheryStetmannDeathUnderConstruction" SoundLink="Lair_Explode"/>
         <DeathCustoms ModelLink="ZergGenericBuildingDeath" Name="Detached"/>
         <PlacementModel value="HatcheryStetmannPlacement"/>
-        <PortraitModel value="HatcheryStetmannPortrait"/>
+        <PortraitModel value="UmojanAdjutantPortrait"/>
         <BarOffset value="180"/>
         <BarWidth value="230"/>
         <GroupIcon>
@@ -377,40 +427,6 @@
             <Image value="Assets\Textures\WireFrame-Terran-NovaStasisCell.dds"/>
         </Wireframe>
     </CActorUnit>
-    <CActorModel id="UmojanBattlecatRiderKerriganDummy" parent="ModelAddition">
-        <On index="0" Terms="ActorOrphan" Send="Destroy"/>
-        <On index="1" Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
-        <On index="2" Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
-        <On Terms="ActorCreation" Send="SetScale 0.500000"/>
-        <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
-        <HostForProps Subject="UmojanCmdKerrigan"/>
-        <HostSiteOps Ops="SOpAttachTarget SOpMoveUpByDot5 SOpMoveUpByDot25"/>
-        <Model value="RedstoneLavaCritter"/>
-        <Scale value="0.500000"/>
-    </CActorModel>
-    <CActorModel id="UmojanBattlecatRiderKerriganModel" parent="ModelAddition">
-        <On Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
-        <On Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
-        <On Terms="ActorCreation" Send="AnimPlay Start Stand PlayForever"/>
-        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
-        <On Terms="WeaponStart.UmojanK1XCanisterRifleLancer.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
-        <On Terms="WeaponStart.UmojanK1XCanisterRifleLancer.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
-        <On Terms="WeaponStart.UmojanK1XCanisterRifleLancer.AttackStart" Send="AnimBracketStart Attack Attack"/>
-        <On Terms="WeaponStop.UmojanK1XCanisterRifleLancer.AttackStop" Send="AnimBracketStop Attack"/>
-        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
-        <On Terms="ActorCreation" Send="SetScale 1.800000"/>
-        <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
-        <Host Subject="UmojanBattlecatRiderKerriganDummy"/>
-        <HostSiteOps Ops="SOpAttachTarget SOpMoveDownByDot35"/>
-        <Model value="KerriganGhost"/>
-    </CActorModel>
-    <CActorSite id="UmojanBattlecatRiderKerriganSite">
-        <On Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
-        <On Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
-        <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
-        <Host Subject="UmojanBattlecatRiderKerriganModel"/>
-        <HostSiteOps Ops="SOpAttachWeapon"/>
-    </CActorSite>
     <CActorUnit id="UmojanCmdKerrigan" parent="UmojanBattlecat" unitName="UmojanCmdKerrigan">
         <On index="0" Terms="UnitBirth.UmojanCmdKerrigan" Send="Create SoundEmitter UmojanBattlecatPretorian_Ambience"/>
         <On index="1" Terms="UnitBirth.UmojanCmdKerrigan"/>
@@ -456,6 +472,40 @@
         </Wireframe>
         <PortraitModel value="KerriganGhostPortrait"/>
     </CActorUnit>
+    <CActorModel id="UmojanBattlecatRiderKerriganDummy" parent="ModelAddition">
+        <On index="0" Terms="ActorOrphan" Send="Destroy"/>
+        <On index="1" Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
+        <On index="2" Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="SetScale 0.500000"/>
+        <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
+        <HostForProps Subject="UmojanCmdKerrigan"/>
+        <HostSiteOps Ops="SOpAttachTarget SOpMoveUpByDot5 SOpMoveUpByDot25"/>
+        <Model value="RedstoneLavaCritter"/>
+        <Scale value="0.500000"/>
+    </CActorModel>
+    <CActorModel id="UmojanBattlecatRiderKerriganModel" parent="ModelAddition">
+        <On Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
+        <On Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="AnimPlay Start Stand PlayForever"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.UmojanK1XCanisterRifleLancer.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.UmojanK1XCanisterRifleLancer.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
+        <On Terms="WeaponStart.UmojanK1XCanisterRifleLancer.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.UmojanK1XCanisterRifleLancer.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="ActorCreation" Send="SetScale 1.800000"/>
+        <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
+        <Host Subject="UmojanBattlecatRiderKerriganDummy"/>
+        <HostSiteOps Ops="SOpAttachTarget SOpMoveDownByDot35"/>
+        <Model value="KerriganGhost"/>
+    </CActorModel>
+    <CActorSite id="UmojanBattlecatRiderKerriganSite">
+        <On Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
+        <On Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
+        <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
+        <Host Subject="UmojanBattlecatRiderKerriganModel"/>
+        <HostSiteOps Ops="SOpAttachWeapon"/>
+    </CActorSite>
     <CActorAction id="UmojanKerriganAttack" parent="GenericAttack" effectAttack="UmojanK2XCanisterRifle">
         <LaunchSite value="UmojanBattlecatRiderKerriganSite"/>
         <LaunchSiteFallback value="GenericAttackLaunchSite"/>
@@ -466,6 +516,14 @@
         <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
         <ImpactPhysics Name="CannisterRifleImpact" MatchKeys="Basic" Physics="GhostAttackDeathForce"/>
     </CActorAction>
+    <CActorModel id="WildMutationCast">
+        <On Terms="Abil.UmojanKerriganT3AdrenalineRush.SourceCastStart" Send="Create"/>
+    </CActorModel>
+    <CActorSound id="WildMutationCastSound">
+        <On Terms="Abil.UmojanKerriganT3AdrenalineRush.SourceCastStart" Send="Create"/>
+    </CActorSound>
+    <CActorSplat id="UmojanKerriganT2AdrenalineRushCursorSplat" parent="ZergCursorSplat" abil="UmojanKerriganT3AdrenalineRush"/>
+    <CActorRange id="UmojanKerriganT2AdrenalineRushRange" parent="RangeAbil" abil="UmojanKerriganT3AdrenalineRush"/>
     <!-- Nuke                                                                                    -->
     <CActorSplat id="nukeCursorSplat">
         <On Terms="Abil.UmojanInsertionTeamNuke" Send="Create"/>

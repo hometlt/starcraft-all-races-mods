@@ -226,7 +226,7 @@ void lib36F35321_gf_CM_MasteryKerriganArmyVespeneCostList4 (int lp_player) {
     // Variable Initialization
 
     // Implementation
-    lv_upgradeCount = TechTreeUpgradeCount(lp_player, "MasteryUmojanZergEnergyRegen", c_techCountCompleteOnly);
+    lv_upgradeCount = TechTreeUpgradeCount(lp_player, "MasteryUmojanKerriganEnergyMaximum", c_techCountCompleteOnly);
     lib36F35321_gf_CM_MasteryCMDKerriganEnergyMaxIncrease("UmojanCmdKerrigan", lp_player, lv_upgradeCount);
     lib36F35321_gf_CM_MasteryCMDKerriganEnergyMaxIncrease("UmojanInsertionTeamBeacon", lp_player, lv_upgradeCount);
     lib36F35321_gf_CM_MasteryCMDKerriganEnergyMaxIncrease("UmojanShadowguard", lp_player, lv_upgradeCount);
@@ -240,7 +240,7 @@ void lib36F35321_gf_CM_MasteryCMDKerriganEnergyMaxIncrease (string lp_unitType, 
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_UnitVespeneCostReductionPerPoint = 0.02;
+    lv_UnitVespeneCostReductionPerPoint = 0.01;
 
     // Implementation
     lv_unitEnergyOriginal = IntToFixed(CatalogFieldValueGetAsInt(c_gameCatalogUnit, lp_unitType, "EnergyMax", libCOMI_gv_vU_PLAYER_NEUTRAL));
@@ -274,7 +274,7 @@ void lib36F35321_gf_CM_MasteryCMDKerriganEnergyRegenIncrease (string lp_unitType
     // Implementation
     lv_unitEnergyOriginal = IntToFixed(CatalogFieldValueGetAsInt(c_gameCatalogUnit, lp_unitType, "EnergyRegenRate", libCOMI_gv_vU_PLAYER_NEUTRAL));
     lv_unitEnergyNewValue = (lv_unitEnergyOriginal * IntToFixed(lp_upgradeCount) * lv_UnitVespeneCostReductionPerPoint + lv_unitEnergyOriginal);
-    CatalogFieldValueSet(c_gameCatalogUnit, lp_unitType, "EnergyRegenRate", lp_player, FixedToString(lv_unitEnergyNewValue, c_fixedPrecisionAny));
+    CatalogFieldValueSet(c_gameCatalogUnit, lp_unitType, "EnergyRegenRate", lp_player, FixedToString(lv_unitEnergyNewValue, 5));
 }
 
 // Triggers
@@ -288,6 +288,9 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
     // Automatic Variable Declarations
     playergroup auto90444C1F_g;
     int auto90444C1F_var;
+    unitgroup autoBCC72BEA_g;
+    int autoBCC72BEA_u;
+    unit autoBCC72BEA_var;
 
     // Variable Initialization
     lv_players = libCOMI_gf_PlayersOfCommander("UmojanCMD");
@@ -305,6 +308,10 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
     }
 
     TriggerEnable(lib36F35321_gt_CM_UmojanZergSupply, true);
+    TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDeploy, true);
+    TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDeployTB, true);
+    TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDestroyed, true);
+    TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamReturn, true);
     auto90444C1F_g = lv_players;
     auto90444C1F_var = -1;
     while (true) {
@@ -320,6 +327,15 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
             PlayerModifyPropertyInt(auto90444C1F_var, c_playerPropCustom, c_playerPropOperSetTo, 2);
         }
 
+    }
+    autoBCC72BEA_g = UnitGroup("UmojanGhostAcademy", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoBCC72BEA_u = UnitGroupCount(autoBCC72BEA_g, c_unitCountAll);
+    for (;; autoBCC72BEA_u -= 1) {
+        autoBCC72BEA_var = UnitGroupUnitFromEnd(autoBCC72BEA_g, autoBCC72BEA_u);
+        if (autoBCC72BEA_var == null) { break; }
+        PlayerAddChargeUsed(UnitGetOwner(autoBCC72BEA_var), "Abil/UmojanInsertionTeamCreateTeamDummy", -1.0);
+        UnitGroupAdd(lib36F35321_gv_cM_Shadowteam[UnitGetOwner(autoBCC72BEA_var)], autoBCC72BEA_var);
+        UnitGroupAdd(lib36F35321_gv_cM_Shadowteam_Ready[UnitGetOwner(autoBCC72BEA_var)], autoBCC72BEA_var);
     }
     return true;
 }
@@ -372,7 +388,7 @@ bool lib36F35321_gt_CM_UmojanZergSupply_Func (bool testConds, bool runActions) {
     lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Ultralisk", c_techCountQueuedOrBetter)) * 6.0);
     lib36F35321_gv_cM_CommanderKerriganZergSupplyMax = TruncI(lv_realSupplyMax);
     lib36F35321_gv_cM_CommanderKerriganZergSupplyConsummed = TruncI(lv_realSupplyConsummed);
-    lv_supplyAvailable = TruncI((lv_realSupplyMax - lv_realSupplyConsummed));
+    lv_supplyAvailable = MaxI(TruncI((lv_realSupplyMax - lv_realSupplyConsummed)), 0);
     PlayerModifyPropertyInt(EventPlayer(), c_playerPropCustom, c_playerPropOperSetTo, lv_supplyAvailable);
     return true;
 }
@@ -475,7 +491,7 @@ bool lib36F35321_gt_CM_MasteryCMDKerriganEnergyMaxList_Func (bool testConds, boo
     // Automatic Variable Declarations
     // Conditions
     if (testConds) {
-        if (!((EventUpgradeName() == "MasteryUmojanZergEnergyRegen"))) {
+        if (!((EventUpgradeName() == "MasteryUmojanKerriganEnergyMaximum"))) {
             return false;
         }
     }
@@ -541,6 +557,7 @@ bool lib36F35321_gt_CM_UmojanShadowteamReturn_Func (bool testConds, bool runActi
 //--------------------------------------------------------------------------------------------------
 void lib36F35321_gt_CM_UmojanShadowteamReturn_Init () {
     lib36F35321_gt_CM_UmojanShadowteamReturn = TriggerCreate("lib36F35321_gt_CM_UmojanShadowteamReturn_Func");
+    TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamReturn, false);
     TriggerAddEventPlayerEffectUsed(lib36F35321_gt_CM_UmojanShadowteamReturn, c_playerAny, "UmojanInsertionTeamCreateTeamDummyEnd");
 }
 
@@ -569,6 +586,7 @@ bool lib36F35321_gt_CM_UmojanShadowteamDeployTB_Func (bool testConds, bool runAc
 //--------------------------------------------------------------------------------------------------
 void lib36F35321_gt_CM_UmojanShadowteamDeployTB_Init () {
     lib36F35321_gt_CM_UmojanShadowteamDeployTB = TriggerCreate("lib36F35321_gt_CM_UmojanShadowteamDeployTB_Func");
+    TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDeployTB, false);
     TriggerAddEventPlayerEffectUsed(lib36F35321_gt_CM_UmojanShadowteamDeployTB, c_playerAny, "UmojanInsertionTeamCreateTeamDummySearch");
 }
 
@@ -590,6 +608,7 @@ bool lib36F35321_gt_CM_UmojanShadowteamDeploy_Func (bool testConds, bool runActi
 //--------------------------------------------------------------------------------------------------
 void lib36F35321_gt_CM_UmojanShadowteamDeploy_Init () {
     lib36F35321_gt_CM_UmojanShadowteamDeploy = TriggerCreate("lib36F35321_gt_CM_UmojanShadowteamDeploy_Func");
+    TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDeploy, false);
     TriggerAddEventPlayerEffectUsed(lib36F35321_gt_CM_UmojanShadowteamDeploy, c_playerAny, "UmojanInsertionTeamCreateTeam");
 }
 
@@ -622,6 +641,7 @@ bool lib36F35321_gt_CM_UmojanShadowteamDestroyed_Func (bool testConds, bool runA
 //--------------------------------------------------------------------------------------------------
 void lib36F35321_gt_CM_UmojanShadowteamDestroyed_Init () {
     lib36F35321_gt_CM_UmojanShadowteamDestroyed = TriggerCreate("lib36F35321_gt_CM_UmojanShadowteamDestroyed_Func");
+    TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDestroyed, false);
     TriggerAddEventUnitDied(lib36F35321_gt_CM_UmojanShadowteamDestroyed, null);
 }
 
