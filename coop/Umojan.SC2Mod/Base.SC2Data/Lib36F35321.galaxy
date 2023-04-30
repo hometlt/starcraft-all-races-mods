@@ -24,7 +24,8 @@ void lib36F35321_InitVariables () {
 
     lib36F35321_InitVariables_completed = true;
 
-    lib36F35321_gv_cM_CommanderKerriganZergSupplyMax = 2;
+    lib36F35321_gv_cM_CommanderKerriganZergSupplyDialog = c_invalidDialogControlId;
+    lib36F35321_gv_cM_CommanderKerriganZergSupplyDialogText = c_invalidDialogControlId;
     for (init_i = 0; init_i <= libCOMI_gv_cCC_MAXPLAYERS; init_i += 1) {
         lib36F35321_gv_cM_Shadowteam[init_i] = UnitGroupEmpty();
     }
@@ -313,6 +314,12 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
     TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDeployTB, true);
     TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDestroyed, true);
     TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamReturn, true);
+    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/UmojanSupplyPanel");
+    lib36F35321_gv_cM_CommanderKerriganZergSupplyDialog = DialogControlLastCreated();
+    DialogControlHookupStandard(c_triggerControlTypeLabel, "UIContainer/FullscreenUpperContainer/UmojanSupplyPanel/SupplyLabel");
+    lib36F35321_gv_cM_CommanderKerriganZergSupplyDialogText = DialogControlLastCreated();
+    DialogControlHookupStandard(c_triggerControlTypeLabel, "UIContainer/FullscreenUpperContainer/UmojanSupplyPanel/SupplyIcon");
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\icon-supply-zerg-terranborder.dds", PlayerGroupAll());
     auto90444C1F_g = lv_players;
     auto90444C1F_var = -1;
     while (true) {
@@ -371,6 +378,7 @@ bool lib36F35321_gt_CM_UmojanZergSupply_Func (bool testConds, bool runActions) {
         return true;
     }
 
+    DialogControlSetVisible(lib36F35321_gv_cM_CommanderKerriganZergSupplyDialog, PlayerGroupSingle(EventPlayer()), true);
     lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "Overlord", c_techCountCompleteOnly)) * 8.0);
     lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "UmojanArtificialHatchery", c_techCountCompleteOnly)) * 2.0);
     lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "UmojanArtificialHive", c_techCountCompleteOnly)) * 2.0);
@@ -387,10 +395,15 @@ bool lib36F35321_gt_CM_UmojanZergSupply_Func (bool testConds, bool runActions) {
     lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "LurkerMPBurrowed", c_techCountQueuedOrBetter)) * 3.0);
     lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "GuardianMP", c_techCountQueuedOrBetter)) * 2.0);
     lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Ultralisk", c_techCountQueuedOrBetter)) * 6.0);
-    lib36F35321_gv_cM_CommanderKerriganZergSupplyMax = TruncI(lv_realSupplyMax);
-    lib36F35321_gv_cM_CommanderKerriganZergSupplyConsummed = TruncI(lv_realSupplyConsummed);
     lv_supplyAvailable = MaxI(TruncI((lv_realSupplyMax - lv_realSupplyConsummed)), 0);
-    PlayerModifyPropertyInt(EventPlayer(), c_playerPropCustom, c_playerPropOperSetTo, lv_supplyAvailable);
+    if ((lib36F35321_gv_cM_CommanderKerriganZergSupplyDisplay[EventPlayer()] != lv_supplyAvailable)) {
+        PlayerModifyPropertyInt(EventPlayer(), c_playerPropCustom, c_playerPropOperSetTo, lv_supplyAvailable);
+        TextExpressionSetToken("Param/Expression/lib_36F35321_E17219B6", "A", IntToText(FixedToInt(lv_realSupplyConsummed)));
+        TextExpressionSetToken("Param/Expression/lib_36F35321_E17219B6", "B", IntToText(FixedToInt(lv_realSupplyMax)));
+        libNtve_gf_SetDialogItemText(lib36F35321_gv_cM_CommanderKerriganZergSupplyDialogText, TextExpressionAssemble("Param/Expression/lib_36F35321_E17219B6"), PlayerGroupSingle(EventPlayer()));
+        lib36F35321_gv_cM_CommanderKerriganZergSupplyDisplay[EventPlayer()] = lv_supplyAvailable;
+    }
+
     return true;
 }
 
@@ -399,9 +412,21 @@ void lib36F35321_gt_CM_UmojanZergSupply_Init () {
     lib36F35321_gt_CM_UmojanZergSupply = TriggerCreate("lib36F35321_gt_CM_UmojanZergSupply_Func");
     TriggerEnable(lib36F35321_gt_CM_UmojanZergSupply, false);
     TriggerAddEventUnitDied(lib36F35321_gt_CM_UmojanZergSupply, null);
-    TriggerAddEventUnitTrainProgress(lib36F35321_gt_CM_UmojanZergSupply, null, c_unitProgressStageStart);
-    TriggerAddEventUnitTrainProgress(lib36F35321_gt_CM_UmojanZergSupply, null, c_unitProgressStageCancel);
-    TriggerAddEventUnitTrainProgress(lib36F35321_gt_CM_UmojanZergSupply, null, c_unitProgressStageComplete);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 1, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 2, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 3, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 4, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 5, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 6, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 7, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 8, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 9, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 10, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 11, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 12, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 13, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 14, c_playerPropCustom);
+    TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 15, c_playerPropCustom);
 }
 
 //--------------------------------------------------------------------------------------------------
