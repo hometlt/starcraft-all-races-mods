@@ -144,7 +144,7 @@ void lib36F35321_gf_CM_MasteryCMDKerriganBuildingCostReduction (string lp_unitTy
     // Automatic Variable Declarations
     // Variable Initialization
     lv_UnitVespeneCostReductionPerPoint = 0.01;
-    lv_UnitVespeneCostReductionPerPoint2 = 0.01;
+    lv_UnitVespeneCostReductionPerPoint2 = 0.005;
 
     // Implementation
     lv_unitVespeneCostOriginal = IntToFixed(CatalogFieldValueGetAsInt(c_gameCatalogUnit, lp_unitType, "CostResource[" + IntToString(1) + "]", libCOMI_gv_vU_PLAYER_NEUTRAL));
@@ -229,6 +229,7 @@ void lib36F35321_gf_CM_MasteryKerriganArmyVespeneCostList4 (int lp_player) {
     // Implementation
     lv_upgradeCount = TechTreeUpgradeCount(lp_player, "MasteryUmojanKerriganEnergyMaximum", c_techCountCompleteOnly);
     lib36F35321_gf_CM_MasteryCMDKerriganEnergyMaxIncrease("UmojanCmdKerrigan", lp_player, lv_upgradeCount);
+    lib36F35321_gf_CM_MasteryCMDKerriganEnergyMaxIncrease("UmojanPsionicShadow", lp_player, lv_upgradeCount);
     lib36F35321_gf_CM_MasteryCMDKerriganEnergyMaxIncrease("UmojanInsertionTeamBeacon", lp_player, lv_upgradeCount);
     lib36F35321_gf_CM_MasteryCMDKerriganEnergyMaxIncrease("UmojanShadowguard", lp_player, lv_upgradeCount);
 }
@@ -260,6 +261,7 @@ void lib36F35321_gf_CM_MasteryKerriganArmyVespeneCostList5 (int lp_player) {
     // Implementation
     lv_upgradeCount = TechTreeUpgradeCount(lp_player, "MasteryUmojanKerriganEnergyRegen", c_techCountCompleteOnly);
     lib36F35321_gf_CM_MasteryCMDKerriganEnergyRegenIncrease("UmojanCmdKerrigan", lp_player, lv_upgradeCount);
+    lib36F35321_gf_CM_MasteryCMDKerriganEnergyRegenIncrease("UmojanPsionicShadow", lp_player, lv_upgradeCount);
     lib36F35321_gf_CM_MasteryCMDKerriganEnergyRegenIncrease("UmojanShadowguard", lp_player, lv_upgradeCount);
 }
 
@@ -314,6 +316,7 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
     TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDeployTB, true);
     TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamDestroyed, true);
     TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamReturn, true);
+    TriggerEnable(lib36F35321_gt_CM_UmojanKerriganShadow, true);
     DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/UmojanSupplyPanel");
     lib36F35321_gv_cM_CommanderKerriganZergSupplyDialog = DialogControlLastCreated();
     DialogControlHookupStandard(c_triggerControlTypeLabel, "UIContainer/FullscreenUpperContainer/UmojanSupplyPanel/SupplyLabel");
@@ -362,6 +365,15 @@ bool lib36F35321_gt_CM_UmojanZergSupply_Func (bool testConds, bool runActions) {
     fixed lv_realSupplyMax;
     fixed lv_realSupplyConsummed;
     int lv_supplyAvailable;
+    int lv_droneCount;
+    int lv_overlordCount;
+    int lv_zerglingCount;
+    int lv_hydraliskCount;
+    int lv_mutaliskCount;
+    int lv_lurkerCount;
+    int lv_guardianCount;
+    int lv_ultraliskCount;
+    int lv_warriorCount;
 
     // Automatic Variable Declarations
     // Variable Initialization
@@ -379,22 +391,27 @@ bool lib36F35321_gt_CM_UmojanZergSupply_Func (bool testConds, bool runActions) {
     }
 
     DialogControlSetVisible(lib36F35321_gv_cM_CommanderKerriganZergSupplyDialog, PlayerGroupSingle(EventPlayer()), true);
+    lv_overlordCount = (TechTreeUnitCount(EventPlayer(), "Overlord", c_techCountQueuedOrBetter));
     lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "Overlord", c_techCountCompleteOnly)) * 8.0);
     lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "UmojanArtificialHatchery", c_techCountCompleteOnly)) * 2.0);
     lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "UmojanArtificialHive", c_techCountCompleteOnly)) * 2.0);
     lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "UmojanArtificialLair", c_techCountCompleteOnly)) * 2.0);
     lv_realSupplyMax = MinF(lv_realSupplyMax, (50.0 + IntToFixed(TechTreeUpgradeCount(EventPlayer(), "MasteryUmojanMaximumZergControl", c_techCountCompleteOnly))));
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Drone", c_techCountQueuedOrBetter)) * 1.0);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "DroneBurrowed", c_techCountQueuedOrBetter)) * 1.0);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Zergling", c_techCountQueuedOrBetter)) * 0.5);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "ZerglingBurrowed", c_techCountQueuedOrBetter)) * 0.5);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Hydralisk", c_techCountQueuedOrBetter)) * 2.0);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "HydraliskBurrowed", c_techCountQueuedOrBetter)) * 2.0);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Mutalisk", c_techCountQueuedOrBetter)) * 2.0);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "LurkerMP", c_techCountQueuedOrBetter)) * 3.0);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "LurkerMPBurrowed", c_techCountQueuedOrBetter)) * 3.0);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "GuardianMP", c_techCountQueuedOrBetter)) * 2.0);
-    lv_realSupplyConsummed = (lv_realSupplyConsummed + IntToFixed(TechTreeUnitCount(EventPlayer(), "Ultralisk", c_techCountQueuedOrBetter)) * 6.0);
+    lv_droneCount = (TechTreeUnitCount(EventPlayer(), "Drone", c_techCountQueuedOrBetter) + TechTreeUnitCount(EventPlayer(), "DroneBurrowed", c_techCountQueuedOrBetter));
+    lv_zerglingCount = (TechTreeUnitCount(EventPlayer(), "Zergling", c_techCountQueuedOrBetter) + TechTreeUnitCount(EventPlayer(), "ZerglingBurrowed", c_techCountQueuedOrBetter));
+    lv_hydraliskCount = (TechTreeUnitCount(EventPlayer(), "Hydralisk", c_techCountQueuedOrBetter) + TechTreeUnitCount(EventPlayer(), "HydraliskBurrowed", c_techCountQueuedOrBetter));
+    lv_mutaliskCount = (TechTreeUnitCount(EventPlayer(), "Mutalisk", c_techCountQueuedOrBetter));
+    lv_lurkerCount = (TechTreeUnitCount(EventPlayer(), "LurkerMP", c_techCountQueuedOrBetter) + TechTreeUnitCount(EventPlayer(), "LurkerMPBurrowed", c_techCountQueuedOrBetter));
+    lv_ultraliskCount = (TechTreeUnitCount(EventPlayer(), "Ultralisk", c_techCountQueuedOrBetter) + TechTreeUnitCount(EventPlayer(), "UltraliskBurrowed", c_techCountQueuedOrBetter));
+    lv_guardianCount = (TechTreeUnitCount(EventPlayer(), "Guardian", c_techCountQueuedOrBetter));
+    lv_warriorCount = (lv_zerglingCount + lv_hydraliskCount + lv_mutaliskCount + lv_lurkerCount + lv_ultraliskCount + lv_guardianCount);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + lv_droneCount * 1.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + lv_zerglingCount * 0.5);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + lv_hydraliskCount * 2.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + lv_mutaliskCount * 2.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + lv_lurkerCount * 3.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + lv_ultraliskCount * 6.0);
+    lv_realSupplyConsummed = (lv_realSupplyConsummed + lv_guardianCount * 2.0);
     lv_supplyAvailable = MaxI(TruncI((lv_realSupplyMax - lv_realSupplyConsummed)), 0);
     if ((lib36F35321_gv_cM_CommanderKerriganZergSupplyDisplay[EventPlayer()] != lv_supplyAvailable)) {
         PlayerModifyPropertyInt(EventPlayer(), c_playerPropCustom, c_playerPropOperSetTo, lv_supplyAvailable);
@@ -428,6 +445,35 @@ void lib36F35321_gt_CM_UmojanZergSupply_Init () {
     TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 13, c_playerPropCustom);
     TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 14, c_playerPropCustom);
     TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 15, c_playerPropCustom);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_UmojanKerriganShadow
+//--------------------------------------------------------------------------------------------------
+bool lib36F35321_gt_CM_UmojanKerriganShadow_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_dehakaclone;
+    int lv_dehakaplayer;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_dehakaclone = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+    lv_dehakaplayer = UnitGetOwner(lv_dehakaclone);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libCOMI_gf_SetHeroPanelUnitOverride(2, lv_dehakaclone, lv_dehakaplayer);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib36F35321_gt_CM_UmojanKerriganShadow_Init () {
+    lib36F35321_gt_CM_UmojanKerriganShadow = TriggerCreate("lib36F35321_gt_CM_UmojanKerriganShadow_Func");
+    TriggerEnable(lib36F35321_gt_CM_UmojanKerriganShadow, false);
+    TriggerAddEventPlayerEffectUsed(lib36F35321_gt_CM_UmojanKerriganShadow, c_playerAny, "UmojanKerriganT4ShadowTrackSet");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -675,6 +721,7 @@ void lib36F35321_gt_CM_UmojanShadowteamDestroyed_Init () {
 void lib36F35321_InitTriggers () {
     lib36F35321_gt_DUT_CommanderUmojanKerrigan_Init();
     lib36F35321_gt_CM_UmojanZergSupply_Init();
+    lib36F35321_gt_CM_UmojanKerriganShadow_Init();
     lib36F35321_gt_CM_MasteryCMDKerriganArmyCostList_Init();
     lib36F35321_gt_CM_MasteryCMDKerriganBuildingCostList_Init();
     lib36F35321_gt_CM_MasteryCMDKerriganShieldList_Init();
