@@ -1,0 +1,350 @@
+include "TriggerLibs/NativeLib"
+include "LibCOMI"
+include "LibNHBR"
+include "LibUEDC"
+include "LibDRAG"
+
+include "Lib87FE1528_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: COOP - COMMANDERS - FACTIONS
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib87FE1528_InitLibraries () {
+    libNtve_InitVariables();
+    libCOMI_InitVariables();
+    libNHBR_InitVariables();
+    libUEDC_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize Keiron
+//--------------------------------------------------------------------------------------------------
+bool lib87FE1528_gt_InitializeKeiron_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(lib87FE1528_gt_KeironUpgrades, true);
+    TriggerEnable(lib87FE1528_gt_KeironAutoAperture, true);
+    TriggerEnable(lib87FE1528_gt_AegisDied, true);
+    TriggerEnable(lib87FE1528_gt_AegisCreated, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib87FE1528_gt_InitializeKeiron_Init () {
+    lib87FE1528_gt_InitializeKeiron = TriggerCreate("lib87FE1528_gt_InitializeKeiron_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: KeironUpgrades
+//--------------------------------------------------------------------------------------------------
+bool lib87FE1528_gt_KeironUpgrades_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    string autoFB05C469_val;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoFB05C469_val = EventUpgradeName();
+    if (autoFB05C469_val == "UpgradeKeironLevel01") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel02") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel03") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel04") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel05") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel06") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel07") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel08") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel09") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel10") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel11") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel12") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel13") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel14") {
+    }
+    else if (autoFB05C469_val == "UpgradeKeironLevel15") {
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib87FE1528_gt_KeironUpgrades_Init () {
+    lib87FE1528_gt_KeironUpgrades = TriggerCreate("lib87FE1528_gt_KeironUpgrades_Func");
+    TriggerEnable(lib87FE1528_gt_KeironUpgrades, false);
+    TriggerAddEventUpgradeLevelChanged(lib87FE1528_gt_KeironUpgrades, c_playerAny);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: KeironAutoAperture
+//--------------------------------------------------------------------------------------------------
+bool lib87FE1528_gt_KeironAutoAperture_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_apertureUnit;
+    unitgroup lv_apertures;
+    int lv_neededEnergy;
+    unit lv_bestAperture;
+    fixed lv_bestDistance;
+    fixed lv_newDistance;
+    string lv_weapon;
+    string lv_effect;
+    fixed lv_damage;
+
+    // Automatic Variable Declarations
+    unitgroup auto7AB2E476_g;
+    int auto7AB2E476_u;
+
+    // Variable Initialization
+    lv_apertures = UnitGroup("Aperture", UnitGetOwner(EventUnit()), RegionCircle(UnitGetPosition(EventUnit()), 500.0), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    lv_neededEnergy = (CatalogFieldValueGetAsInt(c_gameCatalogUnit, UnitGetType(EventUnit()), "CargoSize", c_playerAny) * 10);
+    lv_bestDistance = 999.0;
+    lv_effect = EventUnitDamageEffect();
+    lv_damage = EventUnitDamageAmount();
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(lv_apertures, c_unitCountAlive) > 0))) {
+            return false;
+        }
+
+        if (!(((UnitGetPropertyInt(EventUnit(), c_unitPropLife, c_unitPropCurrent) + UnitGetPropertyInt(EventUnit(), c_unitPropShields, c_unitPropCurrent)) < FixedToInt(lv_damage)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto7AB2E476_g = lv_apertures;
+    auto7AB2E476_u = UnitGroupCount(auto7AB2E476_g, c_unitCountAll);
+    for (;; auto7AB2E476_u -= 1) {
+        lv_apertureUnit = UnitGroupUnitFromEnd(auto7AB2E476_g, auto7AB2E476_u);
+        if (lv_apertureUnit == null) { break; }
+        if ((lv_apertureUnit != EventUnit()) && (UnitCheckAbilCmdState(lv_apertureUnit, AbilityCommand("AutoKeyhole", 0), c_cmdStateIsAutoCast) == true) && (UnitGetPropertyFixed(lv_apertureUnit, c_unitPropEnergy, c_unitPropCurrent) >= lv_neededEnergy)) {
+            lv_newDistance = DistanceBetweenPoints(UnitGetPosition(EventUnit()), UnitGetPosition(lv_apertureUnit));
+            if ((lv_newDistance < lv_bestDistance)) {
+                lv_bestDistance = lv_newDistance;
+                lv_bestAperture = lv_apertureUnit;
+            }
+
+        }
+
+    }
+    if ((lv_bestAperture != null)) {
+        UnitIssueOrder(lv_bestAperture, OrderTargetingUnit(AbilityCommand("AutoKeyhole", 0), EventUnit()), c_orderQueueAddToFront);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib87FE1528_gt_KeironAutoAperture_Init () {
+    lib87FE1528_gt_KeironAutoAperture = TriggerCreate("lib87FE1528_gt_KeironAutoAperture_Func");
+    TriggerEnable(lib87FE1528_gt_KeironAutoAperture, false);
+    TriggerAddEventUnitDamaged(lib87FE1528_gt_KeironAutoAperture, null, c_unitDamageTypeAny, c_unitDamageNonFatal, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: AegisDied
+//--------------------------------------------------------------------------------------------------
+bool lib87FE1528_gt_AegisDied_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "AegisShielded"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CatalogFieldValueSetAsReal(c_gameCatalogAbil, "KeironCitadelAegisTrainHero", "InfoArray[" + IntToString(0) + "].Cooldown.TimeUse", EventPlayer(), 300.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib87FE1528_gt_AegisDied_Init () {
+    lib87FE1528_gt_AegisDied = TriggerCreate("lib87FE1528_gt_AegisDied_Func");
+    TriggerEnable(lib87FE1528_gt_AegisDied, false);
+    TriggerAddEventUnitDied(lib87FE1528_gt_AegisDied, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: AegisCreated
+//--------------------------------------------------------------------------------------------------
+bool lib87FE1528_gt_AegisCreated_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnitCreatedUnit()) == "AegisShielded"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CatalogFieldValueSetAsReal(c_gameCatalogAbil, "KeironCitadelAegisTrainHero", "InfoArray[" + IntToString(0) + "].Cooldown.TimeUse", UnitGetOwner(EventUnitCreatedUnit()), 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib87FE1528_gt_AegisCreated_Init () {
+    lib87FE1528_gt_AegisCreated = TriggerCreate("lib87FE1528_gt_AegisCreated_Func");
+    TriggerEnable(lib87FE1528_gt_AegisCreated, false);
+    TriggerAddEventUnitCreated(lib87FE1528_gt_AegisCreated, null, null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize UED
+//--------------------------------------------------------------------------------------------------
+bool lib87FE1528_gt_InitializeUED_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    playergroup lv_players;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_players = libCOMI_gf_PlayersOfCommander("UED");
+
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupCount(lv_players) > 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(libUEDC_gt_InitializeUEDRace, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib87FE1528_gt_InitializeUED_Init () {
+    lib87FE1528_gt_InitializeUED = TriggerCreate("lib87FE1528_gt_InitializeUED_Func");
+    TriggerAddEventGeneric(lib87FE1528_gt_InitializeUED, libCOMI_gv_mISSIONINITIALIZED);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize Hybrids
+//--------------------------------------------------------------------------------------------------
+bool lib87FE1528_gt_InitializeHybrids_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    playergroup lv_players;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_players = libCOMI_gf_PlayersOfCommander("NetworkHybrids");
+
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupCount(lv_players) > 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(libNHBR_gt_InitializeNetworkHybridRace, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib87FE1528_gt_InitializeHybrids_Init () {
+    lib87FE1528_gt_InitializeHybrids = TriggerCreate("lib87FE1528_gt_InitializeHybrids_Func");
+    TriggerAddEventGeneric(lib87FE1528_gt_InitializeHybrids, libCOMI_gv_mISSIONINITIALIZED);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize Dragons
+//--------------------------------------------------------------------------------------------------
+bool lib87FE1528_gt_InitializeDragons_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    playergroup lv_players;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_players = libCOMI_gf_PlayersOfCommander("Dragon");
+
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupCount(lv_players) > 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(libDRAG_gt_InitializeDragonsRace, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib87FE1528_gt_InitializeDragons_Init () {
+    lib87FE1528_gt_InitializeDragons = TriggerCreate("lib87FE1528_gt_InitializeDragons_Func");
+    TriggerAddEventGeneric(lib87FE1528_gt_InitializeDragons, libCOMI_gv_mISSIONINITIALIZED);
+}
+
+void lib87FE1528_InitTriggers () {
+    lib87FE1528_gt_InitializeKeiron_Init();
+    lib87FE1528_gt_KeironUpgrades_Init();
+    lib87FE1528_gt_KeironAutoAperture_Init();
+    lib87FE1528_gt_AegisDied_Init();
+    lib87FE1528_gt_AegisCreated_Init();
+    lib87FE1528_gt_InitializeUED_Init();
+    lib87FE1528_gt_InitializeHybrids_Init();
+    lib87FE1528_gt_InitializeDragons_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib87FE1528_InitLib_completed = false;
+
+void lib87FE1528_InitLib () {
+    if (lib87FE1528_InitLib_completed) {
+        return;
+    }
+
+    lib87FE1528_InitLib_completed = true;
+
+    lib87FE1528_InitLibraries();
+    lib87FE1528_InitTriggers();
+}
+

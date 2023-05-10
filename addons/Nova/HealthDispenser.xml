@@ -1,0 +1,197 @@
+<Catalog>
+    <CAbilEffectTarget id="HealthDispenserPickup">
+        <AutoCastValidatorArray index="1" removed="1"/>
+    </CAbilEffectTarget>
+    <CActorUnit id="HealthDispenserPickup">
+        <GroupIcon>
+            <Image index="0" value="Assets\Textures\Wireframe-terran-pickuprestorationchargeex3.dds"/>
+        </GroupIcon>
+        <On Terms="Effect.PickupRemoveDelay.Start" Send="Create UI_Pickup_RestorationChargeCube_ActorSound"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_PickupGeneric_Loop"/>
+        <UnitIcon value="Assets\Textures\Wireframe-terran-pickuprestorationchargeex3.dds"/>
+        <Wireframe>
+            <Image index="0" value="Assets\Textures\Wireframe-terran-pickuprestorationchargeex3.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorUnit id="DOMHealthDispenserPickup" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DOMHealthDispenserPickup">
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <UnitIcon value="Assets\Textures\Wireframe-general-pickupmedicrecharge.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-general-pickupmedicrecharge.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-general-pickupmedicrecharge.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorBeamSimple id="DOMHealthDispenserBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <On Terms="Effect.HealthDispenserPickupBeam.Start; At Target" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 1.500000 DelayDestroy"/>
+        <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy"/>
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+    </CActorBeamSimple>
+    <CActorModel id="DOMHealthDispenserPickupHealModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.HealthDispenserLife500.Start; At Target" Send="Create"/>
+        <On Terms="Effect.HealthDispenserEnergy500.Start; At Target" Send="Create"/>
+        <On Terms="ActorCreation" Send="Create DOMHealthDispenserPickupHealSound"/>
+        <Host Subject="_Selectable"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <HostSiteOps Ops="SOpAttachOverhead" HoldRotation="1"/>
+    </CActorModel>
+    <CActorSound id="DOMHealthDispenserPickupHealSound" parent="SoundOneShot">
+        <Sound value="Medic_HealStart"/>
+    </CActorSound>
+    <CActorUnit id="DOMHealingBot" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DOMHealingBot">
+        <On Terms="Abil.HealerBotHeal.SourcePrepStart" Send="$Spell"/>
+        <On Terms="Effect.HealerBotHealUnit.Start; At Caster" Send="Create Doodad_UmojanLabHealingBot_HealStart"/>
+        <On Terms="Effect.HealerBotHealUnit.Start; At Caster" Send="Create Doodad_UmojanLabHealingBot_HealLoop"/>
+        <On Terms="AnimDone; AnimName Spell" Send="Create Doodad_UmojanLabHealingBot_HealEnd"/>
+        <On Terms="AnimDone; AnimName Spell" Target="Doodad_UmojanLabHealingBot_HealLoop" Send="Destroy"/>
+        <On Terms="AnimDone; AnimName Spell" Send="AnimPlay WorkStart Stand,Work,Start"/>
+        <On Terms="AnimDone; AnimName WorkStart" Send="AnimPlay Work Stand,Work 0 0.000000 2.000000 24.660000 AsDuration"/>
+        <On Terms="AnimDone; AnimName Work" Send="AnimPlay WorkEnd Stand,Work,End"/>
+        <DeathArray index="Normal" SoundLink="Doodad_UmojanLabHealingBot_PowerDown"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <PortraitModel value="HealerBotPortrait"/>
+        <WalkAnimMoveSpeed value="1.1992"/>
+        <BarOffset value="40"/>
+        <BarWidth value="36"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-general-pickupmedicrecharge.dds"/>
+        </GroupIcon>
+        <MinimapIcon value="Assets\Textures\ui-editoricon-triggercategories_math.dds"/>
+        <MinimapTooltip value="Unit/Tooltip/RecoveryTerminal"/>
+        <SoundArray index="Yes" value="UtilityBot_What"/>
+        <SoundArray index="Attack" value="UtilityBot_What"/>
+        <!--        <On Terms="Abil.HealerBotHeal.SourceChannelStop" Send="TimerSet 2.000000 PowerDown"/>
+        <On Terms="TimerExpired; TimerName PowerDown" Send="SetTintColor 128,128,128 1.000000 OneShot PoweredDown"/>
+        <On Terms="TimerExpired; TimerName PowerDown" Send="AnimBaselineStop"/>
+        <On Terms="TimerExpired; TimerName PowerDown" Send="TimerSet 26.000000 PowerUp"/>
+        <On Terms="TimerExpired; TimerName PowerUp" Send="ClearTintColor 1.000000 PoweredDown"/>
+        <On Terms="TimerExpired; TimerName PowerUp" Send="AnimBaselineStart"/> -->
+        <UnitIcon value="Assets\Textures\Wireframe-general-pickupmedicrecharge.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-general-pickupmedicrecharge.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorUnit id="DOMHealthDispenser" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DOMHealthDispenser">
+        <PortraitModel value="HealerBotPortrait"/>
+        <WalkAnimMoveSpeed value="1.1992"/>
+        <DeathArray index="Normal" ModelLink="DOMHealthDispenserDeath" SoundLink="Doodad_UmojanLabHealingBot_PowerDown"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <BarWidth value="36"/>
+        <BarOffset value="40"/>
+        <On Terms="Abil.HealthDispenser.SourcePrepStart" Send="AnimPlay WorkStart Stand,Work,Start 0 0.000000 2.000000 1.666000 AsDuration"/>
+        <On Terms="AnimDone; AnimName WorkStart" Send="AnimPlay Work Stand,Work 0 0.000000 2.000000 21.666000 AsDuration"/>
+        <On Terms="AnimDone; AnimName Work" Send="AnimPlay WorkEnd Stand,Work,End"/>
+        <On Terms="Effect.HealthDispenser.Start; At Caster" Send="$Spell"/>
+        <On Terms="Effect.HealthDispenser.Start; At Caster" Send="Create Doodad_UmojanLabHealingBot_HealStart"/>
+        <On Terms="Effect.HealthDispenser.Start; At Caster" Send="Create Doodad_UmojanLabHealingBot_HealLoop"/>
+        <On Terms="AnimDone; AnimName Spell" Send="Create Doodad_UmojanLabHealingBot_HealEnd"/>
+        <On Terms="AnimDone; AnimName Spell" Target="Doodad_UmojanLabHealingBot_HealLoop" Send="Destroy"/>
+        <UnitIcon value="Assets\Textures\Wireframe-terran-umojanlabhealingbot.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-umojanlabhealingbot.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-umojanlabhealingbot.dds"/>
+        </Wireframe>
+        <SoundArray index="Yes" value="UtilityBot_What"/>
+        <SoundArray index="Attack" value="UtilityBot_What"/>
+        <MinimapIcon value="Assets\Textures\ui-editoricon-triggercategories_math.dds"/>
+        <MinimapTooltip value="Unit/Tooltip/HealthDispenser"/>
+    </CActorUnit>
+    <CModel id="HealthDispenserPickup">
+        <Model value="Assets\Doodads\Pickup_Restoration_ChargeEX3\Pickup_Restoration_ChargeEX3.m3"/>
+    </CModel>
+    <CUnit id="DOMHealthDispenser">
+        <DeathTime value="-1"/>
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <LifeStart value="25"/>
+        <LifeMax value="25"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranInfantryArmor"/>
+        <Sight value="3"/>
+        <CostResource index="Minerals" value="50"/>
+        <RepairTime value="10"/>
+        <AttackTargetPriority value="19"/>
+        <AbilArray Link="HealthDispenser"/>
+        <BehaviorArray Link="HealthDispenser"/>
+        <BehaviorArray Link="Unturnable"/>
+        <CardLayouts>
+            <LayoutButtons Face="HealthDispenser" Type="AbilCmd" AbilCmd="HealthDispenser,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <Footprint value="Footprint1x1"/>
+        <DeadFootprint value="Footprint1x1"/>
+        <PlacementFootprint value="Footprint1x1"/>
+        <ScoreMake value="50"/>
+        <ScoreKill value="100"/>
+        <SubgroupPriority value="20"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CModel id="DOMHealthDispenser" parent="Unit">
+        <Model value="Assets\Units\Terran\DOM_HealingBot\DOM_HealingBot.m3"/>
+        <SelectionRadius value="0.625000"/>
+        <ShadowRadius value="0.625000"/>
+        <Occlusion value="Show"/>
+        <Events>
+            <Anim value="Stand,Work,Start"/>
+            <Name value="StandWorkStart"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Doodad_UmojanLabHealingBot_StandWorkStart"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Work,End"/>
+            <Name value="StandWorkEnd"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Doodad_UmojanLabHealingBot_StandWorkEnd"/>
+        </Events>
+    </CModel>
+    <CModel id="DOMHealthDispenserDeath" parent="UnitDeath">
+        <Model value="Assets\Units\Terran\DOM_HealingBot\DOM_HealingBot.m3"/>
+        <SelectionRadius value="0.625000"/>
+        <ShadowRadius value="0.625000"/>
+        <Occlusion value="Show"/>
+    </CModel>
+    <CModel id="DOMHealthDispenserBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Terran\MedivacBeam\MedivacBeam.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CModel id="DOMHealthDispenserPickup" parent="Unit" Race="Terran">
+        <Model value="Assets\Doodads\Pickup_Restoration_ChargeEX3\Pickup_Restoration_ChargeEX3.m3"/>
+        <SelectionOffset value="0.000000,0.000000,0.100000"/>
+    </CModel>
+    <CModel id="DOMHealthDispenserPickupHealModel" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Terran\MedicHeal\MedicHeal.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CUnit id="DOMHealthDispenserPickup" parent="ITEM">
+        <Facing value="315"/>
+        <FlagArray index="Untooltipable" value="0"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <EditorFlags index="NeutralDefault" value="1"/>
+        <AbilArray Link="HealthDispenserPickup"/>
+        <MinimapRadius value="0.375"/>
+        <EditorCategories value="ObjectType:Item,ObjectFamily:Campaign"/>
+    </CUnit>
+</Catalog>

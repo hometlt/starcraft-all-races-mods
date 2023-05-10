@@ -1,0 +1,57 @@
+
+// Functions
+void AIThinkDiamondback (int lp_owner, unit lp_diamondback, unitgroup lp_nearbyUnits) {
+    // Variable Declarations
+    point lv_moveTo;
+    point lv_moveToA;
+    point lv_moveToB;
+    unitgroup lv_enemies;
+
+    // Automatic Variable Declarations
+    int auto7DF8C020_val;
+
+    // Variable Initialization
+    lv_enemies = UnitGroupEmpty();
+
+    // Implementation
+    lv_enemies = UnitGroupFilterRegion(UnitGroupFilterPlane(lp_nearbyUnits, c_planeGround, 0), RegionCircle(UnitGetPosition(lp_diamondback), 6.2), 0);
+    if ((UnitGroupCount(lv_enemies, c_unitCountAlive) >= 1)) {
+        lv_moveTo = PointWithOffsetPolar(UnitGetPosition(lp_diamondback), 5.0, AngleBetweenPoints(UnitGroupCenterOfGroup(lv_enemies), UnitGetPosition(lp_diamondback)));
+        if ((PointPathingCost(UnitGetPosition(lp_diamondback), lv_moveTo) >= 1000)) {
+            lv_moveToA = PointWithOffsetPolar(UnitGetPosition(lp_diamondback), 5.0, (AngleBetweenPoints(UnitGroupCenterOfGroup(lv_enemies), UnitGetPosition(lp_diamondback)) + 45.0));
+            lv_moveToB = PointWithOffsetPolar(UnitGetPosition(lp_diamondback), 5.0, (AngleBetweenPoints(UnitGroupCenterOfGroup(lv_enemies), UnitGetPosition(lp_diamondback)) - 45.0));
+            if ((PointPathingCost(UnitGetPosition(lp_diamondback), lv_moveToA) < 1000) && (PointPathingCost(UnitGetPosition(lp_diamondback), lv_moveToB) < 1000)) {
+                auto7DF8C020_val = RandomInt(1, 2);
+                if (auto7DF8C020_val == 1) {
+                    lv_moveTo = lv_moveToA;
+                }
+                else if (auto7DF8C020_val == 2) {
+                    lv_moveTo = lv_moveToB;
+                }
+                else {
+                }
+            }
+            else {
+                if ((PointPathingCost(UnitGetPosition(lp_diamondback), lv_moveToA) < 1000)) {
+                    lv_moveTo = lv_moveToA;
+                }
+                else {
+                    if ((PointPathingCost(UnitGetPosition(lp_diamondback), lv_moveToB) < 1000)) {
+                        lv_moveTo = lv_moveToB;
+                    }
+                    else {
+                        lv_moveTo = null;
+                    }
+                }
+            }
+        }
+
+        if ((lv_moveTo != null)) {
+            UnitIssueOrder(lp_diamondback, OrderTargetingPoint(AbilityCommand("move", 0), lv_moveTo), c_orderQueueReplace);
+        }
+
+        Wait(1.5, c_timeAI);
+        AISetUnitScriptControlled(lp_diamondback, false);
+    }
+
+}

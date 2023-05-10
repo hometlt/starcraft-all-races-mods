@@ -1,0 +1,319 @@
+<Catalog>
+
+
+    <CActorMissile id="ShrineGuardian" parent="GenericUnitBase" unitName="ShrineGuardian">
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimPlay Attack Spell,A 0 -1.000000 -1.000000 0.500000 AsTimeScale"/>
+        <On Terms="Signal.*.ChannelStart" Send="AnimBracketStart Channel Spell,B Channel Spell,A"/>
+        <On Terms="Signal.*.ChannelStart" Send="Create ShrineGuardianChannelStart"/>
+        <On Terms="AnimBracketStart.ShrineGuardian; AnimName Channel" Send="Create ShrineGuardianChannelEffect"/>
+        <On Terms="Signal.*.ChannelEnd" Send="AnimBracketStop Channel"/>
+        <On Terms="AnimBracketStop.ShrineGuardian; AnimName Channel" Target="ShrineGuardianChannelEffect" Send="AnimBracketStop BSD"/>
+        <On Terms="Abil.ShrineGuardianDeath.SourceCastStart" Send="AnimBracketStop Channel"/>
+        <On Terms="Abil.ShrineGuardianDeath.SourceCastStart" Target="ShrineGuardianChannelEffect" Send="AnimBracketStop BSD"/>
+        <On Terms="Effect.ShrineGuardianLaunchMissile.Start" Send="HostSiteOpsSet ::Host {ShrineGuardianDeathRotator ShrineGuardianDeathRotator2}"/>
+        <On Terms="Effect.ShrineGuardianLaunchMissile.Start" Send="AnimPlay Walk Walk PlayForever"/>
+        <!--On Terms="Effect.ShrineGuardianLaunchMissile.Start" Send="AnimPlay Flail Flail PlayForever"/-->
+        <Model value="DarkHighTemplar"/>
+        <AnimBlendTime value="0.450000"/>
+        <DeathArray index="Normal" ModelLink="DarkHighTemplarDeath" SoundLink="HighTemplar_DeathFX" VoiceLink="HighTemplar_Death"/>
+        <PortraitModel value="HighTemplarTaldarimPortrait"/>
+        <BarOffset value="70"/>
+        <BarWidth value="42"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-hightemplar.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <MinimapRenderPriority value=""/>
+        <SoundArray index="Birth" value="HighTemplar_Birth"/>
+        <SoundArray index="Ready" value="HighTemplar_Ready"/>
+        <SoundArray index="Help" value="HighTemplar_Help"/>
+        <SoundArray index="What" value="HighTemplar_What"/>
+        <SoundArray index="Yes" value="HighTemplar_Yes"/>
+        <SoundArray index="Attack" value="HighTemplar_Attack"/>
+        <SoundArray index="Pissed" value="HighTemplar_Pissed"/>
+        <SoundArray index="Movement" value="HighTemplar_Movement"/>
+        <SoundArray index="Turning" value="HighTemplar_Turning"/>
+        <SoundArray index="Board" value="HighTemplar_Board"/>
+        <SoundArray index="Click" value="HighTemplar_Click"/>
+        <SoundArray index="ClickError" value="HighTemplar_ClickError"/>
+        <SoundArray index="Highlight" value="HighTemplar_Highlight"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-hightemplar.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar-Shield03.dds"/>
+        </WireframeShield>
+        <Remove Terms="UnitHeightUpdate.*.Lift" Send="StatusSet InAir 1"/>
+    </CActorMissile>
+    <CActorModel id="ShrineGuardianChannelEffect" parent="ModelAnimationStyleContinuous">
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter" HoldRotation="1"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModel>
+    <CActorModel id="ShrineGuardianChannelStart" parent="ModelAnimationStyleOneShot">
+        <EditorCategories value=""/>
+        <HostSiteOps Ops="SOpAttachCenter" HoldRotation="1"/>
+        <Model value="SpearofAdunAOEBlastImpact"/>
+        <On Terms="ActorCreation" Send="SetTintColor {10,10,150 3.000000}"/>
+        <Host Subject="_Unit"/>
+        <Scale value="0.600000"/>
+    </CActorModel>
+    <CActorSiteOpRotator id="ShrineGuardianDeathRotator">
+        <LocalAxis value="1.000000,0.000000,0.000000"/>
+        <Rate value="-75.000000"/>
+    </CActorSiteOpRotator>
+    <CActorSiteOpRotator id="ShrineGuardianDeathRotator2">
+        <LocalAxis value="0.000000,0.000000,1.000000"/>
+        <Rate value="180.000000"/>
+    </CActorSiteOpRotator>
+    <CActorBeamSimple id="ShrineGuardianAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorBeamSimple>
+    <CActorAction id="ShrineGuardianAttack" parent="GenericAttack" effectAttack="ShrineGuardianDamage">
+        <BeamScope value="Caster"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance VoidRaySOpForwardLaunch"/>
+        <LaunchAssets Sound="Archon_AttackLaunch"/>
+        <ImpactMap index="None" Model="" Sound="Archon_AttackImpact"/>
+    </CActorAction>
+    <!-- Shrine Guardian Graviton Beam                                                                           -->
+    <CActorRange id="ShrineGuardianAntiGravRange" parent="RangeAbil" abil="ShrineGuardianAntiGrav"/>
+    <CActorModel id="ShrineGuardianAntiGravRocks" parent="ModelAnimationStyleContinuous">
+        <Model value="GravitonBeamRocks"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachOrigin SOpShadow"/>
+        <On Terms="Effect.ShrineGuardianAntiGrav.Start; At Target" Send="Create"/>
+        <On Terms="Effect.ShrineGuardianAntiGrav.Stop" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorModel id="ShrineGuardianAntiGravImpact" parent="ModelAnimationStyleContinuous">
+        <Model value="GravitonBeamImpact"/>
+        <AutoScaleFactor value="0.700000"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.On" Send="Create"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="Create ShrineGuardianAntiGravImpactDeath"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="SetTintColor 255,0,255"/>
+    </CActorModel>
+    <CActorModel id="ShrineGuardianAntiGravImpactDeath">
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <Model value="GravitonBeamImpact"/>
+        <AutoScaleFactor value="0.700000"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenterStationary"/>
+        <On Terms="ActorCreation" Send="$Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+    </CActorModel>
+    <CActorSiteRocker id="ShrineGuardianAntiGravRocker">
+        <Elevation value="0.100000,0.050000"/>
+        <ElevationPeriod value="2.500000,1.000000"/>
+        <Pitch value="11.997,5.9985"/>
+        <PitchPeriod value="3.500000,10.000000"/>
+        <Roll value="4.9987,4.9987"/>
+        <RollPeriod value="2.500000,1.000000"/>
+        <On Terms="ActorCreation" Target="::Main" Send="RefSetFromMsg ::Host ::Sender"/>
+        <On Terms="Behavior.ShrineGuardianAntiGravHeight.On" Send="Create"/>
+        <On Terms="Behavior.ShrineGuardianAntiGravHeight.Off" Send="Transition Out 1.000000"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="TimerSet 1.000000 DelayDestroy"/>
+        <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy"/>
+        <Macros value="MultiActorGravitonMacro"/>
+    </CActorSiteRocker>
+    <CActorSound id="ShrineGuardianAntiGravStart" parent="SoundOneShot">
+        <Sound value="Phoenix_GravitonBeamStart"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.On" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="ShrineGuardianAntiGravStop" parent="SoundOneShot">
+        <Sound value="Phoenix_GravitonBeamEnd"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="ShrineGuardianAntiGravLoop" parent="SoundContinuous">
+        <Sound value="Phoenix_GravitonBeamLoop"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.On" Send="Create"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="Destroy"/>
+    </CActorSound>
+
+
+    <CAbilEffectTarget id="ShrineGuardianDeath">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="ShrineGuardianLaunchMissile"/>
+        <Flags index="Transient" value="1"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ShrineGuardianDeath"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ShrineGuardianAntiGrav">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <TargetFilters value="Visible;Player,Ally,Neutral,Air,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ShrineGuardianAntiGrav"/>
+        <Arc value="360"/>
+        <Range value="11"/>
+        <Cost>
+            <Cooldown TimeUse="3"/>
+        </Cost>
+    </CAbilEffectTarget>
+
+    <CBehaviorBuff id="ShrineGuardianAntiGrav">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-protoss-gravitonbeam.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <TimeScaleSource Value="Global"/>
+        <Duration value="8"/>
+        <Modification>
+            <ModifyFlags index="DisableAbils" value="1"/>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Stun" value="1"/>
+            <StateFlags index="SuppressAttack" value="1"/>
+            <StateFlags index="SuppressCloak" value="1"/>
+            <StateFlags index="SuppressCollision" value="1"/>
+            <StateFlags index="SuppressDetection" value="1"/>
+            <StateFlags index="SuppressRadar" value="1"/>
+            <StateFlags index="Uncommandable" value="1"/>
+            <AbilLinkEnableArray value="TerranBuild"/>
+            <BehaviorClassDisableArray index="CBehaviorCreepSource" value="1"/>
+            <BehaviorClassDisableArray index="CBehaviorPowerSource" value="1"/>
+            <BehaviorClassDisableArray index="CBehaviorResource" value="1"/>
+            <BehaviorClassDisableArray index="CBehaviorSpawn" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ShrineGuardianAntiGravHeight">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <Duration value="7.75"/>
+        <Modification Height="3.75">
+            <HeightTime index="Start" value="1"/>
+            <HeightTime index="Stop" value="0.25"/>
+            <PlaneDelta index="Ground" value="-1"/>
+            <PlaneDelta index="Air" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+
+    <CButton id="ShrineGuardianDeath">
+        <Icon value="Assets\Textures\btn-tips-fallenheroes.dds"/>
+    </CButton>
+
+    <CButton id="ShrineGuardianAntiGrav">
+        <Icon value="Assets\Textures\btn-ability-protoss-gravitonbeam-color.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-protoss-gravitonbeam-color.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CEffectLaunchMissile id="ShrineGuardianLaunchMissile">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <Movers Link="YoinkMover"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="ShrineGuardianAntiGrav">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="ShrineGuardianAntiGravHeightAB"/>
+        <EffectArray value="ShrineGuardianAntiGravAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="ShrineGuardianAntiGravHeightAB">
+        <Behavior value="ShrineGuardianAntiGravHeight"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ShrineGuardianAntiGravAB">
+        <Behavior value="ShrineGuardianAntiGrav"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="ShrineGuardianDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="25"/>
+        <SearchFilters value="Air;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.093" Fraction="1"/>
+        <AreaArray Radius="0.4" Fraction="0.5"/>
+        <AreaArray Radius="0.8" Fraction="0.25"/>
+        <ExcludeArray Value="Outer"/>
+        <ExcludeArray Value="Target"/>
+        <AttributeBonus index="Biological" value="10"/>
+        <SearchFlags index="OffsetByUnitRadius" value="0"/>
+    </CEffectDamage>
+
+    <CModel id="ShrineGuardianChannelEffect" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\MalashGuardian_Beam_Impact\MalashGuardian_Beam_Impact.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CModel>
+    <CModel id="ShrineGuardianAttackBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\MalashGuardian_Beam\MalashGuardian_Beam.m3"/>
+        <LowQualityModel value="ShrineGuardianAttackBeamLow"/>
+        <EditorCategories value="Race:Protoss"/>
+        <RadiusLoose value="1.000000"/>
+    </CModel>
+    <CModel id="ShrineGuardianAttackBeamLow" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\ArchonBeam\ArchonBeam_Low.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <RadiusLoose value="1.000000"/>
+    </CModel>
+
+
+    <CUnit id="ShrineGuardian">
+        <DeathRevealRadius value="3"/>
+        <Race value="Prot"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AIPressForwardDisabled" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <LifeStart value="40"/>
+        <LifeMax value="40"/>
+        <ShieldsStart value="40"/>
+        <ShieldsMax value="40"/>
+        <ShieldRegenDelay value="10"/>
+        <ShieldRegenRate value="2"/>
+        <Mover value="Fly"/>
+        <Speed value="2"/>
+        <Acceleration value="1000"/>
+        <Deceleration value="1000"/>
+        <Height value="5"/>
+        <CostCategory value="Army"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="40"/>
+        <AbilArray Link="stop"/>
+        <!--AbilArray Link="move"/-->
+        <AbilArray Link="Warpable"/>
+        <AbilArray Link="ProgressRally"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="ShrineGuardianAntiGrav"/>
+        <AbilArray Link="ShrineGuardianDeath"/>
+        <WeaponArray Link="ShrineGuardian"/>
+        <CardLayouts>
+            <!--LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/-->
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <!--LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/-->
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="ProgressRally,Rally1" Row="2" Column="4"/>
+            <LayoutButtons Face="ShrineGuardianAntiGrav" Type="AbilCmd" AbilCmd="ShrineGuardianAntiGrav,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="ShrineGuardianDeath" Type="AbilCmd" AbilCmd="ShrineGuardianDeath,Execute" Row="2" Column="3"/>
+        </CardLayouts>
+        <ScoreMake value="200"/>
+        <ScoreKill value="200"/>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+
+    <CWeaponLegacy id="ShrineGuardian">
+        <EditorCategories value="Race:Protoss"/>
+        <Icon value="Assets\Textures\btn-upgrade-protoss-groundweaponslevel0.dds"/>
+        <DisplayEffect value="ShrineGuardianDamage"/>
+        <TargetFilters value="Air,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="11"/>
+        <Cost>
+            <Cooldown Location="Unit"/>
+        </Cost>
+        <Period value="1.754"/>
+        <Effect value="ShrineGuardianDamage"/>
+    </CWeaponLegacy>
+</Catalog>

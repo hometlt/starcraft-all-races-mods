@@ -1,0 +1,255 @@
+
+void TRC_AIThink_ZeratulDarkTemplar(int player, unit void_templar, unitgroup scan_group) {
+    order blink = AICreateOrder(player, "ZeratulDarkTemplarBlink", 0);
+    aifilter filter = AIFilter(player);
+    unitgroup target_group;
+    unit target;
+    point target_point;
+
+
+    if (!UnitOrderIsValid(void_templar, blink)) {
+        return;
+    }
+
+    AISetFilterAlliance(filter, c_playerGroupEnemy);
+    AISetFilterPlane(filter, c_planeGround);
+    AISetFilterRange(filter, void_templar, 4);
+    target_group = AIGetFilterGroup(filter, scan_group);
+
+    target = UnitGroupRandomUnit(target_group, c_unitCountAlive);
+    if (target == null) {
+        return;
+    }
+
+    target_point = PointAlongLine(UnitGetPosition(void_templar), UnitGetPosition(target), 8.0);
+    OrderSetTargetPoint(blink, target_point);
+    if (!UnitOrderIsValid(void_templar, blink)) {
+        return;
+    }
+
+    AICast(void_templar, blink, c_noMarker, c_castHold);
+}
+
+
+void TRC_AIThink_ZeratulArchon(int player, unit archon, unitgroup scan_group) {
+    order blink = AICreateOrder(player, "ZeratulArchonBlink", 0);
+    aifilter filter = AIFilter(player);
+    unitgroup target_group;
+    unit target;
+
+
+    if (!UnitOrderIsValid(archon, blink)) {
+        return;
+    }
+
+    AISetFilterAlliance(filter, c_playerGroupEnemy);
+    AISetFilterInCombat(filter, true);
+    AISetFilterRange(filter, archon, 11);
+    target_group = AIGetFilterGroup(filter, scan_group);
+
+    target = UnitGroupClosestToPoint(target_group, UnitGetPosition(archon));
+    if (target == null) {
+        return;
+    }
+
+    if (DistanceBetweenPoints(UnitGetPosition(target), UnitGetPosition(archon)) < 2) {
+        return;
+    }
+
+    OrderSetTargetPoint(blink, UnitGetPosition(target));
+    if (!UnitOrderIsValid(archon, blink)) {
+        return;
+    }
+
+    AICast(archon, blink, c_noMarker, c_castHold);
+}
+
+
+static unitfilter ZeratulHighTemplar_BlackHole_UnitFilter = UnitFilterStr("-;Structure,Heroic,Missile,Stasis,Dead,Hidden,Invulnerable,Unstoppable,MapBoss");
+
+void TRC_AIThink_ZeratulHighTemplar(int player, unit preserver, unitgroup scan_group) {
+    order black_hole = AICreateOrder(player, "BlackHole", 0);
+    aifilter filter = AIFilter(player);
+    unitgroup target_group;
+    point target_point;
+
+
+    if (!UnitOrderIsValid(preserver, black_hole)) {
+        return;
+    }
+
+    AISetFilterAlliance(filter, c_playerGroupEnemy);
+    AISetFilterInCombat(filter, true);
+    AISetFilterBehaviorCount(filter, c_noBehaviorMin, c_noBehaviorMax, "ZeratulBlackHole");
+    AISetFilterBits(filter, ZeratulHighTemplar_BlackHole_UnitFilter);
+    AISetFilterRange(filter, preserver, 9);
+    target_group = AIGetFilterGroup(filter, scan_group);
+
+    target_point = AIBestTargetPoint(target_group, 3, 1, 3, 1.5, UnitGetPosition(preserver), 9, c_unitAttributeNone);
+    OrderSetTargetPoint(black_hole, target_point);
+    if (!UnitOrderIsValid(preserver, black_hole)) {
+        return;
+    }
+
+    AICast(preserver, black_hole, c_noMarker, c_castHold);
+}
+
+void TRC_AIThink_ZeratulSentry(int player, unit sentry, unitgroup scan_group) {
+    order reflection_shield = AICreateOrder(player, "ZeratulReflectionShield", 0);
+    aifilter filter = AIFilter(player);
+    unitgroup enemy_group;
+
+
+    if (!UnitOrderIsValid(sentry, reflection_shield)) {
+        return;
+    }
+
+    AISetFilterAlliance(filter, c_playerGroupEnemy);
+    AISetFilterInCombat(filter, c_onlyInCombat);
+    AISetFilterCanAttackAlly(filter, c_groundAlliesNearby, false);
+    AISetFilterMelee(filter, c_onlyRanged);
+    AISetFilterRange(filter, sentry, 12);
+    enemy_group = AIGetFilterGroup(filter, scan_group);
+    if (UnitGroupCount(enemy_group, c_unitCountAlive) <= 0) {
+        return;
+    }
+
+    if (ValidatorExecute("VoidSentryNearbyFriendlyUnitInCombat", sentry, sentry) <= 0) {
+        return;
+    }
+    
+    AICast(sentry, reflection_shield, c_noMarker, c_castHold);
+}
+
+
+static const int MaarBlinkCooldownId = 0;
+
+static order MaarBlink(int player, unit maar, unitgroup scan_group) {
+    order blink = AICreateOrder(player, "MaarBlink", 0);
+    aifilter filter = AIFilter(player);
+    unitgroup target_group;
+    unit target;
+    point target_point;
+
+    if (!AITactCooldownAllow(maar, MaarBlinkCooldownId)) {
+        return null;
+    }
+
+    if (!UnitOrderIsValid(maar, blink)) {
+        return null;
+    }
+
+    AISetFilterAlliance(filter, c_playerGroupEnemy);
+    AISetFilterInCombat(filter, true);
+    AISetFilterMelee(filter, c_onlyRanged);
+    AISetFilterRange(filter, maar, 7);
+    target_group = AIGetFilterGroup(filter, scan_group);
+
+    target = UnitGroupRandomUnit(target_group, c_unitCountAlive);
+    if (target == null) {
+        return null;
+    }
+
+    target_point = PointInterpolate(UnitGetPosition(maar), UnitGetPosition(target), 1.1);
+    if (!PointPathingPassable(target_point)) {
+        return null;
+    }
+
+    OrderSetTargetPoint(blink, target_point);
+    if (!UnitOrderIsValid(maar, blink)) {
+        return null;
+    }
+
+    return blink;
+}
+
+static const int MaarLightningCooldownId = 1;
+
+static order MaarLightning(int player, unit maar, unitgroup scan_group) {
+    order lightning = AICreateOrder(player, "VoidSliverACUnstableEnergy", 0);
+    point target_point;
+
+
+
+    if (AIPlayerDifficulty(player) < c_campAdvanced) {
+        return null;
+    }
+
+    if (!AITactCooldownAllow(maar, MaarLightningCooldownId)) {
+        return null;
+    }
+
+    if (!UnitOrderIsValid(maar, lightning)) {
+        return null;
+    }
+
+    target_point = AIBestTargetPoint(scan_group, 5, 1, 5, 4, UnitGetPosition(maar), 8, c_unitAttributeNone);
+    if (UnitGroupCount(UnitGroupFilterRegion(scan_group, RegionCircle(target_point, 4), 5), c_unitCountAlive) < 3) {
+        return null;
+    }
+
+    OrderSetTargetPoint(lightning, target_point);
+    if (!UnitOrderIsValid(maar, lightning)) {
+        return null;
+    }
+
+    
+    return lightning;
+}
+
+static const int MaarShockwaveCooldownId = 2;
+
+static order MaarShockwave(int player, unit maar, unitgroup scan_group) {
+    order shockwave = AICreateOrder(player, "VoidShardACShockwave", 0);
+    aifilter filter = AIFilter(player);
+    unitgroup target_group;
+
+    if (TechTreeUpgradeCount(player, "MaarPowerUp1", c_techCountCompleteOnly) == 0) {
+        return null;
+    }
+
+    if (!AITactCooldownAllow(maar, MaarShockwaveCooldownId)) {
+        return null;
+    }
+
+    if (!UnitOrderIsValid(maar, shockwave)) {
+        return null;
+    }
+
+    if (UnitGetPropertyInt(maar, c_unitPropLifePercent, c_unitPropCurrent) > 70) {
+        return null;
+    }
+
+    AISetFilterAlliance(filter, c_playerGroupEnemy);
+    AISetFilterInCombat(filter, true);
+    AISetFilterCanAttackAlly(filter, true, true);
+    AISetFilterRange(filter, maar, 10);
+    target_group = AIGetFilterGroup(filter, scan_group);
+
+    if (UnitGroupCount(target_group, c_unitCountAlive) < 10) {
+        return null;
+    }
+
+    return shockwave;
+}
+
+void TRC_AIThink_ZeratulMaar(int player, unit maar, unitgroup scan_group) {
+    order ord;
+
+    ord = MaarBlink(player, maar, scan_group);
+    if (UnitOrderIsValid(maar, ord)) {
+        AICastCooldown(maar, ord, c_noMarker, c_castHold, MaarBlinkCooldownId, 2);
+    }
+
+    ord = MaarShockwave(player, maar, scan_group);
+    if (UnitOrderIsValid(maar, ord)) {
+        AICastCooldown(maar, ord, c_noMarker, c_castHold, MaarShockwaveCooldownId, 24);
+        return;
+    }
+
+    ord = MaarLightning(player, maar, scan_group);
+    if (UnitOrderIsValid(maar, ord)) {
+        AICastCooldown(maar, ord, c_noMarker, c_castHold, MaarLightningCooldownId, 12);
+        return;
+    }
+}

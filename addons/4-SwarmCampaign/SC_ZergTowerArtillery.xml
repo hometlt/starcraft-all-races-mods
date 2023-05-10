@@ -1,0 +1,441 @@
+<Catalog>
+
+    <CUnit id="ZergTowerArtillery">
+        <DeathTime value="-1"/>
+        <DeathRevealRadius value="3"/>
+        <Facing value="45"/>
+        <Race value="Zerg"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="AIThreatAir" value="1"/>
+        <FlagArray index="AIDefense" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="400"/>
+        <LifeMax value="400"/>
+        <LifeArmor value="1"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergBuildingArmor"/>
+        <Sight value="4"/>
+        <CostResource index="Minerals" value="100"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <WeaponArray Link="ZergTowerArtillery" Turret="ZergTowerArtillery"/>
+        <CardLayouts>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <Radius value="0.875"/>
+        <SeparationRadius value="0.875"/>
+        <Footprint value="Footprint3x3Contour"/>
+        <DeadFootprint value="Footprint3x3Contour"/>
+        <PlacementFootprint value="Footprint2x2Creep"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="2"/>
+        <MinimapRadius value="1.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Campaign"/>
+        <AIEvalFactor value="0.65"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Always"/>
+    </CUnit>>
+    <CActorStateMonitor id="ZergBloodMediumBuilding">
+        <On Terms="UnitCreation.ZergTowerArtillery" Send="Create"/>
+    </CActorStateMonitor>
+    <CActorUnit id="ZergTowerArtillery" parent="GenericUnitBase" unitName="ZergTowerArtillery">
+        <AnimBlendTime value="0.400000"/>
+        <WalkAnimMoveSpeed value="1.25"/>
+        <PlacementSound value="Zerg_BuildingPlacementSmall"/>
+        <PortraitModel value="OverlordPortrait"/>
+        <DeathArray index="Normal" ModelLink="ZergTowerArtilleryAttackDeath" SoundLink=""/>
+        <On Terms="WeaponStart.*.AttackStart" Send="ModelSwap ZergTowerArtilleryAttackDeath"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart GL_BSD GLbirth GLstand GLdeath"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimPlay Attack Attack"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter Virophage_Stand"/>
+        <On Terms="Signal.*.BuildOn" Send="Create ZergTowerArtilleryBuildSplat"/>
+        <On Terms="Signal.*.BuildOff" Target="ZergTowerArtilleryBuildSplat" Send="Destroy"/>
+        <UnitIcon value="Assets\Textures\Wireframe-zerg-ZergTowerArtillery.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-zerg-ZergTowerArtillery.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-zerg-ZergTowerArtillery.dds"/>
+        </Wireframe>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <BarWidth value="85"/>
+        <BarOffset value="110"/>
+        <NameOffset value="60"/>
+        <SoundArray index="Construction" value="Zerg_BuildingMorphWhat"/>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-zerg-building.dds"/>
+        <!--MinimapIcon value="Assets\Textures\ui_minimap_icon_scourgecannon.dds"/-->
+    </CActorUnit>
+    <CActorModel id="ZergTowerArtilleryBuild" parent="ZergBuildingBuild"/>
+    <CActorSplat id="ZergTowerArtillerySplat" parent="BurrowedSplatBase">
+        <On Terms="UnitBirth.ZergTowerArtillery" Send="Create"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+    </CActorSplat>
+    <CActorTurret id="ZergTowerArtilleryTurret">
+        <On Terms="TurretEnable.ZergTowerArtillery" Send="Create"/>
+    </CActorTurret>
+    <CActorSplat id="ZergTowerArtilleryBuildSplat">
+        <Inherits index="Visibility" value="1"/>
+        <Aliases value="_Scalable"/>
+        <!--FogVisibility value="Dimmed"/-->
+        <HoldTime value="-1.000000"/>
+        <FadeOut value="0.100000"/>
+        <Layer value="AOELayer"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+        <Scale value="5.000000"/>
+        <Flags index="SuppressSaveLoad" value="1"/>
+    </CActorSplat>
+
+    <!-- Super Spore Colony Fire                                                                 -->
+    <CActorMissile id="ZergTowerArtilleryLaunchSquidMissile" parent="GenericAttackMissile" unitName="ZergTowerArtilleryLaunchSquidMissile">
+        <Model value="ZergTowerArtilleryFireMissile"/>
+        <On Terms="ActorCreation" Send="Create ZergTowerArtilleryFlyBySoundLoop"/>
+        <On Terms="ActorDestruction" Send="Create ZergTowerArtilleryLaunchSquidImpact"/>
+        <On Terms="ActorDestruction" Send="Create ZergTowerArtilleryLaunchSquidImpactSound"/>
+    </CActorMissile>
+    <CActorAction id="ZergTowerArtilleryLaunchSquid" parent="GenericAttack" effectImpact="ZergTowerArtilleryImpactDummy" effectLaunch="ZergTowerArtilleryLaunchSquid">
+        <LaunchAssets Sound="ZergTowerArtillery_AttackLaunch"/>
+        <LaunchAttachQuery Methods="AMFilterWeapon"/>
+        <ImpactMap index="None" Sound="Baneling_Suicide"/>
+    </CActorAction>
+    <CActorMissile id="ZergTowerArtilleryLaunchSwarmMissile" parent="GenericAttackMissile" unitName="ZergTowerArtilleryLaunchSwarmMissile">
+        <Model value="ZergTowerArtilleryFireMissile"/>
+    </CActorMissile>
+    <CActorAction id="ZergTowerArtilleryLaunchSwarm" parent="GenericAttack" effectImpact="ZergTowerArtilleryImpact" effectLaunch="ZergTowerArtilleryLaunchSwarm">
+        <LaunchAssets Sound="ZergTowerArtillery_AttackLaunch"/>
+        <LaunchAttachQuery Methods="AMFilterWeapon"/>
+    </CActorAction>
+    <CActorModel id="ZergTowerArtilleryLaunchSquidImpact">
+        <FogVisibility value="Visible"/>
+        <Host Subject="_Missile"/>
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <Model value="ZergTowerArtilleryFireMissile"/>
+        <On Terms="ActorCreation" Send="$Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+    </CActorModel>
+    <CActorSound id="ZergTowerArtilleryLaunchSquidImpactSound" parent="SoundOneShot">
+        <FogVisibility value="Visible"/>
+        <Sound value="zScourge_impactExplosion"/>
+    </CActorSound>
+    <CActorSound id="ZergTowerArtilleryFlyBySoundLoop" parent="SoundContinuous">
+        <Sound value="zScourge_flyByLoop"/>
+        <FogVisibility value="Visible"/>
+        <!--Sound value="zScourge_SwarmHatch_Fly"/>-->
+    </CActorSound>
+
+
+    <CEffectCreatePersistent id="ZergTowerArtillery">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodCount value="14"/>
+        <!--PeriodicEffectArray value="ZergTowerArtilleryLaunchSwarm"/-->
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="ZergTowerArtilleryLaunchSquid"/>
+        <PeriodicEffectArray value="Suicide"/>
+        <PeriodicPeriodArray value="1.1"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="0.2"/>
+        <PeriodicPeriodArray value="6.5"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="ZergTowerArtilleryLaunchSquid">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="ZergTowerArtilleryImpactModifyUnit"/>
+        <AmmoUnit value="ZergTowerArtilleryLaunchSquidMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="ZergTowerArtilleryLaunchSwarm">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="ZergTowerArtilleryImpact"/>
+        <AmmoUnit value="ZergTowerArtilleryLaunchSwarmMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="ZergTowerArtilleryImpact">
+        <EditorCategories value="Race:Zerg"/>
+        <Kind value="Ranged"/>
+        <Flags index="Kill" value="1"/>
+        <Death value="Blast"/>
+        <ImpactLocation Value="TargetUnit"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="ZergTowerArtilleryImpactModifyUnit">
+        <EditorCategories value="Race:Zerg"/>
+        <VitalArray index="Life">
+            <ChangeFraction value="-0.1"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+
+
+    <CModel id="ZergTowerArtillery" parent="Building" Race="Zerg">
+        <SelectionLayer value="2"/>
+        <SelectionRadius value="2.000000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <Radius value="1.000000"/>
+        <ShadowRadius value="1.333200"/>
+        <Events>
+            <Anim value="Stand,Unpowered,Morph,A,00"/>
+            <Name value="StandUnpoweredMorph"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Doodad_ZergTowerArtillery_StandUnpoweredMorph"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Unpowered,Morph,B,00"/>
+            <Name value="StandUnpoweredMorph"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Doodad_ZergTowerArtillery_StandUnpoweredMorph"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Unpowered,Morph,C,00"/>
+            <Name value="StandUnpoweredMorph"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Doodad_ZergTowerArtillery_StandUnpoweredMorph"/>
+        </Events>
+        <Events>
+            <Anim value="Cover,Attack,00"/>
+            <Name value="CoverAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Doodad_ZergTowerArtillery_CoverAttack"/>
+        </Events>
+        <!-- don't think this sound is playing from this trigger -->
+    </CModel>
+    <CModel id="ZergTowerArtilleryAttackDeath" parent="Building" Race="Zerg">
+        <SelectionLayer value="2"/>
+        <SelectionRadius value="2.000000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <Radius value="1.000000"/>
+        <ShadowRadius value="1.333200"/>
+        <!--
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="Zerg_ExplosionSmall"/>
+            <Type value="Sound"/>
+            <Time value="1.150000"/>
+            <Payload value="Zerg_ExplosionSmall"/>
+        </Events>
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="Zerg_ExplosionSmall"/>
+            <Type value="Sound"/>
+            <Time value="1.270000"/>
+            <Payload value="Zerg_ExplosionSmall"/>
+        </Events>
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="Zerg_ExplosionSmall"/>
+            <Type value="Sound"/>
+            <Time value="1.690000"/>
+            <Payload value="Zerg_ExplosionSmall"/>
+        </Events>
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="Zerg_ExplosionSmall"/>
+            <Type value="Sound"/>
+            <Time value="1.920000"/>
+            <Payload value="Zerg_ExplosionSmall"/>
+        </Events>
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="Zerg_ExplosionSmall"/>
+            <Type value="Sound"/>
+            <Time value="2.150000"/>
+            <Payload value="Zerg_ExplosionSmall"/>
+        </Events>
+-->
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="Doodad_ZergTowerArtilleryAttackDeath_Liquid"/>
+            <Type value="Sound"/>
+            <Time value="1.150000"/>
+            <Payload value="Doodad_ZergTowerArtilleryAttackDeath_Liquid"/>
+        </Events>
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="Doodad_ZergTowerArtillery_CoverAttack"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Doodad_ZergTowerArtillery_CoverAttack"/>
+        </Events>
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="zScourge_nestAwake"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="zScourge_nestAwake"/>
+        </Events>
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="zScourge_launchStart"/>
+            <Type value="Sound"/>
+            <Time value="1.150000"/>
+            <Payload value="zScourge_launchStart"/>
+        </Events>
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="zScourge_SwarmHatch_Fly"/>
+            <Type value="Sound"/>
+            <Time value="1.120000"/>
+            <Payload value="zScourge_SwarmHatch_Fly"/>
+        </Events>
+        <!--
+        <Events>
+            <Anim value="Attack"/>
+            <Name value="Doodad_ZergTowerArtilleryAttackDeath_CorrosiveBurst"/>
+            <Type value="Sound"/>
+            <Time value="1.150000"/>
+            <Payload value="Doodad_ZergTowerArtilleryAttackDeath_CorrosiveBurst"/>
+        </Events>
+-->
+    </CModel>
+    <CModel id="ZergTowerArtilleryFireMissile" parent="MissileFX">
+        <Model value="Assets\Effects\Zerg\ZergTowerArtilleryMissile\ZergTowerArtilleryMissile.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ScaleMax value="0.700000,0.700000,0.700000"/>
+        <ScaleMin value="0.500000,0.500000,0.500000"/>
+        <!-- <Events>
+            <Anim value="Death"/>
+            <Name value="Death"/>
+            <Type value="Sound"/>
+            <Payload value="zScourge_impactExplosion"/>
+        </Events> works but attached it elsewhere -->
+    </CModel>
+
+    <CMoverMissile id="ZergTowerArtillerySwarm">
+        <MotionPhases>
+            <Driver value="Guidance"/>
+            <Acceleration value="5"/>
+            <MaxSpeed value="16"/>
+            <Outro value="-1"/>
+            <ThrowRotationType value="Vectored"/>
+            <ThrowVector value="0,-0.1,1"/>
+            <YawPitchRoll value="719.2968"/>
+        </MotionPhases>
+        <MotionPhases YawPitchRoll="MAX"/>
+    </CMoverMissile>
+    <CMoverMissile id="ZergTowerArtillerySquid">
+        <MotionPhases>
+            <Driver value="Throw"/>
+            <Acceleration value="10"/>
+            <Speed value="1"/>
+            <MaxSpeed value="8.5"/>
+            <Outro value="1.5,4"/>
+            <ThrowVector value="0,-1,1"/>
+        </MotionPhases>
+        <MotionPhases>
+            <Driver value="Guidance"/>
+            <Acceleration value="3"/>
+            <AccelerationRange value="7"/>
+            <MaxSpeed value="16"/>
+            <ActorTracking value="Actual"/>
+            <Outro value="-2.5,-1.5"/>
+            <YawPitchRoll value="359.2968"/>
+            <Overlays Scale="1,1"/>
+        </MotionPhases>
+        <MotionPhases YawPitchRoll="MAX">
+            <Overlays Scale="0.15,0.15"/>
+        </MotionPhases>
+        <MotionOverlays>
+            <Type value="Revolver"/>
+            <RevolverSpeed value="119.5312"/>
+            <RevolverSpeedRange value="119.5312"/>
+            <RevolverMaxSpeed value="719.2968"/>
+            <RevolverMaxSpeedRange value="719.2968"/>
+            <RevolverAccel value="45"/>
+            <RevolverAccelRange value="337.5"/>
+        </MotionOverlays>
+    </CMoverMissile>
+
+
+    <CSound id="ZergTowerArtillery_AttackLaunch" parent="Combat">
+        <AssetArray File="Assets\Sounds\Zerg\Queen\Queen_SpawnLarvaLaunch0.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Queen\Queen_SpawnLarvaLaunch1.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Queen\Queen_SpawnLarvaLaunch2.wav"/>
+        <EditorCategories value="Race:Zerg"/>
+        <Volume value="-18.000000,-12.000000"/>
+        <DupeDestroyCount value="2"/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="6"/>
+        <DupeThresholdFadeTime value="1"/>
+        <Pitch value="-3.000000,3.000000"/>
+    </CSound>
+    <CModel id="ZergTowerArtilleryBuildSplat" parent="UI">
+        <Model value="Assets/UI/Cursors/ZergGenericAOECursorRing/ZergGenericAOECursorRing.m3"/>
+        <ScaleMax value="0.200000,0.200000,0.200000"/>
+        <ScaleMin value="0.200000,0.200000,0.200000"/>
+        <SelectionRadius value="2.500000"/>
+        <ShadowRadius value="2.500000"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+
+    <CUnit id="ZergTowerArtilleryLaunchSquidMissile" parent="MISSILE_INVULNERABLE">
+        <DeathRevealRadius value="2"/>
+        <DeathRevealDuration value="5"/>
+        <Mover value="ZergTowerArtillerySquid"/>
+        <FogVisibility value="Visible"/>
+        <Race value="Zerg"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="ZergTowerArtilleryLaunchSwarmMissile" parent="MISSILE">
+        <Mover value="ZergTowerArtillerySwarm"/>
+        <Race value="Zerg"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="ZergTowerArtilleryFireMissile" parent="MISSILE_INVULNERABLE">
+        <Race value="Zerg"/>
+        <Mover value="ZergTowerArtillerySwarm"/>
+        <BehaviorArray Link="ZergTowerArtilleryMissile"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Campaign"/>
+    </CUnit>
+
+
+    <CWeaponLegacy id="ZergTowerArtillery">
+        <EditorCategories value="Race:Terran"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-missileattacks-level0.dds"/>
+        <TargetFilters value="-;-"/>
+        <Period value="10"/>
+        <DamagePoint value="0"/>
+        <Backswing value="0"/>
+        <Range value="256"/>
+        <Marker>
+            <MatchFlags index="Id" value="1"/>
+        </Marker>
+        <Options index="Hidden" value="1"/>
+    </CWeaponLegacy>
+</Catalog>

@@ -1,0 +1,102 @@
+<Catalog>
+    <CActorUnit id="TutorialPurifierBeamUnit" parent="GenericUnitBase" unitName="TutorialPurifierBeamUnit">
+        <On Terms="ActorCreation" Send="Create TutorialPurifierBeam"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Macros value="RemoveFlyerHelperMacro"/>
+    </CActorUnit>
+    <CActorBeamSimple id="TutorialPurifierBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <HostLaunch Subject="_Selectable" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachOrigin"/>
+        <HostImpact Subject="_Selectable" Actor="Find"/>
+        <HostImpactSiteOps Ops="SOpAttachOrigin SOpShadow"/>
+        <Remove Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death 0 3.000000 AsDuration"/>
+    </CActorBeamSimple>
+    <CActorSound id="TutorialPurifierBeamBuildUp" parent="SoundOneShot">
+        <On Terms="Behavior.TutorialPurifierBeamBuildUp.On" Send="Create"/>
+        <Sound value="SOAPurifierBeamBuildUpSound"/>
+    </CActorSound>
+    <CActorSound id="TutorialPurifierBeamStart" parent="SoundOneShot">
+        <On Terms="Behavior.TutorialPurifierBeamFiring.On" Send="Create"/>
+        <Sound value="SOAPurifierBeamStartSound"/>
+    </CActorSound>
+    <CActorSound id="TutorialPurifierBeamFiring" parent="SoundContinuous">
+        <On Terms="Behavior.TutorialPurifierBeamFiring.On" Send="Create"/>
+        <On Terms="Behavior.TutorialPurifierBeamFiring.Off" Send="ModelMaterialMaximizePriority"/>
+        <On Terms="Behavior.TutorialPurifierBeamFiring.Off" Send="Destroy"/>
+        <Sound value="SOAPurifierBeamFiring_Loop"/>
+        <Layers Sound="SOAPurifierBeam_QuakeLayer_Loop"/>
+    </CActorSound>
+    <CActorSound id="TutorialPurifierBeamEnd" parent="SoundOneShot">
+        <On Terms="Behavior.TutorialPurifierBeamFiring.Off" Send="Create"/>
+        <Sound value="SOAPurifierBeamEndSound"/>
+    </CActorSound>
+
+    <CBehaviorBuff id="TutorialPurifierBeamBuildUp">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Duration value="2"/>
+        <ExpireEffect value="TutorialPurifierBeamFiringAB"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="TutorialPurifierBeamFiring">
+        <InfoFlags index="Hidden" value="1"/>
+        <Duration value="15"/>
+        <Period value="0.0625"/>
+        <PeriodicEffect value="TutorialPurifierBeamDamage"/>
+        <FinalEffect value="Suicide"/>
+    </CBehaviorBuff>
+    <CEffectApplyBehavior id="TutorialPurifierBeamFiringAB">
+        <Behavior value="TutorialPurifierBeamFiring"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="TutorialPurifierBeamDamage">
+        <Flags index="Notification" value="1"/>
+        <Kind value="Splash"/>
+        <Amount value="15"/>
+        <Death value="Fire"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ImpactLocation Value="SourcePoint"/>
+        <AreaArray Radius="1" Fraction="1"/>
+        <AreaArray Radius="2" Fraction="0.8"/>
+        <AreaArray Radius="3" Fraction="0.6"/>
+        <AreaArray Radius="4" Fraction="0.4"/>
+        <ExcludeArray Value="Source"/>
+        <SearchFilters value="-;Missile,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CUnit id="TutorialPurifierBeamUnit">
+        <Facing value="45"/>
+        <Race value="Prot"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Mover value="Fly"/>
+        <Speed value="1.5"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46.0625"/>
+        <Sight value="11"/>
+        <Height value="16.5"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="attack"/>
+        <BehaviorArray Link="TutorialPurifierBeamBuildUp"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="1"/>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+    </CUnit>
+</Catalog>

@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Desc>
+    <DescFlags val="Locked"/>
+
+    <Constant name="ButtonOffset" val="-42"/>
+    <Constant name="ButtonOffsetLeft" val="-84"/>
+
+    <Frame type="Button" name="ScreenCustomButtonTemplate" template="StandardBattlenetTemplates/BattlenetSubNavButtonTemplate">
+        <Alpha val="0"/>
+        <Toggleable val="true"/>
+    </Frame>
+
+    <Frame type="ViewMapProfileButton" name="MapPinButtonTemplate"  template="StandardNavigationTemplates/SubnavExtendedButtonTemplate">
+        <Text val="{$this/MapFrame/@Name}"/>
+        <Visible val="True"/>
+        <Alpha val="255"/>
+
+        <Frame type="BattleMapFrame" name="MapFrame">
+            <Anchor relative="$parent"/>
+            <MapHandle val="{$parent/@MapHandle}"/>
+        </Frame>
+        
+        <StateGroup name="VisibleState">
+            <State name="Visible">
+                <When type="AnimationState" frame="$this" ViewMapProfileButton="Active"/>
+                <Action type="SetProperty" frame="$this" Visible="True"/>
+            </State>
+            
+            <State name="NotVisible">
+                <When type="AnimationState" frame="$this" ViewMapProfileButton="Inactive"/>
+                <Action type="SetProperty" frame="$this" Visible="False"/>
+            </State>
+        </StateGroup>
+    </Frame>
+
+    <Frame type="Image" name="ButtonDividerTemplate">
+        <Texture val="@UI/Glues_Battlenet_SubNav_ButtonDivider"/>
+        <Alpha val="0"/>
+
+        <Animation name="FadeNav">
+            <Event event="OnShown" action="Reset"/>
+            <Event event="OnShown" action="Play"/>
+
+            <Controller name="FadeIn" type="Fade" end="Pause">
+                <Key type="Curve" time="0.0" value="0" in="Linear"/>
+                <Key type="Curve" time="0.5" value="255" out="Linear"/>
+            </Controller>
+        </Animation>
+    </Frame>
+
+    <Frame type="ScreenCustom" name="ScreenCustom">
+        <Handle val="ScreenCustom"/>
+        <Anchor relative="$parent"/>
+        <DisplayBackgroundModel val="false"/>
+        <!-- <SelectedTabIndex val="{$this/CollectionTabControl/@SelectedIndex}"/> -->
+            
+        <Frame type="MathFrame" name="CutscenePicker">
+            <Anchor relative="$parent"/>
+            <Operator val="Random"/>
+            <A val="1"/>
+            <B val="8"/>
+    
+            <!-- <StateGroup name="CutscenePicker">
+                <DefaultState val="Default"/>
+                
+                <State name="1">
+                    <When type="Property" frame="$this" ResultInt="1"/>
+                    <Action type="SetProperty" frame="$parent/BackgroundCutsceneFrame" File="Cutscenes/MainMenuDefaultVoid.SC2Cutscene"/>
+                </State>
+                
+                <State name="2">
+                    <When type="Property" frame="$this" ResultInt="2"/>
+                    <Action type="SetProperty" frame="$parent/BackgroundCutsceneFrame" File="Cutscenes/PlanetViewAgria.SC2Cutscene"/>
+                </State>
+                
+                <State name="3">
+                    <When type="Property" frame="$this" ResultInt="3"/>
+                    <Action type="SetProperty" frame="$parent/BackgroundCutsceneFrame" File="Cutscenes/PlanetViewChar.SC2Cutscene"/>
+                </State>
+                
+                <State name="4">
+                    <When type="Property" frame="$this" ResultInt="4"/>
+                    <Action type="SetProperty" frame="$parent/BackgroundCutsceneFrame" File="Cutscenes/PlanetViewMonlyth.SC2Cutscene"/>
+                </State>
+                
+                <State name="5">
+                    <When type="Property" frame="$this" ResultInt="5"/>
+                    <Action type="SetProperty" frame="$parent/BackgroundCutsceneFrame" File="Cutscenes/PlanetViewTyrador.SC2Cutscene"/>
+                </State>
+                
+                <State name="6">
+                    <When type="Property" frame="$this" ResultInt="6"/>
+                    <Action type="SetProperty" frame="$parent/BackgroundCutsceneFrame" File="Cutscenes/MainMenuDefault.SC2Cutscene"/>
+                </State>
+                
+                <State name="7">
+                    <When type="Property" frame="$this" ResultInt="7"/>
+                    <Action type="SetProperty" frame="$parent/BackgroundCutsceneFrame" File="Cutscenes/MainMenuSpace.SC2Cutscene"/>
+                </State>
+                
+                <State name="Default">
+                    <Action type="SetProperty" frame="$parent/BackgroundCutsceneFrame" File="Cutscenes/MainMenuDefaultVoid.SC2Cutscene"/>
+                </State>
+            </StateGroup> -->
+        </Frame>
+        
+        <Frame type="CutsceneFrame" name="BackgroundCutsceneFrame">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+            <Anchor side="Bottom" relative="$parent" pos="Max" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+            <Anchor side="Right" relative="$parent" pos="Max" offset="0"/>
+            <RenderType val="HDR"/>
+            <File val="Cutscenes/MainMenuDefaultVoid.SC2Cutscene"/>
+            <AutoPlay val="true"/>
+        </Frame>
+        
+        <Frame type="Image" name="Vignette">
+            <Anchor relative="$parent"/>
+            <Texture val="@UI/SC2_UI_Coop_Vignette"/>
+            <Alpha val="150"/>
+            <RenderType val="HDR"/>
+        </Frame>
+        
+        <StateGroup name="OfflinePlayState">
+            <State name="OfflineState">
+                <When type="Property" frame="$BattleUI" IsOnline="false"/>
+                <Action type="SetProperty" frame="OfflineTabControl" Visible="true"/>
+                <Action type="SetProperty" frame="CustomTabControl" Visible="false"/>
+            </State>
+        </StateGroup>
+
+        <Frame type="TabControl" name="OfflineTabControl">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+            <Anchor side="Bottom" relative="$parent" pos="Max" offset="0"/>
+            <Anchor side="Right" relative="$parent" pos="Max" offset="0"/>
+            <Handle val="CustomGamesOfflineTabControl"/>
+            <TabListItem val="SubnavContainer/SubnavButton0"/>
+            <TabListItem val="SubnavContainer/SubnavButton1"/>
+            <PanelListItem val="OfflineMelee"/>
+            <PanelListItem val="OfflineArcade"/>
+            <Visible val="false"/>
+
+            <Frame type="Frame" name="SubnavContainer" template="StandardNavigationTemplates/SubnavTemplate">
+                <!-- MELEE BUTTON -->
+                <Frame type="Button" name="SubnavButton0">
+                    <Text val="@UI/ScreenCustomGames/MeleeButton"/>
+                    <Visible val="True"/>
+                </Frame>
+
+                <!-- ARCADE BUTTON -->
+                <Frame type="Button" name="SubnavButton1">
+                    <Text val="@UI/ScreenCustomGames/ArcadeButton"/>
+                    <Visible val="True"/>
+                </Frame>
+            </Frame>
+
+            <Frame type="OfflineGameListPanel" name="OfflineMelee" template="OfflineGameListPanel/OfflineGameListPanelTemplate">
+                <Anchor relative="$parent"/>
+                <IsArcade val="false"/>
+            </Frame>
+
+            <Frame type="OfflineGameListPanel" name="OfflineArcade" template="OfflineGameListPanel/OfflineGameListPanelTemplate">
+                <Anchor relative="$parent"/>
+                <IsArcade val="true"/>
+
+                <Frame type="ExpansionPulldown" name="ExpansionPulldown">
+                    <Visible val="false"/>
+                </Frame>
+            </Frame>
+        </Frame>
+
+        <Frame type="TabControl" name="CustomTabControl">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+            <Anchor side="Bottom" relative="$parent" pos="Max" offset="0"/> 
+            <Anchor side="Right" relative="$parent" pos="Max" offset="0"/>
+            <Handle val="CustomGamesTabControl"/>
+            <TabListItem val="SubnavContainer/SubnavButton0"/>
+            <TabListItem val="SubnavContainer/SubnavButton1"/>
+            <TabListItem val="SubnavContainer/SubnavButton2"/>
+            <TabListItem val="SubnavContainer/SubnavButton3"/>
+            <PanelListItem val="CustomGamesLobbies"/>
+            <PanelListItem val="CustomGamesMelee"/>
+            <PanelListItem val="CustomGamesArcade"/>
+            <PanelListItem val="CustomGamesCustomCampaigns"/>
+
+            <!-- This is explicitly broken out into a state group to avoid reloading issues. The Undo="false" exists
+            on each Action to prevent a Red Text error caused by this State Group and the SelectedTabIndex property
+            binding on ScreenCollection interacting with each other to stay synced. -->
+            <StateGroup name="SelectedTabState">
+                <State name="ScreenCustomIndex_Lobbies">
+                    <When type="Property" frame="$parent" SelectedIndex="0"/>
+                    <Action type="SetProperty" frame="$this" SelectedIndex="0" Undo="false"/>
+                </State>
+                <State name="ScreenCustomIndex_Melee">
+                    <When type="Property" frame="$parent" SelectedIndex="1"/>
+                    <Action type="SetProperty" frame="$this" SelectedIndex="1" Undo="false"/>
+                </State>
+                <State name="ScreenCustomIndex_Arcade">
+                    <When type="Property" frame="$parent" SelectedIndex="2"/>
+                    <Action type="SetProperty" frame="$this" SelectedIndex="2" Undo="false"/>
+                </State>
+                <State name="ScreenCustomIndex_CustomCampaigns">
+                    <When type="Property" frame="$parent" SelectedTabIndex="#CollectionIndex_Emoticons"/>
+                    <Action type="SetProperty" frame="$this" SelectedIndex="#CollectionIndex_Emoticons" Undo="false"/>
+                </State> -->
+            </StateGroup>
+
+            <Animation name="HideNav">
+                <Event event="HideNav" action="DirectionForward" frame="$parent"/>
+                <Event event="HideNav" action="Play" frame="$parent"/>
+                <Event event="ShowNav" action="DirectionReverse" frame="$parent"/>
+                <Event event="ShowNav" action="Play" frame="$parent"/>
+
+                <Controller name="Visibility" type="Visibility" end="Pause">
+                    <Key type="Bool" time="0.0" value="true"/>
+                    <Key type="Bool" time="0.1" value="false"/>
+                </Controller>
+            </Animation>
+
+            <Frame type="LobbyListFrame" name="CustomGamesLobbies" template="CustomGamesLobbies/CustomGamesLobbies"/>
+            <Frame type="CustomGameListPanel" name="CustomGamesMelee" template="CustomGamesMelee/CustomGamesMelee"/>
+            <Frame type="ArcadeBrowseListPanel" name="CustomGamesArcade" template="CustomGamesArcade/CustomGamesArcade"/>
+            <Frame type="CustomGamesBrowseListPanel" name="CustomGamesCustomCampaigns" template="CustomGamesCustomCampaigns/CustomGamesCustomCampaigns"/> -->
+            
+            <Frame type="BlurFrame" name="BlurEffect">
+                <Anchor relative="$parent/Background"/>
+                <BlurAmount val=".3"/>
+
+                <Frame type="Image" name="LowImage">
+                    <Anchor relative="$parent"/>
+                    <Color val="0,0,0"/>
+                    <Alpha val="150"/>
+                </Frame>
+            </Frame>
+
+            <Frame type="Image" name="Background">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="72"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Right" relative="$parent" pos="Max" offset="0"/>
+                <Height val="52"/>
+                <Texture val="@UI/Glues_Battlenet_SubNav_Bg"/>
+                <TextureType val="Nineslice"/>
+                <Tiled val="true"/>
+                <Alpha val="0"/>
+                
+                <Animation name="FadeNav">
+                    <Event event="OnShown" action="Reset"/>
+                    <Event event="OnShown" action="Play"/>
+
+                    <Controller name="FadeIn" type="Fade" end="Pause">
+                        <Key type="Curve" time="0.0" value="0" in="Linear"/>
+                        <Key type="Curve" time="0.95" value="255" out="Linear"/>
+                    </Controller>
+                </Animation>
+            </Frame>
+            
+            <Frame type="Image" name="BottomLineHighlightAnim">
+                <Anchor side="Bottom" relative="$parent/Background" pos="Max" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+                <Texture val="@UI/Glues_Battlenet_TopNav_BottomHighlightAnim"/>
+                <Alpha val="150"/>
+                
+                <Animation name="Highlight">
+                    <Event event="OnShown" action="DirectionForward" frame="$parent"/>
+                    <Event event="OnShown" action="Play" frame="$parent"/>
+                    
+                    <Controller type="Fade" end="Loop">
+                        <Key type="Curve" time="0" value="0"/>
+                        <Key type="Curve" time="2" value="100"/>
+                        <Key type="Curve" time="4.5" value="175"/>
+                        <Key type="Curve" time="6" value="150"/>
+                        <Key type="Curve" time="10" value="0"/>
+                    </Controller>
+                    
+                    <Controller type="Anchor" end="Loop" side="Left" relative="true">
+                        <Key type="Curve" time="0" value="0" out="linear"/>
+                        <Key type="Curve" time="2" value="0" out="linear"/>
+                        <Key type="Curve" time="10" value="1920" out="linear"/>
+                    </Controller>
+                </Animation>
+            </Frame>
+            
+            <Frame type="Frame" name="SubnavContainer" template="StandardNavigationTemplates/SubnavTemplate">
+                
+                <!-- LOBBIES BUTTON -->
+                <Frame type="Button" name="SubnavButton0">
+                    <Text val="@UI/ScreenCustomGames/LobbiesButton"/>
+                    <Visible val="True"/>
+                </Frame>
+                
+                <!-- MELEE BUTTON -->
+                <Frame type="Button" name="SubnavButton1">
+                    <Text val="@UI/ScreenCustomGames/MeleeButton"/>
+                    <Visible val="True"/>
+                </Frame>
+                
+                <!-- ARCADE BUTTON -->
+                <Frame type="Button" name="SubnavButton2">
+                    <Text val="@UI/ScreenCustomGames/ArcadeButton"/>
+                    <Visible val="True"/>
+                </Frame>
+              
+                <!-- CUSTOM CAMPAIGN BUTTON -->
+                <Frame type="Button" name="SubnavButton3">
+                    <Text val="@UI/ScreenCustomGames/CustomCampaignButton"/>
+                    <Visible val="True"/>
+                </Frame>
+
+                <Frame type="Image" name="SubnavButtonDivider3">
+                    
+                    <StateGroup name="VisibilityState">
+                        <DefaultState val="NotVisible"/>
+                        
+                        <State name="FeaturedPinVisible">
+                            <When type="Property" frame="$parent/FeaturedPinButton" Visible="true"/>
+                            <Action type="SetProperty" Visible="true"/>
+                            <Action type="SetProperty" Alpha="{$parent/FeaturedPinButton/@Alpha}"/>
+                        </State>
+                        
+                        <State name="MapPinVisible">
+                            <When type="Property" frame="$parent/MapPinButton0" Visible="true"/>
+                            <Action type="SetProperty" Visible="true"/>
+                            <Action type="SetProperty" Alpha="{$parent/MapPinButton0/@Alpha}"/>
+                        </State>
+                        
+                        <State name="NotVisible">
+                            <Action type="SetProperty" Visible="false"/>
+                        </State>
+                    </StateGroup>
+                </Frame>
+                
+                <Frame type="VersionNotificationFrame" name="CustomCampaignsNewContentIndicator">
+                    <Anchor side="Bottom" relative="$parent/SubnavButton3" pos="Max" offset="11"/>
+                    <Anchor side="Right" relative="$parent/SubnavButton3/Label" pos="Max" offset="21"/>
+                    <Width val="36"/>
+                    <Height val="36"/>
+                    <Visible val="False"/>
+                    <Version val="1"/>
+                    <SettingName val="CustomCampaignsButton"/>
+                    <Unclipped val="True"/>
+                    
+                    <Animation name="VersionState">
+                        <Event event="NewVersion" action="Reset,Play"/>
+                        <Event event="OldVersion" action="Reset,Stop"/>
+                        <Event event="InvalidVersion" action="Reset,Stop"/>
+                        <Controller type="Visibility" end="Pause">
+                            <Key type="Bool" time="0" value="True"/>
+                        </Controller>
+                        <Controller type="Tooltip" end="Pause" frame="$parent/SubnavButton3">
+                            <Key type="Text" time="0" text="@UI/ScreenNavigation/NewCustomCampaigns"/>
+                        </Controller>
+                    </Animation>
+                 
+                    <!-- The name of this animation must be "ClearNotification" -->
+                    <!-- When played, it will update the version of this notification  -->
+                    <Animation name="ClearNotification">
+                        <Event event="OnClick" action="Reset,Play" frame="$parent/SubnavButton3"/>
+                        <Event event="Toggled" action="Reset,Play" frame="$parent/SubnavButton3"/>
+                 
+                        <Controller type="Event" end="Stop">
+                            <Key type="Event" time="0.0" event="NoOp"/>
+                            <Key type="Event" time="1.0" event="NoOp"/>
+                        </Controller>
+
+                        <Controller type="Tooltip" end="Pause" frame="$parent/SubnavButton3">
+                            <Key type="Text" time="0" text=""/>
+                        </Controller>
+                    </Animation>
+                        
+                    <Frame type="Image" name="NewContentFlagBg">
+                        <Anchor side="Bottom" relative="$parent" pos="Max" offset="0"/>
+                        <Anchor side="Right" relative="$parent" pos="Max" offset="0"/>
+                        <Texture val="@UI/Glues_Battlenet_TopNav_NewContentGlow"/>
+                        <Width val="36"/>
+                        <Height val="36"/>
+
+                        <Animation name="FlagGlow">
+                            <Event event="OnShown" action="Reset,Play" frame="$parent"/>
+                            <Event event="OnHidden" action="Stop" frame="$parent"/>
+
+                            <Controller type="Rotation" relative="False" end="Loop">
+                                <Key type="Curve" time="0" value="0" out="Linear"/>
+                                <Key type="Curve" time="5" value="360" in="Linear"/>
+                            </Controller>
+                        </Animation>
+                    </Frame>
+
+                    <Frame type="Image" name="NewContentFlag">
+                        <Anchor side="Bottom" relative="$parent" pos="Max" offset="0"/>
+                        <Anchor side="Right" relative="$parent" pos="Max" offset="0"/>
+                        <Texture val="@UI/Glues_Battlenet_TopNav_NewContent"/>
+                        <Width val="36"/>
+                        <Height val="36"/>
+                    </Frame>
+                    
+                    <Frame type="Image" name="NewContentFlagGlow">
+                        <Anchor side="Bottom" relative="$parent/NewContentFlag" pos="Max" offset="0"/>
+                        <Anchor side="Left" relative="$parent/NewContentFlag" pos="Mid" offset="0"/>
+                        <Anchor side="Right" relative="$parent/NewContentFlag" pos="Mid" offset="0"/>
+                        <Texture val="@UI/Glues_Battlenet_TopNav_NewContentBg"/>
+                        <Width val="36"/>
+                        <Height val="36"/>
+                        <Alpha val="0"/>
+                        
+                        <Animation name="FlagGlow">
+                            <Event event="OnShown" action="Reset,Play" frame="$parent"/>
+                            <Event event="OnHidden" action="Stop" frame="$parent"/>
+
+                            <Controller type="Rotation" relative="False" end="Loop">
+                                <Key type="Curve" time="0" value="0" out="Linear"/>
+                                <Key type="Curve" time="5" value="360" in="Linear"/>
+                            </Controller>
+
+                            <Controller type="Fade" end="Loop">
+                                <Key type="Curve" time="0" value="255" out="Fast"/>
+                                <Key type="Curve" time="2" value="0" in="Slow"/>
+                                <Key type="Curve" time="4" value="255" out="Fast"/>
+                            </Controller>
+                        </Animation>
+                    </Frame>
+                </Frame>
+                
+                <!-- FEATURED PIN -->
+                <Frame type="Button" name="FeaturedPinButton" template="StandardNavigationTemplates/SpecialSubnavExtendedButtonTemplate">
+                    <CollapseLayout val="True"/>
+                    <Text val="{$CustomGamesFeaturedPanelContentFeed/@ButtonText}"/>
+                    
+                    <Frame type="Frame" name="AnchorFrame">
+                        <Anchor side="Top" relative="$parent/$parent/SubnavButton0" pos="Mid" offset="-4"/>
+                        <Anchor side="Bottom" relative="$parent/$parent/SubnavButton0" pos="Mid" offset="-4"/>
+                        <Anchor side="Left" relative="$parent/$parent/SubnavButton3" pos="Max" offset="-29"/>
+                        <CollapseLayout val="True"/>
+                    </Frame>
+                    
+                    <Frame type="Label" name="Label">
+                        <AutoSizeClamps maxWidth="300"/>
+                    </Frame>
+                    
+                    <Frame type="Label" name="TitleLabel">
+                        <AutoSizeClamps maxWidth="300"/>
+                    </Frame>
+                
+                    <Animation name="FadeIn">
+                        <Event event="OnShown" action="Reset,Play"/>
+
+                        <Controller name="FadeIn" type="Fade" end="Pause">
+                            <Key type="Curve" time="0.0" value="0" in="Auto"/>
+                            <Key type="Curve" time="0.3" value="0" in="Auto"/>
+                            <Key type="Curve" time="0.54" value="255" out="Auto"/>
+                        </Controller>
+                        
+                        <Controller type="Anchor" end="Pause" side="Left" relative="true" frame="$this/AnchorFrame">
+                            <Key type="Curve" time="0" value="-10" out="Linear"/>
+                            <Key type="Curve" time="0.3" value="-10" out="Linear"/>
+                            <Key type="Curve" time="0.54" value="0" out="Linear"/>
+                        </Controller>
+                    </Animation>
+                
+                    <Animation name="ShowFeatured">
+                        <Event event="OnClick" action="Reset,Play"/>
+
+                        <Controller type="Event" frame="$GlueUI" end="Pause">
+                            <Key type="Event" time="0" event="ShowFeaturedMapContent"/>
+                        </Controller>
+                    </Animation>
+					
+					<StateGroup name="VisibleState">
+						<DefaultState val="NotVisible"/>
+						
+						<State name="Visible">
+							<When type="Property" frame="$CustomGamesFeaturedPanelContentFeed" ButtonText="" operator="NotEqual"/>
+							<Action type="SetProperty" frame="$this" Visible="True"/>
+						</State>
+						<State name="NotVisible">
+							<Action type="SetProperty" frame="$this" Visible="False"/>
+						</State>
+					</StateGroup>
+                </Frame>
+                
+                <!-- PIN 1 -->
+                <Frame type="ViewMapProfileButton" name="MapPinButton0" template="ScreenCustom/MapPinButtonTemplate">
+                    <MapHandle val="{$parent/PinFrame/@MapHandle[0]}"/>
+                
+                    <Frame type="Frame" name="AnchorFrame">
+                        <Anchor side="Top" relative="$parent/$parent/SubnavButton0" pos="Mid" offset="-4"/>
+                        <Anchor side="Bottom" relative="$parent/$parent/SubnavButton0" pos="Mid" offset="-4"/>
+                        <Anchor side="Left" relative="$parent/$parent/FeaturedPinButton/AnchorFrame" pos="Max" offset="8"/>
+                    </Frame>
+                
+                    <Animation name="FadeIn">
+                        <Event event="OnShown" action="Reset,Play"/>
+
+                        <Controller name="FadeIn" type="Fade" end="Pause">
+                            <Key type="Curve" time="0.0" value="0" in="Auto"/>
+                            <Key type="Curve" time="0.3" value="0" in="Auto"/>
+                            <Key type="Curve" time="0.54" value="255" out="Auto"/>
+                        </Controller>
+                        
+                        <Controller type="Anchor" end="Pause" side="Left" relative="true" frame="$this/AnchorFrame">
+                            <Key type="Curve" time="0" value="-10" out="Linear"/>
+                            <Key type="Curve" time="0.3" value="-10" out="Linear"/>
+                            <Key type="Curve" time="0.54" value="0" out="Linear"/>
+                        </Controller>
+                    </Animation>
+                </Frame>
+
+                <!-- PIN 2 -->
+                <Frame type="ViewMapProfileButton" name="MapPinButton1" template="ScreenCustom/MapPinButtonTemplate">
+                    <MapHandle val="{$parent/PinFrame/@MapHandle[1]}"/>
+                
+                    <Frame type="Frame" name="AnchorFrame">
+                        <Anchor side="Top" relative="$parent/$parent/SubnavButton0" pos="Mid" offset="-4"/>
+                        <Anchor side="Bottom" relative="$parent/$parent/SubnavButton0" pos="Mid" offset="-4"/>
+                        <Anchor side="Left" relative="$parent/$parent/MapPinButton0/AnchorFrame" pos="Max" offset="8"/>
+                    </Frame>
+                
+                    <Animation name="FadeIn">
+                        <Event event="OnShown" action="Reset,Play"/>
+
+                        <Controller name="FadeIn" type="Fade" end="Pause">
+                            <Key type="Curve" time="0.0" value="0" in="Auto"/>
+                            <Key type="Curve" time="0.3" value="0" in="Auto"/>
+                            <Key type="Curve" time="0.57" value="255" out="Auto"/>
+                        </Controller>
+                        
+                        <Controller type="Anchor" end="Pause" side="Left" relative="true" frame="$this/AnchorFrame">
+                            <Key type="Curve" time="0" value="-10" out="Linear"/>
+                            <Key type="Curve" time="0.3" value="-10" out="Linear"/>
+                            <Key type="Curve" time="0.57" value="0" out="Linear"/>
+                        </Controller>
+                    </Animation>
+                </Frame>
+
+                <!-- PIN 3 -->
+                <Frame type="ViewMapProfileButton" name="MapPinButton2" template="ScreenCustom/MapPinButtonTemplate">
+                    <MapHandle val="{$parent/PinFrame/@MapHandle[2]}"/>
+                
+                    <Frame type="Frame" name="AnchorFrame">
+                        <Anchor side="Top" relative="$parent/$parent/SubnavButton0" pos="Mid" offset="-4"/>
+                        <Anchor side="Bottom" relative="$parent/$parent/SubnavButton0" pos="Mid" offset="-4"/>
+                        <Anchor side="Left" relative="$parent/$parent/MapPinButton1/AnchorFrame" pos="Max" offset="8"/>
+                    </Frame>
+                
+                    <Animation name="FadeIn">
+                        <Event event="OnShown" action="Reset,Play"/>
+
+                        <Controller name="FadeIn" type="Fade" end="Pause">
+                            <Key type="Curve" time="0.0" value="0" in="Auto"/>
+                            <Key type="Curve" time="0.3" value="0" in="Auto"/>
+                            <Key type="Curve" time="0.60" value="255" out="Auto"/>
+                        </Controller>
+                        
+                        <Controller type="Anchor" end="Pause" side="Left" relative="true" frame="$this/AnchorFrame">
+                            <Key type="Curve" time="0" value="-10" out="Linear"/>
+                            <Key type="Curve" time="0.3" value="-10" out="Linear"/>
+                            <Key type="Curve" time="0.60" value="0" out="Linear"/>
+                        </Controller>
+                    </Animation>
+                </Frame>
+
+                <Frame type="BattleMapPinFrame" name="PinFrame">
+                    <Anchor relative="$parent"/>
+                </Frame>
+            </Frame>
+        </Frame>
+    </Frame>
+</Desc>

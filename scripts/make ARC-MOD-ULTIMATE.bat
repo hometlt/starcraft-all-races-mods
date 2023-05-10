@@ -1,0 +1,2 @@
+node --max_old_space_size=8000 node_modules/sc-parser/run --read ../built-in/{LibertyCampaign,Swarm,SwarmCampaign,Void,VoidCampaign,VoidMulti,Utilities,WarCraft},../factions/{Scion,Hybrids,UED,Dragons,UPL,UPLBalance,Talon,Umojan},../coop/{Core,AlliedCommanders,CustomRaces,Umojan,Nexus,WarCraft} --write ../../ARC-DATA-ULTIMATE.SC2Mod
+pause

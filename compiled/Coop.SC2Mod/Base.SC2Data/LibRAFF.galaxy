@@ -1,0 +1,83 @@
+include "TriggerLibs/NativeLib"
+include "LibCOMI"
+
+include "LibRAFF_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: COOP - COMMANDERS - RAFAEL
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libRAFF_InitLibraries () {
+    libNtve_InitVariables();
+    libCOMI_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: DUT_CommanderMeneltor
+//--------------------------------------------------------------------------------------------------
+bool libRAFF_gt_DUT_CommanderMeneltor_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    playergroup lv_players;
+
+    // Automatic Variable Declarations
+    playergroup autoC869A9C6_g;
+    int autoC869A9C6_var;
+
+    // Variable Initialization
+    lv_players = libCOMI_gf_PlayersOfCommander("Meneltor");
+
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupCount(lv_players) > 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoC869A9C6_g = lv_players;
+    autoC869A9C6_var = -1;
+    while (true) {
+        autoC869A9C6_var = PlayerGroupNextPlayer(autoC869A9C6_g, autoC869A9C6_var);
+        if (autoC869A9C6_var < 0) { break; }
+        if ((libCOMI_gf_TechUnitAvailable(autoC869A9C6_var, "CasterKeiron") == true)) {
+            libCOMI_gf_SetHeroPanelUnit(1, libCOMI_gf_GetHeroUnit(EventPlayer(), "Aegis"), autoC869A9C6_var);
+            libCOMI_gf_CreateACCaster(autoC869A9C6_var, "CasterKeiron");
+            libCOMI_gf_CU_GPInitEnergyCaster(autoC869A9C6_var, "CasterKeiron");
+            libCOMI_gf_CU_GPSoAUpdateVitals(autoC869A9C6_var);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libRAFF_gt_DUT_CommanderMeneltor_Init () {
+    libRAFF_gt_DUT_CommanderMeneltor = TriggerCreate("libRAFF_gt_DUT_CommanderMeneltor_Func");
+    TriggerAddEventGeneric(libRAFF_gt_DUT_CommanderMeneltor, libCOMI_gv_mISSIONINITIALIZED);
+}
+
+void libRAFF_InitTriggers () {
+    libRAFF_gt_DUT_CommanderMeneltor_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libRAFF_InitLib_completed = false;
+
+void libRAFF_InitLib () {
+    if (libRAFF_InitLib_completed) {
+        return;
+    }
+
+    libRAFF_InitLib_completed = true;
+
+    libRAFF_InitLibraries();
+    libRAFF_InitTriggers();
+}
+

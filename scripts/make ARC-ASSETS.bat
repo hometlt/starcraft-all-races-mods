@@ -1,0 +1,2 @@
+node --max_old_space_size=4000 node_modules/sc-parser/run --read ../../all-races-assets/{Scion,UED,Hybrids,Dragons,Talon,UPL,Umojans,Nexus,Campaign,Coop,WarCraftCore,WarCraftExtra} --write ../../ARC-ASSETS.SC2Mod
+pause
