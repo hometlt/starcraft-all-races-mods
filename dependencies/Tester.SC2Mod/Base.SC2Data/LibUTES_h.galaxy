@@ -4,11 +4,15 @@ include "TriggerLibs/natives"
 // Library: LIBRARY - UNIT TESTER
 //--------------------------------------------------------------------------------------------------
 // Constants
-const int libUTES_gv_tMAXFACTIONS = 34;
+const int libUTES_gv_maxPlayers = 3;
+const int libUTES_gv_tMAXFACTIONS = 90;
 const int libUTES_gv_const_terrains = 9;
 const int libUTES_gv_const_players = 8;
 const int libUTES_gv_const_races = 8;
 const int libUTES_gv_const_card_length = 27;
+const int libUTES_gv_placementCardRows = 3;
+const int libUTES_gv_placementCardColumns = 7;
+const int libUTES_gv_mAX_FIGHTER_PLAYERS = 2;
 const string libUTES_gv_uNITTESTERINITIALIZED = "UNIT TESTER INITIALIZED";
 
 // Structures
@@ -43,9 +47,8 @@ struct libUTES_gs_DATA_UPGRADE {
 };
 
 // Variable Declarations
-string libUTES_gv_factions;
-int libUTES_gv_factionsTotal;
-unitgroup libUTES_gv_builders;
+string libUTES_gv_unitMorphs;
+string libUTES_gv_levelUpgrades;
 libUTES_gs_DATA_PLAYER[libUTES_gv_const_players + 1] libUTES_gv_data_player;
 libUTES_gs_DATA_TERRAIN[libUTES_gv_const_terrains + 1] libUTES_gv_data_terrain;
 libUTES_gs_DATA_TERRAIN libUTES_gv_terrain;
@@ -83,9 +86,15 @@ int[libUTES_gv_const_terrains + 1] libUTES_gv_settings_terrainbutton;
 int[libUTES_gv_const_players + 1] libUTES_gv_settings_allianceplayerlabel;
 int[libUTES_gv_const_players + 1][3] libUTES_gv_settings_alliancebuttons;
 int libUTES_gv_creator_panel;
-int[2][libUTES_gv_tMAXFACTIONS + 1] libUTES_gv_creator_racebutton;
-int[2][libUTES_gv_const_card_length + 1] libUTES_gv_creator_itembutton;
-int[2][libUTES_gv_const_card_length + 1] libUTES_gv_creator_itemface;
+string libUTES_gv_factions;
+string[libUTES_gv_mAX_FIGHTER_PLAYERS + 1] libUTES_gv_creator_selectedRace;
+int[libUTES_gv_tMAXFACTIONS + 1] libUTES_gv_creator_racebutton;
+int[libUTES_gv_tMAXFACTIONS + 1] libUTES_gv_creator_raceface;
+int[4] libUTES_gv_placementCardOffset;
+int[3] libUTES_gv_creator_bottomButton;
+int[3] libUTES_gv_creator_upButton;
+int[3][libUTES_gv_const_card_length + 1] libUTES_gv_creator_itembutton;
+int[3][libUTES_gv_const_card_length + 1] libUTES_gv_creator_itemface;
 int libUTES_gv_leaderboard;
 int[3] libUTES_gv_leaderboard_minerals;
 int[3] libUTES_gv_leaderboard_gas;
@@ -94,16 +103,26 @@ bool[3][22] libUTES_gv_leaderboard_icon_flag;
 point libUTES_gv_wORKERSPOINT;
 
 // Function Declarations
-void libUTES_gf_Setup ();
-void libUTES_gf_SetupRace (string lp_race, int lp_player);
+void libUTES_gf_PrepareUnitTesterFactions ();
+void libUTES_gf_SetupUnitTesterFaction (string lp_race, int lp_player);
+string libUTES_gf_GetFactionImage (string lp_faction);
+text libUTES_gf_GetFactionTooltip (string lp_faction);
+void libUTES_gf_MakeUnitTesterFactionsList ();
+void libUTES_gf_ShowUnitTesterPlacementCard ();
+void libUTES_gf_MakeUnitTesterPlacementCard ();
+void libUTES_gf_RenderUnitTesterPlacementCard (int lp_player);
+bool libUTES_gf_TesterLeaderboardValidUnitType (string lp_unitType);
+void libUTES_gf_TesterLeaderboardSpecialUnitCost (string lp_unitType, int lp_column, bool lp_deleteMode);
+void libUTES_gf_TesterLeaderboardCreate ();
+int libUTES_gf_TesterLeaderboardAddRow (string lp_unitName);
+string libUTES_gf_TesterLeaderboardStructureUnitTypeToIcon (string lp_unitType);
+void libUTES_gf_TesterLeaderboardAddIcon (string lp_unitType, int lp_column, int lp_row);
 bool libUTES_gf_NoUnitsForSide (int lp_side);
 int libUTES_gf_DialogItemFromLayoutHookup (int lp_type, string lp_name);
 void libUTES_gf_AddTerrainData (string lp_regionString);
 void libUTES_gf_RemoveNeutralStructures ();
 void libUTES_gf_SaveMapStructures ();
 void libUTES_gf_RestoreMapStructures ();
-void libUTES_gf_RenderTesterUIForPlayer (int lp_player);
-void libUTES_gf_RenderTesterUIForAllPlayers ();
 void libUTES_gf_CreatorAddUnits (int lp_player, int lp_side, string lp_unit);
 void libUTES_gf_CreatorAddUpgrade (int lp_side, structref<libUTES_gs_DATA_UPGRADE> lp_dataUpgrade);
 void libUTES_gf_DeleteAllTesterUnits ();
@@ -113,14 +132,17 @@ void libUTES_gf_ResetTesterUnits ();
 void libUTES_gf_MirrorTesterUnitsByPlayer (int lp_player);
 void libUTES_gf_LoadTerrainData (structref<libUTES_gs_DATA_TERRAIN> lp_dataTerrain);
 void libUTES_gf_MovePlayerCameras ();
-bool libUTES_gf_TesterLeaderboardValidUnitType (string lp_unitType);
-void libUTES_gf_TesterLeaderboardSpecialUnitCost (string lp_unitType, int lp_column, bool lp_deleteMode);
-void libUTES_gf_TesterLeaderboardCreate ();
-int libUTES_gf_TesterLeaderboardAddRow (string lp_unitName);
-string libUTES_gf_TesterLeaderboardStructureUnitTypeToIcon (string lp_unitType);
-void libUTES_gf_TesterLeaderboardAddIcon (string lp_unitType, int lp_column, int lp_row);
+void libUTES_gf_ShowUnitTesterCommonInterface ();
+void libUTES_gf_PrepareUnitTesterPlacementMode ();
+void libUTES_gf_PrepareUnitTesterTerrains ();
+void libUTES_gf_PrepareUnitTesterPlayers ();
+void libUTES_gf_RenderTesterUIForPlayer (int lp_player);
+void libUTES_gf_RenderTesterUIForAllPlayers ();
+void libUTES_gf_ShowUnitTesterTips ();
 
 // Trigger Declarations
+trigger libUTES_gt_RaceButtonClicked;
+trigger libUTES_gt_ArrowButtonClicked;
 trigger libUTES_gt_InitializeUnitTesterInterface;
 trigger libUTES_gt_CtrlOff;
 trigger libUTES_gt_CtrlOn;

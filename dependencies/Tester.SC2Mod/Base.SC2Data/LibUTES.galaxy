@@ -27,8 +27,8 @@ void libUTES_InitVariables () {
 
     libUTES_InitVariables_completed = true;
 
-    libUTES_gv_factions = "^Factions";
-    libUTES_gv_builders = UnitGroupEmpty();
+    libUTES_gv_unitMorphs = "^Morphs";
+    libUTES_gv_levelUpgrades = "^LevelUpgrades";
     libUTES_gv_test_timer = TimerCreate();
     libUTES_gv_test_timer_window = c_timerWindowNone;
     libUTES_gv_map_structure_storage = "";
@@ -71,17 +71,28 @@ void libUTES_InitVariables () {
         }
     }
     libUTES_gv_creator_panel = c_invalidDialogControlId;
-    for (init_i = 0; init_i <= 1; init_i += 1) {
-        for (init_j = 0; init_j <= libUTES_gv_tMAXFACTIONS; init_j += 1) {
-            libUTES_gv_creator_racebutton[init_i][init_j] = c_invalidDialogControlId;
-        }
+    libUTES_gv_factions = "^Factions";
+    for (init_i = 0; init_i <= libUTES_gv_mAX_FIGHTER_PLAYERS; init_i += 1) {
+        libUTES_gv_creator_selectedRace[init_i] = "Neutral";
     }
-    for (init_i = 0; init_i <= 1; init_i += 1) {
+    for (init_i = 0; init_i <= libUTES_gv_tMAXFACTIONS; init_i += 1) {
+        libUTES_gv_creator_racebutton[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= libUTES_gv_tMAXFACTIONS; init_i += 1) {
+        libUTES_gv_creator_raceface[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= 2; init_i += 1) {
+        libUTES_gv_creator_bottomButton[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= 2; init_i += 1) {
+        libUTES_gv_creator_upButton[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= 2; init_i += 1) {
         for (init_j = 0; init_j <= libUTES_gv_const_card_length; init_j += 1) {
             libUTES_gv_creator_itembutton[init_i][init_j] = c_invalidDialogControlId;
         }
     }
-    for (init_i = 0; init_i <= 1; init_i += 1) {
+    for (init_i = 0; init_i <= 2; init_i += 1) {
         for (init_j = 0; init_j <= libUTES_gv_const_card_length; init_j += 1) {
             libUTES_gv_creator_itemface[init_i][init_j] = c_invalidDialogControlId;
         }
@@ -90,7 +101,7 @@ void libUTES_InitVariables () {
 }
 
 // Functions
-void libUTES_gf_Setup () {
+void libUTES_gf_PrepareUnitTesterFactions () {
     // Variable Declarations
     string lv_catalogRace;
 
@@ -107,13 +118,13 @@ void libUTES_gf_Setup () {
         lv_catalogRace = CatalogEntryGet(c_gameCatalogRace, autoC1F14CE7_var);
         if ((CatalogFieldValueGetAsInt(c_gameCatalogRace, lv_catalogRace, "Flags[" + IntToString(0) + "]", c_playerAny) == 1)) {
             libARRA_gf_ListStringInclude(libUTES_gv_factions, (lv_catalogRace));
-            libUTES_gf_SetupRace(((lv_catalogRace)), 0);
+            libUTES_gf_SetupUnitTesterFaction(((lv_catalogRace)), 0);
         }
 
     }
 }
 
-void libUTES_gf_SetupRace (string lp_race, int lp_player) {
+void libUTES_gf_SetupUnitTesterFaction (string lp_race, int lp_player) {
     // Variable Declarations
     string lv_race;
     int lv_startingUnitCount;
@@ -163,6 +174,7 @@ void libUTES_gf_SetupRace (string lp_race, int lp_player) {
     string lv_airesultunits;
     string lv_airesultstructures;
     string lv_airesultupgrades;
+    string lv_unfininshedReq;
 
     // Automatic Variable Declarations
     int autoFE544A26_ae;
@@ -253,6 +265,18 @@ void libUTES_gf_SetupRace (string lp_race, int lp_player) {
             continue;
         }
 
+        lv_unfininshedReq = AIDefaultGetFirstUnfinishedReq(lp_player, lv_unitType);
+        if ((lv_unfininshedReq != null)) {
+            libARRA_gf_LOGString((lv_unitType));
+            libARRA_gf_LOGString((lv_unfininshedReq));
+        }
+
+        lv_unfininshedReq = AIDefaultGetFirstMissingReq(lp_player, lv_unitType);
+        if ((lv_unfininshedReq != null)) {
+            libARRA_gf_LOGString((lv_unitType));
+            libARRA_gf_LOGString((lv_unfininshedReq));
+        }
+
         lv_unitproduction = false;
         lv_unittech = false;
         lv_unittransport = false;
@@ -274,6 +298,9 @@ void libUTES_gf_SetupRace (string lp_race, int lp_player) {
                 autoFE93245B_ae = (CatalogFieldValueCount(c_gameCatalogAbil, lv_ability, "InfoArray", lp_player) - 1);
                 autoFE93245B_var = 0;
                 for ( ; autoFE93245B_var <= autoFE93245B_ae; autoFE93245B_var += 1 ) {
+                    if ((CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "CmdButtonArray[" + IntToString(0) + "].State", lp_player) == "Restricted")) {
+                        continue;
+                    }
                     lv_unitName2 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "InfoArray[" + IntToString(autoFE93245B_var) + "].Unit", lp_player);
                     if ((lv_unitName2 == "")) {
                         continue;
@@ -578,6 +605,477 @@ void libUTES_gf_SetupRace (string lp_race, int lp_player) {
     }
 }
 
+string libUTES_gf_GetFactionImage (string lp_faction) {
+    // Automatic Variable Declarations
+    // Implementation
+    return (CatalogFieldValueGet(c_gameCatalogRace, lp_faction, "Icon", c_playerAny));
+}
+
+text libUTES_gf_GetFactionTooltip (string lp_faction) {
+    // Automatic Variable Declarations
+    // Implementation
+    TextExpressionSetToken("Param/Expression/lib_UTES_E1CC6A25", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogRace, lp_faction, "Name", c_playerAny)));
+    return TextExpressionAssemble("Param/Expression/lib_UTES_E1CC6A25");
+}
+
+void libUTES_gf_MakeUnitTesterFactionsList () {
+    // Variable Declarations
+    int lv_x;
+    int lv_y;
+    int lv_i;
+    int lv_j;
+    int lv_bottom_panel;
+    int lv_buttons_panel;
+    string lv_factionString;
+
+    // Automatic Variable Declarations
+    int auto10508638_ae;
+    const int auto10508638_ai = 1;
+
+    // Variable Initialization
+    lv_bottom_panel = c_invalidDialogControlId;
+    lv_buttons_panel = c_invalidDialogControlId;
+    lv_factionString = "";
+
+    // Implementation
+    lv_x = 0;
+    lv_y = 0;
+    lv_buttons_panel = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypePanel, ("UIContainer/FullscreenUpperContainer/TesterPanel/RaceList"));
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 10000, PlayerGroupAll());
+    auto10508638_ae = libARRA_gf_ListSize(libUTES_gv_factions);
+    lv_j = 1;
+    for ( ; ( (auto10508638_ai >= 0 && lv_j <= auto10508638_ae) || (auto10508638_ai < 0 && lv_j >= auto10508638_ae) ) ; lv_j += auto10508638_ai ) {
+        lv_factionString = libARRA_gf_ListStringGet(libUTES_gv_factions, lv_j);
+        DialogControlCreateInPanelFromTemplate(lv_buttons_panel, c_triggerControlTypeButton, "Tester/TesterRaceButton_Blue");
+        DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTopLeft, (68 + (lv_x * 54)), (22 + (lv_y * 54)));
+        libUTES_gv_creator_racebutton[lv_j] = DialogControlLastCreated();
+        DialogControlHookup(DialogControlLastCreated(), c_triggerControlTypeImage, "FaceImage");
+        libUTES_gv_creator_raceface[lv_j] = DialogControlLastCreated();
+        libNtve_gf_SetDialogItemImage(libUTES_gv_creator_raceface[lv_j], libUTES_gf_GetFactionImage(lv_factionString), PlayerGroupAll());
+        DialogControlSetVisible(libUTES_gv_creator_raceface[lv_j], PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_racebutton[lv_j], libUTES_gf_GetFactionTooltip(lv_factionString), PlayerGroupAll());
+        lv_x += 1;
+        if ((lv_x == 30)) {
+            lv_x = 0;
+            lv_y += 1;
+        }
+
+    }
+}
+
+void libUTES_gf_ShowUnitTesterPlacementCard () {
+    // Automatic Variable Declarations
+    // Implementation
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeConsolePanel, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeMinimapPanel, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeArmyButton, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeCommandPanel, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeControlGroupPanel, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeIdleWorkerButton, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeMissionTimePanel, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypePingPanel, false);
+}
+
+void libUTES_gf_MakeUnitTesterPlacementCard () {
+    // Variable Declarations
+    int lv_x;
+    int lv_y;
+    int lv_i;
+    int lv_j;
+    int lv_buttons_panel;
+    string lv_factionString;
+
+    // Automatic Variable Declarations
+    const int auto38515A40_ae = 2;
+    const int auto38515A40_ai = 1;
+    int auto958B84D1_ae;
+    const int auto958B84D1_ai = 1;
+
+    // Variable Initialization
+    lv_buttons_panel = c_invalidDialogControlId;
+    lv_factionString = "";
+
+    // Implementation
+    lv_i = 0;
+    for ( ; ( (auto38515A40_ai >= 0 && lv_i <= auto38515A40_ae) || (auto38515A40_ai < 0 && lv_i >= auto38515A40_ae) ) ; lv_i += auto38515A40_ai ) {
+        lv_x = 0;
+        lv_y = 0;
+        lv_buttons_panel = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypePanel, ("UIContainer/FullscreenUpperContainer/TesterPanel/CreatorPanel/ItemCard" + IntToString(lv_i)));
+        DialogControlHookup(lv_buttons_panel, c_triggerControlTypeButton, "Bottom");
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 10000, PlayerGroupAll());
+        libUTES_gv_creator_bottomButton[lv_i] = DialogControlLastCreated();
+        DialogControlHookup(lv_buttons_panel, c_triggerControlTypeButton, "Top");
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 10000, PlayerGroupAll());
+        libUTES_gv_creator_upButton[lv_i] = DialogControlLastCreated();
+        auto958B84D1_ae = ((libUTES_gv_placementCardRows * libUTES_gv_placementCardColumns) - 1);
+        lv_j = 0;
+        for ( ; ( (auto958B84D1_ai >= 0 && lv_j <= auto958B84D1_ae) || (auto958B84D1_ai < 0 && lv_j >= auto958B84D1_ae) ) ; lv_j += auto958B84D1_ai ) {
+            DialogControlCreateInPanelFromTemplate(lv_buttons_panel, c_triggerControlTypeButton, "Tester/TesterItemButton_Red");
+            DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTopLeft, (lv_x * 77), (lv_y * 77));
+            libUTES_gv_creator_itembutton[lv_i][lv_j] = DialogControlLastCreated();
+            DialogControlHookup(DialogControlLastCreated(), c_triggerControlTypeImage, "FaceImage");
+            libUTES_gv_creator_itemface[lv_i][lv_j] = DialogControlLastCreated();
+            lv_x += 1;
+            if ((lv_x == libUTES_gv_placementCardColumns)) {
+                lv_x = 0;
+                lv_y += 1;
+            }
+
+        }
+    }
+}
+
+void libUTES_gf_RenderUnitTesterPlacementCard (int lp_player) {
+    // Variable Declarations
+    int lv_min;
+    int lv_max;
+    int lv_x;
+    int lv_y;
+    int lv_i;
+    int lv_j;
+    int lv_b;
+    string lv_unit;
+    string lv_upgrade;
+    abilcmd lv_command;
+    string lv_button;
+    string lv_faction;
+    string lv_airesultunits;
+    string lv_airesultstructures;
+    string lv_airesultupgrades;
+    playergroup lv_players;
+
+    // Automatic Variable Declarations
+    const int auto2E3A685C_ae = 2;
+    const int auto2E3A685C_ai = 1;
+    int auto4C8FD35F_ae;
+    const int auto4C8FD35F_ai = 1;
+    int autoDB195015_ae;
+    const int autoDB195015_ai = 1;
+    int auto188B375E_ae;
+    const int auto188B375E_ai = 1;
+    int auto037A2BAA_ae;
+    const int auto037A2BAA_ai = 1;
+
+    // Variable Initialization
+    lv_faction = libUTES_gv_creator_selectedRace[lp_player];
+    lv_airesultunits = ("^AI" + lv_faction + "TableUnits");
+    lv_airesultstructures = ("^AI" + lv_faction + "TableStructures");
+    lv_airesultupgrades = ("^AI" + lv_faction + "TableUpgrades");
+    lv_players = PlayerGroupSingle(lp_player);
+
+    // Implementation
+    lv_i = 0;
+    for ( ; ( (auto2E3A685C_ai >= 0 && lv_i <= auto2E3A685C_ae) || (auto2E3A685C_ai < 0 && lv_i >= auto2E3A685C_ae) ) ; lv_i += auto2E3A685C_ai ) {
+        auto4C8FD35F_ae = ((libUTES_gv_placementCardRows * libUTES_gv_placementCardColumns) - 1);
+        lv_j = 0;
+        for ( ; ( (auto4C8FD35F_ai >= 0 && lv_j <= auto4C8FD35F_ae) || (auto4C8FD35F_ai < 0 && lv_j >= auto4C8FD35F_ae) ) ; lv_j += auto4C8FD35F_ai ) {
+            DialogControlSetEnabled(libUTES_gv_creator_itembutton[lv_i][lv_j], lv_players, false);
+            libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_i][lv_j], StringToText(""), lv_players);
+            DialogControlSetVisible(libUTES_gv_creator_itemface[lv_i][lv_j], lv_players, false);
+        }
+    }
+    lv_i = 0;
+    lv_min = (1 + (libUTES_gv_placementCardOffset[0] * libUTES_gv_placementCardColumns));
+    lv_max = MinI(libARRA_gf_ListSize(lv_airesultunits), ((lv_min - 1) + (libUTES_gv_placementCardColumns * libUTES_gv_placementCardRows)));
+    autoDB195015_ae = lv_max;
+    lv_j = lv_min;
+    for ( ; ( (autoDB195015_ai >= 0 && lv_j <= autoDB195015_ae) || (autoDB195015_ai < 0 && lv_j >= autoDB195015_ae) ) ; lv_j += autoDB195015_ai ) {
+        lv_b = (lv_j - lv_min);
+        lv_unit = (libARRA_gf_ListStringGet(lv_airesultunits, lv_j));
+        DialogControlSetEnabled(libUTES_gv_creator_itembutton[lv_i][lv_b], lv_players, true);
+        DialogControlSetEnabled(libUTES_gv_creator_itemface[lv_i][lv_b], lv_players, true);
+        TextExpressionSetToken("Param/Expression/lib_UTES_1C6CE802", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_unit, "Name", c_playerAny)));
+        TextExpressionSetToken("Param/Expression/lib_UTES_1C6CE802", "min_icon", StringExternal("UI/Icon22_Minerals_Terr"));
+        TextExpressionSetToken("Param/Expression/lib_UTES_1C6CE802", "min_val", IntToText(UnitTypeGetCost(lv_unit, c_unitCostMinerals)));
+        TextExpressionSetToken("Param/Expression/lib_UTES_1C6CE802", "gas_icon", StringExternal("UI/Icon22_Vespene_Terr"));
+        TextExpressionSetToken("Param/Expression/lib_UTES_1C6CE802", "gas_val", IntToText(UnitTypeGetCost(lv_unit, c_unitCostVespene)));
+        TextExpressionSetToken("Param/Expression/lib_UTES_1C6CE802", "food_icon", StringExternal("UI/Icon22_Supply_Terr"));
+        TextExpressionSetToken("Param/Expression/lib_UTES_1C6CE802", "food_val", FixedToTextAdvanced(UnitTypeGetProperty(lv_unit, c_unitPropSuppliesUsed), c_formatNumberStyleNormal, true, 0, 1));
+        TextExpressionSetToken("Param/Expression/lib_UTES_1C6CE802", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_unit, "Description", c_playerAny)));
+        libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_i][lv_b], TextExpressionAssemble("Param/Expression/lib_UTES_1C6CE802"), lv_players);
+        libNtve_gf_SetDialogItemImage(libUTES_gv_creator_itemface[lv_i][lv_b], (CatalogFieldValueGet(c_gameCatalogActor, ((lv_unit)), "UnitIcon", lp_player)), lv_players);
+        DialogControlSetVisible(libUTES_gv_creator_itemface[lv_i][lv_b], lv_players, true);
+        if ((lv_min > 1)) {
+            DialogControlSetVisible(libUTES_gv_creator_upButton[lv_i], lv_players, true);
+        }
+        else {
+            DialogControlSetVisible(libUTES_gv_creator_upButton[lv_i], lv_players, false);
+        }
+        if ((lv_max < libARRA_gf_ListSize(lv_airesultunits))) {
+            DialogControlSetVisible(libUTES_gv_creator_bottomButton[lv_i], lv_players, true);
+        }
+        else {
+            DialogControlSetVisible(libUTES_gv_creator_bottomButton[lv_i], lv_players, false);
+        }
+    }
+    lv_i = 1;
+    lv_min = (1 + (libUTES_gv_placementCardOffset[1] * libUTES_gv_placementCardColumns));
+    lv_max = MinI(libARRA_gf_ListSize(lv_airesultstructures), ((lv_min - 1) + (libUTES_gv_placementCardColumns * libUTES_gv_placementCardRows)));
+    auto188B375E_ae = lv_max;
+    lv_j = lv_min;
+    for ( ; ( (auto188B375E_ai >= 0 && lv_j <= auto188B375E_ae) || (auto188B375E_ai < 0 && lv_j >= auto188B375E_ae) ) ; lv_j += auto188B375E_ai ) {
+        lv_b = (lv_j - lv_min);
+        lv_unit = (libARRA_gf_ListStringGet(lv_airesultstructures, lv_j));
+        DialogControlSetEnabled(libUTES_gv_creator_itembutton[lv_i][lv_b], lv_players, true);
+        DialogControlSetEnabled(libUTES_gv_creator_itemface[lv_i][lv_b], lv_players, true);
+        TextExpressionSetToken("Param/Expression/lib_UTES_6FEEED46", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_unit, "Name", c_playerAny)));
+        TextExpressionSetToken("Param/Expression/lib_UTES_6FEEED46", "min_icon", StringExternal("UI/Icon22_Minerals_Terr"));
+        TextExpressionSetToken("Param/Expression/lib_UTES_6FEEED46", "min_val", IntToText(UnitTypeGetCost(lv_unit, c_unitCostMinerals)));
+        TextExpressionSetToken("Param/Expression/lib_UTES_6FEEED46", "gas_icon", StringExternal("UI/Icon22_Vespene_Terr"));
+        TextExpressionSetToken("Param/Expression/lib_UTES_6FEEED46", "gas_val", IntToText(UnitTypeGetCost(lv_unit, c_unitCostVespene)));
+        TextExpressionSetToken("Param/Expression/lib_UTES_6FEEED46", "food_icon", StringExternal("UI/Icon22_Supply_Terr"));
+        TextExpressionSetToken("Param/Expression/lib_UTES_6FEEED46", "food_val", FixedToTextAdvanced(UnitTypeGetProperty(lv_unit, c_unitPropSuppliesUsed), c_formatNumberStyleNormal, true, 0, 1));
+        TextExpressionSetToken("Param/Expression/lib_UTES_6FEEED46", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_unit, "Description", c_playerAny)));
+        libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_i][lv_b], TextExpressionAssemble("Param/Expression/lib_UTES_6FEEED46"), lv_players);
+        libNtve_gf_SetDialogItemImage(libUTES_gv_creator_itemface[lv_i][lv_b], (CatalogFieldValueGet(c_gameCatalogActor, ((lv_unit)), "UnitIcon", lp_player)), lv_players);
+        DialogControlSetVisible(libUTES_gv_creator_itemface[lv_i][lv_b], lv_players, true);
+        if ((lv_min > 1)) {
+            DialogControlSetVisible(libUTES_gv_creator_upButton[lv_i], lv_players, true);
+        }
+        else {
+            DialogControlSetVisible(libUTES_gv_creator_upButton[lv_i], lv_players, false);
+        }
+        if ((lv_max < libARRA_gf_ListSize(lv_airesultstructures))) {
+            DialogControlSetVisible(libUTES_gv_creator_bottomButton[lv_i], lv_players, true);
+        }
+        else {
+            DialogControlSetVisible(libUTES_gv_creator_bottomButton[lv_i], lv_players, false);
+        }
+    }
+    lv_i = 2;
+    lv_min = (1 + (libUTES_gv_placementCardOffset[2] * libUTES_gv_placementCardColumns));
+    lv_max = MinI(libARRA_gf_ListSize(lv_airesultupgrades), ((lv_min - 1) + (libUTES_gv_placementCardColumns * libUTES_gv_placementCardRows)));
+    auto037A2BAA_ae = lv_max;
+    lv_j = lv_min;
+    for ( ; ( (auto037A2BAA_ai >= 0 && lv_j <= auto037A2BAA_ae) || (auto037A2BAA_ai < 0 && lv_j >= auto037A2BAA_ae) ) ; lv_j += auto037A2BAA_ai ) {
+        lv_b = (lv_j - lv_min);
+        lv_upgrade = (libARRA_gf_ListStringGet(lv_airesultupgrades, lv_j));
+        lv_command = TechTreeUpgradeProducedAbilCmd(lv_upgrade, 0);
+        if ((lv_command != null)) {
+            lv_button = (CatalogFieldValueGet(c_gameCatalogAbil, AbilityCommandGetAbility(lv_command), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_command)) + "].Button.DefaultButtonFace", lp_player));
+            TextExpressionSetToken("Param/Expression/lib_UTES_184EC65F", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Name", c_playerAny)));
+            TextExpressionSetToken("Param/Expression/lib_UTES_184EC65F", "min_icon", StringExternal("UI/Icon22_Minerals_Terr"));
+            TextExpressionSetToken("Param/Expression/lib_UTES_184EC65F", "min_val", IntToText(CatalogFieldValueGetAsInt(c_gameCatalogAbil, AbilityCommandGetAbility(lv_command), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_command)) + "].Resource[" + IntToString(0) + "]", c_playerAny)));
+            TextExpressionSetToken("Param/Expression/lib_UTES_184EC65F", "gas_icon", StringExternal("UI/Icon22_Vespene_Terr"));
+            TextExpressionSetToken("Param/Expression/lib_UTES_184EC65F", "gas_val", IntToText(CatalogFieldValueGetAsInt(c_gameCatalogAbil, AbilityCommandGetAbility(lv_command), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_command)) + "].Resource[" + IntToString(1) + "]", c_playerAny)));
+            TextExpressionSetToken("Param/Expression/lib_UTES_184EC65F", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Tooltip", c_playerAny)));
+            libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_i][lv_b], TextExpressionAssemble("Param/Expression/lib_UTES_184EC65F"), lv_players);
+        }
+        else {
+            TextExpressionSetToken("Param/Expression/lib_UTES_2F4AB64B", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Name", c_playerAny)));
+            libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_i][lv_b], TextExpressionAssemble("Param/Expression/lib_UTES_2F4AB64B"), lv_players);
+        }
+        DialogControlSetEnabled(libUTES_gv_creator_itembutton[lv_i][lv_b], lv_players, true);
+        DialogControlSetEnabled(libUTES_gv_creator_itemface[lv_i][lv_b], lv_players, true);
+        libNtve_gf_SetDialogItemImage(libUTES_gv_creator_itemface[lv_i][lv_b], (CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Icon", c_playerAny)), lv_players);
+        DialogControlSetVisible(libUTES_gv_creator_itemface[lv_i][lv_b], lv_players, true);
+        if ((lv_min > 1)) {
+            DialogControlSetVisible(libUTES_gv_creator_upButton[lv_i], lv_players, true);
+        }
+        else {
+            DialogControlSetVisible(libUTES_gv_creator_upButton[lv_i], lv_players, false);
+        }
+        if ((lv_max < libARRA_gf_ListSize(lv_airesultupgrades))) {
+            DialogControlSetVisible(libUTES_gv_creator_bottomButton[lv_i], lv_players, true);
+        }
+        else {
+            DialogControlSetVisible(libUTES_gv_creator_bottomButton[lv_i], lv_players, false);
+        }
+    }
+}
+
+bool libUTES_gf_TesterLeaderboardValidUnitType (string lp_unitType) {
+    // Automatic Variable Declarations
+    // Implementation
+    if (((UnitTypeTestFlag(lp_unitType, c_unitFlagInvulnerable) == true) || (UnitTypeTestFlag(lp_unitType, c_unitFlagMissile) == true) || (lp_unitType == "Larva") || (lp_unitType == "BroodlingEscort") || (lp_unitType == "CreepTumor") || (lp_unitType == "CreepTumorBurrowed") || (lp_unitType == "Broodling") || (lp_unitType == "Interceptor") || (lp_unitType == "Elytron") || (lp_unitType == "Nuke") || (lp_unitType == "SupplyDepotLowered") || (lp_unitType == "DestructibleRock4x4"))) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+void libUTES_gf_TesterLeaderboardSpecialUnitCost (string lp_unitType, int lp_column, bool lp_deleteMode) {
+    // Variable Declarations
+    int lv_minerals_mod;
+    int lv_gas_mod;
+
+    // Automatic Variable Declarations
+    string auto9E371B07_val;
+
+    // Variable Initialization
+
+    // Implementation
+    auto9E371B07_val = lp_unitType;
+    if (auto9E371B07_val == "Carrier") {
+        lv_minerals_mod = ((CatalogFieldValueGetAsInt(c_gameCatalogAbil, "CarrierHangar", "MaxCount", c_playerAny)-CatalogFieldValueGetAsInt(c_gameCatalogAbil, "CarrierHangar", "InfoArray[" + IntToString(0) + "].CountStart", c_playerAny))*UnitTypeGetCost((CatalogFieldValueGet(c_gameCatalogAbil, "CarrierHangar", "InfoArray[" + IntToString(0) + "].Unit", c_playerAny)), c_unitCostMinerals));
+        lv_gas_mod = ((CatalogFieldValueGetAsInt(c_gameCatalogAbil, "CarrierHangar", "MaxCount", c_playerAny)-CatalogFieldValueGetAsInt(c_gameCatalogAbil, "CarrierHangar", "InfoArray[" + IntToString(0) + "].CountStart", c_playerAny))*UnitTypeGetCost((CatalogFieldValueGet(c_gameCatalogAbil, "CarrierHangar", "InfoArray[" + IntToString(0) + "].Unit", c_playerAny)), c_unitCostVespene));
+    }
+    else if (auto9E371B07_val == "Myriad") {
+        lv_minerals_mod = ((CatalogFieldValueGetAsInt(c_gameCatalogAbil, "ElytraHangar", "MaxCount", c_playerAny)-CatalogFieldValueGetAsInt(c_gameCatalogAbil, "ElytraHangar", "InfoArray[" + IntToString(0) + "].CountStart", c_playerAny))*UnitTypeGetCost((CatalogFieldValueGet(c_gameCatalogAbil, "ElytraHangar", "InfoArray[" + IntToString(0) + "].Unit", c_playerAny)), c_unitCostMinerals));
+        lv_gas_mod = ((CatalogFieldValueGetAsInt(c_gameCatalogAbil, "ElytraHangar", "MaxCount", c_playerAny)-CatalogFieldValueGetAsInt(c_gameCatalogAbil, "ElytraHangar", "InfoArray[" + IntToString(0) + "].CountStart", c_playerAny))*UnitTypeGetCost((CatalogFieldValueGet(c_gameCatalogAbil, "ElytraHangar", "InfoArray[" + IntToString(0) + "].Unit", c_playerAny)), c_unitCostVespene));
+    }
+    else {
+    }
+    if ((lp_deleteMode == true)) {
+        lv_minerals_mod *= -1;
+        lv_gas_mod *= -1;
+    }
+
+    libUTES_gv_leaderboard_minerals[lp_column] += lv_minerals_mod;
+    libUTES_gv_leaderboard_gas[lp_column] += lv_gas_mod;
+}
+
+void libUTES_gf_TesterLeaderboardCreate () {
+    // Variable Declarations
+    int lv_main_background_image;
+    int lv_header_background_image;
+    int lv_col;
+    int lv_row;
+
+    // Automatic Variable Declarations
+    const int autoA326D51D_ae = 2;
+    const int autoA326D51D_ai = 1;
+    const int auto64888C09_ae = 21;
+    const int auto64888C09_ai = 1;
+
+    // Variable Initialization
+    lv_main_background_image = c_invalidDialogControlId;
+    lv_header_background_image = c_invalidDialogControlId;
+
+    // Implementation
+    BoardDestroy(libUTES_gv_leaderboard);
+    libUTES_gv_leaderboard_rows = 4;
+    libUTES_gv_leaderboard_minerals[1] = 0;
+    libUTES_gv_leaderboard_minerals[2] = 0;
+    libUTES_gv_leaderboard_gas[1] = 0;
+    libUTES_gv_leaderboard_gas[2] = 0;
+    lv_col = 1;
+    for ( ; ( (autoA326D51D_ai >= 0 && lv_col <= autoA326D51D_ae) || (autoA326D51D_ai < 0 && lv_col >= autoA326D51D_ae) ) ; lv_col += autoA326D51D_ai ) {
+        lv_row = 5;
+        for ( ; ( (auto64888C09_ai >= 0 && lv_row <= auto64888C09_ae) || (auto64888C09_ai < 0 && lv_row >= auto64888C09_ae) ) ; lv_row += auto64888C09_ai ) {
+            libUTES_gv_leaderboard_icon_flag[lv_col][lv_row] = false;
+        }
+    }
+    BoardCreate(2, libUTES_gv_leaderboard_rows, StringExternal("Param/Value/lib_UTES_9469DCCF"), Color(100.00, 100.00, 100.00));
+    libUTES_gv_leaderboard = BoardLastCreated();
+    BoardItemSetAlignment(BoardLastCreated(), c_boardItemAll, c_boardItemAll, c_alignCenter);
+    BoardItemSetText(BoardLastCreated(), 1, c_boardRowHeader, StringExternal("Param/Value/lib_UTES_75DED011"));
+    BoardItemSetText(BoardLastCreated(), 2, c_boardRowHeader, StringExternal("Param/Value/lib_UTES_25397E08"));
+    BoardSetColumnWidth(BoardLastCreated(), 1, c_boardWidthAuto);
+    BoardSetColumnWidth(BoardLastCreated(), 2, c_boardWidthAuto);
+    BoardItemSetText(BoardLastCreated(), 1, 1, StringToText("0"));
+    BoardItemSetText(BoardLastCreated(), 2, 1, StringToText("0"));
+    BoardItemSetTextColor(BoardLastCreated(), 1, 1, Color(0.00, 100.00, 100.00));
+    BoardItemSetTextColor(BoardLastCreated(), 2, 1, Color(0.00, 100.00, 100.00));
+    BoardItemSetText(BoardLastCreated(), 1, 2, StringToText("0"));
+    BoardItemSetText(BoardLastCreated(), 2, 2, StringToText("0"));
+    BoardItemSetTextColor(BoardLastCreated(), 1, 2, Color(0.00, 100.00, 25.10));
+    BoardItemSetTextColor(BoardLastCreated(), 2, 2, Color(0.00, 100.00, 25.10));
+    BoardItemSetText(BoardLastCreated(), 1, 3, StringToText("0"));
+    BoardItemSetText(BoardLastCreated(), 2, 3, StringToText("0"));
+    BoardItemSetTextColor(BoardLastCreated(), 1, 3, Color(100.00, 50.20, 0.00));
+    BoardItemSetTextColor(BoardLastCreated(), 2, 3, Color(100.00, 50.20, 0.00));
+}
+
+int libUTES_gf_TesterLeaderboardAddRow (string lp_unitName) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((libUTES_gv_leaderboard_rows < 21)) {
+        libUTES_gv_leaderboard_rows += 1;
+        BoardSetRowCount(libUTES_gv_leaderboard, libUTES_gv_leaderboard_rows);
+    }
+
+    DataTableSetInt(true, lp_unitName, libUTES_gv_leaderboard_rows);
+    return libUTES_gv_leaderboard_rows;
+}
+
+string libUTES_gf_TesterLeaderboardStructureUnitTypeToIcon (string lp_unitType) {
+    // Variable Declarations
+    string lv_unit_type_string_words;
+    string lv_unit_type_string_word;
+    string lv_unit_type_stringword;
+    string lv_race_string;
+
+    // Automatic Variable Declarations
+    string auto2DAB4DCF_val;
+
+    // Variable Initialization
+    lv_unit_type_string_words = "";
+    lv_unit_type_string_word = "";
+    lv_unit_type_stringword = "";
+    lv_race_string = "";
+
+    // Implementation
+    lv_unit_type_string_words = (lp_unitType);
+    lv_unit_type_string_word = StringReplaceWord(lv_unit_type_string_words, " ", "", c_stringReplaceAll, c_stringCase);
+    lv_unit_type_stringword = StringCase(lv_unit_type_string_word, false);
+    lv_race_string = CatalogFieldValueGet(c_gameCatalogUnit, lv_unit_type_string_words, "Race", c_playerAny);
+    auto2DAB4DCF_val = lv_race_string;
+    if (auto2DAB4DCF_val == "Prot") {
+        lv_race_string = "protoss";
+    }
+    else if (auto2DAB4DCF_val == "Terr") {
+        lv_race_string = "terran";
+    }
+    else if (auto2DAB4DCF_val == "Zerg") {
+        lv_race_string = "zerg";
+    }
+    else if (auto2DAB4DCF_val == "Keir") {
+        lv_race_string = "keiron";
+    }
+    else if (auto2DAB4DCF_val == "Gen") {
+        lv_race_string = "genetron";
+    }
+    else if (auto2DAB4DCF_val == "Xayi") {
+        lv_race_string = "xayid";
+    }
+    else {
+    }
+    return "Assets\\Textures\\btn-building-" + lv_race_string + "-" + lv_unit_type_stringword + ".dds";
+}
+
+trigger auto_libUTES_gf_TesterLeaderboardAddIcon_Trigger = null;
+string auto_libUTES_gf_TesterLeaderboardAddIcon_lp_unitType;
+int auto_libUTES_gf_TesterLeaderboardAddIcon_lp_column;
+int auto_libUTES_gf_TesterLeaderboardAddIcon_lp_row;
+
+void libUTES_gf_TesterLeaderboardAddIcon (string lp_unitType, int lp_column, int lp_row) {
+    auto_libUTES_gf_TesterLeaderboardAddIcon_lp_unitType = lp_unitType;
+    auto_libUTES_gf_TesterLeaderboardAddIcon_lp_column = lp_column;
+    auto_libUTES_gf_TesterLeaderboardAddIcon_lp_row = lp_row;
+
+    if (auto_libUTES_gf_TesterLeaderboardAddIcon_Trigger == null) {
+        auto_libUTES_gf_TesterLeaderboardAddIcon_Trigger = TriggerCreate("auto_libUTES_gf_TesterLeaderboardAddIcon_TriggerFunc");
+    }
+
+    TriggerExecute(auto_libUTES_gf_TesterLeaderboardAddIcon_Trigger, false, false);
+}
+
+bool auto_libUTES_gf_TesterLeaderboardAddIcon_TriggerFunc (bool testConds, bool runActions) {
+    string lp_unitType = auto_libUTES_gf_TesterLeaderboardAddIcon_lp_unitType;
+    int lp_column = auto_libUTES_gf_TesterLeaderboardAddIcon_lp_column;
+    int lp_row = auto_libUTES_gf_TesterLeaderboardAddIcon_lp_row;
+
+    // Variable Declarations
+    int lv_ii;
+    int lv_jj;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((UnitTypeTestAttribute(lp_unitType, c_unitAttributeStructure) == false)) {
+        BoardItemSetIcon(libUTES_gv_leaderboard, lp_column, lp_row, (CatalogFieldValueGet(c_gameCatalogActor, ((lp_unitType)), "UnitIcon", c_playerAny)), true);
+        libUTES_gv_leaderboard_icon_flag[lp_column][lp_row] = true;
+    }
+    else {
+        BoardItemSetIcon(libUTES_gv_leaderboard, lp_column, lp_row, libUTES_gf_TesterLeaderboardStructureUnitTypeToIcon(lp_unitType), true);
+        libUTES_gv_leaderboard_icon_flag[lp_column][lp_row] = true;
+    }
+    return true;
+}
+
 bool libUTES_gf_NoUnitsForSide (int lp_side) {
     // Automatic Variable Declarations
     // Implementation
@@ -688,251 +1186,6 @@ void libUTES_gf_RestoreMapStructures () {
     // Implementation
     libUTES_gf_RemoveNeutralStructures();
     libUTES_gf_LoadTesterUnits(libUTES_gv_map_structure_storage, 0);
-}
-
-void libUTES_gf_RenderTesterUIForPlayer (int lp_player) {
-    // Variable Declarations
-    int lv_side_ii;
-    int lv_card_ii;
-    int lv_level_ii;
-    string lv_unit;
-    string lv_commander;
-    string lv_tFaction;
-
-    // Automatic Variable Declarations
-    const int autoD42DC03D_ae = libUTES_gv_const_terrains;
-    int autoD42DC03D_var;
-    const int auto973E0E1E_ae = libUTES_gv_const_players;
-    int auto973E0E1E_var;
-    const int auto9A6B9193_ae = 1;
-    const int auto9A6B9193_ai = 1;
-    const int auto3C006DE2_ae = libUTES_gv_const_card_length;
-    const int auto3C006DE2_ai = 1;
-    int autoFC4B7638_ae;
-    const int autoFC4B7638_ai = 1;
-    const int auto246CB870_ae = libUTES_gv_const_card_length;
-    const int auto246CB870_ai = 1;
-    const int auto96E2DABE_ae = 1;
-    int auto96E2DABE_var;
-
-    // Variable Initialization
-
-    // Implementation
-    if ((libUTES_gv_attack_mode == true)) {
-        DialogControlSetEnabled(libUTES_gv_menu_mode_settings, PlayerGroupSingle(lp_player), false);
-    }
-    else {
-        DialogControlSetEnabled(libUTES_gv_menu_mode_settings, PlayerGroupSingle(lp_player), true);
-        if ((libUTES_gv_data_player[lp_player].lv_menu_mode == 1)) {
-            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_settings, true, PlayerGroupSingle(lp_player));
-        }
-        else {
-            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_settings, false, PlayerGroupSingle(lp_player));
-        }
-    }
-    if (((libUTES_gv_data_player[lp_player].lv_creator_access == false) || (libUTES_gv_attack_mode == true))) {
-        DialogControlSetEnabled(libUTES_gv_menu_mode_creator, PlayerGroupSingle(lp_player), false);
-    }
-    else {
-        DialogControlSetEnabled(libUTES_gv_menu_mode_creator, PlayerGroupSingle(lp_player), true);
-        if ((libUTES_gv_data_player[lp_player].lv_menu_mode == 2)) {
-            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_creator, true, PlayerGroupSingle(lp_player));
-        }
-        else {
-            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_creator, false, PlayerGroupSingle(lp_player));
-        }
-    }
-    if ((libUTES_gv_attack_mode != false)) {
-        DialogControlSetVisible(libUTES_gv_menu_creator_panel, PlayerGroupSingle(lp_player), false);
-    }
-    else {
-        DialogControlSetVisible(libUTES_gv_menu_creator_panel, PlayerGroupSingle(lp_player), true);
-        if ((libUTES_gv_data_player[lp_player].lv_creator_access == false)) {
-            DialogControlSetEnabled(libUTES_gv_menu_creator_mirror, PlayerGroupSingle(lp_player), false);
-            DialogControlSetEnabled(libUTES_gv_menu_creator_clear, PlayerGroupSingle(lp_player), false);
-            DialogControlSetVisible(libUTES_gv_menu_start_attack, PlayerGroupSingle(lp_player), false);
-        }
-        else {
-            DialogControlSetEnabled(libUTES_gv_menu_creator_mirror, PlayerGroupSingle(lp_player), true);
-            DialogControlSetEnabled(libUTES_gv_menu_creator_clear, PlayerGroupSingle(lp_player), true);
-            DialogControlSetVisible(libUTES_gv_menu_start_attack, PlayerGroupSingle(lp_player), true);
-        }
-    }
-    if ((libUTES_gv_attack_mode != true)) {
-        DialogControlSetVisible(libUTES_gv_menu_attack_panel, PlayerGroupSingle(lp_player), false);
-        DialogControlSetVisible(libUTES_gv_menu_stop_attack, PlayerGroupSingle(lp_player), false);
-        DialogControlSetVisible(libUTES_gv_menu_attack_attack, PlayerGroupSingle(lp_player), false);
-    }
-    else {
-        DialogControlSetVisible(libUTES_gv_menu_attack_panel, PlayerGroupSingle(lp_player), true);
-        libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_attack_pause, libUTES_gv_pause, PlayerGroupSingle(lp_player));
-        if ((libUTES_gv_data_player[lp_player].lv_creator_access == false)) {
-            DialogControlSetEnabled(libUTES_gv_menu_attack_reset, PlayerGroupSingle(lp_player), false);
-            DialogControlSetEnabled(libUTES_gv_menu_attack_pause, PlayerGroupSingle(lp_player), false);
-            DialogControlSetVisible(libUTES_gv_menu_stop_attack, PlayerGroupSingle(lp_player), false);
-            DialogControlSetVisible(libUTES_gv_menu_attack_attack, PlayerGroupSingle(lp_player), false);
-        }
-        else {
-            DialogControlSetEnabled(libUTES_gv_menu_attack_reset, PlayerGroupSingle(lp_player), true);
-            DialogControlSetEnabled(libUTES_gv_menu_attack_pause, PlayerGroupSingle(lp_player), true);
-            DialogControlSetVisible(libUTES_gv_menu_stop_attack, PlayerGroupSingle(lp_player), true);
-            DialogControlSetVisible(libUTES_gv_menu_attack_attack, PlayerGroupSingle(lp_player), true);
-        }
-    }
-    if (((libUTES_gv_attack_mode == true) || (libUTES_gv_data_player[lp_player].lv_menu_mode == 0))) {
-        DialogControlSetVisible(libUTES_gv_tester_panel, PlayerGroupSingle(lp_player), false);
-    }
-    else {
-        DialogControlSetVisible(libUTES_gv_tester_panel, PlayerGroupSingle(lp_player), true);
-        if ((libUTES_gv_data_player[lp_player].lv_menu_mode != 1)) {
-            DialogControlSetVisible(libUTES_gv_settings_panel, PlayerGroupSingle(lp_player), false);
-            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_settings, false, PlayerGroupSingle(lp_player));
-        }
-        else {
-            DialogControlSetVisible(libUTES_gv_settings_panel, PlayerGroupSingle(lp_player), true);
-            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_settings, true, PlayerGroupSingle(lp_player));
-            if ((libUTES_gv_vision == true)) {
-                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_visionbutton[0], false, PlayerGroupSingle(lp_player));
-                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_visionbutton[1], true, PlayerGroupSingle(lp_player));
-            }
-            else {
-                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_visionbutton[0], true, PlayerGroupSingle(lp_player));
-                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_visionbutton[1], false, PlayerGroupSingle(lp_player));
-            }
-            autoD42DC03D_var = 0;
-            for ( ; autoD42DC03D_var <= autoD42DC03D_ae; autoD42DC03D_var += 1 ) {
-                if ((libUTES_gv_terrain_index == autoD42DC03D_var)) {
-                    libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_terrainbutton[autoD42DC03D_var], true, PlayerGroupSingle(lp_player));
-                }
-                else {
-                    libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_terrainbutton[autoD42DC03D_var], false, PlayerGroupSingle(lp_player));
-                }
-            }
-            auto973E0E1E_var = 1;
-            for ( ; auto973E0E1E_var <= auto973E0E1E_ae; auto973E0E1E_var += 1 ) {
-                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][0], libUTES_gv_data_player[auto973E0E1E_var].lv_player_access[0], PlayerGroupSingle(lp_player));
-                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][1], libUTES_gv_data_player[auto973E0E1E_var].lv_player_access[1], PlayerGroupSingle(lp_player));
-                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][2], libUTES_gv_data_player[auto973E0E1E_var].lv_creator_access, PlayerGroupSingle(lp_player));
-                if ((PlayerType(auto973E0E1E_var) == c_playerTypeUser)) {
-                    libNtve_gf_SetDialogItemText(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], PlayerName(auto973E0E1E_var), PlayerGroupSingle(lp_player));
-                    libNtve_gf_SetDialogItemColor(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(auto973E0E1E_var, false)), PlayerGroupSingle(lp_player));
-                    DialogControlSetEnabled(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], PlayerGroupSingle(lp_player), true);
-                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][0], PlayerGroupSingle(lp_player), true);
-                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][1], PlayerGroupSingle(lp_player), true);
-                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][2], PlayerGroupSingle(lp_player), true);
-                }
-                else {
-                    libNtve_gf_SetDialogItemText(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], StringExternal("UI/BattleLobbyPlayerFrame/Empty"), PlayerGroupSingle(lp_player));
-                    libNtve_gf_SetDialogItemColor(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], ColorWithAlpha(0,0,0,0), PlayerGroupSingle(lp_player));
-                    DialogControlSetEnabled(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], PlayerGroupSingle(lp_player), false);
-                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][0], PlayerGroupSingle(lp_player), false);
-                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][1], PlayerGroupSingle(lp_player), false);
-                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][2], PlayerGroupSingle(lp_player), false);
-                }
-            }
-        }
-        if ((libUTES_gv_data_player[lp_player].lv_menu_mode != 2)) {
-            DialogControlSetVisible(libUTES_gv_creator_panel, PlayerGroupSingle(lp_player), false);
-            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_creator, false, PlayerGroupSingle(lp_player));
-        }
-        else {
-            DialogControlSetVisible(libUTES_gv_creator_panel, PlayerGroupSingle(lp_player), true);
-            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_creator, true, PlayerGroupSingle(lp_player));
-            lv_side_ii = 0;
-            for ( ; ( (auto9A6B9193_ai >= 0 && lv_side_ii <= auto9A6B9193_ae) || (auto9A6B9193_ai < 0 && lv_side_ii >= auto9A6B9193_ae) ) ; lv_side_ii += auto9A6B9193_ai ) {
-                lv_tFaction = UserDataInstance("TFaction", (libUTES_gv_data_player[lp_player].lv_creator_race[lv_side_ii] + 1));
-                if ((libUTES_gv_data_player[lp_player].lv_creator_tech[lv_side_ii] == 0)) {
-                    lv_card_ii = 0;
-                    for ( ; ( (auto246CB870_ai >= 0 && lv_card_ii <= auto246CB870_ae) || (auto246CB870_ai < 0 && lv_card_ii >= auto246CB870_ae) ) ; lv_card_ii += auto246CB870_ai ) {
-                        lv_unit = UserDataGetUnit("TFaction", lv_tFaction, "Unit", (lv_card_ii + 1));
-                        if ((lv_unit == null)) {
-                            DialogControlSetEnabled(libUTES_gv_creator_itembutton[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), false);
-                            libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_side_ii][lv_card_ii], StringToText(""), PlayerGroupSingle(lp_player));
-                            DialogControlSetVisible(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), false);
-                        }
-                        else {
-                            DialogControlSetEnabled(libUTES_gv_creator_itembutton[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), true);
-                            DialogControlSetEnabled(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), true);
-                            TextExpressionSetToken("Param/Expression/lib_UTES_AC77FFD8", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_unit, "Name", c_playerAny)));
-                            TextExpressionSetToken("Param/Expression/lib_UTES_AC77FFD8", "min_icon", StringExternal("UI/Icon22_Minerals_Terr"));
-                            TextExpressionSetToken("Param/Expression/lib_UTES_AC77FFD8", "min_val", IntToText(UnitTypeGetCost(lv_unit, c_unitCostMinerals)));
-                            TextExpressionSetToken("Param/Expression/lib_UTES_AC77FFD8", "gas_icon", StringExternal("UI/Icon22_Vespene_Terr"));
-                            TextExpressionSetToken("Param/Expression/lib_UTES_AC77FFD8", "gas_val", IntToText(UnitTypeGetCost(lv_unit, c_unitCostVespene)));
-                            TextExpressionSetToken("Param/Expression/lib_UTES_AC77FFD8", "food_icon", StringExternal("UI/Icon22_Supply_Terr"));
-                            TextExpressionSetToken("Param/Expression/lib_UTES_AC77FFD8", "food_val", FixedToTextAdvanced(UnitTypeGetProperty(lv_unit, c_unitPropSuppliesUsed), c_formatNumberStyleNormal, true, 0, 1));
-                            TextExpressionSetToken("Param/Expression/lib_UTES_AC77FFD8", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_unit, "Description", c_playerAny)));
-                            libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_side_ii][lv_card_ii], TextExpressionAssemble("Param/Expression/lib_UTES_AC77FFD8"), PlayerGroupSingle(lp_player));
-                            libNtve_gf_SetDialogItemImage(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], (CatalogFieldValueGet(c_gameCatalogActor, ((lv_unit)), "UnitIcon", lp_player)), PlayerGroupSingle(lp_player));
-                            DialogControlSetVisible(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), true);
-                        }
-                    }
-                }
-                else {
-                    lv_card_ii = 0;
-                    for ( ; ( (auto3C006DE2_ai >= 0 && lv_card_ii <= auto3C006DE2_ae) || (auto3C006DE2_ai < 0 && lv_card_ii >= auto3C006DE2_ae) ) ; lv_card_ii += auto3C006DE2_ai ) {
-                        if ((libUTES_gv_data_upgrade[libUTES_gv_data_player[lp_player].lv_creator_race[lv_side_ii]][lv_card_ii].lv_upgrade[0] == null)) {
-                            DialogControlSetEnabled(libUTES_gv_creator_itembutton[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), false);
-                            libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_side_ii][lv_card_ii], StringToText(""), PlayerGroupSingle(lp_player));
-                            DialogControlSetVisible(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), false);
-                        }
-                        else {
-                            autoFC4B7638_ae = libUTES_gv_data_upgrade[libUTES_gv_data_player[lp_player].lv_creator_race[lv_side_ii]][lv_card_ii].lv_levels;
-                            lv_level_ii = 0;
-                            for ( ; ( (autoFC4B7638_ai >= 0 && lv_level_ii <= autoFC4B7638_ae) || (autoFC4B7638_ai < 0 && lv_level_ii >= autoFC4B7638_ae) ) ; lv_level_ii += autoFC4B7638_ai ) {
-                                if ((TechTreeUpgradeCount(libUTES_gv_side_player[lv_side_ii], libUTES_gv_data_upgrade[libUTES_gv_data_player[lp_player].lv_creator_race[lv_side_ii]][lv_card_ii].lv_upgrade[lv_level_ii], c_techCountCompleteOnly) == 1)) {
-                                    if ((lv_level_ii == libUTES_gv_data_upgrade[libUTES_gv_data_player[lp_player].lv_creator_race[lv_side_ii]][lv_card_ii].lv_levels)) {
-                                        libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_side_ii][lv_card_ii], libUTES_gv_data_upgrade[libUTES_gv_data_player[lp_player].lv_creator_race[lv_side_ii]][lv_card_ii].lv_tooltip[lv_level_ii], PlayerGroupSingle(lp_player));
-                                        libNtve_gf_SetDialogItemImage(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], libUTES_gv_data_upgrade[libUTES_gv_data_player[lp_player].lv_creator_race[lv_side_ii]][lv_card_ii].lv_icon[lv_level_ii], PlayerGroupSingle(lp_player));
-                                        DialogControlSetEnabled(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), false);
-                                    }
-                                    else {
-                                        DialogControlSetEnabled(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), true);
-                                    }
-                                }
-                                else {
-                                    libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_itembutton[lv_side_ii][lv_card_ii], libUTES_gv_data_upgrade[libUTES_gv_data_player[lp_player].lv_creator_race[lv_side_ii]][lv_card_ii].lv_tooltip[lv_level_ii], PlayerGroupSingle(lp_player));
-                                    libNtve_gf_SetDialogItemImage(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], libUTES_gv_data_upgrade[libUTES_gv_data_player[lp_player].lv_creator_race[lv_side_ii]][lv_card_ii].lv_icon[lv_level_ii], PlayerGroupSingle(lp_player));
-                                    DialogControlSetEnabled(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), true);
-                                    break;
-                                }
-                            }
-                            DialogControlSetEnabled(libUTES_gv_creator_itembutton[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), true);
-                            DialogControlSetVisible(libUTES_gv_creator_itemface[lv_side_ii][lv_card_ii], PlayerGroupSingle(lp_player), true);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    auto96E2DABE_var = 0;
-    for ( ; auto96E2DABE_var <= auto96E2DABE_ae; auto96E2DABE_var += 1 ) {
-        if ((libUTES_gv_data_player[lp_player].lv_player_access[auto96E2DABE_var] == false)) {
-            if ((libUTES_gv_data_player[lp_player].lv_creator_access == true) && (libUTES_gv_attack_mode == false)) {
-                libNtve_gf_SetAlliance(libUTES_gv_side_player[auto96E2DABE_var], lp_player, libNtve_ge_AllianceSetting_AllyWithSharedVision);
-            }
-            else {
-                libNtve_gf_SetAlliance(libUTES_gv_side_player[auto96E2DABE_var], lp_player, libNtve_ge_AllianceSetting_Ally);
-            }
-        }
-        else {
-            libNtve_gf_SetAlliance(libUTES_gv_side_player[auto96E2DABE_var], lp_player, libNtve_ge_AllianceSetting_AllyWithSharedVisionControlAndSpending);
-        }
-    }
-}
-
-void libUTES_gf_RenderTesterUIForAllPlayers () {
-    // Automatic Variable Declarations
-    const int auto1C89AC1E_ae = libUTES_gv_const_players;
-    int auto1C89AC1E_var;
-
-    // Implementation
-    auto1C89AC1E_var = 1;
-    for ( ; auto1C89AC1E_var <= auto1C89AC1E_ae; auto1C89AC1E_var += 1 ) {
-        if ((PlayerType(auto1C89AC1E_var) == c_playerTypeUser)) {
-            libUTES_gf_RenderTesterUIForPlayer(auto1C89AC1E_var);
-        }
-
-    }
 }
 
 void libUTES_gf_CreatorAddUnits (int lp_player, int lp_side, string lp_unit) {
@@ -1320,470 +1573,17 @@ void libUTES_gf_MovePlayerCameras () {
     }
 }
 
-bool libUTES_gf_TesterLeaderboardValidUnitType (string lp_unitType) {
+void libUTES_gf_ShowUnitTesterCommonInterface () {
     // Automatic Variable Declarations
-    // Implementation
-    if (((UnitTypeTestFlag(lp_unitType, c_unitFlagInvulnerable) == true) || (UnitTypeTestFlag(lp_unitType, c_unitFlagMissile) == true) || (lp_unitType == "Larva") || (lp_unitType == "BroodlingEscort") || (lp_unitType == "CreepTumor") || (lp_unitType == "CreepTumorBurrowed") || (lp_unitType == "Broodling") || (lp_unitType == "Interceptor") || (lp_unitType == "Elytron") || (lp_unitType == "Nuke") || (lp_unitType == "SupplyDepotLowered") || (lp_unitType == "DestructibleRock4x4"))) {
-        return false;
-    }
-    else {
-        return true;
-    }
-}
-
-void libUTES_gf_TesterLeaderboardSpecialUnitCost (string lp_unitType, int lp_column, bool lp_deleteMode) {
-    // Variable Declarations
-    int lv_minerals_mod;
-    int lv_gas_mod;
-
-    // Automatic Variable Declarations
-    string auto9E371B07_val;
-
-    // Variable Initialization
-
-    // Implementation
-    auto9E371B07_val = lp_unitType;
-    if (auto9E371B07_val == "Carrier") {
-        lv_minerals_mod = ((CatalogFieldValueGetAsInt(c_gameCatalogAbil, "CarrierHangar", "MaxCount", c_playerAny)-CatalogFieldValueGetAsInt(c_gameCatalogAbil, "CarrierHangar", "InfoArray[" + IntToString(0) + "].CountStart", c_playerAny))*UnitTypeGetCost((CatalogFieldValueGet(c_gameCatalogAbil, "CarrierHangar", "InfoArray[" + IntToString(0) + "].Unit", c_playerAny)), c_unitCostMinerals));
-        lv_gas_mod = ((CatalogFieldValueGetAsInt(c_gameCatalogAbil, "CarrierHangar", "MaxCount", c_playerAny)-CatalogFieldValueGetAsInt(c_gameCatalogAbil, "CarrierHangar", "InfoArray[" + IntToString(0) + "].CountStart", c_playerAny))*UnitTypeGetCost((CatalogFieldValueGet(c_gameCatalogAbil, "CarrierHangar", "InfoArray[" + IntToString(0) + "].Unit", c_playerAny)), c_unitCostVespene));
-    }
-    else if (auto9E371B07_val == "Myriad") {
-        lv_minerals_mod = ((CatalogFieldValueGetAsInt(c_gameCatalogAbil, "ElytraHangar", "MaxCount", c_playerAny)-CatalogFieldValueGetAsInt(c_gameCatalogAbil, "ElytraHangar", "InfoArray[" + IntToString(0) + "].CountStart", c_playerAny))*UnitTypeGetCost((CatalogFieldValueGet(c_gameCatalogAbil, "ElytraHangar", "InfoArray[" + IntToString(0) + "].Unit", c_playerAny)), c_unitCostMinerals));
-        lv_gas_mod = ((CatalogFieldValueGetAsInt(c_gameCatalogAbil, "ElytraHangar", "MaxCount", c_playerAny)-CatalogFieldValueGetAsInt(c_gameCatalogAbil, "ElytraHangar", "InfoArray[" + IntToString(0) + "].CountStart", c_playerAny))*UnitTypeGetCost((CatalogFieldValueGet(c_gameCatalogAbil, "ElytraHangar", "InfoArray[" + IntToString(0) + "].Unit", c_playerAny)), c_unitCostVespene));
-    }
-    else {
-    }
-    if ((lp_deleteMode == true)) {
-        lv_minerals_mod *= -1;
-        lv_gas_mod *= -1;
-    }
-
-    libUTES_gv_leaderboard_minerals[lp_column] += lv_minerals_mod;
-    libUTES_gv_leaderboard_gas[lp_column] += lv_gas_mod;
-}
-
-void libUTES_gf_TesterLeaderboardCreate () {
-    // Variable Declarations
-    int lv_main_background_image;
-    int lv_header_background_image;
-    int lv_col;
-    int lv_row;
-
-    // Automatic Variable Declarations
-    const int autoA326D51D_ae = 2;
-    const int autoA326D51D_ai = 1;
-    const int auto64888C09_ae = 21;
-    const int auto64888C09_ai = 1;
-
-    // Variable Initialization
-    lv_main_background_image = c_invalidDialogControlId;
-    lv_header_background_image = c_invalidDialogControlId;
-
-    // Implementation
-    BoardDestroy(libUTES_gv_leaderboard);
-    DataTableClear(true);
-    libUTES_gv_leaderboard_rows = 4;
-    libUTES_gv_leaderboard_minerals[1] = 0;
-    libUTES_gv_leaderboard_minerals[2] = 0;
-    libUTES_gv_leaderboard_gas[1] = 0;
-    libUTES_gv_leaderboard_gas[2] = 0;
-    lv_col = 1;
-    for ( ; ( (autoA326D51D_ai >= 0 && lv_col <= autoA326D51D_ae) || (autoA326D51D_ai < 0 && lv_col >= autoA326D51D_ae) ) ; lv_col += autoA326D51D_ai ) {
-        lv_row = 5;
-        for ( ; ( (auto64888C09_ai >= 0 && lv_row <= auto64888C09_ae) || (auto64888C09_ai < 0 && lv_row >= auto64888C09_ae) ) ; lv_row += auto64888C09_ai ) {
-            libUTES_gv_leaderboard_icon_flag[lv_col][lv_row] = false;
-        }
-    }
-    BoardCreate(2, libUTES_gv_leaderboard_rows, StringExternal("Param/Value/lib_UTES_9469DCCF"), Color(100.00, 100.00, 100.00));
-    libUTES_gv_leaderboard = BoardLastCreated();
-    BoardItemSetAlignment(BoardLastCreated(), c_boardItemAll, c_boardItemAll, c_alignCenter);
-    BoardItemSetText(BoardLastCreated(), 1, c_boardRowHeader, StringExternal("Param/Value/lib_UTES_75DED011"));
-    BoardItemSetText(BoardLastCreated(), 2, c_boardRowHeader, StringExternal("Param/Value/lib_UTES_25397E08"));
-    BoardSetColumnWidth(BoardLastCreated(), 1, c_boardWidthAuto);
-    BoardSetColumnWidth(BoardLastCreated(), 2, c_boardWidthAuto);
-    BoardItemSetText(BoardLastCreated(), 1, 1, StringToText("0"));
-    BoardItemSetText(BoardLastCreated(), 2, 1, StringToText("0"));
-    BoardItemSetTextColor(BoardLastCreated(), 1, 1, Color(0.00, 100.00, 100.00));
-    BoardItemSetTextColor(BoardLastCreated(), 2, 1, Color(0.00, 100.00, 100.00));
-    BoardItemSetText(BoardLastCreated(), 1, 2, StringToText("0"));
-    BoardItemSetText(BoardLastCreated(), 2, 2, StringToText("0"));
-    BoardItemSetTextColor(BoardLastCreated(), 1, 2, Color(0.00, 100.00, 25.10));
-    BoardItemSetTextColor(BoardLastCreated(), 2, 2, Color(0.00, 100.00, 25.10));
-    BoardItemSetText(BoardLastCreated(), 1, 3, StringToText("0"));
-    BoardItemSetText(BoardLastCreated(), 2, 3, StringToText("0"));
-    BoardItemSetTextColor(BoardLastCreated(), 1, 3, Color(100.00, 50.20, 0.00));
-    BoardItemSetTextColor(BoardLastCreated(), 2, 3, Color(100.00, 50.20, 0.00));
-}
-
-int libUTES_gf_TesterLeaderboardAddRow (string lp_unitName) {
-    // Automatic Variable Declarations
-    // Implementation
-    if ((libUTES_gv_leaderboard_rows < 21)) {
-        libUTES_gv_leaderboard_rows += 1;
-        BoardSetRowCount(libUTES_gv_leaderboard, libUTES_gv_leaderboard_rows);
-    }
-
-    DataTableSetInt(true, lp_unitName, libUTES_gv_leaderboard_rows);
-    return libUTES_gv_leaderboard_rows;
-}
-
-string libUTES_gf_TesterLeaderboardStructureUnitTypeToIcon (string lp_unitType) {
-    // Variable Declarations
-    string lv_unit_type_string_words;
-    string lv_unit_type_string_word;
-    string lv_unit_type_stringword;
-    string lv_race_string;
-
-    // Automatic Variable Declarations
-    string auto2DAB4DCF_val;
-
-    // Variable Initialization
-    lv_unit_type_string_words = "";
-    lv_unit_type_string_word = "";
-    lv_unit_type_stringword = "";
-    lv_race_string = "";
-
-    // Implementation
-    lv_unit_type_string_words = (lp_unitType);
-    lv_unit_type_string_word = StringReplaceWord(lv_unit_type_string_words, " ", "", c_stringReplaceAll, c_stringCase);
-    lv_unit_type_stringword = StringCase(lv_unit_type_string_word, false);
-    lv_race_string = CatalogFieldValueGet(c_gameCatalogUnit, lv_unit_type_string_words, "Race", c_playerAny);
-    auto2DAB4DCF_val = lv_race_string;
-    if (auto2DAB4DCF_val == "Prot") {
-        lv_race_string = "protoss";
-    }
-    else if (auto2DAB4DCF_val == "Terr") {
-        lv_race_string = "terran";
-    }
-    else if (auto2DAB4DCF_val == "Zerg") {
-        lv_race_string = "zerg";
-    }
-    else if (auto2DAB4DCF_val == "Keir") {
-        lv_race_string = "keiron";
-    }
-    else if (auto2DAB4DCF_val == "Gen") {
-        lv_race_string = "genetron";
-    }
-    else if (auto2DAB4DCF_val == "Xayi") {
-        lv_race_string = "xayid";
-    }
-    else {
-    }
-    return "Assets\\Textures\\btn-building-" + lv_race_string + "-" + lv_unit_type_stringword + ".dds";
-}
-
-trigger auto_libUTES_gf_TesterLeaderboardAddIcon_Trigger = null;
-string auto_libUTES_gf_TesterLeaderboardAddIcon_lp_unitType;
-int auto_libUTES_gf_TesterLeaderboardAddIcon_lp_column;
-int auto_libUTES_gf_TesterLeaderboardAddIcon_lp_row;
-
-void libUTES_gf_TesterLeaderboardAddIcon (string lp_unitType, int lp_column, int lp_row) {
-    auto_libUTES_gf_TesterLeaderboardAddIcon_lp_unitType = lp_unitType;
-    auto_libUTES_gf_TesterLeaderboardAddIcon_lp_column = lp_column;
-    auto_libUTES_gf_TesterLeaderboardAddIcon_lp_row = lp_row;
-
-    if (auto_libUTES_gf_TesterLeaderboardAddIcon_Trigger == null) {
-        auto_libUTES_gf_TesterLeaderboardAddIcon_Trigger = TriggerCreate("auto_libUTES_gf_TesterLeaderboardAddIcon_TriggerFunc");
-    }
-
-    TriggerExecute(auto_libUTES_gf_TesterLeaderboardAddIcon_Trigger, false, false);
-}
-
-bool auto_libUTES_gf_TesterLeaderboardAddIcon_TriggerFunc (bool testConds, bool runActions) {
-    string lp_unitType = auto_libUTES_gf_TesterLeaderboardAddIcon_lp_unitType;
-    int lp_column = auto_libUTES_gf_TesterLeaderboardAddIcon_lp_column;
-    int lp_row = auto_libUTES_gf_TesterLeaderboardAddIcon_lp_row;
-
-    // Variable Declarations
-    int lv_ii;
-    int lv_jj;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Implementation
-    if ((UnitTypeTestAttribute(lp_unitType, c_unitAttributeStructure) == false)) {
-        BoardItemSetIcon(libUTES_gv_leaderboard, lp_column, lp_row, (CatalogFieldValueGet(c_gameCatalogActor, ((lp_unitType)), "UnitIcon", c_playerAny)), true);
-        libUTES_gv_leaderboard_icon_flag[lp_column][lp_row] = true;
-    }
-    else {
-        BoardItemSetIcon(libUTES_gv_leaderboard, lp_column, lp_row, libUTES_gf_TesterLeaderboardStructureUnitTypeToIcon(lp_unitType), true);
-        libUTES_gv_leaderboard_icon_flag[lp_column][lp_row] = true;
-    }
-    return true;
-}
-
-// Triggers
-//--------------------------------------------------------------------------------------------------
-// Trigger: Initialize Unit Tester Interface
-//--------------------------------------------------------------------------------------------------
-bool libUTES_gt_InitializeUnitTesterInterface_Func (bool testConds, bool runActions) {
-    int init_i;
-
-    // Variable Declarations
-    int lv_ii;
-    int lv_jj;
-    string[2] lv_side_str;
-    int lv_offsetX;
-    int lv_offsetY;
-    int lv_x;
-    int lv_y;
-    int lv_z;
-    int lv_levels;
-    string lv_regionID;
-    int lv_image;
-    int lv_side_panel;
-    int lv_buttons_panel;
-    string lv_faction;
-    string lv_button;
-    string lv_upgrade;
-    string lv_unit;
-    abilcmd lv_ability;
-    string lv_race;
-    int lv_race_index;
-    int lv_upgradeIter;
-    int lv_upgradeLevel;
-    string lv_tLevelUpgrade;
-    string lv_tFaction;
-    string lv_tFactionRaceString;
-    int lv_activeUpgrades;
-    string lv_builderType;
-    unit lv_builderUnit;
-    int lv_yOffset;
-    string lv_airesultunits;
-    string lv_airesultstructures;
-    string lv_airesultupgrades;
-    string lv_item;
-
-    // Automatic Variable Declarations
-    int auto10306AE0_ae;
-    int auto10306AE0_var;
-    int autoDE840288_ae;
-    const int autoDE840288_ai = 1;
-    int auto803D37A3_ae;
-    const int auto803D37A3_ai = 1;
-    int auto8959577E_ae;
-    const int auto8959577E_ai = 1;
-    int autoF2E08A24_ae;
-    const int autoF2E08A24_ai = 1;
-    int auto86DCAA54_ae;
-    int auto86DCAA54_var;
-    int auto3094E481_ai;
-    int auto3094E481_ae;
-    int autoA731953F_ai;
-    int autoA731953F_ae;
-    int auto266E816F_ae;
-    const int auto266E816F_ai = 1;
-    const int autoEE612A24_ae = 1;
-    const int autoEE612A24_ai = 1;
-    int auto85B0B7D1_ae;
-    int auto85B0B7D1_var;
-    const int auto26D7AF4E_ae = libUTES_gv_const_card_length;
-    const int auto26D7AF4E_ai = 1;
-    const int auto86E42EDB_ae = 1;
-    const int auto86E42EDB_ai = 1;
-    int auto6ABA4F93_ae;
-    const int auto6ABA4F93_ai = 1;
     const int autoC05CF7B9_ae = libUTES_gv_const_players;
     int autoC05CF7B9_var;
-    unitgroup auto272FD0CC_g;
-    int auto272FD0CC_u;
-    unit auto272FD0CC_var;
-    playergroup auto9E654153_g;
-    int auto9E654153_var;
 
-    // Variable Initialization
-    for (init_i = 0; init_i <= 1; init_i += 1) {
-        lv_side_str[init_i] = "";
-    }
-    lv_offsetX = 10;
-    lv_offsetY = -60;
-    lv_regionID = "";
-    lv_image = c_invalidDialogControlId;
-    lv_side_panel = c_invalidDialogControlId;
-    lv_buttons_panel = c_invalidDialogControlId;
-    lv_race = "";
-    lv_tFactionRaceString = "";
-    lv_airesultunits = ("^AI" + "<Race>" + "TableUnits");
-    lv_airesultstructures = ("^AI" + "<Race>" + "TableStructures");
-    lv_airesultupgrades = ("^AI" + "<Race>" + "TableUpgrades");
-    lv_item = "";
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    libUTES_gf_Setup();
-    libUTES_gv_wORKERSPOINT = PointFromName("workers");
+    // Implementation
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeErrorDisplayPanel, false);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeResourcePanel, false);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeSupply, false);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeAllianceButton, false);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeTeamResourceButton, false);
-    libUTES_gf_AddTerrainData("terr0");
-    libUTES_gf_AddTerrainData("terr1");
-    libUTES_gf_AddTerrainData("terr2");
-    libUTES_gf_AddTerrainData("terr3");
-    libUTES_gf_AddTerrainData("terr4");
-    libUTES_gf_AddTerrainData("terr5");
-    libUTES_gf_AddTerrainData("terr6");
-    libUTES_gf_AddTerrainData("terr8");
-    libUTES_gf_AddTerrainData("terr9");
-    lv_race_index = 0;
-    auto10306AE0_ae = UserDataInstanceCount("TFaction");
-    auto10306AE0_var = 1;
-    for ( ; auto10306AE0_var <= auto10306AE0_ae; auto10306AE0_var += 1 ) {
-        lv_tFaction = UserDataInstance("TFaction", auto10306AE0_var);
-        if ((UserDataGetInt("TFaction", lv_faction, "Hidden", 1) != 0)) {
-            continue;
-        }
-
-        lv_activeUpgrades = 0;
-        autoDE840288_ae = UserDataFieldValueCount("TFaction", "LevelledUpgrades");
-        lv_upgradeIter = 1;
-        for ( ; ( (autoDE840288_ai >= 0 && lv_upgradeIter <= autoDE840288_ae) || (autoDE840288_ai < 0 && lv_upgradeIter >= autoDE840288_ae) ) ; lv_upgradeIter += autoDE840288_ai ) {
-            lv_tLevelUpgrade = UserDataGetUserInstance("TFaction", lv_tFaction, "LevelledUpgrades", lv_upgradeIter);
-            lv_upgrade = UserDataGetUpgrade("TLevelUpgrades", lv_tLevelUpgrade, "Upgrade", 1);
-            if ((lv_upgrade == null)) {
-                continue;
-            }
-
-            libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_levels = (UserDataGetInt("TLevelUpgrades", lv_tLevelUpgrade, "Levels", 1) - 1);
-            auto803D37A3_ae = UserDataFieldValueCount("TLevelUpgrades", "Upgrade");
-            lv_upgradeLevel = 1;
-            for ( ; ( (auto803D37A3_ai >= 0 && lv_upgradeLevel <= auto803D37A3_ae) || (auto803D37A3_ai < 0 && lv_upgradeLevel >= auto803D37A3_ae) ) ; lv_upgradeLevel += auto803D37A3_ai ) {
-                lv_upgrade = UserDataGetUpgrade("TLevelUpgrades", lv_tLevelUpgrade, "Upgrade", lv_upgradeLevel);
-                if ((CatalogEntryIsValid(c_gameCatalogUpgrade, lv_upgrade) == false)) {
-                    if ((lv_upgrade != null)) {
-                        TextExpressionSetToken("Param/Expression/lib_UTES_2C1B3886", "A", StringToText((lv_upgrade)));
-                        TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_UTES_2C1B3886"), true);
-                    }
-
-                    break;
-                }
-                else {
-                    libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_upgrade[(lv_upgradeLevel - 1)] = lv_upgrade;
-                    libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_icon[(lv_upgradeLevel - 1)] = (CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Icon", c_playerAny));
-                    lv_ability = TechTreeUpgradeProducedAbilCmd(lv_upgrade, 0);
-                    if ((lv_ability != null)) {
-                        lv_button = (CatalogFieldValueGet(c_gameCatalogAbil, AbilityCommandGetAbility(lv_ability), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_ability)) + "].Button.DefaultButtonFace", c_playerAny));
-                        TextExpressionSetToken("Param/Expression/lib_UTES_7FC9E5D2", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Name", c_playerAny)));
-                        TextExpressionSetToken("Param/Expression/lib_UTES_7FC9E5D2", "min_icon", StringExternal("UI/Icon22_Minerals_Terr"));
-                        TextExpressionSetToken("Param/Expression/lib_UTES_7FC9E5D2", "min_val", IntToText(CatalogFieldValueGetAsInt(c_gameCatalogAbil, AbilityCommandGetAbility(lv_ability), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_ability)) + "].Resource[" + IntToString(0) + "]", c_playerAny)));
-                        TextExpressionSetToken("Param/Expression/lib_UTES_7FC9E5D2", "gas_icon", StringExternal("UI/Icon22_Vespene_Terr"));
-                        TextExpressionSetToken("Param/Expression/lib_UTES_7FC9E5D2", "gas_val", IntToText(CatalogFieldValueGetAsInt(c_gameCatalogAbil, AbilityCommandGetAbility(lv_ability), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_ability)) + "].Resource[" + IntToString(1) + "]", c_playerAny)));
-                        TextExpressionSetToken("Param/Expression/lib_UTES_7FC9E5D2", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Tooltip", c_playerAny)));
-                        libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_tooltip[(lv_upgradeLevel - 1)] = TextExpressionAssemble("Param/Expression/lib_UTES_7FC9E5D2");
-                    }
-                    else {
-                        TextExpressionSetToken("Param/Expression/lib_UTES_6D57F28F", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Name", c_playerAny)));
-                        libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_tooltip[(lv_upgradeLevel - 1)] = TextExpressionAssemble("Param/Expression/lib_UTES_6D57F28F");
-                    }
-                }
-            }
-            lv_activeUpgrades += 1;
-        }
-        auto8959577E_ae = UserDataFieldValueCount("TFaction", "Upgrade");
-        lv_upgradeIter = 1;
-        for ( ; ( (auto8959577E_ai >= 0 && lv_upgradeIter <= auto8959577E_ae) || (auto8959577E_ai < 0 && lv_upgradeIter >= auto8959577E_ae) ) ; lv_upgradeIter += auto8959577E_ai ) {
-            lv_upgrade = UserDataGetUpgrade("TFaction", lv_tFaction, "Upgrade", lv_upgradeIter);
-            if ((lv_upgrade == null)) {
-                continue;
-            }
-
-            if ((lv_activeUpgrades > 27)) {
-                TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_UTES_FACCDEDF"), true);
-                break;
-            }
-
-            if ((CatalogEntryIsValid(c_gameCatalogUpgrade, lv_upgrade) == false)) {
-                TextExpressionSetToken("Param/Expression/lib_UTES_82FD541F", "A", StringToText((lv_upgrade)));
-                TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_UTES_82FD541F"), true);
-                continue;
-            }
-
-            libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_upgrade[0] = lv_upgrade;
-            libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_icon[0] = (CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Icon", c_playerAny));
-            lv_ability = TechTreeUpgradeProducedAbilCmd(lv_upgrade, 0);
-            if ((lv_ability != null)) {
-                lv_button = (CatalogFieldValueGet(c_gameCatalogAbil, AbilityCommandGetAbility(lv_ability), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_ability)) + "].Button.DefaultButtonFace", c_playerAny));
-                TextExpressionSetToken("Param/Expression/lib_UTES_6DEEDFC9", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Name", c_playerAny)));
-                TextExpressionSetToken("Param/Expression/lib_UTES_6DEEDFC9", "min_icon", StringExternal("UI/Icon22_Minerals_Terr"));
-                TextExpressionSetToken("Param/Expression/lib_UTES_6DEEDFC9", "min_val", IntToText(CatalogFieldValueGetAsInt(c_gameCatalogAbil, AbilityCommandGetAbility(lv_ability), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_ability)) + "].Resource[" + IntToString(0) + "]", c_playerAny)));
-                TextExpressionSetToken("Param/Expression/lib_UTES_6DEEDFC9", "gas_icon", StringExternal("UI/Icon22_Vespene_Terr"));
-                TextExpressionSetToken("Param/Expression/lib_UTES_6DEEDFC9", "gas_val", IntToText(CatalogFieldValueGetAsInt(c_gameCatalogAbil, AbilityCommandGetAbility(lv_ability), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_ability)) + "].Resource[" + IntToString(1) + "]", c_playerAny)));
-                TextExpressionSetToken("Param/Expression/lib_UTES_6DEEDFC9", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Tooltip", c_playerAny)));
-                libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_tooltip[0] = TextExpressionAssemble("Param/Expression/lib_UTES_6DEEDFC9");
-            }
-            else {
-                TextExpressionSetToken("Param/Expression/lib_UTES_414BD2C1", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Name", c_playerAny)));
-                libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_tooltip[0] = TextExpressionAssemble("Param/Expression/lib_UTES_414BD2C1");
-            }
-            lv_activeUpgrades += 1;
-        }
-        autoF2E08A24_ae = UserDataFieldValueCount("TFaction", "Unit");
-        lv_upgradeIter = 1;
-        for ( ; ( (autoF2E08A24_ai >= 0 && lv_upgradeIter <= autoF2E08A24_ae) || (autoF2E08A24_ai < 0 && lv_upgradeIter >= autoF2E08A24_ae) ) ; lv_upgradeIter += autoF2E08A24_ai ) {
-            lv_unit = UserDataGetUnit("TFaction", lv_faction, "Unit", 1);
-            if ((lv_unit == null)) {
-                continue;
-            }
-
-        }
-        lv_race_index += 1;
-    }
-    auto86DCAA54_ae = libARRA_gf_ListSize(libUTES_gv_factions);
-    auto86DCAA54_var = 1;
-    for ( ; auto86DCAA54_var <= auto86DCAA54_ae; auto86DCAA54_var += 1 ) {
-        lv_tFactionRaceString = libARRA_gf_ListStringGet(libUTES_gv_factions, auto86DCAA54_var);
-        lv_airesultstructures = ("^AI" + lv_tFactionRaceString + "TableStructures");
-        lv_airesultunits = ("^AI" + lv_tFactionRaceString + "TableUnits");
-        lv_airesultupgrades = ("^AI" + lv_tFactionRaceString + "TableUpgrades");
-        lv_activeUpgrades = 0;
-        auto3094E481_ai = 1;
-        auto3094E481_ae = libARRA_gf_ListSize(lv_airesultupgrades);
-        while (auto3094E481_ai <= auto3094E481_ae) {
-            lv_item = libARRA_gf_ListStringGet(lv_airesultupgrades, auto3094E481_ai);
-            auto3094E481_ai = auto3094E481_ai+1;
-            lv_upgrade = (lv_item);
-            if ((lv_activeUpgrades > 27)) {
-                TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_UTES_62EA8B65"), true);
-                break;
-            }
-            if ((CatalogEntryIsValid(c_gameCatalogUpgrade, lv_upgrade) == false)) {
-                TextExpressionSetToken("Param/Expression/lib_UTES_84CBD549", "A", StringToText((lv_upgrade)));
-                TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_UTES_84CBD549"), true);
-                continue;
-            }
-            libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_upgrade[0] = lv_upgrade;
-            libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_icon[0] = (CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Icon", c_playerAny));
-            lv_ability = TechTreeUpgradeProducedAbilCmd(lv_upgrade, 0);
-            if ((lv_ability != null)) {
-                lv_button = (CatalogFieldValueGet(c_gameCatalogAbil, AbilityCommandGetAbility(lv_ability), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_ability)) + "].Button.DefaultButtonFace", c_playerAny));
-                TextExpressionSetToken("Param/Expression/lib_UTES_81B6BBC3", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Name", c_playerAny)));
-                TextExpressionSetToken("Param/Expression/lib_UTES_81B6BBC3", "min_icon", StringExternal("UI/Icon22_Minerals_Terr"));
-                TextExpressionSetToken("Param/Expression/lib_UTES_81B6BBC3", "min_val", IntToText(CatalogFieldValueGetAsInt(c_gameCatalogAbil, AbilityCommandGetAbility(lv_ability), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_ability)) + "].Resource[" + IntToString(0) + "]", c_playerAny)));
-                TextExpressionSetToken("Param/Expression/lib_UTES_81B6BBC3", "gas_icon", StringExternal("UI/Icon22_Vespene_Terr"));
-                TextExpressionSetToken("Param/Expression/lib_UTES_81B6BBC3", "gas_val", IntToText(CatalogFieldValueGetAsInt(c_gameCatalogAbil, AbilityCommandGetAbility(lv_ability), "InfoArray[" + IntToString(AbilityCommandGetCommand(lv_ability)) + "].Resource[" + IntToString(1) + "]", c_playerAny)));
-                TextExpressionSetToken("Param/Expression/lib_UTES_81B6BBC3", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogButton, lv_button, "Tooltip", c_playerAny)));
-                libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_tooltip[0] = TextExpressionAssemble("Param/Expression/lib_UTES_81B6BBC3");
-            }
-            else {
-                TextExpressionSetToken("Param/Expression/lib_UTES_72E4408A", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Name", c_playerAny)));
-                libUTES_gv_data_upgrade[lv_race_index][lv_activeUpgrades].lv_tooltip[0] = TextExpressionAssemble("Param/Expression/lib_UTES_72E4408A");
-            }
-            lv_activeUpgrades += 1;
-        }
-        autoA731953F_ai = 1;
-        autoA731953F_ae = libARRA_gf_ListSize(lv_airesultunits);
-        while (autoA731953F_ai <= autoA731953F_ae) {
-            lv_item = libARRA_gf_ListStringGet(lv_airesultunits, autoA731953F_ai);
-            autoA731953F_ai = autoA731953F_ai+1;
-            lv_unit = (lv_item);
-        }
-        lv_race_index += 1;
-    }
     libUTES_gv_tester_menu = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/TesterMenu");
     libUTES_gv_tester_panel = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/TesterPanel");
     libUTES_gv_menu_mode_settings = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, "UIContainer/FullscreenUpperContainer/TesterMenu/Modes/Settings");
@@ -1797,8 +1597,6 @@ bool libUTES_gt_InitializeUnitTesterInterface_Func (bool testConds, bool runActi
     libUTES_gv_menu_start_attack = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, "UIContainer/FullscreenUpperContainer/TesterMenu/StartButton");
     libUTES_gv_menu_stop_attack = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, "UIContainer/FullscreenUpperContainer/TesterMenu/StopButton");
     libUTES_gv_menu_attack_attack = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, "UIContainer/FullscreenUpperContainer/TesterMenu/AttackButton");
-    lv_side_str[0] = "Red";
-    lv_side_str[1] = "Blue";
     libUTES_gv_settings_panel = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel");
     libUTES_gv_settings_upgradebutton[0] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, "UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListLeft/UpgradeLevel/Level0");
     libUTES_gv_settings_upgradebutton[1] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, "UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListLeft/UpgradeLevel/Level1");
@@ -1808,134 +1606,59 @@ bool libUTES_gt_InitializeUnitTesterInterface_Func (bool testConds, bool runActi
     libUTES_gv_settings_researchbutton[1] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, "UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListLeft/Research/On");
     libUTES_gv_settings_visionbutton[0] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, "UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListLeft/Vision/Off");
     libUTES_gv_settings_visionbutton[1] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, "UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListLeft/Vision/On");
-    auto266E816F_ae = (libUTES_gv_const_terrains - 1);
-    lv_ii = 0;
-    for ( ; ( (auto266E816F_ai >= 0 && lv_ii <= auto266E816F_ae) || (auto266E816F_ai < 0 && lv_ii >= auto266E816F_ae) ) ; lv_ii += auto266E816F_ai ) {
-        libUTES_gv_settings_terrainbutton[lv_ii] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, ("UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListLeft/Terrain/Buttons/Terrain" + IntToString(lv_ii)));
-    }
     libUTES_gv_creator_panel = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/TesterPanel/CreatorPanel");
     libNtve_gf_SetDialogItemRenderPriority(libUTES_gv_creator_panel, 9999, PlayerGroupAll());
-    if ((UserDataInstanceCount("TFaction") > 17)) {
-        lv_yOffset = -8;
-    }
-    else {
-        lv_yOffset = 0;
-    }
-    lv_ii = 0;
-    for ( ; ( (autoEE612A24_ai >= 0 && lv_ii <= autoEE612A24_ae) || (autoEE612A24_ai < 0 && lv_ii >= autoEE612A24_ae) ) ; lv_ii += autoEE612A24_ai ) {
-        lv_side_panel = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypePanel, ("UIContainer/FullscreenUpperContainer/TesterPanel/CreatorPanel/RaceList_" + lv_side_str[lv_ii]));
-        libNtve_gf_SetDialogItemRenderPriority(lv_side_panel, 9999, PlayerGroupAll());
-        libUTES_gv_factionsTotal = 0;
-        libUTES_gv_buildersTotal = 0;
-        lv_x = 0;
-        lv_y = 0;
-        lv_z = 0;
-        auto85B0B7D1_ae = UserDataInstanceCount("TFaction");
-        auto85B0B7D1_var = 1;
-        for ( ; auto85B0B7D1_var <= auto85B0B7D1_ae; auto85B0B7D1_var += 1 ) {
-            lv_faction = UserDataInstance("TFaction", auto85B0B7D1_var);
-            if ((UserDataGetInt("TFaction", lv_faction, "Hidden", 1) != 0)) {
-                continue;
-            }
-
-            DialogControlCreateInPanelFromTemplate(lv_side_panel, c_triggerControlTypeButton, "Tester/TesterRaceButton_Blue");
-            libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 9999, PlayerGroupAll());
-            DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), true);
-            DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 31, 31);
-            DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTopLeft, (lv_x * 31), ((lv_y * 31) + lv_yOffset));
-            libUTES_gv_creator_racebutton[lv_ii][libUTES_gv_factionsTotal] = DialogControlLastCreated();
-            DialogControlHookup(DialogControlLastCreated(), c_triggerControlTypeImage, "FaceImage");
-            DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), true);
-            lv_image = DialogControlLastCreated();
-            libNtve_gf_SetDialogItemImage(lv_image, UserDataGetImagePath("TFaction", lv_faction, "Icon", 1), PlayerGroupAll());
-            libNtve_gf_SetDialogItemTooltip(libUTES_gv_creator_racebutton[lv_ii][libUTES_gv_factionsTotal], UserDataGetText("TFaction", lv_faction, "Name", 1), PlayerGroupAll());
-            libUTES_gv_factionsTotal += 1;
-            lv_x += 1;
-            if ((lv_x == 17)) {
-                lv_x = 0;
-                lv_y += 1;
-            }
-
-            lv_builderType = UserDataGetUnit("TFaction", lv_faction, "Builder", 1);
-            if ((lv_builderType != null)) {
-                if ((lv_ii == 0)) {
-                    UnitCreate(1, lv_builderType, 0, 9, Point((20.0 + (lv_z * 1.0)), (17.0 + (libUTES_gv_buildersTotal * 0.9))), 180.0);
-                    if ((lv_z == 0)) {
-                        lv_z = 1;
-                    }
-                    else {
-                        lv_z = 0;
-                    }
-                }
-                else {
-                    UnitCreate(1, lv_builderType, 0, 10, Point((24.0 - (lv_z * 1.0)), (17.0 + (libUTES_gv_buildersTotal * 0.9))), 0.0);
-                    if ((lv_z == 0)) {
-                        lv_z = 1;
-                    }
-                    else {
-                        lv_z = 0;
-                    }
-                }
-                libUTES_gv_builder_unit[lv_ii][libUTES_gv_buildersTotal] = UnitLastCreated();
-                UnitGroupAdd(libUTES_gv_builders, UnitLastCreated());
-                libUTES_gv_buildersTotal += 1;
-            }
-
-        }
-        AISetGroupScriptControlled(libUTES_gv_builders, false);
-        lv_x = 0;
-        lv_y = 0;
-        lv_jj = 0;
-        for ( ; ( (auto26D7AF4E_ai >= 0 && lv_jj <= auto26D7AF4E_ae) || (auto26D7AF4E_ai < 0 && lv_jj >= auto26D7AF4E_ae) ) ; lv_jj += auto26D7AF4E_ai ) {
-            lv_buttons_panel = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypePanel, ("UIContainer/FullscreenUpperContainer/TesterPanel/CreatorPanel/ItemCard_" + lv_side_str[lv_ii]));
-            DialogControlCreateInPanelFromTemplate(lv_buttons_panel, c_triggerControlTypeButton, "Tester/TesterItemButton_Red");
-            DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTopLeft, (lv_x * 76), (lv_y * 76));
-            libUTES_gv_creator_itembutton[lv_ii][lv_jj] = DialogControlLastCreated();
-            DialogControlHookup(DialogControlLastCreated(), c_triggerControlTypeImage, "FaceImage");
-            libUTES_gv_creator_itemface[lv_ii][lv_jj] = DialogControlLastCreated();
-            lv_x += 1;
-            if ((lv_x == 7)) {
-                lv_x = 0;
-                lv_y += 1;
-            }
-
-        }
-    }
-    libUTES_gv_side_player[0] = (libUTES_gv_const_players+1);
-    libUTES_gv_side_player[1] = (libUTES_gv_const_players+2);
-    lv_ii = 0;
-    for ( ; ( (auto86E42EDB_ai >= 0 && lv_ii <= auto86E42EDB_ae) || (auto86E42EDB_ai < 0 && lv_ii >= auto86E42EDB_ae) ) ; lv_ii += auto86E42EDB_ai ) {
-        auto6ABA4F93_ae = (libUTES_gv_buildersTotal - 1);
-        lv_jj = 0;
-        for ( ; ( (auto6ABA4F93_ai >= 0 && lv_jj <= auto6ABA4F93_ae) || (auto6ABA4F93_ai < 0 && lv_jj >= auto6ABA4F93_ae) ) ; lv_jj += auto6ABA4F93_ai ) {
-            UnitSetCustomValue(libUTES_gv_builder_unit[lv_ii][lv_jj], 0, lv_ii);
-            UnitSetCustomValue(libUTES_gv_builder_unit[lv_ii][lv_jj], 1, lv_jj);
-            UnitSetCustomValue(libUTES_gv_builder_unit[lv_ii][lv_jj], 2, (PointGetX(UnitGetPosition(libUTES_gv_builder_unit[lv_ii][lv_jj]))-PointGetX(libUTES_gv_wORKERSPOINT)));
-            UnitSetCustomValue(libUTES_gv_builder_unit[lv_ii][lv_jj], 3, (PointGetY(UnitGetPosition(libUTES_gv_builder_unit[lv_ii][lv_jj]))-PointGetY(libUTES_gv_wORKERSPOINT)));
-            UnitSetCustomValue(libUTES_gv_builder_unit[lv_ii][lv_jj], 4, UnitGetFacing(libUTES_gv_builder_unit[lv_ii][lv_jj]));
-        }
-    }
-    CreepSetSpeed(c_creepSpeedGrowth, 1000.0);
-    CreepSetSpeed(c_creepSpeedDecay, 1000.0);
-    CreepSetSpeed(c_creepSpeedBlend, 1000.0);
-    libUTES_gf_LoadTerrainData(libUTES_gv_data_terrain[0]);
-    libUTES_gf_TesterLeaderboardCreate();
-    libUTES_gf_SaveMapStructures();
     autoC05CF7B9_var = 1;
     for ( ; autoC05CF7B9_var <= autoC05CF7B9_ae; autoC05CF7B9_var += 1 ) {
-        VisRevealerCreate(autoC05CF7B9_var, RegionEntireMap());
-        libUTES_gv_data_player[autoC05CF7B9_var].lv_revealer = VisRevealerLastCreated();
         libUTES_gv_settings_allianceplayerlabel[autoC05CF7B9_var] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeLabel, ("UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListRight/Player" + IntToString(autoC05CF7B9_var) + "/Label"));
         libUTES_gv_settings_alliancebuttons[autoC05CF7B9_var][0] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, ("UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListRight/Player" + IntToString(autoC05CF7B9_var) + "/Red"));
         libUTES_gv_settings_alliancebuttons[autoC05CF7B9_var][1] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, ("UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListRight/Player" + IntToString(autoC05CF7B9_var) + "/Blue"));
         libUTES_gv_settings_alliancebuttons[autoC05CF7B9_var][2] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, ("UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListRight/Player" + IntToString(autoC05CF7B9_var) + "/Creator"));
     }
-    auto272FD0CC_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, 0, 0), 0);
-    auto272FD0CC_u = UnitGroupCount(auto272FD0CC_g, c_unitCountAll);
-    for (;; auto272FD0CC_u -= 1) {
-        auto272FD0CC_var = UnitGroupUnitFromEnd(auto272FD0CC_g, auto272FD0CC_u);
-        if (auto272FD0CC_var == null) { break; }
-        libNtve_gf_MakeUnitInvulnerable(auto272FD0CC_var, true);
+}
+
+void libUTES_gf_PrepareUnitTesterPlacementMode () {
+    // Automatic Variable Declarations
+    // Implementation
+    CreepSetSpeed(c_creepSpeedGrowth, 1000.0);
+    CreepSetSpeed(c_creepSpeedDecay, 1000.0);
+    CreepSetSpeed(c_creepSpeedBlend, 1000.0);
+}
+
+void libUTES_gf_PrepareUnitTesterTerrains () {
+    // Automatic Variable Declarations
+    int auto5864FEA3_ae;
+    int auto5864FEA3_var;
+
+    // Implementation
+    libUTES_gf_AddTerrainData("terr0");
+    libUTES_gf_AddTerrainData("terr1");
+    libUTES_gf_AddTerrainData("terr2");
+    libUTES_gf_AddTerrainData("terr3");
+    libUTES_gf_AddTerrainData("terr4");
+    libUTES_gf_AddTerrainData("terr5");
+    libUTES_gf_AddTerrainData("terr6");
+    libUTES_gf_AddTerrainData("terr8");
+    libUTES_gf_AddTerrainData("terr9");
+    auto5864FEA3_ae = (libUTES_gv_const_terrains - 1);
+    auto5864FEA3_var = 0;
+    for ( ; auto5864FEA3_var <= auto5864FEA3_ae; auto5864FEA3_var += 1 ) {
+        libUTES_gv_settings_terrainbutton[auto5864FEA3_var] = libUTES_gf_DialogItemFromLayoutHookup(c_triggerControlTypeButton, ("UIContainer/FullscreenUpperContainer/TesterPanel/SettingsPanel/ListLeft/Terrain/Buttons/Terrain" + IntToString(auto5864FEA3_var)));
+    }
+}
+
+void libUTES_gf_PrepareUnitTesterPlayers () {
+    // Automatic Variable Declarations
+    const int autoE9EA7ABC_ae = libUTES_gv_const_players;
+    int autoE9EA7ABC_var;
+    playergroup auto9E654153_g;
+    int auto9E654153_var;
+
+    // Implementation
+    autoE9EA7ABC_var = 1;
+    for ( ; autoE9EA7ABC_var <= autoE9EA7ABC_ae; autoE9EA7ABC_var += 1 ) {
+        VisRevealerCreate(autoE9EA7ABC_var, RegionEntireMap());
+        libUTES_gv_data_player[autoE9EA7ABC_var].lv_revealer = VisRevealerLastCreated();
     }
     libNtve_gf_SetAlliance(9, 10, libNtve_ge_AllianceSetting_Neutral);
     auto9E654153_g = PlayerGroupAll();
@@ -1971,12 +1694,293 @@ bool libUTES_gt_InitializeUnitTesterInterface_Func (bool testConds, bool runActi
         TextExpressionSetToken("Param/Expression/lib_UTES_8E0A5477", "A", TextWithColor(PlayerName(1), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(1, false))));
         UIDisplayMessage(PlayerGroupActive(), c_messageAreaSubtitle, TextExpressionAssemble("Param/Expression/lib_UTES_8E0A5477"));
     }
+}
+
+void libUTES_gf_RenderTesterUIForPlayer (int lp_player) {
+    // Variable Declarations
+    int lv_side_ii;
+    int lv_card_ii;
+    int lv_level_ii;
+    string lv_unit;
+    string lv_commander;
+    string lv_tFaction;
+
+    // Automatic Variable Declarations
+    const int autoD42DC03D_ae = libUTES_gv_const_terrains;
+    int autoD42DC03D_var;
+    const int auto973E0E1E_ae = libUTES_gv_const_players;
+    int auto973E0E1E_var;
+    const int auto96E2DABE_ae = 1;
+    int auto96E2DABE_var;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libUTES_gv_attack_mode == true)) {
+        DialogControlSetEnabled(libUTES_gv_menu_mode_settings, PlayerGroupSingle(lp_player), false);
+    }
+    else {
+        DialogControlSetEnabled(libUTES_gv_menu_mode_settings, PlayerGroupSingle(lp_player), true);
+        if ((libUTES_gv_data_player[lp_player].lv_menu_mode == 1)) {
+            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_settings, true, PlayerGroupSingle(lp_player));
+        }
+        else {
+            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_settings, false, PlayerGroupSingle(lp_player));
+        }
+    }
+    if (((libUTES_gv_data_player[lp_player].lv_creator_access == false) || (libUTES_gv_attack_mode == true))) {
+        DialogControlSetEnabled(libUTES_gv_menu_mode_creator, PlayerGroupSingle(lp_player), false);
+    }
+    else {
+        DialogControlSetEnabled(libUTES_gv_menu_mode_creator, PlayerGroupSingle(lp_player), true);
+        if ((libUTES_gv_data_player[lp_player].lv_menu_mode == 2)) {
+            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_creator, true, PlayerGroupSingle(lp_player));
+        }
+        else {
+            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_creator, false, PlayerGroupSingle(lp_player));
+        }
+    }
+    if ((libUTES_gv_attack_mode != false)) {
+        DialogControlSetVisible(libUTES_gv_menu_creator_panel, PlayerGroupSingle(lp_player), false);
+    }
+    else {
+        DialogControlSetVisible(libUTES_gv_menu_creator_panel, PlayerGroupSingle(lp_player), true);
+        if ((libUTES_gv_data_player[lp_player].lv_creator_access == false)) {
+            DialogControlSetEnabled(libUTES_gv_menu_creator_mirror, PlayerGroupSingle(lp_player), false);
+            DialogControlSetEnabled(libUTES_gv_menu_creator_clear, PlayerGroupSingle(lp_player), false);
+            DialogControlSetVisible(libUTES_gv_menu_start_attack, PlayerGroupSingle(lp_player), false);
+        }
+        else {
+            DialogControlSetEnabled(libUTES_gv_menu_creator_mirror, PlayerGroupSingle(lp_player), true);
+            DialogControlSetEnabled(libUTES_gv_menu_creator_clear, PlayerGroupSingle(lp_player), true);
+            DialogControlSetVisible(libUTES_gv_menu_start_attack, PlayerGroupSingle(lp_player), true);
+        }
+    }
+    if ((libUTES_gv_attack_mode != true)) {
+        DialogControlSetVisible(libUTES_gv_menu_attack_panel, PlayerGroupSingle(lp_player), false);
+        DialogControlSetVisible(libUTES_gv_menu_stop_attack, PlayerGroupSingle(lp_player), false);
+        DialogControlSetVisible(libUTES_gv_menu_attack_attack, PlayerGroupSingle(lp_player), false);
+    }
+    else {
+        DialogControlSetVisible(libUTES_gv_menu_attack_panel, PlayerGroupSingle(lp_player), true);
+        libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_attack_pause, libUTES_gv_pause, PlayerGroupSingle(lp_player));
+        if ((libUTES_gv_data_player[lp_player].lv_creator_access == false)) {
+            DialogControlSetEnabled(libUTES_gv_menu_attack_reset, PlayerGroupSingle(lp_player), false);
+            DialogControlSetEnabled(libUTES_gv_menu_attack_pause, PlayerGroupSingle(lp_player), false);
+            DialogControlSetVisible(libUTES_gv_menu_stop_attack, PlayerGroupSingle(lp_player), false);
+            DialogControlSetVisible(libUTES_gv_menu_attack_attack, PlayerGroupSingle(lp_player), false);
+        }
+        else {
+            DialogControlSetEnabled(libUTES_gv_menu_attack_reset, PlayerGroupSingle(lp_player), true);
+            DialogControlSetEnabled(libUTES_gv_menu_attack_pause, PlayerGroupSingle(lp_player), true);
+            DialogControlSetVisible(libUTES_gv_menu_stop_attack, PlayerGroupSingle(lp_player), true);
+            DialogControlSetVisible(libUTES_gv_menu_attack_attack, PlayerGroupSingle(lp_player), true);
+        }
+    }
+    if (((libUTES_gv_attack_mode == true) || (libUTES_gv_data_player[lp_player].lv_menu_mode == 0))) {
+        DialogControlSetVisible(libUTES_gv_tester_panel, PlayerGroupSingle(lp_player), false);
+    }
+    else {
+        DialogControlSetVisible(libUTES_gv_tester_panel, PlayerGroupSingle(lp_player), true);
+        if ((libUTES_gv_data_player[lp_player].lv_menu_mode != 1)) {
+            DialogControlSetVisible(libUTES_gv_settings_panel, PlayerGroupSingle(lp_player), false);
+            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_settings, false, PlayerGroupSingle(lp_player));
+        }
+        else {
+            DialogControlSetVisible(libUTES_gv_settings_panel, PlayerGroupSingle(lp_player), true);
+            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_settings, true, PlayerGroupSingle(lp_player));
+            if ((libUTES_gv_vision == true)) {
+                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_visionbutton[0], false, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_visionbutton[1], true, PlayerGroupSingle(lp_player));
+            }
+            else {
+                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_visionbutton[0], true, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_visionbutton[1], false, PlayerGroupSingle(lp_player));
+            }
+            autoD42DC03D_var = 0;
+            for ( ; autoD42DC03D_var <= autoD42DC03D_ae; autoD42DC03D_var += 1 ) {
+                if ((libUTES_gv_terrain_index == autoD42DC03D_var)) {
+                    libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_terrainbutton[autoD42DC03D_var], true, PlayerGroupSingle(lp_player));
+                }
+                else {
+                    libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_terrainbutton[autoD42DC03D_var], false, PlayerGroupSingle(lp_player));
+                }
+            }
+            auto973E0E1E_var = 1;
+            for ( ; auto973E0E1E_var <= auto973E0E1E_ae; auto973E0E1E_var += 1 ) {
+                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][0], libUTES_gv_data_player[auto973E0E1E_var].lv_player_access[0], PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][1], libUTES_gv_data_player[auto973E0E1E_var].lv_player_access[1], PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemToggled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][2], libUTES_gv_data_player[auto973E0E1E_var].lv_creator_access, PlayerGroupSingle(lp_player));
+                if ((PlayerType(auto973E0E1E_var) == c_playerTypeUser)) {
+                    libNtve_gf_SetDialogItemText(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], PlayerName(auto973E0E1E_var), PlayerGroupSingle(lp_player));
+                    libNtve_gf_SetDialogItemColor(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(auto973E0E1E_var, false)), PlayerGroupSingle(lp_player));
+                    DialogControlSetEnabled(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], PlayerGroupSingle(lp_player), true);
+                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][0], PlayerGroupSingle(lp_player), true);
+                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][1], PlayerGroupSingle(lp_player), true);
+                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][2], PlayerGroupSingle(lp_player), true);
+                }
+                else {
+                    libNtve_gf_SetDialogItemText(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], StringExternal("UI/BattleLobbyPlayerFrame/Empty"), PlayerGroupSingle(lp_player));
+                    libNtve_gf_SetDialogItemColor(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], ColorWithAlpha(0,0,0,0), PlayerGroupSingle(lp_player));
+                    DialogControlSetEnabled(libUTES_gv_settings_allianceplayerlabel[auto973E0E1E_var], PlayerGroupSingle(lp_player), false);
+                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][0], PlayerGroupSingle(lp_player), false);
+                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][1], PlayerGroupSingle(lp_player), false);
+                    DialogControlSetEnabled(libUTES_gv_settings_alliancebuttons[auto973E0E1E_var][2], PlayerGroupSingle(lp_player), false);
+                }
+            }
+        }
+        if ((libUTES_gv_data_player[lp_player].lv_menu_mode != 2)) {
+            DialogControlSetVisible(libUTES_gv_creator_panel, PlayerGroupSingle(lp_player), false);
+            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_creator, false, PlayerGroupSingle(lp_player));
+        }
+        else {
+            DialogControlSetVisible(libUTES_gv_creator_panel, PlayerGroupSingle(lp_player), true);
+            libNtve_gf_SetDialogItemToggled(libUTES_gv_menu_mode_creator, true, PlayerGroupSingle(lp_player));
+            libUTES_gf_RenderUnitTesterPlacementCard(lp_player);
+        }
+    }
+    auto96E2DABE_var = 0;
+    for ( ; auto96E2DABE_var <= auto96E2DABE_ae; auto96E2DABE_var += 1 ) {
+        if ((libUTES_gv_data_player[lp_player].lv_player_access[auto96E2DABE_var] == false)) {
+            if ((libUTES_gv_data_player[lp_player].lv_creator_access == true) && (libUTES_gv_attack_mode == false)) {
+                libNtve_gf_SetAlliance(libUTES_gv_side_player[auto96E2DABE_var], lp_player, libNtve_ge_AllianceSetting_AllyWithSharedVision);
+            }
+            else {
+                libNtve_gf_SetAlliance(libUTES_gv_side_player[auto96E2DABE_var], lp_player, libNtve_ge_AllianceSetting_Ally);
+            }
+        }
+        else {
+            libNtve_gf_SetAlliance(libUTES_gv_side_player[auto96E2DABE_var], lp_player, libNtve_ge_AllianceSetting_AllyWithSharedVisionControlAndSpending);
+        }
+    }
+}
+
+void libUTES_gf_RenderTesterUIForAllPlayers () {
+    // Automatic Variable Declarations
+    const int auto1C89AC1E_ae = libUTES_gv_const_players;
+    int auto1C89AC1E_var;
+
+    // Implementation
+    auto1C89AC1E_var = 1;
+    for ( ; auto1C89AC1E_var <= auto1C89AC1E_ae; auto1C89AC1E_var += 1 ) {
+        if ((PlayerType(auto1C89AC1E_var) == c_playerTypeUser)) {
+            libUTES_gf_RenderTesterUIForPlayer(auto1C89AC1E_var);
+        }
+
+    }
+}
+
+void libUTES_gf_ShowUnitTesterTips () {
+    // Automatic Variable Declarations
+    // Implementation
     HelpPanelAddTip(PlayerGroupActive(), libNtve_gf_FormatTipTitle(StringExternal("Param/Value/lib_UTES_658E1BD4"), libNtve_ge_TipType_NormalTip), StringExternal("Param/Value/lib_UTES_4894E696"), StringExternal("Param/Value/lib_UTES_5467C758"), "Assets\\Textures\\btn-tips-laserdrillantiair.dds");
     HelpPanelAddTip(PlayerGroupActive(), libNtve_gf_FormatTipTitle(StringExternal("Param/Value/lib_UTES_038EABAA"), libNtve_ge_TipType_NormalTip), StringExternal("Param/Value/lib_UTES_DD703A7F"), StringExternal("Param/Value/lib_UTES_DAA77A49"), "Assets\\Textures\\btn-tips-hacking.dds");
     HelpPanelAddTip(PlayerGroupActive(), libNtve_gf_FormatTipTitle(StringExternal("Param/Value/lib_UTES_921B3ED5"), libNtve_ge_TipType_NormalTip), StringExternal("Param/Value/lib_UTES_33DA1E45"), StringExternal("Param/Value/lib_UTES_2DEE567E"), "Assets\\Textures\\btn-tips-starmap.dds");
     HelpPanelAddTip(PlayerGroupActive(), libNtve_gf_FormatTipTitle(StringExternal("Param/Value/lib_UTES_101B5689"), libNtve_ge_TipType_NormalTip), StringExternal("Param/Value/lib_UTES_1C94AC8C"), StringExternal("Param/Value/lib_UTES_07D4D50B"), "Assets\\Textures\\btn-building-terran-bunker.dds");
     HelpPanelAddTip(PlayerGroupActive(), libNtve_gf_FormatTipTitle(StringExternal("Param/Value/lib_UTES_E7CF7E3F"), libNtve_ge_TipType_NormalTip), StringExternal("Param/Value/lib_UTES_69CF76D7"), StringExternal("Param/Value/lib_UTES_5395B634"), "Assets\\Textures\\btn-upgrade-terran-infantryweaponslevel1.dds");
     HelpPanelAddTip(PlayerGroupActive(), libNtve_gf_FormatTipTitle(StringExternal("Param/Value/lib_UTES_4AF5713F"), libNtve_ge_TipType_NormalTip), StringExternal("Param/Value/lib_UTES_5C38B5CF"), StringExternal("Param/Value/lib_UTES_73A4267C"), "Assets\\Textures\\btn-unit-terran-marine.dds");
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Race Button Clicked
+//--------------------------------------------------------------------------------------------------
+bool libUTES_gt_RaceButtonClicked_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    const int autoDB0A73E3_ae = libUTES_gv_tMAXFACTIONS;
+    int autoDB0A73E3_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoDB0A73E3_var = 1;
+    for ( ; autoDB0A73E3_var <= autoDB0A73E3_ae; autoDB0A73E3_var += 1 ) {
+        if ((EventDialogControl() == libUTES_gv_creator_racebutton[autoDB0A73E3_var])) {
+            libUTES_gv_creator_selectedRace[EventPlayer()] = libARRA_gf_ListStringGet(libUTES_gv_factions, autoDB0A73E3_var);
+            libUTES_gf_RenderUnitTesterPlacementCard(EventPlayer());
+            return true;
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUTES_gt_RaceButtonClicked_Init () {
+    libUTES_gt_RaceButtonClicked = TriggerCreate("libUTES_gt_RaceButtonClicked_Func");
+    TriggerAddEventDialogControl(libUTES_gt_RaceButtonClicked, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Arrow Button Clicked
+//--------------------------------------------------------------------------------------------------
+bool libUTES_gt_ArrowButtonClicked_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    const int auto53CFD725_ae = 2;
+    int auto53CFD725_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto53CFD725_var = 0;
+    for ( ; auto53CFD725_var <= auto53CFD725_ae; auto53CFD725_var += 1 ) {
+        if ((EventDialogControl() == libUTES_gv_creator_bottomButton[auto53CFD725_var])) {
+            libUTES_gv_placementCardOffset[auto53CFD725_var] += 1;
+            libUTES_gf_RenderUnitTesterPlacementCard(EventPlayer());
+            return true;
+        }
+        if ((EventDialogControl() == libUTES_gv_creator_upButton[auto53CFD725_var])) {
+            libUTES_gv_placementCardOffset[auto53CFD725_var] -= 1;
+            libUTES_gf_RenderUnitTesterPlacementCard(EventPlayer());
+            return true;
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUTES_gt_ArrowButtonClicked_Init () {
+    libUTES_gt_ArrowButtonClicked = TriggerCreate("libUTES_gt_ArrowButtonClicked_Func");
+    TriggerAddEventDialogControl(libUTES_gt_ArrowButtonClicked, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize Unit Tester Interface
+//--------------------------------------------------------------------------------------------------
+bool libUTES_gt_InitializeUnitTesterInterface_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup auto272FD0CC_g;
+    int auto272FD0CC_u;
+    unit auto272FD0CC_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libUTES_gf_PrepareUnitTesterFactions();
+    libUTES_gf_PrepareUnitTesterTerrains();
+    libUTES_gf_ShowUnitTesterCommonInterface();
+    libUTES_gf_MakeUnitTesterPlacementCard();
+    libUTES_gf_MakeUnitTesterFactionsList();
+    libUTES_gv_side_player[0] = (libUTES_gv_const_players+1);
+    libUTES_gv_side_player[1] = (libUTES_gv_const_players+2);
+    libUTES_gf_LoadTerrainData(libUTES_gv_data_terrain[0]);
+    libUTES_gf_TesterLeaderboardCreate();
+    libUTES_gf_SaveMapStructures();
+    auto272FD0CC_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, 0, 0), 0);
+    auto272FD0CC_u = UnitGroupCount(auto272FD0CC_g, c_unitCountAll);
+    for (;; auto272FD0CC_u -= 1) {
+        auto272FD0CC_var = UnitGroupUnitFromEnd(auto272FD0CC_g, auto272FD0CC_u);
+        if (auto272FD0CC_var == null) { break; }
+        libNtve_gf_MakeUnitInvulnerable(auto272FD0CC_var, true);
+    }
+    libUTES_gf_PrepareUnitTesterPlayers();
+    libUTES_gf_ShowUnitTesterPlacementCard();
+    libUTES_gf_ShowUnitTesterTips();
     TimerStart(libUTES_gv_test_timer, c_timerDurationInfinite, false, c_timeReal);
     libUTES_gf_RenderTesterUIForAllPlayers();
     TriggerSendEvent(libUTES_gv_uNITTESTERINITIALIZED);
@@ -2360,7 +2364,7 @@ bool libUTES_gt_DialogItemIsUsed_Func (bool testConds, bool runActions) {
             for ( ; auto4382E30E_var <= auto4382E30E_ae; auto4382E30E_var += 1 ) {
                 lv_ii = 0;
                 for ( ; ( (auto69F0821A_ai >= 0 && lv_ii <= auto69F0821A_ae) || (auto69F0821A_ai < 0 && lv_ii >= auto69F0821A_ae) ) ; lv_ii += auto69F0821A_ai ) {
-                    if ((EventDialogControl() == libUTES_gv_creator_racebutton[lv_ii][auto4382E30E_var])) {
+                    if ((EventDialogControl() == libUTES_gv_creator_racebutton[lv_ii])) {
                         if ((libUTES_gv_data_player[EventPlayer()].lv_creator_race[lv_ii] == auto4382E30E_var)) {
                             if ((libUTES_gv_data_player[EventPlayer()].lv_creator_tech[lv_ii] == 0)) {
                                 libUTES_gv_data_player[EventPlayer()].lv_creator_tech[lv_ii] = 1;
@@ -2870,13 +2874,6 @@ bool libUTES_gt_PlayerDeselectsAnyBuilder_Func (bool testConds, bool runActions)
     // Automatic Variable Declarations
     // Variable Initialization
 
-    // Conditions
-    if (testConds) {
-        if (!((UnitGroupHasUnit(libUTES_gv_builders, EventUnit()) == true))) {
-            return false;
-        }
-    }
-
     // Actions
     if (!runActions) {
         return true;
@@ -3040,6 +3037,8 @@ void libUTES_gt_LeaderboardUnitRemoved_Init () {
 }
 
 void libUTES_InitTriggers () {
+    libUTES_gt_RaceButtonClicked_Init();
+    libUTES_gt_ArrowButtonClicked_Init();
     libUTES_gt_InitializeUnitTesterInterface_Init();
     libUTES_gt_CtrlOff_Init();
     libUTES_gt_CtrlOn_Init();
