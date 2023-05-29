@@ -235,20 +235,70 @@
         <HostSiteOps Ops="SOpTipabilityFloorScope"/>
         <Model value="PlacementModel"/>
     </CActorModel>
-    <CActorUnit id="ShieldBattery" parent="ProtossBuildingEx" unitName="ShieldBattery">
+<!--    <CActorUnit id="ShieldBattery" parent="ProtossBuildingEx" unitName="ShieldBattery">-->
+<!--        <Macros value="ProtossBuildingPowerUp"/>-->
+<!--        <Macros value="VoidMPUnpoweredAnim"/>-->
+<!--        <On Terms="Abil.ShieldBatteryRechargeChanneled.SourceChannelStart" Send="AnimBracketStart Working Stand,Work,Start Stand,Work Stand,Work,End"/>-->
+<!--        <On Terms="Abil.ShieldBatteryRechargeChanneled.SourceChannelStop" Send="AnimBracketStop Working"/>-->
+<!--        <CreepHeightClass value="Tiny"/>-->
+<!--        <DeathArray index="Normal" SoundLink="Obelisk_Explode"/>-->
+<!--        <DeathArray index="UnderConstruction" SoundLink="Obelisk_Explode"/>-->
+<!--        <PlacementSound value="Protoss_BuildingPlacementSmall"/>-->
+<!--        <PlacementActorModel value="ShieldBatteryPlacementModel"/>-->
+<!--        <BarOffset value="60"/>-->
+<!--        <GroupIcon>-->
+<!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery.dds"/>-->
+<!--        </GroupIcon>-->
+<!--        <Wireframe>-->
+<!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery.dds"/>-->
+<!--        </Wireframe>-->
+<!--        <WireframeShield>-->
+<!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery-Shield01.dds"/>-->
+<!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery-Shield02.dds"/>-->
+<!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery-Shield03.dds"/>-->
+<!--        </WireframeShield>-->
+<!--    </CActorUnit>-->
+    <CActorUnit id="ShieldBattery" parent="ProtossBuilding" unitName="ShieldBattery">
+        <Macros value="UnpoweredAnim"/>
         <Macros value="ProtossBuildingPowerUp"/>
-        <Macros value="VoidMPUnpoweredAnim"/>
         <On Terms="Abil.ShieldBatteryRechargeChanneled.SourceChannelStart" Send="AnimBracketStart Working Stand,Work,Start Stand,Work Stand,Work,End"/>
         <On Terms="Abil.ShieldBatteryRechargeChanneled.SourceChannelStop" Send="AnimBracketStop Working"/>
+        <!-- Have Obelisk power radius show up when you select a unit cloaked by it -->
+        <!--On Terms="Abil.ShieldBatteryRecharge.SourceCastStart" Send="RefSet ::global.Obelisk ::Self"/-->
+        <On Terms="Upgrade.DarkProtoss.Add" Send="ModelSwap ShieldBatteryTaldarim"/>
+        <On Terms="UnitBirth; ValidateUnit NoDarkProtoss" Send="ModelSwap ShieldBatteryTaldarim"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit NoDarkProtoss" Send="DeathCustomize DarkProtoss"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit CasterIsUnpoweredAndNotUnderConstructionAndHasDarkProtoss" Send="DeathCustomize Variation3"/>
+        <EventDataSound Name="BuildingWarpIn" Actor="UnitSound" Sound="Protoss_BuildingWarpIn"/>
         <CreepHeightClass value="Tiny"/>
-        <DeathArray index="Normal" SoundLink="Obelisk_Explode"/>
-        <DeathArray index="UnderConstruction" SoundLink="Obelisk_Explode"/>
+        <BuildModel value="ShieldBatteryBirth"/>
+        <DeathArray index="Normal" ModelLink="ShieldBatteryDeath" SoundLink="Obelisk_Explode"/>
+        <DeathArray index="UnderConstruction" ModelLink="ProtossWarpInDeath" SoundLink="Obelisk_Explode"/>
+        <DeathCustoms ModelLink="ShieldBatteryTaldarimDeath" Name="DarkProtoss"/>
+        <DeathCustoms ModelLink="ShieldBatteryTaldarimDeath" Name="Variation3"/>
+        <PlacementModel value="ShieldBatteryPlacement"/>
         <PlacementSound value="Protoss_BuildingPlacementSmall"/>
         <PlacementActorModel value="ShieldBatteryPlacementModel"/>
+        <PortraitModel value="ExecutorPortrait"/>
         <BarOffset value="60"/>
         <GroupIcon>
             <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery.dds"/>
         </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-protoss-shieldbattery.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-protoss-buildingplating.dds"/>
+        <SoundArray index="Birth" value="PylonBirth"/>
+        <SoundArray index="Ready" value="Obelisk_What"/>
+        <SoundArray index="Help" value="PylonHelp"/>
+        <SoundArray index="Yes" value="PylonYes"/>
+        <SoundArray index="Attack" value="PylonYes"/>
+        <SoundArray index="Pissed" value="PylonPissed"/>
+        <SoundArray index="Movement" value="PylonMovement"/>
+        <SoundArray index="Turning" value="PylonTurning"/>
+        <SoundArray index="Board" value="PylonBoard"/>
+        <SoundArray index="Click" value="PylonClick"/>
+        <SoundArray index="ClickError" value="PylonClickError"/>
+        <SoundArray index="Highlight" value="PylonHighlight"/>
+        <UnitIcon value="Assets\Textures\btn-building-protoss-shieldbattery.dds"/>
         <Wireframe>
             <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery.dds"/>
         </Wireframe>
@@ -259,25 +309,44 @@
         </WireframeShield>
     </CActorUnit>
     <CActorModel id="ShieldBatteryPlacementModel" parent="PlacementModel">
+        <On Terms="ActorCreation; ModelName ShieldBattery" Send="Create ShieldBatteryRange"/>
         <On Terms="ActorCreation; ModelName ShieldBatteryPlacement" Send="Create ShieldBatteryRange"/>
-        <On Terms="ActorCreation; ModelName ShieldBattery; ModelIsLowQuality" Send="Create ShieldBatteryRange"/>
         <On Terms="ActorDestruction" Target="ShieldBatteryRange" Send="Destroy"/>
     </CActorModel>
     <CActorRange id="ShieldBatteryRange" parent="RangeAbil" abil="ShieldBatteryRechargeChanneled">
         <Icon value="Assets\Textures\RadarIcon2.dds"/>
         <IconArcLength value="3.250000"/>
     </CActorRange>
+<!--    <CActorBeamSimple id="ShieldBatteryRechargeChanneledBeam" parent="BeamSimpleAnimationStyleContinuous">-->
+<!--        <Inherits index="Visibility" value="1"/>-->
+<!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart" Send="Create"/>-->
+<!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop" Send="Destroy"/>-->
+<!--        <HostForProps Subject="_Unit" Scope="Target" Actor="Find"/>-->
+<!--        <ModelFlags index="AutomateGlobalLoops" value="1"/>-->
+<!--        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>-->
+<!--        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>-->
+<!--        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>-->
+<!--        <HostImpactSiteOps Ops="SOpAttachCenter"/>-->
+<!--    </CActorBeamSimple>-->
     <CActorBeamSimple id="ShieldBatteryRechargeChanneledBeam" parent="BeamSimpleAnimationStyleContinuous">
         <Inherits index="Visibility" value="1"/>
         <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart" Send="Create"/>
         <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop" Send="Destroy"/>
         <HostForProps Subject="_Unit" Scope="Target" Actor="Find"/>
-        <ModelFlags index="AutomateGlobalLoops" value="1"/>
         <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
         <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
         <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>
         <HostImpactSiteOps Ops="SOpAttachCenter"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
     </CActorBeamSimple>
+<!--    <CActorModel id="ShieldBatteryRechargeChanneledModel" parent="ModelAnimationStyleContinuous">-->
+<!--        <On Terms="ActorCreation" Send="$Birth PlayForever"/>-->
+<!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart; At Target" Send="Create"/>-->
+<!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop; At Target" Send="Destroy"/>-->
+<!--        <On Terms="ActorOrphan" Send="Destroy"/>-->
+<!--        <Host Subject="_Selectable"/>-->
+<!--        <HostSiteOps Ops="SOpAttachCenter"/>-->
+<!--    </CActorModel>-->
     <CActorModel id="ShieldBatteryRechargeChanneledModel" parent="ModelAnimationStyleContinuous">
         <On Terms="ActorCreation" Send="$Birth PlayForever"/>
         <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart; At Target" Send="Create"/>
@@ -286,12 +355,22 @@
         <Host Subject="_Selectable"/>
         <HostSiteOps Ops="SOpAttachCenter"/>
     </CActorModel>
+<!--    <CActorSound id="ShieldBatteryRechargeChanneledSoundLoop" parent="SoundContinuous">-->
+<!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart; At Target" Send="Create"/>-->
+<!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop; At Target" Send="Destroy"/>-->
+<!--        <On Terms="ActorOrphan" Send="Destroy"/>-->
+<!--        <On Terms="ActorCreation" Send="Create ShieldBatteryRechargeSoundStart"/>-->
+<!--        <On Terms="ActorDestruction" Send="Create ShieldBatteryRechargeSoundStop"/>-->
+<!--        <Host Subject="_Selectable"/>-->
+<!--        <HostSiteOps Ops="SOpAttachOverhead"/>-->
+<!--        <Sound value="ShieldBattery_Recharge_Loop"/>-->
+<!--    </CActorSound>-->
     <CActorSound id="ShieldBatteryRechargeChanneledSoundLoop" parent="SoundContinuous">
         <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart; At Target" Send="Create"/>
         <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop; At Target" Send="Destroy"/>
         <On Terms="ActorOrphan" Send="Destroy"/>
-        <On Terms="ActorCreation" Send="Create ShieldBatteryRechargeSoundStart"/>
-        <On Terms="ActorDestruction" Send="Create ShieldBatteryRechargeSoundStop"/>
+        <On Terms="ActorCreation" Send="Create SentryShieldRepairSoundStart"/>
+        <On Terms="ActorDestruction" Send="Create SentryShieldRepairSoundStop"/>
         <Host Subject="_Selectable"/>
         <HostSiteOps Ops="SOpAttachOverhead"/>
         <Sound value="ShieldBattery_Recharge_Loop"/>
@@ -2342,9 +2421,16 @@
         <HostSiteOps Ops="SOpAttachCenter"/>
         <On Terms="UnitDeathCustomize" Send="Destroy"/>
     </CActorModel>
+<!--    <CActorModel id="CarrierWarpInStargate" parent="ModelAddition">-->
+<!--        <HostSiteOps Ops="SOpAttachCenter"/>-->
+<!--        <On Terms="UnitDeathCustomize" Send="Destroy"/>-->
+<!--    </CActorModel>-->
     <CActorModel id="CarrierWarpInStargate" parent="ModelAddition">
+        <On Terms="ActorCreation; ValidateUnit IsChronoSurged" Send="AnimSetTimeScale BSD 0.200000"/>
+        <On Terms="Behavior.SOASuperChrono.On" Send="AnimSetTimeScale BSD 0.200000"/>
+        <On Terms="Behavior.SOASuperChrono.Off" Send="AnimSetTimeScale BSD 1.000000"/>
+        <On Terms="ActorCreation; ValidatePlayer NoDarkProtoss" Send="ModelSwap CarrierTaldarimWarpInStargate"/>
         <HostSiteOps Ops="SOpAttachCenter"/>
-        <On Terms="UnitDeathCustomize" Send="Destroy"/>
     </CActorModel>
     <!-- Templar Archive ....................................................................... -->
     <CActorUnit id="TemplarArchive" parent="ProtossBuildingEx" unitName="TemplarArchive">

@@ -35,7 +35,6 @@ void libUEDC_InitVariables () {
     libUEDC_gv_loadedInfusionTowers = UnitGroupEmpty();
     libUEDC_gv_loadedMissileTowers = UnitGroupEmpty();
     libUEDC_gv_loadedSuppressionTowers = UnitGroupEmpty();
-    libUEDC_gv_fallenTroopers = UnitGroupEmpty();
 }
 
 // Presets
@@ -192,144 +191,6 @@ bool libUEDC_gt_InitializeUEDRace_Func (bool testConds, bool runActions) {
 //--------------------------------------------------------------------------------------------------
 void libUEDC_gt_InitializeUEDRace_Init () {
     libUEDC_gt_InitializeUEDRace = TriggerCreate("libUEDC_gt_InitializeUEDRace_Func");
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Effect -  Infusion Tower
-//--------------------------------------------------------------------------------------------------
-bool libUEDC_gt_EffectInfusionTower_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_targetunit;
-    actor lv_healModel;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    lv_targetunit = EventUnit();
-    if ((libUEDC_gf_UnitisStructure(lv_targetunit) == false)) {
-        if (libUEDC_gf_UnitisSmall(lv_targetunit)) {
-            libNtve_gf_AttachModelToUnit(lv_targetunit, "InfusionTowerHealModelSmallUnits", "Ref_Center");
-            lv_healModel = libNtve_gf_ActorLastCreated();
-        }
-        else {
-            libNtve_gf_AttachModelToUnit(lv_targetunit, "InfusionTowerHealModel", "Ref_Center");
-            lv_healModel = libNtve_gf_ActorLastCreated();
-        }
-    }
-    else {
-        if ((libUEDC_gf_UnitisStructure(lv_targetunit) == true)) {
-            if (libUEDC_gf_Structureismedium(lv_targetunit)) {
-                libNtve_gf_AttachModelToUnit(lv_targetunit, "InfusionTowerHealModelMediumStructure", "Ref_StatusBar");
-                lv_healModel = libNtve_gf_ActorLastCreated();
-            }
-            else {
-                if (libUEDC_gf_UnitisMainStructure(lv_targetunit)) {
-                    libNtve_gf_AttachModelToUnit(lv_targetunit, "InfusionTowerHealModelMainStructure", "Ref_StatusBar");
-                    lv_healModel = libNtve_gf_ActorLastCreated();
-                }
-                else {
-                    libNtve_gf_AttachModelToUnit(lv_targetunit, "InfusionTowerHealModelStructure", "Ref_Center");
-                    lv_healModel = libNtve_gf_ActorLastCreated();
-                }
-            }
-        }
-
-    }
-    while (!(((UnitIsAlive(lv_targetunit) == false) || (UnitHasBehavior2(EventUnit(), "BeathaniumInfusionField") == false)))) {
-        Wait(0.065, c_timeGame);
-    }
-    libNtve_gf_KillModel(lv_healModel);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUEDC_gt_EffectInfusionTower_Init () {
-    libUEDC_gt_EffectInfusionTower = TriggerCreate("libUEDC_gt_EffectInfusionTower_Func");
-    TriggerAddEventUnitBehaviorChange(libUEDC_gt_EffectInfusionTower, null, "BeathaniumInfusionField", c_unitBehaviorChangeCreate);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Sound Effect - for heal every 1 sec
-//--------------------------------------------------------------------------------------------------
-bool libUEDC_gt_SoundEffectforhealevery1sec_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    unitgroup auto09081E4C_g;
-    int auto09081E4C_u;
-    unit auto09081E4C_var;
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    auto09081E4C_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-    auto09081E4C_u = UnitGroupCount(auto09081E4C_g, c_unitCountAll);
-    for (;; auto09081E4C_u -= 1) {
-        auto09081E4C_var = UnitGroupUnitFromEnd(auto09081E4C_g, auto09081E4C_u);
-        if (auto09081E4C_var == null) { break; }
-        if ((UnitHasBehavior2(auto09081E4C_var, "BeathaniumInfusionField") == true) && (UnitIsAlive(auto09081E4C_var) == true) && (UnitGetType(auto09081E4C_var) != "Arsenal") && (UnitGetType(auto09081E4C_var) != "EnrichmentTower") && (UnitGetType(auto09081E4C_var) != "FieldBureau") && (UnitGetType(auto09081E4C_var) != "HeavyTower") && (UnitGetType(auto09081E4C_var) != "InfusionTower") && (UnitGetType(auto09081E4C_var) != "MilitaryResearchStation") && (UnitGetType(auto09081E4C_var) != "MissileTower") && (UnitGetType(auto09081E4C_var) != "MunitionsFactory") && (UnitGetType(auto09081E4C_var) != "OperationHeadquarters") && (UnitGetType(auto09081E4C_var) != "StarshipMaintenancePlant") && (UnitGetType(auto09081E4C_var) != "SuppressionTower") && (UnitGetType(auto09081E4C_var) != "TachyonRelay") && (UnitGetType(auto09081E4C_var) != "TacticsAcademy") && (UnitGetType(auto09081E4C_var) != "TeleportationNode") && (UnitGetType(auto09081E4C_var) != "VespenePurificationPlant")) {
-            SoundPlayAtPointForPlayer(SoundLink("UED_Heal", -1), c_maxPlayers, PlayerGroupAll(), UnitGetPosition(auto09081E4C_var), 12.0, 17.5, 0.0);
-        }
-
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUEDC_gt_SoundEffectforhealevery1sec_Init () {
-    libUEDC_gt_SoundEffectforhealevery1sec = TriggerCreate("libUEDC_gt_SoundEffectforhealevery1sec_Func");
-    TriggerAddEventTimePeriodic(libUEDC_gt_SoundEffectforhealevery1sec, 0.91, c_timeReal);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Sound Effect - for heal on for any
-//--------------------------------------------------------------------------------------------------
-bool libUEDC_gt_SoundEffectforhealonforany_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    TriggerEnable(TriggerGetCurrent(), false);
-    SoundPlayAtPointForPlayer(SoundLink("UnitentertohealzoneUED", -1), c_maxPlayers, PlayerGroupAll(), UnitGetPosition(EventUnit()), 12.0, 24.0, 0.0);
-    Wait(0.25, c_timeReal);
-    TriggerEnable(TriggerGetCurrent(), true);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUEDC_gt_SoundEffectforhealonforany_Init () {
-    libUEDC_gt_SoundEffectforhealonforany = TriggerCreate("libUEDC_gt_SoundEffectforhealonforany_Func");
-    TriggerAddEventUnitBehaviorChange(libUEDC_gt_SoundEffectforhealonforany, null, "BeathaniumInfusionField", c_unitBehaviorChangeCreate);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Sound Effect - for heal off for any
-//--------------------------------------------------------------------------------------------------
-bool libUEDC_gt_SoundEffectforhealoffforany_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    TriggerEnable(TriggerGetCurrent(), false);
-    SoundPlayAtPointForPlayer(SoundLink("UnitescapefromhealzoneUED", -1), c_maxPlayers, PlayerGroupAll(), UnitGetPosition(EventUnit()), 12.0, 25.0, 0.0);
-    Wait(0.25, c_timeReal);
-    TriggerEnable(TriggerGetCurrent(), true);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUEDC_gt_SoundEffectforhealoffforany_Init () {
-    libUEDC_gt_SoundEffectforhealoffforany = TriggerCreate("libUEDC_gt_SoundEffectforhealoffforany_Func");
-    TriggerAddEventUnitBehaviorChange(libUEDC_gt_SoundEffectforhealoffforany, null, "BeathaniumInfusionField", c_unitBehaviorChangeDestroy);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,7 +435,7 @@ bool libUEDC_gt_Owardseffectfortargettingunits_Func (bool testConds, bool runAct
     SoundPlayAtPointForPlayer(SoundLink("Aiur_PowerPoint_Loop", -1), c_maxPlayers, PlayerGroupAll(), UnitGetPosition(EventUnit()), 12.0, 120.0, 0.0);
     do {
         UnitBehaviorAdd(EventUnit(), "GlazeLazarusDeviceEffect", EventUnit(), 1);
-        Wait(2.0, c_timeGame);
+        Wait(1.5, c_timeGame);
         UnitBehaviorRemove(EventUnit(), "GlazeLazarusDeviceEffect", 1);
     }while ((UnitHasBehavior2(EventUnit(), "OnwardComrades") == true));
     SoundStop(SoundLastPlayed(), true);
@@ -599,7 +460,7 @@ bool libUEDC_gt_OwardseffectforPoliticalAdvisor_Func (bool testConds, bool runAc
 
     SoundPlayAtPointForPlayer(SoundLink("Protoss_PowerUpLarge", -1), c_maxPlayers, PlayerGroupAll(), UnitGetPosition(EventUnit()), 12.0, 120.0, 0.0);
     libNtve_gf_AttachModelToUnit(EventUnit(), "PoliticalAdvisorOweransWave", "Ref_Center");
-    Wait(2.0, c_timeGame);
+    Wait(1.5, c_timeGame);
     libNtve_gf_KillModel(libNtve_gf_ActorLastCreated());
     return true;
 }
@@ -628,7 +489,7 @@ bool libUEDC_gt_CalculateBeacons_Func (bool testConds, bool runActions) {
     while (true) {
         auto254691C0_var = PlayerGroupNextPlayer(auto254691C0_g, auto254691C0_var);
         if (auto254691C0_var < 0) { break; }
-        libUEDC_gv_beacons[auto254691C0_var] = UnitGroup("BeaconUED", auto254691C0_var, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        libUEDC_gv_beacons[auto254691C0_var] = UnitGroup("TeleportationNode", auto254691C0_var, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
         libNtve_gf_SetDialogItemText(libUEDC_gv_beaconsButtonCountLabel, IntToText(UnitGroupCount(libUEDC_gv_beacons[auto254691C0_var], c_unitCountAlive)), PlayerGroupSingle(auto254691C0_var));
         if ((UnitGroupCount(libUEDC_gv_beacons[auto254691C0_var], c_unitCountAlive) == 0)) {
             DialogControlSetEnabled(libUEDC_gv_beaconsButton, PlayerGroupSingle(auto254691C0_var), false);
@@ -669,7 +530,7 @@ bool libUEDC_gt_InitBeaconsButton_Func (bool testConds, bool runActions) {
     lv_icon = DialogControlLastCreated();
     libNtve_gf_SetDialogItemTooltip(libUEDC_gv_beaconsButton, StringExternal("Param/Value/lib_UEDC_71F49E44"), PlayerGroupAll());
     DialogControlHookupStandard(c_triggerControlTypeLabel, "UIContainer/ConsoleUIContainer/ArmyButton2/CountLabel");
-    libNtve_gf_SetDialogItemImage(lv_icon, "Assets/Textures/ui_idlewarpgate_normalpressed_UED.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage(lv_icon, "Assets\\Textures\\BTN-UED-Teleportation-Node.dds", PlayerGroupAll());
     libUEDC_gv_beaconsButtonCountLabel = DialogControlLastCreated();
     DialogControlSetVisible(libUEDC_gv_beaconsButton, libUEDC_gv_uEDPlayers, true);
     TriggerEnable(libUEDC_gt_CalculateBeacons, true);
@@ -960,98 +821,6 @@ void libUEDC_gt_PrerapeTransportshuttle_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: FallenTrooper - Effect
-//--------------------------------------------------------------------------------------------------
-bool libUEDC_gt_FallenTrooperEffect_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    Wait(0.1, c_timeGame);
-    if ((UnitHasBehavior2(EventUnit(), "Incapacitated") == true) && (UnitIsAlive(EventUnit()) == true)) {
-        UnitGroupAdd(libUEDC_gv_fallenTroopers, EventUnit());
-        libNtve_gf_PlayAnimation(libNtve_gf_MainActorofUnit(EventUnit()), c_animNameDefault, "Death", 0, c_animTimeDefault);
-        UnitBehaviorAdd(EventUnit(), "GlazeTrooperDown", EventUnit(), 1);
-        UnitBehaviorAdd(EventUnit(), "VisionBuffTrooperDown", EventUnit(), 1);
-        SoundPlayAtPointForPlayer(SoundLink("Extractor_Mecha_Birth", -1), c_maxPlayers, PlayerGroupAll(), UnitGetPosition(EventUnit()), 12.0, 100.0, 0.0);
-        UnitSetPropertyFixed(EventUnit(), c_unitPropLife, 1.0);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUEDC_gt_FallenTrooperEffect_Init () {
-    libUEDC_gt_FallenTrooperEffect = TriggerCreate("libUEDC_gt_FallenTrooperEffect_Func");
-    TriggerAddEventUnitDamaged(libUEDC_gt_FallenTrooperEffect, null, c_unitDamageTypeAny, c_unitDamageEither, null);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: FallenTrooper - Healing
-//--------------------------------------------------------------------------------------------------
-bool libUEDC_gt_FallenTrooperHealing_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    timer lv_shieldtimer;
-    int lv_energyunit;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_shieldtimer = TimerCreate();
-
-    // Conditions
-    if (testConds) {
-        if (!((UnitHasBehavior2(EventUnit(), "Incapacitated") == true))) {
-            return false;
-        }
-
-        if (!((UnitIsAlive(EventUnit()) == true))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    UnitGroupRemove(libUEDC_gv_fallenTroopers, EventUnit());
-    libNtve_gf_ClearAnimation(libNtve_gf_MainActorofUnit(EventUnit()), c_animNameDefault);
-    UnitBehaviorRemove(EventUnit(), "GlazeTrooperDown", 1);
-    UnitBehaviorRemove(EventUnit(), "Incapacitated", 1);
-    UnitBehaviorRemove(EventUnit(), "IncapDie", 1);
-    UnitBehaviorRemove(EventUnit(), "VisionBuffTrooperDown", 1);
-    UnitBehaviorRemove(EventUnit(), "LazarusDeviceTarget", 1);
-    if ((UnitGetPropertyFixed(EventUnit(), c_unitPropEnergy, c_unitPropNormal) != 0.0)) {
-        lv_energyunit = UnitGetPropertyInt(EventUnit(), c_unitPropEnergyPercent, c_unitPropCurrent);
-        lv_energyunit /= 2;
-        UnitSetPropertyFixed(EventUnit(), c_unitPropEnergyPercent, lv_energyunit);
-    }
-
-    UnitSetPropertyFixed(EventUnit(), c_unitPropLifePercent, 50.0);
-    UnitSetPropertyFixed(EventUnit(), c_unitPropEnergyPercent, 0.0);
-    TimerStart(lv_shieldtimer, 7.0, false, c_timeGame);
-    UnitSetPropertyFixed(EventUnit(), c_unitPropShieldsMax, 25.0);
-    UnitSetPropertyFixed(EventUnit(), c_unitPropShields, 25.0);
-    UnitBehaviorAdd(EventUnit(), "GlazeTeleportationEffect", EventUnit(), 1);
-    while (!(((TimerGetRemaining(lv_shieldtimer) == 0.0) || (UnitGetPropertyInt(EventUnit(), c_unitPropShields, c_unitPropCurrent) == 0) || (UnitIsAlive(EventUnit()) == false)))) {
-        Wait(1.0, c_timeGame);
-    }
-    SoundPlayAtPointForPlayer(SoundLink("Protoss_ShieldDeath", -1), c_maxPlayers, PlayerGroupAll(), UnitGetPosition(EventUnit()), 12.0, 100.0, 0.0);
-    UnitBehaviorRemove(EventUnit(), "GlazeTeleportationEffect", 1);
-    UnitSetPropertyFixed(EventUnit(), c_unitPropShieldsMax, 0.0);
-    UnitSetPropertyFixed(EventUnit(), c_unitPropShields, 0.0);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUEDC_gt_FallenTrooperHealing_Init () {
-    libUEDC_gt_FallenTrooperHealing = TriggerCreate("libUEDC_gt_FallenTrooperHealing_Func");
-    TriggerAddEventUnitBehaviorChange(libUEDC_gt_FallenTrooperHealing, null, "LazarusDeviceTarget", c_unitBehaviorChangeCreate);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: Beacon Build
 //--------------------------------------------------------------------------------------------------
 bool libUEDC_gt_BeaconBuild_Func (bool testConds, bool runActions) {
@@ -1093,49 +862,6 @@ bool libUEDC_gt_BeaconBuild_Func (bool testConds, bool runActions) {
 void libUEDC_gt_BeaconBuild_Init () {
     libUEDC_gt_BeaconBuild = TriggerCreate("libUEDC_gt_BeaconBuild_Func");
     TriggerAddEventUnitAbility(libUEDC_gt_BeaconBuild, null, AbilityCommand("CalldownBeacon", 0), c_unitAbilStageExecute, false);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Strengthening Shield
-//--------------------------------------------------------------------------------------------------
-bool libUEDC_gt_StrengtheningShield_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_targetUnit;
-    unit lv_shuttle;
-    timer lv_timer;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_timer = TimerCreate();
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    lv_shuttle = EventUnit();
-    lv_targetUnit = OrderGetTargetUnit(UnitOrder(lv_shuttle, 0));
-    while (!(((UnitIsAlive(lv_shuttle) == false) || (UnitIsAlive(lv_targetUnit) == false) || (UnitHasBehavior2(lv_targetUnit, "ProjectedGravityShield") == true)))) {
-        Wait(1.0, c_timeGame);
-    }
-    if (((UnitIsAlive(lv_shuttle) == true) && (UnitIsAlive(lv_targetUnit) == true))) {
-        TimerStart(lv_timer, 20.0, false, c_timeGame);
-        UnitSetPropertyFixed(lv_targetUnit, c_unitPropShields, 250.0);
-        UnitBehaviorAdd(lv_targetUnit, "GlazeTeleportationEffect", lv_shuttle, 1);
-        while (!(((TimerGetRemaining(lv_timer) == 0.0) || (UnitGetPropertyInt(lv_targetUnit, c_unitPropShields, c_unitPropCurrent) == 0) || (UnitIsAlive(lv_targetUnit) == false)))) {
-            Wait(1.0, c_timeGame);
-        }
-        SoundPlayAtPointForPlayer(SoundLink("Protoss_ShieldDeath", -1), c_maxPlayers, PlayerGroupAll(), UnitGetPosition(EventUnit()), 12.0, 100.0, 0.0);
-        UnitBehaviorRemove(lv_targetUnit, "GlazeTeleportationEffect", 1);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUEDC_gt_StrengtheningShield_Init () {
-    libUEDC_gt_StrengtheningShield = TriggerCreate("libUEDC_gt_StrengtheningShield_Func");
-    TriggerAddEventUnitAbility(libUEDC_gt_StrengtheningShield, null, AbilityCommand("ProjectedGravityShield", 0), c_unitAbilStageExecute, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1204,10 +930,6 @@ void libUEDC_gt_SalvagerHarvest_Init () {
 
 void libUEDC_InitTriggers () {
     libUEDC_gt_InitializeUEDRace_Init();
-    libUEDC_gt_EffectInfusionTower_Init();
-    libUEDC_gt_SoundEffectforhealevery1sec_Init();
-    libUEDC_gt_SoundEffectforhealonforany_Init();
-    libUEDC_gt_SoundEffectforhealoffforany_Init();
     libUEDC_gt_EffectSalvagerMine_Init();
     libUEDC_gt_EffectTeleportationnode_Init();
     libUEDC_gt_EffectSpawnunit_Init();
@@ -1222,10 +944,7 @@ void libUEDC_InitTriggers () {
     libUEDC_gt_OrderArsenalUnload_Init();
     libUEDC_gt_RemoveDropArsenalHelpUnit_Init();
     libUEDC_gt_PrerapeTransportshuttle_Init();
-    libUEDC_gt_FallenTrooperEffect_Init();
-    libUEDC_gt_FallenTrooperHealing_Init();
     libUEDC_gt_BeaconBuild_Init();
-    libUEDC_gt_StrengtheningShield_Init();
     libUEDC_gt_ResoursesInfusionTower_Init();
     libUEDC_gt_SalvagerHarvest_Init();
 }

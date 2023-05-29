@@ -1,0 +1,201 @@
+include "TriggerLibs/NativeLib"
+
+include "LibDB46A013_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Triggers
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libDB46A013_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Variable Initialization
+bool libDB46A013_InitVariables_completed = false;
+
+void libDB46A013_InitVariables () {
+    if (libDB46A013_InitVariables_completed) {
+        return;
+    }
+
+    libDB46A013_InitVariables_completed = true;
+
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: XelNaga
+//--------------------------------------------------------------------------------------------------
+bool libDB46A013_gt_XelNaga_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto06944BD9_g;
+    int auto06944BD9_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto06944BD9_g = PlayerGroupActive();
+    auto06944BD9_var = -1;
+    while (true) {
+        auto06944BD9_var = PlayerGroupNextPlayer(auto06944BD9_g, auto06944BD9_var);
+        if (auto06944BD9_var < 0) { break; }
+        if ((GameAttributePlayerValue("[bnet:local/0.0/304068]1", auto06944BD9_var) == "0001")) {
+            PlayerSetRace(auto06944BD9_var, "Xeln");
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libDB46A013_gt_XelNaga_Init () {
+    libDB46A013_gt_XelNaga = TriggerCreate("libDB46A013_gt_XelNaga_Func");
+    TriggerAddEventMapInit(libDB46A013_gt_XelNaga);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: XN Vision Temple Show/Hide Terrain
+//--------------------------------------------------------------------------------------------------
+bool libDB46A013_gt_XNVisionTempleShowHideTerrain_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnitCreatedUnit()) == "VisionTemple"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_unit = EventUnitCreatedUnit();
+    TerrainShowRegion(RegionCircle(UnitGetPosition(EventUnitCreatedUnit()), 3.5), false);
+    TerrainShowRegion(RegionCircle(PointWithOffsetPolar(UnitGetPosition(EventUnitCreatedUnit()), 2.75, 225.0), 1.5), false);
+    TerrainShowRegion(RegionCircle(PointWithOffsetPolar(UnitGetPosition(EventUnitCreatedUnit()), -2.75, 225.0), 1.5), false);
+    while (!((UnitIsAlive(lv_unit) == false))) {
+        Wait(1.0, c_timeGame);
+    }
+    TerrainShowRegion(RegionCircle(UnitGetPosition(lv_unit), 3.5), true);
+    TerrainShowRegion(RegionCircle(PointWithOffsetPolar(UnitGetPosition(lv_unit), 2.75, 225.0), 1.5), true);
+    TerrainShowRegion(RegionCircle(PointWithOffsetPolar(UnitGetPosition(lv_unit), -2.75, 225.0), 1.5), true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libDB46A013_gt_XNVisionTempleShowHideTerrain_Init () {
+    libDB46A013_gt_XNVisionTempleShowHideTerrain = TriggerCreate("libDB46A013_gt_XNVisionTempleShowHideTerrain_Func");
+    TriggerAddEventUnitCreated(libDB46A013_gt_XNVisionTempleShowHideTerrain, null, "ConstructorBuild", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: XN Replicator
+//--------------------------------------------------------------------------------------------------
+bool libDB46A013_gt_XNReplicator_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_tU;
+    unit lv_cU;
+    int lv_p;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_tU = EventUnit();
+    lv_cU = EventUnitCreatedUnit();
+    lv_p = EventPlayer();
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "Replicator"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetUnitInfoButtonButtonTooltip(EventUnit(), "ReplicateCagedUnit", (StringExternal("Param/Value/lib_DB46A013_4AA9DA01") + UnitTypeGetName(UnitGetType(EventUnitCreatedUnit()))));
+    while (!(((UnitHasBehavior2(lv_tU, "Replicator1") == true) || (UnitHasBehavior2(lv_tU, "Replicator2") == true) || (UnitHasBehavior2(lv_tU, "Replicator3") == true) || (UnitHasBehavior2(lv_tU, "Replicator4") == true) || (UnitHasBehavior2(lv_tU, "Replicator5") == true) || (UnitHasBehavior2(lv_tU, "Replicator6") == true) || (UnitHasBehavior2(lv_tU, "Replicator7") == true) || (UnitHasBehavior2(lv_tU, "Replicator8") == true)))) {
+        Wait(0.0625, c_timeGame);
+    }
+    if ((UnitHasBehavior2(lv_tU, "Replicator1") == true)) {
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy1", "CostResource[" + IntToString(0) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostMinerals)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy1", "CostResource[" + IntToString(1) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostVespene)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy1", "Food", lv_p, CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_cU), "Food", c_playerAny));
+    }
+    else if ((UnitHasBehavior2(lv_tU, "Replicator2") == true)) {
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy2", "CostResource[" + IntToString(0) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostMinerals)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy2", "CostResource[" + IntToString(1) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostVespene)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy2", "Food", lv_p, CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_cU), "Food", c_playerAny));
+    }
+    else if ((UnitHasBehavior2(lv_tU, "Replicator3") == true)) {
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy3", "CostResource[" + IntToString(0) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostMinerals)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy3", "CostResource[" + IntToString(1) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostVespene)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy3", "Food", lv_p, CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_cU), "Food", c_playerAny));
+    }
+    else if ((UnitHasBehavior2(lv_tU, "Replicator4") == true)) {
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy4", "CostResource[" + IntToString(0) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostMinerals)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy4", "CostResource[" + IntToString(1) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostVespene)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy4", "Food", lv_p, CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_cU), "Food", c_playerAny));
+    }
+    else if ((UnitHasBehavior2(lv_tU, "Replicator5") == true)) {
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy5", "CostResource[" + IntToString(0) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostMinerals)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy5", "CostResource[" + IntToString(1) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostVespene)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy5", "Food", lv_p, CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_cU), "Food", c_playerAny));
+    }
+    else if ((UnitHasBehavior2(lv_tU, "Replicator6") == true)) {
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy6", "CostResource[" + IntToString(0) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostMinerals)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy6", "CostResource[" + IntToString(1) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostVespene)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy6", "Food", lv_p, CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_cU), "Food", c_playerAny));
+    }
+    else if ((UnitHasBehavior2(lv_tU, "Replicator7") == true)) {
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy7", "CostResource[" + IntToString(0) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostMinerals)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy7", "CostResource[" + IntToString(1) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostVespene)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy7", "Food", lv_p, CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_cU), "Food", c_playerAny));
+    }
+    else if ((UnitHasBehavior2(lv_tU, "Replicator8") == true)) {
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy8", "CostResource[" + IntToString(0) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostMinerals)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy8", "CostResource[" + IntToString(1) + "]", lv_p, IntToString(UnitTypeGetCost(UnitGetType(lv_cU), c_unitCostVespene)));
+        CatalogFieldValueSet(c_gameCatalogUnit, "InvisibleTargetDummy8", "Food", lv_p, CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(lv_cU), "Food", c_playerAny));
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libDB46A013_gt_XNReplicator_Init () {
+    libDB46A013_gt_XNReplicator = TriggerCreate("libDB46A013_gt_XNReplicator_Func");
+    TriggerAddEventUnitCreated(libDB46A013_gt_XNReplicator, null, "ReplicatorSacrifice", null);
+}
+
+void libDB46A013_InitTriggers () {
+    libDB46A013_gt_XelNaga_Init();
+    libDB46A013_gt_XNVisionTempleShowHideTerrain_Init();
+    libDB46A013_gt_XNReplicator_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libDB46A013_InitLib_completed = false;
+
+void libDB46A013_InitLib () {
+    if (libDB46A013_InitLib_completed) {
+        return;
+    }
+
+    libDB46A013_InitLib_completed = true;
+
+    libDB46A013_InitLibraries();
+    libDB46A013_InitVariables();
+    libDB46A013_InitTriggers();
+}
+

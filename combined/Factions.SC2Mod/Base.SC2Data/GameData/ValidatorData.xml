@@ -2558,10 +2558,60 @@
 <CValidatorUnitCompareBehaviorCount id="NHbrTimeScaleBuff@NetworkRegenNotSuppresed">
   <Behavior value="NHbrTimeScaleBuff@EnergyRegenSupressed"/>
 </CValidatorUnitCompareBehaviorCount>
+<CValidatorLocationCompareRange id="UEDRadiusAttackPenemunde">
+  <Compare value="LE"/>
+  <Range value="13"/>
+</CValidatorLocationCompareRange>
+<CValidatorPlayerRequirement id="UEDHaveUpgradeStrikeGrenade">
+  <Find value="1"/>
+  <Value value="UseStrikeGrenade"/>
+</CValidatorPlayerRequirement>
 <CValidatorUnitFilters id="NotHiddenSelfDrakkar">
   <WhichUnit Value="Outer"/>
   <Filters value="-;Hidden"/>
 </CValidatorUnitFilters>
+<CValidatorUnitOrderQueue id="ValidateCasterIsAttackUED">
+  <AbilLink value="attackUED"/>
+</CValidatorUnitOrderQueue>
+<CValidatorUnitCompareBehaviorCount id="ValidateCitadelUseAbility">
+  <WhichUnit Value="Caster"/>
+  <Compare value="GT"/>
+  <Behavior value="AlgoritmAttackCitadelAbility"/>
+</CValidatorUnitCompareBehaviorCount>
+<CValidatorUnitCompareBehaviorCount id="UEDValidatorPenemundeSplashAttack">
+  <ResultFailed value="Error,Error/TargetIsAlive"/>
+  <WhichUnit Value="Caster"/>
+  <Compare value="GT"/>
+  <Behavior value="AlgoritmPenemundeSpalshMos"/>
+</CValidatorUnitCompareBehaviorCount>
+<CValidatorUnitCompareBehaviorCount id="ValidatePenemundeStandardMod">
+  <WhichUnit Value="Caster"/>
+  <Behavior value="AlgoritmPenemundeSpalshMos"/>
+</CValidatorUnitCompareBehaviorCount>
+<CValidatorCombine id="ValidateUEDPenemundeModSplashAttack">
+  <Type value="And"/>
+  <CombineArray value="UEDValidatorPenemundeSplashAttack"/>
+  <CombineArray value="ValidatePenemundeMarker"/>
+</CValidatorCombine>
+<CValidatorUnitCompareBehaviorCount id="ValidatePenemundeContinueAttack">
+  <WhichUnit Value="Caster"/>
+  <Compare value="GT"/>
+  <Behavior value="PenemundeAlgoritmContinueAttack"/>
+</CValidatorUnitCompareBehaviorCount>
+<CValidatorUnitType id="ValidateUEDAirStructure">
+  <Value value="StarshipMaintenancePlant"/>
+</CValidatorUnitType>
+<CValidatorCombine id="ValidatePenemundeConditionAttack">
+  <CombineArray value="ValidateUEDCrimsonEyeRadarInRadius"/>
+  <CombineArray value="UEDRadiusAttackPenemunde"/>
+</CValidatorCombine>
+<CValidatorUnitCompareBehaviorCount id="ValidatePenemundeMarker">
+  <Behavior value="AlgoritmMarkerForPenemunde"/>
+</CValidatorUnitCompareBehaviorCount>
+<CValidatorLocationEnumArea id="ValidateUEDCrimsonEyeRadarInRadius">
+  <AreaArray Compare="GE" Count="1" Radius="11" Validator="ValidateCrimsonEyeRadar"/>
+  <SearchFilters value="Air,Visible;Neutral,Enemy,RawResource,HarvestableResource,Missile,Stasis,Dead,Hidden"/>
+</CValidatorLocationEnumArea>
 <CValidatorUnitCompareBehaviorCount id="ValidateDrakkarMarkerForComrade">
   <Compare value="GT"/>
   <Behavior value="DrakkarAlgoritmForComrades"/>
@@ -2577,6 +2627,10 @@
 <CValidatorUnitType id="ValidateLazarusUED">
   <Value value="Lazarus"/>
 </CValidatorUnitType>
+<CValidatorUnitCompareBehaviorCount id="ValidateCrimsonEyeRadar">
+  <Compare value="GT"/>
+  <Behavior value="AlgoritmRadarCrimsonEye"/>
+</CValidatorUnitCompareBehaviorCount>
 <CValidatorUnitType id="ValidateStrikeTrooperUED">
   <Value value="StrikeTrooper"/>
 </CValidatorUnitType>
@@ -2615,6 +2669,16 @@
   <Compare value="GT"/>
   <Behavior value="AlgoritmCloakingDroneUED"/>
 </CValidatorUnitCompareBehaviorCount>
+<CValidatorLocationEnumArea id="ValidateUEDAirStructureArea">
+  <AreaArray Compare="GE" Count="1" Radius="3" Validator="ValidateUEDAirStructure"/>
+  <SearchFilters value="Ground,Structure,Visible;Neutral,Enemy,RawResource,HarvestableResource,Missile,Stasis,UnderConstruction,Dead,Hidden"/>
+  <ResultFailed value="Error,UEDErrorChangeGunFly"/>
+</CValidatorLocationEnumArea>
+<CValidatorCombine id="ValidateUEDPenemundeModAttackAll">
+  <CombineArray value="ValidateUEDPenemundeModSplashAttack"/>
+  <CombineArray value="ValidatePenemundeStandardMod"/>
+  <CombineArray value="ValidatePenemundeContinueAttack"/>
+</CValidatorCombine>
 <CValidatorUnitCompareBehaviorCount id="ValidateUnitInDrakkar">
   <Compare value="GT"/>
   <Behavior value="DrakkarAlgoritmUnit"/>
@@ -2651,13 +2715,13 @@
   <Compare value="GT"/>
   <Behavior value="AlgoritmIrradiationFieldBeatan"/>
 </CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitOrderQueue id="ValidateCasterIsAttackStandard">
+<CValidatorUnitOrderQueue id="ValidateTargetIsAttackStandard">
   <WhichUnit Value="Target"/>
   <AbilLink value="attack"/>
 </CValidatorUnitOrderQueue>
 <CValidatorLocationEnumArea id="ValidateComandCentrInRadius10UED">
   <ResultFailed value="CantFindEnoughTargets,Error/NoOperationsHeadquarters"/>
-  <AreaArray Compare="GE" Count="1" Radius="10" Validator="ValidateComandCentreEndBueldUED"/>
+  <AreaArray Compare="GE" Count="1" Radius="12" Validator="ValidateComandCentreEndBueldUED"/>
   <SearchFlags index="ExtendByUnitRadius" value="1"/>
   <SearchFilters value="Ground,Visible;Ally,Neutral,Enemy,Missile,Dead,Hidden"/>
 </CValidatorLocationEnumArea>
@@ -2669,18 +2733,14 @@
 <CValidatorUnitType id="ValidateComandCentrUED">
   <Value value="OperationHeadquarters"/>
 </CValidatorUnitType>
-<CValidatorUnitCompareBehaviorCount id="ValidateHaveInvisDronUED">
+<CValidatorUnitCompareBehaviorCount id="ValidateHaveDronInvisTargetUED">
   <Compare value="GT"/>
-  <Behavior value="AlgoritmCloakingDroneUED"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareBehaviorCount id="ValidateNoDronInvis">
-  <ResultFailed value="Error,Error/CloakingDroneAndGravityShieldNotCompatible"/>
   <Behavior value="AlgoritmCloakingDroneUED"/>
 </CValidatorUnitCompareBehaviorCount>
 <CValidatorUnitCompareBehaviorCount id="ValidateCountDruseMaks">
   <WhichUnit Value="Caster"/>
   <Compare value="LT"/>
-  <Value value="4"/>
+  <Value value="12"/>
   <Behavior value="AlgoritmKolichestvoDruse"/>
 </CValidatorUnitCompareBehaviorCount>
 <CValidatorUnitCompareBehaviorCount id="ValidateNoFieldBeatan">
@@ -2690,13 +2750,13 @@
   <Behavior value="Precursor"/>
 </CValidatorUnitCompareBehaviorCount>
 <CValidatorUnitCompareBehaviorCount id="ValidateNoGravitationShield">
-  <ResultFailed value="Error,Error/CloakingDroneAndGravityShieldNotCompatible"/>
+  <ResultFailed value="Error,UEDErrorGraviShields"/>
   <Behavior value="ProjectedGravityShield"/>
 </CValidatorUnitCompareBehaviorCount>
 <CValidatorCombine id="ValidateCloackDronAttackBan">
   <Type value="And"/>
-  <CombineArray value="ValidateCasterIsAttackUED"/>
-  <CombineArray value="ValidateCasterIsAttackStandard"/>
+  <CombineArray value="ValidateTargetIsAttackUED"/>
+  <CombineArray value="ValidateTargetIsAttackStandard"/>
   <Negate value="1"/>
 </CValidatorCombine>
 <CValidatorCombine id="ValidateForContinueFieldBeatan">
@@ -2706,7 +2766,7 @@
   <CombineArray value="ValidateVklTowerMining"/>
 </CValidatorCombine>
 <CValidatorUnitFilters id="ValidateFiltrGroundUnitForTafoon">
-  <Filters value="Ground;Air,Missile,Stasis,Hidden,Unstoppable"/>
+  <Filters value="Ground;Missile,Stasis,Hidden,Unstoppable"/>
 </CValidatorUnitFilters>
 <CValidatorUnitFilters id="ValidateCasterLiveNotHidden">
   <WhichUnit Value="Caster"/>
@@ -2734,13 +2794,13 @@
   <AbilLink value="UpgradeToInfusionTower"/>
   <Value value="1"/>
 </CValidatorUnitCompareOrderCount>
-<CValidatorUnitOrderQueue id="ValidateCasterIsAttackUED">
+<CValidatorUnitOrderQueue id="ValidateTargetIsAttackUED">
   <WhichUnit Value="Target"/>
   <AbilLink value="attackUED"/>
 </CValidatorUnitOrderQueue>
 <CValidatorUnitCompareField id="DisguiseAsStrikeTrooper">
   <Field value="Race"/>
-  <Value value="ued"/>
+  <Value value="UED"/>
 </CValidatorUnitCompareField>
 <CValidatorCombine id="HasAntiGravUED">
   <Type value="And"/>
@@ -2821,7 +2881,7 @@
 </CValidatorUnitCompareBehaviorCount>
 <CValidatorUnitCompareBehaviorCount id="ValidatePenemundeMaxDPS">
   <Compare value="LT"/>
-  <Value value="60"/>
+  <Value value="100"/>
   <Behavior value="PenemundeAlgoritmMaxDPS"/>
 </CValidatorUnitCompareBehaviorCount>
 <CValidatorUnitCompareField default="1" id="DragonFissionSupplyCost">
@@ -4311,65 +4371,6 @@
 <CValidatorUnitType id="UPLOspreyTransportCargoIsWilliamGraves">
   <Value value="WilliamGraves"/>
 </CValidatorUnitType>
-<CValidatorCombine id="KatherineHalseyMedkit">
-  <CombineArray value="KatherineHalseyMedkit@HealthCheck"/>
-</CValidatorCombine>
-<CValidatorUnitCompareBehaviorCount id="KatherineHalseyMedkit@HaveBaseBehavior">
-  <Compare value="GT"/>
-  <Behavior value="KatherineHalseyMedkit"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareVitality id="KatherineHalseyMedkit@HealthCheck">
-  <Compare value="LE"/>
-  <Type value="Fraction"/>
-  <Value value="0.25"/>
-</CValidatorUnitCompareVitality>
-<CValidatorCombine id="WilliamGravesMedkit">
-  <CombineArray value="WilliamGravesMedkit@HealthCheck"/>
-</CValidatorCombine>
-<CValidatorUnitCompareBehaviorCount id="WilliamGravesMedkit@HaveBaseBehavior">
-  <Compare value="GT"/>
-  <Behavior value="WilliamGravesMedkit"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareVitality id="WilliamGravesMedkit@HealthCheck">
-  <Compare value="LE"/>
-  <Type value="Fraction"/>
-  <Value value="0.25"/>
-</CValidatorUnitCompareVitality>
-<CValidatorUnitCompareBehaviorCount id="HasWilliamGravesChargeAura">
-  <Compare value="GT"/>
-  <Behavior value="WilliamGravesChargeAura"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareBehaviorCount id="RichardGideonCharging">
-  <WhichUnit Value="Caster"/>
-  <Compare value="GT"/>
-  <Behavior value="RichardGideonCharging"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareBehaviorCount id="RileyJericoLornaTokenCount1">
-  <WhichUnit Value="Caster"/>
-  <Value value="1"/>
-  <Behavior value="RileyJericoLornaToken"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareBehaviorCount id="RileyJericoLornaTokenCount2" parent="RileyJericoLornaTokenCount1">
-  <Value value="2"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareBehaviorCount id="RileyJericoLornaTokenCount3" parent="RileyJericoLornaTokenCount1">
-  <Value value="3"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareBehaviorCount id="RileyJericoLornaTokenCount4" parent="RileyJericoLornaTokenCount1">
-  <Value value="4"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareBehaviorCount id="RileyJericoLornaTokenCount5" parent="RileyJericoLornaTokenCount1">
-  <Value value="5"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorUnitCompareBehaviorCount id="RileyJericoLornaTokenCount6" parent="RileyJericoLornaTokenCount1">
-  <Value value="6"/>
-</CValidatorUnitCompareBehaviorCount>
-<CValidatorCombine id="RileyJericoJumpJetValidator">
-  <Type value="And"/>
-  <CombineArray value="HasVision"/>
-  <CombineArray value="CasterNotDead"/>
-  <CombineArray value="CasterNotStunnedNotStasis"/>
-</CValidatorCombine>
 <CValidatorLocationCompareRange id="UmojanDistanceLessThan10">
   <WhichLocation Value="TargetUnit"/>
   <Compare value="LT"/>
