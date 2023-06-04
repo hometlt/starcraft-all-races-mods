@@ -123,7 +123,7 @@ void libUTES_gf_PrepareUnitTesterFactions () {
     autoC1F14CE7_var = 1;
     for ( ; autoC1F14CE7_var <= autoC1F14CE7_ae; autoC1F14CE7_var += 1 ) {
         lv_catalogRace = CatalogEntryGet(c_gameCatalogRace, autoC1F14CE7_var);
-        if ((CatalogFieldValueGetAsInt(c_gameCatalogRace, lv_catalogRace, "Flags[" + IntToString(0) + "]", c_playerAny) == 1)) {
+        if ((CatalogFieldValueCount(c_gameCatalogRace, lv_catalogRace, "StartingUnitArray", c_playerAny) > 0)) {
             libARRA_gf_ListStringInclude(libUTES_gv_factions, (lv_catalogRace));
             libUTES_gf_SetupUnitTesterFaction(((lv_catalogRace)), 0);
         }
@@ -318,10 +318,10 @@ void libUTES_gf_SetupUnitTesterFaction (string lp_race, int lp_player) {
                     if ((CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "CmdButtonArray[" + IntToString(0) + "].State", lp_player) == "Restricted")) {
                         continue;
                     }
-                    lv_unitType2 = (lv_unitName2);
                     if ((CatalogEntryIsValid(c_gameCatalogUnit, lv_unitName2) == false)) {
                         continue;
                     }
+                    lv_unitType2 = (lv_unitName2);
                     lv_isPhaseMorphAbility = false;
                     auto019371FD_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitName2, "AbilArray", lp_player) - 1);
                     auto019371FD_var = 0;
@@ -385,6 +385,7 @@ void libUTES_gf_SetupUnitTesterFaction (string lp_race, int lp_player) {
                     if ((CatalogEntryIsValid(c_gameCatalogUnit, lv_unitName2) == false)) {
                         continue;
                     }
+                    lv_unitType2 = (lv_unitName2);
                     lv_isPhaseMorphAbility = false;
                     auto1C4167D5_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitName2, "AbilArray", lp_player) - 1);
                     auto1C4167D5_var = 0;
@@ -630,15 +631,13 @@ void libUTES_gf_SetupUnitTesterFaction (string lp_race, int lp_player) {
         lv_unitstructure = UnitTypeTestAttribute(lv_unitType, c_unitAttributeStructure);
         lv_unitworker = UnitTypeTestFlag(lv_unitType, c_unitFlagWorker);
         lv_glossaryPriority = CatalogFieldValueGetAsInt(c_gameCatalogUnit, lv_unitType, "GlossaryPriority", lp_player);
-        if ((lv_glossaryPriority > 0)) {
-            if ((lv_unitstructure == true)) {
-                libARRA_gf_ListStringPush(lv_airesultstructures, (lv_unitType));
-                libARRA_gf_ListIntPush("SetupFactionPriorityListStructures", lv_glossaryPriority);
-            }
-            else {
-                libARRA_gf_ListStringPush(lv_airesultunits, (lv_unitType));
-                libARRA_gf_ListIntPush("SetupFactionPriorityListUnits", lv_glossaryPriority);
-            }
+        if ((lv_unitstructure == true)) {
+            libARRA_gf_ListStringPush(lv_airesultstructures, (lv_unitType));
+            libARRA_gf_ListIntPush("SetupFactionPriorityListStructures", lv_glossaryPriority);
+        }
+        else {
+            libARRA_gf_ListStringPush(lv_airesultunits, (lv_unitType));
+            libARRA_gf_ListIntPush("SetupFactionPriorityListUnits", lv_glossaryPriority);
         }
     }
     libARRA_gf_ListSort(lv_airesultunits, "SetupFactionPriorityListUnits");
@@ -676,6 +675,8 @@ void libUTES_gf_SetActors () {
     string lv_unitIcon;
     string lv_send;
     string lv_actor;
+    int lv_eventsTotal;
+    int lv_actorsTotal;
 
     // Automatic Variable Declarations
     int autoEBEDE8B4_ae;
@@ -689,26 +690,28 @@ void libUTES_gf_SetActors () {
     lv_termUnit = "";
     lv_unitIcon = "";
     lv_send = "";
+    lv_actorsTotal = CatalogEntryCount(c_gameCatalogActor);
 
     // Implementation
-    autoEBEDE8B4_ae = CatalogEntryCount(c_gameCatalogActor);
+    autoEBEDE8B4_ae = lv_actorsTotal;
     lv_i = 1;
     for ( ; ( (autoEBEDE8B4_ai >= 0 && lv_i <= autoEBEDE8B4_ae) || (autoEBEDE8B4_ai < 0 && lv_i >= autoEBEDE8B4_ae) ) ; lv_i += autoEBEDE8B4_ai ) {
         lv_actor = CatalogEntryGet(c_gameCatalogActor, lv_i);
-        if (((CatalogEntryClass(c_gameCatalogActor, lv_actor) == CatalogEntryClass(c_gameCatalogActor, "CommandCenter")) || (CatalogEntryClass(c_gameCatalogActor, lv_actor) == CatalogEntryClass(c_gameCatalogActor, "Reaper")))) {
-            autoA4522792_ae = (CatalogFieldValueCount(c_gameCatalogActor, lv_actor, "On", c_playerAny) - 1);
+        if (((CatalogEntryClass(c_gameCatalogActor, lv_actor) == 122) || (CatalogEntryClass(c_gameCatalogActor, lv_actor) == 124))) {
+            lv_unitIcon = CatalogFieldValueGet(c_gameCatalogActor, lv_actor, "UnitIcon", c_playerAny);
+            if ((lv_unitIcon == "")) {
+                continue;
+            }
+            lv_eventsTotal = (CatalogFieldValueCount(c_gameCatalogActor, lv_actor, "On", c_playerAny) - 1);
+            autoA4522792_ae = lv_eventsTotal;
             lv_j = 0;
             for ( ; ( (autoA4522792_ai >= 0 && lv_j <= autoA4522792_ae) || (autoA4522792_ai < 0 && lv_j >= autoA4522792_ae) ) ; lv_j += autoA4522792_ai ) {
                 lv_send = CatalogFieldValueGet(c_gameCatalogActor, lv_actor, "On[" + IntToString(lv_j) + "].Send", c_playerAny);
                 lv_term = CatalogFieldValueGet(c_gameCatalogActor, lv_actor, "On[" + IntToString(lv_j) + "].Terms", c_playerAny);
-                lv_unitIcon = CatalogFieldValueGet(c_gameCatalogActor, lv_actor, "UnitIcon", c_playerAny);
-                if ((lv_unitIcon != "") && (lv_send == "Create")) {
-                    lv_termEvent = StringSub(lv_term, 1, (StringFind(lv_term, ".", c_stringCase) - 1));
-                    if ((lv_termEvent == "UnitBirth")) {
-                        lv_termUnit = StringSub(lv_term, (StringFind(lv_term, ".", c_stringCase) + 1), StringLength(lv_term));
-                        if ((StringFind(lv_termUnit, "#", c_stringCase) != 0)) {
-                            libARRA_gf_MapStringSet("^UnitActors", lv_termUnit, (lv_actor));
-                        }
+                if ((lv_send == "Create") && (StringFind(lv_term, "UnitBirth", c_stringCase) == 1)) {
+                    lv_termUnit = StringSub(lv_term, 11, StringLength(lv_term));
+                    if ((StringFind(lv_termUnit, "#", c_stringCase) != 0)) {
+                        libARRA_gf_MapStringSet("^UnitActors", lv_termUnit, (lv_actor));
                     }
                 }
             }
@@ -3133,6 +3136,8 @@ void libUTES_gt_DialogItemIsUsed_Init () {
 //--------------------------------------------------------------------------------------------------
 bool libUTES_gt_InitializeUnitTesterInterface_Func (bool testConds, bool runActions) {
     // Automatic Variable Declarations
+    playergroup autoFEC78FAC_g;
+    int autoFEC78FAC_var;
     unitgroup auto272FD0CC_g;
     int auto272FD0CC_u;
     unit auto272FD0CC_var;
@@ -3142,6 +3147,14 @@ bool libUTES_gt_InitializeUnitTesterInterface_Func (bool testConds, bool runActi
         return true;
     }
 
+    autoFEC78FAC_g = PlayerGroupAll();
+    autoFEC78FAC_var = -1;
+    while (true) {
+        autoFEC78FAC_var = PlayerGroupNextPlayer(autoFEC78FAC_g, autoFEC78FAC_var);
+        if (autoFEC78FAC_var < 0) { break; }
+        PlayerOptionOverride(autoFEC78FAC_var, "simplecommandcard", "0");
+        TechTreeRestrictionsEnable(autoFEC78FAC_var, true);
+    }
     libUTES_gf_PrepareUnitTesterFactions();
     libUTES_gf_PrepareUnitTesterTerrains();
     libUTES_gf_ShowUnitTesterCommonInterface();

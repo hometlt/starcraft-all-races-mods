@@ -1,0 +1,2897 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CActorModel default="1" id="ProtossFlameModel">
+        <On Terms="ActorCreation" Send="$Birth"/>
+        <On Terms="AnimDone; AnimName Birth" Send="$Stand"/>
+        <On Terms="AnimDone; AnimName Stand" Send="$Stand"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+        <On Terms="SupporterDestruction" Send="$Death"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <Supporter Subject="::Creator"/>
+        <HostSiteOps Ops="SOpAttachHarness"/>
+        <!-- For cloaking Protoss burning buildings.  Otherwise, the fire gives their location
+             away. -->
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+    </CActorModel>
+    <CActorSound default="1" id="ProtossFlameSound" parent="SoundContinuous">
+        <Host Subject="_Selectable"/>
+    </CActorSound>
+    <CActorSetQueried default="1" id="ProtossFlameSet">
+        <?token id="type"?>
+        <SpawnTarget value="ProtossBuilding##type##"/>
+        <AttachQuery Methods="AMFilterDamage AMRandomUniformAll AMReductionFire"/>
+    </CActorSetQueried>
+    <CActorSetQueried default="1" id="ProtossFlameSetTransition">
+        <?token id="type"?>
+        <SpawnTarget value="ProtossBuilding##type##"/>
+        <AttachQuery Methods="AMNodeOccupancyTerranFlames"/>
+    </CActorSetQueried>
+    <CActorShield default="1" id="ProtossShieldBase">
+        <Aliases value="_ShieldVisual"/>
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="ActorCreation" Send="$Birth"/>
+        <On Terms="AnimDone; AnimName Birth" Send="Destroy"/>
+    </CActorShield>
+    <CActorSplat default="1" id="ProtossCursorSplat" parent="CursorSplat">
+        <Model value="ProtossAOECursorSplat"/>
+        <Macros value="GlobalLoopMacro"/>
+    </CActorSplat>
+    <CActorUnit default="1" id="ProtossBuilding" parent="GenericUnitStandard">
+        <ModelFlags index="OutlineOccluder" value="1"/>
+        <Aliases value="_CreepEngulfable"/>
+        <CreepHeightClass value="Medium"/>
+        <CreepRateGrow value="Grow"/>
+        <CreepRateShrink value="Shrink"/>
+        <On Terms="UnitDeathCustomize; CreepEngulfs" Send="CreepEngulfmentStopTransition"/>
+        <On Terms="ActorCreation; CreepIntersects" Send="CreepEngulfmentStartTransition"/>
+    </CActorUnit>
+    <CActorUnit default="1" id="ProtossBuildingEx" parent="ProtossBuilding">
+        <Macros value="BuildingFlattenTerrainMacro"/>
+        <Macros value="SnowVisualBuildingMacroMP"/>
+        <BuildModel value="##unitName##Birth"/>
+        <On Terms="UnitConstruction.##unitName##.Start" Send="Create ##unitName##Build"/>
+        <DeathArray index="Normal" ModelLink="##unitName##Death" SoundLink="##unitName##_Explode"/>
+        <DeathArray index="UnderConstruction" ModelLink="##unitName##DeathUnderConstruction" SoundLink="##unitName##_Explode"/>
+        <EventDataSound Name="BuildingWarpIn" Actor="UnitSound" Sound="Protoss_BuildingWarpIn"/>
+        <PlacementModel value="##unitName##Placement"/>
+        <PlacementSound value="Protoss_BuildingPlacement"/>
+        <PortraitModel value="##unitName##Portrait"/>
+        <HeroIcon value="Assets\Textures\btn-building-protoss-##unitName##.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-protoss-buildingplating.dds"/>
+        <SoundArray index="Construction" value="Protoss_ConstructionWhat"/>
+        <UnitIcon value="Assets\Textures\btn-building-protoss-##unitName##.dds"/>
+    </CActorUnit>
+    <CActorModel default="1" id="ProtossBuildingBuild" parent="ModelConstruction">
+        <Aliases value="_ProtossBuildModel"/>
+        <On Terms="ActorCreation" Send="Create ProtossConstructionAttached"/>
+    </CActorModel>
+    <CActorDoodad id="SprayProtoss" parent="SprayBase">
+        <On Terms="Effect.SprayProtoss.Start" Send="Create"/>
+        <On Terms="Effect.SprayProtoss.Start" Send="Create Spray_Protoss_ActorSound"/>
+        <On Terms="ActorCreation; PlayerHasReward SprayUseDecal_Off" Send="ModelSwap SprayGlobal"/>
+        <On Terms="ActorCreation; !PlayerHasReward SprayUseDecal_Off" Send="ModelSwap SprayProtossScaled"/>
+    </CActorDoodad>
+    <CActorSound id="Spray_Protoss_ActorSound" parent="SoundOneShot">
+        <Sound value="Spray_Protoss"/>
+    </CActorSound>
+    <CActorModel id="DarkShrineBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="ShieldBatteryBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="PhotonCannonBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="PylonBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="AssimilatorBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="CyberneticsCoreBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="FleetBeaconBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="ForgeBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="GatewayBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="RoboticsBayBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="RoboticsFacilityBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="StargateBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="TemplarArchiveBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="TwilightCouncilBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="AssimilatorRichBuild" parent="ProtossBuildingBuild"/>
+    <CActorModel id="NexusBuild" parent="ProtossBuildingBuild"/>
+    <CActorUnit id="AssimilatorRich" parent="ProtossBuildingEx" unitName="AssimilatorRich">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ExtractAnim"/>
+        <On Terms="Behavior.HarvestableRichVespeneGeyserGasProtoss.Deplete" Send="SetTintColor 255,170,170"/>
+        <On Terms="Behavior.HarvestableRichVespeneGeyserGasProtoss.Deplete" Send="AnimGroupRemove D"/>
+        <On Terms="Behavior.HarvestableRichVespeneGeyserGasProtoss.Deplete" Send="AnimGroupApply B"/>
+        <On Terms="Behavior.HarvestableRichVespeneGeyserGasProtoss.Restore" Send="SetTintColor 255,255,255"/>
+        <On Terms="Behavior.HarvestableRichVespeneGeyserGasProtoss.Restore" Send="AnimGroupRemove B"/>
+        <On Terms="Behavior.HarvestableRichVespeneGeyserGasProtoss.Restore" Send="AnimGroupApply D"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit NoVespene" Send="DeathCustomize Empty"/>
+        <On Terms="UnitBirth.AssimilatorRich" Send="TimerSet 0.100000 HideGeyser"/>
+        <On Terms="TimerExpired; TimerName HideGeyser" Send="Create GeyserBuildFinishCovered"/>
+        <CreepHeightClass value="Small"/>
+        <DeathArray index="Normal" ModelLink="AssimilatorDeath" SoundLink="Assimilator_Explode"/>
+        <DeathArray index="UnderConstruction" SoundLink="Assimilator_Explode"/>
+        <DeathCustoms ModelLink="AssimilatorEmptyDeath" Name="Empty"/>
+        <PlacementModel value="AssimilatorPlacement"/>
+        <PortraitModel value="AssimilatorPortrait"/>
+        <BarOffset value="110"/>
+        <BarWidth value="120"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-protoss-Assimilator.dds"/>
+        <NameOffset value="130"/>
+        <SoundArray index="Ready" value="Assimilator_Ready"/>
+        <SoundArray index="What" value="Assimilator_What"/>
+        <StatusHarvesterData Text="UI/HarvesterCountVespene"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-building-protoss-Assimilator.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="AssimilatorRichSplat" parent="GenericUnitSplat" unitName="AssimilatorRich">
+        <Model value="AssimilatorSplat"/>
+    </CActorSplat>
+    <CActorModel id="CarryHarvestableRichVespeneGeyserGasProtoss" parent="ModelAnimationStyleContinuousUNIT">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Inherits index="WarpGroup" value="1"/>
+        <On Terms="Behavior.CarryHarvestableRichVespeneGeyserGasProtoss.On" Send="Create"/>
+        <On Terms="Behavior.CarryHarvestableRichVespeneGeyserGasProtoss.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.CarryHarvestableRichVespeneGeyserGasProtoss.Off" Send="RefClear ::Host"/>
+        <HostSiteOps Ops="SOpAttachHardPoint"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorModel id="CarryHarvestableVespeneGeyserGasProtoss" parent="ModelAnimationStyleContinuousUNIT">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Inherits index="WarpGroup" value="1"/>
+        <On Terms="Behavior.CarryHarvestableVespeneGeyserGasProtoss.On" Send="Create"/>
+        <On Terms="Behavior.CarryHarvestableVespeneGeyserGasProtoss.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.CarryHarvestableVespeneGeyserGasProtoss.Off" Send="RefClear ::Host"/>
+        <HostSiteOps Ops="SOpAttachHardPoint"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorSound id="NexusShieldOverchargeActivateSound" parent="SoundOneShot">
+        <On Terms="Behavior.NexusShieldOvercharge.On" Send="Create"/>
+        <Sound value="NexusShieldRechargeOnPylonActivateSound"/>
+    </CActorSound>
+    <CActorModel id="NexusShieldOverchargeImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="ActorCreation" Send="Create NexusShieldRechargeOnPylonImpactSound"/>
+        <On Terms="Effect.NexusShieldOverchargeShield.Start; At Target" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Model value="RestoreShieldsImpactModel"/>
+        <AutoScaleFactor value="0.500000"/>
+    </CActorModel>
+    <CActorSound id="NexusShieldOverchargeImpactSound" parent="SoundOneShot">
+        <On Terms="Effect.NexusShieldOverchargeShield.Start" Send="Create"/>
+        <Sound value="NexusShieldRechargeOnPylonHealSoundStop"/>
+    </CActorSound>
+    <CActorModel id="NexusShieldOverchargeModel" parent="ModelAnimationStyleContinuous">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="TeamColor" value="1"/>
+        <On Terms="Behavior.NexusShieldOvercharge.On" Send="Create"/>
+        <On Terms="Behavior.NexusShieldOvercharge.Off" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="ActorCreation" Send="SetTintColor 0,128,255"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Model value="NexusShieldRechargeOnPylonModel"/>
+    </CActorModel>
+    <CActorModel id="NexusShieldOverchargeNexusDrainEnergy" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.NexusShieldOverchargeShield.Start; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="SetTintColor 255,0,0"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Model value="RestoreShieldsImpactModel"/>
+        <AutoScaleFactor value="0.500000"/>
+    </CActorModel>
+    <CActorRange id="NexusShieldOverchargeRange">
+        <Inherits index="Visibility" value="0"/>
+        <FogVisibility value="Visible"/>
+        <On Terms="Behavior.NexusShieldOvercharge.On" Send="Create"/>
+        <On Terms="Behavior.NexusShieldOvercharge.Off" Send="Destroy"/>
+        <Range value="13.000000"/>
+    </CActorRange>
+    <CActorTurret id="NexusTurret">
+        <On Terms="TurretEnable.Nexus" Send="Create"/>
+    </CActorTurret>
+    <CActorModel id="OracleWarpInStargate" parent="ModelAddition">
+        <Inherits index="CreepEngulfment" value="0"/>
+        <AcceptedHostedPropTransfers index="CreepEngulfment" value="0"/>
+        <On Terms="UnitDeathCustomize" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorForceCylinder id="PhotonCannonAttackDeathForce">
+        <HostSiteOps Ops="SOpIncomingMissileDot25"/>
+        <Receiver Subject="::Main"/>
+        <Duration value="0.150000"/>
+        <Magnitude value="17.000000,12.000000"/>
+        <HostEndSiteOps Ops="SOpIncomingMissileDot25 SOpMoveBy1Dot5"/>
+        <Radius value="0.500000"/>
+    </CActorForceCylinder>
+    <CActorLookAt id="PhotonCannonTurretLookAt" parent="UnitTurret">
+        <Types Id="DefaultLookAtTurret">
+            <Start Group="Turret_Right" Weight="1" Time="250"/>
+            <Stop Group="Turret_Right" Weight="1" Time="250"/>
+        </Types>
+    </CActorLookAt>
+    <CActorModel id="PylonPlacementModel">
+        <Aliases value="_Main"/>
+        <Aliases value="_Unit"/>
+        <Aliases value="_Selectable"/>
+        <Filter index="Neutral" value="1"/>
+        <Filter index="Enemy" value="1"/>
+        <FogVisibility value="Visible"/>
+        <On Terms="ActorCreation; Option Model Low" Send="SetOpacity 0.300000"/>
+        <On Terms="ActorCreation" Send="AnimGroupApply Placement"/>
+        <On Terms="ActorCreation" Send="$Stand PlayForever"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="Signal.*.HidePlacement" Send="SetVisibility"/>
+        <On Terms="Signal.*.ShowPlacement" Send="SetVisibility 1"/>
+        <HostSiteOps Ops="SOpTipabilityFloorScope"/>
+        <Model value="PlacementModel"/>
+    </CActorModel>
+    <!--    <CActorUnit id="ShieldBattery" parent="ProtossBuildingEx" unitName="ShieldBattery">-->
+    <!--        <Macros value="ProtossBuildingPowerUp"/>-->
+    <!--        <Macros value="VoidMPUnpoweredAnim"/>-->
+    <!--        <On Terms="Abil.ShieldBatteryRechargeChanneled.SourceChannelStart" Send="AnimBracketStart Working Stand,Work,Start Stand,Work Stand,Work,End"/>-->
+    <!--        <On Terms="Abil.ShieldBatteryRechargeChanneled.SourceChannelStop" Send="AnimBracketStop Working"/>-->
+    <!--        <CreepHeightClass value="Tiny"/>-->
+    <!--        <DeathArray index="Normal" SoundLink="Obelisk_Explode"/>-->
+    <!--        <DeathArray index="UnderConstruction" SoundLink="Obelisk_Explode"/>-->
+    <!--        <PlacementSound value="Protoss_BuildingPlacementSmall"/>-->
+    <!--        <PlacementActorModel value="ShieldBatteryPlacementModel"/>-->
+    <!--        <BarOffset value="60"/>-->
+    <!--        <GroupIcon>-->
+    <!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery.dds"/>-->
+    <!--        </GroupIcon>-->
+    <!--        <Wireframe>-->
+    <!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery.dds"/>-->
+    <!--        </Wireframe>-->
+    <!--        <WireframeShield>-->
+    <!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery-Shield01.dds"/>-->
+    <!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery-Shield02.dds"/>-->
+    <!--            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery-Shield03.dds"/>-->
+    <!--        </WireframeShield>-->
+    <!--    </CActorUnit>-->
+    <CActorUnit id="ShieldBattery" parent="ProtossBuilding" unitName="ShieldBattery">
+        <Macros value="UnpoweredAnim"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <On Terms="Abil.ShieldBatteryRechargeChanneled.SourceChannelStart" Send="AnimBracketStart Working Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="Abil.ShieldBatteryRechargeChanneled.SourceChannelStop" Send="AnimBracketStop Working"/>
+        <!-- Have Obelisk power radius show up when you select a unit cloaked by it -->
+        <!--On Terms="Abil.ShieldBatteryRecharge.SourceCastStart" Send="RefSet ::global.Obelisk ::Self"/-->
+        <On Terms="Upgrade.DarkProtoss.Add" Send="ModelSwap ShieldBatteryTaldarim"/>
+        <On Terms="UnitBirth; ValidateUnit NoDarkProtoss" Send="ModelSwap ShieldBatteryTaldarim"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit NoDarkProtoss" Send="DeathCustomize DarkProtoss"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit CasterIsUnpoweredAndNotUnderConstructionAndHasDarkProtoss" Send="DeathCustomize Variation3"/>
+        <EventDataSound Name="BuildingWarpIn" Actor="UnitSound" Sound="Protoss_BuildingWarpIn"/>
+        <CreepHeightClass value="Tiny"/>
+        <BuildModel value="ShieldBatteryBirth"/>
+        <DeathArray index="Normal" ModelLink="ShieldBatteryDeath" SoundLink="Obelisk_Explode"/>
+        <DeathArray index="UnderConstruction" ModelLink="ProtossWarpInDeath" SoundLink="Obelisk_Explode"/>
+        <DeathCustoms ModelLink="ShieldBatteryTaldarimDeath" Name="DarkProtoss"/>
+        <DeathCustoms ModelLink="ShieldBatteryTaldarimDeath" Name="Variation3"/>
+        <PlacementModel value="ShieldBatteryPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <PlacementActorModel value="ShieldBatteryPlacementModel"/>
+        <PortraitModel value="ExecutorPortrait"/>
+        <BarOffset value="60"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-protoss-shieldbattery.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-protoss-buildingplating.dds"/>
+        <SoundArray index="Birth" value="PylonBirth"/>
+        <SoundArray index="Ready" value="Obelisk_What"/>
+        <SoundArray index="Help" value="PylonHelp"/>
+        <SoundArray index="Yes" value="PylonYes"/>
+        <SoundArray index="Attack" value="PylonYes"/>
+        <SoundArray index="Pissed" value="PylonPissed"/>
+        <SoundArray index="Movement" value="PylonMovement"/>
+        <SoundArray index="Turning" value="PylonTurning"/>
+        <SoundArray index="Board" value="PylonBoard"/>
+        <SoundArray index="Click" value="PylonClick"/>
+        <SoundArray index="ClickError" value="PylonClickError"/>
+        <SoundArray index="Highlight" value="PylonHighlight"/>
+        <UnitIcon value="Assets\Textures\btn-building-protoss-shieldbattery.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-ShieldBattery-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorModel id="ShieldBatteryPlacementModel" parent="PlacementModel">
+        <On Terms="ActorCreation; ModelName ShieldBattery" Send="Create ShieldBatteryRange"/>
+        <On Terms="ActorCreation; ModelName ShieldBatteryPlacement" Send="Create ShieldBatteryRange"/>
+        <On Terms="ActorDestruction" Target="ShieldBatteryRange" Send="Destroy"/>
+    </CActorModel>
+    <CActorRange id="ShieldBatteryRange" parent="RangeAbil" abil="ShieldBatteryRechargeChanneled">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
+    </CActorRange>
+    <!--    <CActorBeamSimple id="ShieldBatteryRechargeChanneledBeam" parent="BeamSimpleAnimationStyleContinuous">-->
+    <!--        <Inherits index="Visibility" value="1"/>-->
+    <!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart" Send="Create"/>-->
+    <!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop" Send="Destroy"/>-->
+    <!--        <HostForProps Subject="_Unit" Scope="Target" Actor="Find"/>-->
+    <!--        <ModelFlags index="AutomateGlobalLoops" value="1"/>-->
+    <!--        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>-->
+    <!--        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>-->
+    <!--        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>-->
+    <!--        <HostImpactSiteOps Ops="SOpAttachCenter"/>-->
+    <!--    </CActorBeamSimple>-->
+    <CActorBeamSimple id="ShieldBatteryRechargeChanneledBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart" Send="Create"/>
+        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop" Send="Destroy"/>
+        <HostForProps Subject="_Unit" Scope="Target" Actor="Find"/>
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
+        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorBeamSimple>
+    <!--    <CActorModel id="ShieldBatteryRechargeChanneledModel" parent="ModelAnimationStyleContinuous">-->
+    <!--        <On Terms="ActorCreation" Send="$Birth PlayForever"/>-->
+    <!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart; At Target" Send="Create"/>-->
+    <!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop; At Target" Send="Destroy"/>-->
+    <!--        <On Terms="ActorOrphan" Send="Destroy"/>-->
+    <!--        <Host Subject="_Selectable"/>-->
+    <!--        <HostSiteOps Ops="SOpAttachCenter"/>-->
+    <!--    </CActorModel>-->
+    <CActorModel id="ShieldBatteryRechargeChanneledModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="ActorCreation" Send="$Birth PlayForever"/>
+        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart; At Target" Send="Create"/>
+        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop; At Target" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <!--    <CActorSound id="ShieldBatteryRechargeChanneledSoundLoop" parent="SoundContinuous">-->
+    <!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart; At Target" Send="Create"/>-->
+    <!--        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop; At Target" Send="Destroy"/>-->
+    <!--        <On Terms="ActorOrphan" Send="Destroy"/>-->
+    <!--        <On Terms="ActorCreation" Send="Create ShieldBatteryRechargeSoundStart"/>-->
+    <!--        <On Terms="ActorDestruction" Send="Create ShieldBatteryRechargeSoundStop"/>-->
+    <!--        <Host Subject="_Selectable"/>-->
+    <!--        <HostSiteOps Ops="SOpAttachOverhead"/>-->
+    <!--        <Sound value="ShieldBattery_Recharge_Loop"/>-->
+    <!--    </CActorSound>-->
+    <CActorSound id="ShieldBatteryRechargeChanneledSoundLoop" parent="SoundContinuous">
+        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart; At Target" Send="Create"/>
+        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop; At Target" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="Create SentryShieldRepairSoundStart"/>
+        <On Terms="ActorDestruction" Send="Create SentryShieldRepairSoundStop"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Sound value="ShieldBattery_Recharge_Loop"/>
+    </CActorSound>
+    <CActorSound id="ShieldBatteryStructureRechargeSoundLoop" parent="SoundContinuous">
+        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStart; At Caster" Send="Create"/>
+        <On Terms="Effect.ShieldBatteryRechargeChanneled.TargetStop; At Caster" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Sound value="ShieldBattery_Recharge_Loop2"/>
+    </CActorSound>
+    <CActorModel id="TempestWarpInStargate" parent="ModelAddition">
+        <On Terms="UnitDeathCustomize" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorSound id="ProtossFlameLoopSmall" parent="ProtossFlameSound">
+        <Sound value="Protoss_FlameLoopSmall"/>
+    </CActorSound>
+    <CActorSound id="ProtossFlameLoopMedium" parent="ProtossFlameSound">
+        <Sound value="Protoss_FlameLoopMedium"/>
+    </CActorSound>
+    <CActorSound id="ProtossFlameLoopLarge" parent="ProtossFlameSound">
+        <Sound value="Protoss_FlameLoopLarge"/>
+    </CActorSound>
+    <CActorModel id="ProtossBuildingFireSmall" parent="ProtossFlameModel"/>
+    <CActorModel id="ProtossBuildingFireMedium" parent="ProtossFlameModel"/>
+    <CActorModel id="ProtossBuildingFireLarge" parent="ProtossFlameModel"/>
+    <CActorSetQueried id="ProtossFlameSetFireSmall" parent="ProtossFlameSet" type="FireSmall"/>
+    <CActorSetQueried id="ProtossFlameSetFireTransitionSmall" parent="ProtossFlameSetTransition" type="FireSmall"/>
+    <CActorSetQueried id="ProtossFlameSetFireMedium" parent="ProtossFlameSet" type="FireMedium"/>
+    <CActorSetQueried id="ProtossFlameSetFireTransitionMedium" parent="ProtossFlameSetTransition" type="FireMedium"/>
+    <CActorSetQueried id="ProtossFlameSetFireLarge" parent="ProtossFlameSet" type="FireLarge"/>
+    <CActorSetQueried id="ProtossFlameSetFireTransitionLarge" parent="ProtossFlameSetTransition" type="FireLarge"/>
+    <CActorStateMonitor id="ProtossFlamesSmallBuilding">
+        <!-- Valid units -->
+        <On Terms="UnitCreation.Pylon" Send="Create"/>
+        <On Terms="UnitCreation.PhotonCannon" Send="Create"/>
+        <On Terms="UnitCreation.Obelisk" Send="Create"/>
+        <On Terms="UnitCreation.RoboticsBay" Send="Create"/>
+        <On Terms="UnitCreation.DarkShrine" Send="Create"/>
+        <!-- Creation -->
+        <On Terms="StateChange; StateValid ProtossFire" Send="Create ProtossFlameSetFireSmall"/>
+        <!-- Transition -->
+        <On Terms="StateChange; StateValid ProtossFire" Send="Create ProtossFlameSetFireTransitionSmall"/>
+        <!-- Destruction -->
+        <On Terms="StateChange; !StateValid ProtossFire" Target="ProtossFlameSetFireSmall" Send="Destroy"/>
+        <On Terms="StateChange; !StateValid ProtossFire" Target="ProtossFlameSetFireTransitionSmall" Send="Destroy"/>
+        <!-- Small sound -->
+        <On Terms="StateChange; StateValid ProtossFire" Send="Create ProtossFlameLoopSmall"/>
+        <On Terms="StateChange; !StateValid ProtossFire" Target="ProtossFlameLoopSmall" Send="Destroy"/>
+        <StateArray Name="ProtossNormal" Terms="ValidateUnit ProtossBurnDownNormal"/>
+        <StateArray Name="ProtossFire" Terms="ValidateUnit ProtossBurnDownFire"/>
+    </CActorStateMonitor>
+    <CActorStateMonitor id="ProtossFlamesMediumBuilding">
+        <!-- Valid units -->
+        <On Terms="UnitCreation.Assimilator" Send="Create"/>
+        <On Terms="UnitCreation.TemplarArchive" Send="Create"/>
+        <On Terms="UnitCreation.TwilightCouncil" Send="Create"/>
+        <On Terms="UnitCreation.CyberneticsCore" Send="Create"/>
+        <On Terms="UnitCreation.Forge" Send="Create"/>
+        <On Terms="UnitCreation.RoboticsFacility" Send="Create"/>
+        <On Terms="UnitCreation.Stargate" Send="Create"/>
+        <On Terms="UnitCreation.FleetBeacon" Send="Create"/>
+        <!-- Creation -->
+        <On Terms="StateChange; StateValid ProtossFire" Send="Create ProtossFlameSetFireMedium"/>
+        <!-- Transition -->
+        <On Terms="StateChange; StateValid ProtossFire" Send="Create ProtossFlameSetFireTransitionMedium"/>
+        <!-- Destruction -->
+        <On Terms="StateChange; !StateValid ProtossFire" Target="ProtossFlameSetFireMedium" Send="Destroy"/>
+        <On Terms="StateChange; !StateValid ProtossFire" Target="ProtossFlameSetFireTransitionMedium" Send="Destroy"/>
+        <!-- Medium sound -->
+        <On Terms="StateChange; StateValid ProtossFire" Send="Create ProtossFlameLoopMedium"/>
+        <On Terms="StateChange; !StateValid ProtossFire" Target="ProtossFlameLoopMedium" Send="Destroy"/>
+        <StateArray Name="ProtossNormal" Terms="ValidateUnit ProtossBurnDownNormal"/>
+        <StateArray Name="ProtossFire" Terms="ValidateUnit ProtossBurnDownFire"/>
+    </CActorStateMonitor>
+    <CActorStateMonitor id="ProtossFlamesLargeBuilding">
+        <!-- Valid units -->
+        <On Terms="UnitCreation.Nexus" Send="Create"/>
+        <On Terms="UnitCreation.Gateway" Send="Create"/>
+        <On Terms="UnitCreation.WarpGate" Send="Create"/>
+        <!-- Creation -->
+        <On Terms="StateChange; StateValid ProtossFire" Send="Create ProtossFlameSetFireLarge"/>
+        <!-- Transition -->
+        <On Terms="StateChange; StateValid ProtossFire" Send="Create ProtossFlameSetFireTransitionLarge"/>
+        <!-- Destruction -->
+        <On Terms="StateChange; !StateValid ProtossFire" Target="ProtossFlameSetFireLarge" Send="Destroy"/>
+        <On Terms="StateChange; !StateValid ProtossFire" Target="ProtossFlameSetFireTransitionLarge" Send="Destroy"/>
+        <!-- Large sound -->
+        <On Terms="StateChange; StateValid ProtossFire" Send="Create ProtossFlameLoopLarge"/>
+        <On Terms="StateChange; !StateValid ProtossFire" Target="ProtossFlameLoopLarge" Send="Destroy"/>
+        <StateArray Name="ProtossNormal" Terms="ValidateUnit ProtossBurnDownNormal"/>
+        <StateArray Name="ProtossFire" Terms="ValidateUnit ProtossBurnDownFire"/>
+    </CActorStateMonitor>
+    <!-- Protoss ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- Construction / Warp-In                                                                  -->
+    <CActorProgress id="ProtossConstruction">
+        <On Terms="Abil.ProtossBuild.BuiltStart" Send="Create"/>
+        <StageArray AnimProps="Stand,Build,Start" BlendTime="0.000000"/>
+        <StageArray AnimProps="Stand,Build"/>
+        <StageArray AnimProps="Stand,Build,End"/>
+    </CActorProgress>
+    <CActorProgress id="ProtossConstructionAttachedSmall">
+        <On Terms="ProgressLevel.ProtossConstructionAttachedSmall.Start; Level 0" Target="ProtossBuildingBirthSmall" Send="SetTransferOverrideAnim Stand,Build"/>
+        <On Terms="ProgressLevel.ProtossConstructionAttachedSmall.Stop; Level 0" Target="ProtossBuildingBirthSmall" Send="SetTransferOverrideAnim Stand,Build"/>
+        <On Terms="ProgressLevel.ProtossConstructionAttachedSmall.Start; Level 2" Target="ProtossBuildingBirthSmall" Send="SetTransferOverrideAnim Stand,Build"/>
+        <On Terms="ProgressLevel.ProtossConstructionAttachedSmall.Stop; Level 2" Target="ProtossBuildingBirthSmall" Send="SetTransferOverrideAnim Stand,Build"/>
+        <StageArray AnimProps="Stand,Build,Start" BlendTime="0.000000"/>
+        <StageArray AnimProps="Stand,Build"/>
+        <StageArray AnimProps="Stand,Build,End"/>
+        <Supporter Subject="_ProtossBuildModel"/>
+    </CActorProgress>
+    <CActorProgress id="ProtossConstructionAttached">
+        <On Terms="ProgressLevel.ProtossConstructionAttached.Start; Level 0" Target="_ProtossBuildModel" Send="SetTransferOverrideAnim Stand,Build"/>
+        <On Terms="ProgressLevel.ProtossConstructionAttached.Stop; Level 0" Target="_ProtossBuildModel" Send="SetTransferOverrideAnim Stand,Build"/>
+        <On Terms="ProgressLevel.ProtossConstructionAttached.Start; Level 2" Target="_ProtossBuildModel" Send="SetTransferOverrideAnim Stand,Build"/>
+        <On Terms="ProgressLevel.ProtossConstructionAttached.Stop; Level 2" Target="_ProtossBuildModel" Send="SetTransferOverrideAnim Stand,Build"/>
+        <StageArray AnimProps="Stand,Build,Start" BlendTime="0.000000"/>
+        <StageArray AnimProps="Stand,Build"/>
+        <StageArray AnimProps="Stand,Build,End"/>
+        <Supporter Subject="_ProtossBuildModel"/>
+    </CActorProgress>
+    <CActorProgress id="ProtossConstructionAttachedLarge">
+        <On Terms="ProgressLevel.ProtossConstructionAttachedLarge.Start; Level 0" Target="ProtossBuildingBirthLarge" Send="SetTransferOverrideAnim Stand,Build"/>
+        <On Terms="ProgressLevel.ProtossConstructionAttachedLarge.Stop; Level 0" Target="ProtossBuildingBirthLarge" Send="SetTransferOverrideAnim Stand,Build"/>
+        <On Terms="ProgressLevel.ProtossConstructionAttachedLarge.Start; Level 2" Target="ProtossBuildingBirthLarge" Send="SetTransferOverrideAnim Stand,Build"/>
+        <On Terms="ProgressLevel.ProtossConstructionAttachedLarge.Stop; Level 2" Target="ProtossBuildingBirthLarge" Send="SetTransferOverrideAnim Stand,Build"/>
+        <StageArray AnimProps="Stand,Build,Start" BlendTime="0.000000"/>
+        <StageArray AnimProps="Stand,Build"/>
+        <StageArray AnimProps="Stand,Build,End"/>
+        <Supporter Subject="_ProtossBuildModel"/>
+    </CActorProgress>
+    <CActorModel id="ProtossBuildingBirthSmall" parent="ModelConstruction">
+        <Aliases value="_ProtossBuildModel"/>
+        <On Terms="ActorCreation" Send="Create ProtossConstructionAttachedSmall"/>
+        <On Terms="UnitConstruction.Obelisk.Start" Send="Create"/>
+    </CActorModel>
+    <CActorModel id="ProtossBuildingBirth" parent="ModelConstruction">
+        <Aliases value="_ProtossBuildModel"/>
+        <On Terms="ActorCreation" Send="Create ProtossConstructionAttached"/>
+    </CActorModel>
+    <CActorModel id="ProtossBuildingBirthLarge" parent="ModelConstruction">
+        <Aliases value="_ProtossBuildModel"/>
+        <On Terms="ActorCreation" Send="Create ProtossConstructionAttachedLarge"/>
+    </CActorModel>
+    <CActorProgress id="ProtossWarpIn">
+        <On Terms="Abil.WarpGateTrain.TargetStart" Send="Create"/>
+        <On Terms="Abil.SuperWarpGateTrain.TargetStart" Send="Create"/>
+        <On Terms="ActorCreation; !ValidateUnit SuperPower" Target="_Unit" Send="$Birth 0 0.000000 0.000000 16.000000 AsDuration"/>
+        <On Terms="ActorCreation; ValidateUnit SuperPower" Target="_Unit" Send="$Birth 0 0.000000 0.000000 5.000000 AsDuration"/>
+        <StageArray AnimProps="Stand"/>
+    </CActorProgress>
+    <CActorModel id="WarpTrainModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Abil.SuperWarpGateTrain.TargetStart" Send="Create"/>
+        <On Terms="Abil.SuperWarpGateTrain.TargetStop" Send="AnimBracketStop BSD"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+    </CActorModel>
+    <CActorModel id="WarpGateWarpCast" parent="ModelAnimationStyleOneShot">
+        <On Terms="Abil.WarpGateTrain.SourceStart" Send="Create"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+    </CActorModel>
+    <CActorSound id="WarpTrainStart" parent="SoundOneShot">
+        <Sound value="WarpGate_TrainStart"/>
+        <Host Subject="_Selectable"/>
+        <On Terms="Abil.WarpGateTrain.TargetStart" Send="Create"/>
+        <On Terms="Abil.SuperWarpGateTrain.TargetStart" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="WarpTrainLoop" parent="SoundContinuous">
+        <Sound value="WarpGate_TrainLoop"/>
+        <Host Subject="_Selectable"/>
+        <On Terms="Abil.WarpGateTrain.TargetStart" Send="Create"/>
+        <On Terms="Abil.SuperWarpGateTrain.TargetStart" Send="Create"/>
+        <On Terms="Abil.WarpGateTrain.TargetStop" Send="Destroy"/>
+        <On Terms="Abil.SuperWarpGateTrain.TargetStop" Send="Destroy"/>
+    </CActorSound>
+    <CActorSound id="WarpTrainStop" parent="SoundOneShot">
+        <Sound value="WarpGate_TrainFinish"/>
+        <Host Subject="_Selectable"/>
+        <On Terms="Abil.WarpGateTrain.TargetStop" Send="Create"/>
+        <On Terms="Abil.SuperWarpGateTrain.TargetStop" Send="Create"/>
+    </CActorSound>
+    <CActorEventMacro id="ShieldColorMacro">
+        <On Terms="ActorCreation; ScopeContains _ShieldRed" Send="SetTintColor {255,0,0 8.000000}"/>
+        <On Terms="ActorCreation; ScopeContains _ShieldGreen" Send="SetTintColor {0,255,0 3.000000}"/>
+        <On Terms="ActorCreation; ScopeContains _ShieldYellow" Send="SetTintColor {255,80,0 6.000000}"/>
+        <On Terms="ActorCreation; ScopeContains _ShieldBlue" Send="SetTintColor {0,0,255 2.000000}"/>
+        <On Terms="ActorCreation; ScopeContains _ShieldBlack" Send="SetTintColor {255,255,255 -1.000000}"/>
+    </CActorEventMacro>
+    <CActorModel id="ProtossShieldFacerRipple" parent="ModelAnimationStyleOneShotNoOrphan">
+        <Model value="ProtossShieldRipple"/>
+        <Macros value="ShieldColorMacro"/>
+    </CActorModel>
+    <CActorShield id="ProtossShieldFacer" parent="ProtossShieldBase">
+        <Model value="ProtossShieldDamage"/>
+        <Ripple value="ProtossShieldFacerRipple"/>
+        <ScaleDamageMin value="5.000000"/>
+        <!-- Zerglingish. -->
+        <ScaleDamageMax value="45.000000"/>
+        <!-- Thorish. -->
+        <RadiusMin value="0.700000"/>
+        <!-- Smaller than this and the ripple is hard to see. -->
+        <RadiusMax value="2.000000"/>
+        <!-- Larger than this and it looks wacky. -->
+        <Macros value="ShieldColorMacro"/>
+    </CActorShield>
+    <CActorShield id="ProtossShieldHeader" parent="ProtossShieldBase">
+        <Model value="ProtossShieldDamage"/>
+        <Macros value="ShieldColorMacro"/>
+    </CActorShield>
+    <CActorShield id="ProtossShieldFull" parent="ProtossShieldBase">
+        <Macros value="ShieldColorMacro"/>
+    </CActorShield>
+    <CActorShieldImpact id="ShieldImpact">
+        <VisualDirectionalFacer value="ProtossShieldFacer"/>
+        <VisualDirectionalHeader value="ProtossShieldHeader"/>
+        <VisualDirectionless value="ProtossShieldFull"/>
+        <On Terms="UnitCreation; ValidateUnit IsShieldCapable; Exclude Missile" Send="Create"/>
+    </CActorShieldImpact>
+    <!-- Archon ................................................................................ -->
+    <CActorUnit id="Archon" parent="GenericUnitBase" unitName="Archon">
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundLarge"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <On Terms="Abil.ArchonWarp.Start" Send="AnimBracketStart Merging Stand,Work,Start Stand,Work"/>
+        <On Terms="Abil.ArchonWarp.Stop" Send="AnimBracketStop Merging"/>
+        <On Terms="UnitBirth.*.Normal" Send="AnimPlay Birth Stand,Work,End 0 0.000000"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Target="ArchonAttackBeam" Send="Destroy"/>
+        <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <On Terms="Abil.attack.ReadyStop" Target="ArchonAttackBeam" Send="Destroy"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <PortraitModel value="ArchonPortrait"/>
+        <DeathArray index="Normal" ModelLink="ArchonDeath" SoundLink="Archon_Explode"/>
+        <DeathArray index="UnderConstruction" ModelLink="ProtossMediumUnitDeath" SoundLink="Archon_Explode"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathLarge" Name="Hallucination"/>
+        <BarWidth value="66"/>
+        <BarOffset value="120"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-archon.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-archon.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Archon-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Archon-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Archon-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Archon.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Archon.dds"/>
+        </Wireframe>
+        <SoundArray index="Birth" value=""/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <Aliases value="_UnitLarge"/>
+    </CActorUnit>
+    <!-- Attack                                                                                  -->
+    <CActorBeamSimple id="ArchonAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <Scale value="0.500000"/>
+        <Macros value="ActionTargetTeleportDestroy"/>
+    </CActorBeamSimple>
+    <CActorAction id="ArchonAttack" parent="GenericAttack" effectAttack="PsionicShockwaveDamage">
+        <BeamScope value="Caster"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance VoidRaySOpForwardLaunch"/>
+        <LaunchAssets Sound="Archon_AttackLaunch"/>
+        <ImpactMap index="None" Model="" Sound="Archon_AttackImpact"/>
+        <ActionFlags index="ImpactMonitorsTeleports" value="1"/>
+    </CActorAction>
+    <CActorSound id="Archon_Death" parent="SoundOneShot">
+        <On Terms="UnitDeathCustomize.Archon; ValidateUnit IsNotHallucination; PassChance 25.000000" Send="Create"/>
+    </CActorSound>
+    <!-- Assimilator ........................................................................... -->
+    <CActorUnit id="Assimilator" parent="ProtossBuildingEx" unitName="Assimilator">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ExtractAnim"/>
+        <On Terms="Behavior.HarvestableVespeneGeyserGasProtoss.Deplete" Send="SetTintColor 255,170,170"/>
+        <On Terms="Behavior.HarvestableVespeneGeyserGasProtoss.Deplete" Send="AnimGroupRemove D"/>
+        <On Terms="Behavior.HarvestableVespeneGeyserGasProtoss.Deplete" Send="AnimGroupApply B"/>
+        <On Terms="Behavior.HarvestableVespeneGeyserGasProtoss.Restore" Send="SetTintColor 255,255,255"/>
+        <On Terms="Behavior.HarvestableVespeneGeyserGasProtoss.Restore" Send="AnimGroupRemove B"/>
+        <On Terms="Behavior.HarvestableVespeneGeyserGasProtoss.Restore" Send="AnimGroupApply D"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit NoVespene" Send="DeathCustomize Empty"/>
+        <On Terms="UnitBirth.Assimilator" Send="TimerSet 0.100000 HideGeyser"/>
+        <On Terms="TimerExpired; TimerName HideGeyser" Send="Create GeyserBuildFinishCovered"/>
+        <On Terms="ActorDestruction" Send="Create GeyserUncovered"/>
+        <!--On Terms="ActorCreation" Send="Create GeyserBuildStartRichCovered"/>
+        <On Terms="Signal.*.RichGeyser" Send="StatusSet RichGeyser 1"/>
+        <On Terms="UnitBirth.Assimilator; HasStatus RichGeyser" Send="ModelSwap AssimilatorRich"/>
+        <On Terms="Signal.*.RichGeyser" Send="ModelSwap AssimilatorRichBirth"/-->
+        <CreepHeightClass value="Small"/>
+        <DeathCustoms ModelLink="AssimilatorEmptyDeath" Name="Empty"/>
+        <BarOffset value="110"/>
+        <BarWidth value="120"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator.dds"/>
+        </GroupIcon>
+        <NameOffset value="130"/>
+        <StatusHarvesterData Text="UI/HarvesterCountVespene"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Assimilator-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="AssimilatorSplat" parent="GenericUnitSplat" unitName="Assimilator"/>
+    <!-- Carrier ............................................................................... -->
+    <CActorUnit id="Carrier" parent="GenericUnitStandard" unitName="Carrier">
+        <On Terms="Abil.CarrierHangar.Launch" Send="AnimPlay Cover Cover 0 0.500000 0.500000 3.000000 AsDuration"/>
+        <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000"/>
+        <PortraitModel value="CarrierPortrait"/>
+        <BuildModel value="CarrierWarpIn"/>
+        <DeathArray index="Normal" ModelLink="CarrierDeath" SoundLink=""/>
+        <AnimBlendTime value="0.750000"/>
+        <BarWidth value="156"/>
+        <BarOffset value="60"/>
+        <NameOffset value="110"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-carrier.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-carrier.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Carrier-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Carrier-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Carrier-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Carrier.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Carrier.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <HostSiteOps Ops="SOpBankerCarrier"/>
+        <Aliases value="_UnitHuge"/>
+    </CActorUnit>
+    <CActorSiteOpBankerUnit id="SOpBankerCarrier" parent="SOpBankerUnit">
+        <RollMax value="30.000000"/>
+        <RollInActivationAngle value="5.000000"/>
+        <RollInArc value="200.000000"/>
+        <RollOutDuration value="1.400000"/>
+    </CActorSiteOpBankerUnit>
+    <CActorSound id="CarrierInterceptorLaunch" parent="SoundOneShot">
+        <On Terms="Abil.CarrierHangar.Launch" Send="Create"/>
+        <Sound value="Carrier_InterceptorLaunch"/>
+    </CActorSound>
+    <!-- Colossus .............................................................................. -->
+    <CActorUnit id="Colossus" parent="GenericUnitBase" unitName="Colossus">
+        <!-- This is temporary.  The Colossus art is not build for his current design and the
+             current state of the anim system. -->
+        <On Terms="WeaponStart.ThermalLances.AttackStart" Send="AnimPlay Attack Stand,Channel,Start"/>
+        <On Terms="WeaponStop.ThermalLances.AttackStop" Send="AnimClear Attack"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundLarge"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <On Terms="AbilTransport.WarpPrismTransport.CargoLoad" Target="ColossusAttackLaunchSite" Send="Destroy"/>
+        <On Terms="AbilTransport.WarpPrismTransport.CargoLoad" Target="ColossusAttackImpactSite" Send="Destroy"/>
+        <On Terms="AbilTransport.WarpPrismTransport.CargoLoad" Target="ColossusAttackBeam" Send="Destroy"/>
+        <On Terms="AbilTransport.WarpPrismTransport.CargoLoad" Target="ColossusAttackBeamImpact" Send="Destroy"/>
+        <On Terms="AbilTransport.WarpPrismTransport.CargoLoad" Target="ColossusAttackLaunchSiteReverse" Send="Destroy"/>
+        <On Terms="AbilTransport.WarpPrismTransport.CargoLoad" Target="ColossusAttackImpactSiteReverse" Send="Destroy"/>
+        <On Terms="AbilTransport.WarpPrismTransport.CargoLoad" Target="ColossusAttackBeamReverse" Send="Destroy"/>
+        <On Terms="AbilTransport.WarpPrismTransport.CargoLoad" Target="ColossusAttackBeamImpactReverse" Send="Destroy"/>
+        <DeathArray index="Normal" ModelLink="ColossusDeath"/>
+        <DeathCustoms ModelLink="ProtossLargeUnitDeathLow" Name="AntiGravProtoss"/>
+        <DeathCustoms ModelLink="HallucinationColossusDeath" SoundLink="Sentry_HallucinationDeathLarge" Name="Hallucination"/>
+        <PortraitModel value="ColossusPortrait"/>
+        <WalkAnimMoveSpeed value="2.1445"/>
+        <BarWidth value="140"/>
+        <BarOffset value="250"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-colossus.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-colossus.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Colossus-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Colossus-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Colossus-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Colossus.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Colossus.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <Aliases value="_UnitHuge"/>
+    </CActorUnit>
+    <CActorTurret id="ColossusTurret">
+        <On Terms="TurretEnable.Colossus" Send="Create"/>
+    </CActorTurret>
+    <CActorSound id="ColossusAttackLaunchSound" parent="SoundOneShot">
+        <Sound value="Colossus_AttackLaunch"/>
+        <Host Subject="Colossus"/>
+    </CActorSound>
+    <CActorSound id="ColossusAttackImpactSound" parent="SoundOneShot">
+        <Sound value="Colossus_AttackImpact"/>
+        <Host Subject="::Creator"/>
+    </CActorSound>
+    <!-- Beams                                                                                   -->
+    <!-- Forward -->
+    <CActorSite id="ColossusAttackLaunchSite" parent="SiteUNIT">
+        <Aliases value="_LaunchGuide"/>
+        <HostSiteOps Ops="SOpAttachWeapon02"/>
+    </CActorSite>
+    <CActorSiteMover id="ColossusAttackImpactSite">
+        <Terms value="Cap 1"/>
+        <Sharing value="PerEffectTree"/>
+        <Acceleration value="40.000000"/>
+        <Deceleration value="40.000000"/>
+        <Speed value="2.000000"/>
+        <SpeedMax value="4.100000"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <On Terms="Effect.ThermalLancesE.Impact" Send="Create"/>
+        <On Terms="Effect.ThermalLancesE.Impact; At Effect" Send="MoverSetDestination2D"/>
+        <On Terms="MoverArrived" Target="ColossusAttackBeam" Send="Signal Arrival"/>
+    </CActorSiteMover>
+    <CActorBeamSimple id="ColossusAttackBeam">
+        <Terms value="Cap 1"/>
+        <HostLaunch Subject="ColossusAttackLaunchSite" Scope="Caster" Actor="Create"/>
+        <HostImpact Subject="ColossusAttackImpactSite"/>
+        <On Terms="ActorCreation" Send="Create ColossusAttackBeamImpact"/>
+        <On Terms="ActorCreation" Send="Create ColossusAttackLaunchSound"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="Signal.*.Arrival" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterOpening; AnimName BSD" Target="ColossusAttackImpactSite" Send="MoverMove"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <On Terms="Effect.ThermalLancesE.Impact" Send="Create"/>
+    </CActorBeamSimple>
+    <CActorModel id="ColossusAttackBeamImpact">
+        <Host Subject="ColossusAttackImpactSite"/>
+        <Supporter Subject="::Creator"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="ActorCreation" Send="Create ColossusAttackImpactSound"/>
+        <On Terms="SupporterDestruction" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+    </CActorModel>
+    <!-- Reverse -->
+    <CActorSite id="ColossusAttackLaunchSiteReverse" parent="SiteUNIT">
+        <Aliases value="_LaunchGuide"/>
+        <HostSiteOps Ops="SOpAttachWeapon03"/>
+    </CActorSite>
+    <CActorSiteMover id="ColossusAttackImpactSiteReverse">
+        <Terms value="Cap 1"/>
+        <Sharing value="PerEffectTree"/>
+        <Acceleration value="40.000000"/>
+        <Deceleration value="40.000000"/>
+        <Speed value="2.000000"/>
+        <SpeedMax value="4.100000"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <On Terms="Effect.ThermalLancesEReverse.Impact" Send="Create"/>
+        <On Terms="Effect.ThermalLancesEReverse.Impact; At Effect" Send="MoverSetDestination2D"/>
+        <On Terms="MoverArrived" Target="ColossusAttackBeamReverse" Send="Signal Arrival"/>
+    </CActorSiteMover>
+    <CActorBeamSimple id="ColossusAttackBeamReverse">
+        <Model value="ColossusAttackBeam"/>
+        <Terms value="Cap 1"/>
+        <HostLaunch Subject="ColossusAttackLaunchSiteReverse" Scope="Caster" Actor="Create"/>
+        <HostImpact Subject="ColossusAttackImpactSiteReverse"/>
+        <On Terms="ActorCreation" Send="Create ColossusAttackBeamImpactReverse"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="Signal.*.Arrival" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterOpening; AnimName BSD" Target="ColossusAttackImpactSiteReverse" Send="MoverMove"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <On Terms="Effect.ThermalLancesEReverse.Impact" Send="Create"/>
+    </CActorBeamSimple>
+    <CActorModel id="ColossusAttackBeamImpactReverse">
+        <Model value="ColossusAttackBeamImpact"/>
+        <Host Subject="ColossusAttackImpactSiteReverse"/>
+        <Supporter Subject="::Creator"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="SupporterDestruction" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+    </CActorModel>
+    <!-- Necessary to trigger shield impacts.  -->
+    <CActorAction id="ColossusAttackShieldHitter" parent="AoEAttackShieldHitter" effectHit="ThermalLancesMU">
+        <LaunchRequest Subject="ColossusAttackLaunchSite" Scope="Caster"/>
+        <ActionFlags index="VictimRevealsAttacker" value="1"/>
+    </CActorAction>
+    <!-- Cybernetics Core ...................................................................... -->
+    <CActorUnit id="CyberneticsCore" parent="ProtossBuildingEx" unitName="CyberneticsCore">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="GlobalLoopMacro"/>
+        <CreepHeightClass value="Small"/>
+        <BarOffset value="140"/>
+        <BarWidth value="135"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-CyberneticsCore.dds"/>
+        </GroupIcon>
+        <NameOffset value="120"/>
+        <SoundArray index="Birth" value="OracleBirth"/>
+        <SoundArray index="Help" value="OracleHelp"/>
+        <SoundArray index="Yes" value="OracleYes"/>
+        <SoundArray index="Attack" value="OracleYes"/>
+        <SoundArray index="Pissed" value="OraclePissed"/>
+        <SoundArray index="Movement" value="OracleMovement"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-CyberneticsCore.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-CyberneticsCore-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-CyberneticsCore-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-CyberneticsCore-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="CyberneticsCoreSplat" parent="GenericUnitSplat" unitName="CyberneticsCore"/>
+    <!-- Dark Templar .......................................................................... -->
+    <CActorUnit id="DarkTemplar" parent="GenericUnitStandard" unitName="DarkTemplar">
+        <On Terms="UnitPortrait.*.Customize; ModelVariation 1" Send="PortraitCustomize DarkTemplar2Portrait"/>
+        <On Terms="UnitPortrait.*.Customize; ModelVariation 0" Send="PortraitCustomize DarkTemplarPortrait"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 0" Send="DeathCustomize Variation0"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 1" Send="DeathCustomize Variation1"/>
+        <ModelFlags index="UseConstSyncSeed" value="1"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathCustoms ModelLink="DarkTemplarDeath00" Name="Variation0"/>
+        <DeathCustoms ModelLink="DarkTemplarDeath01" Name="Variation1"/>
+        <PlacementModel value="DarkTemplarPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <BuildModel value="DarkTemplarWarpIn"/>
+        <DeathArray index="Normal" ModelLink="DarkTemplarDeath" SoundLink="DarkTemplar_DeathFX"/>
+        <AnimBlendTime value="0.250000"/>
+        <BarWidth value="42"/>
+        <BarOffset value="50"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-darktemplar.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-darktemplar.dds"/>
+        <!--Warning: We need these for his skins. Even if he does not use these default wireframe themselves. So don't delete them unless you know what you are doing-->
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00.dds"/>
+        </Wireframe>
+        <WireframeShieldVariations Number="0">
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00-Shield03.dds"/>
+        </WireframeShieldVariations>
+        <WireframeShieldVariations Number="1">
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar01-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar01-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar01-Shield03.dds"/>
+        </WireframeShieldVariations>
+        <GroupIconVariations Number="0">
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00.dds"/>
+        </GroupIconVariations>
+        <GroupIconVariations Number="1">
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar01.dds"/>
+        </GroupIconVariations>
+        <WireframeVariations Number="0">
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar00.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="1">
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkTemplar01.dds"/>
+        </WireframeVariations>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <Aliases value="_UnitSmall"/>
+        <PortraitModel value="DarkTemplarPortrait"/>
+    </CActorUnit>
+    <CActorAction id="DarkTemplarAttack" parent="GenericAttack" effectAttack="WarpBlades">
+        <ImpactMap index="None" Model="None" Sound="DarkTemplar_AttackImpact"/>
+        <ShieldFlashType value="Header"/>
+    </CActorAction>
+    <!-- Example of using CActorSiteOpHostBearings and HostForProps. -->
+    <!-- CActorModel id="DarkTemplarAttackImpactModel" parent="GenericAttackImpactModel">-->
+    <!--        <HostSiteOps Ops="SOpHostCasterOverhead"/>-->
+    <!--        <HostForProps Subject="_Selectable" Scope="Caster" Actor="Find"/>-->
+    <!--        <Inherits index="CloakEffect" value="1"/>-->
+    <!--        <Inherits index="Visibility" value="1"/>-->
+    <!--    </CActorModel-->
+    <CActorSound id="DarkTemplarAttackLaunchSound" parent="SoundOneShot">
+        <Sound value="DarkTemplar_AttackLaunch"/>
+        <On Terms="WeaponStart.WarpBlades.AttackStart" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="DarkTemplar_Death" parent="SoundOneShot">
+        <On Terms="UnitDeath.DarkTemplar; PassChance 25.000000" Send="Create"/>
+    </CActorSound>
+    <!-- Sentry ................................................................................ -->
+    <CActorUnit id="Sentry" parent="GenericUnitBase" unitName="Sentry">
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <On Terms="Abil.ForceField.SourceCastStart" Send="$Spell"/>
+        <On Terms="Abil.NullVoid.SourceCastStart" Send="$Spell"/>
+        <On Terms="Effect.GuardianShieldPersistent.Start" Send="AnimBracketStart Guardian Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="Effect.GuardianShieldPersistent.Stop" Send="AnimBracketStop Guardian"/>
+        <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000"/>
+        <PortraitModel value="SentryPortrait"/>
+        <PlacementModel value="SentryPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <BuildModel value="SentryWarpIn"/>
+        <DeathArray index="Normal" ModelLink="SentryDeath" SoundLink="Sentry_Explode"/>
+        <AnimBlendTime value="0.650000"/>
+        <BarWidth value="50"/>
+        <BarOffset value="40"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-sentry.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-sentry.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-sentry-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-sentry-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-sentry-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-sentry.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-sentry.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <HostSiteOps Ops="SOpBankerSentry"/>
+        <Aliases value="_UnitMedium"/>
+    </CActorUnit>
+    <CActorSiteOpBankerUnit id="SOpBankerSentry" parent="SOpBankerUnit">
+        <RollMax value="15.000000"/>
+        <RollInActivationAngle value="5.000000"/>
+        <RollInArc value="110.000000"/>
+        <RollOutDuration value="0.900000"/>
+    </CActorSiteOpBankerUnit>
+    <!--
+    <CActorSiteOpBankerUnit id="SOpBankerSentry" parent="SOpBankerUnit">
+        <RollMax value="20"/>
+        <RollOutDuration value="0.5"/>
+    </CActorSiteOpBankerUnit>
+-->
+    <!-- Attack                                                                                  -->
+    <CActorBeamSimple id="SentryAttackBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <On Terms="Effect.DisruptionBeam.Stop; At Effect" Send="AnimBracketStop BSD"/>
+        <Macros value="ActionTargetTeleportDestroy"/>
+    </CActorBeamSimple>
+    <CActorSound id="SentryAttackStart" parent="SoundOneShot">
+        <On Terms="Effect.DisruptionBeam.Start" Send="Create"/>
+        <Sound value="Sentry_WeaponStart"/>
+    </CActorSound>
+    <CActorSound id="SentryAttackLoop" parent="SoundContinuous">
+        <On Terms="Effect.DisruptionBeam.Start" Send="Create"/>
+        <On Terms="Effect.DisruptionBeam.Stop" Send="Destroy"/>
+        <Sound value="Sentry_WeaponLoop"/>
+    </CActorSound>
+    <CActorSound id="SentryAttackStop" parent="SoundOneShot">
+        <On Terms="Effect.DisruptionBeam.Stop" Send="Create"/>
+        <Sound value="Sentry_WeaponEnd"/>
+    </CActorSound>
+    <CActorAction id="SentryAttack" parent="GenericAttackBase">
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance SOpForwardLaunchGuide"/>
+        <AcquisitionYawHalfArc value="10.000000"/>
+        <ActionFlags index="AlignedImpactsAndDamages" value="1"/>
+        <ActionFlags index="ImpactMonitorsTeleports" value="1"/>
+        <!-- Need this so the impact host ops can know which side of the target is closest to
+             the attacker. -->
+        <ActionFlags index="LaunchForceSite" value="1"/>
+        <Lifetime value="-1.000000"/>
+        <On Terms="Effect.DisruptionBeam.Start" Send="Create"/>
+        <On Terms="Effect.DisruptionBeamDamage.Start; FromEffectTreeDescendant" Send="ActionDamage"/>
+        <On Terms="Effect.DisruptionBeam.Stop" Send="Destroy WhenReady"/>
+    </CActorAction>
+    <!-- Force Field                                                                             -->
+    <CActorSplat id="ForceFieldCursorSplat" parent="ProtossCursorSplat" abil="ForceField"/>
+    <CActorSound id="SentryForceFieldLaunch" parent="SoundOneShot">
+        <On Terms="Abil.ForceField.SourcePrepStart" Send="Create"/>
+        <Sound value="Sentry_ForceFieldLaunch"/>
+    </CActorSound>
+    <CActorSound id="SentryForceFieldSound" parent="SoundOneShot">
+        <Sound value="Sentry_ForceFieldLaunch"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachTarget"/>
+        <On Terms="Effect.ForceField.Start" Send="Create"/>
+    </CActorSound>
+    <!-- Hallucination                                                                           -->
+    <CActorSimple id="HighTemplarHallucination">
+        <Aliases value="_HallucinationTinter"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create"/>
+        <On Terms="Behavior.Hallucination.On; ViewerTreatsUnitAs Detected" Send="Signal HallucinationTintOn"/>
+        <On Terms="Signal.*.HallucinationTintOn" Target="_Unit" Send="SetTintColor 108,108,255 1.000000 OneShot Hallucination"/>
+        <On Terms="Signal.*.HallucinationTintOn; !Option Shader Low" Target="_Unit" Send="SetOpacity 0.700000 1.000000 Hallucination"/>
+        <On Terms="Signal.*.HallucinationTintOff" Target="_Unit" Send="ClearTintColor 1.000000 Hallucination"/>
+        <On Terms="Signal.*.HallucinationTintOff; !Option Shader Low" Target="_Unit" Send="ClearOpacity 1.000000 Hallucination"/>
+        <On Terms="Behavior.Hallucination.Off" Send="Destroy"/>
+    </CActorSimple>
+    <CActorModel id="HallucinationBirth" parent="ModelAnimationStyleOneShot">
+        <AutoScaleFactor value="1.000000"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="Behavior.Hallucination.On; !ValidateUnit CasterIsColossus" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorModel id="HallucinationColossusBirth" parent="ModelAnimationStyleOneShot">
+        <AutoScaleFactor value="1.000000"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="Behavior.Hallucination.On; ValidateUnit CasterIsColossus" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorSound id="HallucinationBirthSoundLarge" parent="SoundOneShot">
+        <Sound value="Sentry_HallucinationLaunchLarge"/>
+    </CActorSound>
+    <CActorSound id="HallucinationBirthSoundMedium" parent="SoundOneShot">
+        <Sound value="Sentry_HallucinationLaunchMedium"/>
+    </CActorSound>
+    <CActorSound id="HallucinationBirthSoundSmall" parent="SoundOneShot">
+        <Sound value="Sentry_HallucinationLaunchSmall"/>
+    </CActorSound>
+    <!--           Guardian Shield                                                              -->
+    <CActorModel id="GuardianShieldImpact" parent="ModelAnimationStyleOneShot">
+        <Terms value="Cap 1"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenterSoft"/>
+        <On Terms="Behavior.GuardianShield.On" Send="Create"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorSound id="GuardianShieldSoundBirth" parent="SoundOneShot">
+        <Sound value="Sentry_GuardianShieldLaunch"/>
+    </CActorSound>
+    <CActorSound id="GuardianShieldSoundLoop" parent="SoundContinuous">
+        <Sound value="Sentry_GuardianShieldLoop"/>
+    </CActorSound>
+    <CActorSound id="GuardianShieldSoundDeath" parent="SoundOneShot">
+        <Sound value="Sentry_GuardianShieldDeath"/>
+    </CActorSound>
+    <CActorModel id="GuardianShield" parent="ModelAnimationStyleContinuous">
+        <AutoScaleFactor value="1.000000"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="Effect.GuardianShieldPersistent.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.GuardianShieldPersistent.Stop; At Caster" Send="AnimBracketStop BSD"/>
+        <On Terms="ModelEvent; ModelEventName SoundStart" Send="Create GuardianShieldSoundBirth"/>
+        <On Terms="ModelEvent; ModelEventName SoundLoopStart" Send="Create GuardianShieldSoundLoop"/>
+        <On Terms="ModelEvent; ModelEventName SoundLoopEnd" Target="GuardianShieldSoundLoop" Send="Destroy"/>
+        <On Terms="ModelEvent; ModelEventName SoundLoopEnd" Send="Create GuardianShieldSoundDeath"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <!-- Fleet Beacon .......................................................................... -->
+    <CActorUnit id="FleetBeacon" parent="ProtossBuildingEx" unitName="FleetBeacon">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="GlobalLoopMacro"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit CasterIsUnpoweredAndNotUnderConstruction" Send="DeathCustomize Variation2"/>
+        <ModelFlags index="AutomateGlobalLoops" value="0"/>
+        <CreepHeightClass value="Small"/>
+        <DeathCustoms ModelLink="FleetBeaconDeathUnpowered" SoundLink="FleetBeacon_Explode" Name="Variation2"/>
+        <BarOffset value="130"/>
+        <BarWidth value="135"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-FleetBeacon.dds"/>
+        </GroupIcon>
+        <NameOffset value="110"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-FleetBeacon.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-FleetBeacon-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-FleetBeacon-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-FleetBeacon-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="FleetBeaconSplat" parent="GenericUnitSplat" unitName="FleetBeacon"/>
+    <!-- Force Field ........................................................................... -->
+    <CActorUnit id="ForceField" parent="GenericUnitStandardNoAutoSoundLinks" unitName="ForceField">
+        <On Terms="ActorCreation" Send="Create SoundEmitter Sentry_ForceFieldLoop"/>
+        <DeathArray index="Normal" SoundLink="Sentry_ForceFieldDeath"/>
+        <PlacementModel value="Invisible"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+        <UnitIcon value="Assets\Textures\BTN-Ability-Terran-ScannerSweep.dds"/>
+        <HeroIcon value="Assets\Textures\BTN-Ability-Terran-ScannerSweep.dds"/>
+    </CActorUnit>
+    <CActorRange id="ForceFieldRange" parent="RangeAbil" abil="ForceField"/>
+    <!-- Forge ................................................................................. -->
+    <CActorUnit id="Forge" parent="ProtossBuildingEx" unitName="Forge">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="GlobalLoopMacro"/>
+        <Macros value="GlobalLoopMacroMore"/>
+        <On Terms="Abil.que5.Start" Send="AnimSetTimeScale GL_BSD 4.000000"/>
+        <On Terms="Abil.que5.Start" Send="AnimSetTimeScale GL_BSD_A 4.000000"/>
+        <On Terms="Abil.que5.Stop" Send="AnimSetTimeScale GL_BSD 1.000000"/>
+        <On Terms="Abil.que5.Stop" Send="AnimSetTimeScale GL_BSD_A 1.000000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="0"/>
+        <CreepHeightClass value="Small"/>
+        <BarWidth value="135"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Forge.dds"/>
+        </GroupIcon>
+        <NameOffset value="110"/>
+        <SoundArray index="What" value="ForgeWhat"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Forge.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Forge-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Forge-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Forge-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="ForgeSplat" parent="GenericUnitSplat" unitName="Forge"/>
+    <!-- Gateway / Warp Gate.................................................................... -->
+    <CActorUnit id="Gateway" parent="ProtossBuildingEx" unitName="Gateway">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="GlobalLoopMacro"/>
+        <Macros value="GlobalLoopMacroMore"/>
+        <On Terms="ActorCreation" Send="AnimGroupRemove Superior"/>
+        <!-- Morph data -->
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Send="AnimSetPaused Morph"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0" Send="AnimSetPaused Morph 0"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom Gateway; MorphTo WarpGate" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom WarpGate; MorphTo Gateway" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom WarpGate; MorphTo Gateway" Send="AnimPlay Morph Morph,End 0 0.000000"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom WarpGate; MorphTo Gateway" Send="AnimClear Morph"/>
+        <ModelFlags index="AutomateGlobalLoops" value="0"/>
+        <CreepHeightClass value="Small"/>
+        <BarOffset value="140"/>
+        <BarWidth value="160"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Gateway.dds"/>
+        </GroupIcon>
+        <NameOffset value="130"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Gateway.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Gateway-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Gateway-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Gateway-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorUnit id="WarpGate" parent="ProtossBuildingEx" unitName="WarpGate">
+        <Aliases value="_UnitHuge"/>
+        <Aliases value="_SpecialPower"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="GlobalLoopMacro"/>
+        <On Terms="ActorCreation" Send="AnimGroupApply Superior"/>
+        <!-- Warpgate has to use custom power setup due to animation issues when unpowered-->
+        <!-- PowerUserQueue Unpower -->
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Send="AnimBracketStart Unpowered Unpowered,Start Unpowered Unpowered,End"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Send="AnimBracketStop Queuing Instant"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Send="SetTintColor 150,150,200 1.000000"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Send="AnimBracketStop GL_BSD"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Send="AnimSetPaused Morph"/>
+        <!-- PowerUserQueue Power -->
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0" Send="AnimBlendTimeApply 0.000000"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0" Send="AnimBracketStop Unpowered"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0" Send="SetTintColor 255,255,255 1.000000"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0" Send="AnimBracketStart GL_BSD GLbirth GLstand GLdeath"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0" Send="AnimSetPaused Morph 0"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0" Send="AnimBlendTimeApply"/>
+        <!-- Morph data -->
+        <On Terms="AbilMorph.*.Start; MorphFrom WarpGate; MorphTo Gateway" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom Gateway; MorphTo WarpGate" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom Gateway; MorphTo WarpGate" Send="AnimPlay Morph Morph 0 0.000000"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom Gateway; MorphTo WarpGate" Send="AnimClear Morph"/>
+        <On Terms="UnitBirth.WarpGate.Normal; ValidateUnit HasNoPower" Send="StatusSet CheckPower 1"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0; ValidateUnit NotUnderConstruction" Send="StatusSet CheckPower 1"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0; ValidateUnit NotUnderConstruction" Send="StatusSet CheckPower 0"/>
+        <On Terms="Signal.*.PylonUnpoweredCheck; IsStatus CheckPower 1" Send="StatusSet UnpoweredGlaze 1"/>
+        <On Terms="Signal.*.PylonUnpoweredCheck" Send="TimerKill UnpoweredModelRevert"/>
+        <On Terms="Signal.*.PylonUnpoweredCheck" Send="TimerSet 0.100000 UnpoweredModelRevert"/>
+        <On Terms="TimerExpired; TimerName UnpoweredModelRevert" Send="StatusSet UnpoweredGlaze 0"/>
+        <On Terms="Signal.*.PylonPowerCheck" Send="StatusSet PowerGlaze 1"/>
+        <On Terms="Signal.*.PylonPowerCheck" Send="StatusSet UnpoweredGlaze 0"/>
+        <On Terms="Signal.*.PylonPowerCheck" Send="TimerKill PowerModelRevert"/>
+        <On Terms="Signal.*.PylonPowerCheck" Send="TimerSet 0.100000 PowerModelRevert"/>
+        <On Terms="TimerExpired; TimerName PowerModelRevert" Send="StatusSet PowerGlaze 0"/>
+        <On Terms="StatusOn.*.PowerGlaze" Send="ModelMaterialApply GlazePower"/>
+        <On Terms="StatusOff.*.PowerGlaze" Send="ModelMaterialRemove GlazePower"/>
+        <On Terms="StatusOn.*.UnpoweredGlaze" Send="ModelMaterialApply GlazeUnpowered"/>
+        <On Terms="StatusOff.*.UnpoweredGlaze" Send="ModelMaterialRemove GlazeUnpowered"/>
+        <Model value="Gateway"/>
+        <ModelFlags index="AutomateGlobalLoops" value="0"/>
+        <CreepHeightClass value="Small"/>
+        <BuildModel value="GatewayBirth"/>
+        <DeathArray index="Normal" SoundLink="Gateway_Explode"/>
+        <DeathArray index="UnderConstruction" SoundLink="Gateway_Explode"/>
+        <PlacementModel value="GatewayPlacement"/>
+        <BarOffset value="140"/>
+        <BarWidth value="160"/>
+        <CooldownDisplay value="WarpGateTrain,Train1"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-warpgate.dds"/>
+        </GroupIcon>
+        <NameOffset value="130"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-warpgate.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-warpgate-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-warpgate-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-warpgate-Shield03.dds"/>
+        </WireframeShield>
+        <PortraitModel value="GatewayPortrait"/>
+        <GlossaryAnim value="Stand,Superior"/>
+    </CActorUnit>
+    <CActorSplat id="GatewaySplat" parent="GenericUnitSplat" unitName="Gateway">
+        <On Terms="UnitCreation.WarpGate" Send="Create"/>
+    </CActorSplat>
+    <CActorSound id="GatewayMorphToWarpgate" parent="SoundOneShot">
+        <Sound value="Gateway_MorphToWarpgate"/>
+        <On Terms="Abil.UpgradeToWarpGate.Start" Send="Create"/>
+        <On Terms="AbilMorph.UpgradeToWarpGate.Pause" Send="SoundSetPaused 1"/>
+        <On Terms="AbilMorph.UpgradeToWarpGate.Resume" Send="SoundSetPaused"/>
+    </CActorSound>
+    <CActorSound id="WarpgateMorphToGateway" parent="SoundOneShot">
+        <Sound value="WarpGate_MorphToGateway"/>
+        <On Terms="Abil.MorphBackToGateway.Start" Send="Create"/>
+        <On Terms="AbilMorph.MorphBackToGateway.Pause" Send="SoundSetPaused 1"/>
+        <On Terms="AbilMorph.MorphBackToGateway.Resume" Send="SoundSetPaused"/>
+    </CActorSound>
+    <!-- High Templar .......................................................................... -->
+    <CActorUnit id="HighTemplar" parent="GenericUnitStandard" unitName="HighTemplar">
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <PortraitModel value="HighTemplarPortrait"/>
+        <PlacementModel value="HighTemplarPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <BuildModel value="HighTemplarWarpIn"/>
+        <DeathArray index="Normal" ModelLink="HighTemplarDeath" SoundLink="HighTemplar_DeathFX"/>
+        <AnimBlendTime value="0.450000"/>
+        <On Terms="Abil.PsiStorm.SourceCastStart" Send="AnimPlay A A"/>
+        <On Terms="Abil.PhaseShift.SourceCastStart" Send="AnimPlay B B"/>
+        <On Terms="Abil.Feedback.SourceCastStart" Send="AnimPlay B B"/>
+        <On Terms="Abil.PlasmaSurge.SourceCastStart" Send="AnimPlay B B"/>
+        <On Terms="Abil.Vortex.SourceCastStart" Send="AnimPlay A A"/>
+        <On Terms="Abil.TemporalRift.SourceCastStart" Send="AnimPlay A A"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundSmall"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <!-- Terms for shadow effects -->
+        <On Terms="ActorCreation" Send="TimerSet 0.200000 Shadow"/>
+        <On Terms="TimerExpired; TimerName Shadow; IsStatus ShadowCreate 1; !Option Model Low" Send="Create HighTemplarShadow"/>
+        <On Terms="TimerExpired; TimerName Shadow" Send="TimerSet 0.200000 Shadow"/>
+        <On Terms="UnitMovementUpdate.*.Stand" Send="StatusSet ShadowCreate 0"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="StatusSet ShadowCreate 1"/>
+        <On Terms="ActorCreation" Send="StatusSet ShadowCreate 0"/>
+        <WalkAnimMoveSpeed value="2.25"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathSmall" Name="Hallucination"/>
+        <BarWidth value="42"/>
+        <BarOffset value="70"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-hightemplar.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-hightemplar.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar.dds"/>
+        </Wireframe>
+        <AbilSoundArray AbilCmd="PsiStorm,Execute" Sound="HighTemplar_PsionicStormVO"/>
+        <AbilSoundArray AbilCmd="ArchonWarp,SelectedUnits" Sound="HighTemplar_ArchonWarpVO"/>
+        <AbilSoundArray AbilCmd="TemporalRift,Execute" Sound="HighTemplar_Attack"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <SelectAbilCmd value="PsiStorm,Execute"/>
+        <Aliases value="_UnitSmall"/>
+    </CActorUnit>
+    <!--CActorUnit id="HighTemplarSkinPreview" parent="GenericUnitBase" unitName="HighTemplarSkinPreview">
+        <Model value="HighTemplar"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-hightemplar.dds"/>
+    </CActorUnit-->
+    <CActorSound id="HighTemplar_Death" parent="SoundOneShot">
+        <On Terms="UnitDeathCustomize.HighTemplar; ValidateUnit IsNotHallucination; PassChance 25.000000" Send="Create"/>
+    </CActorSound>
+    <CActorModel id="HighTemplarShadow" parent="ModelAnimationStyleOneShotNoOrphan">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary SOp2DRotation"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.400000 ShadowFade"/>
+        <On Terms="ActorCreation" Send="SetTintColor 0,0,128 0.800000"/>
+        <On Terms="ActorCreation" Send="SetOpacity"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.500000 0.400000"/>
+        <On Terms="TimerExpired; TimerName ShadowFade" Send="SetOpacity 0.000000 0.400000"/>
+        <Inherits index="CloakEffect" value="1"/>
+    </CActorModel>
+    <!-- Phase Shift                                                                             -->
+    <CActorSimple id="PhaseShiftOpacity">
+        <On Terms="Behavior.Ethereal.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetOpacity 0.400000 0.250000"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 100,100,255 0.250000"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.250000 PhaseIn"/>
+        <On Terms="TimerExpired; TimerName PhaseIn" Target="_Unit" Send="SetOpacity 0.800000 1.000000"/>
+        <On Terms="TimerExpired; TimerName PhaseIn" Target="_Unit" Send="SetTintColor 0,0,255 1.000000"/>
+        <On Terms="TimerExpired; TimerName PhaseIn" Send="TimerSet 1.000000 PhaseOut"/>
+        <On Terms="TimerExpired; TimerName PhaseOut" Target="_Unit" Send="SetOpacity 0.400000 1.000000"/>
+        <On Terms="TimerExpired; TimerName PhaseOut" Target="_Unit" Send="SetTintColor 100,100,255 1.000000"/>
+        <On Terms="TimerExpired; TimerName PhaseOut" Send="TimerSet 1.000000 PhaseIn"/>
+        <On Terms="Behavior.Ethereal.Off" Target="_Unit" Send="SetOpacity 1.000000 0.250000"/>
+        <On Terms="Behavior.Ethereal.Off" Target="_Unit" Send="SetTintColor 255,255,255 0.250000"/>
+        <On Terms="Behavior.Ethereal.Off" Send="Destroy"/>
+    </CActorSimple>
+    <!--    <CActorModel id="PhaseShiftImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.PhaseShift.Start; At Target" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorSound id="PhaseShiftFinishsound" parent="SoundOneShot">
+        <Sound value="HighTemplar_PhaseShiftDeath"/>
+        <On Terms="Behavior.Ethereal.Off" Send="Create"/>
+    </CActorSound>
+    <CActorRange id="PhaseShiftRange" parent="RangeAbil" abil="PhaseShift"/> -->
+    <!-- Psi Storm                                                                               -->
+    <CActorSplat id="PsiStormCursorSplat" parent="ProtossCursorSplat" abil="PsiStorm">
+        <Model value="PsiStormCursorSplat"/>
+    </CActorSplat>
+    <CActorRange id="PsiStormRange" parent="RangeAbil" abil="PsiStorm"/>
+    <CActorAction id="HighTemplarPsiStormShieldHitter" parent="AoEAttackBase">
+        <Lifetime value="3.400000"/>
+        <On Terms="Effect.PsiStormDamageInitial.Start" Send="Create"/>
+        <On Terms="Effect.PsiStormDamageInitial.Start" Send="ActionDamage"/>
+        <On Terms="Effect.PsiStormDamageInitial.Stop" Send="Destroy"/>
+        <On Terms="Effect.PsiStormDamage.Start" Send="Create"/>
+        <On Terms="Effect.PsiStormDamage.Start" Send="ActionDamage"/>
+        <On Terms="Effect.PsiStormDamage.Stop" Send="Destroy"/>
+    </CActorAction>
+    <CActorModel id="HighTemplarPsiStormModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Effect.PsiStormPersistent.Start" Send="Create"/>
+        <On Terms="Effect.PsiStormPersistent.Stop" Send="AnimBracketStop BSD"/>
+        <Scale value="1.300000"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorModel>
+    <CActorSound id="HighTemplarPsiStormSound" parent="SoundContinuous">
+        <On Terms="Effect.PsiStormPersistent.Start" Send="Create"/>
+        <On Terms="Effect.PsiStormPersistent.Stop" Send="Destroy"/>
+        <Sound value="HighTemplar_PsionicStormLaunch"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorSound>
+    <CActorModel id="HighTemplarPsiStormImpact" parent="ModelAnimationStyleContinuous">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <AutoScaleFactor value="0.750000"/>
+        <On Terms="Behavior.PsiStorm.On" Send="Create"/>
+        <On Terms="Behavior.PsiStorm.Off" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorSound id="HighTemplarPsiStormLaunchSound" parent="SoundOneShot">
+        <Sound value="HiTePsionicStormCast"/>
+        <On Terms="Abil.PsiStorm.SourcePrepStart" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="HighTemplarPsiPStormImpactSound" parent="SoundOneShot">
+        <Sound value="HighTemplar_PsionicStormImpact"/>
+        <On Terms="Behavior.PsiStorm.On" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="HighTemplarPhaseShiftSound" parent="SoundContinuous">
+        <On Terms="Abil.PhaseShift.SourcePrepStart" Send="Create"/>
+        <Sound value="HighTemplar_PhaseShiftLaunch"/>
+    </CActorSound>
+    <!-- Feedback                                                               -->
+    <CActorRange id="FeedbackRange" parent="RangeAbil" abil="Feedback"/>
+    <CActorModel id="FeedbackImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.Feedback.Start; At Target" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorModel id="FeedbackLaunch" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.Feedback.Start; At Caster" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+    </CActorModel>
+    <CActorSound id="FeedbackLaunchSound" parent="SoundOneShot">
+        <Sound value="Obelisk_ArgusLinkLaunch"/>
+        <On Terms="Effect.Feedback.Start; At Caster" Send="Create"/>
+        <Host Subject="_Selectable"/>
+    </CActorSound>
+    <CActorSound id="FeedbackImpactSound" parent="SoundOneShot">
+        <Sound value="Obelisk_ArgusLinkImpact"/>
+        <On Terms="Effect.Feedback.Start; At Target" Send="Create"/>
+        <Host Subject="_Selectable"/>
+    </CActorSound>
+    <!-- Immortal .............................................................................. -->
+    <CActorUnit id="Immortal" parent="GenericUnitBase" unitName="Immortal">
+        <DeathArray index="Normal" ModelLink="ImmortalDeath"/>
+        <PortraitModel value="ImmortalPortrait"/>
+        <PlacementModel value="ImmortalPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <BuildModel value="ImmortalWarpIn"/>
+        <WalkAnimMoveSpeed value="1.25"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundMedium"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathMedium" Name="Hallucination"/>
+        <DeathCustoms ModelLink="ProtossLargeUnitDeathLow" Name="AntiGravProtoss"/>
+        <BarWidth value="90"/>
+        <BarOffset value="80"/>
+        <UnitIcon value="Assets\Textures\BTN-Unit-Protoss-Immortal.dds"/>
+        <HeroIcon value="Assets\Textures\BTN-Unit-Protoss-Immortal.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Immortal-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Immortal-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Immortal-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Immortal.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Immortal.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <Aliases value="_UnitLarge"/>
+    </CActorUnit>
+    <CActorTurret id="ImmortalTurret">
+        <On Terms="TurretEnable.Immortal" Send="Create"/>
+    </CActorTurret>
+    <CActorAction id="ImmortalAttack" parent="GenericAttack" effectAttack="PhaseDisruptors">
+        <LaunchAssets Sound="Immortal_AttackLaunch"/>
+        <LaunchAttachQuery Methods="AMFilterWeaponLeft"/>
+        <ImpactMap index="None" Sound="Immortal_AttackImpact"/>
+    </CActorAction>
+    <CActorModel id="ShieldAbsorbImmortalViz" parent="ModelAnimationStyleOneShot">
+        <Terms value="Cap 1"/>
+        <On Terms="Behavior.HardenedShield.DamageHandled" Send="Create"/>
+        <On Terms="AnimDone" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <CActorSound id="ShieldAbsorbImmortalSound" parent="SoundOneShot">
+        <On Terms="Behavior.HardenedShield.DamageHandled" Send="Create"/>
+        <Sound value="Immortal_HardenedShieldImpact"/>
+    </CActorSound>
+    <!-- Interceptor (Carrier Fighter) ......................................................... -->
+    <CActorUnit id="Interceptor" parent="GenericUnitStandard" unitName="Interceptor">
+        <DeathArray index="Normal" ModelLink="InterceptorDeath" SoundLink="Interceptor_Explode"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <BarWidth value="36"/>
+        <BarOffset value="25"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-interceptor.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-interceptor.dds"/>
+        <SoundArray index="Birth" value=""/>
+        <SoundArray index="Movement" value="InterceptorWeaponBirth"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <Aliases value="_UnitSmall"/>
+    </CActorUnit>
+    <CActorBeamSimple id="InterceptorAttackBeam">
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <Macros value="ActionTargetTeleportDestroy"/>
+    </CActorBeamSimple>
+    <CActorModel id="InterceptorAttackImpactModel" parent="GenericAttackImpactModel">
+        <!-- This model has particle that'll show up between the attack point and the new
+            destination point of a telpeorting unit.  We don't want that, b/c it can reveal the
+            teleporting unit's location (read: escaping MothershipCore). -->
+        <Macros value="ActionTargetTeleportDestroy"/>
+    </CActorModel>
+    <CActorAction id="InterceptorAttack" parent="GenericAttackBase">
+        <BeamScope value="Caster"/>
+        <LaunchAttachQuery Methods="AMFilterWeapon"/>
+        <LaunchAssets Sound="Interceptor_AttackLaunch"/>
+        <ImpactModel value="InterceptorAttackImpactModel"/>
+        <ImpactMap index="None" Sound="Interceptor_AttackImpact"/>
+        <ActionFlags index="ImpactMonitorsTeleports" value="1"/>
+        <On Terms="Effect.InterceptorBeamPersistent.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.InterceptorBeamDamage.Start; At Caster; FromEffectTreeDescendant" Send="ActionDamage"/>
+    </CActorAction>
+    <!-- Mothership ............................................................................ -->
+    <CActorUnit id="Mothership" parent="GenericUnitBase" unitName="Mothership">
+        <Baselines index="Walk" AnimProps="Stand"/>
+        <DeathArray index="Normal" ModelLink="MothershipDeath" SoundLink="Mothership_Explode"/>
+        <DeathActorModel value="MothershipDeathModel"/>
+        <BuildModel value="MothershipTeleportIn"/>
+        <PortraitModel value="MothershipPortrait"/>
+        <On Terms="Abil.Vortex.SourceCastStart" Send="$Spell"/>
+        <On Terms="Abil.MassRecall.SourceCastStart" Send="$Spell"/>
+        <On Terms="UnitBirth.Mothership.Normal" Send="Create MothershipTeleportOut"/>
+        <On Terms="UnitBirth.Mothership.Normal" Send="SetScale 0.100000"/>
+        <On Terms="UnitBirth.Mothership.Normal" Send="SetScale 1.000000 0.400000"/>
+        <On Terms="Effect.MothershipMassRecallTeleport.Start" Send="CombatRevealClearTimers"/>
+        <BarWidth value="216"/>
+        <BarOffset value="180"/>
+        <NameOffset value="130"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-mothership.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-mothership.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Mothership-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Mothership-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Mothership-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Mothership.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Mothership.dds"/>
+        </Wireframe>
+        <AbilSoundArray AbilCmd="Vortex,Execute" Sound="Mothership_VortexVO"/>
+        <AbilSoundArray AbilCmd="WormholeTransit,Execute" Sound="Mothership_WormholeTransitVO"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <SelectAbilCmd value="Vortex,Execute"/>
+        <GlossaryAnim value="GLstand"/>
+        <Aliases value="_UnitHuge"/>
+    </CActorUnit>
+    <CActorTurret id="MothershipRotateTurret">
+        <On Terms="TurretEnable.MothershipRotate" Send="Create"/>
+        <Terms value="Cap 1"/>
+    </CActorTurret>
+    <!-- Cleverness here, we're setting the rotation of the MothershipDeathmodel to the rotation
+         of the living Mothership's orgin attach point.  The CActorTurret does automatically
+         capture the turret bone on the death model, but that bone isn't linked ot anything.
+         Presumably, b/c the Mothership tips over and can't really continue to rotate w/out
+         looking odd, as falling pieces rotate back up in the air.  Thus we need the extra siteOp
+         here.  -->
+    <CActorModel id="MothershipDeathModel" parent="UnitDeathModel">
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+    </CActorModel>
+    <CActorModel id="MotherShipBeaconLight" parent="ModelAnimationStyleContinuous">
+        <On Terms="Abil.NexusTrainMothership.Start" Send="Create"/>
+        <On Terms="Abil.NexusTrainMothership.Stop" Send="Destroy"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+    </CActorModel>
+    <!-- Attack                                                                                  -->
+    <CActorBeamSimple id="MothershipAttackBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <On Terms="Effect.MothershipBeamPersistent.Stop" Send="AnimBracketStop BSD"/>
+        <Macros value="ActionTargetTeleportDestroy"/>
+    </CActorBeamSimple>
+    <CActorBeamSimple id="MothershipSecondaryAttackBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <Model value="MothershipAttackBeam"/>
+        <On Terms="Effect.MothershipSecondaryBeamPersistent.Stop" Send="AnimBracketStop BSD"/>
+        <Macros value="ActionTargetTeleportDestroy"/>
+    </CActorBeamSimple>
+    <CActorAction id="MothershipAttack" parent="GenericAttackBase">
+        <LaunchAttachQuery Methods="AMFilterWeaponSetA0 AMClosest2ToTarget AMPatternMothershipBeam"/>
+        <LaunchAssets Sound="Mothership_AttackLaunch"/>
+        <ActionFlags index="AlignedImpactsAndDamages" value="1"/>
+        <ActionFlags index="ImpactMonitorsTeleports" value="1"/>
+        <Lifetime value="-1.000000"/>
+        <On Terms="Effect.MothershipBeamPersistent.Start" Send="Create"/>
+        <On Terms="Effect.MothershipBeamDamage.Start; FromEffectTreeDescendant" Send="ActionDamage"/>
+        <!-- Need to delay the attack long enough to be able kill a beam during its death anim, when
+             the target teleports. -->
+        <On Terms="Effect.MothershipBeamPersistent.Stop" Send="Destroy WhenReady"/>
+    </CActorAction>
+    <CActorAction id="MothershipSecondaryAttack" parent="GenericAttackBase">
+        <LaunchAttachQuery Methods="AMFilterWeaponSetA0 AMClosest2ToTarget AMPatternMothershipBeam"/>
+        <ActionFlags index="AlignedImpactsAndDamages" value="1"/>
+        <ActionFlags index="ImpactMonitorsTeleports" value="1"/>
+        <Lifetime value="-1.000000"/>
+        <On Terms="Effect.MothershipSecondaryBeamPersistent.Start" Send="Create"/>
+        <On Terms="Effect.MothershipBeamDamage.Start; FromEffectTreeDescendant" Send="ActionDamage"/>
+        <!-- Need to delay the attack long enough to be able kill a beam during its death anim, when
+             the target teleports. -->
+        <On Terms="Effect.MothershipBeamPersistent.Stop" Send="Destroy WhenReady"/>
+    </CActorAction>
+    <CActorSound id="MothershipAttackImpact" parent="SoundContinuous">
+        <Sound value="Mothership_AttackImpact"/>
+        <On Terms="Effect.MothershipBeamDamage.Start; EffectExecuteIndex 1" Send="Create"/>
+        <On Terms="Effect.MothershipBeamPersistent.Stop" Send="Destroy"/>
+    </CActorSound>
+    <!-- Time Bomb                                                                               -->
+    <CActorSplat id="TemporalRiftCursorSplat" parent="ProtossCursorSplat" abil="TemporalRift"/>
+    <CActorRange id="TemporalRiftRange" parent="RangeAbil" abil="TemporalRift"/>
+    <CActorModel id="TemporalRiftModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Effect.TemporalRiftCreatePersistent.Start" Send="Create"/>
+        <On Terms="Effect.TemporalRiftCreatePersistent.Stop" Send="AnimBracketStop BSD"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorModel>
+    <CActorSound id="TemporalRiftSound" parent="SoundOneShot">
+        <Sound value="Mothership_TemporalRiftLaunch"/>
+        <On Terms="Effect.TemporalRiftCreatePersistent.Start" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="TemporalRiftLoop" parent="SoundContinuous">
+        <Sound value="Mothership_TemporalRiftLoop"/>
+        <On Terms="Effect.TemporalRiftCreatePersistent.Start" Send="Create"/>
+        <On Terms="Effect.TemporalRiftCreatePersistent.Stop" Send="Destroy"/>
+    </CActorSound>
+    <CActorSound id="TemporalRiftDeathSound" parent="SoundOneShot">
+        <Sound value="Mothership_TemporalRiftDeath"/>
+        <On Terms="Effect.TemporalRiftCreatePersistent.Stop" Send="Create"/>
+    </CActorSound>
+    <!-- Wormhole Transit                                                                        -->
+    <CActorModel id="MothershipTeleportIn" parent="ModelAnimationStyleOneShot">
+        <On Terms="Abil.WormholeTransit.SourcePrepStart" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+    </CActorModel>
+    <CActorModel id="MothershipTeleportOut" parent="ModelAnimationStyleOneShot">
+        <On Terms="Abil.WormholeTransit.SourceCastStop" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+    </CActorModel>
+    <CActorSound id="WormholeTransitSound" parent="SoundOneShot">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+        <On Terms="Abil.WormholeTransit.SourcePrepStart" Send="Create"/>
+        <Sound value="Mothership_WormholeTransitStart"/>
+    </CActorSound>
+    <CActorSound id="WormholeTransitEndSound" parent="SoundOneShot">
+        <On Terms="Abil.WormholeTransit.SourceCastStop" Send="Create"/>
+        <Sound value="Mothership_WormholeTransitEnd"/>
+    </CActorSound>
+    <!-- Vortex                                                                                  -->
+    <CActorRange id="VortexRange" parent="RangeAbil" abil="Vortex"/>
+    <CActorModel id="VortexModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Effect.VortexCreatePersistent.Start" Send="Create"/>
+        <On Terms="Effect.VortexCreatePersistent.Stop" Send="AnimBracketStop BSD"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorModel>
+    <CActorSplat id="VortexCursorSplat" parent="ProtossCursorSplat" abil="Vortex"/>
+    <CActorSound id="VortexBirthSound" parent="SoundOneShot">
+        <On Terms="Effect.VortexCreatePersistent.Start" Send="Create"/>
+        <Sound value="Mothership_VortexStart"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorSound>
+    <CActorSound id="VortexLoopSound" parent="SoundContinuous">
+        <On Terms="Effect.VortexCreatePersistent.Start" Send="Create"/>
+        <On Terms="Effect.VortexCreatePersistent.Stop" Send="Destroy"/>
+        <Sound value="Mothership_VortexLoop"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorSound>
+    <CActorSound id="VortexDeathSound" parent="SoundOneShot">
+        <On Terms="Effect.VortexCreatePersistent.Stop" Send="Create"/>
+        <Sound value="Mothership_VortexEnd"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorSound>
+    <CActorSound id="Mothership_CloakFieldOn" parent="SoundOneShot">
+        <Terms value="ValidateUnit NotWorkerAndNotCloaked"/>
+        <On Terms="Behavior.CloakFieldEffect.On" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="Mothership_CloakFieldOff" parent="SoundOneShot">
+        <Terms value="ValidateUnit NotWorkerAndNotCloakedAndNotDead"/>
+        <On Terms="Behavior.CloakFieldEffect.Off" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="Worker_CloakFieldOn" parent="SoundOneShot">
+        <Sound value="Mothership_CloakFieldOn"/>
+    </CActorSound>
+    <CActorSound id="Worker_CloakFieldOff" parent="SoundOneShot">
+        <Sound value="Mothership_CloakFieldOff"/>
+    </CActorSound>
+    <!-- Mass Recall                                                                                  -->
+    <CActorSplat id="MassRecallCursorSplat" parent="ProtossCursorSplat" abil="MassRecall"/>
+    <CActorModel id="RecallingImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Behavior.Recalling.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <AutoScaleFactor value="0.450000"/>
+    </CActorModel>
+    <CActorModel id="RecalledImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Behavior.Recalled.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <AutoScaleFactor value="0.450000"/>
+    </CActorModel>
+    <CActorSound id="RecallingImpactSound" parent="SoundOneShot">
+        <On Terms="Behavior.Recalling.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="Mothership_RecallStart"/>
+    </CActorSound>
+    <CActorSound id="RecalledImpactSound" parent="SoundOneShot">
+        <On Terms="Behavior.Recalled.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="Mothership_RecallEnd"/>
+    </CActorSound>
+    <CActorSimple id="RecallOpacity">
+        <On Terms="Behavior.Recalling.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetOpacity 0.400000 0.250000 MassRecallOpacity"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 100,100,255 0.250000 OneShot MassRecallTint"/>
+        <On Terms="Behavior.NeuralParasite.On" Target="_Unit" Send="ClearOpacity 0.250000 MassRecallOpacity"/>
+        <On Terms="Behavior.NeuralParasite.On" Target="_Unit" Send="ClearTintColor 0.250000 MassRecallTint"/>
+        <On Terms="Behavior.NeuralParasite.On" Send="Destroy"/>
+        <On Terms="Behavior.Recalled.Off" Target="_Unit" Send="ClearOpacity 0.250000 MassRecallOpacity"/>
+        <On Terms="Behavior.Recalled.Off" Target="_Unit" Send="ClearTintColor 0.250000 MassRecallTint"/>
+        <On Terms="Behavior.Recalled.Off" Send="Destroy"/>
+    </CActorSimple>
+    <!-- Nexus ................................................................................. -->
+    <CActorUnit id="Nexus" parent="ProtossBuildingEx" unitName="Nexus">
+        <Aliases value="_UnitHuge"/>
+        <Aliases value="_SpecialPowerNexus"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="MacroTownhallDeco_Protoss"/>
+        <Macros value="ProtossPlayerDecalMacro"/>
+        <Macros value="SprayHelperMacro"/>
+        <AcceptedHostedPropTransfers index="Decal" value="0"/>
+        <On Terms="UnitBirth.Nexus" Send="Create PlayerLogoDoodadList"/>
+        <On Terms="UnitBirth.Nexus; PlayerHasClanDecal" Send="Create ProtossClanFlag"/>
+        <On Terms="UnitBirth.Nexus; PlayerHasTrophy" Send="Create ProtossPlayerTrophy"/>
+        <DeathArray index="Normal" SoundLink=""/>
+        <BarOffset value="160"/>
+        <BarWidth value="200"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Nexus.dds"/>
+        </GroupIcon>
+        <NameOffset value="170"/>
+        <StatusHarvesterData Text="UI/HarvesterCountMinerals" SearchFilters="HarvestableResource;Player,Ally,Enemy" SearchRadius="8"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Nexus.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Nexus-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Nexus-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Nexus-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="NexusSplat" parent="GenericUnitSplat" unitName="Nexus"/>
+    <!-- Time Warp ............................................................................. -->
+    <CActorRange id="TimeWarpRange" parent="RangeAbil" abil="TimeWarp"/>
+    <CActorModel id="TimeWarpLaunch" parent="ModelAnimationStyleOneShot">
+        <On Terms="Abil.TimeWarp.SourceCastStart" Send="Create"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+    </CActorModel>
+    <CActorSound id="TimeWarpLaunchSound" parent="SoundOneShot">
+        <Sound value="Obelisk_TimeWarpLaunch"/>
+        <On Terms="Abil.TimeWarp.SourceCastStart" Send="Create"/>
+        <Host Subject="_Unit"/>
+    </CActorSound>
+    <CActorSound id="TimeWarpImpactSound" parent="SoundOneShot">
+        <Sound value="Obelisk_TimeWarpImpact"/>
+        <On Terms="BehaviorLevel.TimeWarpProduction.Start; Level 1" Send="Create"/>
+        <On Terms="BehaviorLevel.TimeWarpResearch.Start; Level 1" Send="Create"/>
+        <Host Subject="_Unit"/>
+    </CActorSound>
+    <CActorModel id="ObeliskEffect" parent="ModelAnimationStyleContinuous">
+        <AutoScaleFactor value="0.750000"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <On Terms="ActorCreation" Send="SetScale 0.300000"/>
+        <On Terms="Behavior.TimeWarpProduction.On" Send="Create"/>
+        <On Terms="Behavior.TimeWarpResearch.On" Send="Create"/>
+        <On Terms="BehaviorLevel.TimeWarpProduction.Start" Send="Create ObeliskEffect"/>
+        <On Terms="BehaviorLevel.TimeWarpResearch.Start" Send="Create ObeliskEffect"/>
+        <On Terms="BehaviorLevel.TimeWarpProduction.Start" Send="Destroy"/>
+        <On Terms="BehaviorLevel.TimeWarpResearch.Start" Send="Destroy"/>
+        <On Terms="Behavior.TimeWarpProduction.Off" Send="Destroy"/>
+        <On Terms="Behavior.TimeWarpResearch.Off" Send="Destroy"/>
+        <Model value="TimeWarp"/>
+        <Host Subject="_Unit"/>
+    </CActorModel>
+    <!-- Dark Shrine ........................................................................... -->
+    <CActorUnit id="DarkShrine" parent="ProtossBuildingEx" unitName="DarkShrine">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="GlobalLoopMacro"/>
+        <AnimBlendTime value="0.750000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="0"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <BarOffset value="180"/>
+        <BarWidth value="85"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkShrine.dds"/>
+        </GroupIcon>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkShrine.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkShrine-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkShrine-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DarkShrine-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="DarkShrineSplat" parent="GenericUnitSplat" unitName="DarkShrine"/>
+    <!-- Observer .............................................................................. -->
+    <CActorUnit id="Observer" parent="GenericUnitStandard" unitName="Observer">
+        <PortraitModel value="ObserverPortrait"/>
+        <DeathArray index="Normal" ModelLink="ObserverDeath" SoundLink="Observer_Explode"/>
+        <AnimBlendTime value="1.200000"/>
+        <On Terms="Behavior.WarpInEffect15.On" Send="ModelSwap ObserverWarpIn"/>
+        <On Terms="Behavior.WarpInEffect15.On" Send="$Birth"/>
+        <On Terms="Behavior.WarpInEffect15.Off" Send="ModelSwap Observer"/>
+        <On Terms="Behavior.WarpInEffect15.Off" Send="AnimBaselineStart"/>
+        <BarWidth value="42"/>
+        <BarOffset value="40"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-observer.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-observer.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Observer-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Observer-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Observer-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Observer.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Observer.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <Aliases value="_UnitMedium"/>
+    </CActorUnit>
+    <!-- Photon Cannon ......................................................................... -->
+    <CActorUnit id="PhotonCannon" parent="ProtossBuildingEx" unitName="PhotonCannon">
+        <Aliases value="_UnitLarge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit CasterIsUnpoweredAndNotUnderConstruction" Send="DeathCustomize Variation2"/>
+        <On Terms="ActorCreation" Send="Create PhotonCannonTurretLookAt"/>
+        <On Terms="Abil.attack.ReadyStart" Target="PhotonCannonTurretLookAt" Send="LookAtEngage"/>
+        <On Terms="Abil.attack.ReadyStop" Target="PhotonCannonTurretLookAt" Send="LookAtDisengage"/>
+        <CreepHeightClass value="Tiny"/>
+        <DeathCustoms ModelLink="PhotonCannonDeathUnpowered" SoundLink="PhotonCannon_Explode" Name="Variation2"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <PlacementActorModel value="PhotonCannonPlacementModel"/>
+        <BarOffset value="60"/>
+        <BarWidth value="75"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-PhotonCannon.dds"/>
+        </GroupIcon>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-PhotonCannon.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-PhotonCannon-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-PhotonCannon-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-PhotonCannon-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorTurret id="PhotonCannonTurret"/>
+    <CActorSplat id="PhotonCannonSplat" parent="GenericUnitSplat" unitName="PhotonCannon"/>
+    <!-- Attack                                                                                  -->
+    <CActorMissile id="PhotonCannonAttackMissile" parent="GenericAttackMissile" unitName="PhotonCannonWeapon">
+        <On Terms="UnitBirth" Send="AnimSetTimeScaleAbsolute Lifetime 1.000000"/>
+    </CActorMissile>
+    <CActorAction id="PhotonCannonAttack" parent="GenericAttack" effectImpact="PhotonCannonU" effectLaunch="PhotonCannonLM">
+        <ImpactMap index="None" Sound="PhotonCannon_AttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <LaunchAssets Sound="PhotonCannon_AttackLaunch"/>
+        <ImpactPhysics Name="PhotonCannonImpact" MatchKeys="Basic" Physics="PhotonCannonAttackDeathForce"/>
+    </CActorAction>
+    <!-- Warp Prism ............................................................................ -->
+    <CActorUnit id="WarpPrism" parent="GenericUnitStandard" unitName="WarpPrism">
+        <PortraitModel value="WarpPrismPortrait"/>
+        <BuildModel value="WarpPrismWarpIn"/>
+        <DeathArray index="Normal" ModelLink="WarpPrismDeath" SoundLink="WarpPrism_Explode"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom WarpPrism; MorphTo WarpPrismPhasing" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom WarpPrismPhasing; MorphTo WarpPrism" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom WarpPrismPhasing; MorphTo WarpPrism" Send="AnimPlay Work Work,End 0 0.000000"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundMedium"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathMedium" Name="Hallucination"/>
+        <BarWidth value="78"/>
+        <BarOffset value="55"/>
+        <NameOffset value="60"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-warpprism.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-warpprism.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism00-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism00-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism00-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism00.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism00.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <HostSiteOps Ops="SOpBankerwarpPrism"/>
+        <Aliases value="_UnitLarge"/>
+    </CActorUnit>
+    <CActorSiteOpBankerUnit id="SOpBankerwarpPrism" parent="SOpBankerUnit">
+        <RollMax value="30.000000"/>
+        <RollInActivationAngle value="20.000000"/>
+        <RollInArc value="110.000000"/>
+        <RollOutDuration value="1.600000"/>
+    </CActorSiteOpBankerUnit>
+    <CActorUnit id="WarpPrismPhasing" parent="GenericUnitStandard" unitName="WarpPrismPhasing">
+        <PortraitModel value="WarpPrismPortrait"/>
+        <DeathArray index="Normal" ModelLink="WarpPrismOpenDeath" SoundLink="WarpPrism_Explode"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom WarpPrismPhasing; MorphTo WarpPrism" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom WarpPrism; MorphTo WarpPrismPhasing" Send="Create"/>
+        <On Terms="UnitBirth.WarpPrismPhasing" Send="AnimBracketStart Phasing Work,Start Work Work,End Instant"/>
+        <On Terms="AbilMorph.*.Start; MorphTo WarpPrismPhasing" Send="AnimBracketStart Phasing Work,Start Work Work,End"/>
+        <On Terms="AbilMorph.*.Start; MorphTo WarpPrism" Send="AnimBracketStop Phasing"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundMedium"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathMedium" Name="Hallucination"/>
+        <BarWidth value="78"/>
+        <BarOffset value="55"/>
+        <NameOffset value="60"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-warpprismstationary.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-warpprismstationary.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism01-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism01-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism01-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism01.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-WarpPrism01.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <SoundArray index="Ready" value="WarpPrism_Ready"/>
+        <SoundArray index="What" value="WarpPrism_What"/>
+        <SoundArray index="Yes" value="WarpPrism_Yes"/>
+        <SoundArray index="Pissed" value="WarpPrism_Pissed"/>
+        <Aliases value="_UnitLarge"/>
+        <Model value="WarpPrism"/>
+        <BuildModel value="WarpPrism"/>
+        <PlacementModel value="WarpPrism"/>
+    </CActorUnit>
+    <CActorSound id="PhasingMode" parent="SoundOneShot">
+        <Sound value="WarpPrism_MorphToPhasing"/>
+        <On Terms="AbilMorph.*.Start; MorphTo WarpPrismPhasing" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="TransportMode" parent="SoundOneShot">
+        <Sound value="WarpPrism_MorphToTransport"/>
+        <On Terms="AbilMorph.*.Start; MorphTo WarpPrism" Send="Create"/>
+    </CActorSound>
+    <CActorTurret id="WarpPrismPhasingRotateTurret">
+        <On Terms="TurretEnable.WarpPrismPhasingRotate" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom WarpPrismPhasing" Send="Destroy"/>
+    </CActorTurret>
+    <!-- Phoenix ............................................................................... -->
+    <CActorUnit id="Phoenix" parent="GenericUnitBase" unitName="Phoenix">
+        <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000"/>
+        <PortraitModel value="PhoenixPortrait"/>
+        <BuildModel value="PhoenixWarpIn"/>
+        <DeathArray index="Normal" ModelLink="PhoenixDeath" SoundLink="Phoenix_Explode"/>
+        <AnimBlendTime value="0.450000"/>
+        <On Terms="Effect.GravitonBeam.Start; At Source" Send="$Spell PlayForever"/>
+        <On Terms="Effect.GravitonBeam.Stop; At Source" Send="AnimClear Spell"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundMedium"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathMedium" Name="Hallucination"/>
+        <BarOffset value="50"/>
+        <NameOffset value="50"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-phoenix.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-phoenix.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Phoenix-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Phoenix-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Phoenix-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Phoenix.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Phoenix.dds"/>
+        </Wireframe>
+        <AbilSoundArray AbilCmd="GravitonBeam.Execute" Sound="Phoenix_GravitonBeamVO"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <HostSiteOps Ops="SOpBankerPhoenix"/>
+        <Aliases value="_UnitLarge"/>
+    </CActorUnit>
+    <CActorSiteOpBankerUnit id="SOpBankerPhoenix" parent="SOpBankerUnit">
+        <RollMax value="35.000000"/>
+        <RollInActivationAngle value="20.000000"/>
+        <RollOutDuration value="1.200000"/>
+    </CActorSiteOpBankerUnit>
+    <!-- Attack                                                                                  -->
+    <CActorMissile id="PhoenixAirAttackMissile" parent="GenericAttackMissile" unitName="IonCannonsWeapon"/>
+    <CActorAction id="PhoenixAirAttackLeft" parent="GenericAttackNoCreateBase" effectImpact="IonCannonsULeft" effectLaunch="IonCannonsLMLeft">
+        <Missile value="PhoenixAirAttackMissile"/>
+        <LaunchAttachQuery Methods="Weapon 1"/>
+        <LaunchAssets Sound="Phoenix_AirAttackLaunch"/>
+        <ImpactMap index="None" Model="PhoenixAirAttackImpact" Sound="Phoenix_AirAttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <On Terms="Effect.IonCannonsLMLeft.Start; At Caster" Send="Create"/>
+    </CActorAction>
+    <CActorAction id="PhoenixAirAttackRight" parent="GenericAttackNoCreateBase" effectImpact="IonCannonsURight" effectLaunch="IonCannonsLMRight">
+        <Missile value="PhoenixAirAttackMissile"/>
+        <LaunchAttachQuery Methods="Weapon 3"/>
+        <LaunchAssets Sound="Phoenix_AirAttackLaunch"/>
+        <HostImpactSource Subject="PhoenixAirAttackLeft" ReachAcrossEffectTrees="1"/>
+        <ImpactMap index="None" Model="PhoenixAirAttackImpact" Sound="Phoenix_AirAttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <On Terms="Effect.IonCannonsLMRight.Start; At Caster" Send="Create"/>
+    </CActorAction>
+    <!-- Graviton Beam                                                                           -->
+    <CActorRange id="GravitonBeamRange" parent="RangeAbil" abil="GravitonBeam"/>
+    <CActorModel id="GravitonBeamRocks" parent="ModelAnimationStyleContinuous">
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachOrigin SOpShadow"/>
+        <On Terms="Effect.GravitonBeam.Start; At Target" Send="Create"/>
+        <On Terms="Effect.GravitonBeam.Stop" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorBeamSimple id="GravitonBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon09"/>
+        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="Effect.GravitonBeam.Start" Send="Create"/>
+        <On Terms="Effect.GravitonBeam.Stop" Send="Destroy"/>
+    </CActorBeamSimple>
+    <CActorModel id="GravitonBeamImpact" parent="ModelAnimationStyleContinuous">
+        <AutoScaleFactor value="0.700000"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="Effect.GravitonBeam.Start; At Target" Send="Create"/>
+        <On Terms="Effect.GravitonBeam.Stop; At Target" Send="Create GravitonBeamImpactDeath"/>
+        <On Terms="Effect.GravitonBeam.Stop; At Target" Send="Destroy"/>
+    </CActorModel>
+    <CActorModel id="GravitonBeamImpactDeath">
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <Model value="GravitonBeamImpact"/>
+        <AutoScaleFactor value="0.700000"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenterStationary"/>
+        <On Terms="ActorCreation" Send="$Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+    </CActorModel>
+    <CActorSiteRocker id="GravitonBeamRocker">
+        <Elevation value="0.100000,0.050000"/>
+        <ElevationPeriod value="2.500000,1.000000"/>
+        <Pitch value="11.997,5.9985"/>
+        <PitchPeriod value="3.500000,10.000000"/>
+        <Roll value="4.9987,4.9987"/>
+        <RollPeriod value="2.500000,1.000000"/>
+        <On Terms="ActorCreation" Target="::Main" Send="RefSetFromMsg ::Host ::Sender"/>
+        <On Terms="Behavior.GravitonBeamHeight.On" Send="Create"/>
+        <On Terms="Behavior.GravitonBeamHeight.Off" Send="Transition Out 1.000000"/>
+        <On Terms="Behavior.GravitonBeam.Off" Send="TimerSet 1.000000 DelayDestroy"/>
+        <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy"/>
+    </CActorSiteRocker>
+    <CActorSound id="GravitonBeamStart" parent="SoundOneShot">
+        <Sound value="Phoenix_GravitonBeamStart"/>
+        <On Terms="Behavior.GravitonBeam.On" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="GravitonBeamStop" parent="SoundOneShot">
+        <Sound value="Phoenix_GravitonBeamEnd"/>
+        <On Terms="Behavior.GravitonBeam.Off" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="GravitonBeamLoop" parent="SoundContinuous">
+        <Sound value="Phoenix_GravitonBeamLoop"/>
+        <On Terms="Behavior.GravitonBeam.On" Send="Create"/>
+        <On Terms="Behavior.GravitonBeam.Off" Send="Destroy"/>
+    </CActorSound>
+    <!-- Probe ................................................................................. -->
+    <CActorUnit id="Probe" parent="GenericUnitStandard" unitName="Probe">
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <AnimBlendTime value="0.250000"/>
+        <PortraitModel value="ProbePortrait"/>
+        <DeathArray index="Normal" ModelLink="ProbeDeath" SoundLink="Probe_Explode"/>
+        <On Terms="Abil.ProbeHarvest.Start" Send="AnimPlay Work Work PlayForever"/>
+        <On Terms="Abil.ProbeHarvest.Stop" Send="AnimClear Work"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundSmall"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <!-- cloaking sound setup, different to other units -->
+        <On Terms="Abil.ProbeHarvest.Start" Send="StatusSet CloakSound 1"/>
+        <On Terms="Behavior.CarryHarvestableVespeneGeyserGasProtoss.Create" Send="StatusSet CloakSound 1"/>
+        <On Terms="Confirmation.Probe.Start" Send="StatusSet CloakSound 0"/>
+        <On Terms="Behavior.CloakFieldEffect.Create; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOn"/>
+        <On Terms="Behavior.CloakFieldEffect.Destroy; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOff"/>
+        <Macros value="CarryAnim"/>
+        <Macros value="BuildAnim"/>
+        <Macros value="MacroWorkerHat"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathSmall" Name="Hallucination"/>
+        <BarWidth value="42"/>
+        <BarOffset value="40"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-probe.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-probe.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Probe-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Probe-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Probe-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Probe.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Probe.dds"/>
+        </Wireframe>
+        <SoundArray index="Help" value="Alert_ProtossEconomyUnderAttack"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <ErrorArray Error="MustTargetUnit" Sound="Alert_ProtossPlaceOnVespeneGeyser"/>
+        <Aliases value="_UnitSmall"/>
+    </CActorUnit>
+    <CActorSiteOpBankerUnit id="SOpBankerProbe">
+        <RollMax value="50.000000"/>
+        <RollInActivationAngle value="15.000000"/>
+        <RollInArc value="110.000000"/>
+        <RollOutDuration value="0.600000"/>
+    </CActorSiteOpBankerUnit>
+    <CActorBeamSimple id="ProbeAttackBeam" parent="GenericAttackBeam"/>
+    <CActorAction id="ProbeAttack" parent="GenericAttack" effectAttack="ParticleBeam">
+        <ImpactMap index="None" Sound="Probe_AttackImpact"/>
+        <!-- Need this so the impact host ops can know which side of the target is closest to
+             the attacker. -->
+        <ActionFlags index="LaunchForceSite" value="1"/>
+    </CActorAction>
+    <CActorSound id="ProbeAttackLaunch" parent="SoundOneShot">
+        <Sound value="Probe_AttackLaunch"/>
+        <On Terms="WeaponStart.ParticleBeam.AttackStart" Send="Create"/>
+    </CActorSound>
+    <!-- Pylon ................................................................................. -->
+    <CActorUnit id="Pylon" parent="ProtossBuildingEx" unitName="Pylon">
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <SoundArray index="Help" value="Alert_ProtossPylonUnderAttack"/>
+        <AnimBlendTime value="0.750000"/>
+        <UnitFlags index="StandAnimBirthVariation" value="0"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Pylon-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Pylon-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Pylon-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Pylon.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Pylon.dds"/>
+        </Wireframe>
+        <BarWidth value="75"/>
+        <BarOffset value="90"/>
+        <Aliases value="_UnitLarge"/>
+        <On Terms="ActorCreation; PlayerHasReward PylonSkin" Send="StatusSet CE 1"/>
+        <On Terms="StatusSet.*.CE; IsStatus CE 1; ModelName Pylon" Send="ModelSwap PylonXPR"/>
+        <On Terms="AnimDone; AnimName Stand,Build,End; IsStatus CE 1" Send="ModelSwap PylonXPR"/>
+        <On Terms="UnitDeathCustomize; IsStatus CE 1; ValidateUnit IsNotConstructing" Send="DeathCustomize Variation10"/>
+        <On Terms="UnitDeathCustomize; IsStatus CE 1; ValidateUnit BurnDownUnderConstruction" Send="DeathCustomize Variation11"/>
+        <On Terms="UnitCreation.PylonOvercharged" Send="Create"/>
+        <DeathCustoms ModelLink="PylonXPRDeath" Name="Variation10"/>
+        <DeathCustoms ModelLink="ProtossWarpInDeath" SoundLink="Pylon_Explode" Name="Variation11"/>
+        <PlacementActorModel value="PylonPlacementModel"/>
+    </CActorUnit>
+    <CActorSplat id="PylonSplat" parent="GenericUnitSplat" unitName="Pylon"/>
+    <CActorTurret id="PylonCrystalRotateTurret">
+        <YawQuery Methods="Turret"/>
+        <On Terms="TurretEnable.PylonCrystalRotate" Send="Create"/>
+    </CActorTurret>
+    <CActorTurret id="PylonRingRotateTurret">
+        <On Terms="TurretEnable.PylonRingRotate" Send="Create"/>
+    </CActorTurret>
+    <!-- Robotics Facility ..................................................................... -->
+    <CActorUnit id="RoboticsFacility" parent="ProtossBuildingEx" unitName="RoboticsFacility">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit CasterIsUnpoweredAndNotUnderConstruction" Send="DeathCustomize Variation2"/>
+        <On Terms="UnitDeathCustomize; !IsStatus Queuing 0" Send="DeathCustomize Variation9"/>
+        <AnimBlendTime value="0.000000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="0"/>
+        <CreepHeightClass value="Small"/>
+        <DeathArray index="Normal" SoundLink="RoboticsFacilty_Explode"/>
+        <DeathArray index="UnderConstruction" SoundLink="RoboticsFacilty_Explode"/>
+        <DeathCustoms ModelLink="RoboticsFacilityDeathUnpowered" SoundLink="RoboticsFacilty_Explode" Name="Variation2"/>
+        <DeathCustoms ModelLink="RoboticsFacilityConstructionDeath" SoundLink="RoboticsFacilty_Explode" Name="Variation9"/>
+        <BarOffset value="110"/>
+        <BarWidth value="160"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsFacility.dds"/>
+        </GroupIcon>
+        <NameOffset value="110"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsFacility.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsFacility-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsFacility-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsFacility-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="RoboticsFacilitySplat" parent="GenericUnitSplat" unitName="RoboticsFacility"/>
+    <!-- Robotics Support Bay .................................................................. -->
+    <CActorUnit id="RoboticsBay" parent="ProtossBuildingEx" unitName="RoboticsBay">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit CasterIsUnpoweredAndNotUnderConstruction" Send="DeathCustomize Variation2"/>
+        <AnimBlendTime value="1.000000"/>
+        <CreepHeightClass value="Smaller"/>
+        <DeathArray index="Normal" SoundLink="NullCircuit_Explode"/>
+        <DeathArray index="UnderConstruction" SoundLink="NullCircuit_Explode"/>
+        <DeathCustoms ModelLink="RoboticsBayDeathUnpowered" SoundLink="NullCircuit_Explode" Name="Variation2"/>
+        <EditorModel value="RoboticsBay"/>
+        <BarOffset value="130"/>
+        <BarWidth value="135"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsSupportBay.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-protoss-roboticssupportbay.dds"/>
+        <NameOffset value="110"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-building-protoss-roboticssupportbay.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsSupportBay.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsSupportBay-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsSupportBay-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-RoboticsSupportBay-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="RoboticsBaySplat" parent="GenericUnitSplat" unitName="RoboticsBay"/>
+    <!-- Stalker ............................................................................... -->
+    <CActorUnit id="Stalker" parent="GenericUnitBase" unitName="Stalker">
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="StalkerDeath"/>
+        <BuildModel value="StalkerWarpIn"/>
+        <PortraitModel value="StalkerPortrait"/>
+        <WalkAnimMoveSpeed value="3.1328"/>
+        <PlacementModel value="StalkerPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundMedium"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathMedium" Name="Hallucination"/>
+        <BarOffset value="70"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-stalker.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-stalker.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Stalker-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Stalker-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Stalker-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Stalker.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Stalker.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <Aliases value="_UnitMedium"/>
+    </CActorUnit>
+    <CActorMissile id="StalkerAttackMissile" parent="GenericAttackMissile" unitName="StalkerWeapon"/>
+    <CActorAction id="StalkerAttack" parent="GenericAttack" effectImpact="ParticleDisruptorsU" effectLaunch="ParticleDisruptors">
+        <LaunchAssets Sound="Stalker_AttackLaunch"/>
+        <ImpactMap index="None" Sound="Stalker_AttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <AcquisitionYawHalfArc value="7.500000"/>
+        <AcquisitionPitchHalfArc value="15.000000"/>
+        <AccuracyHalfArc value="10.000000"/>
+    </CActorAction>
+    <!--  Blink                                                                                  -->
+    <CActorModel id="BlinkOriginModel" parent="ModelAnimationStyleOneShot">
+        <InheritType value="OneShot"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <On Terms="Effect.Blink.Start; At Source" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorModel id="BlinkStopModel" parent="ModelAnimationStyleOneShot">
+        <InheritType value="OneShot"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <On Terms="Effect.Blink.Stop; At Source" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+    </CActorModel>
+    <CActorSound id="BlinkStopSound" parent="SoundOneShot">
+        <Sound value="Stalker_Blink"/>
+        <On Terms="Effect.Blink.Stop; At Source" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+    </CActorSound>
+    <!-- Stargate .............................................................................. -->
+    <CActorUnit id="Stargate" parent="ProtossBuildingEx" unitName="Stargate">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="GlobalLoopMacro"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit CasterIsUnpoweredAndNotUnderConstruction" Send="DeathCustomize Variation2"/>
+        <On Terms="ActorCreation" Send="StatusSet WarpingIn 0"/>
+        <!-- all this is needed due to the possibility of the stargate losing pylon power, as well as units being cancelled from the queue during loss of pylon power or hitting supply cap when changing/cancelling construction -->
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced Phoenix; !ValidateUnit HasNoPower" Send="Create PhoenixWarpInStargate"/>
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced Phoenix" Send="StatusSet WarpingIn 1"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0; IsStatus WarpingIn 1" Send="Create PhoenixWarpInStargate"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Target="PhoenixWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Cancel" Target="PhoenixWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Finish" Target="PhoenixWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced VoidRay; !ValidateUnit HasNoPower" Send="Create VoidRayWarpInStargate"/>
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced VoidRay" Send="StatusSet WarpingIn 2"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0; IsStatus WarpingIn 2" Send="Create VoidRayWarpInStargate"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Target="VoidRayWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Cancel" Target="VoidRayWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Finish" Target="VoidRayWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced Carrier; !ValidateUnit HasNoPower" Send="Create CarrierWarpInStargate"/>
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced Carrier" Send="StatusSet WarpingIn 3"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0; IsStatus WarpingIn 3" Send="Create CarrierWarpInStargate"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Target="CarrierWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Cancel" Target="CarrierWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Finish" Target="CarrierWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Cancel" Send="StatusSet WarpingIn 0"/>
+        <On Terms="AbilTrain.StargateTrain.Finish" Send="StatusSet WarpingIn 0"/>
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced Oracle; !ValidateUnit HasNoPower" Send="Create OracleWarpInStargate"/>
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced Oracle" Send="StatusSet WarpingIn 5"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0; IsStatus WarpingIn 5" Send="Create OracleWarpInStargate"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Target="OracleWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Cancel" Target="OracleWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Finish" Target="OracleWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced Tempest; !ValidateUnit HasNoPower" Send="Create TempestWarpInStargate"/>
+        <On Terms="AbilTrain.StargateTrain.Start; AbilTrainProduced Tempest" Send="StatusSet WarpingIn 6"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0; IsStatus WarpingIn 6" Send="Create TempestWarpInStargate"/>
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0" Target="TempestWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Cancel" Target="TempestWarpInStargate" Send="Destroy"/>
+        <On Terms="AbilTrain.StargateTrain.Finish" Target="TempestWarpInStargate" Send="Destroy"/>
+        <ModelFlags index="AutomateGlobalLoops" value="0"/>
+        <DeathCustoms ModelLink="StargateDeathUnpowered" SoundLink="Stargate_Explode" Name="Variation2"/>
+        <BarOffset value="170"/>
+        <BarWidth value="160"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Stargate.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Stargate.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-StarGate-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-StarGate-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-StarGate-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="StargateSplat" parent="GenericUnitSplat" unitName="Stargate"/>
+    <CActorModel id="PhoenixWarpInStargate" parent="ModelAddition">
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="UnitDeathCustomize" Send="Destroy"/>
+    </CActorModel>
+    <CActorModel id="VoidRayWarpInStargate" parent="ModelAddition">
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="UnitDeathCustomize" Send="Destroy"/>
+    </CActorModel>
+    <!--    <CActorModel id="CarrierWarpInStargate" parent="ModelAddition">-->
+    <!--        <HostSiteOps Ops="SOpAttachCenter"/>-->
+    <!--        <On Terms="UnitDeathCustomize" Send="Destroy"/>-->
+    <!--    </CActorModel>-->
+    <CActorModel id="CarrierWarpInStargate" parent="ModelAddition">
+        <On Terms="ActorCreation; ValidateUnit IsChronoSurged" Send="AnimSetTimeScale BSD 0.200000"/>
+        <On Terms="Behavior.SOASuperChrono.On" Send="AnimSetTimeScale BSD 0.200000"/>
+        <On Terms="Behavior.SOASuperChrono.Off" Send="AnimSetTimeScale BSD 1.000000"/>
+        <On Terms="ActorCreation; ValidatePlayer NoDarkProtoss" Send="ModelSwap CarrierTaldarimWarpInStargate"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorModel>
+    <!-- Templar Archive ....................................................................... -->
+    <CActorUnit id="TemplarArchive" parent="ProtossBuildingEx" unitName="TemplarArchive">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <CreepHeightClass value="Small"/>
+        <BarOffset value="135"/>
+        <BarWidth value="135"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-TemplarArchives.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-protoss-templararchives.dds"/>
+        <NameOffset value="110"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-building-protoss-templararchives.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-TemplarArchives.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-TemplarArchives-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-TemplarArchives-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-TemplarArchives-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="TemplarArchivesSplat" parent="GenericUnitSplat" unitName="TemplarArchive">
+        <Model value="TemplarArchiveSplat"/>
+    </CActorSplat>
+    <!-- Twilight Council ...................................................................... -->
+    <CActorUnit id="TwilightCouncil" parent="ProtossBuildingEx" unitName="TwilightCouncil">
+        <Aliases value="_UnitHuge"/>
+        <Macros value="ProtossBuildingPowerUp"/>
+        <Macros value="VoidMPUnpoweredAnim"/>
+        <Macros value="QueueAnim"/>
+        <CreepHeightClass value="Small"/>
+        <BarOffset value="135"/>
+        <BarWidth value="135"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-TwilightCouncil.dds"/>
+        </GroupIcon>
+        <NameOffset value="110"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-TwilightCouncil.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-TwilightCouncil-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-TwilightCouncil-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-TwilightCouncil-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorSplat id="TwilightCouncilSplat" parent="GenericUnitSplat" unitName="TwilightCouncil"/>
+    <!-- Void Ray .............................................................................. -->
+    <CActorUnit id="VoidRay" parent="GenericUnitBase" unitName="VoidRay">
+        <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000"/>
+        <PortraitModel value="VoidRayPortrait"/>
+        <BuildModel value="VoidRayWarpIn"/>
+        <DeathArray index="Normal" ModelLink="VoidRayDeath" SoundLink="VoidRay_Explode"/>
+        <AnimBlendTime value="0.500000"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack Stand,Channel Attack,End"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="StatusIncrement WeaponTracker"/>
+        <On Terms="WeaponStop.*.AttackStop; ValidateUnit NotQuadAndNotDoubleDamage" Send="AnimBracketStop Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="StatusDecrement WeaponTracker"/>
+        <On Terms="Behavior.VoidRayPhase2.Off; !HasStatus WeaponTracker; !ValidateUnit QuadDamage" Send="AnimBracketStop Attack"/>
+        <On Terms="Behavior.VoidRayPhase3.Off; !HasStatus WeaponTracker" Send="AnimBracketStop Attack"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundLarge"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathLarge" Name="Hallucination"/>
+        <BarWidth value="100"/>
+        <BarOffset value="65"/>
+        <NameOffset value="60"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-warpray.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-warpray.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-VoidRay-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-VoidRay-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-VoidRay-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-VoidRay.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-VoidRay.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <HostSiteOps Ops="SOpBankerVoidRay"/>
+        <Aliases value="_UnitLarge"/>
+    </CActorUnit>
+    <CActorSiteOpBankerUnit id="SOpBankerVoidRay" parent="SOpBankerUnit">
+        <RollInActivationAngle value="20.000000"/>
+        <RollInArc value="110.000000"/>
+        <RollOutDuration value="1.600000"/>
+    </CActorSiteOpBankerUnit>
+    <!-- Void Ray Charge Beams -->
+    <CActorModel id="VoidRayChargeBase">
+        <Terms value="Cap 1"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="WeaponStop.*.AttackStop; ValidateUnit NotQuadAndNotDoubleDamage" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.VoidRayPhase2.Off; !ValidateUnit QuadDamage" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.VoidRayPhase3.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+    </CActorModel>
+    <CActorModel id="VoidRayChargeX01" parent="VoidRayChargeBase">
+        <On Terms="Effect.PrismaticBeamChargeEffect01.Start; At Source" Send="Create"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect02.Start; At Source; ValidateUnit DoubleDamage" Send="Create"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect02.Start; At Source; ValidateUnit QuadDamage" Send="Create"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect03.Start; At Source; ValidateUnit QuadDamage" Send="Create"/>
+        <Host>
+            <Subject value="_Selectable"/>
+            <Scope value="Caster"/>
+            <Actor value="Find"/>
+            <FailOnNoHost value="1"/>
+        </Host>
+        <HostSiteOps Ops="SOpAttachWeapon03"/>
+    </CActorModel>
+    <CActorModel id="VoidRayChargeX02" parent="VoidRayChargeBase">
+        <On Terms="Effect.PrismaticBeamChargeEffect02.Start; At Source" Send="Create"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect03.Start; At Source; ValidateUnit QuadDamage" Send="Create"/>
+        <Host>
+            <Subject value="_Selectable"/>
+            <Scope value="Caster"/>
+            <Actor value="Find"/>
+            <FailOnNoHost value="1"/>
+        </Host>
+        <HostSiteOps Ops="SOpAttachWeapon05"/>
+    </CActorModel>
+    <CActorModel id="VoidRayChargeX03" parent="VoidRayChargeBase">
+        <On Terms="Effect.PrismaticBeamChargeEffect03.Start; At Source" Send="Create"/>
+        <Host>
+            <Subject value="_Selectable"/>
+            <Scope value="Caster"/>
+            <Actor value="Find"/>
+            <FailOnNoHost value="1"/>
+        </Host>
+        <HostSiteOps Ops="SOpAttachWeapon07"/>
+    </CActorModel>
+    <!-- VoidRay Attack Beam - Increases in intensity with each Charge -->
+    <CActorBeamSimple id="VoidRayAttackBeam">
+        <On Terms="ActorCreation; !ValidateUnit NotQuadAndNotDoubleDamage" Send="AnimPlay Attack Attack,02 PlayForever"/>
+        <On Terms="ActorCreation; ValidateUnit DoubleDamage" Send="AnimPlay Attack Attack,04 PlayForever"/>
+        <On Terms="ActorCreation; ValidateUnit QuadDamage" Send="AnimPlay Attack Attack,06 PlayForever"/>
+        <!-- Beam will persist through death anim if we don't have this. -->
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect01.Start; FromEffectTreeDescendant" Send="AnimPlay Attack Attack,02 PlayForever"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect02.Start; FromEffectTreeDescendant" Send="TimerSet 0.600000 DelayAnim2"/>
+        <On Terms="TimerExpired; TimerName DelayAnim2" Send="AnimPlay Attack Attack,04 PlayForever"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect03.Start; FromEffectTreeDescendant" Send="TimerSet 0.600000 DelayAnim3"/>
+        <On Terms="TimerExpired; TimerName DelayAnim3" Send="AnimPlay Attack Attack,06 PlayForever"/>
+        <On Terms="Effect.PrismaticBeamChargeChain.Stop; FromEffectTreeDescendant" Send="Destroy"/>
+    </CActorBeamSimple>
+    <CActorSiteOpForward id="VoidRaySOpForwardLaunch">
+        <HostForward>
+            <Subject value="_Selectable"/>
+            <Scope value="Outer"/>
+            <Actor value="Find"/>
+            <Effect value="PrismaticBeamChargeChain"/>
+        </HostForward>
+    </CActorSiteOpForward>
+    <CActorAction id="VoidRayAttack" parent="GenericAttackBase">
+        <BeamScope value="Caster"/>
+        <LaunchAttachQuery Methods="Weapon 1"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance VoidRaySOpForwardLaunch"/>
+        <ActionFlags index="AlignedImpactsAndDamages" value="1"/>
+        <ActionFlags index="LaunchForceSite" value="1"/>
+        <Lifetime value="-1.000000"/>
+        <On Terms="Effect.PrismaticBeamChargeChain.Start" Send="Create"/>
+        <On Terms="Effect.PrismaticBeamMUx1.Start; At Effect; FromEffectTreeDescendant" Send="ActionDamage"/>
+        <On Terms="Effect.PrismaticBeamMUx2.Start; At Effect; FromEffectTreeDescendant" Send="ActionDamage"/>
+        <On Terms="Effect.PrismaticBeamMUx3.Start; At Effect; FromEffectTreeDescendant" Send="ActionDamage"/>
+        <On Terms="Effect.PrismaticBeamChargeChain.Stop" Send="Destroy"/>
+    </CActorAction>
+    <CActorSound id="VoidRaySoundStart" parent="SoundOneShot">
+        <Sound value="VoidRay_WeaponStart"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect01.Start" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="VoidRaySoundEnd" parent="SoundOneShot">
+        <Sound value="VoidRay_WeaponEnd"/>
+        <On Terms="WeaponStop.PrismaticBeam.AttackStop" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="VoidRaySound1" parent="SoundContinuous">
+        <Inherits index="Visibility" value="0"/>
+        <Sound value="VoidRay_WeaponLoop1"/>
+        <Host Subject="_Selectable"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect01.Start" Send="Create"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect01.Stop" Send="Destroy"/>
+    </CActorSound>
+    <CActorSound id="VoidRaySound2" parent="SoundContinuous">
+        <Inherits index="Visibility" value="0"/>
+        <Sound value="VoidRay_WeaponLoop2"/>
+        <Host Subject="_Selectable"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect02.Start" Send="Create"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect02.Stop" Send="Destroy"/>
+    </CActorSound>
+    <CActorSound id="VoidRaySound3" parent="SoundContinuous">
+        <Inherits index="Visibility" value="0"/>
+        <Sound value="VoidRay_WeaponLoop3"/>
+        <Host Subject="_Selectable"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect03.Start" Send="Create"/>
+        <On Terms="Effect.PrismaticBeamChargeEffect03.Stop" Send="Destroy"/>
+    </CActorSound>
+    <!-- Wolf Statue ........................................................................... -->
+    <CActorUnit id="WolfStatue" parent="GenericUnitStandardNoAutoSoundLinks" unitName="WolfStatue">
+        <DeathArray index="Normal" ModelLink="WolfStatueDeath" SoundLink="WolfStatue_Explode"/>
+        <BarWidth value="200"/>
+        <BarOffset value="225"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+        <UnitIcon value="Assets\Textures\Wireframe-Destructible-WolfStatue.dds"/>
+        <HeroIcon value="Assets\Textures\Wireframe-Destructible-WolfStatue.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Destructible-WolfStatue.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Destructible-WolfStatue.dds"/>
+        </Wireframe>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+    </CActorUnit>
+    <CActorUnit id="GlobeStatue" parent="GenericUnitStandardNoAutoSoundLinks" unitName="GlobeStatue">
+        <DeathArray index="Normal" ModelLink="" SoundLink="Doodad_GlobeStatue_Death"/>
+        <BarWidth value="200"/>
+        <BarOffset value="225"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <UnitIcon value="Assets\Textures\Wireframe-general-globestatue.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-general-globestatue.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-general-globestatue.dds"/>
+        </Wireframe>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+    </CActorUnit>
+    <!-- Zealot ................................................................................ -->
+    <CActorUnit id="Zealot" parent="GenericUnitStandard" unitName="Zealot">
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="ZealotDeath" SoundLink="Zealot_DeathFX"/>
+        <BuildModel value="ZealotWarpIn"/>
+        <PortraitModel value="ZealotPortrait"/>
+        <PlacementModel value="ZealotPlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <Macros value="ChargingAnim"/>
+        <WalkAnimMoveSpeed value="3"/>
+        <On Terms="Behavior.Charging.On" Send="ModelSuddenMotionStart"/>
+        <On Terms="Behavior.Charging.Off" Send="ModelSuddenMotionStop"/>
+        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundSmall"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathSmall" Name="Hallucination"/>
+        <BarWidth value="42"/>
+        <BarOffset value="45"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-zealot.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-zealot.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-Zealot-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Zealot-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-Zealot-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-Zealot.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-Zealot.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <Aliases value="_UnitSmall"/>
+    </CActorUnit>
+    <CActorAction id="ZealotAttack" parent="GenericAttack" effectAttack="PsiBlades">
+        <!-- Only using 1 attach point to prevent 2 launch sounds each attack-->
+        <LaunchAttachQuery Methods="AMFilterWeaponLeft"/>
+        <LaunchAssets Sound="Zealot_AttackLaunch"/>
+        <ImpactMap index="None" Sound="Zealot_AttackImpact"/>
+        <ShieldFlashType value="Header"/>
+    </CActorAction>
+    <CActorSound id="Zealot_Death" parent="SoundOneShot">
+        <On Terms="UnitDeathCustomize.Zealot; ValidateUnit IsNotHallucination; PassChance 25.000000" Send="Create"/>
+    </CActorSound>
+    <!-- Abilities -->
+    <CActorSound id="ProtossHarvest" parent="SoundContinuous">
+        <Sound value="Probe_Mine"/>
+        <On Terms="Abil.ProbeHarvest.Start" Send="Create"/>
+        <On Terms="Abil.ProbeHarvest.Stop" Send="Destroy"/>
+    </CActorSound>
+    <CActorSound id="ProtossBuildingStartSound" parent="SoundOneShot">
+        <Sound value="Protoss_BuildingWarpStart"/>
+        <On Terms="Abil.ProtossBuild.BuiltStart" Send="Create"/>
+    </CActorSound>
+    <!--    <CActorSound id="ProtossBuildingStopSound" parent="SoundOneShot">-->
+    <!--        <Sound value="Protoss_BuildingWarpFinish"/>-->
+    <!--        <On Terms="Abil.ProtossBuild.BuiltStop" Send="Create"/>-->
+    <!--    </CActorSound> -->
+    <!-- Abilities -->
+    <CActorModel id="ShuttleTransportLoadModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="AbilTransport.WarpPrismTransport.CargoLoad" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+    </CActorModel>
+    <CActorSound id="ShuttleTransportLoadSound" parent="SoundOneShot">
+        <Sound value="Shuttle_Load"/>
+        <On Terms="AbilTransport.WarpPrismTransport.TransportLoad" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOriginStationary"/>
+    </CActorSound>
+    <CActorModel id="ShuttleTransportUnloadModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="Abil.WarpPrismTransport.CargoUnload" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+    </CActorModel>
+    <CActorSound id="ShuttleTransportUnloadSound" parent="SoundOneShot">
+        <Sound value="Shuttle_Unload"/>
+        <On Terms="AbilTransport.WarpPrismTransport.TransportUnload" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+    </CActorSound>
+    <CActorSound id="awrpSound" parent="SoundOneShot">
+        <Sound value="HighTemplar_ArchonWarp"/>
+        <On Terms="Abil.ArchonWarp.Start" Send="Create"/>
+    </CActorSound>
+    <CActorEventMacro id="ProtossBuildingPowerUp">
+        <On Terms="UnitBirth.*.Normal" Send="AnimBlendTimeApply 0.000000"/>
+        <On Terms="UnitBirth.*.Normal" Send="SetTransferOverrideAnim Stand,Unpowered"/>
+        <On Terms="UnitBirth.*.Normal" Send="AnimGroupApply Unpowered Unpowered,Start Unpowered,End Instant"/>
+        <On Terms="UnitBirth.*.Normal" Send="SetTintColor 150,150,200"/>
+        <On Terms="UnitBirth.*.Normal" Send="StatusSet Unpowered 1"/>
+        <On Terms="UnitBirth.*.Normal" Send="AnimSetPaused GL_BSD"/>
+        <On Terms="UnitBirth.*.Normal" Send="AnimSetPaused GL_BSD_A"/>
+    </CActorEventMacro>
+    <CActorSound id="Protoss_PowerDownLarge" parent="SoundOneShot">
+        <On Terms="BehaviorLevel.PowerUserQueue.Start; Level 0; ValidateUnit NotDeadOrConstruction" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="Protoss_PowerUpLarge" parent="SoundOneShot">
+        <On Terms="BehaviorLevel.PowerUserQueue.Stop; Level 0; ValidateUnit NotDeadOrConstruction" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="Protoss_PowerDownSmall" parent="SoundOneShot">
+        <On Terms="BehaviorLevel.PowerUserQueueSmall.Start; Level 0; ValidateUnit NotDeadOrConstruction" Send="Create"/>
+        <On Terms="BehaviorLevel.PowerUserBaseDefenseSmall.Start; Level 0; ValidateUnit NotDeadOrConstruction" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="Protoss_PowerUpSmall" parent="SoundOneShot">
+        <On Terms="BehaviorLevel.PowerUserQueueSmall.Stop; Level 0; ValidateUnit NotDeadOrConstruction" Send="Create"/>
+        <On Terms="BehaviorLevel.PowerUserBaseDefenseSmall.Stop; Level 0; ValidateUnit NotDeadOrConstruction" Send="Create"/>
+    </CActorSound>
+    <CActorPower id="Power">
+        <On Terms="Behavior.PowerSource.Create; !Option Model Low" Send="Create"/>
+        <On Terms="Behavior.PowerSource.Destroy; !Option Model Low" Send="Destroy"/>
+        <On Terms="Behavior.PowerSourceFast.Enable; !Option Model Low" Send="Destroy"/>
+        <On Terms="Behavior.PowerSourceFast.Disable; !Option Model Low" Send="Create"/>
+        <VisualArray value="UnpoweredVisual"/>
+        <VisualArray value="PowerVisual"/>
+    </CActorPower>
+    <CActorPower id="PowerLow">
+        <PowerSource value="PowerSource"/>
+        <On Terms="Behavior.PowerSource.Create; Option Model Low" Send="Create"/>
+        <On Terms="Behavior.PowerSource.Destroy; Option Model Low" Send="Destroy"/>
+        <On Terms="Behavior.PowerSourceFast.Enable; Option Model Low" Send="Destroy"/>
+        <On Terms="Behavior.PowerSourceFast.Disable; Option Model Low" Send="Create"/>
+        <VisualArray value="UnpoweredVisualLow"/>
+        <VisualArray value="PowerVisualLow"/>
+    </CActorPower>
+    <CActorRange id="PowerVisualLow">
+        <Icon value="Assets\Textures\PylonLowRingSplat.dds"/>
+        <IconArcLength value="0.750000"/>
+        <Behavior value="PowerSource"/>
+    </CActorRange>
+    <CActorRange id="UnpoweredVisualLow">
+        <Icon value="Assets\Textures\PylonLowRingSplatGrey.dds"/>
+        <IconArcLength value="0.750000"/>
+        <Behavior value="PowerSource"/>
+    </CActorRange>
+    <CActorPower id="WarpPrismPower">
+        <On Terms="Behavior.WarpPrismPowerSource.Create; !Option Model Low" Send="Create"/>
+        <On Terms="Behavior.WarpPrismPowerSource.Destroy; !Option Model Low" Send="Destroy"/>
+        <VisualArray value="WarpPrismUnpoweredVisual"/>
+        <VisualArray value="WarpPrismPowerVisual"/>
+    </CActorPower>
+    <CActorSplat id="WarpPrismPowerVisual">
+        <FogVisibility value="Visible"/>
+        <FadeIn value="0.000000"/>
+        <FadeOut value="0.000000"/>
+        <HoldTime value="-1.000000"/>
+        <Layer value="PowerLayer"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorSplat>
+    <CActorSplat id="WarpPrismUnpoweredVisual">
+        <FogVisibility value="Visible"/>
+        <FadeIn value="0.000000"/>
+        <FadeOut value="0.000000"/>
+        <HoldTime value="-1.000000"/>
+        <Layer value="PowerLayer"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorSplat>
+    <CActorPower id="WarpPrismPowerLow">
+        <PowerSource value="WarpPrismPowerSource"/>
+        <On Terms="Behavior.WarpPrismPowerSource.Create; Option Model Low" Send="Create"/>
+        <On Terms="Behavior.WarpPrismPowerSource.Destroy; Option Model Low" Send="Destroy"/>
+        <VisualArray value="WarpPrismUnpoweredVisualLow"/>
+        <VisualArray value="WarpPrismPowerVisualLow"/>
+    </CActorPower>
+    <CActorRange id="WarpPrismPowerVisualLow">
+        <Icon value="Assets\Textures\PylonLowRingSplat.dds"/>
+        <IconArcLength value="0.750000"/>
+        <Behavior value="WarpPrismPowerSource"/>
+    </CActorRange>
+    <CActorRange id="WarpPrismUnpoweredVisualLow">
+        <Icon value="Assets\Textures\PylonLowRingSplatGrey.dds"/>
+        <IconArcLength value="0.750000"/>
+        <Behavior value="WarpPrismPowerSource"/>
+    </CActorRange>
+    <CActorRegionCircle id="ColossusTreeKiller">
+        <Radius value="0.150000"/>
+        <On Terms="Effect.ThermalLancesE.Start; At Effect" Send="Create"/>
+        <On Terms="Effect.ThermalLancesEReverse.Start; At Effect" Send="Create"/>
+        <On Terms="ActorCreation" Send="QueryRegion ::Self TreeBurnQuery AgainstCenter"/>
+        <On Terms="Effect.ThermalLancesE.Start; At Effect" Send="Destroy"/>
+        <On Terms="Effect.ThermalLancesEReverse.Start; At Effect" Send="Destroy"/>
+    </CActorRegionCircle>
+    <CActorModel id="PhotonCannonPlacementModel" parent="PlacementModel">
+        <On Terms="ActorCreation" Send="Create PhotonCannonProtectRange"/>
+        <On Terms="ActorDestruction" Target="PhotonCannonProtectRange" Send="Destroy"/>
+    </CActorModel>
+    <CActorRange id="PhotonCannonProtectRange" parent="RangeWeapon" weapon="PhotonCannon"/>
+    <CActorSiteOpForward id="NexusPlayerDecalWForwardOffset">
+        <Forward value="-1.000000,-1.000000,0.000000"/>
+    </CActorSiteOpForward>
+    <CActorSiteOpLocalOffset id="ProtossCommandPlayerDecalOffset">
+        <LocalOffset value="0.000000,-4.500000,0.000000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorModel id="NexusPlayerDecalW" parent="ModelAddition">
+        <Model value="NexusPlayerDecal"/>
+        <HostSiteOps Ops="NexusPlayerDecalWForwardOffset ProtossCommandPlayerDecalOffset SOpShadow"/>
+        <Scale value="1.400000"/>
+        <Inherits index="BaseModelScale" value="0"/>
+        <Inherits index="CloakEffect" value="0"/>
+        <Inherits index="CreepEngulfment" value="0"/>
+        <Inherits index="Scale" value="0"/>
+        <Remove Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorCreation" Send="Create NexusPlayerDecalWFoliageFXSpawner"/>
+    </CActorModel>
+    <CActorFoliageFXSpawner id="NexusPlayerDecalWFoliageFXSpawner" parent="FoliageFXSpawnerFire">
+        <Radius value="1.500000"/>
+        <HostSiteOps Ops="NexusPlayerDecalWForwardOffset ProtossCommandPlayerDecalOffset SOpShadow"/>
+    </CActorFoliageFXSpawner>
+    <CActorEventMacro id="ProtossPlayerDecalMacro">
+        <On Terms="UnitBirth.Nexus; ValidateUnit NotCloaked" Send="Create NexusPlayerDecalW"/>
+        <On Terms="UnitBirth.Nexus.EditorPlaced" Send="Create NexusPlayerDecalW"/>
+        <On Terms="Behavior.CloakFieldEffect.On" Target="NexusPlayerDecalW" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.CloakFieldEffect.Off" Send="Create NexusPlayerDecalW"/>
+    </CActorEventMacro>
+</Catalog>

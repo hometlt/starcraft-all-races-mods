@@ -1,0 +1,506 @@
+<Catalog>
+    <CAbilEffectTarget id="SlaynElementalGrab">
+        <Effect index="0" value="SlaynElementalGrabLM"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Cooldown TimeUse="1"/>
+        </Cost>
+        <TargetFilters value="-;Self,Missile,Stasis,Dead,Invulnerable,Unstoppable"/>
+        <Range value="10"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SlaynElementalGrab"/>
+    </CAbilEffectTarget>
+    <CActorUnit id="SlaynElemental" parent="GenericUnitBase" unitName="SlaynElemental">
+        <DeathArray index="Normal" ModelLink="SlaynElementalDeath" SoundLink=""/>
+        <DeathCustoms ActorModel="SlaynElementalDeathRagdoll" ModelLink="SlaynElementalDeathRagdoll" Name="RagdollBasic">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <On Terms="UnitDeathCustomize" Send="DeathCustomize RagdollMidair"/>
+        <On Terms="ActorCreation" Send="Create SlaynElemental_MovementLoopSound"/>
+        <WalkAnimMoveSpeed value="2"/>
+        <BarWidth value="150"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-slaynelemental.dds"/>
+        </GroupIcon>
+        <UnitIcon value="Assets\Textures\btn-critter-sporeray.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-slaynelemental.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-buildingarmor.dds"/>
+        <PortraitModel value="SlaynElementalPortrait"/>
+        <Aliases value="_UnitHuge"/>
+    </CActorUnit>
+    <CActorModel id="SlaynElementalDeathRagdoll" parent="UnitDeathRagdollBloodPrevent"/>
+    <CActorMissile id="SlaynElementalAttackMissile" parent="GenericAttackMissile" unitName="SlaynElementalWeapon"/>
+    <CActorAction id="SlaynElementalAttack" parent="GenericAttack" effectImpact="SlaynElementalDamage" effectLaunch="SlaynElementalLM">
+        <LaunchSiteOps Ops="SOpAttachHarness SOpForwardImpactGuide"/>
+        <LaunchAssets Sound="SlaynElementalGrabTentacleAttackLaunch"/>
+        <ImpactMap index="None" Sound="SlaynElementalGrabTentacleAttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <AcquisitionYawHalfArc value="20.000000"/>
+        <AcquisitionPitchHalfArc value="20.000000"/>
+        <AccuracyHalfArc value="25.000000"/>
+    </CActorAction>
+    <CActorSite id="SlaynElementalGrabImpactHoldingSite">
+        <Host Subject="_Selectable" Scope="Target" Effect="SlaynElementalGrabImpactCP"/>
+    </CActorSite>
+    <CActorModel id="SlaynElementalGrabTentacle">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="Effect.SlaynElementalGrabLM.Start; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="ActorCreation" Send="Create SlaynElementalGrabTentacleAttack_BeamLoop_Sound"/>
+        <On Terms="ActorCreation" Send="AnimPlay Attack Attack"/>
+        <On Terms="ActorCreation" Send="RefSet ::scope.SlaynElementalGrabTentacle ::Self"/>
+        <On Terms="ActorCreation" Send="TimerSet 1.500000 DelayDestroy"/>
+        <On Terms="ActorCreation" Send="StatusSet Grabbing 0"/>
+        <On Terms="ActorCreation" Send="SetOpacity"/>
+        <On Terms="ActorCreation" Send="SetOpacity 1.000000 0.500000"/>
+        <On Terms="ActorCreation" Send="StatusSet UnitAssigned 0"/>
+        <On Terms="Effect.SlaynElementalGrabImpactCP.Start" Send="StatusSet Grabbing 1"/>
+        <On Terms="Effect.SlaynElementalGrabImpactCP.Start" Send="AnimClear Attack"/>
+        <On Terms="Effect.SlaynElementalGrabImpactCP.Start" Send="Create SlaynElementalGrabImpactHoldingSite"/>
+        <On Terms="Effect.SlaynElementalGrabImpactCP.Start" Send="RefSetFromRequest SlaynElementalGrabAttack SlaynElementalGrabImpactHoldingSite"/>
+        <On Terms="Effect.SlaynElementalGrabImpactCP.Start" Send="TimerKill DelayDestroy"/>
+        <On Terms="TimerExpired; TimerName DelayDestroy" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="AnimBracketStop BSD"/>
+        <On Terms="Effect.SlaynElementalGrabImpactCP.Start; IsStatus UnitAssigned 0" Target="::global.SlaynElementalGrabUnit" Send="Signal MatchTentacleToUnit"/>
+        <On Terms="Effect.SlaynElementalGrabImpactCP.Start; IsStatus UnitAssigned 0" Send="StatusSet UnitAssigned 1"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachWeapon05"/>
+        <HostedAttaches Name="SlaynElementalGrabAttack">
+            <AttachQuery Methods="Hardpoint"/>
+        </HostedAttaches>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModel>
+    <CActorSound id="SlaynElemental_MovementLoopSound" parent="SoundContinuous">
+        <Sound value="SlaynElemental_MovementLoop"/>
+        <Layers/>
+        <Layers/>
+        <Layers/>
+        <Layers/>
+        <Layers Sound="SlaynElemental_MovementLoop_VRift_01"/>
+    </CActorSound>
+    <CActorSound id="SlaynElementalGrabTentacleAttack_BeamLoop_Sound" parent="SoundContinuous">
+        <Sound value="SlaynElementalGrabTentacleAttack_BeamLoop"/>
+    </CActorSound>
+    <CActorSound id="SlaynElementalGrabTentacleAttack_CageLoop_Sound" parent="SoundContinuous">
+        <Sound value="SlaynElementalGrabTentacleAttack_CageLoop"/>
+    </CActorSound>
+    <CActorMissile id="SlaynElementalGrabAttackMissile" parent="GenericAttackMissile" unitName="SlaynElementalGrabWeapon">
+        <Supporter>
+            <Subject value="SlaynElementalGrabTentacle"/>
+            <Scope value="Caster"/>
+            <Actor value="Find"/>
+            <Effect value="SlaynElementalGrabLM"/>
+        </Supporter>
+        <On Terms="MotionPhaseStart; MotionPhase" Target="::Supporter" Send="RefSet SlaynElementalGrabAttack ::Self"/>
+    </CActorMissile>
+    <CActorAction id="SlaynElementalGrabAttack" parent="GenericAttack" effectImpact="SlaynElementalGrabImpactSwitch" effectLaunch="SlaynElementalGrabLM">
+        <LaunchSiteOps Ops="SOpAttachCenter"/>
+        <LaunchSite value="YoinkTentacleLaunchSite"/>
+        <LaunchAttachQuery Methods="Center"/>
+        <LaunchAssets Sound="SlaynElementalGrabTentacleAttackLaunch"/>
+        <ImpactSiteOps Ops="SOpAttachCenter SOpForwardLaunchGuide"/>
+        <ImpactSiteOpsReaction Ops="SOp2DRotation SOp180" HoldPosition="1" HoldRotation="1"/>
+        <ImpactAttachQuery Methods="AMFilterCenter"/>
+        <ImpactMap index="None" Sound=""/>
+        <ShieldFlashType value="None"/>
+        <ActionFlags index="VictimRevealsAttacker" value="1"/>
+    </CActorAction>
+    <CActorUnit id="SlaynElementalGrabGroundUnit" parent="GenericUnitSelectable" unitName="SlaynElementalGrabGroundUnit">
+        <On Terms="ActorCreation" Send="StatusSet TentacleAssigned 0"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter SlaynElementalGrabTentacleAttackImpact"/>
+        <On Terms="ActorCreation" Send="Create SlaynElementalGrabTentacleAttack_CageLoop_Sound"/>
+        <On Terms="ActorCreation" Send="RefSet ::global.SlaynElementalGrabUnit ::Self"/>
+        <On Terms="Signal.*.MatchTentacleToUnit; IsStatus TentacleAssigned 0" Send="RefSetFromMsg ::actor.MyTentacle ::Sender"/>
+        <On Terms="Signal.*.MatchTentacleToUnit; IsStatus TentacleAssigned 0" Send="StatusSet TentacleAssigned 1"/>
+        <On Terms="UnitDeath" Target="::actor.MyTentacle" Send="AnimBracketStop BSD"/>
+        <DeathArray index="Normal" ModelLink="SlaynElementalBeamCage" SoundLink="SlaynElementalGrabTentacleAttackEndRelease"/>
+        <BarOffset value="40"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-slaynelemental-solaritecocoon.dds"/>
+        </Wireframe>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-slaynelemental-solaritecocoon.dds"/>
+        </GroupIcon>
+        <Aliases value="_UnitLarge"/>
+    </CActorUnit>
+    <CActorUnit id="SlaynElementalGrabAirUnit" parent="GenericUnitSelectable" unitName="SlaynElementalGrabAirUnit">
+        <On Terms="ActorCreation" Send="StatusSet TentacleAssigned 0"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter SlaynElementalGrabTentacleAttackImpact"/>
+        <On Terms="ActorCreation" Send="Create SlaynElementalGrabTentacleAttack_CageLoop_Sound"/>
+        <On Terms="ActorCreation" Send="RefSet ::global.SlaynElementalGrabUnit ::Self"/>
+        <On Terms="Signal.*.MatchTentacleToUnit; IsStatus TentacleAssigned 0" Send="RefSetFromMsg ::actor.MyTentacle ::Sender"/>
+        <On Terms="Signal.*.MatchTentacleToUnit; IsStatus TentacleAssigned 0" Send="StatusSet TentacleAssigned 1"/>
+        <On Terms="UnitDeath" Target="::actor.MyTentacle" Send="AnimBracketStop BSD"/>
+        <DeathArray index="Normal" ModelLink="SlaynElementalBeamCage" SoundLink="SlaynElementalGrabTentacleAttackEndRelease"/>
+        <BarOffset value="40"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-slaynelemental-solaritecocoon.dds"/>
+        </Wireframe>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-slaynelemental-solaritecocoon.dds"/>
+        </GroupIcon>
+        <Aliases value="_UnitLarge"/>
+    </CActorUnit>
+    <CBehaviorBuff id="SlaynElementalGrabStun">
+        <Alignment value="Negative"/>
+        <Duration value="0.75"/>
+        <Modification>
+            <ModifyFlags index="DisableAbils" value="1"/>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Stun" value="1"/>
+            <StateFlags index="SuppressAttack" value="1"/>
+            <StateFlags index="SuppressCloak" value="1"/>
+            <StateFlags index="SuppressDetection" value="1"/>
+            <StateFlags index="SuppressRadar" value="1"/>
+        </Modification>
+        <InfoIcon value="Assets\Textures\btn-ability-slaynelemental-solaritecocoon.dds"/>
+        <BehaviorCategories index="Stun" value="1"/>
+    </CBehaviorBuff>
+    <CButton id="SlaynElementalGrab">
+        <Icon value="Assets\Textures\btn-ability-zerg-corrosivebile.dds"/>
+    </CButton>
+    <CEffectLaunchMissile id="SlaynElementalGrabLM">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="SlaynElementalGrabImpactSwitch"/>
+        <AmmoUnit value="SlaynElementalGrabWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectSwitch id="SlaynElementalGrabImpactSwitch">
+        <CaseArray Validator="TargetIsAir" Effect="SlaynElementalGrabImpactAirCU"/>
+        <CaseDefault value="SlaynElementalGrabImpactGroundCU"/>
+    </CEffectSwitch>
+    <CEffectCreateUnit id="SlaynElementalGrabImpactAirCU">
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="SlaynElementalGrabImpactCP"/>
+        <SpawnUnit value="SlaynElementalGrabAirUnit"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="SlaynElementalGrabImpactGroundCU">
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="SlaynElementalGrabImpactCP"/>
+        <SpawnUnit value="SlaynElementalGrabGroundUnit"/>
+    </CEffectCreateUnit>
+    <CEffectCreatePersistent id="SlaynElementalGrabImpactCP">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <OffsetVectorStartLocation Value="TargetUnit"/>
+        <OffsetVectorEndLocation Value="TargetUnit"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <InitialEffect value="SlaynElementalGrabStunSet"/>
+        <FinalEffect value="SlaynElementalKillGrabUnit"/>
+        <PeriodicValidator value="SlaynElementalGrabSourceNotDeadAndTargetNotDeadAndOriginNotDead"/>
+        <PeriodicEffectArray value="SlaynElementalGrabStunSet"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <RevealRadius value="15"/>
+        <RevealFlags index="Unfog" value="1"/>
+        <RevealFlags index="Detect" value="1"/>
+        <RevealFlags index="LoS" value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="SlaynElementalGrabStunSet">
+        <EffectArray value="SlaynElementalGrabStunAB"/>
+        <EffectArray value="SlaynElementalGrabStunDrainDamage"/>
+        <EffectArray value="SlaynElementalGrabStunDrainHeal"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SlaynElementalGrabStunAB">
+        <WhichUnit Effect="SlaynElementalGrabLM"/>
+        <Behavior value="SlaynElementalGrabStun"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="SlaynElementalGrabStunDrainDamage">
+        <ImpactLocation Effect="SlaynElementalGrabLM" Value="TargetUnit"/>
+        <Amount value="3"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="SlaynElementalGrabStunDrainHeal">
+        <ImpactUnit Effect="SlaynElementalGrabLM" Value="Caster"/>
+        <VitalArray index="Life">
+            <Change value="3"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectDamage id="SlaynElementalKillGrabUnit">
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="SlaynElementalLM">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="SlaynElementalDamage"/>
+        <AmmoUnit value="SlaynElementalWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="SlaynElementalDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Kind value="Ranged"/>
+        <Amount value="6"/>
+    </CEffectDamage>
+    <CEffectDamage id="SlaynElementalWeaponDamage">
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CLight id="PortraitSlaynElemental" parent="default">
+        <ToDInfoArray index="0" Id="Slayn" AmbientColor="0.368627,0.360784,0.360784" Colorize="1">
+            <Param index="HDRExposure" value="1.550000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="8.850000"/>
+            <Param index="TerrainHDRDiffuse" value="1.500000"/>
+            <Param index="TerrainHDRSpecular" value="1.500000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationInputHigh" value="0.916000"/>
+            <Param index="ColorizationBrightness" value="1.090000"/>
+            <Param index="ColorizationContrast" value="1.180000"/>
+            <Param index="ColorizationHue" value="-0.336000"/>
+            <Param index="ColorizationSaturation" value="0.192000"/>
+            <Param index="ColorizationLightness" value="0.130000"/>
+            <Param index="ColorizationBlend" value="0.300000"/>
+            <DirectionalLight index="Key">
+                <Color value="0.768628,0.694118,0.584314"/>
+                <ColorMultiplier value="1.100000"/>
+                <SpecColorMultiplier value="1.150000"/>
+                <Direction value="0.657318,-0.386109,-0.647189"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" Color="0.533333,0.494118,0.341176" ColorMultiplier="2.000000" Direction="-0.484961,-0.804882,0.342020"/>
+            <DirectionalLight index="Back" Color="0.337255,0.364706,0.447059" ColorMultiplier="2.000000" Direction="-0.668793,-0.021251,0.743145"/>
+        </ToDInfoArray>
+        <EditorCategories value="LightGroup:PortraitsUnitsCritter"/>
+    </CLight>
+    <CSound id="SlaynElementalGrabTentacleAttack_BeamLoop" parent="Combat">
+        <AssetArray File="Assets\Sounds\SlaynElemental_DeathGrip_Beam_03a.wav" LoopCount="-1" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SlaynElemental_DeathGrip_Beam_03c.wav" LoopCount="-1" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="6"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-1.500000,-1.500000"/>
+        <Volume value="-10.000000,-10.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="SlaynElementalGrabTentacleAttack_CageLoop" parent="Combat">
+        <AssetArray File="Assets\Sounds\SlaynElemental_DeathGrip_Beam_01b.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="6"/>
+        <DupePrioritization value="Oldest"/>
+        <LoopCount value="-1"/>
+        <Pitch value="-6.500000,-6.500000"/>
+        <Volume value="-11.000000,-11.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_Death_Charge" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\SlaynElemental_Zone_ChargeUp_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\VoidShard_Energy_ChargeUp_01.wav" FacialGroup=""/>
+        <Pitch value="-6.000000,-6.000000"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_Death_Explo" parent="Death">
+        <AssetArray File="Assets\Sounds\Gen_Explo_Fire_01.wav" FacialGroup=""/>
+        <Pitch value="-3.000000,-1.000000"/>
+        <Volume value="-3.000000,-1.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_Movement" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Slayn_Elemental_Mv_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Slayn_Elemental_Mv_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Slayn_Elemental_Mv_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Slayn_Elemental_Mv_04.wav" FacialGroup=""/>
+        <Pitch value="-2.000000,-1.000000"/>
+        <Volume value="3.000000,3.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_MovementLoop_VRift_01" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\VoidRift_St_Loop_01a.ogg" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Pitch value="-1.000000,0.000000"/>
+        <Volume value="-10.000000,-10.000000"/>
+    </CSound>
+    <CSound id="SlaynElementalGrabTentacleAttackImpact" parent="Combat">
+        <AssetArray File="Assets\Sounds\SlaynElemental_Zone_Missile_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SlaynElemental_Zone_Missile_3.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="6"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-4.000000,-3.000000"/>
+        <Volume value="-2.000000,-2.000000"/>
+    </CSound>
+    <CSound id="SlaynElementalGrabTentacleAttackLaunch" parent="Combat">
+        <AssetArray File="Assets\Sounds\Adept_AttackLaunch00.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Adept_AttackLaunch01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Adept_AttackLaunch02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Adept_AttackLaunch03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Adept_AttackLaunch04.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="6"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-1.500000,2.500000"/>
+        <Volume value="1.000000,1.000000"/>
+    </CSound>
+    <CSound id="SlaynElementalGrabTentacleAttackEndRelease" parent="Combat">
+        <AssetArray File="Assets\Sounds\SlaynElemental_BeamEnd_01b.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SlaynElemental_BeamStart_01b.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="6"/>
+        <DupePrioritization value="Oldest"/>
+        <Volume value="-8.000000,-8.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_Death_A" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Slayn_Elemental_Death_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Slayn_Elemental_Death_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Slayn_Elemental_Death_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Slayn_Elemental_Death_04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Slayn_Elemental_Death_06.wav" FacialGroup=""/>
+        <Volume value="-1.000000,-1.000000"/>
+        <Pitch value="-4.000000,-4.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_Death_B" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RockDebris_ImpactExplosion_Large6.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RockDebris_ImpactExplosion_Large7.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RockDebris_ImpactExplosion_Large8.wav" FacialGroup=""/>
+        <Volume value="-1.000000,-1.000000"/>
+        <Pitch value="-2.000000,1.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_MovementLoop" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\SlaynElemental_Loop_1ch.wav" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Volume value="-9.000000,-9.000000"/>
+        <Pitch value="-1.000000,0.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_MovementLoop_VRift_02" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\VoidRift_Loop_01a.wav" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Pitch value="3.000000,3.000000"/>
+        <Spread value="30.000000"/>
+        <Volume value="-6.000000,-6.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_MovementLoop_VRift_03" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\VoidRift_Loop_01d.wav" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Pitch value="-1.000000,0.000000"/>
+        <Volume value="-2.000000,-2.000000"/>
+    </CSound>
+    <CSound id="SlaynElemental_MovementLoop_VRift_04" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\VoidRift_Loop_01e.wav" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Pitch value="-1.000000,0.000000"/>
+        <Volume value="-2.000000,-2.000000"/>
+    </CSound>
+
+    <CUnit id="SlaynSwarmHostSpawnFlyer" parent="Critter">
+        <Description value="Button/Tooltip/CritterSlaynSwarmHostSpawnFlyer"/>
+        <Height value="0.25"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="SlaynElemental">
+        <DeathRevealRadius value="3"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <PushPriority value="11"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Massive" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <LifeArmor value="1"/>
+<!--        <LifeArmorName value="Unit/LifeArmorName/CritterGroundArmor"/>-->
+        <LifeArmorName value="Unit/LifeArmorName/SlaynElemental"/>
+        <Mover value="Fly"/>
+        <Speed value="1"/>
+        <Acceleration value="10"/>
+        <LateralAcceleration value="46"/>
+        <StationaryTurningRate value="99.8437"/>
+        <TurningRate value="99.8437"/>
+        <Sight value="10"/>
+        <Height value="3"/>
+        <VisionHeight value="4"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="80"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="SlaynElementalGrab"/>
+        <WeaponArray Link="SlaynElementalWeapon"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="SlaynElementalGrab" Type="AbilCmd" AbilCmd="SlaynElementalGrab,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="2"/>
+        <InnerRadius value="2"/>
+        <ScoreKill value="1000"/>
+        <SubgroupPriority value="49"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="SlaynElementalWeapon" parent="MISSILE">
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="SlaynElementalGrabWeapon" parent="MISSILE">
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="SlaynElementalGrabGroundUnit">
+        <DeathRevealRadius value="3"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Unstoppable" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <LifeStart value="25"/>
+        <LifeMax value="25"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossArmor"/>
+        <Sight value="4"/>
+        <Height value="1"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="80"/>
+        <ScoreKill value="10"/>
+        <SubgroupPriority value="49"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+        <DeathTime value="3"/>
+    </CUnit>
+    <CUnit id="SlaynElementalGrabAirUnit">
+        <DeathRevealRadius value="3"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Unstoppable" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <LifeStart value="25"/>
+        <LifeMax value="25"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossArmor"/>
+        <Mover value="Fly"/>
+        <Sight value="4"/>
+        <Height value="4"/>
+        <VisionHeight value="4"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="80"/>
+        <Radius value="1"/>
+        <ScoreKill value="10"/>
+        <SubgroupPriority value="49"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+        <DeathTime value="3"/>
+    </CUnit>
+    <CWeaponLegacy id="SlaynElementalWeapon">
+        <EditorCategories value="Race:Zerg"/>
+        <Options index="Hidden" value="1"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-missileattacks-level0.dds"/>
+        <DisplayEffect value="SlaynElementalWeaponDamage"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Arc value="360"/>
+        <Period value="0.83"/>
+        <DamagePoint value="0.208"/>
+        <Effect value="SlaynElementalWeaponDamage"/>
+    </CWeaponLegacy>
+</Catalog>
