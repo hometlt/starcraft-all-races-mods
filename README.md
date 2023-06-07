@@ -82,54 +82,55 @@ layouts editor https://docs.google.com/document/d/1aTq9Q_DggMywVgE6pbOx-9av5lm2K
 ###Contents
 
 #####Dependency Mods with Custom Races Data
-| Name  | Description | 
-|---|---|
-| Scion             | Scion Races by Solstice                                              |
-| Hybrids           | Hybrids 4th race by ZeroLamberg and Skyre                            |
-| UED               | UED 4th race by UEDCommander , Dagahan                               |
-| Dragons           | Dragons race bt unknown                                              |
-| Talon             | Talon Faction                                                        |
-| UPL               | Original Data for UPL race from UED:First Light Campaign             |
-| UPLBalance        | Custom balancing data for UPL race                                   |
+
+| Name                | Description                                              | 
+|---------------------|----------------------------------------------------------|
+| Scion               | Scion Races by Solstice                                  |
+| Hybrids             | Hybrids 4th race by ZeroLamberg and Skyre                |
+| UED                 | UED 4th race by UEDCommander , Dagahan                   |
+| Dragons             | Dragons race bt unknown                                  |
+| Talon               | Talon Faction                                            |
+| UPL                 | Original Data for UPL race from UED:First Light Campaign |
+| UPLBalance          | Custom balancing data for UPL race                       |
 
 #####Dependency mods used in Melee and COOP mods
      
-| Name  | Description | 
-|---|---|
-| VoidBalance       | Multiplayer Balancing for COOP                                       |
-| Legacy            | Experimental. Copy Of Main 3 races                                   |
+| Name                | Description                                              | 
+|---------------------|----------------------------------------------------------|
+| VoidBalance         | Multiplayer Balancing for COOP                           |
+| Legacy              | Experimental. Copy Of Main 3 races                       |
 
 
 #####Dependency mods only used in experimental modifications or maps
 
-| Name  | Description | 
-|---|---|
-| WarCraft          | WarCraft Mod For Star Craft                                          |
-| UPLCampaign       | UED:First Light Heroes Data                                          |
-| Alternate         |                                                                      |
-| BroodWar          |                                                                      |
-| Colonial          |                                                                      |
-| RaceWidthDestiny  |                                                                      |
-| ForReforged       |                                                                      |
-| Reforged          |                                                                      |
-| Erls              | Erls Mod                                                             |
+| Name                | Description                                               | 
+|---------------------|-----------------------------------------------------------|
+| WarCraft            | WarCraft Mod For Star Craft                               |
+| UPLCampaign         | UED:First Light Heroes Data                               |
+| Alternate           |                                                           |
+| BroodWar            |                                                           |
+| Colonial            |                                                           |
+| RaceWidthDestiny    |                                                           |
+| ForReforged         |                                                           |
+| Reforged            |                                                           |
+| Erls                | Erls Mod                                                  |
 
 
 #####Dependency mods
 
 Use multiple races mods as dependencies. Used in extension mods. Located in `Dependencies/` folder
 
-| Name  | Description | 
-|---|---|
-| PVP DEPENDENCY | for Melee |
-| PVP COOP DEPENDENCY | for COOP |
+| Name                | Description                                               | 
+|---------------------|-----------------------------------------------------------|
+| PVP DEPENDENCY      | for Melee                                                 |
+| PVP COOP DEPENDENCY | for COOP                                                  |
 
 #####Extension mods
 
 Contains melee game options. Located in `Extensions/` folder
 
-| Name  | Description | 
-|---|---|
-| All Factions | Melee Races |
-| All Factions COOP | Melee Races + Coop Factions |
-| All Factions ERLS | Melee Races + Coop Factions + Erls Factions |
+| Name                | Description                                               | 
+|---------------------|-----------------------------------------------------------|
+| All Factions        | Melee Races                                               |
+| All Factions COOP   | Melee Races + Coop Factions                               |
+| All Factions ERLS   | Melee Races + Coop Factions + Erls Factions               |

@@ -123,7 +123,7 @@ void libUTES_gf_PrepareUnitTesterFactions () {
     autoC1F14CE7_var = 1;
     for ( ; autoC1F14CE7_var <= autoC1F14CE7_ae; autoC1F14CE7_var += 1 ) {
         lv_catalogRace = CatalogEntryGet(c_gameCatalogRace, autoC1F14CE7_var);
-        if ((CatalogFieldValueCount(c_gameCatalogRace, lv_catalogRace, "StartingUnitArray", c_playerAny) > 0)) {
+        if ((CatalogFieldValueGetAsInt(c_gameCatalogRace, lv_catalogRace, "Flags[" + IntToString(0) + "]", c_playerAny) == 1) && (CatalogFieldValueCount(c_gameCatalogRace, lv_catalogRace, "StartingUnitArray", c_playerAny) > 0)) {
             libARRA_gf_ListStringInclude(libUTES_gv_factions, (lv_catalogRace));
             libUTES_gf_SetupUnitTesterFaction(((lv_catalogRace)), 0);
         }
@@ -2043,6 +2043,65 @@ void libUTES_gf_RenderTesterUIForAllPlayers () {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
+// Trigger: Initialize Unit Tester Interface
+//--------------------------------------------------------------------------------------------------
+bool libUTES_gt_InitializeUnitTesterInterface_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup autoFEC78FAC_g;
+    int autoFEC78FAC_var;
+    unitgroup auto272FD0CC_g;
+    int auto272FD0CC_u;
+    unit auto272FD0CC_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoFEC78FAC_g = PlayerGroupAll();
+    autoFEC78FAC_var = -1;
+    while (true) {
+        autoFEC78FAC_var = PlayerGroupNextPlayer(autoFEC78FAC_g, autoFEC78FAC_var);
+        if (autoFEC78FAC_var < 0) { break; }
+        PlayerOptionOverride(autoFEC78FAC_var, "simplecommandcard", "0");
+        TechTreeRestrictionsEnable(autoFEC78FAC_var, true);
+        TechTreeRequirementsEnable(autoFEC78FAC_var, true);
+    }
+    libUTES_gf_PrepareUnitTesterFactions();
+    libUTES_gf_PrepareUnitTesterTerrains();
+    libUTES_gf_ShowUnitTesterCommonInterface();
+    libUTES_gf_MakeUnitTesterPlacementCard();
+    libUTES_gf_MakeUnitTesterFactionsList();
+    DialogControlSetPosition(libUTES_gv_tester_panel, PlayerGroupAll(), c_anchorBottomLeft, 190, -112);
+    libUTES_gv_side_player[0] = (libUTES_gv_const_players+1);
+    libUTES_gv_side_player[1] = (libUTES_gv_const_players+2);
+    libUTES_gf_LoadTerrainData(libUTES_gv_data_terrain[0]);
+    libUTES_gf_TesterLeaderboardCreate();
+    libUTES_gf_SaveMapStructures();
+    auto272FD0CC_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, 0, 0), 0);
+    auto272FD0CC_u = UnitGroupCount(auto272FD0CC_g, c_unitCountAll);
+    for (;; auto272FD0CC_u -= 1) {
+        auto272FD0CC_var = UnitGroupUnitFromEnd(auto272FD0CC_g, auto272FD0CC_u);
+        if (auto272FD0CC_var == null) { break; }
+        libNtve_gf_MakeUnitInvulnerable(auto272FD0CC_var, true);
+    }
+    libUTES_gf_SetActors();
+    libUTES_gf_PrepareUnitTesterPlayers();
+    libUTES_gf_HideGameInterface();
+    libUTES_gf_ShowUnitTesterTips();
+    TimerStart(libUTES_gv_test_timer, c_timerDurationInfinite, false, c_timeReal);
+    libUTES_gf_RenderTesterUIForAllPlayers();
+    TriggerSendEvent(libUTES_gv_uNITTESTERINITIALIZED);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUTES_gt_InitializeUnitTesterInterface_Init () {
+    libUTES_gt_InitializeUnitTesterInterface = TriggerCreate("libUTES_gt_InitializeUnitTesterInterface_Func");
+    TriggerAddEventGeneric(libUTES_gt_InitializeUnitTesterInterface, "UNIT TESTER ENVIRONMENT PREPARED");
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Tester Start Button
 //--------------------------------------------------------------------------------------------------
 bool libUTES_gt_TesterStartButton_Func (bool testConds, bool runActions) {
@@ -3131,65 +3190,8 @@ void libUTES_gt_DialogItemIsUsed_Init () {
     TriggerAddEventDialogControl(libUTES_gt_DialogItemIsUsed, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
 }
 
-//--------------------------------------------------------------------------------------------------
-// Trigger: Initialize Unit Tester Interface
-//--------------------------------------------------------------------------------------------------
-bool libUTES_gt_InitializeUnitTesterInterface_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    playergroup autoFEC78FAC_g;
-    int autoFEC78FAC_var;
-    unitgroup auto272FD0CC_g;
-    int auto272FD0CC_u;
-    unit auto272FD0CC_var;
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    autoFEC78FAC_g = PlayerGroupAll();
-    autoFEC78FAC_var = -1;
-    while (true) {
-        autoFEC78FAC_var = PlayerGroupNextPlayer(autoFEC78FAC_g, autoFEC78FAC_var);
-        if (autoFEC78FAC_var < 0) { break; }
-        PlayerOptionOverride(autoFEC78FAC_var, "simplecommandcard", "0");
-        TechTreeRestrictionsEnable(autoFEC78FAC_var, true);
-    }
-    libUTES_gf_PrepareUnitTesterFactions();
-    libUTES_gf_PrepareUnitTesterTerrains();
-    libUTES_gf_ShowUnitTesterCommonInterface();
-    libUTES_gf_MakeUnitTesterPlacementCard();
-    libUTES_gf_MakeUnitTesterFactionsList();
-    DialogControlSetPosition(libUTES_gv_tester_panel, PlayerGroupAll(), c_anchorBottomLeft, 190, -112);
-    libUTES_gv_side_player[0] = (libUTES_gv_const_players+1);
-    libUTES_gv_side_player[1] = (libUTES_gv_const_players+2);
-    libUTES_gf_LoadTerrainData(libUTES_gv_data_terrain[0]);
-    libUTES_gf_TesterLeaderboardCreate();
-    libUTES_gf_SaveMapStructures();
-    auto272FD0CC_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterStructure), 0, 0, 0), 0);
-    auto272FD0CC_u = UnitGroupCount(auto272FD0CC_g, c_unitCountAll);
-    for (;; auto272FD0CC_u -= 1) {
-        auto272FD0CC_var = UnitGroupUnitFromEnd(auto272FD0CC_g, auto272FD0CC_u);
-        if (auto272FD0CC_var == null) { break; }
-        libNtve_gf_MakeUnitInvulnerable(auto272FD0CC_var, true);
-    }
-    libUTES_gf_SetActors();
-    libUTES_gf_PrepareUnitTesterPlayers();
-    libUTES_gf_HideGameInterface();
-    libUTES_gf_ShowUnitTesterTips();
-    TimerStart(libUTES_gv_test_timer, c_timerDurationInfinite, false, c_timeReal);
-    libUTES_gf_RenderTesterUIForAllPlayers();
-    TriggerSendEvent(libUTES_gv_uNITTESTERINITIALIZED);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libUTES_gt_InitializeUnitTesterInterface_Init () {
-    libUTES_gt_InitializeUnitTesterInterface = TriggerCreate("libUTES_gt_InitializeUnitTesterInterface_Func");
-    TriggerAddEventGeneric(libUTES_gt_InitializeUnitTesterInterface, "UNIT TESTER ENVIRONMENT PREPARED");
-}
-
 void libUTES_InitTriggers () {
+    libUTES_gt_InitializeUnitTesterInterface_Init();
     libUTES_gt_TesterStartButton_Init();
     libUTES_gt_TesterStopButton_Init();
     libUTES_gt_TesterAttackButton_Init();
@@ -3212,7 +3214,6 @@ void libUTES_InitTriggers () {
     libUTES_gt_ShiftOff_Init();
     libUTES_gt_ShiftOn_Init();
     libUTES_gt_DialogItemIsUsed_Init();
-    libUTES_gt_InitializeUnitTesterInterface_Init();
 }
 
 //--------------------------------------------------------------------------------------------------
