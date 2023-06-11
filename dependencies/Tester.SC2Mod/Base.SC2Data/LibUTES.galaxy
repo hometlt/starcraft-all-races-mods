@@ -187,6 +187,7 @@ void libUTES_gf_SetupUnitTesterFaction (string lp_race, int lp_player) {
     int lv_upgradeLevel;
     string lv_upgradeLevelString;
     string lv_upgradeBase;
+    bool lv_ignoreGlossaryPriority;
 
     // Automatic Variable Declarations
     int autoFE544A26_ae;
@@ -269,6 +270,9 @@ void libUTES_gf_SetupUnitTesterFaction (string lp_race, int lp_player) {
         if ((lv_unitType != null) && (lv_startingUnitCount > 0)) {
             if ((CatalogEntryIsValid(c_gameCatalogUnit, lv_unitType) == true)) {
                 libARRA_gf_ListStringInclude(lv_aiunits, (lv_unitType));
+                if ((CatalogFieldValueGetAsInt(c_gameCatalogUnit, lv_unitType, "GlossaryPriority", lp_player) == 0)) {
+                    lv_ignoreGlossaryPriority = true;
+                }
             }
             else {
                 libARRA_gf_LOGString(("Wrong Unit ID: " + (lv_unitType)));
@@ -472,7 +476,17 @@ void libUTES_gf_SetupUnitTesterFaction (string lp_race, int lp_player) {
                     }
 
                     auto39B43415_val = AbilityClass(lv_ability);
-                    if (auto39B43415_val == c_classIdCAbilTransport) {
+                    if (auto39B43415_val == c_classIdCAbilMerge) {
+                        lv_unitName2 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "Info.Unit", lp_player);
+                        if ((lv_unitName2 != null)) {
+                            if ((CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "CmdButtonArray[" + IntToString(0) + "].State", lp_player) == "Restricted")) {
+                                continue;
+                            }
+                            libARRA_gf_ListStringInclude(lv_aiunits, lv_unitName2);
+                        }
+
+                    }
+                    else if (auto39B43415_val == c_classIdCAbilTransport) {
                         if ((lv_unitstructure == false)) {
                             lv_unittransport = true;
                         }
@@ -631,13 +645,15 @@ void libUTES_gf_SetupUnitTesterFaction (string lp_race, int lp_player) {
         lv_unitstructure = UnitTypeTestAttribute(lv_unitType, c_unitAttributeStructure);
         lv_unitworker = UnitTypeTestFlag(lv_unitType, c_unitFlagWorker);
         lv_glossaryPriority = CatalogFieldValueGetAsInt(c_gameCatalogUnit, lv_unitType, "GlossaryPriority", lp_player);
-        if ((lv_unitstructure == true)) {
-            libARRA_gf_ListStringPush(lv_airesultstructures, (lv_unitType));
-            libARRA_gf_ListIntPush("SetupFactionPriorityListStructures", lv_glossaryPriority);
-        }
-        else {
-            libARRA_gf_ListStringPush(lv_airesultunits, (lv_unitType));
-            libARRA_gf_ListIntPush("SetupFactionPriorityListUnits", lv_glossaryPriority);
+        if (((lv_glossaryPriority > 0) || (lv_ignoreGlossaryPriority == true))) {
+            if ((lv_unitstructure == true)) {
+                libARRA_gf_ListStringPush(lv_airesultstructures, (lv_unitType));
+                libARRA_gf_ListIntPush("SetupFactionPriorityListStructures", lv_glossaryPriority);
+            }
+            else {
+                libARRA_gf_ListStringPush(lv_airesultunits, (lv_unitType));
+                libARRA_gf_ListIntPush("SetupFactionPriorityListUnits", lv_glossaryPriority);
+            }
         }
     }
     libARRA_gf_ListSort(lv_airesultunits, "SetupFactionPriorityListUnits");
