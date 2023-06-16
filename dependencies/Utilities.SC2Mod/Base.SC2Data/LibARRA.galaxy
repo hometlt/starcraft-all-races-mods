@@ -158,6 +158,54 @@ void libARRA_InitVariables () {
 
 // Presets
 // Functions
+playergroup libARRA_gf_HumanControllingPlayers (int lp_player) {
+    // Variable Declarations
+    int lv_p;
+    playergroup lv_result;
+
+    // Automatic Variable Declarations
+    playergroup auto797056DA_g;
+
+    // Variable Initialization
+    lv_result = PlayerGroupEmpty();
+
+    // Implementation
+    auto797056DA_g = libARRA_gf_HumanPlayers();
+    lv_p = -1;
+    while (true) {
+        lv_p = PlayerGroupNextPlayer(auto797056DA_g, lv_p);
+        if (lv_p < 0) { break; }
+        if (((lv_p == lp_player) || (PlayerGetAlliance(lp_player, c_allianceIdControl, lv_p) == true))) {
+            PlayerGroupAdd(lv_result, lv_p);
+        }
+    }
+    return lv_result;
+}
+
+playergroup libARRA_gf_HumanPlayers () {
+    // Variable Declarations
+    int lv_p;
+    playergroup lv_result;
+
+    // Automatic Variable Declarations
+    playergroup auto740F0A03_g;
+
+    // Variable Initialization
+    lv_result = PlayerGroupEmpty();
+
+    // Implementation
+    auto740F0A03_g = PlayerGroupActive();
+    lv_p = -1;
+    while (true) {
+        lv_p = PlayerGroupNextPlayer(auto740F0A03_g, lv_p);
+        if (lv_p < 0) { break; }
+        if ((PlayerType(lv_p) == c_playerTypeUser)) {
+            PlayerGroupAdd(lv_result, lv_p);
+        }
+    }
+    return lv_result;
+}
+
 int libARRA_gf_DifficultyValueInt2 (int lp_casual, int lp_normal, int lp_hard, int lp_brutal) {
     // Automatic Variable Declarations
     int auto79CC034A_val;
@@ -1178,7 +1226,7 @@ void libARRA_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
     int lv_b;
     int lv_cl;
     int lv_lb;
-    string lv_baaagsjnccbyupqh;
+    string lv_ycvahwmvymuxgtfj;
 
     // Automatic Variable Declarations
     int auto9FD56787_ae;
@@ -1212,7 +1260,7 @@ void libARRA_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
 
     // Variable Initialization
     lv_hasDangerAbilities = libARRA_gf_UnitTypeisArmed(lp_player, lp_unit);
-    lv_baaagsjnccbyupqh = ("Race:" + UserDataGetString("Rules", libARRA_gv_mBRules[lp_player], "Category", 1));
+    lv_ycvahwmvymuxgtfj = ("Race:" + UserDataGetString("Rules", libARRA_gv_mBRules[lp_player], "Category", 1));
 
     // Implementation
     if ((CatalogEntryIsValid(c_gameCatalogUnit, lp_unit) == false)) {
@@ -1304,7 +1352,7 @@ void libARRA_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
         autoBD08B882_i = 1;
         for ( ; autoBD08B882_i <= CatalogEntryCount(c_gameCatalogAbil) ; autoBD08B882_i += 1 ) {
             lv_aBILITY = CatalogEntryGet(autoBD08B882_catalog, autoBD08B882_i);
-            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_baaagsjnccbyupqh, c_stringNoCase) == -1)) {
+            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogAbil, lv_aBILITY, "EditorCategories", lp_player), lv_ycvahwmvymuxgtfj, c_stringNoCase) == -1)) {
                 continue;
             }
             else {
@@ -1381,7 +1429,7 @@ void libARRA_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan) {
         auto389A8403_i = 1;
         for ( ; auto389A8403_i <= CatalogEntryCount(c_gameCatalogBehavior) ; auto389A8403_i += 1 ) {
             lv_bEHAVIOR = CatalogEntryGet(auto389A8403_catalog, auto389A8403_i);
-            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogBehavior, lv_bEHAVIOR, "EditorCategories", lp_player), lv_baaagsjnccbyupqh, c_stringNoCase) == -1)) {
+            if ((PlayerRace(lp_player) != "Neut") && (StringFind(CatalogFieldValueGet(c_gameCatalogBehavior, lv_bEHAVIOR, "EditorCategories", lp_player), lv_ycvahwmvymuxgtfj, c_stringNoCase) == -1)) {
                 continue;
             }
             else {
@@ -9264,6 +9312,282 @@ void libARRA_gf_LOGListPoint (string lp_list) {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
+// Trigger: Init Sounds
+//--------------------------------------------------------------------------------------------------
+bool libARRA_gt_InitSounds_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_sound;
+    int lv_entries;
+    int lv_index;
+    string lv_asset;
+    int lv_soundAssetsCount;
+    string lv_unit;
+    string lv_readySoundVolume;
+    string lv_readySoundPitch;
+    int lv_player;
+    playergroup lv_players;
+
+    // Automatic Variable Declarations
+    string auto75D8C71C_userType;
+    int auto75D8C71C_i;
+    int autoA7C0C30D_ae;
+    const int autoA7C0C30D_ai = 1;
+    playergroup autoA3CC8910_g;
+
+    // Variable Initialization
+    lv_asset = "";
+    lv_unit = "";
+    lv_readySoundVolume = "";
+    lv_readySoundPitch = "";
+    lv_players = libARRA_gf_HumanPlayers();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto75D8C71C_userType = "UnitSounds";
+    auto75D8C71C_i = 1;
+    for ( ; auto75D8C71C_i <= UserDataInstanceCount(auto75D8C71C_userType) ; auto75D8C71C_i += 1 ) {
+        lv_sound = UserDataInstance(auto75D8C71C_userType, auto75D8C71C_i);
+        lv_unit = UserDataGetString("UnitSounds", lv_sound, "Unit", 1);
+        lv_readySoundVolume = UserDataGetString("UnitSounds", lv_sound, "ReadyVolume", 1);
+        lv_readySoundPitch = UserDataGetString("UnitSounds", lv_sound, "ReadyPitch", 1);
+        libARRA_gf_MapIntSet("^UnitReadyAssetsIndex", lv_unit, lv_entries);
+        autoA7C0C30D_ae = UserDataFieldValueCount("UnitSounds", "ReadySound");
+        lv_index = 1;
+        for ( ; ( (autoA7C0C30D_ai >= 0 && lv_index <= autoA7C0C30D_ae) || (autoA7C0C30D_ai < 0 && lv_index >= autoA7C0C30D_ae) ) ; lv_index += autoA7C0C30D_ai ) {
+            lv_asset = UserDataGetString("UnitSounds", lv_sound, "ReadySound", lv_index);
+            if ((lv_asset == "")) {
+                break;
+            }
+            lv_soundAssetsCount = lv_index;
+            autoA3CC8910_g = lv_players;
+            lv_player = -1;
+            while (true) {
+                lv_player = PlayerGroupNextPlayer(autoA3CC8910_g, lv_player);
+                if (lv_player < 0) { break; }
+                CatalogFieldValueSet(c_gameCatalogSound, "TriggerSound", "AssetArray[" + IntToString(lv_entries) + "].File", lv_player, lv_asset);
+                CatalogFieldValueSet(c_gameCatalogSound, "TriggerSound", "AssetArray[" + IntToString(lv_entries) + "].Volume", lv_player, lv_readySoundVolume);
+                CatalogFieldValueSet(c_gameCatalogSound, "TriggerSound", "AssetArray[" + IntToString(lv_entries) + "].Pitch", lv_player, lv_readySoundPitch);
+            }
+            lv_entries += 1;
+        }
+        libARRA_gf_MapIntSet("^UnitReadyAssetsCount", lv_unit, lv_soundAssetsCount);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARRA_gt_InitSounds_Init () {
+    libARRA_gt_InitSounds = TriggerCreate("libARRA_gt_InitSounds_Func");
+    TriggerAddEventMapInit(libARRA_gt_InitSounds);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Unit Dies
+//--------------------------------------------------------------------------------------------------
+bool libARRA_gt_UnitDies_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventUnitDamageDeathCheck(c_deathTypeNormal) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeUnderConstruction) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeFire) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeDisintegrate) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeEviscerate) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeDisintegrate) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeEat) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeSilentkill) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeSquish) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeTimeout) == true)) {
+    }
+    else if ((EventUnitDamageDeathCheck(c_deathTypeBlast) == true)) {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARRA_gt_UnitDies_Init () {
+    libARRA_gt_UnitDies = TriggerCreate("libARRA_gt_UnitDies_Func");
+    TriggerAddEventUnitDied(libARRA_gt_UnitDies, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Unit Selected
+//--------------------------------------------------------------------------------------------------
+bool libARRA_gt_UnitSelected_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (true) {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARRA_gt_UnitSelected_Init () {
+    libARRA_gt_UnitSelected = TriggerCreate("libARRA_gt_UnitSelected_Func");
+    TriggerAddEventUnitSelected(libARRA_gt_UnitSelected, null, c_playerAny, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Unit Ready
+//--------------------------------------------------------------------------------------------------
+bool libARRA_gt_UnitReady_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_variations;
+    int lv_startindex;
+    int lv_assetindex;
+    string lv_unit;
+    int lv_entries;
+    int lv_index;
+    int lv_reverbBalance;
+    int lv_player;
+    string lv_asset;
+    string lv_readySoundVolume;
+    string lv_readySoundPitch;
+    playergroup lv_players;
+
+    // Automatic Variable Declarations
+    int autoC95E9E14_ae;
+    const int autoC95E9E14_ai = 1;
+
+    // Variable Initialization
+    lv_unit = (UnitGetType(EventUnitCreatedUnit()));
+    lv_player = UnitGetOwner(EventUnitCreatedUnit());
+    lv_asset = UserDataGetString("UnitSounds", lv_unit, "ReadySound", 1);
+    lv_readySoundVolume = "";
+    lv_readySoundPitch = "";
+    lv_players = libARRA_gf_HumanControllingPlayers(lv_player);
+
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupCount(lv_players) > 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((lv_asset == "")) {
+        libARRA_gf_LOGString(lv_unit);
+    }
+    lv_readySoundVolume = UserDataGetString("UnitSounds", lv_unit, "ReadyVolume", 1);
+    lv_readySoundPitch = UserDataGetString("UnitSounds", lv_unit, "ReadyPitch", 1);
+    lv_reverbBalance = UserDataGetInt("UnitSounds", lv_unit, "ReadyReverbBalance", 1);
+    autoC95E9E14_ae = UserDataFieldValueCount("UnitSounds", "ReadySound");
+    lv_index = 1;
+    for ( ; ( (autoC95E9E14_ai >= 0 && lv_index <= autoC95E9E14_ae) || (autoC95E9E14_ai < 0 && lv_index >= autoC95E9E14_ae) ) ; lv_index += autoC95E9E14_ai ) {
+        if ((lv_asset == "")) {
+            break;
+        }
+        lv_variations = lv_index;
+    }
+    lv_assetindex = RandomInt(0, (lv_variations - 1));
+    lv_asset = UserDataGetString("UnitSounds", lv_unit, "ReadySound", lv_assetindex);
+    libNtve_gf_CatalogFieldValueSetAsReal(c_gameCatalogSound, "TriggerSound", "ReverbBalance.Room", 0, lv_reverbBalance);
+    CatalogFieldValueSet(c_gameCatalogSound, "TriggerSound", "AssetArray[" + IntToString(0) + "].File", 0, lv_asset);
+    CatalogFieldValueSet(c_gameCatalogSound, "TriggerSound", "AssetArray[" + IntToString(0) + "].Volume", 0, lv_readySoundVolume);
+    CatalogFieldValueSet(c_gameCatalogSound, "TriggerSound", "AssetArray[" + IntToString(0) + "].Pitch", 0, lv_readySoundPitch);
+    SoundPlayOnUnitForPlayer(SoundLink("TriggerSound", 0), 0, lv_players, EventUnitCreatedUnit(), 0.0, 100.0, 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARRA_gt_UnitReady_Init () {
+    libARRA_gt_UnitReady = TriggerCreate("libARRA_gt_UnitReady_Func");
+    TriggerAddEventUnitCreated(libARRA_gt_UnitReady, null, null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Unit Issue Order
+//--------------------------------------------------------------------------------------------------
+bool libARRA_gt_UnitIssueOrder_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    bool[16] lv_currentTransmissions;
+
+    // Automatic Variable Declarations
+    playergroup autoCEC5A611_g;
+    int autoCEC5A611_var;
+    playergroup autoCDF6CA25_g;
+    int autoCDF6CA25_var;
+    playergroup auto087A5A16_g;
+    int auto087A5A16_var;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((AbilityClass(AbilityCommandGetAbility(OrderGetAbilityCommand(EventUnitOrder()))) == c_classIdCAbilAttack)) {
+        autoCDF6CA25_g = libARRA_gf_HumanPlayers();
+        autoCDF6CA25_var = -1;
+        while (true) {
+            autoCDF6CA25_var = PlayerGroupNextPlayer(autoCDF6CA25_g, autoCDF6CA25_var);
+            if (autoCDF6CA25_var < 0) { break; }
+            if ((libARRA_gv_unitTransmissionActive[autoCDF6CA25_var] == false) && (UnitGroupUnit(UnitSubgroupSelected(autoCDF6CA25_var), 1) == EventUnit())) {
+                libARRA_gv_unitTransmissionActive[autoCDF6CA25_var] = true;
+                lv_currentTransmissions[autoCDF6CA25_var] = true;
+                SoundPlayOnUnitForPlayer(SoundLink("SCV_Attack", -1), autoCDF6CA25_var, PlayerGroupSingle(autoCDF6CA25_var), EventUnit(), 0.0, 100.0, 0.0);
+            }
+
+        }
+    }
+    else {
+        autoCEC5A611_g = libARRA_gf_HumanPlayers();
+        autoCEC5A611_var = -1;
+        while (true) {
+            autoCEC5A611_var = PlayerGroupNextPlayer(autoCEC5A611_g, autoCEC5A611_var);
+            if (autoCEC5A611_var < 0) { break; }
+            if ((libARRA_gv_unitTransmissionActive[autoCEC5A611_var] == false) && (UnitGroupUnit(UnitSubgroupSelected(autoCEC5A611_var), 1) == EventUnit())) {
+                libARRA_gv_unitTransmissionActive[autoCEC5A611_var] = true;
+                lv_currentTransmissions[autoCEC5A611_var] = true;
+                SoundPlayOnUnitForPlayer(SoundLink("SCV_Yes", -1), autoCEC5A611_var, PlayerGroupSingle(1), EventUnit(), 0.0, 100.0, 0.0);
+            }
+
+        }
+    }
+    Wait(3.0, c_timeGame);
+    auto087A5A16_g = libARRA_gf_HumanPlayers();
+    auto087A5A16_var = -1;
+    while (true) {
+        auto087A5A16_var = PlayerGroupNextPlayer(auto087A5A16_g, auto087A5A16_var);
+        if (auto087A5A16_var < 0) { break; }
+        if ((lv_currentTransmissions[auto087A5A16_var] == true)) {
+            libARRA_gv_unitTransmissionActive[auto087A5A16_var] = false;
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARRA_gt_UnitIssueOrder_Init () {
+    libARRA_gt_UnitIssueOrder = TriggerCreate("libARRA_gt_UnitIssueOrder_Func");
+    TriggerAddEventUnitOrder(libARRA_gt_UnitIssueOrder, null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: PingUsed
 //--------------------------------------------------------------------------------------------------
 bool libARRA_gt_PingUsed_Func (bool testConds, bool runActions) {
@@ -16390,6 +16714,11 @@ void libARRA_gt_CheckEmergencyStartRegion_Init () {
 }
 
 void libARRA_InitTriggers () {
+    libARRA_gt_InitSounds_Init();
+    libARRA_gt_UnitDies_Init();
+    libARRA_gt_UnitSelected_Init();
+    libARRA_gt_UnitReady_Init();
+    libARRA_gt_UnitIssueOrder_Init();
     libARRA_gt_PingUsed_Init();
     libARRA_gt_PingResetTimerExprires_Init();
     libARRA_gt_PingPanelAutoDisable_Init();
