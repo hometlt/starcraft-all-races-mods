@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+    <CActorModel id="UmojanLightningTowerBuild" parent="TerranBuildingBuildSmall">
+        <On index="4" Send="Create UmojanConstructionAttachedSmall"/>
+        <Model value="UmojanAATurretBuild"/>
+    </CActorModel>
+    <CActorAction id="UmojanLightningTowerAttack" parent="GenericAttack" effectAttack="UmojanLightningStrike">
+        <LaunchAssets Sound="Archon_AttackLaunch"/>
+        <BeamScope value="Caster"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance VoidRaySOpForwardLaunch"/>
+        <ImpactMap index="None" Model="" Sound="Archon_AttackImpact"/>
+        <ActionFlags index="ImpactMonitorsTeleports" value="1"/>
+    </CActorAction>
+    <CActorBeamSimple id="UmojanLightningTowerAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <Macros value="ActionTargetTeleportDestroy"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSDb" Send="Destroy"/>
+        <Model value="ArchonAttackBeam"/>
+        <Scale value="0.500000"/>
+    </CActorBeamSimple>
     <CActorSplat id="EMPCursorSplat">
         <On Terms="Abil.UmojanKerriganT3EMP.Cursor" Send="Create"/>
     </CActorSplat>
@@ -25,6 +42,9 @@
         </VitalColors>
         <VitalNames index="Shields" value="Vital/ZergShields"/>
         <WireframeShieldColor value="255,0,128,0"/>
+        <StatusColors index="Shields">
+            <ColorArray index="0" value="255,0,128,0"/>
+        </StatusColors>
     </CActorUnit>
     <CActorUnit id="LurkerMPEgg">
         <VitalColors index="Shields">
@@ -32,7 +52,40 @@
         </VitalColors>
         <VitalNames index="Shields" value="Vital/ZergShields"/>
         <WireframeShieldColor value="255,0,128,0"/>
+        <StatusColors index="Shields">
+            <ColorArray index="0" value="255,0,128,0"/>
+        </StatusColors>
     </CActorUnit>
+    <CActorUnit id="UmojanLightningTower" parent="TerranBuildingEx" unitName="UmojanLightningTower">
+        <Aliases value="_UnitHuge"/>
+        <CreepHeightClass value="Small"/>
+        <DeathArray index="Normal" ModelLink="TerranBuildingDeath"/>
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="MissileTurret_Explode"/>
+        <PlacementModel value="UmojanLightningTower"/>
+        <PlacementSound value="Terran_BuildingPlacementSmall"/>
+        <PlacementActorModel value="UmojanPlacementModel"/>
+        <PortraitModel value="UmojanAdjutantPortrait2"/>
+        <BarOffset value="90"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-unit-terran-umojan-teslacoil.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-umojan-teslacoil.dds"/>
+        <SoundArray index="Ready" value="MissileTurret_Ready"/>
+        <SoundArray index="What" value="MissileTurret_What"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-umojan-teslacoil.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-unit-terran-umojan-teslacoil.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorRange id="UmojanLightningTowerRange" parent="RangeWeapon" weapon="UmojanLightningStrike">
+        <On Terms="SelectionLocalUpdate.UmojanLightningTower.Start" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.UmojanLightningTower.StartEditorGround" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.UmojanLightningTower.StartEditorFlyer" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.UmojanLightningTower.Stop" Send="Destroy"/>
+    </CActorRange>
+    <CActorSplat id="UmojanKerriganT1GroupCloakCursorSplat" parent="ZergCursorSplat" abil="UmojanKerriganT1GroupCloak"/>
+    <CActorRange id="UmojanKerriganT1GroupCloakRange" parent="RangeAbil" abil="UmojanKerriganT1GroupCloak"/>
     <CActorModel id="UmojanLockdown">
         <On Terms="Behavior.UmojanKerriganT3Lockdown.On" Send="Create"/>
         <On Terms="Behavior.UmojanKerriganT3Lockdown.Off" Send="AnimBracketStop BSD"/>
@@ -71,7 +124,8 @@
         <PlacementModel value="SoACaster"/>
         <PlacementSound value="Protoss_BuildingPlacement"/>
         <PortraitModel value="ExecutorPortrait"/>
-        <AbilSoundArray AbilCmd="UmojanInsertionTeamCreateTeamDummy,Execute" Sound="Ghost_Ready"/>
+        <AbilSoundArray AbilCmd="UmojanInsertionTeamCreateTeamDummy,Execute" Sound="Ghost_Yes"/>
+        <AbilSoundArray AbilCmd="UmojanInsertionTeamNuke,Execute" Sound="Ghost_NuclearStrikeVO"/>
         <BarOffset value="140"/>
         <BarWidth value="160"/>
         <GroupIcon>
@@ -473,9 +527,9 @@
         <On index="65" Terms="WeaponStart.UmojanBattlecat.AttackStart" Send="AnimBracketStart Attack Attack"/>
         <On index="66" Terms="WeaponStart.UmojanBattlecat.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
         <On index="67" Terms="WeaponStop.UmojanBattlecat.AttackStop" Send="AnimBracketStop Attack"/>
-        <On Terms="ActorCreation" Send="RefSet ::global.MutatorAmonKerrigan"/>
-        <Scale value="1.100000"/>
         <PortraitActor value="KerriganGhostPortrait"/>
+        <PortraitModel value="KerriganGhostPortrait"/>
+        <BarOffset value="80"/>
         <CustomUnitStatusFrame value="Coop_UnitStatus/NovaCoopStatusFrameTemplate"/>
         <ErrorArray Error="CantLandLocationInvalid" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
         <GroupIcon>
@@ -507,20 +561,7 @@
         <Wireframe>
             <Image index="0" value="Assets\Textures\wireframe-zerg-kerriganghost.dds"/>
         </Wireframe>
-        <PortraitModel value="KerriganGhostPortrait"/>
-        <BarOffset value="80"/>
     </CActorUnit>
-    <CActorModel id="UmojanBattlecatRiderKerriganDummy" parent="ModelAddition">
-        <On index="0" Terms="ActorOrphan" Send="Destroy"/>
-        <On index="1" Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
-        <On index="2" Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
-        <On Terms="ActorCreation" Send="SetScale 0.500000"/>
-        <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
-        <HostForProps Subject="UmojanCmdKerrigan"/>
-        <HostSiteOps Ops="SOpAttachTarget SOpMoveUpByDot5 SOpMoveUpByDot25"/>
-        <Model value="RedstoneLavaCritter"/>
-        <Scale value="0.500000"/>
-    </CActorModel>
     <CActorModel id="UmojanBattlecatRiderKerriganModel" parent="ModelAddition">
         <On Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
         <On Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
@@ -533,29 +574,13 @@
         <On Terms="WeaponStart.UmojanK1XCanisterRifleKerrigan.AttackStart" Send="TimerSet 1.600000 Anim"/>
         <On Terms="TimerExpired; TimerName Anim" Send="AnimBracketStop Attack"/>
         <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
-        <On Terms="ActorCreation" Send="SetScale 1.800000"/>
         <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
-        <Host Subject="UmojanBattlecatRiderKerriganDummy"/>
+        <On Terms="ActorCreation" Send="SetScale 1.800000"/>
+        <Host Subject="_UmojanSaddle"/>
         <HostSiteOps Ops="SOpAttachTarget SOpMoveDownByDot35"/>
         <Model value="KerriganGhost"/>
+        <Aliases value="_UmojanRider"/>
     </CActorModel>
-    <CActorSite id="UmojanBattlecatRiderKerriganSite">
-        <On Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
-        <On Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
-        <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
-        <Host Subject="UmojanBattlecatRiderKerriganModel"/>
-        <HostSiteOps Ops="SOpAttachWeapon"/>
-    </CActorSite>
-    <CActorAction id="UmojanKerriganAttack" parent="GenericAttack" effectAttack="UmojanK2XCanisterRifle">
-        <LaunchSite value="UmojanBattlecatRiderKerriganSite"/>
-        <LaunchSiteFallback value="GenericAttackLaunchSite"/>
-        <LaunchAssets Model="GhostAttackLaunch" Sound="Ghost_AttackLaunch"/>
-        <ContainerAssets Model="GhostBunkerAttackLaunch" Sound="Ghost_BunkerAttackLaunch"/>
-        <Beam value="UmojanBattlecatFakeBeam"/>
-        <ImpactMap index="None" Model="GhostAttackImpact" Sound="Ghost_AttackImpact"/>
-        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
-        <ImpactPhysics Name="CannisterRifleImpact" MatchKeys="Basic" Physics="GhostAttackDeathForce"/>
-    </CActorAction>
     <CActorUnit id="UmojanPsionicShadow" parent="UmojanCmdKerrigan" unitName="UmojanPsionicShadow">
         <On index="0" Terms="UnitBirth.UmojanPsionicShadow" Send="Create SoundEmitter UmojanBattlecatPretorian_Ambience"/>
         <On index="1" Terms="UnitBirth.UmojanPsionicShadow"/>
@@ -563,27 +588,16 @@
         <On index="3" Terms="UnitRevive.UmojanPsionicShadow"/>
         <On index="4" Terms="UnitConstruction.UmojanPsionicShadow.Start"/>
         <On index="5" Terms="UnitConstruction.UmojanPsionicShadow.Finish"/>
-        <On index="69" Terms="ActorCreation" Send="Create UmojanBattlecatRiderShadowGlaze"/>
+        <On Terms="ActorCreation" Send="Create UmojanBattlecatRiderShadowGlaze"/>
         <PortraitActor value="UmojanBattlecatRiderShadowPortrait"/>
-        <HighlightTooltip value="Unit/Name/UmojanPsionicShadow"/>
-        <MinimapTooltip value="Unit/Name/UmojanPsionicShadow"/>
-        <UnitKillRank index="0" Text="UnitKillRank/UmojanPsionicShadow"/>
         <HeroIcon value="Assets\Textures\abilityicon_psionicshadow_circle.dds"/>
+        <HighlightTooltip value="Unit/Name/UmojanPsionicShadow"/>
         <MinimapIcon value="Assets\Textures\abilityicon_psionicshadow_circle.dds"/>
-        <UnitIcon value="Assets\Textures\abilityicon_psionicshadow_circle.dds"/>
         <MinimapIconScale value="0.100000"/>
+        <MinimapTooltip value="Unit/Name/UmojanPsionicShadow"/>
+        <UnitIcon value="Assets\Textures\abilityicon_psionicshadow_circle.dds"/>
+        <UnitKillRank index="0" Text="UnitKillRank/UmojanPsionicShadow"/>
     </CActorUnit>
-    <CActorModel id="UmojanBattlecatRiderShadowDummy" parent="ModelAddition">
-        <On index="0" Terms="ActorOrphan" Send="Destroy"/>
-        <On index="1" Terms="UnitBirth.UmojanPsionicShadow" Send="Create"/>
-        <On index="2" Terms="UnitDeath.UmojanPsionicShadow" Send="Destroy"/>
-        <On Terms="ActorCreation" Send="SetScale 0.500000"/>
-        <On Terms="UnitRevive.UmojanPsionicShadow" Send="Create"/>
-        <HostForProps Subject="UmojanPsionicShadow"/>
-        <HostSiteOps Ops="SOpAttachTarget SOpMoveUpByDot5 SOpMoveUpByDot25"/>
-        <Model value="RedstoneLavaCritter"/>
-        <Scale value="0.500000"/>
-    </CActorModel>
     <CActorModel id="UmojanBattlecatRiderShadowModel" parent="ModelAddition">
         <On Terms="UnitBirth.UmojanPsionicShadow" Send="Create"/>
         <On Terms="UnitDeath.UmojanPsionicShadow" Send="Destroy"/>
@@ -596,19 +610,13 @@
         <On Terms="WeaponStart.UmojanK1XCanisterRifleKerrigan.AttackStart" Send="TimerSet 1.600000 Anim"/>
         <On Terms="TimerExpired; TimerName Anim" Send="AnimBracketStop Attack"/>
         <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
-        <On Terms="ActorCreation" Send="SetScale 1.800000"/>
         <On Terms="UnitRevive.UmojanPsionicShadow" Send="Create"/>
-        <Host Subject="UmojanBattlecatRiderShadowDummy"/>
+        <On Terms="ActorCreation" Send="SetScale 1.800000"/>
+        <Host Subject="_UmojanSaddle"/>
         <HostSiteOps Ops="SOpAttachTarget SOpMoveDownByDot35"/>
         <Model value="KerriganGhost"/>
+        <Aliases value="_UmojanRider"/>
     </CActorModel>
-    <CActorSite id="UmojanBattlecatRiderShadowSite">
-        <On Terms="UnitBirth.UmojanPsionicShadow" Send="Create"/>
-        <On Terms="UnitDeath.UmojanPsionicShadow" Send="Destroy"/>
-        <On Terms="UnitRevive.UmojanPsionicShadow" Send="Create"/>
-        <Host Subject="UmojanBattlecatRiderShadowModel"/>
-        <HostSiteOps Ops="SOpAttachWeapon"/>
-    </CActorSite>
     <CActorModelMaterial id="UmojanBattlecatRiderShadowGlaze" parent="GlazeParent">
         <On Terms="ActorCreation" Send="ModelMaterialApplyTo ::Creator"/>
         <On Terms="AnimDone; AnimName Death" Send="ModelMaterialRemoveFrom ::Creator"/>
@@ -622,7 +630,6 @@
         <On Terms="ActorCreation" Send="Create UmojanBattlecatRiderShadowGlaze"/>
         <Model value="KerriganGhostPortraitAddition"/>
     </CActorModel>
-    <!-- Viper Consume Structure                                                                                   -->
     <CActorRange id="ViperConsumeRange">
         <On Terms="Abil.UmojanKerriganT2Consume.TargetOn" Send="Create"/>
         <On Terms="Abil.UmojanKerriganT2Consume.TargetOff" Send="Destroy"/>
@@ -641,4 +648,24 @@
     <CActorSplat id="nukeCursorSplat">
         <On Terms="Abil.UmojanInsertionTeamNuke.Cursor" Send="Create"/>
     </CActorSplat>
+    <CActorModel id="UmojanBattlecatRiderHeroDummy" parent="ModelAddition">
+        <Aliases value="_UmojanSaddle"/>
+        <On index="0" Terms="ActorOrphan" Send="Destroy"/>
+        <On index="1" Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
+        <On index="2" Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
+        <On Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
+        <On Terms="UnitBirth.UmojanPsionicShadow" Send="Create"/>
+        <On Terms="UnitDeath.UmojanPsionicShadow" Send="Destroy"/>
+        <HostForProps Subject="_UmojanMount"/>
+        <HostSiteOps Ops="SOpAttachTarget SOpMoveUpByDot5 SOpMoveUpByDot25"/>
+        <Model value="RedstoneLavaCritter"/>
+        <Scale value="0.500000"/>
+    </CActorModel>
+    <CActorSite id="UmojanBattlecatRiderSite">
+        <On Terms="UnitBirth.UmojanCmdKerrigan" Send="Create"/>
+        <On Terms="UnitRevive.UmojanCmdKerrigan" Send="Create"/>
+        <On Terms="UnitDeath.UmojanCmdKerrigan" Send="Destroy"/>
+        <On Terms="UnitBirth.UmojanPsionicShadow" Send="Create"/>
+        <On Terms="UnitDeath.UmojanPsionicShadow" Send="Destroy"/>
+    </CActorSite>
 </Catalog>
