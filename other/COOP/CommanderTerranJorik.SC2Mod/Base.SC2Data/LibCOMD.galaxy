@@ -1,0 +1,673 @@
+include "TriggerLibs/NativeLib"
+include "LibCOOC"
+include "LibCOMI"
+include "LibCOUI"
+include "LibA8FDA37D"
+include "Lib860A1A1F"
+
+include "LibCOMD_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: More Commanders
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libCOMD_InitLibraries () {
+    libNtve_InitVariables();
+    libCOOC_InitVariables();
+    libCOMI_InitVariables();
+    libCOUI_InitVariables();
+    libA8FDA37D_InitVariables();
+    lib860A1A1F_InitVariables();
+}
+
+// Variable Initialization
+bool libCOMD_InitVariables_completed = false;
+
+void libCOMD_InitVariables () {
+    if (libCOMD_InitVariables_completed) {
+        return;
+    }
+
+    libCOMD_InitVariables_completed = true;
+
+}
+
+// Functions
+void libCOMD_gf_CU_GPInitBase (int lp_player) {
+    // Variable Declarations
+    int lv_lastFrame;
+    int lv_buttonIndex;
+
+    // Automatic Variable Declarations
+    const int auto9A67B3BD_ae = 4;
+    const int auto9A67B3BD_ai = 1;
+    unitgroup autoDEE5BB90_g;
+    int autoDEE5BB90_u;
+    unit autoDEE5BB90_var;
+
+    // Variable Initialization
+    lv_lastFrame = c_invalidDialogControlId;
+
+    // Implementation
+    if ((libCOUI_gv_cU_GPPanelHolder == c_invalidDialogControlId)) {
+        DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/GlobalCastingPanel");
+        libCOUI_gv_cU_GPPanelHolder = DialogControlLastCreated();
+        DialogControlSetVisible(libCOUI_gv_cU_GPPanelHolder, PlayerGroupAll(), false);
+    }
+
+    DialogControlCreateInPanelFromTemplate(libCOUI_gv_cU_GPPanelHolder, c_triggerControlTypePanel, "Coop_GlobalCastingTemplates/TerranCasterPanelTemplate");
+    libCOUI_gv_cU_GPPanel[lp_player] = DialogControlLastCreated();
+    DialogControlHookup(libCOUI_gv_cU_GPPanel[lp_player], c_triggerControlTypeCutscene, "TerranCommandCutscene");
+    libCOUI_gv_cU_GPCutscene[lp_player] = DialogControlLastCreated();
+    DialogControlHookup(libCOUI_gv_cU_GPPanel[lp_player], c_triggerControlTypePanel, "ButtonHolder");
+    lv_lastFrame = DialogControlLastCreated();
+    DialogControlCreateInPanelFromTemplate(lv_lastFrame, c_triggerControlTypeCommandPanel, "Coop_GlobalCastingTemplates/TerranGlobalCommandPanelTemplate");
+    libCOUI_gv_cU_GPCmdPanel[lp_player] = DialogControlLastCreated();
+    lv_buttonIndex = 1;
+    for ( ; ( (auto9A67B3BD_ai >= 0 && lv_buttonIndex <= auto9A67B3BD_ae) || (auto9A67B3BD_ai < 0 && lv_buttonIndex >= auto9A67B3BD_ae) ) ; lv_buttonIndex += auto9A67B3BD_ai ) {
+        DialogControlHookup(libCOUI_gv_cU_GPCmdPanel[lp_player], c_triggerControlTypeButton, "CommandButton0" + IntToString(lv_buttonIndex-1));
+        libCOUI_gv_cU_GPCmdButtons[lv_buttonIndex][lp_player] = DialogControlLastCreated();
+        DialogControlHookup(libCOUI_gv_cU_GPPanel[lp_player], c_triggerControlTypePanel, "AbilityArrow0" + IntToString(lv_buttonIndex));
+        libCOUI_gv_cU_GPCmdButtonArrows[lv_buttonIndex][lp_player] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(libCOUI_gv_cU_GPCmdButtonArrows[lv_buttonIndex][lp_player], PlayerGroupSingle(lp_player), c_anchorTop, libCOUI_gv_cU_GPCmdButtons[lv_buttonIndex][lp_player], c_anchorBottom, 0, 15);
+    }
+    DialogControlSetVisible(libCOUI_gv_cU_GPPanel[lp_player], PlayerGroupAll(), false);
+    libNtve_gf_SetDialogItemCutscene(libCOUI_gv_cU_GPCutscene[lp_player], "Cutscenes\\UI_TerranCastingPanel.SC2Cutscene", PlayerGroupAll());
+    CutscenePlay(CutsceneGetTriggerControl(libCOUI_gv_cU_GPCutscene[lp_player]));
+    libCOUI_gv_cU_GPCutsceneFilter[lp_player] = "Nova";
+    libCOUI_gv_cU_GPUnit[lp_player] = libA8FDA37D_gf_CM_PlayerGetGlobalCaster(lp_player);
+    autoDEE5BB90_g = libCOUI_gv_cU_GPCasterGroup[lp_player];
+    autoDEE5BB90_u = UnitGroupCount(autoDEE5BB90_g, c_unitCountAll);
+    for (;; autoDEE5BB90_u -= 1) {
+        autoDEE5BB90_var = UnitGroupUnitFromEnd(autoDEE5BB90_g, autoDEE5BB90_u);
+        if (autoDEE5BB90_var == null) { break; }
+        UnitGroupRemove(libCOUI_gv_cU_GPCasterGroup[lp_player], autoDEE5BB90_var);
+    }
+    UnitGroupAdd(libCOUI_gv_cU_GPCasterGroup[lp_player], libCOMI_gv_cM_GlobalCasterUnit[lp_player]);
+    libNtve_gf_SetDialogItemUnitGroup(libCOUI_gv_cU_GPCmdPanel[lp_player], libCOUI_gv_cU_GPCasterGroup[lp_player], PlayerGroupSingle(lp_player));
+}
+
+void libCOMD_gf_JorikWorkers (int lp_player) {
+    // Variable Declarations
+    int lv_picker;
+    unit lv_pickerUnit;
+
+    // Automatic Variable Declarations
+    const int autoB8F53244_n = 8;
+    int autoB8F53244_i;
+    int auto7BE8FDF3_ae;
+    const int auto7BE8FDF3_ai = 1;
+    int autoF9882D4C_ae;
+    const int autoF9882D4C_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((TechTreeUpgradeCount(lp_player, "JorikPrestige3", c_techCountQueuedOrBetter) == 1)) {
+        for (autoB8F53244_i = 1; autoB8F53244_i <= autoB8F53244_n; autoB8F53244_i += 1) {
+            lv_picker = 0;
+            auto7BE8FDF3_ae = UnitGroupCount(UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterWorker), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+            lv_picker = 1;
+            for ( ; ( (auto7BE8FDF3_ai >= 0 && lv_picker <= auto7BE8FDF3_ae) || (auto7BE8FDF3_ai < 0 && lv_picker >= auto7BE8FDF3_ae) ) ; lv_picker += auto7BE8FDF3_ai ) {
+                lv_pickerUnit = UnitGroupUnit(UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterWorker), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), lv_picker);
+                if ((lv_picker >= 6)) {
+                    UnitRemove(lv_pickerUnit);
+                }
+                else {
+                    lv_picker = (lv_picker + 1);
+                }
+            }
+        }
+    }
+
+    if ((TechTreeUpgradeCount(lp_player, "JorikLevel14", c_techCountQueuedOrBetter) == 1)) {
+        lv_picker = 0;
+        autoF9882D4C_ae = UnitGroupCount(UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterWorker), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+        lv_picker = 1;
+        for ( ; ( (autoF9882D4C_ai >= 0 && lv_picker <= autoF9882D4C_ae) || (autoF9882D4C_ai < 0 && lv_picker >= autoF9882D4C_ae) ) ; lv_picker += autoF9882D4C_ai ) {
+            lv_pickerUnit = UnitGroupUnit(UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterWorker), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), lv_picker);
+            UnitCreate(1, UnitGetType(lv_pickerUnit), 0, lp_player, UnitGetPosition(lv_pickerUnit), UnitGetFacing(lv_pickerUnit));
+            UnitIssueOrder(UnitLastCreated(), UnitOrder(lv_pickerUnit, 0), c_orderQueueReplace);
+        }
+    }
+
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: StartThing
+//--------------------------------------------------------------------------------------------------
+bool libCOMD_gt_StartThing_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(libCOOC_gt_CC_SharedUpgradesRecheck, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMD_gt_StartThing_Init () {
+    libCOMD_gt_StartThing = TriggerCreate("libCOMD_gt_StartThing_Func");
+    TriggerAddEventMapInit(libCOMD_gt_StartThing);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Base Commander Init
+//--------------------------------------------------------------------------------------------------
+bool libCOMD_gt_BaseCommanderInit_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_stringUnitID;
+    int lv_itPlayer;
+    unit lv_itUnit;
+    int lv_catalogIndex;
+
+    // Automatic Variable Declarations
+    int autoFC63A13F_ae;
+    const int autoFC63A13F_ai = 1;
+    const int autoD6A4AC31_ae = 30;
+    const int autoD6A4AC31_ai = 1;
+    int autoEB216593_ae;
+    const int autoEB216593_ai = 1;
+
+    // Variable Initialization
+    lv_stringUnitID = "";
+
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupHasPlayer(libCOOC_gf_CommanderPlayers(), EventPlayer()) == true))) {
+            return false;
+        }
+
+        if (!((EventUpgradeName() == "Jorik"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    ConversationDataRegisterPortrait("char_Jorik", libNtve_gf_CinematicPortrait(libNtve_ge_CinematicPortraitPosition_CenterLeft));
+    if ((TechTreeUpgradeCount(EventPlayer(), "JorikPrestige2", c_techCountCompleteOnly) != 0)) {
+        autoFC63A13F_ae = UserDataInstanceCount("SharedUpgrades");
+        lv_catalogIndex = 1;
+        for ( ; ( (autoFC63A13F_ai >= 0 && lv_catalogIndex <= autoFC63A13F_ae) || (autoFC63A13F_ai < 0 && lv_catalogIndex >= autoFC63A13F_ae) ) ; lv_catalogIndex += autoFC63A13F_ai ) {
+            libNtve_gf_SetUpgradeLevelForPlayer(1, (UserDataGetString("SharedUpgrades", UserDataInstance("SharedUpgrades", lv_catalogIndex), "Upgrade", 1)), 0);
+            libNtve_gf_SetUpgradeLevelForPlayer(2, (UserDataGetString("SharedUpgrades", UserDataInstance("SharedUpgrades", lv_catalogIndex), "Upgrade", 1)), 0);
+        }
+        TriggerEnable(libCOOC_gt_CC_SharedUpgradesRecheck, false);
+        TriggerDestroy(libCOOC_gt_CC_SharedUpgradesRecheck);
+        PlayerSetAlliance(1, c_allianceIdVision, 2, false);
+        PlayerSetAlliance(1, c_allianceIdPower, 2, false);
+        PlayerSetAlliance(1, c_allianceIdGiveHelp, 2, false);
+        PlayerSetAlliance(1, c_allianceIdPushable, 2, false);
+        PlayerSetAlliance(1, c_allianceIdSeekHelp, 2, false);
+        PlayerSetAlliance(1, c_allianceIdControl, 2, false);
+        PlayerSetAlliance(1, c_allianceIdSeekHelp, 2, false);
+        PlayerSetAlliance(1, c_allianceIdSpend, 2, false);
+        PlayerSetAlliance(2, c_allianceIdVision, 1, false);
+        PlayerSetAlliance(2, c_allianceIdPower, 1, false);
+        PlayerSetAlliance(2, c_allianceIdGiveHelp, 1, false);
+        PlayerSetAlliance(2, c_allianceIdPushable, 1, false);
+        PlayerSetAlliance(2, c_allianceIdSeekHelp, 1, false);
+        PlayerSetAlliance(2, c_allianceIdControl, 1, false);
+        PlayerSetAlliance(2, c_allianceIdSeekHelp, 1, false);
+        PlayerSetAlliance(2, c_allianceIdSpend, 1, false);
+    }
+    else {
+        TriggerEnable(libCOOC_gt_CC_SharedUpgradesRecheck, true);
+    }
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("TerranBuild", 8), true);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("TerranBuild", 28), true);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("EngineeringBayLiftOff", 0), true);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("GhostAcademyLiftOff", 0), true);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("FactoryTrain", 24), true);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("FactoryTrain", 8), true);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("FactoryTrain", 10), true);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("GhostCloak", 0), false);
+    TechTreeUnitAllow(EventPlayer(), "Reactor", false);
+    TechTreeUnitAllow(EventPlayer(), "StarportReactor", false);
+    TechTreeUnitAllow(EventPlayer(), "BarracksReactor", false);
+    TechTreeUnitAllow(EventPlayer(), "FactoryReactor", false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("BarracksTechLabResearch", 0), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("StarportTechLabResearch", 0), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("StarportTechLabResearch", 16), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("EngineeringBayResearch", 4), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("EngineeringBayResearch", 3), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("EngineeringBayResearch", 2), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("EngineeringBayResearch", 8), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("EngineeringBayResearch", 7), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("EngineeringBayResearch", 6), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("EngineeringBayResearch", 1), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("CommandCenterTransport", 4), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("CommandCenterTransport", 1), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("BunkerTransport", 0), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("BunkerTransport", 1), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("BansheeCloak", 0), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("WraithCloak", 0), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("RogueGhostCloak", 0), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("GhostCloak", 0), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("SeekerMissile", 0), false);
+    TechTreeUpgradeAddLevel(EventPlayer(), "RavenInstantSeekerMissile", 1);
+    lv_itUnit = libA8FDA37D_gf_CM_PlayerGetGlobalCaster(EventPlayer());
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "CommandCenterSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "GhostSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "BunkerSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "EngineeringBaySilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "BarracksSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "ReactorSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "FactorySilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "SupplyDepotSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "RefinerySilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "ArmorySilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "TechLabSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "VikingSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "BansheeSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "BattlecruiserSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "CycloneSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "MissileTurretSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "HellionSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "LiberatorSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "StarportSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "MarauderSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "WidowMineSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "MarineSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "MedivacSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "RavenSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "SensorTowerSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "ReaperSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "SCVSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "GhostAcademySilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "FusionCoreSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "SiegeTankSilver", true);
+    libNtve_gf_PlayerApplySkinReplacingExistingUnit(EventPlayer(), "ThorSilver", true);
+    CatalogFieldValueModify(c_gameCatalogUnit, "HERC", "CostResource[" + IntToString(0) + "]", EventPlayer(), "125", c_upgradeOperationSet);
+    CatalogFieldValueModify(c_gameCatalogUnit, "HERC", "CostResource[" + IntToString(1) + "]", EventPlayer(), "0", c_upgradeOperationSet);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("FactoryTrain", 4), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("BarracksTrain", 2), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("StarportTrain", 7), false);
+    TechTreeAbilityAllow(EventPlayer(), AbilityCommand("TerranBuild", 6), false);
+    lv_catalogIndex = 0;
+    for ( ; ( (autoD6A4AC31_ai >= 0 && lv_catalogIndex <= autoD6A4AC31_ae) || (autoD6A4AC31_ai < 0 && lv_catalogIndex >= autoD6A4AC31_ae) ) ; lv_catalogIndex += autoD6A4AC31_ai ) {
+        TechTreeAbilityAllow(EventPlayer(), AbilityCommand("JorikEngineerBayResearch", lv_catalogIndex), true);
+        TechTreeAbilityAllow(EventPlayer(), AbilityCommand("JorikArmoryResearch", lv_catalogIndex), true);
+    }
+    if ((lv_itUnit != null)) {
+        libCOMD_gf_CU_GPInitBase(EventPlayer());
+    }
+
+    autoEB216593_ae = CatalogEntryCount(c_gameCatalogUnit);
+    lv_catalogIndex = 1;
+    for ( ; ( (autoEB216593_ai >= 0 && lv_catalogIndex <= autoEB216593_ae) || (autoEB216593_ai < 0 && lv_catalogIndex >= autoEB216593_ae) ) ; lv_catalogIndex += autoEB216593_ai ) {
+        lv_stringUnitID = (CatalogEntryGet(c_gameCatalogUnit, lv_catalogIndex));
+        CatalogFieldValueModify(c_gameCatalogUnit, lv_stringUnitID, "Speed", EventPlayer(), FixedToString((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "Speed", EventPlayer()) * TechTreeUpgradeCount(EventPlayer(), "JorikMastery5", c_techCountQueuedOrBetter) * 0.01), c_fixedPrecisionAny), c_upgradeOperationAdd);
+        CatalogFieldValueModify(c_gameCatalogUnit, lv_stringUnitID, "LifeStart", EventPlayer(), FixedToString((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "LifeStart", EventPlayer()) * TechTreeUpgradeCount(EventPlayer(), "JorikMastery5", c_techCountQueuedOrBetter) * 0.01), c_fixedPrecisionAny), c_upgradeOperationSubtract);
+        CatalogFieldValueModify(c_gameCatalogUnit, lv_stringUnitID, "LifeMax", EventPlayer(), FixedToString((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "LifeMax", EventPlayer()) * TechTreeUpgradeCount(EventPlayer(), "JorikMastery5", c_techCountQueuedOrBetter) * 0.01), c_fixedPrecisionAny), c_upgradeOperationSubtract);
+        CatalogFieldValueModify(c_gameCatalogUnit, lv_stringUnitID, "Speed", lib860A1A1F_gv_mM_PX_PlayerX, FixedToString((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "Speed", EventPlayer()) * TechTreeUpgradeCount(EventPlayer(), "JorikMastery5", c_techCountQueuedOrBetter) * 0.01), c_fixedPrecisionAny), c_upgradeOperationAdd);
+        CatalogFieldValueModify(c_gameCatalogUnit, lv_stringUnitID, "LifeStart", lib860A1A1F_gv_mM_PX_PlayerX, FixedToString((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "LifeStart", EventPlayer()) * TechTreeUpgradeCount(EventPlayer(), "JorikMastery5", c_techCountQueuedOrBetter) * 0.01), c_fixedPrecisionAny), c_upgradeOperationSubtract);
+        CatalogFieldValueModify(c_gameCatalogUnit, lv_stringUnitID, "LifeMax", lib860A1A1F_gv_mM_PX_PlayerX, FixedToString((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "LifeMax", EventPlayer()) * TechTreeUpgradeCount(EventPlayer(), "JorikMastery5", c_techCountQueuedOrBetter) * 0.01), c_fixedPrecisionAny), c_upgradeOperationSubtract);
+    }
+    if ((TechTreeUpgradeCount(EventPlayer(), "JorikLevel13", c_techCountQueuedOrBetter) > 0)) {
+        TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 3);
+    }
+
+    libCOMI_gf_SetAllianceAspectCoop(1, c_allianceIdPassive, 15, false);
+    libCOMI_gf_SetAllianceAspectCoop(2, c_allianceIdPassive, 15, false);
+    UnitAbilityRemove(UnitGroupClosestToPoint(UnitGroup(null, EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterWorker) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), PlayerStartLocation(EventPlayer())), "CommandCenterTransport");
+    PlayerModifyPropertyFixed(EventPlayer(), c_playerPropSuppliesLimit, c_playerPropOperSetTo, (200.0 + (2.0 * TechTreeUpgradeCount(EventPlayer(), "JorikMastery3", c_techCountQueuedOrBetter))));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMD_gt_BaseCommanderInit_Init () {
+    libCOMD_gt_BaseCommanderInit = TriggerCreate("libCOMD_gt_BaseCommanderInit_Func");
+    TriggerAddEventUpgradeLevelChanged(libCOMD_gt_BaseCommanderInit, c_playerAny);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Base Commander Init 2
+//--------------------------------------------------------------------------------------------------
+bool libCOMD_gt_BaseCommanderInit2_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_stringUnitID;
+    int lv_itPlayer;
+    unit lv_itUnit;
+    int lv_catalogIndex;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_stringUnitID = "";
+
+    // Conditions
+    if (testConds) {
+        if (!((EventUpgradeName() == "PlayerCommander"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(2.0, c_timeAI);
+    TriggerEnable(libCOOC_gt_CC_SharedUpgradesRecheck, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMD_gt_BaseCommanderInit2_Init () {
+    libCOMD_gt_BaseCommanderInit2 = TriggerCreate("libCOMD_gt_BaseCommanderInit2_Func");
+    TriggerAddEventUpgradeLevelChanged(libCOMD_gt_BaseCommanderInit2, c_playerAny);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Base Commander One 3
+//--------------------------------------------------------------------------------------------------
+bool libCOMD_gt_BaseCommanderOne3_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_allyPlayer;
+
+    // Automatic Variable Declarations
+    string auto68F87FA7_val;
+    string auto8BD28D3C_val;
+
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupHasPlayer(libCOOC_gf_CommanderPlayers(), EventPlayer()) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((TechTreeUpgradeCount(EventPlayer(), "JorikLevel8", c_techCountCompleteOnly) >= 1)) {
+        auto68F87FA7_val = EventUpgradeName();
+        if (auto68F87FA7_val == "JorikIncreasedSupplyCap") {
+            PlayerModifyPropertyFixed(EventPlayer(), c_playerPropSuppliesLimit, c_playerPropOperAdd, (100.0 + TechTreeUpgradeCount(EventPlayer(), "JorikMastery3", c_techCountQueuedOrBetter)));
+        }
+        else if (auto68F87FA7_val == "JorikTerranInfantryArmorsLevel1") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto68F87FA7_val == "JorikTerranInfantryArmorsLevel2") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto68F87FA7_val == "JorikTerranInfantryArmorsLevel3") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto68F87FA7_val == "JorikTerranVehicleArmorsLevel1") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto68F87FA7_val == "JorikTerranVehicleArmorsLevel2") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto68F87FA7_val == "JorikTerranVehicleArmorsLevel3") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto68F87FA7_val == "JorikInfantryWeaponsLevel3") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikUltraCapUpsAll", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikInfantryUltra", 1);
+        }
+        else if (auto68F87FA7_val == "JorikVehicleWeaponsLevel3") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikUltraCapUpsAll", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikVehicleUltra", 1);
+        }
+        else if (auto68F87FA7_val == "JorikInfantryWeaponsLevel2") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikUltraCapUpsAll", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikInfantryUltra", 1);
+        }
+        else if (auto68F87FA7_val == "JorikVehicleWeaponsLevel2") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikUltraCapUpsAll", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikVehicleUltra", 1);
+        }
+        else if (auto68F87FA7_val == "JorikInfantryWeaponsLevel1") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikUltraCapUpsAll", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikInfantryUltra", 1);
+        }
+        else if (auto68F87FA7_val == "JorikVehicleWeaponsLevel1") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikUltraCapUpsAll", 1);
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikVehicleUltra", 1);
+        }
+        else {
+        }
+    }
+    else {
+        auto8BD28D3C_val = EventUpgradeName();
+        if (auto8BD28D3C_val == "JorikIncreasedSupplyCap") {
+            PlayerModifyPropertyFixed(EventPlayer(), c_playerPropSuppliesLimit, c_playerPropOperAdd, 100.0);
+        }
+        else if (auto8BD28D3C_val == "JorikTerranInfantryArmorsLevel1") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikTerranInfantryArmorsLevel2") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikTerranInfantryArmorsLevel3") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikTerranVehicleArmorsLevel1") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikTerranVehicleArmorsLevel2") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikTerranVehicleArmorsLevel3") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikTerranArmors", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikInfantryWeaponsLevel3") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikVehicleWeaponsLevel3") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikInfantryWeaponsLevel2") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikVehicleWeaponsLevel2") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikInfantryWeaponsLevel1") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+        }
+        else if (auto8BD28D3C_val == "JorikVehicleWeaponsLevel1") {
+            TechTreeUpgradeAddLevel(EventPlayer(), "JorikWeapons", 1);
+        }
+        else {
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMD_gt_BaseCommanderOne3_Init () {
+    libCOMD_gt_BaseCommanderOne3 = TriggerCreate("libCOMD_gt_BaseCommanderOne3_Func");
+    TriggerAddEventUpgradeLevelChanged(libCOMD_gt_BaseCommanderOne3, c_playerAny);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Jorik Upgrade Handler
+//--------------------------------------------------------------------------------------------------
+bool libCOMD_gt_JorikUpgradeHandler_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_stringUnitID;
+    int lv_itPlayer;
+    unit lv_itUnit;
+    int lv_catalogIndex;
+    int lv_allyPlayer;
+
+    // Automatic Variable Declarations
+    string auto3C448164_val;
+    int auto4BC6DC74_ae;
+    const int auto4BC6DC74_ai = 1;
+    int autoF2B41103_ae;
+    const int autoF2B41103_ai = 1;
+
+    // Variable Initialization
+    lv_stringUnitID = "";
+
+    // Conditions
+    if (testConds) {
+        if (!((((libCOOC_gf_ActiveCommanderForPlayer(1) == "TerranA") || (libCOOC_gf_ActiveCommanderForPlayer(2) == "TerranA")) && (TechTreeUpgradeCount(1, "JorikPrestige2", c_techCountCompleteOnly) == 0) && (TechTreeUpgradeCount(2, "JorikPrestige2", c_techCountCompleteOnly) == 0)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto3C448164_val = EventUpgradeName();
+    if (auto3C448164_val == "JorikShared") {
+        auto4BC6DC74_ae = CatalogEntryCount(c_gameCatalogUnit);
+        lv_catalogIndex = 1;
+        for ( ; ( (auto4BC6DC74_ai >= 0 && lv_catalogIndex <= auto4BC6DC74_ae) || (auto4BC6DC74_ai < 0 && lv_catalogIndex >= auto4BC6DC74_ae) ) ; lv_catalogIndex += auto4BC6DC74_ai ) {
+            lv_stringUnitID = (CatalogEntryGet(c_gameCatalogUnit, lv_catalogIndex));
+            if ((UnitTypeTestFlag((lv_stringUnitID), c_unitFlagWorker) == true)) {
+            }
+
+        }
+    }
+    else if (auto3C448164_val == "JorikSharedEnergy") {
+        if ((libCOMD_gv_upAmt[EventPlayer()] < TechTreeUpgradeCount(EventPlayer(), "JorikSharedEnergy", c_techCountQueuedOrBetter))) {
+            autoF2B41103_ae = CatalogEntryCount(c_gameCatalogUnit);
+            lv_catalogIndex = 1;
+            for ( ; ( (autoF2B41103_ai >= 0 && lv_catalogIndex <= autoF2B41103_ae) || (autoF2B41103_ai < 0 && lv_catalogIndex >= autoF2B41103_ae) ) ; lv_catalogIndex += autoF2B41103_ai ) {
+                lv_stringUnitID = (CatalogEntryGet(c_gameCatalogUnit, lv_catalogIndex));
+                if ((UnitTypeTestAttribute((lv_stringUnitID), c_unitAttributeStructure) == false)) {
+                    if ((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "EnergyMax", EventPlayer()) == 0.0)) {
+                        if (((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "LifeMax", EventPlayer()) + libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "ShieldsMax", EventPlayer())) < 200.0)) {
+                            libNtve_gf_CatalogFieldValueModifyBasedOnDefaultValue(c_gameCatalogUnit, lv_stringUnitID, "EnergyDamageRatio", EventPlayer(), ((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "LifeMax", EventPlayer()) + libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_stringUnitID, "ShieldsMax", EventPlayer())) / 200.0), c_upgradeOperationAdd);
+                        }
+                        else {
+                            libNtve_gf_CatalogFieldValueModifyBasedOnDefaultValue(c_gameCatalogUnit, lv_stringUnitID, "EnergyDamageRatio", EventPlayer(), 1.0, c_upgradeOperationAdd);
+                        }
+                    }
+
+                    CatalogFieldValueModify(c_gameCatalogUnit, lv_stringUnitID, "EnergyMax", EventPlayer(), FixedToString(100.0, c_fixedPrecisionAny), c_upgradeOperationAdd);
+                    CatalogFieldValueModify(c_gameCatalogUnit, lv_stringUnitID, "EnergyStart", EventPlayer(), FixedToString(125.0, c_fixedPrecisionAny), c_upgradeOperationAdd);
+                    CatalogFieldValueModify(c_gameCatalogUnit, lv_stringUnitID, "EnergyRegenRate", EventPlayer(), FixedToString(0.5, c_fixedPrecisionAny), c_upgradeOperationAdd);
+                }
+
+            }
+        }
+
+        libCOMD_gv_upAmt[EventPlayer()] = TechTreeUpgradeCount(EventPlayer(), "JorikSharedEnergy", c_techCountQueuedOrBetter);
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMD_gt_JorikUpgradeHandler_Init () {
+    libCOMD_gt_JorikUpgradeHandler = TriggerCreate("libCOMD_gt_JorikUpgradeHandler_Func");
+    TriggerAddEventUpgradeLevelChanged(libCOMD_gt_JorikUpgradeHandler, c_playerAny);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Base Commander One 2
+//--------------------------------------------------------------------------------------------------
+bool libCOMD_gt_BaseCommanderOne2_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_allyPlayer;
+
+    // Automatic Variable Declarations
+    playergroup auto2F83AE26_g;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto2F83AE26_g = libCOOC_gf_CommanderPlayers();
+    lv_allyPlayer = -1;
+    while (true) {
+        lv_allyPlayer = PlayerGroupNextPlayer(auto2F83AE26_g, lv_allyPlayer);
+        if (lv_allyPlayer < 0) { break; }
+        if ((EventPlayer() != lv_allyPlayer)) {
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, "FlagofVictoryAlly", 0, lv_allyPlayer, EventUnitTargetPoint());
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMD_gt_BaseCommanderOne2_Init () {
+    libCOMD_gt_BaseCommanderOne2 = TriggerCreate("libCOMD_gt_BaseCommanderOne2_Func");
+    TriggerAddEventUnitAbility(libCOMD_gt_BaseCommanderOne2, null, AbilityCommand("PutDownFlag", 0), c_abilEffectStageCast, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Base Commander One
+//--------------------------------------------------------------------------------------------------
+bool libCOMD_gt_BaseCommanderOne_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TechTreeUpgradeCount(UnitGetOwner(EventUnit()), "Jorik", c_techCountQueuedOrBetter) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityRemove(UnitLastCreated(), "CommandCenterTransport");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libCOMD_gt_BaseCommanderOne_Init () {
+    libCOMD_gt_BaseCommanderOne = TriggerCreate("libCOMD_gt_BaseCommanderOne_Func");
+    TriggerAddEventUnitCreated(libCOMD_gt_BaseCommanderOne, null, null, null);
+    TriggerAddEventUnitAbility(libCOMD_gt_BaseCommanderOne, null, null, c_abilMorphStageAbilsEnd, false);
+}
+
+void libCOMD_InitTriggers () {
+    libCOMD_gt_StartThing_Init();
+    libCOMD_gt_BaseCommanderInit_Init();
+    libCOMD_gt_BaseCommanderInit2_Init();
+    libCOMD_gt_BaseCommanderOne3_Init();
+    libCOMD_gt_JorikUpgradeHandler_Init();
+    libCOMD_gt_BaseCommanderOne2_Init();
+    libCOMD_gt_BaseCommanderOne_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libCOMD_InitLib_completed = false;
+
+void libCOMD_InitLib () {
+    if (libCOMD_InitLib_completed) {
+        return;
+    }
+
+    libCOMD_InitLib_completed = true;
+
+    libCOMD_InitLibraries();
+    libCOMD_InitVariables();
+    libCOMD_InitTriggers();
+}
+

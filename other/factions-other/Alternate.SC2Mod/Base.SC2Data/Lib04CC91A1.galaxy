@@ -1,0 +1,614 @@
+include "TriggerLibs/NativeLib"
+
+include "Lib04CC91A1_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Alternate_Mod
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib04CC91A1_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Variable Initialization
+bool lib04CC91A1_InitVariables_completed = false;
+
+void lib04CC91A1_InitVariables () {
+    if (lib04CC91A1_InitVariables_completed) {
+        return;
+    }
+
+    lib04CC91A1_InitVariables_completed = true;
+
+    lib04CC91A1_gv_battlecruiserShieldUnitGroup2 = UnitGroupEmpty();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Carrier Cloaking Drone
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_CarrierCloakingDrone_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitHasBehavior2(EventUnit(), "CloakingDrone") == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorRemove(EventUnit(), "CloakingDrone", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_CarrierCloakingDrone_Init () {
+    lib04CC91A1_gt_CarrierCloakingDrone = TriggerCreate("lib04CC91A1_gt_CarrierCloakingDrone_Func");
+    TriggerAddEventUnitStartedAttack2(lib04CC91A1_gt_CarrierCloakingDrone, null, "InterceptorLaunch4");
+    TriggerAddEventUnitStartedAttack2(lib04CC91A1_gt_CarrierCloakingDrone, null, "InterceptorLaunch");
+    TriggerAddEventUnitStartedAttack2(lib04CC91A1_gt_CarrierCloakingDrone, null, "InterceptorLaunch2");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Aranatar Bonus Damage Velox
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_AranatarBonusDamageVelox_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitHasBehavior2(EventUnitDamageSourceUnit(), "ThakuraVeloxPassiveBuff") == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (((UnitBehaviorEnabled(EventUnit(), "EnergyReactArmor") == true) && (UnitHasBehavior2(EventUnit(), "VeloxPassiveDummy") == true) && (UnitGetType(EventUnit()) == "Diamondback"))) {
+    }
+    else {
+        if (((UnitBehaviorEnabled(EventUnit(), "HardenedShield") == true) && (UnitHasBehavior2(EventUnit(), "VeloxPassiveDummy") == true) && (UnitGetType(EventUnit()) == "Immortal"))) {
+        }
+        else {
+            UnitDamage(EventUnitDamageSourceUnit(), "AcidSporeMissilesCarpetBombDamageValkyrie2", EventUnit(), ((UnitGetPropertyFixed(EventUnit(), c_unitPropLifeMax, c_unitPropNormal)*0.02)+(UnitGetPropertyFixed(EventUnit(), c_unitPropShieldsMax, c_unitPropNormal)*0.02)));
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_AranatarBonusDamageVelox_Init () {
+    lib04CC91A1_gt_AranatarBonusDamageVelox = TriggerCreate("lib04CC91A1_gt_AranatarBonusDamageVelox_Func");
+    TriggerAddEventUnitDamaged(lib04CC91A1_gt_AranatarBonusDamageVelox, null, c_unitDamageTypeAny, c_unitDamageEither, "AcidSporeMissilesCarpetBombDamageValkyrie");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Aranatar Bonus Damage Velox Diamondback
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_AranatarBonusDamageVeloxDiamondback_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitBehaviorEnabled(EventPlayerEffectUsedUnit(c_effectUnitTarget), "EnergyReactArmor") == true))) {
+            return false;
+        }
+
+        if (!((UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitTarget), c_unitPropEnergy, c_unitPropCurrent) >= 25.0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitDamage(EventPlayerEffectUsedUnit(c_effectUnitCaster), "AcidSporeMissilesCarpetBombDamageValkyrie2", EventPlayerEffectUsedUnit(c_effectUnitTarget), ((UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitTarget), c_unitPropLifeMax, c_unitPropNormal)*0.005)+(UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitTarget), c_unitPropShieldsMax, c_unitPropNormal)*0.005)));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_AranatarBonusDamageVeloxDiamondback_Init () {
+    lib04CC91A1_gt_AranatarBonusDamageVeloxDiamondback = TriggerCreate("lib04CC91A1_gt_AranatarBonusDamageVeloxDiamondback_Func");
+    TriggerAddEventPlayerEffectUsed(lib04CC91A1_gt_AranatarBonusDamageVeloxDiamondback, c_playerAny, "VeloxPassiveDummyAranatar");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Aranatar Bonus Damage Velox Cyphia
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_AranatarBonusDamageVeloxCyphia_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitBehaviorEnabled(EventPlayerEffectUsedUnit(c_effectUnitTarget), "EnergyReactArmor") == true))) {
+            return false;
+        }
+
+        if (!((UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitTarget), c_unitPropEnergy, c_unitPropCurrent) >= 25.0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitDamage(EventPlayerEffectUsedUnit(c_effectUnitCaster), "AcidSporeMissilesCarpetBombDamageValkyrie2", EventPlayerEffectUsedUnit(c_effectUnitTarget), ((UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitTarget), c_unitPropLifeMax, c_unitPropNormal)*0.0025)+(UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitTarget), c_unitPropShieldsMax, c_unitPropNormal)*0.0025)));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_AranatarBonusDamageVeloxCyphia_Init () {
+    lib04CC91A1_gt_AranatarBonusDamageVeloxCyphia = TriggerCreate("lib04CC91A1_gt_AranatarBonusDamageVeloxCyphia_Func");
+    TriggerAddEventPlayerEffectUsed(lib04CC91A1_gt_AranatarBonusDamageVeloxCyphia, c_playerAny, "VeloxPassiveDummyCyphia");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Cyphia Bonus Damage Velox
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_CyphiaBonusDamageVelox_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitHasBehavior2(EventUnitDamageSourceUnit(), "ThakuraVeloxPassiveBuff") == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (((UnitHasBehavior2(EventUnit(), "VeloxPassiveDummy") == true) && (UnitGetType(EventUnit()) == "Diamondback"))) {
+        UnitDamage(EventUnitDamageSourceUnit(), "CombustiveStreamDamageVelox", EventUnit(), ((UnitGetPropertyFixed(EventUnit(), c_unitPropLifeMax, c_unitPropNormal)*0.0025)+(UnitGetPropertyFixed(EventUnit(), c_unitPropShieldsMax, c_unitPropNormal)*0.0025)));
+    }
+    else {
+        UnitDamage(EventUnitDamageSourceUnit(), "CombustiveStreamDamageVelox", EventUnit(), ((UnitGetPropertyFixed(EventUnit(), c_unitPropLifeMax, c_unitPropNormal)*0.01)+(UnitGetPropertyFixed(EventUnit(), c_unitPropShieldsMax, c_unitPropNormal)*0.01)));
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_CyphiaBonusDamageVelox_Init () {
+    lib04CC91A1_gt_CyphiaBonusDamageVelox = TriggerCreate("lib04CC91A1_gt_CyphiaBonusDamageVelox_Func");
+    TriggerAddEventUnitDamaged(lib04CC91A1_gt_CyphiaBonusDamageVelox, null, c_unitDamageTypeAny, c_unitDamageEither, "CombustiveStreamDamage");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Devourer Bonus Damage Velox
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_DevourerBonusDamageVelox_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitHasBehavior2(EventUnitDamageSourceUnit(), "ThakuraVeloxPassiveBuff") == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitDamage(EventUnitDamageSourceUnit(), "DevourerMPWeaponDamageVelox", EventUnit(), ((UnitGetPropertyFixed(EventUnit(), c_unitPropLifeMax, c_unitPropNormal)*0.03)+(UnitGetPropertyFixed(EventUnit(), c_unitPropShieldsMax, c_unitPropNormal)*0.03)));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_DevourerBonusDamageVelox_Init () {
+    lib04CC91A1_gt_DevourerBonusDamageVelox = TriggerCreate("lib04CC91A1_gt_DevourerBonusDamageVelox_Func");
+    TriggerAddEventUnitDamaged(lib04CC91A1_gt_DevourerBonusDamageVelox, null, c_unitDamageTypeAny, c_unitDamageEither, "DevourerMPWeaponDamage");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Biomass Pickup Sikari
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_BiomassPickupSikari_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "BiomassPickupLM", EventPlayerEffectUsedUnit(c_effectUnitTarget));
+    UnitRemove(EventPlayerEffectUsedUnit(c_effectUnitCaster));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_BiomassPickupSikari_Init () {
+    lib04CC91A1_gt_BiomassPickupSikari = TriggerCreate("lib04CC91A1_gt_BiomassPickupSikari_Func");
+    TriggerAddEventPlayerEffectUsed(lib04CC91A1_gt_BiomassPickupSikari, c_playerAny, "BiomassPickupDummy");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Sikari Essence Revive
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_SikariEssenceRevive_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityAddChargeUsed(EventPlayerEffectUsedUnit(c_effectUnitTarget), "EssenceRecover", "Abil/EssenceRecover", -1.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_SikariEssenceRevive_Init () {
+    lib04CC91A1_gt_SikariEssenceRevive = TriggerCreate("lib04CC91A1_gt_SikariEssenceRevive_Func");
+    TriggerAddEventPlayerEffectUsed(lib04CC91A1_gt_SikariEssenceRevive, c_playerAny, "BiomassPickupImpact");
+    TriggerAddEventPlayerEffectUsed(lib04CC91A1_gt_SikariEssenceRevive, c_playerAny, "BiomassPickupImpact2");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Biomass Pickup Lurker
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_BiomassPickupLurker_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "BiomassPickupLM2", EventPlayerEffectUsedUnit(c_effectUnitTarget));
+    UnitRemove(EventPlayerEffectUsedUnit(c_effectUnitCaster));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_BiomassPickupLurker_Init () {
+    lib04CC91A1_gt_BiomassPickupLurker = TriggerCreate("lib04CC91A1_gt_BiomassPickupLurker_Func");
+    TriggerAddEventPlayerEffectUsed(lib04CC91A1_gt_BiomassPickupLurker, c_playerAny, "BiomassPickupDummy2");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Symbiote Attach
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_SymbioteAttach_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityAdd(EventUnit(), "AbathurSymbioteHangerBrutalisk");
+    UnitMagazineArm(EventUnit(), AbilityCommand("AbathurSymbioteHangerBrutalisk", 0), 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_SymbioteAttach_Init () {
+    lib04CC91A1_gt_SymbioteAttach = TriggerCreate("lib04CC91A1_gt_SymbioteAttach_Func");
+    TriggerAddEventUnitBehaviorChange(lib04CC91A1_gt_SymbioteAttach, null, "SymbioteCarapace", c_unitBehaviorChangeCreate);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Symbiote Detach
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_SymbioteDetach_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitAbilityRemove(EventUnit(), "AbathurSymbioteHangerBrutalisk");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_SymbioteDetach_Init () {
+    lib04CC91A1_gt_SymbioteDetach = TriggerCreate("lib04CC91A1_gt_SymbioteDetach_Func");
+    TriggerAddEventUnitBehaviorChange(lib04CC91A1_gt_SymbioteDetach, null, "SymbioteCarapace", c_unitBehaviorChangeDestroy);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Primal Consume Enemy
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_PrimalConsumeEnemy_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_consumedEnergy;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!(((UnitGetOwner(EventUnitTargetUnit()) == libNtve_ge_PlayerRelation_Enemy) || (UnitGetOwner(EventUnitTargetUnit()) == libNtve_ge_PlayerRelation_Neutral)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorAdd(EventUnit(), "PsionicEssenceConsumeDummy", EventUnit(), 10);
+    lv_consumedEnergy = UnitGetPropertyFixed(EventUnitTargetUnit(), c_unitPropEnergy, c_unitPropCurrent);
+    UnitSetCustomValue(EventUnit(), 11, (lv_consumedEnergy * 0.05));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_PrimalConsumeEnemy_Init () {
+    lib04CC91A1_gt_PrimalConsumeEnemy = TriggerCreate("lib04CC91A1_gt_PrimalConsumeEnemy_Func");
+    TriggerAddEventUnitAbility(lib04CC91A1_gt_PrimalConsumeEnemy, null, AbilityCommand("ConsumeDNA", 0), c_abilEffectStageCast, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Primal Consume Energy
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_PrimalConsumeEnergy_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetPropertyFixed(EventUnit(), c_unitPropEnergy, (UnitGetCustomValue(EventUnit(), 11) + UnitGetPropertyFixed(EventUnit(), c_unitPropEnergy, c_unitPropCurrent)));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_PrimalConsumeEnergy_Init () {
+    lib04CC91A1_gt_PrimalConsumeEnergy = TriggerCreate("lib04CC91A1_gt_PrimalConsumeEnergy_Func");
+    TriggerAddEventUnitBehaviorChange(lib04CC91A1_gt_PrimalConsumeEnergy, null, "PsionicEssenceConsumeDummy", c_unitBehaviorChangeDecrease);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Transport Infusion Load
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_TransportInfusionLoad_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetType(EventUnitCargo()) == "InfusionTower")) {
+        UnitBehaviorRemove(EventUnitCargo(), "UEDheal", 1);
+        UnitBehaviorRemove(EventUnitCargo(), "PowerSourceUED", 1);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_TransportInfusionLoad_Init () {
+    lib04CC91A1_gt_TransportInfusionLoad = TriggerCreate("lib04CC91A1_gt_TransportInfusionLoad_Func");
+    TriggerAddEventUnitCargo(lib04CC91A1_gt_TransportInfusionLoad, null, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Transport Infusion Unload
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_TransportInfusionUnload_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetType(EventUnitCargo()) == "InfusionTower")) {
+        UnitBehaviorAdd(EventUnitCargo(), "PowerSourceUED", EventUnitCargo(), 1);
+        UnitBehaviorAdd(EventUnitCargo(), "UEDheal", EventUnitCargo(), 1);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_TransportInfusionUnload_Init () {
+    lib04CC91A1_gt_TransportInfusionUnload = TriggerCreate("lib04CC91A1_gt_TransportInfusionUnload_Func");
+    TriggerAddEventUnitCargo(lib04CC91A1_gt_TransportInfusionUnload, null, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Effect -  Salvager Repair
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_EffectSalvagerRepair_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_salvager;
+    actor lv_beamModel1;
+    actor lv_beamModel2;
+    actor lv_launchModel;
+    actor lv_pickupMineralCrystalGlowModel;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "Salvager"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_salvager = EventUnit();
+    libNtve_gf_AttachModelToUnit(lv_salvager, "SalvagerMineBeam", "Ref_Weapon");
+    lv_beamModel1 = libNtve_gf_ActorLastCreated();
+    libNtve_gf_AttachModelToUnit(OrderGetTargetUnit(UnitOrder(lv_salvager, 0)), "PickupMineralCrystalGlow", "Ref_Weapon");
+    lv_pickupMineralCrystalGlowModel = libNtve_gf_ActorLastCreated();
+    Wait(0.35, c_timeGame);
+    libNtve_gf_AttachModelToUnit(lv_salvager, "SalvagerMineBeam", "Ref_Weapon");
+    lv_beamModel2 = libNtve_gf_ActorLastCreated();
+    libNtve_gf_AttachModelToUnit(lv_salvager, "SalvagerMineLaunch", "Ref_Weapon");
+    lv_launchModel = libNtve_gf_ActorLastCreated();
+    while (!(((UnitIsAlive(lv_salvager) == false) || (UnitOrderHasAbil(lv_salvager, "StructureRepair") == false)))) {
+        Wait(0.065, c_timeGame);
+    }
+    Wait(0.065, c_timeGame);
+    libNtve_gf_KillModel(lv_pickupMineralCrystalGlowModel);
+    libNtve_gf_KillModel(lv_launchModel);
+    libNtve_gf_KillModel(lv_beamModel1);
+    libNtve_gf_KillModel(lv_beamModel2);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_EffectSalvagerRepair_Init () {
+    lib04CC91A1_gt_EffectSalvagerRepair = TriggerCreate("lib04CC91A1_gt_EffectSalvagerRepair_Func");
+    TriggerAddEventUnitAbility(lib04CC91A1_gt_EffectSalvagerRepair, null, AbilityCommand("StructureRepair", 0), c_abilEffectStageChannel, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: UEDFlagshipGuardianOn
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_UEDFlagshipGuardianOn_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupAdd(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, EventUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_UEDFlagshipGuardianOn_Init () {
+    lib04CC91A1_gt_UEDFlagshipGuardianOn = TriggerCreate("lib04CC91A1_gt_UEDFlagshipGuardianOn_Func");
+    TriggerAddEventUnitAbility(lib04CC91A1_gt_UEDFlagshipGuardianOn, null, AbilityCommand("BattlecruiserGuardianShieldUED", 0), c_unitAbilStageAll, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: UEDFlagshipGuardianAbsorb
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_UEDFlagshipGuardianAbsorb_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_damageCount;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupHasUnit(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, EventUnit()) == false))) {
+            return false;
+        }
+
+        if (!((UnitHasBehavior2(EventUnit(), "GuardianShield2") == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventUnitDamageAttempted() > UnitGetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, c_unitPropCurrent))) {
+        lv_damageCount = (EventUnitDamageAttempted() - UnitGetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, c_unitPropCurrent));
+        if (((UnitGetPropertyFixed(EventUnit(), c_unitPropLife, c_unitPropCurrent) + EventUnitDamageAmount()) <= lv_damageCount)) {
+            UnitSetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, 0.0);
+            UnitGroupRemove(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())));
+            if ((DistanceBetweenPoints(UnitGetPosition(EventUnit()), UnitGetPosition(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())))) <= 8.0)) {
+                UnitSetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, (UnitGetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, c_unitPropCurrent) - lv_damageCount));
+                UnitSetPropertyFixed(EventUnit(), c_unitPropLife, (UnitGetPropertyFixed(EventUnit(), c_unitPropLife, c_unitPropCurrent) + EventUnitDamageAmount()));
+            }
+            else {
+                UnitBehaviorRemove(EventUnit(), "GuardianShield2", 1);
+                UnitKill(EventUnit());
+            }
+        }
+        else {
+            UnitSetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, 0.0);
+            UnitGroupRemove(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())));
+            if ((DistanceBetweenPoints(UnitGetPosition(EventUnit()), UnitGetPosition(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())))) <= 8.0)) {
+                UnitSetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, (UnitGetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, c_unitPropCurrent) - lv_damageCount));
+                UnitSetPropertyFixed(EventUnit(), c_unitPropLife, (UnitGetPropertyFixed(EventUnit(), c_unitPropLife, c_unitPropCurrent) + EventUnitDamageAmount()));
+            }
+            else {
+                UnitSetPropertyFixed(EventUnit(), c_unitPropLife, ((UnitGetPropertyFixed(EventUnit(), c_unitPropLife, c_unitPropCurrent) + EventUnitDamageAmount()) - lv_damageCount));
+            }
+        }
+    }
+    else {
+        UnitSetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, (UnitGetPropertyFixed(UnitGroupClosestToPoint(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, UnitGetPosition(EventUnit())), c_unitPropShields, c_unitPropCurrent) - EventUnitDamageAttempted()));
+        UnitSetPropertyFixed(EventUnit(), c_unitPropLife, (UnitGetPropertyFixed(EventUnit(), c_unitPropLife, c_unitPropCurrent) + EventUnitDamageAmount()));
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_UEDFlagshipGuardianAbsorb_Init () {
+    lib04CC91A1_gt_UEDFlagshipGuardianAbsorb = TriggerCreate("lib04CC91A1_gt_UEDFlagshipGuardianAbsorb_Func");
+    TriggerAddEventUnitDamaged(lib04CC91A1_gt_UEDFlagshipGuardianAbsorb, null, c_unitDamageTypeAny, c_unitDamageEither, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: UEDFlagshipGuardianOff
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_gt_UEDFlagshipGuardianOff_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupRemove(lib04CC91A1_gv_battlecruiserShieldUnitGroup2, EventUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib04CC91A1_gt_UEDFlagshipGuardianOff_Init () {
+    lib04CC91A1_gt_UEDFlagshipGuardianOff = TriggerCreate("lib04CC91A1_gt_UEDFlagshipGuardianOff_Func");
+    TriggerAddEventUnitBehaviorChange(lib04CC91A1_gt_UEDFlagshipGuardianOff, null, "BattlecruiserTankShield", c_unitBehaviorChangeDeactivate);
+}
+
+void lib04CC91A1_InitTriggers () {
+    lib04CC91A1_gt_CarrierCloakingDrone_Init();
+    lib04CC91A1_gt_AranatarBonusDamageVelox_Init();
+    lib04CC91A1_gt_AranatarBonusDamageVeloxDiamondback_Init();
+    lib04CC91A1_gt_AranatarBonusDamageVeloxCyphia_Init();
+    lib04CC91A1_gt_CyphiaBonusDamageVelox_Init();
+    lib04CC91A1_gt_DevourerBonusDamageVelox_Init();
+    lib04CC91A1_gt_BiomassPickupSikari_Init();
+    lib04CC91A1_gt_SikariEssenceRevive_Init();
+    lib04CC91A1_gt_BiomassPickupLurker_Init();
+    lib04CC91A1_gt_SymbioteAttach_Init();
+    lib04CC91A1_gt_SymbioteDetach_Init();
+    lib04CC91A1_gt_PrimalConsumeEnemy_Init();
+    lib04CC91A1_gt_PrimalConsumeEnergy_Init();
+    lib04CC91A1_gt_TransportInfusionLoad_Init();
+    lib04CC91A1_gt_TransportInfusionUnload_Init();
+    lib04CC91A1_gt_EffectSalvagerRepair_Init();
+    lib04CC91A1_gt_UEDFlagshipGuardianOn_Init();
+    lib04CC91A1_gt_UEDFlagshipGuardianAbsorb_Init();
+    lib04CC91A1_gt_UEDFlagshipGuardianOff_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib04CC91A1_InitLib_completed = false;
+
+void lib04CC91A1_InitLib () {
+    if (lib04CC91A1_InitLib_completed) {
+        return;
+    }
+
+    lib04CC91A1_InitLib_completed = true;
+
+    lib04CC91A1_InitLibraries();
+    lib04CC91A1_InitVariables();
+    lib04CC91A1_InitTriggers();
+}
+

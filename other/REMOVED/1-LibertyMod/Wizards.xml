@@ -1,0 +1,257 @@
+<Catalog>
+    <CAbilEffectTarget default="1" id="WizSimpleSkillshot">
+        <Flags index="RequireTargetVision" value="0"/>
+        <Flags index="WaitToSpend" value="0"/>
+        <Effect index="0" value="##id##InitialSet"/>
+        <Range value="500"/>
+        <CursorEffect value="##id##MissileScan"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="##id##"/>
+        <Cost/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget default="1" id="WizSimpleChain">
+        <Flags index="WaitToSpend" value="0"/>
+        <Effect index="0" value="##id##InitialSet"/>
+        <Range value="5"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="##id##"/>
+        <Cost/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget default="1" id="WizSimpleGrenade">
+        <Flags index="WaitToSpend" value="0"/>
+        <Effect index="0" value="##id##LaunchMissile"/>
+        <Range value="7"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="##id##"/>
+        <CursorEffect value="##id##Damage"/>
+        <Cost/>
+    </CAbilEffectTarget>
+
+    <!-- Added For Wizards ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <CActorUnit default="1" id="WizUnit" parent="GenericUnitBase">
+        <Macros value="UnloadDropAnim"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart Attack Attack,Inferior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom ##unitName##" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo ##unitName##" Send="Create"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="##unitName##Death"/>
+        <PortraitModel value="##unitName##Portrait"/>
+        <GroupSoundArray index="What" value="##unitSound##_GroupWhat"/>
+        <GroupSoundArray index="Yes" value="##unitSound##_GroupYes"/>
+        <GroupSoundArray index="Attack" value="##unitSound##_GroupAttack"/>
+        <GroupSoundArray index="Board" value="##unitSound##_GroupBoard"/>
+        <SoundArray index="Birth" value="##unitSound##_Birth"/>
+        <SoundArray index="Ready" value="##unitSound##_Ready"/>
+        <SoundArray index="Help" value="##unitSound##_Help"/>
+        <SoundArray index="What" value="##unitSound##_What"/>
+        <SoundArray index="Yes" value="##unitSound##_Yes"/>
+        <SoundArray index="Attack" value="##unitSound##_Attack"/>
+        <SoundArray index="Pissed" value="##unitSound##_Pissed"/>
+        <SoundArray index="Movement" value="##unitSound##_Movement"/>
+        <SoundArray index="Turning" value="##unitSound##_Turning"/>
+        <SoundArray index="Board" value="##unitSound##_Board"/>
+        <SoundArray index="Click" value="##unitSound##_Click"/>
+        <SoundArray index="ClickError" value="##unitSound##_ClickError"/>
+        <SoundArray index="Highlight" value="##unitSound##_Highlight"/>
+    </CActorUnit>
+    <CActorAction default="1" id="WizWeaponAttack" parent="GenericAttack">
+        <BeamScope value="Caster"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeStandard SOpForwardLaunchGuide"/>
+    </CActorAction>
+    <CActorAction default="1" id="WizWeaponMissileAttack" parent="GenericAttack">
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeStandard SOpForwardLaunchGuide"/>
+        <Missile value="##id##LaunchMissile"/>
+    </CActorAction>
+    <CActorAction default="1" id="WizWeaponMissileImpact" parent="GenericAttack">
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeStandard SOpForwardLaunchGuide"/>
+        <Missile value="##id##LaunchMissile"/>
+    </CActorAction>
+    <CActorMissile default="1" id="WizSimpleMissile" parent="GenericAttackMissile"/>
+    <CActorBeamSimple default="1" id="WizSimpleBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <Macros value="ActionTargetTeleportDestroy"/>
+    </CActorBeamSimple>
+    <CActorQuad default="1" id="WizGuideVisualQuadDownClosest" parent="GuideVisualQuadDownClosest"/>
+    <CActorQuad default="1" id="WizGuideVisualQuadDown" parent="GuideVisualQuadDown"/>
+    <CActorSimple default="1" id="WizSimpleCastAnim">
+        <?token id="abil" type="CAbilLink"?>
+        <On Terms="Abil.##abil##.SourceCastStart" Send="Create"/>
+        <On Terms="Abil.##abil##.SourceCastStart" Target="_Unit" Send="AnimPlay WizSpell Spell"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Terms value="Cap 1"/>
+    </CActorSimple>
+    <CActorAction default="1" id="WizChainPrimaryAttack" parent="GenericAttack">
+        <?token id="abil" type="CAbilLink"?>
+        <BeamScope value="Caster"/>
+        <LaunchSiteOps Ops="SOpAttachWeapon"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance"/>
+        <ImpactSite value="##abil##1ImpactSite"/>
+        <Beam value="##abil##PrimaryBeam"/>
+    </CActorAction>
+    <CActorAction default="1" id="WizChainSecondaryAttack" parent="GenericAttack">
+        <?token id="abil" type="CAbilLink"?>
+        <?token id="nLast" type="uint32"?>
+        <?token id="n" type="uint32"?>
+        <BeamScope value="Caster"/>
+        <LaunchRequest Subject="##abil####nLast##ImpactSite" Actor="Find"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance VoidRaySOpForwardLaunch"/>
+        <ImpactSite value="##abil####n##ImpactSite"/>
+        <Beam value="##abil##SecondaryBeam"/>
+    </CActorAction>
+    <CActorSite id="WizChainImpactSite" parent="GenericAttackImpactSite"/>
+    <CActorBeamSimple id="WizChainBeam">
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+    </CActorBeamSimple>
+    <!--                                                                                         -->
+    <!--                                                                                         -->
+    <!-- Added For Wizards ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--                                                                                         -->
+    <!--                                                                                         -->
+    <CButton default="1" id="WizButton">
+        <Icon value="##art##"/>
+        <AlertIcon value="##art##"/>
+    </CButton>
+
+    <!--                                                                                         -->
+    <!--                                                                                         -->
+    <!-- Added For Wizards ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--                                                                                         -->
+    <!--                                                                                         -->
+    <CEffectDamage default="1" id="WizDamage" parent="DU_WEAP_MISSILE"/>
+    <CEffectDamage default="1" id="WizMeleeDamage" parent="DU_WEAP_MISSILE">
+        <Kind value="Melee"/>
+    </CEffectDamage>
+    <CEffectDamage default="1" id="WizSpellDamage" parent="DU_WEAP">
+        <Kind value="Spell"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile default="1" id="WizLaunch">
+        <AmmoUnit value="##id##"/>
+        <ImpactEffect value="##weaponid##Damage"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile default="1" id="WizLaunchPoint">
+        <AmmoUnit value="##id##"/>
+        <ImpactEffect value="##weaponid##Damage"/>
+        <ImpactLocation Value="TargetPoint"/>
+    </CEffectLaunchMissile>
+    <CEffectSet default="1" id="WizSimpleSkillshotInitialSet">
+        <?token id="abil" type="CAbilLink"?>
+        <EffectArray value="##abil##InitialOffset"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectCreatePersistent default="1" id="WizSimpleSkillshotInitialOffset">
+        <?token id="abil"?>
+        <WhichLocation Value="CasterPoint"/>
+        <InitialEffect value="##abil##LaunchMissile"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile default="1" id="WizSimpleSkillshotLaunchMissile">
+        <?token id="abil"?>
+        <ImpactLocation Value="TargetPoint"/>
+        <AmmoUnit value="##abil##LaunchMissile"/>
+        <LaunchEffect value="##abil##MissilePersistent"/>
+        <ImpactEffect value="##abil##FinalImpactSet"/>
+        <Marker>
+            <MatchFlags index="Id" value="1"/>
+        </Marker>
+        <ValidatorArray value="CasterNotDead"/>
+    </CEffectLaunchMissile>
+    <CEffectSet default="1" id="WizSimpleSkillshotImpactSet">
+        <?token id="abil"?>
+        <EffectArray value="##abil##ImpactSet"/>
+        <TargetLocationType value="Point"/>
+        <ValidatorArray value="noMarkers"/>
+    </CEffectSet>
+    <CEffectCreatePersistent default="1" id="WizSimpleSkillshotMissilePersistent">
+        <?token id="abil"?>
+        <WhichLocation Value="SourceUnit"/>
+        <PeriodicEffectArray value="##abil##MissileScan"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodicValidator value="SourceNotDead"/>
+        <PeriodCount value="80"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea default="1" id="WizSimpleSkillshotMissileScan">
+        <?token id="abil"?>
+        <ImpactLocation Value="SourceUnit"/>
+        <ValidatorArray value="noMarkers"/>
+        <AreaArray RectangleWidth="1" RectangleHeight="1" Effect="##abil##ImpactSet"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <RevealerParams Duration="0.75" ShapeExpansion="1">
+            <RevealFlags index="Unfog" value="1"/>
+        </RevealerParams>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent default="1" id="WizChainDelay">
+        <?token id="abil" type="CAbilLink"?>
+        <?token id="n" type="uint32"?>
+        <WhichLocation Value="TargetUnit"/>
+        <ExpireDelay value="0.125"/>
+        <FinalEffect value="##abil####n##SearchForNewTarget"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea default="1" id="WizChainSearchForNewTarget">
+        <?token id="abil" type="CAbilLink"?>
+        <?token id="n" type="uint32"?>
+        <ImpactLocation Effect="##abil####n##Delay" Value="TargetPoint"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Visible;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <TargetSorts>
+            <SortArray value="TSDistanceToTarget"/>
+        </TargetSorts>
+        <AreaArray MaxCount="1" Radius="4" Effect="##abil####n##ImpactSet"/>
+    </CEffectEnumArea>
+    <CEffectSet default="1" id="WizChainInitialSet">
+        <?token id="abil" type="CAbilLink"?>
+        <EffectArray value="##abil##2Delay"/>
+        <EffectArray value="##abil##MainDamage"/>
+        <Marker>
+            <MatchFlags index="Id" value="1"/>
+        </Marker>
+    </CEffectSet>
+    <CEffectSet default="1" id="WizChainImpactSet">
+        <?token id="abil" type="CAbilLink"?>
+        <?token id="n" type="uint32"?>
+        <?token id="nNext" type="uint32"?>
+        <EffectArray value="##abil####nNext##Delay"/>
+        <EffectArray value="##abil####n##Damage"/>
+        <ValidatorArray value="noMarkers"/>
+    </CEffectSet>
+    <CEffectSet id="WizSimpleSkillshotFinalImpactSet">
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+
+    <!--                                                                                         -->
+    <!--                                                                                         -->
+    <!-- Added For Wizards ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--                                                                                         -->
+    <!--                                                                                         -->
+    <CMoverMissile default="1" id="WizSimpleMissile">
+        <MotionPhases>
+            <Driver value="Guidance"/>
+            <Speed value="20"/>
+            <RotationLaunchActorType value="LaunchToTarget"/>
+            <YawPitchRoll value="MAX"/>
+        </MotionPhases>
+    </CMoverMissile>
+    <CMoverMissile default="1" id="WizSimpleBallistic">
+        <MotionPhases Driver="Ballistic" Speed="10" Gravity="9.8"/>
+    </CMoverMissile>
+
+    <CTerrainTex default="1" id="WizSimpleTerrainTex">
+        <Texture value="Assets\Textures\##texId##.dds"/>
+        <Normalmap value="Assets\Textures\##texId##Normal.dds"/>
+        <EditorIcon value="Assets\Textures\ui-editoricon-##texId##.dds"/>
+    </CTerrainTex>
+
+
+    <!--                                                                                         -->
+    <!--                                                                                         -->
+    <!-- Added For Wizards ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--                                                                                         -->
+    <!--                                                                                         -->
+    <CWeaponLegacy default="1" id="WizWeapon">
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Icon value="Assets\Textures\btn-upgrade-terran-infantryweaponslevel0.dds"/>
+        <DisplayEffect value="##id##Damage"/>
+        <Effect value="##id##Damage"/>
+    </CWeaponLegacy>
+</Catalog>

@@ -1,0 +1,368 @@
+<Catalog>
+
+    <!-- Brood Mother                                                                                -->
+    <CActorUnit id="BroodMother" parent="GenericUnitBase" unitName="BroodMother">
+        <ShieldArmorIcon value="Assets\Textures\btn-upgrade-zerg-swarmfrenzy.dds"/>
+        <StatusColors index="Shields">
+            <ColorArray index="0" value="255,0,128,0"/>
+        </StatusColors>
+        <VitalColors index="Shields">
+            <ColorArray value="255,0,128,0"/>
+        </VitalColors>
+        <VitalNames index="Shields" value="Vital/ZergShields"/>
+        <WireframeShieldColor value="255,0,128,0"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <CustomUnitStatusFrame value="HotS_UnitStatus/BroodMotherHeroUnitStatusFrameTemplate"/>
+        <On Terms="UnitBirth.BroodMotherBurrowed" Send="Create"/>
+        <On Terms="UnitBirth.BroodMotherBurrowed" Send="AnimBracketStart Burrow Burrow IGNORE Unburrow ClosingFull,OpeningPlayForever,Instant"/>
+        <On Terms="Abil.QueenBuild.WorkerStart" Send="AnimPlay WorkStart Stand,Work,Start"/>
+        <On Terms="AnimDone; AnimName WorkStart" Send="AnimPlay WorkEnd Stand,Work,End"/>
+        <On Terms="Abil.FungalGrowth.SourceCastStart" Send="$Spell"/>
+        <On Terms="Abil.SpawnLarva.SourceCastStart" Send="AnimPlay SpellA Spell,A"/>
+        <On Terms="Abil.Transfusion.SourceFinishStart" Send="AnimPlay SpellB Spell,B"/>
+        <On Terms="AbilMorph.*.Start; AbilKey BurrowDown" Send="Create BurrowDownLarge"/>
+        <On Terms="AbilMorph.*.Cancel; MorphFrom BroodMother; MorphTo BroodMotherBurrowed" Send="AnimClear Burrow"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo BroodMother; MorphFrom BroodMotherBurrowed" Send="AnimBracketStop Burrow"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo BroodMother; MorphFrom BroodMotherBurrowed" Send="AnimClear Burrow"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <!-- Air Weapon -->
+        <On Terms="WeaponStart.BroodMotherAir.AttackStart" Send="AnimBracketStart Attack Spell,C"/>
+        <!-- Ground Weapon -->
+        <On Terms="WeaponStart.BroodMother.AttackStart; WeaponTargetDistance LE 1.000000" Send="AnimBracketStart Attack Attack,Cover"/>
+        <On Terms="WeaponStart.BroodMother.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <Macros value="ZergBurrowStandardAnimMacro"/>
+        <Macros value="ZergLargeBurrowEffects"/>
+        <Macros value="UnloadDropAnim"/>
+        <DeathArray index="Normal" ModelLink="BroodMotherDeath" SoundLink="Queen_Explode"/>
+        <PortraitModel value="SwarmQueenPortrait"/>
+        <PortraitActor value="SwarmQueenPortrait"/>
+        <WalkAnimMoveSpeed value="1.7031"/>
+        <BarOffset value="75"/>
+        <UnitIcon value="Assets\Textures\btn-unit-zerg-queen.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-zerg-queen.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Zerg-Queen.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Zerg-Queen.dds"/>
+        </Wireframe>
+        <SoundArray index="Ready" value="QueenReady"/>
+        <SoundArray index="Help" value="QueenHelp"/>
+        <SoundArray index="What" value="QueenWhat"/>
+        <SoundArray index="Yes" value="QueenYes"/>
+        <!--MinimapIconIsTeamColored value="1"/>
+        <MinimapIcon value="Assets\Textures\ui_minimap_icon_triangle.dds"/>
+        <MinimapIconScale value="0.600000"/>
+        <MinimapRenderPriority value="Hero"/-->
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <ErrorArray Error="CantSeeBuildLocation" Sound="Alert_ZergBuildError" GroupSound="Alert_ZergBuildError"/>
+        <ErrorArray Error="CantSeeLandLocation" Sound="Alert_ZergBuildError" GroupSound="Alert_ZergBuildError"/>
+        <ErrorArray Error="CantBuildLocationInvalid" Sound="Alert_ZergBuildError" GroupSound="Alert_ZergBuildError"/>
+        <ErrorArray Error="CantLandLocationInvalid" Sound="Alert_ZergBuildError" GroupSound="Alert_ZergBuildError"/>
+        <Aliases value="_UnitLarge"/>
+    </CActorUnit>
+    <CActorSound id="BroodMotherDeathSound" parent="SoundOneShot">
+        <Sound value="Queen_Death"/>
+        <On Terms="UnitDeath.BroodMother; PassChance 25.000000" Send="Create"/>
+        <On Terms="UnitDeath.BroodMotherBurrowed; PassChance 25.000000" Send="Create"/>
+    </CActorSound>
+    <!-- Attacks                                                                                 -->
+    <CActorAction id="BroodMotherAttack" parent="GenericAttack" effectAttack="BroodMother">
+        <LaunchAssets Sound="Queen_AttackLaunch"/>
+        <ImpactMap index="None" Sound="Queen_AttackImpact"/>
+        <ShieldFlashType value="Header"/>
+        <ImpactPhysics Name="AcidSpinesImpact" MatchKeys="Basic" Physics="QueenAttackDeathForce"/>
+    </CActorAction>
+    <CActorMissile id="BroodMotherAirAttackMissile" parent="GenericAttackMissile" unitName="BroodMotherWeapon"/>
+    <CActorAction id="BroodMotherAirAttack" parent="GenericAttack" effectImpact="BroodMotherAirDamage" effectLaunch="BroodMotherAirLM">
+        <LaunchAttachQuery Methods="Weapon"/>
+        <LaunchAssets Sound="AcidSpines_AttackLaunch"/>
+        <ImpactMap index="None" Sound="AcidSpines_AttackImpact"/>
+        <ShieldFlashType value="Header"/>
+    </CActorAction>
+    <CEffectCreatePersistent id="BroodMotherBurst">
+        <EditorCategories value="Race:Zerg"/>
+        <PeriodCount value="2"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodicEffectArray value="BroodMother"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.3"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="BroodMother" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Kind value="Ranged"/>
+        <Amount value="6"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="BroodMotherAirLM">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="BroodMotherAirDamage"/>
+        <Movers Link="AcidSpinesWeapon"/>
+        <AmmoUnit value="BroodMotherWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="BroodMotherAirDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Kind value="Ranged"/>
+        <Amount value="11"/>
+    </CEffectDamage>
+    <CModel id="BroodMother" parent="Unit" Race="Zerg">
+        <Model value="Assets\Units\Zerg\ExpeditionQueenLevel1\ExpeditionQueenLevel1.m3"/>
+        <Occlusion value="Show"/>
+        <ScaleMax value="0.900000,0.900000,0.900000"/>
+        <ScaleMin value="0.900000,0.900000,0.900000"/>
+        <SelectionRadius value="0.972100"/>
+        <Tipability value="0.750000"/>
+        <TipabilityWidth value="0.800000"/>
+        <TipabilityLength value="1.000000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <Radius value="1.000000"/>
+        <TechPurchaseCamera value="Star2CameraHigh08"/>
+        <UnitGlossaryCamera value="Star2CameraHigh08"/>
+        <PlanetPanelCamera value="Star2CameraHigh08"/>
+        <ShadowRadius value="0.750000"/>
+    </CModel>
+    <CModel id="BroodMotherDeath" parent="UnitDeath" Race="Zerg">
+        <Model value="Assets\Units\Zerg\ExpeditionQueenLevel1Death\ExpeditionQueenLevel1Death.m3"/>
+        <LowQualityModel value="ZergMediumUnitDeathLow"/>
+        <Occlusion value="Show"/>
+    </CModel>
+    <CModel id="BroodMotherWeapon" parent="MissileFX">
+        <Model value="Assets\Effects\Zerg\HydraliskMissile\HydraliskMissile.m3"/>
+        <ScaleMax value="1.333000,1.333000,1.333000"/>
+        <ScaleMin value="1.333000,1.333000,1.333000"/>
+        <EditorCategories value="Race:Zerg"/>
+        <SelectionRadius value="0.375000"/>
+        <ShadowRadius value="0.375000"/>
+    </CModel>
+    <CUnit id="BroodMotherWeapon" parent="MISSILE">
+        <Race value="Zerg"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CUnit id="BroodMother">
+        <TechAliasArray value="Alias_Queen"/>
+        <DeathRevealRadius value="3"/>
+        <Race value="Zerg"/>
+        <Mob value="Multiplayer"/>
+        <LifeStart value="250"/>
+        <LifeMax value="250"/>
+        <LifeRegenRate value="0.2734"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ZergWildMutation"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergGroundArmor"/>
+        <EnergyStart value="150"/>
+        <EnergyMax value="200"/>
+        <EnergyRegenRate value="0.5625"/>
+        <InnerRadius value="0.5"/>
+        <Speed value="2.25"/>
+        <SpeedBonusCreep value="0.5"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="30"/>
+        <Radius value="0.875"/>
+        <SeparationRadius value="0.875"/>
+        <CargoSize value="2"/>
+        <ScoreMake value="150"/>
+        <ScoreKill value="300"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="21"/>
+        <MinimapRadius value="0.875"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AIDefense" value="1"/>
+        <FlagArray index="AIPressForwardDisabled" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <AIEvalFactor value="0.55"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Sight value="9"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="QueenBuild"/>
+        <AbilArray Link="BurrowBroodMotherDown"/>
+        <AbilArray Link="SpawnLarva"/>
+        <AbilArray Link="Transfusion"/>
+        <AbilArray Link="DeepTunnel"/>
+        <AbilArray Link="KerriganEnhance"/>
+        <AbilArray Link="QueenBurstHeal"/>
+        <TacticalAIThink value="AIThinkQueen"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="BuildCreepTumor" Type="AbilCmd" AbilCmd="QueenBuild,Build1" Row="2" Column="0"/>
+            <LayoutButtons Face="BurrowDown" Type="AbilCmd" AbilCmd="BurrowBroodMotherDown,Execute" Row="2" Column="4"/>
+            <LayoutButtons Face="QueenBurstHeal" Type="AbilCmd" AbilCmd="QueenBurstHeal,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="DeepTunnel" Type="AbilCmd" AbilCmd="DeepTunnel,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="KerriganEnhance,Off" Row="2" Column="4"/>
+        </CardLayouts>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <Food value="-2"/>
+        <GlossaryCategory value="Unit/Category/ZergCharacter"/>
+        <GlossaryPriority value="40"/>
+        <LifeArmor value="1"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="100"/>
+        <CostResource index="Vespene" value="50"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Always"/>
+        <WeaponArray Link="BroodMother"/>
+        <WeaponArray Link="BroodMotherAir"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="50"/>
+            <ChanceArray index="Idle" value="50"/>
+        </Fidget>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CWeaponLegacy id="BroodMother">
+        <EditorCategories value="Race:Zerg"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-missileattacks-level0.dds"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="3"/>
+        <Period value="1"/>
+        <Effect value="BroodMotherBurst"/>
+        <DisplayAttackCount value="2"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="BroodMotherAir">
+        <EditorCategories value="Race:Zerg"/>
+        <Icon value="Assets\Textures\btn-upgrade-zerg-missileattacks-level0.dds"/>
+        <TargetFilters value="Air,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="7"/>
+        <Period value="1"/>
+        <Effect value="BroodMotherAirLM"/>
+        <DisplayEffect value="BroodMotherAirDamage"/>
+    </CWeaponLegacy>
+    <CUnit id="BroodMotherBurrowed">
+        <AIEvaluateAlias value="Queen"/>
+        <TechAliasArray value="Alias_Queen"/>
+        <LeaderAlias value="Queen"/>
+        <HotkeyAlias value="BroodMother"/>
+        <DeathRevealRadius value="3"/>
+        <Race value="Zerg"/>
+        <Mob value="Multiplayer"/>
+        <Mover value="Burrowed"/>
+        <LifeStart value="250"/>
+        <LifeMax value="250"/>
+        <LifeRegenRate value="0.2734"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ZergWildMutation"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergGroundArmor"/>
+        <EnergyStart value="150"/>
+        <EnergyMax value="200"/>
+        <EnergyRegenRate value="0.5625"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="30"/>
+        <SeparationRadius value="0"/>
+        <ScoreKill value="300"/>
+        <SubgroupPriority value="20"/>
+        <MinimapRadius value="0.875"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Cloaked" value="1"/>
+        <FlagArray index="Buried" value="1"/>
+        <FlagArray index="AIThreatGround" value="1"/>
+        <FlagArray index="AIThreatAir" value="1"/>
+        <FlagArray index="AIDefense" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Sight value="5"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="BurrowBroodMotherUp"/>
+        <AbilArray Link="BurrowBroodMotherDown"/>
+        <TacticalAIThink value="AIThinkQueen"/>
+        <CardLayouts>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="BurrowUp" Type="AbilCmd" AbilCmd="BurrowBroodMotherUp,Execute" Row="2" Column="4"/>
+        </CardLayouts>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <Food value="-2"/>
+        <InnerRadius value="0.5"/>
+        <Collide index="Burrow" value="1"/>
+        <LifeArmor value="1"/>
+        <Radius value="0.875"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Always"/>
+        <Description value="Button/Tooltip/BroodMother"/>
+        <CostResource index="Minerals" value="100"/>
+        <CostResource index="Vespene" value="50"/>
+        <CostCategory value="Army"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CAbilMorph id="BurrowBroodMotherDown">
+        <AbilSetId value="BrwD"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:MorphsandBurrows"/>
+        <ActorKey value="BurrowDown"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BurrowDown">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="Interruptible" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="IgnorePlacement" value="0"/>
+        <Flags index="SuppressMovement" value="1"/>
+        <InfoArray Unit="BroodMotherBurrowed" RandomDelayMax="0.25">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="0.8332"/>
+            </SectionArray>
+            <SectionArray index="Collide">
+                <DurationArray index="Delay" value="0.5556"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="0.6665"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="BurrowBroodMotherUp">
+        <AbilSetId value="BrwU"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:MorphsandBurrows"/>
+        <ActorKey value="BurrowUp"/>
+        <AutoCastFilters value="Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden"/>
+        <AutoCastRange value="5"/>
+        <AutoCastCountMin value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BurrowUp">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="SuppressMovement" value="1"/>
+        <InfoArray Unit="BroodMother" RandomDelayMax="0.5">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="0.4443"/>
+            </SectionArray>
+        </InfoArray>
+        <AutoCastValidatorArray value="TargetNotChangeling"/>
+    </CAbilMorph>
+    <CButton id="BroodMother">
+        <Icon value="Assets\Textures\abilityicon_broodmother_square.dds"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CButton>
+    <CRequirement id="HaveKerriganBroodMother">
+        <EditorCategories value="Race:Zerg,TechType:Upgrade"/>
+        <NodeArray index="Show" Link="CountUpgradeKerriganBroodMotherCompleteOnly"/>
+    </CRequirement>
+    <CRequirement id="UseKerriganBroodMother">
+        <EditorCategories value="Race:Zerg,TechType:Unit"/>
+        <NodeArray index="Show" Link="LTCountUnitLarvaCompleteOnlyAtUnit6"/>
+    </CRequirement>
+</Catalog>

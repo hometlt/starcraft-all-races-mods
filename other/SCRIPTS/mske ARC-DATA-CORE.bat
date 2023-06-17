@@ -1,0 +1,2 @@
+node --max_old_space_size=8000 node_modules/sc-parser/run --read ../built-in/{LibertyCampaign,Swarm,SwarmCampaign,Void,VoidCampaign,VoidMulti,Utilities,WarCraftSounds} --write ../../ARC-DATA-CORE.SC2Mod
+pause

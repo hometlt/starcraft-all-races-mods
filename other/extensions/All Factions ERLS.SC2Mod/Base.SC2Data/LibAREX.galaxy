@@ -1,0 +1,227 @@
+include "TriggerLibs/NativeLib"
+include "LibARMP"
+include "LibARMP"
+include "LibARMP"
+include "LibARMP"
+
+include "LibAREX_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: ALL RACES MELEE EXTENSION
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libAREX_InitLibraries () {
+    libNtve_InitVariables();
+    libARMP_InitVariables();
+    libARMP_InitVariables();
+    libARMP_InitVariables();
+    libARMP_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Game Attributes
+//--------------------------------------------------------------------------------------------------
+bool libAREX_gt_GameAttributes_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_aG_GameType;
+    string lv_aG_Supplies;
+    string lv_aG_Money;
+    string lv_aG_Resources;
+    string lv_aG_Factions;
+    string lv_aP_AlternateRaceCategory;
+    string lv_aP_AlternateRace;
+    string lv_aP_RaceCategory;
+    int lv_AttributeValueIndex;
+    string lv_race;
+    int lv_player;
+    string lv_availableFactions;
+    string lv_categoryFactions;
+    string lv_playerFactionGameAtrribute;
+
+    // Automatic Variable Declarations
+    string autoD4944814_val;
+    playergroup auto874EE02E_g;
+    string auto8C26E34E_val;
+    string autoBF819B9B_val;
+    string auto9AE61E81_val;
+    string autoDA350B19_val;
+
+    // Variable Initialization
+    lv_aG_GameType = GameAttributeGameValue("6");
+    lv_aG_Supplies = GameAttributeGameValue("2");
+    lv_aG_Money = GameAttributeGameValue("5");
+    lv_aG_Resources = GameAttributeGameValue("3");
+    lv_aG_Factions = GameAttributeGameValue("12");
+
+    // Conditions
+    if (testConds) {
+        if (!((GameIsOnline() == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoD4944814_val = lv_aG_Factions;
+    if (autoD4944814_val == "0009") {
+        lv_availableFactions = "ERLS_ALL";
+    }
+    else {
+    }
+    libARMP_gf_SetAvailableFactions(lv_availableFactions);
+    auto874EE02E_g = PlayerGroupAll();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto874EE02E_g, lv_player);
+        if (lv_player < 0) { break; }
+        lv_aP_RaceCategory = GameAttributePlayerValue("1", lv_player);
+        auto8C26E34E_val = lv_aP_RaceCategory;
+        if (auto8C26E34E_val == "0001") {
+            lv_availableFactions = "ArcAll";
+            lv_playerFactionGameAtrribute = "16";
+        }
+        else if (auto8C26E34E_val == "0002") {
+            lv_availableFactions = "ERLS_SIMPLE";
+            lv_playerFactionGameAtrribute = "4";
+        }
+        else if (auto8C26E34E_val == "0003") {
+            lv_availableFactions = "ERLS_ADVANCED";
+            lv_playerFactionGameAtrribute = "6";
+        }
+        else if (auto8C26E34E_val == "0004") {
+            lv_availableFactions = "ERLS_EXPERT";
+            lv_playerFactionGameAtrribute = "7";
+        }
+        else {
+        }
+        libARMP_gf_SetAvailableFactionsForPlayer(lv_player, lv_availableFactions);
+        PlayerSetRace(lv_player, libARMP_gf_GetCustomRace(lv_player, lv_playerFactionGameAtrribute, lv_availableFactions));
+    }
+    autoBF819B9B_val = lv_aG_Money;
+    if (autoBF819B9B_val == "0001") {
+        libARMP_gf_SetInitialResources("Ladder");
+    }
+    else if (autoBF819B9B_val == "0002") {
+        libARMP_gf_SetInitialResources("Rich");
+    }
+    else {
+    }
+    auto9AE61E81_val = lv_aG_Resources;
+    if (auto9AE61E81_val == "0001") {
+        libARMP_gf_SetHarvestableResources("Ladder");
+    }
+    else if (auto9AE61E81_val == "0003") {
+        libARMP_gf_SetHarvestableResources("Rich");
+    }
+    else if (auto9AE61E81_val == "0002") {
+        libARMP_gf_SetHarvestableResources("BGH");
+    }
+    else if (auto9AE61E81_val == "0004") {
+        libARMP_gf_SetHarvestableResources("BGH Rich");
+    }
+    else {
+    }
+    autoDA350B19_val = lv_aG_Supplies;
+    if (autoDA350B19_val == "0001") {
+        libARMP_gf_SetSupplyCap("100");
+    }
+    else if (autoDA350B19_val == "0002") {
+        libARMP_gf_SetSupplyCap("Ladder");
+    }
+    else if (autoDA350B19_val == "0003") {
+        libARMP_gf_SetSupplyCap("300");
+    }
+    else if (autoDA350B19_val == "0005") {
+        libARMP_gf_SetSupplyCap("400");
+    }
+    else if (autoDA350B19_val == "0004") {
+        libARMP_gf_SetSupplyCap("500");
+    }
+    else if (autoDA350B19_val == "0006") {
+        libARMP_gf_SetSupplyCap("1000");
+    }
+    else {
+    }
+    libARMP_gf_InitializeMeleeGame();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libAREX_gt_GameAttributes_Init () {
+    libAREX_gt_GameAttributes = TriggerCreate("libAREX_gt_GameAttributes_Func");
+    TriggerAddEventMapInit(libAREX_gt_GameAttributes);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Offline Debug
+//--------------------------------------------------------------------------------------------------
+bool libAREX_gt_OfflineDebug_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((GameIsOnline() == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerSetRace(1, "_Random_");
+    PlayerSetRace(2, "_Random_");
+    PlayerSetRace(3, "_Random_");
+    PlayerSetRace(4, "_Random_");
+    PlayerSetRace(5, "_Random_");
+    PlayerSetRace(6, "_Random_");
+    PlayerSetRace(7, "_Random_");
+    PlayerSetRace(8, "_Random_");
+    PlayerSetRace(9, "_Random_");
+    PlayerSetRace(10, "_Random_");
+    PlayerSetRace(11, "_Random_");
+    PlayerSetRace(12, "_Random_");
+    PlayerSetRace(13, "_Random_");
+    PlayerSetRace(14, "_Random_");
+    PlayerSetRace(15, "_Random_");
+    libARMP_gv_dEBUGGING_AI = 1;
+    libARMP_gf_SetAvailableFactions("ERLS_EXPERT");
+    libARMP_gf_SetAvailableFactionsForPlayer(1, "ERLS_SIMPLE");
+    libARMP_gf_SetInitialResources("Rich");
+    libARMP_gf_SetHarvestableResources("BGH Rich");
+    libARMP_gf_SetSupplyCap("100");
+    libARMP_gf_InitializeMeleeGame();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libAREX_gt_OfflineDebug_Init () {
+    libAREX_gt_OfflineDebug = TriggerCreate("libAREX_gt_OfflineDebug_Func");
+    TriggerAddEventMapInit(libAREX_gt_OfflineDebug);
+}
+
+void libAREX_InitTriggers () {
+    libAREX_gt_GameAttributes_Init();
+    libAREX_gt_OfflineDebug_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libAREX_InitLib_completed = false;
+
+void libAREX_InitLib () {
+    if (libAREX_InitLib_completed) {
+        return;
+    }
+
+    libAREX_InitLib_completed = true;
+
+    libAREX_InitLibraries();
+    libAREX_InitTriggers();
+}
+

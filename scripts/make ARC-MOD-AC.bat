@@ -1,2 +1,0 @@
-node --max_old_space_size=8000 node_modules/sc-parser/run --read ../built-in/{LibertyCampaign,Swarm,SwarmCampaign,Void,VoidCampaign,VoidMulti,Utilities},../coop/{Core,AlliedCommanders} --write ../../ARC-MOD-AC.SC2Mod
-pause

@@ -1,0 +1,186 @@
+include "TriggerLibs/NativeLib"
+include "LibCOMI"
+include "LibARRA"
+include "LibARMP"
+
+include "Lib663641D8_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: PVP COOP EXTENSION
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib663641D8_InitLibraries () {
+    libNtve_InitVariables();
+    libCOMI_InitVariables();
+    libARRA_InitVariables();
+    libARMP_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Melee Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib663641D8_gt_MeleeInitialization_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_aG_Supplies;
+    string lv_aG_Money;
+    string lv_aG_Resources;
+    string lv_aG_Factions;
+    string lv_aP_AlternateRace;
+    int lv_AttributeValueIndex;
+    string lv_aP_RaceCategory;
+    string lv_race;
+    string lv_raceData;
+    string lv_commander;
+    string lv_prestige;
+    int lv_player;
+    string lv_availableFactions;
+    string lv_playerFactionGameAtrribute;
+
+    // Automatic Variable Declarations
+    string auto8074FA0F_val;
+    playergroup auto99F2B2AD_g;
+    string auto3989F834_val;
+    string autoE952F5DA_val;
+    string auto2BB23183_val;
+    string auto73535CFE_val;
+
+    // Variable Initialization
+    lv_aG_Supplies = GameAttributeGameValue("2");
+    lv_aG_Money = GameAttributeGameValue("5");
+    lv_aG_Resources = GameAttributeGameValue("3");
+    lv_aG_Factions = GameAttributeGameValue("12");
+
+    // Conditions
+    if (testConds) {
+        if (!((GameIsOnline() == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto8074FA0F_val = lv_aG_Factions;
+    if (auto8074FA0F_val == "0009") {
+        lv_availableFactions = "COOP";
+    }
+    else {
+    }
+    libARMP_gf_SetAvailableFactions(lv_availableFactions);
+    auto99F2B2AD_g = libARMP_gf_ARCGetActivePlayers();
+    lv_player = -1;
+    while (true) {
+        lv_player = PlayerGroupNextPlayer(auto99F2B2AD_g, lv_player);
+        if (lv_player < 0) { break; }
+        lv_aP_RaceCategory = GameAttributePlayerValue("1", lv_player);
+        auto3989F834_val = lv_aP_RaceCategory;
+        if (auto3989F834_val == "0001") {
+            lv_availableFactions = "ArcAll";
+            lv_playerFactionGameAtrribute = "16";
+        }
+        else if (auto3989F834_val == "0002") {
+            lv_availableFactions = "Commanders";
+            lv_playerFactionGameAtrribute = "4";
+        }
+        else {
+        }
+        libARMP_gf_SetAvailableFactionsForPlayer(lv_player, lv_availableFactions);
+        lv_race = libARMP_gf_GetCustomRace(lv_player, lv_playerFactionGameAtrribute, lv_availableFactions);
+        lv_raceData = libARMP_gf_GetRaceUserData(lv_race);
+        lv_commander = UserDataGetUserInstance("RaceData", lv_raceData, "Commander", 1);
+        lv_prestige = UserDataGetUserInstance("RaceData", lv_raceData, "Prestige", 1);
+        libARRA_gf_LOGInteger(lv_player);
+        libARRA_gf_LOGString(lv_race);
+        libARRA_gf_LOGString(lv_commander);
+        if ((lv_commander != null)) {
+            if ((lv_prestige == null)) {
+                lv_prestige = "Amon";
+            }
+
+            libCOMI_gv_cCX_PlayerCommander[lv_player] = lv_commander;
+            libCOMI_gf_AddAlliedCommanderPlayer(lv_player);
+            libCOMI_gf_CC_ApplyTechNew(lv_player, 15, lv_commander, lv_prestige);
+        }
+        else {
+            PlayerSetRace(lv_player, lv_race);
+        }
+    }
+    autoE952F5DA_val = lv_aG_Money;
+    if (autoE952F5DA_val == "0002") {
+        libARMP_gf_SetInitialResources("Rich");
+    }
+    else if (autoE952F5DA_val == "0002") {
+        libARMP_gf_SetInitialResources("Rich");
+    }
+    else {
+    }
+    auto2BB23183_val = lv_aG_Resources;
+    if (auto2BB23183_val == "0003") {
+        libARMP_gf_SetHarvestableResources("Rich");
+    }
+    else if (auto2BB23183_val == "0002") {
+        libARMP_gf_SetHarvestableResources("BGH");
+    }
+    else if (auto2BB23183_val == "0004") {
+        libARMP_gf_SetHarvestableResources("BGH Rich");
+    }
+    else {
+    }
+    auto73535CFE_val = lv_aG_Supplies;
+    if (auto73535CFE_val == "0001") {
+        libARMP_gf_SetSupplyCap("100");
+    }
+    else if (auto73535CFE_val == "0003") {
+        libARMP_gf_SetSupplyCap("300");
+    }
+    else if (auto73535CFE_val == "0005") {
+        libARMP_gf_SetSupplyCap("400");
+    }
+    else if (auto73535CFE_val == "0004") {
+        libARMP_gf_SetSupplyCap("500");
+    }
+    else if (auto73535CFE_val == "0006") {
+        libARMP_gf_SetSupplyCap("1000");
+    }
+    else {
+    }
+    libARMP_gf_InitializeMeleeGame();
+    MeleeInitAI();
+    MeleeInitOptions();
+    UnitEventSetNullVariableInvalid(true);
+    TriggerSendEvent(libCOMI_gv_mISSIONPREPARED);
+    TriggerSendEvent(libCOMI_gv_mISSIONINITIALIZED);
+    TriggerSendEvent(libCOMI_gv_mISSIONREADY);
+    TriggerSendEvent(libCOMI_gv_COOP_MISSION_STARTED_EVENT);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib663641D8_gt_MeleeInitialization_Init () {
+    lib663641D8_gt_MeleeInitialization = TriggerCreate("lib663641D8_gt_MeleeInitialization_Func");
+    TriggerAddEventMapInit(lib663641D8_gt_MeleeInitialization);
+}
+
+void lib663641D8_InitTriggers () {
+    lib663641D8_gt_MeleeInitialization_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib663641D8_InitLib_completed = false;
+
+void lib663641D8_InitLib () {
+    if (lib663641D8_InitLib_completed) {
+        return;
+    }
+
+    lib663641D8_InitLib_completed = true;
+
+    lib663641D8_InitLibraries();
+    lib663641D8_InitTriggers();
+}
+

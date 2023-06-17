@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectApplyBehavior id="PredatorRemoveCloak">
+        <ValidatorArray index="0" value="HaveCrouchingPredator"/>
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+        <Behavior value="PredatorSupressCloaking"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="PredatorStun">
+        <ValidatorArray index="0" value="SourceIsCloaked"/>
+        <ValidatorArray value="HaveCrouchingPredator"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="RetributionFieldSearch">
+        <AreaArray index="0" Effect="RetributionFieldSearchSet"/>
+    </CEffectEnumArea>
+    <CEffectSet id="RetributionFieldSearchSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="PredatorStun"/>
+        <EffectArray value="RetributionFieldDamage"/>
+    </CEffectSet>
+    <CEffectSet id="RetributionFieldSet">
+        <EffectArray value="PredatorRemoveCloak"/>
+    </CEffectSet>
+    <CValidatorPlayerRequirement id="HaveCrouchingPredator">
+        <Find value="1"/>
+        <Value value="HaveCrouchingPredator"/>
+    </CValidatorPlayerRequirement>
+    <CRequirement id="HaveCrouchingPredator">
+        <EditorCategories value="Race:Terran,TechType:Upgrade"/>
+        <NodeArray index="Show" Link="CountUpgradeCrouchingPredatorCompleteOnly"/>
+    </CRequirement>
+    <CRequirement id="HavePredatorRetributionField">
+        <EditorCategories value="Race:Terran,TechType:Upgrade"/>
+        <NodeArray index="Use" Link="CountUpgradeRetributionFieldCompleteOnly"/>
+        <NodeArray index="Show" Link="AllowUpgradeRetributionField"/>
+    </CRequirement>
+    <CButton id="CrouchingPredator">
+        <Icon value="Assets\Textures\btn-upgrade-nova-tacticalstealthsuit.dds"/>
+        <AlertIcon value="Assets\Textures\btn-upgrade-nova-tacticalstealthsuit.dds"/>
+        <EditorCategories value="Race:Terran"/>
+    </CButton>
+    <CButton id="PredatorForce">
+        <Icon value="Assets\Textures\btn-progression-stetmann-03-stetelliteovercharge.dds"/>
+        <AlertIcon value="Assets\Textures\btn-progression-stetmann-03-stetelliteovercharge.dds"/>
+        <EditorCategories value="Race:Terran"/>
+    </CButton>
+    <CRequirementAllowUpgrade id="AllowUpgradeRetributionField">
+        <Link value="RetributionField"/>
+    </CRequirementAllowUpgrade>
+    <CRequirementCountUpgrade id="CountUpgradeRetributionFieldCompleteOnly">
+        <Flags index="TechTreeCheat" value="0"/>
+        <Count Link="RetributionField" State="CompleteOnly"/>
+    </CRequirementCountUpgrade>
+    <CRequirementCountUpgrade id="CountUpgradeCrouchingPredatorCompleteOnly">
+        <Flags index="TechTreeCheat" value="0"/>
+        <Count Link="CrouchingPredator" State="CompleteOnly"/>
+    </CRequirementCountUpgrade>
+    <CActorModel id="PredatorStun" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.PredatorStun.On" Send="Create"/>
+        <On Terms="Behavior.PredatorStun.Off" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Model value="BurrowChargeStun"/>
+    </CActorModel>
+    <CUnit id="Predator">
+        <RepairTime value="25"/>
+        <DamageDealtXP value="0"/>
+        <DamageTakenXP value="0"/>
+        <KillXP value="0"/>
+        <ScoreMake value="0"/>
+        <ScoreKill value="0"/>
+        <BehaviorArray Link="RetributionField"/>
+        <BehaviorArray Link="PredatorCloaking"/>
+        <BehaviorArray Link="CloakAttackBuff"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="6" Row="1"/>
+            <LayoutButtons Face="TrueRetributionField" Type="Passive" Requirements="HavePredatorRetributionField" Row="1" Column="1"/>
+            <LayoutButtons Face="CrouchingPredator" Type="Passive" Requirements="HaveCrouchingPredator" Row="1" Column="2"/>
+        </CardLayouts>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="50"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Coop"/>
+        <HotkeyCategory value="Unit/Category/TerranRaider"/>
+    </CUnit>
+    <CBehaviorBuff id="PredatorCloaking">
+        <InfoFlags index="Hidden" value="1"/>
+        <Requirements value="HaveCrouchingPredator"/>
+        <RemoveValidatorArray index="0" removed="1"/>
+        <RemoveValidatorArray index="1" removed="1"/>
+        <Modification>
+            <VitalRegenArray index="Energy" value="0"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="PredatorStun">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-emp.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Requirements value="HaveCrouchingPredator"/>
+        <Modification>
+            <StateFlags index="Stun" value="1"/>
+        </Modification>
+        <Duration value="2"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="PredatorSupressCloaking">
+        <Alignment value="Positive"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-cloak.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Requirements value="HaveCrouchingPredator"/>
+        <Duration value="4"/>
+        <Modification>
+            <StateFlags index="SuppressCloak" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="RetributionField">
+        <Requirements value="HavePredatorRetributionField"/>
+    </CBehaviorBuff>
+    <CBehaviorAttackModifier id="CloakAttackBuff">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Requirements value="HaveCrouchingPredator"/>
+        <Chance value="1"/>
+        <ValidatorArray value="SourceIsCloaked"/>
+        <AttackModifierFlags index="OnlyApplyDamageBonusToValidTargets" value="1"/>
+        <DamageDealtFraction index="Spell" value="1"/>
+        <DamageDealtFraction index="Melee" value="1"/>
+        <DamageDealtFraction index="Ranged" value="1"/>
+        <DamageDealtFraction index="Splash" value="1"/>
+        <DamageDealtFraction index="NoProc" value="1"/>
+    </CBehaviorAttackModifier>
+    <CUpgrade id="RetributionField">
+        <Icon value="Assets\Textures\btn-ability-nova-furyofone.dds"/>
+        <EditorCategories value="Race:Terran,UpgradeType:Talents"/>
+        <AffectedUnitArray value="Predator"/>
+    </CUpgrade>
+    <CUpgrade id="CrouchingPredator">
+        <Icon value="Assets\Textures\btn-upgrade-nova-tacticalstealthsuit.dds"/>
+        <EditorCategories value="Race:Terran,UpgradeType:Talents"/>
+        <AffectedUnitArray value="Predator"/>
+        <LeaderAlias value="RetributionField"/>
+    </CUpgrade>
+    <CUpgrade id="PredatorForce">
+        <Icon value="Assets\Textures\btn-progression-stetmann-03-stetelliteovercharge.dds"/>
+        <EditorCategories value="Race:Terran,UpgradeType:Talents"/>
+        <AffectedUnitArray value="Predator"/>
+        <LeaderAlias value="RetributionField"/>
+    </CUpgrade>
+</Catalog>

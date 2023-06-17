@@ -1,0 +1,786 @@
+include "TriggerLibs/NativeLib"
+
+include "Lib29F4A051_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: AWS Triggers
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib29F4A051_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Functions
+trigger auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_Trigger = null;
+unit auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_lp_swarmRemnantsCorpser;
+unit auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_lp_swarmRemnantsRoachling;
+
+void lib29F4A051_gf_CorpserLinkedRegenerationSetup (unit lp_swarmRemnantsCorpser, unit lp_swarmRemnantsRoachling) {
+    auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_lp_swarmRemnantsCorpser = lp_swarmRemnantsCorpser;
+    auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_lp_swarmRemnantsRoachling = lp_swarmRemnantsRoachling;
+
+    if (auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_Trigger == null) {
+        auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_Trigger = TriggerCreate("auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_TriggerFunc");
+    }
+
+    TriggerExecute(auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_Trigger, false, false);
+}
+
+bool auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_TriggerFunc (bool testConds, bool runActions) {
+    unit lp_swarmRemnantsCorpser = auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_lp_swarmRemnantsCorpser;
+    unit lp_swarmRemnantsRoachling = auto_lib29F4A051_gf_CorpserLinkedRegenerationSetup_lp_swarmRemnantsRoachling;
+
+    // Automatic Variable Declarations
+    // Implementation
+    while (((UnitIsAlive(lp_swarmRemnantsCorpser) == true) && (UnitIsAlive(lp_swarmRemnantsRoachling) == true))) {
+        if ((UnitHasBehavior2(lp_swarmRemnantsRoachling, "SwarmRemnantsRoachlingLinkedRegenerationDummyBehavior") == true)) {
+            UnitCreateEffectUnit(lp_swarmRemnantsRoachling, "SwarmRemnantsCorpserLinkedRegenerationModifyUnit", lp_swarmRemnantsCorpser);
+            UnitBehaviorRemove(lp_swarmRemnantsRoachling, "SwarmRemnantsRoachlingLinkedRegenerationDummyBehavior", 1);
+        }
+
+        Wait(0.05, c_timeGame);
+    }
+    return true;
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Ghost - Calldown: Chemical Bomb - Issue AI Order
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_GhostCalldownChemicalBombIssueAIOrder_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) != 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (((UnitGroupCount(UnitGroupSearch(null, EventUnitDamageSourcePlayer(), UnitGetPosition(EventUnit()), 8.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) >= 8) && (UnitGroupCount(UnitGroupSearch("GhostGC", EventUnitDamageSourcePlayer(), UnitGetPosition(EventUnitDamageSourceUnit()), 8.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) >= 1) && (UnitGroupCount(UnitGroupSearch(null, EventUnitDamageSourcePlayer(), UnitGetPosition(EventUnitDamageSourceUnit()), 8.0, UnitFilter(0, 0, (1 << c_targetFilterNeutral) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) >= 12))) {
+        TriggerEnable(TriggerGetCurrent(), false);
+        libNtve_gf_AICast(UnitGroupRandomUnit(UnitGroupSearch("GhostGC", EventUnitDamageSourcePlayer(), UnitGetPosition(EventUnitDamageSourceUnit()), 8.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive), OrderTargetingPoint(AbilityCommand("GreyhoundCorpsGhostCalldownChemicalBomb", 0), UnitGetPosition(EventUnitDamageSourceUnit())));
+        Wait(15.0, c_timeGame);
+        TriggerEnable(TriggerGetCurrent(), true);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_GhostCalldownChemicalBombIssueAIOrder_Init () {
+    lib29F4A051_gt_GhostCalldownChemicalBombIssueAIOrder = TriggerCreate("lib29F4A051_gt_GhostCalldownChemicalBombIssueAIOrder_Func");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_GhostCalldownChemicalBombIssueAIOrder, null, c_unitDamageTypeAny, c_unitDamageNonFatal, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Ghost - Calldown: Chemical Bomb - Create Indicator
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_GhostCalldownChemicalBombCreateIndicator_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    const int auto4E51C1E5_n = 17;
+    int auto4E51C1E5_i;
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventPlayerEffectUsedUnit(c_effectUnitCaster)) != 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateModelAtPoint("GhostNukeIndicator", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    ActorSend(libNtve_gf_ActorLastCreated(), "AnimPlay Stand Stand 0 -1.000000 -1.000000 8.650000 AsDuration");
+    for (auto4E51C1E5_i = 1; auto4E51C1E5_i <= auto4E51C1E5_n; auto4E51C1E5_i += 1) {
+        if ((UnitIsAlive(EventPlayerEffectUsedUnit(c_effectUnitCaster)) == true)) {
+            Wait(0.5, c_timeGame);
+        }
+        else {
+            libNtve_gf_KillModel(libNtve_gf_ActorLastCreated());
+        }
+    }
+    libNtve_gf_KillModel(libNtve_gf_ActorLastCreated());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_GhostCalldownChemicalBombCreateIndicator_Init () {
+    lib29F4A051_gt_GhostCalldownChemicalBombCreateIndicator = TriggerCreate("lib29F4A051_gt_GhostCalldownChemicalBombCreateIndicator_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_GhostCalldownChemicalBombCreateIndicator, c_playerAny, "GreyhoundCorpsGhostCalldownChemicalBombCreatePersistent");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Ascendant - Sacrifice - Gain Bonus Damage (Soulbending Augmentation)
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_AscendantSacrificeGainBonusDamageSoulbendingAugmentation_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_servantsofDaerolothAscendantSoulbendingAugmentationAcquiredEnergy;
+    fixed lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonus;
+    const fixed lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonusMultiplier = 0.0075;
+    const fixed lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonusMax = 1.5;
+    fixed lv_servantsofDaerolothAscendantSoulbendingAugmentationCasterEnergyMax;
+    const fixed lv_servantsofDaerolothAscendantSoulbendingAugmentationEnergyperHP = 2.0;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_servantsofDaerolothAscendantSoulbendingAugmentationCasterEnergyMax = UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitCaster), c_unitPropEnergyMax, c_unitPropCurrent);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_servantsofDaerolothAscendantSoulbendingAugmentationAcquiredEnergy = ((UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitTarget), c_unitPropLife, c_unitPropCurrent) - 1.0) * lv_servantsofDaerolothAscendantSoulbendingAugmentationEnergyperHP);
+    if ((lv_servantsofDaerolothAscendantSoulbendingAugmentationAcquiredEnergy > (lv_servantsofDaerolothAscendantSoulbendingAugmentationCasterEnergyMax - UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitCaster), c_unitPropEnergy, c_unitPropCurrent)))) {
+        lv_servantsofDaerolothAscendantSoulbendingAugmentationAcquiredEnergy = (lv_servantsofDaerolothAscendantSoulbendingAugmentationCasterEnergyMax - UnitGetPropertyFixed(EventPlayerEffectUsedUnit(c_effectUnitCaster), c_unitPropEnergy, c_unitPropCurrent));
+    }
+
+    lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonus = (lv_servantsofDaerolothAscendantSoulbendingAugmentationAcquiredEnergy * lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonusMultiplier);
+    if ((lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonus >= lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonusMax)) {
+        lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonus = lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonusMax;
+    }
+
+    UnitSetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 1, lv_servantsofDaerolothAscendantSoulbendingAugmentationDamageBonus);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_AscendantSacrificeGainBonusDamageSoulbendingAugmentation_Init () {
+    lib29F4A051_gt_AscendantSacrificeGainBonusDamageSoulbendingAugmentation = TriggerCreate("lib29F4A051_gt_AscendantSacrificeGainBonusDamageSoulbendingAugmentation_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_AscendantSacrificeGainBonusDamageSoulbendingAugmentation, c_playerAny, "ServantsofDaerolothAscendantSacrificeDummyEffectSoulbendingAugmentation");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Ascendant - Mind Blast - Bonus Damage (Soulbending Augmentation)
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_AscendantMindBlastBonusDamageSoulbendingAugmentation_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_servantsofDaerolothAscendantMindBlastBaseDamage;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_servantsofDaerolothAscendantMindBlastBaseDamage = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogEffect, "ServantsofDaerolothAscendantMindBlastDamage", "Amount", EventPlayer());
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 1) == 0.0)) {
+        CatalogFieldValueSet(c_gameCatalogEffect, "ServantsofDaerolothAscendantMindBlastDamage", "Amount", EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), FixedToString(lv_servantsofDaerolothAscendantMindBlastBaseDamage, c_fixedPrecisionAny));
+    }
+    else {
+        CatalogFieldValueSet(c_gameCatalogEffect, "ServantsofDaerolothAscendantMindBlastDamage", "Amount", EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), FixedToString((lv_servantsofDaerolothAscendantMindBlastBaseDamage + (lv_servantsofDaerolothAscendantMindBlastBaseDamage * UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 1))), c_fixedPrecisionAny));
+    }
+    UnitSetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 1, 0.0);
+    UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitCaster), "ServantsofDaerolothAscendantMindBlastDamage", EventPlayerEffectUsedUnit(c_effectUnitTarget));
+    CatalogFieldValueSet(c_gameCatalogEffect, "ServantsofDaerolothAscendantMindBlastDamage", "Amount", EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), FixedToString(lv_servantsofDaerolothAscendantMindBlastBaseDamage, c_fixedPrecisionAny));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_AscendantMindBlastBonusDamageSoulbendingAugmentation_Init () {
+    lib29F4A051_gt_AscendantMindBlastBonusDamageSoulbendingAugmentation = TriggerCreate("lib29F4A051_gt_AscendantMindBlastBonusDamageSoulbendingAugmentation_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_AscendantMindBlastBonusDamageSoulbendingAugmentation, c_playerAny, "ServantsofDaerolothAscendantMindBlastDummySoulbendingAugmentation");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Ascendant - Psionic Orb - Bonus Damage (Soulbending Augmentation)
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_AscendantPsionicOrbBonusDamageSoulbendingAugmentation_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_servantsofDaerolothAscendantPsionicOrbBaseDamage;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_servantsofDaerolothAscendantPsionicOrbBaseDamage = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogEffect, "ServantsofDaerolothAscendantPsionicOrbDamage", "Amount", EventPlayer());
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitSource), 1) == 0.0)) {
+        CatalogFieldValueSet(c_gameCatalogEffect, "ServantsofDaerolothAscendantPsionicOrbDamage", "Amount", EventPlayerEffectUsedUnitOwner(c_effectPlayerSource), FixedToString(lv_servantsofDaerolothAscendantPsionicOrbBaseDamage, c_fixedPrecisionAny));
+    }
+    else {
+        CatalogFieldValueSet(c_gameCatalogEffect, "ServantsofDaerolothAscendantPsionicOrbDamage", "Amount", EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), FixedToString((lv_servantsofDaerolothAscendantPsionicOrbBaseDamage + (lv_servantsofDaerolothAscendantPsionicOrbBaseDamage * UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitSource), 1))), c_fixedPrecisionAny));
+    }
+    UnitCreateEffectUnit(EventPlayerEffectUsedUnit(c_effectUnitSource), "ServantsofDaerolothAscendantPsionicOrbDamage", EventPlayerEffectUsedUnit(c_effectUnitTarget));
+    CatalogFieldValueSet(c_gameCatalogEffect, "ServantsofDaerolothAscendantPsionicOrbDamage", "Amount", EventPlayerEffectUsedUnitOwner(c_effectPlayerSource), FixedToString(lv_servantsofDaerolothAscendantPsionicOrbBaseDamage, c_fixedPrecisionAny));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_AscendantPsionicOrbBonusDamageSoulbendingAugmentation_Init () {
+    lib29F4A051_gt_AscendantPsionicOrbBonusDamageSoulbendingAugmentation = TriggerCreate("lib29F4A051_gt_AscendantPsionicOrbBonusDamageSoulbendingAugmentation_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_AscendantPsionicOrbBonusDamageSoulbendingAugmentation, c_playerAny, "ServantsofDaerolothAscendantPsionicOrbDummyDamageSoulbendingAugmentation");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Ascendant - Psionic Orb - Transfer Custom Value (Soulbending Augmentation)
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_AscendantPsionicOrbTransferCustomValueSoulbendingAugmentation_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitSetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitSource), 1, UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitTarget), 1));
+    UnitSetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitTarget), 1, 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_AscendantPsionicOrbTransferCustomValueSoulbendingAugmentation_Init () {
+    lib29F4A051_gt_AscendantPsionicOrbTransferCustomValueSoulbendingAugmentation = TriggerCreate("lib29F4A051_gt_AscendantPsionicOrbTransferCustomValueSoulbendingAugmentation_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_AscendantPsionicOrbTransferCustomValueSoulbendingAugmentation, c_playerAny, "ServantsofDaerolothAscendantPsionicOrbApplyBehavior");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Destroyer - Apply Damage (Unstable Shields)
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_DestroyerApplyDamageUnstableShields_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    const fixed lv_servantsofDaerolothDestroyerUnstableShieldsDamagePercentage = 0.35;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!(((UnitGetType(EventUnit()) == "DestroyerSoD") && (TechTreeUpgradeCount(EventPlayer(), "ServantsofDaerolothDestroyerUnstableShields", c_techCountCompleteOnly) == 1) && (UnitHasBehavior2(EventUnit(), "ServantsofDaerolothDestroyerUnstableShieldsCanReflectDamage") == true) && (UnitGetType(EventUnitDamageSourceUnit()) != "DestroyerSoD")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CatalogFieldValueSet(c_gameCatalogEffect, "ServantsofDaerolothDestroyerUnstableShieldsDamage", "Amount", EventPlayer(), FixedToString((EventUnitDamageAmount() * lv_servantsofDaerolothDestroyerUnstableShieldsDamagePercentage), c_fixedPrecisionAny));
+    CatalogFieldValueSet(c_gameCatalogEffect, "ServantsofDaerolothDestroyerUnstableShieldsDamageDestroyerOnly", "Amount", EventPlayer(), FixedToString((EventUnitDamageAmount() * lv_servantsofDaerolothDestroyerUnstableShieldsDamagePercentage), c_fixedPrecisionAny));
+    if ((UnitHasBehavior2(EventUnitDamageSourceUnit(), "ServantsofDaerolothDestroyerUnstableShieldsCanReflectDamage") == true)) {
+        UnitCreateEffectUnit(EventUnit(), "ServantsofDaerolothDestroyerUnstableShieldsDamageDestroyerOnly", EventUnitDamageSourceUnit());
+    }
+    else {
+        UnitCreateEffectUnit(EventUnit(), "ServantsofDaerolothDestroyerUnstableShieldsDamage", EventUnitDamageSourceUnit());
+    }
+    if ((UnitGetPropertyFixed(EventUnit(), c_unitPropShields, c_unitPropCurrent) == 0.0)) {
+        UnitBehaviorRemove(EventUnit(), "ServantsofDaerolothDestroyerUnstableShieldsCanReflectDamage", 1);
+        UnitBehaviorAddPlayer(EventUnit(), "ServantsofDaerolothDestroyerUnstableShieldsWaitingforShields", EventPlayer(), 1);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_DestroyerApplyDamageUnstableShields_Init () {
+    lib29F4A051_gt_DestroyerApplyDamageUnstableShields = TriggerCreate("lib29F4A051_gt_DestroyerApplyDamageUnstableShields_Func");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_DestroyerApplyDamageUnstableShields, null, c_unitDamageTypeAny, c_unitDamageEither, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Wrath of Daeroloth - Gain Blood Rage Stack
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_WrathofDaerolothGainBloodRageStack_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!(((UnitHasBehavior2(libNtve_gf_KillingUnit(), "ServantsofDaerolothAggression") == true) && (TechTreeUpgradeCount(libNtve_gf_KillingPlayer(), "ServantsofDaerolothWrathofDaeroloth", c_techCountCompleteOnly) == 1) && (UnitFilterMatch(libNtve_gf_KillingUnit(), EventPlayer(), UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)))) == true)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreateEffectUnit(EventUnit(), "ServantsofDaerolothAvengeLaunchMissile", libNtve_gf_KillingUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_WrathofDaerolothGainBloodRageStack_Init () {
+    lib29F4A051_gt_WrathofDaerolothGainBloodRageStack = TriggerCreate("lib29F4A051_gt_WrathofDaerolothGainBloodRageStack_Func");
+    TriggerAddEventUnitDied(lib29F4A051_gt_WrathofDaerolothGainBloodRageStack, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Corpser - Linked Regeneration - Spawn Roachlings
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_CorpserLinkedRegenerationSpawnRoachlings_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((TechTreeUpgradeCount(EventPlayer(), "SwarmRemnantsCorpserLinkedRegeneration", c_techCountCompleteOnly) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib29F4A051_gf_CorpserLinkedRegenerationSetup(EventPlayerEffectUsedUnit(c_effectUnitCaster), EventPlayerEffectUsedUnit(c_effectUnitTarget));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_CorpserLinkedRegenerationSpawnRoachlings_Init () {
+    lib29F4A051_gt_CorpserLinkedRegenerationSpawnRoachlings = TriggerCreate("lib29F4A051_gt_CorpserLinkedRegenerationSpawnRoachlings_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_CorpserLinkedRegenerationSpawnRoachlings, c_playerAny, "SwarmRemnantsCorpserLinkedRegenerationCasterDummyDamage");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hydralisk - Enhanced Evolution - Count Damage Dealt
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_HydraliskEnhancedEvolutionCountDamageDealt_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    const fixed lv_swarmRemnantsHydraliskEnhancedEvolutionMinimumDamageAmount = 300.0;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!(((UnitFilterMatch(EventPlayerEffectUsedUnit(c_effectUnitTarget), EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)))) == true) && (TechTreeUpgradeCount(EventPlayer(), "SwarmRemnantsHydraliskEnhancedEvolution", c_techCountCompleteOnly) == 1)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 2) < lv_swarmRemnantsHydraliskEnhancedEvolutionMinimumDamageAmount)) {
+        UnitSetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 2, (UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 2) + EventPlayerEffectUsedAmountFixed(c_effectAmountDamaged, true)));
+        if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 2) >= lv_swarmRemnantsHydraliskEnhancedEvolutionMinimumDamageAmount)) {
+            UnitBehaviorAddPlayer(EventPlayerEffectUsedUnit(c_effectUnitCaster), "SwarmRemnantsHydraliskEnhancedEvolution", EventPlayer(), 1);
+            UnitSetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 2, lv_swarmRemnantsHydraliskEnhancedEvolutionMinimumDamageAmount);
+        }
+
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_HydraliskEnhancedEvolutionCountDamageDealt_Init () {
+    lib29F4A051_gt_HydraliskEnhancedEvolutionCountDamageDealt = TriggerCreate("lib29F4A051_gt_HydraliskEnhancedEvolutionCountDamageDealt_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_HydraliskEnhancedEvolutionCountDamageDealt, c_playerAny, "SwarmRemnantsHydraliskNeedleSpinesDamage");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_HydraliskEnhancedEvolutionCountDamageDealt, c_playerAny, "SwarmRemnantsHydraliskMeleeAttackDamage");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Brood Lord - Genetic Vitality - Extend Lifetime Behavior
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_BroodLordGeneticVitalityExtendLifetimeBehavior_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorSetDurationRemaining(EventPlayerEffectUsedUnit(c_effectUnitTarget), "BroodlingFate", (UnitBehaviorDuration(EventPlayerEffectUsedUnit(c_effectUnitTarget), "BroodlingFate") + 1.0));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_BroodLordGeneticVitalityExtendLifetimeBehavior_Init () {
+    lib29F4A051_gt_BroodLordGeneticVitalityExtendLifetimeBehavior = TriggerCreate("lib29F4A051_gt_BroodLordGeneticVitalityExtendLifetimeBehavior_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_BroodLordGeneticVitalityExtendLifetimeBehavior, c_playerAny, "SwarmRemnantsBroodLordGeneticVitalityModifyUnit");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spider Mine - Repositioning Technology - Issue Unburrow
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_SpiderMineRepositioningTechnologyIssueUnburrow_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitIssueOrder(EventPlayerEffectUsedUnit(c_effectUnitCaster), Order(AbilityCommand("ForgedHandSpiderMineUnburrow", 0)), c_orderQueueReplace);
+    UnitBehaviorAddPlayer(EventPlayerEffectUsedUnit(c_effectUnitCaster), "ForgedHandSpiderMineUnabletoAttack", EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_SpiderMineRepositioningTechnologyIssueUnburrow_Init () {
+    lib29F4A051_gt_SpiderMineRepositioningTechnologyIssueUnburrow = TriggerCreate("lib29F4A051_gt_SpiderMineRepositioningTechnologyIssueUnburrow_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_SpiderMineRepositioningTechnologyIssueUnburrow, c_playerAny, "ForgedHandSpiderMineRepositioningTechnologyTeleport");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: High Templar - Burst of Lightning - Count Kills
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_HighTemplarBurstofLightningCountKills_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_descendantsofAiurHighTemplarBurstofLightningMaximumStackCount;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_descendantsofAiurHighTemplarBurstofLightningMaximumStackCount = 10.0;
+
+    // Conditions
+    if (testConds) {
+        if (!(((TechTreeUpgradeCount(EventUnitDamageSourcePlayer(), "DescendantsofAiurHighTemplarBurstofLightning", c_techCountCompleteOnly) == 1) && (UnitFilterMatch(EventUnitDamageSourceUnit(), EventPlayer(), UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)))) == true)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetCustomValue(EventUnitDamageSourceUnit(), 3) < lv_descendantsofAiurHighTemplarBurstofLightningMaximumStackCount)) {
+        UnitSetCustomValue(EventUnitDamageSourceUnit(), 3, (UnitGetCustomValue(EventUnitDamageSourceUnit(), 3) + 1.0));
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_HighTemplarBurstofLightningCountKills_Init () {
+    lib29F4A051_gt_HighTemplarBurstofLightningCountKills = TriggerCreate("lib29F4A051_gt_HighTemplarBurstofLightningCountKills_Func");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitial");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning1Stack");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning2Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning3Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning4Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning5Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning6Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning7Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning8Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning9Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageInitialBurstofLightning10Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamage");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning1Stack");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning2Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning3Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning4Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning5Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning6Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning7Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning8Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning9Stacks");
+    TriggerAddEventUnitDamaged(lib29F4A051_gt_HighTemplarBurstofLightningCountKills, null, c_unitDamageTypeAny, c_unitDamageFatal, "DescendantsofAiurHighTemplarPsionicStormDamageBurstofLightning10Stacks");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: High Templar - Burst of Lightning - Apply Damage Bonus
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_HighTemplarBurstofLightningApplyDamageBonus_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 0.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistent", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 1.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning1Stack", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 2.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning2Stacks", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 3.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning3Stacks", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 4.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning4Stacks", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 5.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning5Stacks", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 6.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning6Stacks", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 7.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning7Stacks", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 8.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning8Stacks", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 9.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning9Stacks", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    if ((UnitGetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3) == 10.0)) {
+        UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "DescendantsofAiurHighTemplarPsionicStormCreatePersistentBurstofLightning10Stacks", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+
+    UnitSetCustomValue(EventPlayerEffectUsedUnit(c_effectUnitCaster), 3, 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_HighTemplarBurstofLightningApplyDamageBonus_Init () {
+    lib29F4A051_gt_HighTemplarBurstofLightningApplyDamageBonus = TriggerCreate("lib29F4A051_gt_HighTemplarBurstofLightningApplyDamageBonus_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_HighTemplarBurstofLightningApplyDamageBonus, c_playerAny, "DescendantsofAiurHighTemplarPsionicStormDummyCreatePersistentBurstofLightning");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Immortal - Reabsorption - Count Damage Taken
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_ImmortalReabsorptionCountDamageTaken_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    const fixed lv_descendantsofAiurImmortalReabsorptionMaximumDamageAbsorbtion = 100.0;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!(((TechTreeUpgradeCount(EventPlayer(), "DescendantsofAiurImmortalReabsorption", c_techCountCompleteOnly) == 1) && (UnitGetType(EventUnit()) == "ImmortalDoA")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetCustomValue(EventUnit(), 4) < lv_descendantsofAiurImmortalReabsorptionMaximumDamageAbsorbtion)) {
+        UnitSetCustomValue(EventUnit(), 4, (UnitGetCustomValue(EventUnit(), 4) + EventUnitDamageAbsorbed()));
+        if ((UnitGetCustomValue(EventUnit(), 4) >= lv_descendantsofAiurImmortalReabsorptionMaximumDamageAbsorbtion)) {
+            UnitSetCustomValue(EventUnit(), 4, lv_descendantsofAiurImmortalReabsorptionMaximumDamageAbsorbtion);
+        }
+
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_ImmortalReabsorptionCountDamageTaken_Init () {
+    lib29F4A051_gt_ImmortalReabsorptionCountDamageTaken = TriggerCreate("lib29F4A051_gt_ImmortalReabsorptionCountDamageTaken_Func");
+    TriggerAddEventUnitDamageAbsorbed(lib29F4A051_gt_ImmortalReabsorptionCountDamageTaken, null, "DescendantsofAiurImmortalBarrier");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Immortal - Reabsorption - Restore Shields
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_ImmortalReabsorptionRestoreShields_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!(((TechTreeUpgradeCount(EventPlayer(), "DescendantsofAiurImmortalReabsorption", c_techCountCompleteOnly) == 1) && (UnitGetType(EventUnit()) == "ImmortalDoA")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetCustomValue(EventUnit(), 4) >= 1.0)) {
+        UnitCreateEffectUnit(EventUnit(), "DescendantsofAiurImmortalReabsorptionDummyDamage", EventUnit());
+        UnitSetPropertyFixed(EventUnit(), c_unitPropShields, (UnitGetPropertyFixed(EventUnit(), c_unitPropShields, c_unitPropCurrent) + UnitGetCustomValue(EventUnit(), 4)));
+        UnitSetCustomValue(EventUnit(), 4, 0.0);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_ImmortalReabsorptionRestoreShields_Init () {
+    lib29F4A051_gt_ImmortalReabsorptionRestoreShields = TriggerCreate("lib29F4A051_gt_ImmortalReabsorptionRestoreShields_Func");
+    TriggerAddEventUnitBehaviorChange(lib29F4A051_gt_ImmortalReabsorptionRestoreShields, null, "DescendantsofAiurImmortalBarrier", c_unitBehaviorChangeDestroy);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Immortal - Gravimetric Overload - Count Damage Taken
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_ImmortalGravimetricOverloadCountDamageTaken_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    const fixed lv_descendantsofAiurImmortalGravimetricOverloadMaximumDamageAbsorbtion = 100.0;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!(((TechTreeUpgradeCount(EventPlayer(), "DescendantsofAiurImmortalGravimetricOverload", c_techCountCompleteOnly) == 1) && (UnitGetType(EventUnit()) == "ImmortalDoA")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetCustomValue(EventUnit(), 5) < lv_descendantsofAiurImmortalGravimetricOverloadMaximumDamageAbsorbtion)) {
+        UnitSetCustomValue(EventUnit(), 5, (UnitGetCustomValue(EventUnit(), 5) + EventUnitDamageAbsorbed()));
+        if ((UnitGetCustomValue(EventUnit(), 5) >= lv_descendantsofAiurImmortalGravimetricOverloadMaximumDamageAbsorbtion)) {
+            UnitSetCustomValue(EventUnit(), 5, lv_descendantsofAiurImmortalGravimetricOverloadMaximumDamageAbsorbtion);
+        }
+
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_ImmortalGravimetricOverloadCountDamageTaken_Init () {
+    lib29F4A051_gt_ImmortalGravimetricOverloadCountDamageTaken = TriggerCreate("lib29F4A051_gt_ImmortalGravimetricOverloadCountDamageTaken_Func");
+    TriggerAddEventUnitDamageAbsorbed(lib29F4A051_gt_ImmortalGravimetricOverloadCountDamageTaken, null, "DescendantsofAiurImmortalBarrier");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Immortal - Gravimetric Overload - Apply Damage
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_ImmortalGravimetricOverloadApplyDamage_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!(((TechTreeUpgradeCount(EventPlayer(), "DescendantsofAiurImmortalGravimetricOverload", c_techCountCompleteOnly) == 1) && (UnitGetType(EventUnit()) == "ImmortalDoA")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetCustomValue(EventUnit(), 5) >= 2.0)) {
+        CatalogFieldValueSet(c_gameCatalogEffect, "DescendantsofAiurImmortalGravimetricOverloadDamage", "Amount", EventPlayer(), FixedToString((UnitGetCustomValue(EventUnit(), 5) / 2.0), c_fixedPrecisionAny));
+        UnitCreateEffectPoint(EventUnit(), "DescendantsofAiurImmortalGravimetricOverloadSearchArea", UnitGetPosition(EventUnit()));
+        CatalogFieldValueSet(c_gameCatalogEffect, "DescendantsofAiurImmortalGravimetricOverloadDamage", "Amount", EventPlayer(), "0");
+        UnitSetCustomValue(EventUnit(), 5, 0.0);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_ImmortalGravimetricOverloadApplyDamage_Init () {
+    lib29F4A051_gt_ImmortalGravimetricOverloadApplyDamage = TriggerCreate("lib29F4A051_gt_ImmortalGravimetricOverloadApplyDamage_Func");
+    TriggerAddEventUnitBehaviorChange(lib29F4A051_gt_ImmortalGravimetricOverloadApplyDamage, null, "DescendantsofAiurImmortalBarrier", c_unitBehaviorChangeDestroy);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Ultralisk - Chitinous Plating - Modify Spell Damage Based on Health
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_UltraliskChitinousPlatingModifySpellDamageBasedonHealth_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_theRavagersUltraliskChitinousPlatingSpellDamageBasedonHealthPercentage;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_theRavagersUltraliskChitinousPlatingSpellDamageBasedonHealthPercentage = (EventUnitDamageAbsorbed() * (UnitGetPropertyFixed(EventUnit(), c_unitPropLifePercent, c_unitPropCurrent) / 100.0));
+
+    // Conditions
+    if (testConds) {
+        if (!(((TechTreeUpgradeCount(EventPlayer(), "TheRavagersUltraliskChitinousPlating", c_techCountCompleteOnly) == 1) && (UnitGetType(EventUnit()) == "UltraliskTR")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CatalogFieldValueSet(c_gameCatalogEffect, "TheRavagersUltraliskChitinousPlatingDummyDamage", "Amount", EventUnitDamageSourcePlayer(), FixedToString(lv_theRavagersUltraliskChitinousPlatingSpellDamageBasedonHealthPercentage, c_fixedPrecisionAny));
+    UnitCreateEffectUnit(EventUnitDamageSourceUnit(), "TheRavagersUltraliskChitinousPlatingDummyDamage", EventUnit());
+    CatalogFieldValueSet(c_gameCatalogEffect, "TheRavagersUltraliskChitinousPlatingDummyDamage", "Amount", EventUnitDamageSourcePlayer(), "0");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_UltraliskChitinousPlatingModifySpellDamageBasedonHealth_Init () {
+    lib29F4A051_gt_UltraliskChitinousPlatingModifySpellDamageBasedonHealth = TriggerCreate("lib29F4A051_gt_UltraliskChitinousPlatingModifySpellDamageBasedonHealth_Func");
+    TriggerAddEventUnitDamageAbsorbed(lib29F4A051_gt_UltraliskChitinousPlatingModifySpellDamageBasedonHealth, null, "TheRavagersUltraliskChitinousPlating");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Centurion - Evasive Maneuvers - Reduce Behavior Cooldown
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_gt_CenturionEvasiveManeuversReduceBehaviorCooldown_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitBehaviorSetDurationRemaining(EventPlayerEffectUsedUnit(c_effectUnitCaster), "ShadowHuntersCenturionEvasiveManeuversCooldown", (UnitBehaviorDuration(EventPlayerEffectUsedUnit(c_effectUnitCaster), "ShadowHuntersCenturionEvasiveManeuversCooldown") - 0.5));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29F4A051_gt_CenturionEvasiveManeuversReduceBehaviorCooldown_Init () {
+    lib29F4A051_gt_CenturionEvasiveManeuversReduceBehaviorCooldown = TriggerCreate("lib29F4A051_gt_CenturionEvasiveManeuversReduceBehaviorCooldown_Func");
+    TriggerAddEventPlayerEffectUsed(lib29F4A051_gt_CenturionEvasiveManeuversReduceBehaviorCooldown, c_playerAny, "ShadowHuntersCenturionEvasiveManeuversDummyDamage");
+}
+
+void lib29F4A051_InitTriggers () {
+    lib29F4A051_gt_GhostCalldownChemicalBombIssueAIOrder_Init();
+    lib29F4A051_gt_GhostCalldownChemicalBombCreateIndicator_Init();
+    lib29F4A051_gt_AscendantSacrificeGainBonusDamageSoulbendingAugmentation_Init();
+    lib29F4A051_gt_AscendantMindBlastBonusDamageSoulbendingAugmentation_Init();
+    lib29F4A051_gt_AscendantPsionicOrbBonusDamageSoulbendingAugmentation_Init();
+    lib29F4A051_gt_AscendantPsionicOrbTransferCustomValueSoulbendingAugmentation_Init();
+    lib29F4A051_gt_DestroyerApplyDamageUnstableShields_Init();
+    lib29F4A051_gt_WrathofDaerolothGainBloodRageStack_Init();
+    lib29F4A051_gt_CorpserLinkedRegenerationSpawnRoachlings_Init();
+    lib29F4A051_gt_HydraliskEnhancedEvolutionCountDamageDealt_Init();
+    lib29F4A051_gt_BroodLordGeneticVitalityExtendLifetimeBehavior_Init();
+    lib29F4A051_gt_SpiderMineRepositioningTechnologyIssueUnburrow_Init();
+    lib29F4A051_gt_HighTemplarBurstofLightningCountKills_Init();
+    lib29F4A051_gt_HighTemplarBurstofLightningApplyDamageBonus_Init();
+    lib29F4A051_gt_ImmortalReabsorptionCountDamageTaken_Init();
+    lib29F4A051_gt_ImmortalReabsorptionRestoreShields_Init();
+    lib29F4A051_gt_ImmortalGravimetricOverloadCountDamageTaken_Init();
+    lib29F4A051_gt_ImmortalGravimetricOverloadApplyDamage_Init();
+    lib29F4A051_gt_UltraliskChitinousPlatingModifySpellDamageBasedonHealth_Init();
+    lib29F4A051_gt_CenturionEvasiveManeuversReduceBehaviorCooldown_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib29F4A051_InitLib_completed = false;
+
+void lib29F4A051_InitLib () {
+    if (lib29F4A051_InitLib_completed) {
+        return;
+    }
+
+    lib29F4A051_InitLib_completed = true;
+
+    lib29F4A051_InitLibraries();
+    lib29F4A051_InitTriggers();
+}
+

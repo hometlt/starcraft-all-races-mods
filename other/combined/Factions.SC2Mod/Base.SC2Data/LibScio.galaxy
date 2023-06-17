@@ -1,0 +1,135 @@
+include "TriggerLibs/NativeLib"
+
+include "LibScio_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: FACTIONS - Scion
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libScio_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize Genetron Race
+//--------------------------------------------------------------------------------------------------
+bool libScio_gt_InitializeGenetronRace_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    playergroup lv_players;
+    int lv_genetron_energy_panel_ui;
+    int lv_genetron_energy_current_ui;
+    int lv_genetron_energy_max_ui;
+    int lv_genetron_energy_label_ui;
+    unit[17] lv_genetron_power_dummies;
+
+    // Automatic Variable Declarations
+    playergroup auto22B9A134_g;
+    int auto22B9A134_var;
+    playergroup autoCB6C11DC_g;
+    int autoCB6C11DC_var;
+    playergroup auto3C5077DB_g;
+    int auto3C5077DB_var;
+    const int autoFAB218D6_n = 16;
+    int autoFAB218D6_i;
+    playergroup auto4A7A7230_g;
+    int auto4A7A7230_var;
+
+    // Variable Initialization
+    lv_players = PlayerGroupEmpty();
+    lv_genetron_energy_panel_ui = c_invalidDialogControlId;
+    lv_genetron_energy_current_ui = c_invalidDialogControlId;
+    lv_genetron_energy_max_ui = c_invalidDialogControlId;
+    lv_genetron_energy_label_ui = c_invalidDialogControlId;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto22B9A134_g = PlayerGroupAll();
+    auto22B9A134_var = -1;
+    while (true) {
+        auto22B9A134_var = PlayerGroupNextPlayer(auto22B9A134_g, auto22B9A134_var);
+        if (auto22B9A134_var < 0) { break; }
+        if ((TechTreeUnitCount(auto22B9A134_var, "GenetronPowerSupplyDummy", c_techCountCompleteOnly) == 0)) {
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, "GenetronPowerSupplyDummy", 0, auto22B9A134_var, Point(0.0, 0.0));
+            lv_genetron_power_dummies[auto22B9A134_var] = UnitLastCreated();
+        }
+        else {
+            lv_genetron_power_dummies[auto22B9A134_var] = UnitGroupUnit(UnitGroup("GenetronPowerSupplyDummy", auto22B9A134_var, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), 1);
+        }
+    }
+    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/GenetronEnergyPanel");
+    lv_genetron_energy_panel_ui = DialogControlLastCreated();
+    DialogControlHookupStandard(c_triggerControlTypeCountdownLabel, "UIContainer/FullscreenUpperContainer/GenetronEnergyPanel/EnergyCurrent");
+    lv_genetron_energy_current_ui = DialogControlLastCreated();
+    DialogControlHookupStandard(c_triggerControlTypeCountdownLabel, "UIContainer/FullscreenUpperContainer/GenetronEnergyPanel/EnergyMax");
+    lv_genetron_energy_max_ui = DialogControlLastCreated();
+    DialogControlHookupStandard(c_triggerControlTypeCountdownLabel, "UIContainer/FullscreenUpperContainer/GenetronEnergyPanel/EnergyLabel");
+    lv_genetron_energy_label_ui = DialogControlLastCreated();
+    autoCB6C11DC_g = PlayerGroupAll();
+    autoCB6C11DC_var = -1;
+    while (true) {
+        autoCB6C11DC_var = PlayerGroupNextPlayer(autoCB6C11DC_g, autoCB6C11DC_var);
+        if (autoCB6C11DC_var < 0) { break; }
+        if ((PlayerType(autoCB6C11DC_var) == c_playerTypeUser)) {
+            PlayerGroupAdd(lv_players, autoCB6C11DC_var);
+        }
+
+    }
+    Wait(0.0625, c_timeGame);
+    while (true) {
+        auto3C5077DB_g = lv_players;
+        auto3C5077DB_var = -1;
+        while (true) {
+            auto3C5077DB_var = PlayerGroupNextPlayer(auto3C5077DB_g, auto3C5077DB_var);
+            if (auto3C5077DB_var < 0) { break; }
+            if ((UnitGetPropertyFixed(lv_genetron_power_dummies[auto3C5077DB_var], c_unitPropEnergyMax, c_unitPropCurrent) > 0.0)) {
+                libNtve_gf_SetDialogItemTooltip(lv_genetron_energy_label_ui, (StringExternal("Param/Value/lib_Scio_E5935B94") + (IntToText(TechTreeUnitCount(auto3C5077DB_var, "Node", c_techCountCompleteOnly)) + (StringExternal("Param/Value/lib_Scio_D1BCF012") + (StringExternal("Param/Value/lib_Scio_D09B5ED6") + IntToText(TechTreeUnitCount(auto3C5077DB_var, "Generator", c_techCountCompleteOnly)))))), PlayerGroupAll());
+                DialogControlSetVisible(lv_genetron_energy_panel_ui, PlayerGroupSingle(auto3C5077DB_var), true);
+            }
+            else {
+                DialogControlSetVisible(lv_genetron_energy_panel_ui, PlayerGroupSingle(auto3C5077DB_var), false);
+            }
+        }
+        for (autoFAB218D6_i = 1; autoFAB218D6_i <= autoFAB218D6_n; autoFAB218D6_i += 1) {
+            auto4A7A7230_g = lv_players;
+            auto4A7A7230_var = -1;
+            while (true) {
+                auto4A7A7230_var = PlayerGroupNextPlayer(auto4A7A7230_g, auto4A7A7230_var);
+                if (auto4A7A7230_var < 0) { break; }
+                libNtve_gf_SetDialogItemCurrentValue(lv_genetron_energy_max_ui, UnitGetPropertyFixed(lv_genetron_power_dummies[auto4A7A7230_var], c_unitPropEnergyMax, c_unitPropCurrent), PlayerGroupSingle(auto4A7A7230_var));
+                libNtve_gf_SetDialogItemCurrentValue(lv_genetron_energy_current_ui, UnitGetPropertyFixed(lv_genetron_power_dummies[auto4A7A7230_var], c_unitPropEnergy, c_unitPropCurrent), PlayerGroupSingle(auto4A7A7230_var));
+            }
+            Wait(0.0625, c_timeGame);
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libScio_gt_InitializeGenetronRace_Init () {
+    libScio_gt_InitializeGenetronRace = TriggerCreate("libScio_gt_InitializeGenetronRace_Func");
+}
+
+void libScio_InitTriggers () {
+    libScio_gt_InitializeGenetronRace_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libScio_InitLib_completed = false;
+
+void libScio_InitLib () {
+    if (libScio_InitLib_completed) {
+        return;
+    }
+
+    libScio_InitLib_completed = true;
+
+    libScio_InitLibraries();
+    libScio_InitTriggers();
+}
+
