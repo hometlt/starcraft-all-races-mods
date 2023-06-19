@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectApplyBehavior id="AbathurMendAB2">
+        <ValidatorArray index="0" value="TargetIsNotNonCommanderAlly"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="MAegisUlt"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="AbathurMendSearch2">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Neutral,Enemy,Missile,Destructible,Item,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="500" Effect="AbathurMendAB2"/>
+        <AreaArray Radius="500" Effect="AbathurMendAB2"/>
+    </CEffectEnumArea>
+    <CEffectTeleport id="AegisHeroRelocate">
+        <EditorCategories value="Race:Keiron"/>
+        <WhichUnit Value="Caster"/>
+        <ClearQueuedOrders value="0"/>
+        <MinDistance value="0"/>
+        <PlacementArc value="360"/>
+        <TargetLocation Value="TargetPoint"/>
+        <TeleportEffect value="AegisShieldAuraKBCP"/>
+    </CEffectTeleport>
+    <CEffectEnumArea id="AegisShieldAuraKBSA">
+        <SearchFilters value="-;Player,Ally,Structure,User1,Missile,Buried,Stasis,Dead,Hidden,Invulnerable,MapBoss"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="AegisShieldAuraKBTarget">
+        <ValidatorArray value="NotMapBoss"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="AegisShieldOvercharge">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="AegisDiscordZoneDebuff" parent="CEffectApplyBehaviorKeironTarget">
+        <ValidatorArray index="0" value="NotFrenzied"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="AegisDiscordZoneDebuffMissile" parent="CEffectApplyBehaviorKeironTarget"/>
+    <CEffectApplyBehavior id="AegisDiscordZoneDebuffStructure" parent="CEffectApplyBehaviorKeironTarget"/>
+    <CEffectEnumArea id="AegisDiscordZoneSA" parent="CEffectSearchAreaKeiron">
+        <SearchFilters value="-;Player,Ally,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="18" Effect="AegisDiscordZoneSwitch"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="AegisDiscordZoneSwitch">
+        <ValidatorArray value="NotDummyUnit"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <EditorCategories value="Race:Keiron"/>
+        <CaseArray Validator="IsMissile" Effect="AegisDiscordZoneDebuffMissile"/>
+        <CaseArray Validator="IsStructure" Effect="AegisDiscordZoneDebuffStructure"/>
+        <CaseDefault value="AegisDiscordZoneDebuff"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="AegisSlow">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Source"/>
+        <Behavior value="AegisDiscordZoneRadius"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="AegisGyrePrisonDuration">
+        <EditorCategories value="Race:Keiron"/>
+        <InitialEffect value="GyrePrisonChannelApplyBehavior"/>
+        <FinalEffect value="GyrePrisonChannelRemoveBehavior"/>
+        <PeriodCount value="100"/>
+        <PeriodicEffectArray value="GyrePrisonSearch"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <Flags index="Channeling" value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="MeneltorAegisSummonSet">
+        <ValidatorArray value="HasVision"/>
+        <EditorCategories value=""/>
+        <EffectArray value="MeneltorSummonAegis"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="MeneltorSummonAegis">
+        <ValidatorArray value="HasVision"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="SelectControlGroups" value="1"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnUnit value="Aegis"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="KeiAegisShield">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="aegisdefmatrix"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="KeironAegisShield">
+        <ValidatorArray value="NotUnrepairable"/>
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="KeiAegisShield"/>
+    </CEffectSet>
+    <CEffectEnumArea id="MassTPSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactLocation Value="SourcePoint"/>
+        <SearchFilters value="Invulnerable;Self,Neutral,Enemy,Structure,User1,Worker,Missile,Item,Dead,Hidden"/>
+        <AreaArray Radius="12" Effect="MassTPTeleport"/>
+        <ValidatorArray value="CasterIsAegisShielded"/>
+    </CEffectEnumArea>
+    <CEffectSet id="MassTPSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="MassTPSearch"/>
+        <EffectArray value="AegisHeroRelocate"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectTeleport id="MassTPTeleport">
+        <EditorCategories value="Race:Protoss"/>
+        <PlacementArc value="360"/>
+        <PlacementAround Effect="MassTPSearch"/>
+        <PlacementRange value="15"/>
+        <SourceLocation Effect="MassTPSearch" Value="CasterPoint"/>
+        <TargetLocation Effect="MassTPSearch" Value="TargetPoint"/>
+        <TeleportFlags index="TestFog" value="0"/>
+    </CEffectTeleport>
+    <CEffectTeleport id="MassTPTeleportSelf">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichUnit Value="Caster"/>
+        <PlacementArc value="360"/>
+        <PlacementRange value="0"/>
+        <TargetLocation Value="TargetUnitOrPoint"/>
+        <TeleportFlags index="TestFog" value="0"/>
+        <ClearQueuedOrders value="0"/>
+        <TeleportEffect value="AegisHeroRelocate"/>
+    </CEffectTeleport>
+</Catalog>

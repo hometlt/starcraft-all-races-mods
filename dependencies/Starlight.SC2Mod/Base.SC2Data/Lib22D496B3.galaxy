@@ -1,0 +1,340 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+
+include "Lib22D496B3_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Party Frame
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib22D496B3_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+}
+
+// Variable Initialization
+bool lib22D496B3_InitVariables_completed = false;
+
+void lib22D496B3_InitVariables () {
+    int init_i;
+    int init_j;
+
+    if (lib22D496B3_InitVariables_completed) {
+        return;
+    }
+
+    lib22D496B3_InitVariables_completed = true;
+
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lib22D496B3_gv_partyFrame[init_i] = c_invalidDialogId;
+    }
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        for (init_j = 0; init_j <= 2; init_j += 1) {
+            lib22D496B3_gv_partyFrameBorder[init_i][init_j] = c_invalidDialogControlId;
+        }
+    }
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lib22D496B3_gv_partyFrameIcon[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lib22D496B3_gv_partyFrameLabel[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lib22D496B3_gv_partyFrameTooltip[init_i] = c_invalidDialogControlId;
+    }
+    lib22D496B3_gv_partyFrameCreated = PlayerGroupEmpty();
+    lib22D496B3_gv_partyFrameActive = PlayerGroupEmpty();
+}
+
+// Functions
+void lib22D496B3_gf_PartyFrame (int lp_player) {
+    // Variable Declarations
+    const int lv_colorMinimum = 20;
+    const fixed lv_colorMultiplier = 1.2;
+    color lv_color;
+    const int lv_height = 30;
+    const int lv_width = 80;
+    int lv_scoreIcon;
+    int lv_raceIcon;
+    int lv_border;
+
+    // Automatic Variable Declarations
+    string autoB5FEFFCC_val;
+
+    // Variable Initialization
+    lv_color = Color(libNtve_gf_ArithmeticRealClamp((ColorGetComponent(libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false)), c_colorComponentRed) * lv_colorMultiplier), lv_colorMinimum, 100.0), libNtve_gf_ArithmeticRealClamp((ColorGetComponent(libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false)), c_colorComponentGreen) * lv_colorMultiplier), lv_colorMinimum, 100.0), libNtve_gf_ArithmeticRealClamp((ColorGetComponent(libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false)), c_colorComponentBlue) * lv_colorMultiplier), lv_colorMinimum, 100.0));
+    lv_scoreIcon = c_invalidDialogControlId;
+    lv_raceIcon = c_invalidDialogControlId;
+    lv_border = c_invalidDialogControlId;
+
+    // Implementation
+    if ((PlayerGroupHasPlayer(lib22D496B3_gv_partyFrameCreated, lp_player) == false)) {
+        lib22D496B3_gv_created = true;
+        TriggerEnable(lib22D496B3_gt_Leaver, true);
+        PlayerGroupAdd(lib22D496B3_gv_partyFrameCreated, lp_player);
+        DialogCreate(1500, 1000, c_anchorTopRight, 0, 0, true);
+        lib22D496B3_gv_partyFrame[lp_player] = DialogLastCreated();
+        DialogSetImageVisible(DialogLastCreated(), false);
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), (lv_width + 32), (lv_height + 32), c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_blackborderframe.dds", c_triggerImageTypeNineSlice, false, Color(100,100,100), c_triggerBlendModeNormal);
+        lv_border = DialogControlLastCreated();
+        lib22D496B3_gv_partyFrameBorder[lp_player][0] = DialogControlLastCreated();
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), lv_width, lv_height, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\white.dds", c_triggerImageTypeNormal, false, Color(0,0,0), c_triggerBlendModeNormal);
+        lib22D496B3_gv_partyFrameBorder[lp_player][2] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_border, c_anchorCenter, 0, 0);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 600, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemButton(DialogLastCreated(), lv_width, lv_height, c_anchorCenter, 0, 0, StringToText(""), StringToText(""), "");
+        lib22D496B3_gv_partyFrameTooltip[lp_player] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_border, c_anchorCenter, 0, 0);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 710, PlayerGroupAll());
+        libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\black.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_partyframe_buttonglow.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_color, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), (lv_width + 32), (lv_height + 32), c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_whiteborderframe.dds", c_triggerImageTypeNineSlice, false, Color(libNtve_gf_ArithmeticRealClamp((ColorGetComponent(libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false)), c_colorComponentRed) * lv_colorMultiplier), lv_colorMinimum, 100.0), libNtve_gf_ArithmeticRealClamp((ColorGetComponent(libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false)), c_colorComponentGreen) * lv_colorMultiplier), lv_colorMinimum, 100.0), libNtve_gf_ArithmeticRealClamp((ColorGetComponent(libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false)), c_colorComponentBlue) * lv_colorMultiplier), lv_colorMinimum, 100.0)), c_triggerBlendModeNormal);
+        lib22D496B3_gv_partyFrameBorder[lp_player][1] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_border, c_anchorCenter, 0, 0);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 720, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 36, 36, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\btn-ability-protoss-gather.dds", c_triggerImageTypeNormal, false, lv_color, c_triggerBlendModeNormal);
+        lv_scoreIcon = DialogControlLastCreated();
+        lib22D496B3_gv_partyFrameIcon[lp_player] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorBottomLeft, lv_border, c_anchorBottomLeft, 16, -16);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 690, PlayerGroupAll());
+        autoB5FEFFCC_val = PlayerRace(lp_player);
+        if (autoB5FEFFCC_val == "Terr") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-ability-terran-gather.dds", PlayerGroupAll());
+        }
+        else if (autoB5FEFFCC_val == "Zerg") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-ability-zerg-gather.dds", PlayerGroupAll());
+        }
+        else if (autoB5FEFFCC_val == "Prot") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-ability-protoss-gather.dds", PlayerGroupAll());
+        }
+        else if (autoB5FEFFCC_val == "Keir") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-ability-protoss-gather.dds", PlayerGroupAll());
+        }
+        else {
+        }
+        libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 200, 100, c_anchorCenter, 0, 0, (StringToText("<s val=\"PartyFrame_Score\"></c>") + IntToText(252)), ColorWithAlpha(0,0,0,0), false, 2.0);
+        lib22D496B3_gv_partyFrameLabel[lp_player] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorBottomRight, lv_border, c_anchorBottomRight, -15, -13);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 720, PlayerGroupAll());
+        lib22D496B3_gf_PartyFrameTooltip(lp_player);
+    }
+
+}
+
+void lib22D496B3_gf_PartyFrameTooltip (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    libNtve_gf_SetDialogItemTooltip(lib22D496B3_gv_partyFrameTooltip[lp_player], (StringToText("<s val=\"StandardTooltipHeader\"></c>") + PlayerName(lp_player) + StringToText("</s><n/><n/>") + StringExternal("UI/Minerals")), PlayerGroupAll());
+    libNtve_gf_SetDialogItemTooltip(lib22D496B3_gv_partyFrameTooltip[lp_player], (StringToText("<s val=\"StandardTooltipHeader\"></c>") + PlayerName(lp_player) + StringToText("</s><n/><n/>") + StringExternal("UI/Minerals")), PlayerGroupSingle(lp_player));
+}
+
+void lib22D496B3_gf_PartyFrameCreateForPlayer (int lp_player) {
+    // Variable Declarations
+    int lv_i;
+    playergroup lv_apply;
+
+    // Automatic Variable Declarations
+    playergroup autoA05F4C98_g;
+    int autoA05F4C98_var;
+    playergroup autoDC2A0DAF_g;
+    int autoDC2A0DAF_var;
+    playergroup autoB2025D81_g;
+    int autoB2025D81_var;
+    playergroup auto4E6F191F_g;
+    int auto4E6F191F_var;
+    int autoF6D57E16_ae;
+    const int autoF6D57E16_ai = 1;
+
+    // Variable Initialization
+    lv_apply = PlayerGroupEmpty();
+
+    // Implementation
+    PlayerGroupAdd(lib22D496B3_gv_partyFrameActive, lp_player);
+    libNtve_gf_AddPlayerGroupToPlayerGroup(libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Ally, lp_player), lv_apply);
+    if ((PlayerGroupHasPlayer(lv_apply, lp_player) == true)) {
+        PlayerGroupRemove(lv_apply, lp_player);
+    }
+
+    autoA05F4C98_g = lv_apply;
+    autoA05F4C98_var = -1;
+    while (true) {
+        autoA05F4C98_var = PlayerGroupNextPlayer(autoA05F4C98_g, autoA05F4C98_var);
+        if (autoA05F4C98_var < 0) { break; }
+        if ((TechTreeUpgradeCount(autoA05F4C98_var, "PartyFrameHide", c_techCountCompleteOnly) >= 1)) {
+            PlayerGroupRemove(lv_apply, autoA05F4C98_var);
+        }
+
+    }
+    autoDC2A0DAF_g = lv_apply;
+    autoDC2A0DAF_var = -1;
+    while (true) {
+        autoDC2A0DAF_var = PlayerGroupNextPlayer(autoDC2A0DAF_g, autoDC2A0DAF_var);
+        if (autoDC2A0DAF_var < 0) { break; }
+        lib22D496B3_gf_PartyFrame(autoDC2A0DAF_var);
+    }
+    autoB2025D81_g = lib22D496B3_gv_partyFrameCreated;
+    autoB2025D81_var = -1;
+    while (true) {
+        autoB2025D81_var = PlayerGroupNextPlayer(autoB2025D81_g, autoB2025D81_var);
+        if (autoB2025D81_var < 0) { break; }
+        DialogSetVisible(lib22D496B3_gv_partyFrame[autoB2025D81_var], PlayerGroupSingle(lp_player), false);
+    }
+    auto4E6F191F_g = lv_apply;
+    auto4E6F191F_var = -1;
+    while (true) {
+        auto4E6F191F_var = PlayerGroupNextPlayer(auto4E6F191F_g, auto4E6F191F_var);
+        if (auto4E6F191F_var < 0) { break; }
+        DialogSetVisible(lib22D496B3_gv_partyFrame[auto4E6F191F_var], PlayerGroupSingle(lp_player), true);
+    }
+    autoF6D57E16_ae = PlayerGroupCount(lv_apply);
+    lv_i = 1;
+    for ( ; ( (autoF6D57E16_ai >= 0 && lv_i <= autoF6D57E16_ae) || (autoF6D57E16_ai < 0 && lv_i >= autoF6D57E16_ae) ) ; lv_i += autoF6D57E16_ai ) {
+        DialogControlSetPosition(lib22D496B3_gv_partyFrameBorder[PlayerGroupPlayer(lv_apply, lv_i)][0], PlayerGroupSingle(lp_player), c_anchorTopRight, ((-6 + (PlayerGroupCount(lv_apply) * 96)) - (lv_i * 96)), 80);
+    }
+}
+
+void lib22D496B3_gf_PartyFrameUpdate (string lp_score) {
+    // Automatic Variable Declarations
+    playergroup autoCB8528D2_g;
+    int autoCB8528D2_var;
+
+    // Implementation
+    autoCB8528D2_g = lib22D496B3_gv_partyFrameCreated;
+    autoCB8528D2_var = -1;
+    while (true) {
+        autoCB8528D2_var = PlayerGroupNextPlayer(autoCB8528D2_g, autoCB8528D2_var);
+        if (autoCB8528D2_var < 0) { break; }
+        libNtve_gf_SetDialogItemText(lib22D496B3_gv_partyFrameLabel[autoCB8528D2_var], (StringToText("<s val=\"PartyFrame_Score\">") + IntToText(PlayerScoreValueGetAsInt(autoCB8528D2_var, lp_score))), PlayerGroupAll());
+    }
+}
+
+void lib22D496B3_gf_PartyFrameCreate (playergroup lp_players) {
+    // Automatic Variable Declarations
+    playergroup auto49075ADF_g;
+    int auto49075ADF_var;
+
+    // Implementation
+    auto49075ADF_g = lp_players;
+    auto49075ADF_var = -1;
+    while (true) {
+        auto49075ADF_var = PlayerGroupNextPlayer(auto49075ADF_g, auto49075ADF_var);
+        if (auto49075ADF_var < 0) { break; }
+        lib22D496B3_gf_PartyFrameCreateForPlayer(auto49075ADF_var);
+    }
+    lib22D496B3_gf_PartyFrameUpdate("MineralsCurrent");
+}
+
+void lib22D496B3_gf_PartyFrameRemovePlayer (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "PartyFrameHide", 1);
+    lib22D496B3_gf_PartyFrameCreate(lib22D496B3_gv_partyFrameActive);
+}
+
+void lib22D496B3_gf_PartyFrameFade (playergroup lp_players, bool lp_fade, fixed lp_fadeTime) {
+    // Automatic Variable Declarations
+    bool auto71468BAB_val;
+    playergroup auto09825EF6_g;
+    int auto09825EF6_var;
+    playergroup auto82AC2991_g;
+    int auto82AC2991_var;
+
+    // Implementation
+    auto71468BAB_val = lp_fade;
+    if (auto71468BAB_val == false) {
+        auto09825EF6_g = lib22D496B3_gv_partyFrameCreated;
+        auto09825EF6_var = -1;
+        while (true) {
+            auto09825EF6_var = PlayerGroupNextPlayer(auto09825EF6_g, auto09825EF6_var);
+            if (auto09825EF6_var < 0) { break; }
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameBorder[auto09825EF6_var][0], lp_players, lp_fadeTime, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameBorder[auto09825EF6_var][1], lp_players, lp_fadeTime, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameBorder[auto09825EF6_var][2], lp_players, lp_fadeTime, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameIcon[auto09825EF6_var], lp_players, lp_fadeTime, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameLabel[auto09825EF6_var], lp_players, lp_fadeTime, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameTooltip[auto09825EF6_var], lp_players, lp_fadeTime, 100.0);
+        }
+    }
+    else if (auto71468BAB_val == true) {
+        auto82AC2991_g = lib22D496B3_gv_partyFrameCreated;
+        auto82AC2991_var = -1;
+        while (true) {
+            auto82AC2991_var = PlayerGroupNextPlayer(auto82AC2991_g, auto82AC2991_var);
+            if (auto82AC2991_var < 0) { break; }
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameBorder[auto82AC2991_var][0], lp_players, 0.0, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameBorder[auto82AC2991_var][0], lp_players, lp_fadeTime, 0.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameBorder[auto82AC2991_var][1], lp_players, 0.0, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameBorder[auto82AC2991_var][1], lp_players, lp_fadeTime, 0.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameBorder[auto82AC2991_var][2], lp_players, 0.0, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameBorder[auto82AC2991_var][2], lp_players, lp_fadeTime, 0.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameIcon[auto82AC2991_var], lp_players, 0.0, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameIcon[auto82AC2991_var], lp_players, lp_fadeTime, 0.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameLabel[auto82AC2991_var], lp_players, 0.0, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameLabel[auto82AC2991_var], lp_players, lp_fadeTime, 0.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameTooltip[auto82AC2991_var], lp_players, 0.0, 100.0);
+            DialogControlFadeTransparency(lib22D496B3_gv_partyFrameTooltip[auto82AC2991_var], lp_players, lp_fadeTime, 0.0);
+        }
+    }
+    else {
+    }
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Leaver
+//--------------------------------------------------------------------------------------------------
+bool lib22D496B3_gt_Leaver_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((lib22D496B3_gv_created == true))) {
+            return false;
+        }
+
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib22D496B3_gf_PartyFrameRemovePlayer(EventPlayer());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib22D496B3_gt_Leaver_Init () {
+    lib22D496B3_gt_Leaver = TriggerCreate("lib22D496B3_gt_Leaver_Func");
+    TriggerEnable(lib22D496B3_gt_Leaver, false);
+    TriggerAddEventPlayerLeft(lib22D496B3_gt_Leaver, c_playerAny, c_gameResultUndecided);
+}
+
+void lib22D496B3_InitTriggers () {
+    lib22D496B3_gt_Leaver_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib22D496B3_InitLib_completed = false;
+
+void lib22D496B3_InitLib () {
+    if (lib22D496B3_InitLib_completed) {
+        return;
+    }
+
+    lib22D496B3_InitLib_completed = true;
+
+    lib22D496B3_InitLibraries();
+    lib22D496B3_InitVariables();
+    lib22D496B3_InitTriggers();
+}
+
+include "LibDDE92A83"
+
