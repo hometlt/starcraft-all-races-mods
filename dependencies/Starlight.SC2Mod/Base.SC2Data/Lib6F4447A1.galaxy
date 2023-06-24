@@ -1,4 +1,5 @@
 include "TriggerLibs/NativeLib"
+include "LibScio"
 include "Lib95CAB67A_h"
 include "LibDDE92A83_h"
 include "Lib474957E9_h"
@@ -109,7 +110,7 @@ void lib6F4447A1_gf_TestStart (fixed lp_timescale, fixed lp_spawnPeriod, int lp_
 
     if ((lp_research == true)) {
         libDDE92A83_gf_ToggleUpgradesSC2Coop(PlayerGroupAll(), 1);
-        libDDE92A83_gf_ToggleUpgradesSC2Multi(PlayerGroupAll(), 1);
+        libDDE92A83_gf_ToggleUpgradesSC2MultiModified(PlayerGroupAll(), 1);
     }
 
     auto8E20C12E_g = PlayerGroupAll();
@@ -177,6 +178,64 @@ void lib6F4447A1_gf_TestStart (fixed lp_timescale, fixed lp_spawnPeriod, int lp_
         PlayerSetAlliance(1, c_allianceIdVision, 2, true);
         PlayerSetAlliance(2, c_allianceIdControl, 1, true);
         PlayerSetAlliance(1, c_allianceIdControl, 2, true);
+    }
+
+}
+
+void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
+    // Variable Declarations
+    string lv_unit;
+    string lv_race;
+    const fixed lv_distance = 3.0;
+    int lv_i;
+
+    // Automatic Variable Declarations
+    int auto4484D184_i;
+    string auto1FBA976C_builder;
+    int auto1FBA976C_buttons;
+    int auto1FBA976C_j;
+    string auto1FBA976C_type;
+    abilcmd auto1FBA976C_a;
+
+    // Variable Initialization
+
+    // Implementation
+    auto4484D184_i = 1;
+    for ( ; auto4484D184_i <= UserDataInstanceCount("CustomRaces"); auto4484D184_i += 1 ) {
+        lv_race = UserDataInstance("CustomRaces", auto4484D184_i);
+        if ((UserDataGetGameLink("CustomRaces", lv_race, "Race", 1) == PlayerRace(lp_palyer))) {
+            auto1FBA976C_builder = UserDataGetGameLink("CustomRaces", lv_race , "Builder", 1);
+            auto1FBA976C_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons", c_playerAny) - 1);
+            auto1FBA976C_j = 1;
+            for ( ; auto1FBA976C_j <= auto1FBA976C_buttons; auto1FBA976C_j += 1 ) {
+                auto1FBA976C_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].Type", c_playerAny);
+                auto1FBA976C_a  = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny));
+                if ((auto1FBA976C_a != null) && (auto1FBA976C_type == "AbilCmd")) {
+                    lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto1FBA976C_a)), "ProducedUnitArray[0]", c_playerAny));
+                    if ((lv_unit != "")) {
+                        UnitCreate(1, lv_unit, c_unitCreateIgnorePlacement, lp_palyer, RegionRandomPoint(RegionCircle(PointWithOffset(UnitGetPosition(UnitGroupUnit(UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreas(), lp_palyer, 0), 1)), lv_distance, (0.0 - lv_distance)), 5.0)), 225.0);
+                        UnitGroupAdd(lib7A9A9B22_gv_stagingAreaSpawners, UnitLastCreated());
+                        UnitCreateEffectUnit(UnitLastCreated(), "UnitSpawner", UnitLastCreated());
+                    }
+                }
+            }
+            auto1FBA976C_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons", c_playerAny) - 1);
+            auto1FBA976C_j = 31;
+            for ( ; auto1FBA976C_j <= auto1FBA976C_buttons && auto1FBA976C_j <= 34; auto1FBA976C_j += 1 ) {
+                auto1FBA976C_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].Type", c_playerAny);
+                auto1FBA976C_a  = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny));
+                if ((auto1FBA976C_a != null) && (auto1FBA976C_type == "AbilCmd")) {
+                    lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto1FBA976C_a)), "ProducedUnitArray[0]", c_playerAny));
+                    if ((lv_unit != "")) {
+                        UnitCreate(1, lv_unit, c_unitCreateIgnorePlacement, lp_palyer, RegionRandomPoint(RegionCircle(PointWithOffset(UnitGetPosition(UnitGroupUnit(UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreas(), lp_palyer, 0), 1)), lv_distance, (0.0 - lv_distance)), 5.0)), 225.0);
+                        UnitGroupAdd(lib7A9A9B22_gv_stagingAreaSpawners, UnitLastCreated());
+                        UnitCreateEffectUnit(UnitLastCreated(), "UnitSpawner", UnitLastCreated());
+                    }
+                }
+            }
+
+        }
+
     }
 
 }
@@ -341,6 +400,48 @@ void lib6F4447A1_gf_EmoticonLoadAll () {
 }
 
 // Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Test Mode
+//--------------------------------------------------------------------------------------------------
+bool lib6F4447A1_gt_TestMode_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((GameIsTestMap(false) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "IncludeStandardRacesInCommanderSelect", 1);
+    PlayerSetRace(1, "Gen");
+    PlayerSetRace(2, "Xayi");
+    lib7550A90B_gf_TugofWarStartDefault(null, null);
+    libNtve_gf_SetUpgradeLevelForPlayer(2, "SandboxModeOverpoweredBase", 1);
+    lib16875C2F_gf_MutationExpandedArmaments(true);
+    lib16875C2F_gf_MutationCovenant(true);
+    lib64DC5B97_gf_AddVespene(1, 1000);
+    lib6F4447A1_gf_CreateUnitSet(1);
+    lib6F4447A1_gf_CreateUnitSet(2);
+    TriggerExecute(libScio_gt_InitializeGenetronRace, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib6F4447A1_gt_TestMode_Init () {
+    lib6F4447A1_gt_TestMode = TriggerCreate("lib6F4447A1_gt_TestMode_Func");
+    TriggerAddEventMapInit(lib6F4447A1_gt_TestMode);
+}
+
 //--------------------------------------------------------------------------------------------------
 // Trigger: Test Tavern Read
 //--------------------------------------------------------------------------------------------------
@@ -532,7 +633,7 @@ bool lib6F4447A1_gt_SandboxModeEffectReset_Func (bool testConds, bool runActions
         libNtve_gf_SetUpgradeLevelForPlayer(auto9ECD6C45_var, "StrikeWeaponryLevel17", 0);
         libNtve_gf_SetUpgradeLevelForPlayer(auto9ECD6C45_var, "StrikeWeaponryLevel18", 0);
     }
-    libDDE92A83_gf_ToggleUpgradesSC2Multi(PlayerGroupAll(), 0);
+    libDDE92A83_gf_ToggleUpgradesSC2MultiModified(PlayerGroupAll(), 0);
     libDDE92A83_gf_ToggleUpgradesSC2Coop(PlayerGroupAll(), 0);
     return true;
 }
@@ -620,7 +721,7 @@ bool lib6F4447A1_gt_SandboxModeChatReset_Func (bool testConds, bool runActions) 
         libNtve_gf_SetUpgradeLevelForPlayer(autoEA94A05E_var, "StrikeWeaponryLevel17", 0);
         libNtve_gf_SetUpgradeLevelForPlayer(autoEA94A05E_var, "StrikeWeaponryLevel18", 0);
     }
-    libDDE92A83_gf_ToggleUpgradesSC2Multi(PlayerGroupAll(), 0);
+    libDDE92A83_gf_ToggleUpgradesSC2MultiModified(PlayerGroupAll(), 0);
     libDDE92A83_gf_ToggleUpgradesSC2Coop(PlayerGroupAll(), 0);
     return true;
 }
@@ -1519,6 +1620,33 @@ void lib6F4447A1_gt_SandboxModeChatEnemyZerg_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: Sandbox Mode (Chat) - Enemy Custom (Modified)
+//--------------------------------------------------------------------------------------------------
+bool lib6F4447A1_gt_SandboxModeChatEnemyCustomModified_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!(((GameIsTestMap(false) == true) || (libDDE92A83_gf_GameIsTutorial() == true)))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib6F4447A1_gf_EnemyRaceRepick("WorkerZerg");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib6F4447A1_gt_SandboxModeChatEnemyCustomModified_Init () {
+    lib6F4447A1_gt_SandboxModeChatEnemyCustomModified = TriggerCreate("lib6F4447A1_gt_SandboxModeChatEnemyCustomModified_Func");
+    TriggerAddEventChatMessage(lib6F4447A1_gt_SandboxModeChatEnemyCustomModified, c_playerAny, "enemy", true);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Sandbox Mode (Chat) - Enemy Abathur
 //--------------------------------------------------------------------------------------------------
 bool lib6F4447A1_gt_SandboxModeChatEnemyAbathur_Func (bool testConds, bool runActions) {
@@ -2010,6 +2138,7 @@ void lib6F4447A1_gt_SandboxModeChatEnemyZeratul_Init () {
 }
 
 void lib6F4447A1_InitTriggers () {
+    lib6F4447A1_gt_TestMode_Init();
     lib6F4447A1_gt_TestTavernRead_Init();
     lib6F4447A1_gt_ResetCommander_Init();
     lib6F4447A1_gt_NYIUnitDisabler_Init();
@@ -2040,6 +2169,7 @@ void lib6F4447A1_InitTriggers () {
     lib6F4447A1_gt_SandboxModeChatEnemyProtoss_Init();
     lib6F4447A1_gt_SandboxModeChatEnemyTerran_Init();
     lib6F4447A1_gt_SandboxModeChatEnemyZerg_Init();
+    lib6F4447A1_gt_SandboxModeChatEnemyCustomModified_Init();
     lib6F4447A1_gt_SandboxModeChatEnemyAbathur_Init();
     lib6F4447A1_gt_SandboxModeChatEnemyAlarak_Init();
     lib6F4447A1_gt_SandboxModeChatEnemyArtanis_Init();

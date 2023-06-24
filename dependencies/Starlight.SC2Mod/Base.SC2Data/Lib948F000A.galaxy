@@ -127,7 +127,6 @@ void lib948F000A_gf_WorkerSelectCreate () {
             libNtve_gf_SetUpgradeLevelForPlayer(autoD2E8C7D5_var, "WorkerSubmenuWorkerSelect", 1);
         }
         libDDE92A83_gf_DiscordMod();
-        lib948F000A_gf_CreateMainButton();
         TimerStart(lib948F000A_gv_recentlyCreated, 2.0, false, c_timeGame);
         TriggerEnable(lib948F000A_gt_UseDialogItem, true);
         TriggerEnable(lib948F000A_gt_MasteryBarLevelUp, true);
@@ -165,6 +164,8 @@ void lib948F000A_gf_WorkerSelectCreate () {
         lib948F000A_gf_CreateChoiceButton("WorkerSCV", 1, null);
         lib948F000A_gf_CreateChoiceButton("WorkerDrone", 2, null);
         lib948F000A_gf_CreateChoiceButton("WorkerConverter", 3, null);
+        lib948F000A_gf_CreateChoiceButton("WorkerScavenger", 3, null);
+        lib948F000A_gf_CreateChoiceButton("WorkerACR", 3, null);
         autoA2E0B5FD_ae = UserDataInstanceCount(lv_userData);
         lv_i = 2;
         for ( ; ( (autoA2E0B5FD_ai >= 0 && lv_i <= autoA2E0B5FD_ae) || (autoA2E0B5FD_ai < 0 && lv_i >= autoA2E0B5FD_ae) ) ; lv_i += autoA2E0B5FD_ai ) {
@@ -210,7 +211,7 @@ void lib948F000A_gf_WorkerSelectCreate () {
         while (true) {
             auto04262BD8_var = PlayerGroupNextPlayer(auto04262BD8_g, auto04262BD8_var);
             if (auto04262BD8_var < 0) { break; }
-            lib948F000A_gf_WorkerSelectLoadSettings(auto04262BD8_var);
+            lib948F000A_gf_WorkerSelectLoadSettingsModified(auto04262BD8_var);
         }
     }
 
@@ -296,13 +297,32 @@ void lib948F000A_gf_WorkerSelectFade (playergroup lp_players, bool lp_fade, fixe
     }
 }
 
-void lib948F000A_gf_WorkerSelectRefresh (unit lp_unit) {
+void lib948F000A_gf_WorkerSelectRefreshModified (unit lp_unit) {
+    // Variable Declarations
+    string lv_custom_race;
+    string lv_custom_race_string;
+
     // Automatic Variable Declarations
+    int auto56C64072_ae;
+    int auto56C64072_var;
     string autoF5C80EE3_val;
+
+    // Variable Initialization
+    lv_custom_race_string = "";
 
     // Implementation
     UnitBehaviorRemoveCategory(lp_unit, c_unitBehaviorFlagTemporary);
     UnitBehaviorAdd(lp_unit, "WorkerSwapNoTransition", lp_unit, 1);
+    auto56C64072_ae = UserDataInstanceCount("CustomRaces");
+    auto56C64072_var = 1;
+    for ( ; auto56C64072_var <= auto56C64072_ae; auto56C64072_var += 1 ) {
+        lv_custom_race = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto56C64072_var), "Race", 1);
+        lv_custom_race_string = (lv_custom_race);
+        if ((PlayerRace(UnitGetOwner(lp_unit)) == lv_custom_race)) {
+            UnitBehaviorAdd(lp_unit, "WorkerBirth" + lv_custom_race_string + "Instant", lp_unit, 1);
+        }
+
+    }
     autoF5C80EE3_val = PlayerRace(UnitGetOwner(lp_unit));
     if (autoF5C80EE3_val == "Terr") {
         UnitBehaviorAdd(lp_unit, "WorkerBirthTerranInstant", lp_unit, 1);
@@ -313,11 +333,7 @@ void lib948F000A_gf_WorkerSelectRefresh (unit lp_unit) {
     else if (autoF5C80EE3_val == "Prot") {
         UnitBehaviorAdd(lp_unit, "WorkerBirthProtossInstant", lp_unit, 1);
     }
-    else if (autoF5C80EE3_val == "Keir") {
-        UnitBehaviorAdd(lp_unit, "WorkerBirthKeironInstant", lp_unit, 1);
-    }
     else {
-        UnitBehaviorAdd(lp_unit, "WorkerBirthProtossInstant", lp_unit, 1);
     }
     lib948F000A_gf_ApplyViaBehavior(UnitGetOwner(lp_unit), lib948F000A_gv_currentBehavior[UnitGetOwner(lp_unit)], false);
     libDDE92A83_gf_SetWorkerAttributes(UnitGetOwner(lp_unit));
@@ -385,7 +401,7 @@ void lib948F000A_gf_ReplaceWorker (unit lp_unit, string lp_unitType) {
         libDDE92A83_gf_SkinRestore(libNtve_gf_LastReplacedUnit());
         lib038F51B7_gf_AbilityControlEnable(true, PlayerGroupSingle(UnitGetOwner(lp_unit)));
         lib038F51B7_gf_AbilityControlForceClose(UnitGetOwner(lp_unit));
-        lib948F000A_gf_WorkerSelectRefresh(libNtve_gf_LastReplacedUnit());
+        lib948F000A_gf_WorkerSelectRefreshModified(libNtve_gf_LastReplacedUnit());
         PlayerScoreValueSetFromInt(UnitGetOwner(lp_unit), "WorkersTotalCount", (PlayerScoreValueGetAsInt(UnitGetOwner(lp_unit), "WorkersTotalCount") - 1));
         auto2FEB41D9_val = PlayerRace(UnitGetOwner(libNtve_gf_LastReplacedUnit()));
         if (auto2FEB41D9_val == "Terr") {
@@ -425,12 +441,28 @@ void lib948F000A_gf_ReplaceWorker (unit lp_unit, string lp_unitType) {
 
 }
 
-void lib948F000A_gf_WorkerSelectValidate (int lp_player) {
+void lib948F000A_gf_WorkerSelectValidateModified (int lp_player) {
+    // Variable Declarations
+    string lv_custom_race;
+
     // Automatic Variable Declarations
+    int auto47AB232A_ae;
+    int auto47AB232A_var;
     string autoB31AD51F_val;
+
+    // Variable Initialization
 
     // Implementation
     if ((lib39886FE6_gf_MasteryBarPlayerLevel(lp_player) < (StringToInt(libNtve_gf_DialogItemEditValue(lib948F000A_gv_workerDialogItem[lp_player], lib948F000A_gv_editValueLevelRequirement)) - 1))) {
+        auto47AB232A_ae = UserDataInstanceCount("CustomRaces");
+        auto47AB232A_var = 1;
+        for ( ; auto47AB232A_var <= auto47AB232A_ae; auto47AB232A_var += 1 ) {
+            lv_custom_race = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto47AB232A_var), "Race", 1);
+            if ((PlayerRace(lp_player) == lv_custom_race)) {
+                lib948F000A_gf_ApplyViaBehavior(lp_player, (("Worker" + (UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto47AB232A_var), "Worker", 1)))), false);
+            }
+
+        }
         autoB31AD51F_val = PlayerRace(lp_player);
         if (autoB31AD51F_val == "Terr") {
             lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerSCV", false);
@@ -441,11 +473,7 @@ void lib948F000A_gf_WorkerSelectValidate (int lp_player) {
         else if (autoB31AD51F_val == "Prot") {
             lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerProbe", false);
         }
-        else if (autoB31AD51F_val == "Keir") {
-            lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerConverter", false);
-        }
         else {
-            lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerProbe", false);
         }
     }
 
@@ -716,6 +744,12 @@ void lib948F000A_gf_CreateMainButton () {
         else if (auto3F009C3E_val == "Keir") {
             libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-keiron-converter.dds", PlayerGroupSingle(autoDFB29E59_var));
         }
+        else if (auto3F009C3E_val == "Gen") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "assets\\textures\\btn-unit-genetron-acr.dds", PlayerGroupSingle(autoDFB29E59_var));
+        }
+        else if (auto3F009C3E_val == "Xayi") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "assets\\textures\\btn-unit-xayid-scavenger.dds", PlayerGroupSingle(autoDFB29E59_var));
+        }
         else {
             libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-protoss-probe.dds", PlayerGroupSingle(autoDFB29E59_var));
         }
@@ -744,6 +778,12 @@ void lib948F000A_gf_CreateMainButton () {
         }
         else if (autoE43D18C8_val == "Keir") {
             libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-keiron-converter.dds", PlayerGroupSingle(auto7A807309_var));
+        }
+        else if (autoE43D18C8_val == "Gen") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "assets\\textures\\btn-unit-genetron-acr.dds", PlayerGroupSingle(auto7A807309_var));
+        }
+        else if (autoE43D18C8_val == "Xayi") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "assets\\textures\\btn-unit-xayid-scavenger.dds", PlayerGroupSingle(auto7A807309_var));
         }
         else {
             libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-protoss-probe.dds", PlayerGroupSingle(auto7A807309_var));
@@ -1278,29 +1318,32 @@ void lib948F000A_gf_WorkerSelectSaveSettings (int lp_player) {
     libDBB0BE4A_gf_StarlightSave(lp_player, lib948F000A_gv_bankSection, lib948F000A_gv_workerSelectSaveLoad[lp_player][0], lib948F000A_gv_workerSelectSaveLoad[lp_player][1], lib948F000A_gv_workerSelectSaveLoad[lp_player][2], lib948F000A_gv_workerSelectSaveLoad[lp_player][3], lib948F000A_gv_workerSelectSaveLoad[lp_player][4], lib948F000A_gv_workerSelectSaveLoad[lp_player][5], lib948F000A_gv_workerSelectSaveLoad[lp_player][6], lib948F000A_gv_workerSelectSaveLoad[lp_player][7], lib948F000A_gv_workerSelectSaveLoad[lp_player][8], lib948F000A_gv_workerSelectSaveLoad[lp_player][9]);
 }
 
-trigger auto_lib948F000A_gf_WorkerSelectLoadSettings_Trigger = null;
-int auto_lib948F000A_gf_WorkerSelectLoadSettings_lp_player;
+trigger auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_Trigger = null;
+int auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_lp_player;
 
-void lib948F000A_gf_WorkerSelectLoadSettings (int lp_player) {
-    auto_lib948F000A_gf_WorkerSelectLoadSettings_lp_player = lp_player;
+void lib948F000A_gf_WorkerSelectLoadSettingsModified (int lp_player) {
+    auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_lp_player = lp_player;
 
-    if (auto_lib948F000A_gf_WorkerSelectLoadSettings_Trigger == null) {
-        auto_lib948F000A_gf_WorkerSelectLoadSettings_Trigger = TriggerCreate("auto_lib948F000A_gf_WorkerSelectLoadSettings_TriggerFunc");
+    if (auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_Trigger == null) {
+        auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_Trigger = TriggerCreate("auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_TriggerFunc");
     }
 
-    TriggerExecute(auto_lib948F000A_gf_WorkerSelectLoadSettings_Trigger, false, false);
+    TriggerExecute(auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_Trigger, false, false);
 }
 
-bool auto_lib948F000A_gf_WorkerSelectLoadSettings_TriggerFunc (bool testConds, bool runActions) {
-    int lp_player = auto_lib948F000A_gf_WorkerSelectLoadSettings_lp_player;
+bool auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_TriggerFunc (bool testConds, bool runActions) {
+    int lp_player = auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_lp_player;
 
     // Variable Declarations
     int lv_i;
+    string lv_custom_race;
 
     // Automatic Variable Declarations
     const int autoD4491168_ae = 2;
     const int autoD4491168_ai = 1;
     string auto5A57BC8C_val;
+    int autoA87C8F34_ae;
+    int autoA87C8F34_var;
     string auto89D1E2D2_val;
 
     // Variable Initialization
@@ -1338,6 +1381,15 @@ bool auto_lib948F000A_gf_WorkerSelectLoadSettings_TriggerFunc (bool testConds, b
             lib948F000A_gf_ApplyViaInteger(lp_player, (libDBB0BE4A_gv_starlightLoadOutput[lv_i] - 1), true);
         }
         else {
+            autoA87C8F34_ae = UserDataInstanceCount("CustomRaces");
+            autoA87C8F34_var = 1;
+            for ( ; autoA87C8F34_var <= autoA87C8F34_ae; autoA87C8F34_var += 1 ) {
+                lv_custom_race = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", autoA87C8F34_var), "Race", 1);
+                if ((PlayerRace(lp_player) == lv_custom_race)) {
+                    lib948F000A_gf_ApplyViaBehavior(lp_player, (("Worker" + (UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", autoA87C8F34_var), "Worker", 1)))), false);
+                }
+
+            }
             auto89D1E2D2_val = PlayerRace(lp_player);
             if (auto89D1E2D2_val == "Terr") {
                 lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerSCV", false);
@@ -1348,11 +1400,7 @@ bool auto_lib948F000A_gf_WorkerSelectLoadSettings_TriggerFunc (bool testConds, b
             else if (auto89D1E2D2_val == "Prot") {
                 lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerProbe", false);
             }
-            else if (auto89D1E2D2_val == "Keir") {
-                lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerConverter", false);
-            }
             else {
-                lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerProbe", false);
             }
         }
     }
@@ -1518,7 +1566,7 @@ bool lib948F000A_gt_WorkerModelFallback_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    lib948F000A_gf_WorkerSelectLoadSettings(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource));
+    lib948F000A_gf_WorkerSelectLoadSettingsModified(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource));
     return true;
 }
 

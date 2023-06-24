@@ -23481,6 +23481,10 @@
 <CActorModel id="AttackDummyCursorModel" parent="TerranCursorModel" abil="attack">
   <Model value="AttackDummyCursorModel"/>
   <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+    <On Terms="ActorCreation; ValidatePlayer PlayerIsZerg" Send="ModelSwap AttackDummyCursorModelZerg"/>
+    <On Terms="ActorCreation; ValidatePlayer PlayerIsTerran" Send="ModelSwap AttackDummyCursorModelTerran"/>
+    <On Terms="ActorCreation; ValidatePlayer PlayerIsProtoss" Send="ModelSwap AttackDummyCursorModelProtoss"/>
+    <On Terms="ModelSwap" Send="$Stand PlayForever"/>
   <HostSiteOps Ops="SOpShadow"/>
 </CActorModel>
 <CActorUnit id="PathingBlocker1x1Diagonal" parent="PathingBlocker" unitName="PathingBlocker1x1Diagonal">
@@ -23509,19 +23513,6 @@
   <On index="0" Terms="ActorCreation" Send="Create SoundEmitter Emitter_StarshipEngine_Flames"/>
   <Model value="Invisible"/>
 </CActorDoodad>
-<CActorUnit id="WolfStatue">
-  <DeathArray index="Normal" SoundLink="Destructible_WolfStatue"/>
-</CActorUnit>
-<CActorUnit id="DestructibleKorhalFlag">
-  <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_KorhalFlag"/>
-</CActorUnit>
-<CActorUnit id="DestructibleKorhalTree">
-  <DeathArray index="Normal" SoundLink="Destructible_TreeCrash"/>
-  <Model value="AgriaTreeEx1"/>
-</CActorUnit>
-<CActorUnit id="GlobeStatue">
-  <DeathArray index="Normal" SoundLink="GlobeStatue_death"/>
-</CActorUnit>
 <CActorUnit id="HybridHoldingCellUnit" parent="GenericUnitBase" unitName="HybridHoldingCellUnit">
   <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_HybridHoldingCell"/>
   <DeathArray index="Normal" ModelLink="HybridHoldingCellDeath" SoundLink=""/>
@@ -23557,6 +23548,56 @@
   <WalkAnimMoveSpeed value="3.75"/>
   <DeathArray index="Normal" SoundLink=""/>
 </CActorUnit>
+
+    <CActorUnit id="DestructibleKorhalFoliage" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DestructibleKorhalFoliage">
+        <On Terms="UnitDeathCustomize; ModelVariation 0" Send="DeathCustomize Variation0"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 1" Send="DeathCustomize Variation1"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 2" Send="DeathCustomize Variation2"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 3" Send="DeathCustomize Variation3"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 4" Send="DeathCustomize Variation4"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 5" Send="DeathCustomize Variation5"/>
+        <DeathCustoms ModelLink="KorhalFoliageDeath00" Name="Variation0"/>
+        <DeathCustoms ModelLink="KorhalFoliageDeath01" Name="Variation1"/>
+        <DeathCustoms ModelLink="KorhalFoliageDeath02" Name="Variation2"/>
+        <DeathCustoms ModelLink="KorhalFoliageDeath03" Name="Variation3"/>
+        <DeathCustoms ModelLink="KorhalFoliageDeath04" Name="Variation4"/>
+        <DeathCustoms ModelLink="KorhalFoliageDeath05" Name="Variation5"/>
+        <DeathArray index="Normal" ModelLink="KorhalFoliageDeath00" SoundLink="Destructible_KorhalFoliageDeath"/>
+        <Model value="BelShirFoliage"/>
+        <BarWidth value="45"/>
+        <BarOffset value="22"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <DeathArray index="Normal" SoundLink=""/>
+    </CActorUnit>
+    <CActorUnit id="SpacePlatformVentsUnit" parent="GenericUnitStandardNoAutoSoundLinks" unitName="SpacePlatformVentsUnit">
+        <PortraitModel value="OverlordPortrait"/>
+        <DeathArray index="Normal" ModelLink="SpacePlatformVentsDeath" SoundLink="InfestationSpire_Explode"/>
+        <BarWidth value="85"/>
+        <BarOffset value="80"/>
+        <NameOffset value="60"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_SpacePlatformVentsZergedSlime"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_SpacePlatformVentsZergedVapor"/>
+        <UnitIcon value="Assets\Textures\Wireframe-Terran-zergtunnelentrance.dds"/>
+        <HeroIcon value="Assets\Textures\Wireframe-Terran-zergtunnelentrance.dds"/>
+        <GroupIconVariations Number="0">
+            <Image value="Assets\Textures\Wireframe-Terran-zergtunnelentrance00.dds"/>
+        </GroupIconVariations>
+        <GroupIconVariations Number="1">
+            <Image value="Assets\Textures\Wireframe-Terran-zergtunnelentrance01.dds"/>
+        </GroupIconVariations>
+        <WireframeVariations Number="0">
+            <Image value="Assets\Textures\Wireframe-Terran-zergtunnelentrance00.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="1">
+            <Image value="Assets\Textures\Wireframe-Terran-zergtunnelentrance01.dds"/>
+        </WireframeVariations>
+        <PortraitModel value="ZergBuildingEx2_Portrait"/>
+    </CActorUnit>
 <CActorUnit id="UmojanLabMineralField" parent="MineralBase" unitName="UmojanLabMineralField">
   <On Terms="BehaviorLevel.MineralFieldMineralsNoRemove.Start; Level 0" Send="AnimGroupApply A"/>
   <On Terms="BehaviorLevel.MineralFieldMineralsNoRemove.Stop; Level 0" Send="AnimGroupRemove A"/>
@@ -23585,7 +23626,55 @@
   </Wireframe>
   <UnitFlags index="ShowBlobShadow" value="0"/>
   <DeathArray index="Normal" SoundLink=""/>
+
+    <On Terms="Behavior.MineralFieldMineralsNoRemove.Deplete" Send="MinimapIcon Assets\Textures\cs_terran03black32.dds"/>
+    <On Terms="Behavior.MineralFieldMineralsNoRemove.Deplete" Send="MinimapIconScale 0.250000"/>
+    <On Terms="Signal.*.MutatorLowYield" Send="ModelSwapStackPush"/>
+    <On Terms="Signal.*.MutatorLowYield" Send="ModelSwap MineralFieldTerranLabMutatorLowYield"/>
+    <On Terms="Signal.*.MutatorNormalYield" Send="ModelSwapStackPop"/>
+
 </CActorUnit>
+
+    <CActorUnit id="BlackoutDummyLarge" parent="GenericUnitStandardNoAutoSoundLinks" unitName="BlackoutDummyLarge">
+        <Model value="Invisible"/>
+        <MinimapIcon value="Assets\Textures\pingamoncircle_diff.dds"/>
+        <MinimapIconScale value="0.075"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+    </CActorUnit>
+    <CActorUnit id="BlackoutDummySmall" parent="GenericUnitStandardNoAutoSoundLinks" unitName="BlackoutDummySmall">
+        <Model value="Invisible"/>
+        <MinimapIcon value="Assets\Textures\pingamoncircle_diff.dds"/>
+        <MinimapIconScale value="0.04"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+    </CActorUnit>
+    <CActorUnit id="DestructibleSandbags" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DestructibleSandbags">
+        <DeathArray index="Normal" ModelLink="SandbagsDeath0" SoundLink=""/>
+        <On Terms="UnitDeathCustomize; ModelVariation 1" Send="DeathCustomize Variation1"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 2" Send="DeathCustomize Variation2"/>
+        <DeathCustoms SoundLink="Destructible_Sandbags" Name="Variation0"/>
+        <DeathCustoms SoundLink="Destructible_Sandbags" Name="Variation1"/>
+        <DeathCustoms SoundLink="Destructible_Sandbags" Name="Variation2"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <BarWidth value="45"/>
+        <BarOffset value="22"/>
+        <DeathCustoms ModelLink="SandbagsDeath1" Name="Variation1"/>
+        <DeathCustoms ModelLink="SandbagsDeath2" Name="Variation2"/>
+    </CActorUnit>
 <CActorSplat id="UmojanLabMineralFieldSplat" parent="MineralFieldSplatBase"/>
 <CActorSplat id="UmojanLabMineralFieldSplatSmall" parent="MineralFieldSplatBase">
   <Model value="UmojanLabMineralFieldSplatSmall"/>
@@ -23726,11 +23815,6 @@
   <DeathActorModel value="UnitDeathModelPersistent"/>
 </CActorUnit>
 <CActorSound id="Doodad_ZerusWaterfall_Dead" parent="SoundContinuous"/>
-<CActorUnit id="DestructibleSandbags">
-  <DeathCustoms SoundLink="Destructible_Sandbags" Name="Variation0"/>
-  <DeathCustoms SoundLink="Destructible_Sandbags" Name="Variation1"/>
-  <DeathCustoms SoundLink="Destructible_Sandbags" Name="Variation2"/>
-</CActorUnit>
 <CActorUnit id="DestructibleUmojanLabFloodLights" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DestructibleUmojanLabFloodLights">
   <DeathArray index="Normal" ModelLink="DestructibleUmojanLabFloodLightsDeath00" SoundLink=""/>
   <On Terms="Signal.*.LightPowerDown" Send="AnimGroupApply Unpowered"/>
@@ -23869,9 +23953,6 @@
   <On Terms="Signal.*.Birth" Send="SetVisibility 1"/>
   <On Terms="AnimDone; AnimName Death" Send="SetVisibility"/>
 </CActorPortrait>
-<CActorUnit id="DestructibleKorhalFoliage">
-  <DeathArray index="Normal" SoundLink=""/>
-</CActorUnit>
 <CActorDoodad id="JumpHeightBooster">
   <EditorModel value="JumpHeightBoosterEditor"/>
   <Model value="Invisible"/>
@@ -25497,9 +25578,6 @@
   <UnitFlags index="ShowBlobShadow" value="0"/>
   <?token id="alt" value="Lowered"?>
 </CActorUnit>
-<CActorUnit id="SpacePlatformVentsUnit">
-  <PortraitModel value="ZergBuildingEx2_Portrait"/>
-</CActorUnit>
 <CActorUnit id="KorhalDestructiblePlatformSmall" parent="GenericUnitStandardNoAutoSoundLinks" unitName="KorhalDestructiblePlatformSmall">
   <On Terms="UnitDeathCustomize" Send="Create KorhalDestructiblePlatformSmallAddition"/>
   <On Terms="UnitDeath" Send="Create KorhalExplosionMetalFireSmallSound"/>
@@ -26454,6 +26532,7 @@
 </CActorSimple>
 <CActorSound id="Spell_ElectricFieldGenerator">
   <On Terms="Abil.StormBeastLightningStorm.SourceCastStart" Send="Create"/>
+    <On Terms="Effect.LightningFieldSearch.Start" Send="Create"/>
 </CActorSound>
 <CActorSimple id="TerrazineShadowTinter">
   <Aliases value="_HallucinationTinter"/>
@@ -30431,4 +30510,117 @@
   <On Terms="Behavior.HybridPnPMirrorImage.Off" Send="Destroy"/>
 </CActorModelMaterial>
 
+    <CActorUnit id="WolfStatue" parent="GenericUnitStandardNoAutoSoundLinks" unitName="WolfStatue">
+        <DeathArray index="Normal" ModelLink="WolfStatueDeath" SoundLink="WolfStatue_Explode"/>
+        <BarWidth value="200"/>
+        <BarOffset value="225"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+        <UnitIcon value="Assets\Textures\Wireframe-Destructible-WolfStatue.dds"/>
+        <HeroIcon value="Assets\Textures\Wireframe-Destructible-WolfStatue.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Destructible-WolfStatue.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Destructible-WolfStatue.dds"/>
+        </Wireframe>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+        <DeathArray index="Normal" SoundLink="Destructible_WolfStatue"/>
+    </CActorUnit>
+    <CActorUnit id="DestructibleKorhalFlag" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DestructibleKorhalFlag">
+        <On Terms="UnitDeathCustomize; ModelVariation 0" Send="DeathCustomize Variation0"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 1" Send="DeathCustomize Variation1"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 2" Send="DeathCustomize Variation2"/>
+        <DeathCustoms ModelLink="KorhalFlagDeath00" Name="Variation0"/>
+        <DeathCustoms ModelLink="KorhalFlagDeath01" Name="Variation1"/>
+        <DeathCustoms ModelLink="KorhalFlagDeath02" Name="Variation2"/>
+        <DeathArray index="Normal" ModelLink="KorhalFlagDeath00" SoundLink="Destructible_KorhalFlagDeath"/>
+        <Model value="KorhalFlag"/>
+        <BarWidth value="45"/>
+        <BarOffset value="22"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter Doodad_KorhalFlag"/>
+
+
+    </CActorUnit>
+    <CActorUnit id="DestructibleKorhalTree" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DestructibleKorhalTree">
+        <On Terms="UnitDeathCustomize; ModelVariation 0; !ValidateUnit DeathByFire" Send="DeathCustomize Variation0"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 1; !ValidateUnit DeathByFire" Send="DeathCustomize Variation1"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 2; !ValidateUnit DeathByFire" Send="DeathCustomize Variation2"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 3; !ValidateUnit DeathByFire" Send="DeathCustomize Variation3"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 4; !ValidateUnit DeathByFire" Send="DeathCustomize Variation4"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 5; !ValidateUnit DeathByFire" Send="DeathCustomize Variation5"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 6; !ValidateUnit DeathByFire" Send="DeathCustomize Variation6"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 7; !ValidateUnit DeathByFire" Send="DeathCustomize Variation7"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 0; Death Fire" Send="DeathCustomize Variation8"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 1; Death Fire" Send="DeathCustomize Variation9"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 2; Death Fire" Send="DeathCustomize Variation10"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 3; Death Fire" Send="DeathCustomize Variation11"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 4; Death Fire" Send="DeathCustomize Variation12"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 5; Death Fire" Send="DeathCustomize Variation13"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 6; Death Fire" Send="DeathCustomize Variation14"/>
+        <On Terms="UnitDeathCustomize; ModelVariation 7; Death Fire" Send="DeathCustomize Variation15"/>
+        <DeathCustoms ModelLink="KorhalTreeDeath00" Name="Variation0"/>
+        <DeathCustoms ModelLink="KorhalTreeDeath01" Name="Variation1"/>
+        <DeathCustoms ModelLink="KorhalTreeDeath02" Name="Variation2"/>
+        <DeathCustoms ModelLink="KorhalTreeDeath03" Name="Variation3"/>
+        <DeathCustoms ModelLink="KorhalTreeDeath04" Name="Variation4"/>
+        <DeathCustoms ModelLink="KorhalTreeDeath05" Name="Variation5"/>
+        <DeathCustoms ModelLink="KorhalTreeDeath06" Name="Variation6"/>
+        <DeathCustoms ModelLink="KorhalTreeDeath07" Name="Variation7"/>
+        <DeathCustoms ModelLink="KorhalTreeDeathFire00" Name="Variation8"/>
+        <DeathCustoms ModelLink="KorhalTreeDeathFire01" Name="Variation9"/>
+        <DeathCustoms ModelLink="KorhalTreeDeathFire02" Name="Variation10"/>
+        <DeathCustoms ModelLink="KorhalTreeDeathFire03" Name="Variation11"/>
+        <DeathCustoms ModelLink="KorhalTreeDeathFire04" Name="Variation12"/>
+        <DeathCustoms ModelLink="KorhalTreeDeathFire05" Name="Variation13"/>
+        <DeathCustoms ModelLink="KorhalTreeDeathFire06" Name="Variation14"/>
+        <DeathCustoms ModelLink="KorhalTreeDeathFire07" Name="Variation15"/>
+        <DeathArray index="Normal" ModelLink="KorhalTreeDeath00" SoundLink="Destructible_KorhalTreeDeath"/>
+        <DeathArray index="Fire" ModelLink="KorhalTreeDeathFire00"/>
+<!--        <Model value="AgriaTree"/>-->
+        <BarWidth value="45"/>
+        <BarOffset value="22"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <DeathArray index="Normal" SoundLink="Destructible_TreeCrash"/>
+        <Model value="AgriaTreeEx1"/>
+    </CActorUnit>
+    <CActorUnit id="GlobeStatue" parent="GenericUnitStandardNoAutoSoundLinks" unitName="GlobeStatue">
+        <DeathArray index="Normal" ModelLink="" SoundLink="Doodad_GlobeStatue_Death"/>
+        <BarWidth value="200"/>
+        <BarOffset value="225"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <UnitIcon value="Assets\Textures\Wireframe-general-globestatue.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-general-globestatue.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-general-globestatue.dds"/>
+        </Wireframe>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+        <DeathArray index="Normal" SoundLink="GlobeStatue_death"/>
+    </CActorUnit>
 </Catalog>

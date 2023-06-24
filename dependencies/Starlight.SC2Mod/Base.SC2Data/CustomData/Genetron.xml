@@ -1,0 +1,1686 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+
+
+
+    <CActorSimple default="1" id="GenetronPlaceSimple">
+        <?token id="Unit" type="CUnit"?>
+        <On Terms="Effect.##Unit##Place.Create" Send="Create"/>
+        <On Terms="Abil.##Unit##Reposition.SourceCastStart" Send="Create"/>
+        <On Terms="Abil.##Unit##Reposition.SourcePrepStart" Send="Destroy"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="Create ProtossPlacementSoundSmall"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="AnimClear Fidget 0.000000"/>
+        <!--        <On Terms="ActorCreation" Target="_Unit" Send="ModelSwap AdeptWarpIn"/>-->
+        <!--                <On Terms="ActorCreation" Target="_Unit" Send="Create KeironMaterializeModel"/>-->
+        <!--        <On Terms="ActorCreation" Target="_Unit" Send="AnimPlay Build Build 0 -1.000000 -1.000000 5.500000 AsDuration 0.000000 100"/>-->
+        <!--        <On Terms="ActorCreation" Target="_Unit" Send="AnimSetPausedAll"/>-->
+        <!--        <On Terms="ActorCreation" Target="_Unit" Send="AnimSetPaused Build 0"/>-->
+        <!--        <On Terms="ActorCreation; PlayerHasReward AdeptCE" Target="_Unit" Send="ModelSwap AdeptPurifierWarpIn"/>-->
+        <!--        <On Terms="ActorCreation" Target="_Unit" Send="AnimPlay Unload Birth 0 0.000000 -1.000000 2.500000 AsDuration"/>-->
+        <On Terms="ActorCreation" Send="Create ZealotPlacementDust"/>
+        <On Terms="ActorCreation" Send="Create ZealotPlacementSplat"/>
+        <On Terms="ActorCreation" Send="Create ZealotPlacementBeam"/>
+        <On Terms="ActorCreation" Send="Create ProtossSpawnerWarpSoundStart"/>
+        <On Terms="ActorCreation" Send="TimerSet 1.000000 Die"/>
+        <!--        <On Terms="TimerExpired; TimerName Die" Target="_Unit" Send="Destroy KeironMaterializeModel"/>-->
+        <!--        <On Terms="TimerExpired; TimerName Die; PlayerHasReward AdeptCE" Target="_Unit" Send="ModelSwap AdeptPurifier"/>-->
+        <!--        <On Terms="TimerExpired; TimerName Die" Target="_Unit" Send="AnimBaselineStart"/>-->
+        <!--        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>-->
+        <!--        <On Terms="ActorOrphan" Send="Destroy"/>-->
+    </CActorSimple>
+
+
+
+    <!-- =========================== -->
+    <!--       Defense Section        -->
+    <!-- =========================== -->
+
+
+    <CActorRange id="RelayTowerPlaceRange">
+        <Inherits index="TeamColor" value="1"/>
+        <Host Subject="::Creator"/>
+        <HostSiteOps Ops="SOpShadow SOpBasicScopePositionFollowHoldRotation"/>
+        <Range value="7.750000"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.375000"/>
+    </CActorRange>
+
+    <CActorModel id="RelayTowerPermanentMarker" parent="ModelAddition">
+        <On Terms="Behavior.RelayTowerPermanentMarker.On" Send="Create"/>
+        <On Terms="Behavior.RelayTowerPermanentMarker.Off" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow TerranBuildingFacing"/>
+        <Inherits index="TintColor" value="0"/>
+    </CActorModel>
+    <CBehaviorBuff id="RelayTowerPermanentMarker">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <BehaviorFlags index="EnabledWhileDead" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <BehaviorCategories index="Permanent" value="1"/>
+    </CBehaviorBuff>
+    <CEffectSet id="StructureBirthRelayTowerSet">
+        <EffectArray value="StructureBirthRelayTower"/>
+        <EffectArray value="RelayTowerProgressOrder"/>
+        <EffectArray value="SkinRefresh"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StructureBirthRelayTower">
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="RelayTowerProgressOrder">
+        <WhichUnit Value="Source"/>
+        <Abil value="RelayTowerProgress"/>
+        <Player Value="Source"/>
+        <Target Value="SourceUnit"/>
+    </CEffectIssueOrder>
+    <CAbilEffectInstant id="RelayTowerProgress">
+        <Effect index="0" value="DummyEffect"/>
+        <PrepTime value="7"/>
+        <ShowProgressArray index="Prep" value="1"/>
+        <UninterruptibleArray index="Prep" value="1"/>
+        <ProgressButtonArray index="Prep" value="RelayTowerPlace"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="RelayTowerPlace"/>
+        <AbilSetId value="StructureProgress"/>
+    </CAbilEffectInstant>
+    <CButton id="Reposition20Terran">
+        <Tooltip value="Button/Tooltip/Reposition"/>
+        <TooltipFlags index="ShowHotkey" value="0"/>
+        <Icon value="Assets\Textures\btn-menu-reposition-terran.dds"/>
+        <AlertIcon value="Assets\Textures\btn-menu-reposition-terran.dds"/>
+        <Hotkey value="Button/Hotkey/Reposition"/>
+        <EditorCategories value="Race:Neutral"/>
+        <HidesForSimpleText value="0"/>
+    </CButton>
+
+
+    <CUnit id="RelayTowerPermanent">
+        <Name value="Unit/Name/RelayTower"/>
+        <Description value="Button/Tooltip/RelayTower"/>
+        <Facing value="45"/>
+        <Race value="Gen"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Structure" value="1"/>
+
+        <LifeStart value="500"/>
+        <LifeMax value="500"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/MechStructureArmor"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="40"/>
+
+        <AbilArray Link="CoreSystemRecharge"/>
+        <AbilArray Link="AttackWarpPrism"/>
+        <AbilArray Link="RelayTowerReposition"/>
+        <AbilArray Link="RelayTowerProgress"/>
+
+        <BehaviorArray Link="RelayTowerPermanentMarker"/>
+        <EffectArray index="Create" value="StructureBirthRelayTowerSet"/>
+        <EffectArray index="Birth" value="StructureBirthRelayTowerSet"/>
+        <EffectArray index="Revive" value="StructureBirthRelayTowerSet"/>
+
+        <CardLayouts index="0">
+            <LayoutButtons Face="CoreSystemRecharge" Type="AbilCmd" AbilCmd="CoreSystemRecharge,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="Reposition20Terran" Type="AbilCmd" AbilCmd="RelayTowerReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="Detector" Type="Passive" Requirements="NotUnderConstruction" Row="2" Column="3"/>
+        </CardLayouts>
+
+
+        <Radius value="0.75"/>
+        <SeparationRadius value="0.75"/>
+        <PlacementFootprint value="Footprint2x2"/>
+        <ScoreMake value="100"/>
+        <ScoreKill value="100"/>
+        <SubgroupPriority value="14"/>
+        <MinimapRadius value="0.75"/>
+        <DeadFootprint value="Footprint2x2NoCollision"/>
+        <RankDisplay value="Never"/>
+
+        <BehaviorArray index="0" Link="GenetronPowerSupplyTracker"/>
+        <BehaviorArray Link="LockdownMode"/>
+        <BehaviorArray Link="GenetronEnergyStateNotFull"/>
+        <BehaviorArray Link="TrackAndMirrorGenetronPowerSupply"/>
+        <EffectArray index="Birth" value="GenetronUpdatePowerGenerationTargetSA"/>
+    </CUnit>
+
+
+
+
+
+    <CActorRange id="RelayTowerRange" parent="RangeWeapon" weapon="LongboltMissile">
+        <Inherits index="TeamColor" value="1"/>
+        <On Terms="SelectionLocalUpdate.RelayTowerPermanent.Start" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.RelayTowerPermanent.Stop" Send="Destroy"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.380000"/>
+    </CActorRange>
+    <CActorUnit id="RelayTower">
+        <On Terms="UnitBirth.RelayTowerPermanent" Send="Create"/>
+        <On Terms="UnitRevive.RelayTowerPermanent" Send="Create"/>
+        <PlacementModel value="Invisible"/>
+    </CActorUnit>
+    <CAbilEffectTarget id="RelayTowerReposition" parent="Reposition" Placement="2x2PlaceDefense" Button="RelayTowerPlace" Unit="RelayTowerPermanent">
+        <Cost index="0">
+            <Charge>
+                <CountMax value="60"/>
+                <CountStart value="60"/>
+                <CountUse value="20"/>
+                <Link value="Abil/Reposition"/>
+                <Location value="Player"/>
+                <TimeUse value="1.5"/>
+            </Charge>
+        </Cost>
+        <CmdButtonArray index="Execute" Requirements=""/>
+        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
+    </CAbilEffectTarget>
+    <CEffectSet id="RelayTowerReposition">
+        <EffectArray value="RepositionTeleport"/>
+        <EffectArray value="StructureBirthRelayTowerRemove"/>
+        <EffectArray value="StructureBirthRelayTower"/>
+        <EffectArray value="RelayTowerPermanentMarkerRemove"/>
+        <EffectArray value="RelayTowerPermanentMarkerDelay"/>
+        <EffectArray value="RelayTowerProgressOrder"/>
+        <TargetLocationType value="Point"/>
+        <ValidatorArray value="PermanentStructurePlacementValidator"/>
+    </CEffectSet>
+
+
+    <CActorModel default="1" id="PlaceStructureTerran" parent="PlaceBase">
+        <On index="0" Send="AnimBracketStart BSD Birth Attack Death"/>
+        <On Terms="ActorCreation; !AnimPlayable Attack" Send="AnimBracketStart BSD {} Walk"/>
+        <On Terms="ActorCreation; !AnimPlayable Walk" Send="AnimBracketStart BSD {} Stand,Work"/>
+        <On Terms="ActorCreation" Send="AnimSetTimeScale BSD 1.300000"/>
+        <On Terms="ActorCreation" Send="Create PlaceRocker"/>
+        <On Terms="ActorCreation" Send="Create PlaceBeamTerran"/>
+        <HostSiteOps Ops="SOpBasicScopePositionFollowHoldRotation SOpHeightPlacement_Flyer SOpFacingPlacement_SW"/>
+    </CActorModel>
+
+    <CActorSound id="RelayTowerCursor" parent="DefaultCursorSound" Sound="RelayTower_What"/>
+    <CButton id="RelayTowerPlace">
+        <Icon value="Assets\Textures\btn-building-genetron-RelayTower.dds"/>
+        <AlertIcon value="Assets\Textures\btn-building-genetron-RelayTower.dds"/>
+        <Name value="Unit/Name/RelayTower"/>
+        <Tooltip value="Button/Tooltip/RelayTower"/>
+    </CButton>
+    <CAbilEffectTarget id="RelayTowerPlace" parent="Place" Placement="2x2PlaceDefense" Button="RelayTowerPlace" Unit="RelayTowerPermanent">
+        <Cost index="0">
+            <Charge>
+                <CountMax value="2"/>
+                <CountStart value="2"/>
+                <CountUse value="1"/>
+                <Location value="Player"/>
+            </Charge>
+        </Cost>
+        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
+        <CmdButtonArray index="Execute" Requirements="RelayTowerPlace"/>
+    </CAbilEffectTarget>
+    <CActorModel id="RelayTowerPlace" parent="PlaceStructureTerran" Model="RelayTower" Sound="RelayTowerCursor" A="RelayTowerPlace" B="RelayTowerReposition">
+        <On Terms="ActorCreation" Send="Create RelayTowerPlaceRange"/>
+    </CActorModel>
+    <CEffectCreateUnit id="RelayTowerPlace" parent="DefaultPlace">
+        <ValidatorArray index="0" removed="1"/>
+        <SpawnUnit value="RelayTowerPermanent"/>
+        <SpawnEffect value="PermanentStructurePlaceSet"/>
+    </CEffectCreateUnit>
+    <CRequirement id="RelayTowerPlace">
+        <NodeArray index="Show" Link="LTCountUnitRelayTowerPermanentCompleteOnly2"/>
+    </CRequirement>
+    <CRequirementLT id="LTCountUnitRelayTowerPermanentCompleteOnly2">
+        <OperandArray index="0" value="CountUnitRelayTowerPermanentCompleteOnly"/>
+        <OperandArray index="1" value="2"/>
+    </CRequirementLT>
+    <CRequirementCountUnit id="CountUnitRelayTowerPermanentCompleteOnly">
+        <Flags index="TechTreeCheat" value="0"/>
+        <Count Link="RelayTowerPermanent" State="CompleteOnly"/>
+    </CRequirementCountUnit>
+
+
+    <!-- =========================== -->
+    <!--       Worker Section        -->
+    <!-- =========================== -->
+    <CUnit id="WorkerGenetron" parent="CustomSettingsWorker" Race="Genetron"
+       Unit1="Spitfire"
+       Unit2="Blitzer"
+       Unit3="Equalizer"
+       Unit4="Fixer"
+       Unit5="Aquila"
+       Unit6="Inciter"
+       Unit7="Torrent"
+       Unit8="Mole"
+       Unit9="Virtus"
+       Unit10="Scion_Avenger"
+       Unit11="Hornet"
+       Unit12="Boar"
+       Unit13="Jupiter"
+       Unit14="Badger"
+       Unit15="Scion_Processor"
+       Unit16="Tesla"
+       Unit17="Courier"
+
+       Upgrade1="CalibratedEngines"
+       Upgrade2="SpitfireMadcapRounds"
+    >
+<!--        Unit18="ACR"-->
+    <Name value="Race/Name/Gen"/>
+        <AbilArray Link="FilteringPlantMinerals"/>
+        <AbilArray Link="RelayTowerPlace"/>
+
+        <BehaviorArray Link="GenetronPowerSupplyTracker"/>
+        <BehaviorArray Link="TrackAndMirrorGenetronPowerSupply"/>
+<!--        <BehaviorArray Link="TrackGenetronPowerSupply"/>-->
+
+        <CardLayouts index="0">
+            <LayoutButtons Face="UpgradeHeavyWeapons" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize1" Row="1" Column="1"/>
+            <LayoutButtons Face="UpgradeHeavyWeaponsLevel2" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize2" Row="1" Column="1"/>
+            <LayoutButtons Face="UpgradeHeavyWeaponsLevel3" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize3" Row="1" Column="1"/>
+            <LayoutButtons Face="UpgradeLightWeapons" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize4" Row="1" Column="0"/>
+            <LayoutButtons Face="UpgradeLightWeaponsLevel2" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize5" Row="1" Column="0"/>
+            <LayoutButtons Face="UpgradeLightWeaponsLevel3" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize6" Row="1" Column="0"/>
+            <LayoutButtons Face="UpgradeGroundPlating" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize7" Row="1" Column="3"/>
+            <LayoutButtons Face="UpgradeGroundPlatingLevel2" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize8" Row="1" Column="3"/>
+            <LayoutButtons Face="UpgradeGroundPlatingLevel3" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize9" Row="1" Column="3"/>
+            <LayoutButtons Face="UpgradeAircraftWeapons" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize10" Row="1" Column="2"/>
+            <LayoutButtons Face="UpgradeAircraftWeaponsLevel2" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize11" Row="1" Column="2"/>
+            <LayoutButtons Face="UpgradeAircraftWeaponsLevel3" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize12" Row="1" Column="2"/>
+            <LayoutButtons Face="UpgradeAircraftPlating" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize13" Row="1" Column="4"/>
+            <LayoutButtons Face="UpgradeAircraftPlatingLevel2" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize14" Row="1" Column="4"/>
+            <LayoutButtons Face="UpgradeAircraftPlatingLevel3" Type="AbilCmd" AbilCmd="GenetronUpgrades,Specialize15" Row="1" Column="4"/>
+            <LayoutButtons Face="FilteringPlantMinerals" Type="AbilCmd" AbilCmd="FilteringPlantMinerals,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="31"  AbilCmd="Scion_ProcessorPlace,Execute"/>
+            <LayoutButtons index="32"  AbilCmd="TeslaPlace,Execute"/>
+            <LayoutButtons index="33"  AbilCmd="CourierPlace,Execute"/>
+            <LayoutButtons index="34"  AbilCmd="ACRPlace,Execute"/>
+
+
+            <LayoutButtons Face="RelayTowerPlace" Type="AbilCmd" AbilCmd="RelayTowerPlace,Execute" Row="2" Column="4"/>
+        </CardLayouts>
+        <CardLayouts index="1" CardId="Unit">
+            <LayoutButtons index="1" AbilCmd="SpitfirePlace,Execute"/>
+            <LayoutButtons index="2" AbilCmd="BlitzerPlace,Execute"/>
+            <LayoutButtons index="3" AbilCmd="EqualizerPlace,Execute"/>
+            <LayoutButtons index="4" AbilCmd="FixerPlace,Execute"/>
+            <LayoutButtons index="5" AbilCmd="AquilaPlace,Execute"/>
+            <LayoutButtons index="6" AbilCmd="InciterPlace,Execute"/>
+            <LayoutButtons index="7" AbilCmd="TorrentPlace,Execute"/>
+            <LayoutButtons index="8" AbilCmd="MolePlace,Execute"/>
+            <LayoutButtons index="9" AbilCmd="VirtusPlace,Execute"/>
+            <LayoutButtons index="10" AbilCmd="Scion_AvengerPlace,Execute"/>
+            <LayoutButtons index="11" AbilCmd="HornetPlace,Execute"/>
+            <LayoutButtons index="12" AbilCmd="BoarPlace,Execute"/>
+            <LayoutButtons index="13" AbilCmd="JupiterPlace,Execute"/>
+            <LayoutButtons index="14" AbilCmd="BadgerPlace,Execute"/>
+        </CardLayouts>
+        <CardLayouts index="2" CardId="Upgr">
+            <LayoutButtons  index="1"   AbilCmd="GenetronResearch,Specialize1"/>
+            <LayoutButtons  index="2"   AbilCmd="GenetronResearch,Specialize2"/>
+        </CardLayouts>
+        <CardLayouts index="3" CardId="Abil"/>
+    </CUnit>
+    <CActorSimple id="WorkerBirthGenetronSimple">
+        <On Terms="Behavior.WorkerBirthGenetron.On" Send="Create"/>
+        <On Terms="Behavior.WorkerBirthGenetronInstant.On" Send="Create"/>
+        <On Terms="ActorCreation" Send="Create WorkerBirthGenetron"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetWireframe 0 Assets\Textures\wireframe-Protoss-desaturated.dds"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetGroupIcon 0 Assets\Textures\wireframe-Protoss-desaturated.dds"/>
+        <On Terms="ActorCreation" Send="Destroy"/>
+    </CActorSimple>
+    <CActorUnit id="WorkerBirthGenetron" parent="GenericUnitWorker" Model="WorkerBirthGenetron" Sound="SCV">
+        <HostSiteOps Ops="SOpBankerSentry"/>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionFlier"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-Genetron-ACR.dds"/>
+        </GroupIcon>
+        <UnitIcon value="Assets\Textures\btn-unit-Genetron-ACR.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-Genetron-ACR.dds"/>
+        </Wireframe>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+    </CActorUnit>
+    <CModel id="WorkerBirthGenetron">
+        <Model value="Assets\Units\Test\InvisibleUnit\InvisibleUnit.m3"/>
+        <EditorCategories value="Race:Neutral"/>
+    </CModel>
+    <CActorUnit id="WorkerACR" parent="GenericUnitWorker" Portrait="" Model="ACR" Sound="ACR">
+        <HostSiteOps Ops="SOpBankerSentry"/>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionFlier"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-Genetron-ACR.dds"/>
+        </GroupIcon>
+        <UnitIcon value="Assets\Textures\btn-unit-Genetron-ACR.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-Genetron-ACR.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-Genetron-ACR-shield1.dds"/>
+            <Image value="Assets\Textures\wireframe-Genetron-ACR-shield2.dds"/>
+            <Image value="Assets\Textures\wireframe-Genetron-ACR-shield3.dds"/>
+        </WireframeShield>
+        <WireframeShieldColor value="120,255,223,0"/>
+    </CActorUnit>
+    <CBehaviorBuff id="WorkerBirthGenetron">
+        <InfoFlags index="Hidden" value="1"/>
+        <BehaviorCategories index="Temporary" value="1"/>
+        <FinalEffect value="WorkerSwapNoTransition"/>
+        <Modification Height="3.75">
+            <HeightTime index="Stop" value="1.25"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="WorkerBirthGenetronInstant">
+        <InfoFlags index="Hidden" value="1"/>
+        <BehaviorCategories index="Temporary" value="1"/>
+        <FinalEffect value="WorkerSwapNoTransition"/>
+        <Modification Height="3.75"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="WorkerACR" parent="DefaultWorkerAir">
+        <InfoIcon value="Assets\Textures\btn-unit-Genetron-ACR.dds"/>
+        <Name value="Unit/Name/ACR"/>
+        <Modification>
+            <AttributeChangeArray Attribute="Index"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CActorSimple default="1" id="WorkerTransitionGenetronSimple">
+        <?token id="Buff" type="CBehaviorLink"?>
+        <!-- <?token id="Buff" type="CBehaviorLink"?> -->
+        <Aliases value="_WorkerSwapSimple"/>
+        <On Terms="Behavior.##Buff##.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_WorkerSwapSimple" Send="TimerKill Morph"/>
+        <On Terms="ActorCreation; ValidateUnit NoWorkerSwapNoTransition" Target="_Unit" Send="Create WorkerTransitionProtossStart"/>
+        <On Terms="ActorCreation; ValidateUnit NoWorkerSwapNoTransition" Send="TimerSet 0.625000 Morph"/>
+        <On Terms="ActorCreation; ValidateUnit HasWorkerSwapNoTransition" Send="Signal WorkerSwap"/>
+        <On Terms="ActorCreation" Send="TimerSet 1.500000 Die"/>
+        <On Terms="TimerExpired; TimerName Morph" Send="Signal WorkerSwap"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Unit" Send="Destroy"/>
+        <On Terms="Signal.*.WorkerSwap" Send="Create ##Buff##"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="Create WorkerTransitionProtossImpact"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="Create WorkerTransitionProtossSparks"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="Create WorkerTransitionProtossSparks"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="Create WorkerTransitionProtossSparks"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="Create WorkerTransitionProtossSound"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="Create UnitBirthBlueGlaze"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="SetScale 0.800000,0.800000,1.200000 0.000000 BirthScale"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="ClearScale 0.750000 BirthScale"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="SetOpacity 0.000000 0.000000 BirthOpacity"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="ClearOpacity 0.750000 BirthOpacity"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="SetTintColor {0,255,255 20.000000} 0.000000 OneShot BirthTint"/>
+        <On Terms="Signal.*.WorkerSwap" Target="_Selectable" Send="ClearTintColor 0.750000 BirthTint"/>
+        <On Terms="Signal.*.WorkerSwap" Send="Destroy"/>
+        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+    </CActorSimple>
+    <CActorSimple id="WorkerACRSimple" parent="WorkerTransitionGenetronSimple" Buff="WorkerACR"/>
+    <CButton id="WorkerGenetron">
+        <Name value="Race/Name/Gen"/>
+        <TooltipFlags index="ShowTime" value="0"/>
+        <Hotkey value="Button/Hotkey/Race7"/>
+        <Icon value="Assets\Textures\icon-1v1-genetron.dds"/>
+        <AlertIcon value="Assets\Textures\icon-1v1-genetron.dds"/>
+    </CButton>
+    <CEffectSet id="WorkerSelectGenetronTrigger"/>
+    <CEffectCreateUnit id="RacialWorkerGenetron">
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnUnit value="Probe"/>
+        <SpawnRange value="8"/>
+        <SpawnOwner Value="Source"/>
+    </CEffectCreateUnit>
+    <CEffectModifyPlayer id="RacialWorkerGenetronModify">
+        <Upgrades Upgrade="ProbePlaceholder" Count="1"/>
+    </CEffectModifyPlayer>
+    <CEffectSet id="RacialWorkerSetGenetron">
+        <EffectArray value="RacialWorkerGenetron"/>
+        <EffectArray value="RacialWorkerGenetronModify"/>
+    </CEffectSet>
+    <CRequirement id="WorkerSelectGenetron">
+        <NodeArray index="Use" Link="CountUpgradeMutationCovenantCompleteOnly"/>
+        <NodeArray index="Show" Link="AndNotCountUnitWorkerGenetronCompleteOnlyCountUpgradeMutationCovenantCompleteOnly"/>
+    </CRequirement>
+    <CRequirementAnd id="AndNotCountUnitWorkerGenetronCompleteOnlyCountUpgradeMutationCovenantCompleteOnly">
+        <OperandArray value="NotCountUnitWorkerGenetronCompleteOnly"/>
+        <OperandArray value="CountUpgradeMutationCovenantCompleteOnly"/>
+    </CRequirementAnd>
+    <CRequirementNot id="NotCountUnitWorkerGenetronCompleteOnly">
+        <OperandArray index="0" value="CountUnitWorkerGenetronCompleteOnly"/>
+    </CRequirementNot>
+    <CRequirementCountUnit id="CountUnitWorkerGenetronCompleteOnly">
+        <Flags index="TechTreeCheat" value="0"/>
+        <Count Link="WorkerGenetron" State="CompleteOnly"/>
+    </CRequirementCountUnit>
+    <CEffectEnumArea id="ACRBuildSearch">
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Armored,Structure,User1,Buried,Cloaked,Invulnerable,Resistant;Ally,Neutral,Enemy,Light,Biological,Mechanical,Unstoppable"/>
+        <AreaArray MaxCount="1" Radius="500" Effect="ACRBuildSet"/>
+        <TargetSorts>
+            <SortArray value="TSDistance"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectSet id="ACRBuildSet">
+        <EffectArray value="MakePlaceholderUnstoppable"/>
+        <EffectArray value="ACRBuildSwitch"/>
+    </CEffectSet>
+    <CEffectSwitch id="ACRBuildSwitch">
+        <CaseArray Validator="NoVisionOfTarget" Effect="BaseIdleOrder"/>
+        <CaseArray Validator="FilteringPlantPlaceholder" Effect="ACRBuildFilteringPlantSearch"/>
+    </CEffectSwitch>
+
+
+    <!-- =========================== -->
+    <!--     Refinery Section        -->
+    <!-- =========================== -->
+    <CUnit id="FilteringPlant">
+        <Collide index="Burrow" value="0"/>
+        <Collide index="Ground" value="0"/>
+        <Collide index="Larva" value="1"/>
+        <Collide index="Structure" value="0"/>
+        <Collide index="RoachBurrow" value="0"/>
+        <Collide index="TinyCritter" value="1"/>
+        <Collide index="ForceField" value="0"/>
+        <Collide index="Locust" value="0"/>
+        <Collide index="Phased" value="0"/>
+        <Collide index="Small" value="0"/>
+        <Footprint value=""/>
+        <BehaviorArray Link="StructureNeedsDefendersCheck"/>
+        <AttackTargetPriority value="20"/>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CUnit id="FilteringPlantMinerals">
+        <Name value="Unit/Name/FilteringPlant"/>
+        <Facing value="315"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="Movable" value="0"/>
+        <FlagArray index="PreventReveal" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlacementFootprint value="3x3SpawnerPlacement"/>
+        <BuiltOn value="MineralFieldProtoss"/>
+        <BuiltOn value="MineralFieldTerran"/>
+        <BuiltOn value="MineralFieldZerg"/>
+        <ScoreResult value="BuildOrder"/>
+        <MinimapRadius value="1.5"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
+        <AbilArray Link="que1"/>
+        <AbilArray Link="SkinSpecializePremium"/>
+        <AbilArray Link="FilteringPlantMineralsReposition"/>
+        <CardLayouts>
+            <LayoutButtons>
+                <Face value="SkinSelect"/>
+                <Type value="Submenu"/>
+                <Requirements value="HasPremiumModeNotWaveUnit"/>
+                <SubmenuCardId value="Skin"/>
+                <Row value="1"/>
+                <Column value="4"/>
+            </LayoutButtons>
+            <LayoutButtons Face="Reposition0Protoss" Type="AbilCmd" AbilCmd="FilteringPlantMineralsReposition,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <CardLayouts CardId="Skin">
+            <LayoutButtons Face="Cancel" Type="CancelSubmenu" Row="2" Column="4"/>
+            <LayoutButtons Face="SkinRemove" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize20" Row="1" Column="4"/>
+            <LayoutButtons Face="SkinBiomass" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize1" Row="0" Column="0"/>
+            <LayoutButtons Face="SkinCybros" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize2" Row="0" Column="1"/>
+            <LayoutButtons Face="SkinHologram" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize3" Row="0" Column="2"/>
+            <LayoutButtons Face="SkinMineral" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize4" Row="1" Column="0"/>
+            <LayoutButtons Face="SkinPsionic" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize5" Row="1" Column="1"/>
+            <LayoutButtons Face="SkinRedstone" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize6" Row="1" Column="2"/>
+            <LayoutButtons Face="SkinSolarite" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize7" Row="2" Column="0"/>
+            <LayoutButtons Face="SkinVoid" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize8" Row="2" Column="1"/>
+            <LayoutButtons Face="SkinShadow" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize9" Row="2" Column="2"/>
+            <LayoutButtons Face="SkinSepia" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize10" Row="0" Column="3"/>
+            <LayoutButtons Face="SkinJade" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize11" Row="1" Column="3"/>
+            <LayoutButtons Face="SkinSnow" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize12" Row="2" Column="3"/>
+            <LayoutButtons Face="SkinHighlight" Type="AbilCmd" AbilCmd="SkinSpecializePremium,Specialize13" Row="0" Column="4"/>
+        </CardLayouts>
+        <Collide index="Structure" value="1"/>
+        <Collide index="TinyCritter" value="1"/>
+        <Radius value="1.5"/>
+        <SeparationRadius value="1.5"/>
+        <InnerRadius value="1.5"/>
+        <Footprint value="3x3SpawnerPlacement"/>
+        <BehaviorArray Link="StagingAreaMinerals"/>
+        <BehaviorArray Link="ThemeStructureController"/>
+        <SelectAlias value="MineralFieldTerran"/>
+        <SubgroupAlias value="MineralFieldTerran"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="150"/>
+    </CUnit>
+    <CUnit id="FilteringPlantPlaceholder">
+        <Facing value="315"/>
+        <Race value="Prot"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="Movable" value="0"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="Cloaked" value="1"/>
+        <FlagArray index="Buried" value="1"/>
+        <FlagArray index="Resistant" value="1"/>
+        <Collide index="Swarm" value="1"/>
+        <BehaviorArray Link="PlaceholderStructure"/>
+        <BehaviorArray Link="PlaceholderBuiltUpon"/>
+        <BehaviorArray Link="PlaceholderHostileSearch"/>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <Footprint value="3x3Placeholder"/>
+        <PlacementFootprint value="3x3Placeholder"/>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectFamily:Melee,ObjectType:Prop"/>
+        <Name value="Unit/Name/FilteringPlant"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <Attributes index="User1" value="1"/>
+    </CUnit>
+    <CButton id="FilteringPlantMinerals">
+        <Name value="Unit/Name/FilteringPlant"/>
+        <Icon value="Assets\Textures\btn-building-Genetron-FilteringPlant.dds"/>
+        <EditorCategories value="Race:Neutral"/>
+        <AlertIcon value="Assets\Textures\btn-building-Genetron-FilteringPlant.dds"/>
+        <Tooltip value="Button/Tooltip/MineralMine"/>
+        <Hotkey value="Button/Hotkey/PlaceRefinery"/>
+        <TooltipAppender Validator="MutationBountiful" Text="Button/Appender/GameplayHelpBountiful"/>
+        <TooltipAppender Validator="MutationDowntime" Text="Button/Appender/GameplayHelpDowntime"/>
+    </CButton>
+    <CButton id="FilteringPlant">
+        <TooltipFlags index="ShowCooldown" value="0"/>
+    </CButton>
+    <CActorSound id="FilteringPlantCursor" parent="DefaultCursorSound" Sound="Assimilator_What"/>
+    <CActorUnit id="FilteringPlantMinerals" parent="GenericUnitMorph" unitName="FilteringPlantMinerals">
+        <Inherits index="ModelMaterials" value="1"/>
+        <AcceptedTransfers index="ModelMaterials" value="1"/>
+        <On Terms="Behavior.MineralIncomeDeficit.On" Send="AnimBracketStop Work"/>
+        <On Terms="Behavior.MineralIncomeDeficit.On" Send="AnimGroupApply B"/>
+        <On Terms="Behavior.MineralIncomeDeficit.Off" Send="AnimGroupRemoveAll"/>
+        <On Terms="Behavior.MineralIncomeDeficit.Off" Send="AnimBracketStart Work {} Work,D"/>
+        <AnimBlendTime value="0.500000"/>
+        <Baselines index="Stand" AnimProps="Stand,Work"/>
+        <DeathArray index="Normal" ActorModel="GenetronStructureDeathExplosion" ModelLink="GenetronStructureDeathExplosion" SoundLink="GenetronStructureLarge_Death"/>
+        <PlacementSound value="Genetron_BuildingPlacement"/>
+        <PlacementModel value="FilteringPlant"/>
+        <PortraitModel value="ExecutorPortrait"/>
+        <BarOffset value="110"/>
+        <BarWidth value="120"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-Genetron-FilteringPlant.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-Genetron-buildingplating.dds"/>
+        <SoundArray index="Ready" value="FilteringPlant_Ready"/>
+        <SoundArray index="What" value="FilteringPlant_What"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+        <StatusBarFlags index="Workers" value="0"/>
+        <StatusBarFlags index="Custom" value="0"/>
+        <StatusColors index="Duration">
+            <ColorArray index="0" value="255,255,0,0"/>
+        </StatusColors>
+        <UnitIcon value="Assets\Textures\btn-building-Genetron-FilteringPlant.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-Genetron-FilteringPlant.dds"/>
+        </Wireframe>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <PlacementActorModel value="PlacementModelGenetron"/>
+        <PlaceholderActorModel value="PlaceholderModelGenetron"/>
+    </CActorUnit>
+    <CActorSplat id="FilteringPlantMineralsSplat" parent="TerranBuildingMorphSplat" unitName="FilteringPlantMinerals">
+        <Model value="AssimilatorSplat"/>
+    </CActorSplat>
+    <CActorSimple id="StructureBirthFilteringPlantSimple">
+        <On Terms="Behavior.StructureBirthFilteringPlant.On" Send="Create"/>
+<!--        <On Terms="ActorCreation" Target="_Unit" Send="ModelSwap FilteringPlantBirth"/>-->
+        <On Terms="ActorCreation" Target="_Unit" Send="ModelSwap FilteringPlant"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="Create StructureBirthProtossSoundStart"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="AnimPlay Unload Stand,Birth,End"/>
+        <!--        <On Terms="ActorCreation" Target="_Unit" Send="AnimSetTime Unload 1.750000"/>-->
+        <On Terms="ActorCreation" Target="_Unit" Send="AnimSetTime Unload 0.10000"/>
+        <On Terms="ActorCreation" Send="TimerSet 4.000000 Transition"/>
+<!--        <On Terms="TimerExpired; TimerName Transition" Target="_Unit" Send="ModelSwap FilteringPlant"/>-->
+        <On Terms="TimerExpired; TimerName Transition" Target="_Unit" Send="Create StructureBirthProtossSoundEnd"/>
+        <On Terms="TimerExpired; TimerName Transition" Send="Destroy"/>
+        <On Terms="Behavior.StructureBirthFilteringPlant.Off" Send="Destroy"/>
+    </CActorSimple>
+    <CActorModel default="1" id="PlaceStructureGenetron" parent="PlaceBase">
+        <On index="0" Send="AnimBracketStart BSD Birth Attack Death"/>
+        <On Terms="ActorCreation; !AnimPlayable Attack" Send="AnimBracketStart BSD {} Walk"/>
+        <On Terms="ActorCreation; !AnimPlayable Walk" Send="AnimBracketStart BSD {} Stand,Work"/>
+        <On Terms="ActorCreation" Send="AnimSetTimeScale BSD 1.300000"/>
+        <On Terms="ActorCreation" Send="Create PlaceRocker"/>
+        <On Terms="ActorCreation" Send="Create PlaceBeamTerran"/>
+        <HostSiteOps Ops="SOpBasicScopePositionFollowHoldRotation SOpHeightPlacement_Flyer SOpFacingPlacement_SW"/>
+    </CActorModel>
+    <CActorModel id="FilteringPlantPlace" parent="PlaceStructureGenetron" Unit="FilteringPlantMinerals">
+        <On index="11" Terms="ActorCreation" Send="StatusSet {} 0"/>
+        <On Terms="ActorCreation" Send="AnimPlay SpellA Work,D,00"/>
+        <On Terms="AnimDone; AnimName SpellA" Send="AnimPlay SpellB Work,D,01"/>
+        <On Terms="AnimDone; AnimName SpellB" Send="AnimPlay SpellA Work,D,00"/>
+    </CActorModel>
+    <CActorSound id="GenetronPlacementSound" parent="SoundOneShot">
+        <Filter index="Ally" value="1"/>
+        <Filter index="Neutral" value="1"/>
+        <Filter index="Enemy" value="1"/>
+        <Sound value="Protoss_BuildingPlacement"/>
+        <!--        <On Terms="Abil.TrophyGenetronGamesReposition.SourceCastStart" Send="Create"/>-->
+        <!--        <On Terms="Abil.TrophyGenetronVictoriesReposition.SourceCastStart" Send="Create"/>-->
+        <On Terms="Abil.TrophyTotalKillsReposition.SourceCastStart" Send="Create"/>
+        <!--        <On Terms="Effect.KhaydarinMonolithPlace.Create" Send="Create"/>-->
+        <!--        <On Terms="Abil.KhaydarinMonolithReposition.SourceCastStart" Send="Create"/>-->
+        <On Terms="Abil.FilteringPlantMineralsReposition.SourceCastStart" Send="Create"/>
+    </CActorSound>
+    <CActorUnit id="FilteringPlant">
+        <StatusHarvesterData Text=""/>
+        <PlacementModel value="Invisible"/>
+    </CActorUnit>
+    <CActorUnit id="FilteringPlantPlaceholder" parent="GenericUnitMinimal" unitName="FilteringPlantPlaceholder">
+        <Model value="Invisible"/>
+        <BuildModel value="Invisible"/>
+        <EditorModel value="FilteringPlantPlacement"/>
+        <PlacementModel value="Invisible"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
+        <UnitIcon value="Assets\Textures\btn-building-Genetron-FilteringPlant.dds"/>
+    </CActorUnit>
+    <CBehaviorBuff id="StructureBirthFilteringPlant">
+        <InfoFlags index="Hidden" value="1"/>
+        <Duration value="5"/>
+        <InitialEffect value="StructureBirthDelay40"/>
+    </CBehaviorBuff>
+    <CValidatorUnitType id="FilteringPlantPlaceholder">
+        <Value value="FilteringPlantPlaceholder"/>
+    </CValidatorUnitType>
+    <CAbilMorph id="MineralFieldMorphFilteringPlant">
+        <CmdButtonArray index="Execute" DefaultButtonFace="FilteringPlantMinerals"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="IgnoreFood" value="1"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <InfoArray Unit="FilteringPlantMinerals"/>
+    </CAbilMorph>
+    <CAbilEffectTarget id="FilteringPlantMinerals">
+        <Effect index="0" value="FilteringPlantMineralsSet"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Resource index="Minerals" value="150"/>
+            <Charge>
+                <CountMax value="4"/>
+                <CountStart value="4"/>
+                <CountUse value="1"/>
+                <Link value="Abil/MineralUpgrade"/>
+                <Location value="Player"/>
+            </Charge>
+            <Cooldown Link="Abil/MineralUpgrade" Location="Player" TimeUse="126"/>
+        </Cost>
+        <TargetFilters value="-;Ally,Neutral,Enemy"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <AutoCastFilters value="Visible,Invulnerable,Resistant;Ally,Neutral,Enemy"/>
+        <AutoCastRange value="500"/>
+        <AutoCastValidatorArray value="IsMineralFieldAny"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="FilteringPlantMinerals" Requirements="MineralFieldAvailable"/>
+        <PlaceUnit value="FilteringPlantMinerals"/>
+        <AbilSetId value="MineralMineBuild"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="FilteringPlantMineralsReposition" parent="Reposition" Placement="3x3PlaceRefinery" Button="FilteringPlantMinerals" Unit="FilteringPlantMinerals">
+        <Cost index="0">
+            <Charge>
+                <CountMax value="60"/>
+                <CountStart value="60"/>
+                <CountUse value="0"/>
+                <Link value="Abil/Reposition"/>
+                <Location value="Player"/>
+                <TimeUse value="1.5"/>
+            </Charge>
+        </Cost>
+        <CmdButtonArray index="Execute" Requirements=""/>
+    </CAbilEffectTarget>
+    <CModel id="FilteringPlantMinerals" parent="FilteringPlant"/>
+    <CEffectSet id="FilteringPlantMineralsSet">
+        <ValidatorArray value="IsMineralFieldAny"/>
+        <ValidatorArray value="NoMineralFieldUnavailableTargetAny"/>
+        <ValidatorArray value="OwnedBySelf"/>
+        <EffectArray value="MineralFieldMorphFilteringPlant"/>
+        <EffectArray value="MineralIncomeDeficit"/>
+        <EffectArray value="StructureBirthFilteringPlant"/>
+        <EffectArray value="MineralMineSet"/>
+        <EffectArray value="MineralMineBuiltTrigger"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="MineralFieldMorphFilteringPlant">
+        <Abil value="MineralFieldMorphFilteringPlant"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="FilteringPlantMineralsReposition">
+        <EffectArray value="RepositionTeleport"/>
+        <EffectArray value="StructureBirthFilteringPlantRemove"/>
+        <EffectArray value="StructureBirthFilteringPlantSource"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectDamage id="DecorationPassiveFilteringPlantSizeAmount">
+        <Amount value="5"/>
+    </CEffectDamage>
+    <CEffectSet id="FilteringPlantReposition">
+        <EffectArray value="RepositionTeleport"/>
+        <EffectArray value="StructureBirthFilteringPlantRemove"/>
+        <EffectArray value="StructureBirthFilteringPlantSource"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StructureBirthFilteringPlant"/>
+    <CEffectRemoveBehavior id="StructureBirthFilteringPlantRemove">
+        <WhichUnit Value="Source"/>
+        <BehaviorLink value="StructureBirthFilteringPlant"/>
+        <Count value="4294967295"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="StructureBirthFilteringPlantSource">
+        <WhichUnit Value="Source"/>
+        <Behavior value="StructureBirthFilteringPlant"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="ACRBuildFilteringPlant">
+        <WhichUnit Value="Source"/>
+        <Abil value="ACRBuildPlaceholder"/>
+        <AbilCmdIndex value="2"/>
+        <Player Value="Source"/>
+        <Target Value="TargetUnit"/>
+    </CEffectIssueOrder>
+    <CEffectEnumArea id="ACRBuildFilteringPlantSearch">
+        <ImpactLocation Value="TargetUnit"/>
+        <SearchFilters value="RawResource;-"/>
+        <AreaArray MaxCount="1" Radius="1" Effect="ACRBuildFilteringPlantSet"/>
+    </CEffectEnumArea>
+    <CEffectSet id="ACRBuildFilteringPlantSet">
+        <EffectArray value="ACRBuildFilteringPlant"/>
+        <EffectArray value="ACRBuildFilteringPlantStop"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="ACRBuildFilteringPlantStop">
+        <WhichUnit Value="Source"/>
+        <Abil value="ACRBuildPlaceholder"/>
+        <CmdFlags index="Queued" value="1"/>
+        <Player Value="Source"/>
+        <Target Value="SourceUnit"/>
+    </CEffectIssueOrder>
+
+    <!-- =========================== -->
+    <!--        Race Section         -->
+    <!-- =========================== -->
+    <CValidatorPlayerCompareRace id="PlaceholderRaceGenetron">
+        <Value value="Gen"/>
+    </CValidatorPlayerCompareRace>
+    <CEffectSet id="RacialAdvancedSetGenetron">
+        <EffectArray value="RacialAdvancedRoboticsFacilityOffset"/>
+        <EffectArray value="RacialAdvancedPylonOffset"/>
+    </CEffectSet>
+    <CEffectSet id="RacialAirSetGenetron">
+        <EffectArray value="RacialAirStargateOffset"/>
+        <EffectArray value="RacialAirPylonOffset"/>
+    </CEffectSet>
+    <CEffectSet id="RacialDefenseSetGenetron">
+        <EffectArray value="RacialDefensePhotonCannonOffset"/>
+        <EffectArray value="RacialDefensePhotonCannonOffset"/>
+        <EffectArray value="RacialDefenseShieldBatteryOffset"/>
+        <EffectArray value="RacialDefensePylonOffset"/>
+    </CEffectSet>
+    <CEffectSet id="RacialProductionSetGenetron">
+        <EffectArray value="RacialProductionGatewayOffset"/>
+        <EffectArray value="RacialProductionPylonOffset"/>
+    </CEffectSet>
+    <CEffectSet id="RacialSupportSetGenetron">
+        <EffectArray value="RacialSupportRoboticsBayOffset"/>
+        <EffectArray value="RacialSupportPylonOffset"/>
+    </CEffectSet>
+    <CEffectSet id="RacialTechSetGenetron">
+        <EffectArray value="RacialTechPylonOffset"/>
+        <EffectArray value="RacialTechTwilightCouncilOffset"/>
+        <EffectArray value="RacialTechTemplarArchivesOffset"/>
+        <EffectArray value="RacialTechDarkShrineOffset"/>
+    </CEffectSet>
+    <CEffectSet id="RacialTownHallSetGenetronPrebuilt">
+        <EffectArray value="RacialTownHallGenetron"/>
+        <EffectArray value="RacialTownHallGenetronPrebuilt"/>
+    </CEffectSet>
+    <CEffectSet id="RacialTownHallSetGenetron">
+        <EffectArray value="RacialTownHallGenetron"/>
+    </CEffectSet>
+    <CEffectSet id="RacialUltimateSetGenetron">
+        <EffectArray value="RacialUltimateFleetBeaconOffset"/>
+        <EffectArray value="RacialUltimatePylonOffset"/>
+    </CEffectSet>
+    <CEffectSet id="RacialUpgradesSetGenetron">
+        <EffectArray value="RacialUpgradesForgeOffset"/>
+        <EffectArray value="RacialUpgradesPylonOffset"/>
+        <EffectArray value="RacialUpgradesCyberneticsCoreOffset"/>
+    </CEffectSet>
+    <CEffectModifyPlayer id="RacialDefenderBasicGenetronModify">
+        <Upgrades Upgrade="ZealotPlaceholder" Count="1"/>
+    </CEffectModifyPlayer>
+    <CButton id="Reposition1Genetron">
+        <Tooltip value="Button/Tooltip/Reposition"/>
+        <TooltipFlags index="ShowHotkey" value="0"/>
+        <Icon value="Assets\Textures\btn-menu-reposition-protoss.dds"/>
+        <AlertIcon value="Assets\Textures\btn-menu-reposition-protoss.dds"/>
+        <Hotkey value="Button/Hotkey/Reposition"/>
+        <EditorCategories value="Race:Neutral"/>
+        <HidesForSimpleText value="0"/>
+    </CButton>
+    <CButton id="Reposition4Genetron">
+        <Tooltip value="Button/Tooltip/Reposition"/>
+        <TooltipFlags index="ShowHotkey" value="0"/>
+        <Icon value="Assets\Textures\btn-menu-reposition-protoss.dds"/>
+        <AlertIcon value="Assets\Textures\btn-menu-reposition-protoss.dds"/>
+        <Hotkey value="Button/Hotkey/Reposition"/>
+        <EditorCategories value="Race:Neutral"/>
+        <HidesForSimpleText value="0"/>
+    </CButton>
+    <CButton id="Reposition9Genetron">
+        <Tooltip value="Button/Tooltip/Reposition"/>
+        <TooltipFlags index="ShowHotkey" value="0"/>
+        <Icon value="Assets\Textures\btn-menu-reposition-protoss.dds"/>
+        <AlertIcon value="Assets\Textures\btn-menu-reposition-protoss.dds"/>
+        <Hotkey value="Button/Hotkey/Reposition"/>
+        <EditorCategories value="Race:Neutral"/>
+        <HidesForSimpleText value="0"/>
+    </CButton>
+
+    <!-- =========================== -->
+    <!--      Upgrades Section       -->
+    <!-- =========================== -->
+
+    <CAbilSpecialize id="GenetronUpgrades" Race="Genetron" parent="CustomUpgrades">
+        <InfoArray index="Specialize1"><Button DefaultButtonFace="UpgradeLightWeapons"/></InfoArray>
+        <InfoArray index="Specialize2"><Button DefaultButtonFace="UpgradeLightWeaponsLevel2"/></InfoArray>
+        <InfoArray index="Specialize3"><Button DefaultButtonFace="UpgradeLightWeaponsLevel3"/></InfoArray>
+        <InfoArray index="Specialize4"><Button DefaultButtonFace="UpgradeHeavyWeapons"/></InfoArray>
+        <InfoArray index="Specialize5"><Button DefaultButtonFace="UpgradeHeavyWeaponsLevel2"/></InfoArray>
+        <InfoArray index="Specialize6"><Button DefaultButtonFace="UpgradeHeavyWeaponsLevel3"/></InfoArray>
+        <InfoArray index="Specialize7"><Button DefaultButtonFace="UpgradeGroundPlating"/></InfoArray>
+        <InfoArray index="Specialize8"><Button DefaultButtonFace="UpgradeGroundPlatingLevel2"/></InfoArray>
+        <InfoArray index="Specialize9"><Button DefaultButtonFace="UpgradeGroundPlatingLevel3"/></InfoArray>
+        <InfoArray index="Specialize10"><Button DefaultButtonFace="UpgradeAircraftWeapons"/></InfoArray>
+        <InfoArray index="Specialize11"><Button DefaultButtonFace="UpgradeAircraftWeaponsLevel2"/></InfoArray>
+        <InfoArray index="Specialize12"><Button DefaultButtonFace="UpgradeAircraftWeaponsLevel3"/></InfoArray>
+        <InfoArray index="Specialize13"><Button DefaultButtonFace="UpgradeAircraftPlating"/></InfoArray>
+        <InfoArray index="Specialize14"><Button DefaultButtonFace="UpgradeAircraftPlatingLevel2"/></InfoArray>
+        <InfoArray index="Specialize15"><Button DefaultButtonFace="UpgradeAircraftPlatingLevel3"/></InfoArray>
+    </CAbilSpecialize>
+
+
+
+
+
+    <CRequirement id="GroundWeaponsInfantryWeaponsMeleeAttacksLevel1Genetron" parent="CustomGroundWeaponsInfantryWeaponsMeleeAttacksLevel1"><NodeArray index="Use" Link="Alias_GenetronLight"/></CRequirement>
+    <CRequirement id="GroundArmorInfantryArmorGroundCarapaceLevel1Genetron" parent="CustomGroundArmorInfantryArmorGroundCarapaceLevel1"><NodeArray index="Use" Link="Alias_GenetronLight"/></CRequirement>
+    <CRequirement id="ShieldsVehicleWeaponsMissileAttacksLevel1Genetron" parent="CustomShieldsVehicleWeaponsMissileAttacksLevel1"><NodeArray index="Use" Link="Alias_GenetronHeavy"/></CRequirement>
+    <CRequirement id="AirWeaponsShipWeaponsFlyerAttacksLevel1Genetron" parent="CustomAirWeaponsShipWeaponsFlyerAttacksLevel1"><NodeArray index="Use" Link="Alias_GenetronAir"/></CRequirement>
+    <CRequirement id="AirArmorVehiclePlatingFlyerCarapaceLevel1Genetron" parent="CustomAirArmorVehiclePlatingFlyerCarapaceLevel1"><NodeArray index="Use" Link="Alias_GenetronAir"/></CRequirement>
+
+    <!-- =========================== -->
+    <!--      Research Section       -->
+    <!-- =========================== -->
+    <CAbilSpecialize id="GenetronAbilities" parent="CustomAbilities"
+                     Upgrade1="BadgerEnergyShield"
+                     Upgrade2="MoleSubterraneanSensors"
+                     Upgrade3="ProcessorToggleDetection"
+                     Upgrade4="BlitzerOverdrive"
+                     Upgrade5="SuperChargeAquila"
+                     Upgrade6="SuperCharge"
+                     Upgrade7="VirtusSelffixProtocol"
+                     Upgrade8="CourierOpticalDisruption"
+                     Upgrade9="ELORProtocol"
+                     Upgrade10="LaunchCloakCharge"
+                     Upgrade11="LaunchShockCharge"
+                     Upgrade12="NaniteGrenade"
+                     Upgrade13="ProcessorAnalyzeWeakness"
+                     Upgrade14="RevenantBomb"
+                     Upgrade15="VengeanceMissile"
+                     Upgrade16="MoleActivate"
+                     Upgrade17="CourierCloak"
+                     Upgrade18="IgnitionBlast"
+                     Upgrade19="SpeedCloak"
+                     Upgrade20="MoleBury"/>
+    <CEffectModifyPlayer id="BadgerEnergyShieldDisable" Upgrade="BadgerEnergyShield" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="MoleSubterraneanSensorsDisable" Upgrade="MoleSubterraneanSensors" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="ProcessorToggleDetectionDisable" Upgrade="ProcessorToggleDetection" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="BlitzerOverdriveDisable" Upgrade="BlitzerOverdrive" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="SuperChargeAquilaDisable" Upgrade="SuperChargeAquila" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="SuperChargeDisable" Upgrade="SuperCharge" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="VirtusSelffixProtocolDisable" Upgrade="VirtusSelffixProtocol" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="CourierOpticalDisruptionDisable" Upgrade="CourierOpticalDisruption" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="ELORProtocolDisable" Upgrade="ELORProtocol" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="LaunchCloakChargeDisable" Upgrade="LaunchCloakCharge" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="LaunchShockChargeDisable" Upgrade="LaunchShockCharge" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="NaniteGrenadeDisable" Upgrade="NaniteGrenade" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="ProcessorAnalyzeWeaknessDisable" Upgrade="ProcessorAnalyzeWeakness" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="RevenantBombDisable" Upgrade="RevenantBomb" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="VengeanceMissileDisable" Upgrade="VengeanceMissile" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="MoleActivateDisable" Upgrade="MoleActivate" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="CourierCloakDisable" Upgrade="CourierCloak" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="IgnitionBlastDisable" Upgrade="IgnitionBlast" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="SpeedCloakDisable" Upgrade="SpeedCloak" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="MoleBuryDisable" Upgrade="MoleBury" parent="CustomUpgrade"/>
+
+    <CAbilSpecialize id="GenetronResearch" parent="CustomSpecialize"
+        Upgrade1="CalibratedEngines"
+        Upgrade2="SpitfireMadcapRounds">
+        <InfoArray index="Specialize1" ><Resource index="Minerals" value="100"/></InfoArray>
+        <InfoArray index="Specialize2" ><Resource index="Minerals" value="100"/></InfoArray>
+    </CAbilSpecialize>
+
+    <CEffectModifyPlayer id="CalibratedEnginesUpgrade" Upgrade="CalibratedEngines" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="SpitfireMadcapRoundsUpgrade" Upgrade="SpitfireMadcapRounds" parent="CustomUpgrade"/>
+
+    <CRequirement id="CalibratedEnginesUpgrade"       parent="CustomUpgradeReq"  Upgrade="CalibratedEngines"       />
+    <CRequirement id="SpitfireMadcapRoundsUpgrade"        parent="CustomUpgradeReq"  Upgrade="SpitfireMadcapRounds"        />
+
+    <CRequirementAnd parent="UnitAndTierRequirements"  id="CalibratedEnginesUpgradeRequirements"        Unit="Spitfire"             Tier="1"/>
+    <CRequirementAnd parent="UnitAndTierRequirements"  id="SpitfireMadcapRoundsUpgradeRequirements"         Unit="Spitfire"               Tier="1"/>
+
+    <CButton id="CalibratedEnginesUpgrade"         parent="CustomUpgradeButton" Upgrade="CalibratedEngines"         Art="btn-upgrade-genetron-CalibratedEngines"         Tooltip="ResearchSpitfireCalibratedEngines" Hotkey="Upgrade1"/>
+    <CButton id="SpitfireMadcapRoundsUpgrade"       parent="CustomUpgradeButton" Upgrade="SpitfireMadcapRounds"       Art="btn-tips-terran-penetrator"       Tooltip="SpitfireMadcapRounds" Hotkey="Upgrade2"/>
+
+<!--ProcessingCore +300Max-->
+<!--Node +1/s-->
+<!--Generator +50Max +4/s-->
+<!--RelayTower +100Max -->
+
+
+<!--Processor-->
+<!--Blitzer-->
+<!--Virtus-->
+<!--Inciter-->
+<!--Aquilla-->
+<!--Avenger-->
+<!--Courier-->
+<!--Boar-->
+<!--Jupiter-->
+<!--Badger-->
+
+
+    <CRequirementCountUnit id="Alias_GenetronAir" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Alias_GenetronLight" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Alias_GenetronHeavy" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Spitfire" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Blitzer" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Equalizer" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Fixer" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Aquila" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Inciter" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Mole" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Tesla" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Torrent" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Virtus" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Scion_Avenger" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Hornet" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Boar" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Jupiter" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Badger" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Courier" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="ACR" parent="CustomUnitReq"/>
+
+
+    <!-- =========================== -->
+    <!--        Units Section        -->
+    <!-- =========================== -->
+    <CButton id="SpitfirePlace" parent="CustomPlaceButton" Name="Spitfire"      Art="btn-unit-Genetron-Spitfire" Race="Genetron" Hotkey="Unit1"/>
+    <CButton id="BlitzerPlace"    parent="CustomPlaceButton" Name="Blitzer"         Art="btn-unit-Genetron-Blitzer"    Race="Genetron" Hotkey="Unit2"/>
+    <CButton id="EqualizerPlace"      parent="CustomPlaceButton" Name="Equalizer"           Art="btn-unit-genetron-equalizer-v2"      Race="Genetron" Hotkey="Unit3"/>
+    <CButton id="FixerPlace"    parent="CustomPlaceButton" Name="Fixer"         Art="btn-unit-Genetron-Fixer"    Race="Genetron" Hotkey="Unit4"/>
+    <CButton id="AquilaPlace" parent="CustomPlaceButton" Name="Aquila"      Art="btn-unit-Genetron-Aquila" Race="Genetron" Hotkey="Unit5"/>
+    <CButton id="InciterPlace"      parent="CustomPlaceButton" Name="Inciter"           Art="btn-unit-Genetron-Inciter"  Race="Genetron" Hotkey="Unit6"/>
+    <CButton id="TorrentPlace"      parent="CustomPlaceButton" Name="Torrent"           Art="btn-unit-Genetron-Torrent"      Race="Genetron" Hotkey="Unit7"/>
+    <CButton id="MolePlace"     parent="CustomPlaceButton" Name="Mole"          Art="btn-unit-Genetron-Mole"     Race="Genetron" Hotkey="Unit8"/>
+    <CButton id="VirtusPlace"   parent="CustomPlaceButton" Name="Virtus"        Art="btn-unit-Genetron-Virtus"   Race="Genetron" Hotkey="Unit9"/>
+    <CButton id="Scion_AvengerPlace"    parent="CustomPlaceButton" Name="Scion_Avenger"         Art="btn-unit-Genetron-Avenger"    Race="Genetron" Hotkey="Unit10"/>
+    <CButton id="HornetPlace"     parent="CustomPlaceButton" Name="Hornet"          Art="btn-unit-Genetron-Hornet"     Race="Genetron" Hotkey="Unit11"/>
+    <CButton id="BoarPlace"      parent="CustomPlaceButton" Name="Boar"           Art="btn-unit-Genetron-Boar"      Race="Genetron" Hotkey="Unit12"/>
+    <CButton id="JupiterPlace"      parent="CustomPlaceButton" Name="Jupiter"           Art="btn-unit-Genetron-Jupiter"      Race="Genetron" Hotkey="Unit13"/>
+    <CButton id="BadgerPlace"  parent="CustomPlaceButton" Name="Badger"       Art="btn-unit-Genetron-Badger"  Race="Genetron" Hotkey="Unit14"/>
+    <CButton id="Scion_ProcessorPlace"    parent="CustomPlaceButton" Name="Scion_Processor"         Art="btn-unit-Genetron-Processor"    Race="Genetron" Hotkey="Unit15"/>
+    <CButton id="TeslaPlace"      parent="CustomPlaceButton" Name="Tesla"           Art="btn-unit-genetron-Tesla"   Race="Genetron" Hotkey="Unit16"/>
+    <CButton id="CourierPlace" parent="CustomPlaceButton" Name="Courier"      Art="btn-unit-Genetron-Courier" Race="Genetron" Hotkey="Unit17"/>
+    <CButton id="ACRPlace"   parent="CustomPlaceButton" Name="ACR"        Art="btn-unit-Genetron-ACR"   Race="Genetron" Hotkey="Unit18"/>
+
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Blitzer"      id="BlitzerPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Spitfire"    id="SpitfirePlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Equalizer"    id="EqualizerPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Fixer" id="FixerPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Mole"     id="MolePlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Aquila"      id="AquilaPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Tesla"   id="TeslaPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Torrent"    id="TorrentPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Virtus"     id="VirtusPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Scion_Avenger"      id="Scion_AvengerPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Hornet"    id="HornetPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Boar" id="BoarPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Jupiter"      id="JupiterPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Badger"   id="BadgerPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Scion_Processor"      id="Scion_ProcessorPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="ACR" id="ACRPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Courier"  id="CourierPlaceSimple"/>
+    <CActorSimple parent="GenetronPlaceSimple" Unit="Inciter"      id="InciterPlaceSimple"/>
+
+    <CActorSound parent="DefaultCursorSound" id="SpitfireCursor"    Sound="Spitfire_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="BlitzerCursor"      Sound="Blitzer_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="EqualizerCursor"    Sound="Equalizer_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="FixerCursor" Sound="Fixer_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="AquilaCursor"      Sound="Aquila_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="InciterCursor"      Sound="Inciter_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="MoleCursor"     Sound="Mole_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="TeslaCursor"   Sound="Tesla_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="TorrentCursor"    Sound="Torrent_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="VirtusCursor"     Sound="Virtus_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="Scion_AvengerCursor"      Sound="Scion_Avenger_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="HornetCursor"    Sound="Hornet_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="BoarCursor" Sound="Boar_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="JupiterCursor"      Sound="Jupiter_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="BadgerCursor"   Sound="Badger_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="Scion_ProcessorCursor"      Sound="Scion_Processor_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="ACRCursor" Sound="ACR_Attack"/>
+    <CActorSound parent="DefaultCursorSound" id="CourierCursor"  Sound="Courier_Attack"/>
+
+    <CActorModel parent="CustomPlace1" id="SpitfirePlace1"    Unit="Spitfire"/>
+    <CActorModel parent="CustomPlace1" id="BlitzerPlace1"      Unit="Blitzer"/>
+    <CActorModel parent="CustomPlace1" id="EqualizerPlace1"    Unit="Equalizer"/>
+    <CActorModel parent="CustomPlace1" id="FixerPlace1" Unit="Fixer"/>
+    <CActorModel parent="CustomPlace1" id="AquilaPlace1"      Unit="Aquila"/>
+    <CActorModel parent="CustomPlace1" id="InciterPlace1"      Unit="Inciter"/>
+    <CActorModel parent="CustomPlace1" id="MolePlace1"     Unit="Mole"/>
+    <CActorModel parent="CustomPlace1" id="TeslaPlace1"   Unit="Tesla"/>
+    <CActorModel parent="CustomPlace1" id="TorrentPlace1"    Unit="Torrent"/>
+    <CActorModel parent="CustomPlace1" id="VirtusPlace1"     Unit="Virtus"/>
+    <CActorModel parent="CustomPlace1" id="Scion_AvengerPlace1"      Unit="Scion_Avenger"/>
+    <CActorModel parent="CustomPlace1" id="HornetPlace1"    Unit="Hornet"/>
+    <CActorModel parent="CustomPlace1" id="BoarPlace1" Unit="Boar"/>
+    <CActorModel parent="CustomPlace1" id="JupiterPlace1"      Unit="Jupiter"/>
+    <CActorModel parent="CustomPlace1" id="BadgerPlace1"   Unit="Badger"/>
+    <CActorModel parent="CustomPlace1" id="Scion_ProcessorPlace1"      Unit="Scion_Processor"/>
+    <CActorModel parent="CustomPlace1" id="ACRPlace1" Unit="ACR"/>
+    <CActorModel parent="CustomPlace1" id="CourierPlace1"  Unit="Courier"/>
+
+    <CActorModel parent="CustomPlace2" id="SpitfirePlace2"    Unit="Spitfire"/>
+    <CActorModel parent="CustomPlace2" id="BlitzerPlace2"      Unit="Blitzer"/>
+    <CActorModel parent="CustomPlace2" id="EqualizerPlace2"    Unit="Equalizer"/>
+    <CActorModel parent="CustomPlace2" id="FixerPlace2" Unit="Fixer"/>
+    <CActorModel parent="CustomPlace2" id="AquilaPlace2"      Unit="Aquila"/>
+    <CActorModel parent="CustomPlace2" id="InciterPlace2"      Unit="Inciter"/>
+    <CActorModel parent="CustomPlace2" id="MolePlace2"     Unit="Mole"/>
+    <CActorModel parent="CustomPlace2" id="TeslaPlace2"   Unit="Tesla"/>
+    <CActorModel parent="CustomPlace2" id="TorrentPlace2"    Unit="Torrent"/>
+    <CActorModel parent="CustomPlace2" id="VirtusPlace2"     Unit="Virtus"/>
+    <CActorModel parent="CustomPlace2" id="Scion_AvengerPlace2"      Unit="Scion_Avenger"/>
+    <CActorModel parent="CustomPlace2" id="HornetPlace2"    Unit="Hornet"/>
+    <CActorModel parent="CustomPlace2" id="BoarPlace2" Unit="Boar"/>
+    <CActorModel parent="CustomPlace2" id="JupiterPlace2"      Unit="Jupiter"/>
+    <CActorModel parent="CustomPlace2" id="BadgerPlace2"   Unit="Badger"/>
+    <CActorModel parent="CustomPlace2" id="Scion_ProcessorPlace2"      Unit="Scion_Processor"/>
+    <CActorModel parent="CustomPlace2" id="ACRPlace2" Unit="ACR"/>
+    <CActorModel parent="CustomPlace2" id="CourierPlace2"  Unit="Courier"/>
+
+    <CActorModel parent="CustomPlace3" id="SpitfirePlace3"    Unit="Spitfire"/>
+    <CActorModel parent="CustomPlace3" id="BlitzerPlace3"      Unit="Blitzer"/>
+    <CActorModel parent="CustomPlace3" id="EqualizerPlace3"    Unit="Equalizer"/>
+    <CActorModel parent="CustomPlace3" id="FixerPlace3" Unit="Fixer"/>
+    <CActorModel parent="CustomPlace3" id="AquilaPlace3"      Unit="Aquila"/>
+    <CActorModel parent="CustomPlace3" id="InciterPlace3"      Unit="Inciter"/>
+    <CActorModel parent="CustomPlace3" id="MolePlace3"     Unit="Mole"/>
+    <CActorModel parent="CustomPlace3" id="TeslaPlace3"   Unit="Tesla"/>
+    <CActorModel parent="CustomPlace3" id="TorrentPlace3"    Unit="Torrent"/>
+    <CActorModel parent="CustomPlace3" id="VirtusPlace3"     Unit="Virtus"/>
+    <CActorModel parent="CustomPlace3" id="Scion_AvengerPlace3"      Unit="Scion_Avenger"/>
+    <CActorModel parent="CustomPlace3" id="HornetPlace3"    Unit="Hornet"/>
+    <CActorModel parent="CustomPlace3" id="BoarPlace3" Unit="Boar"/>
+    <CActorModel parent="CustomPlace3" id="JupiterPlace3"      Unit="Jupiter"/>
+    <CActorModel parent="CustomPlace3" id="BadgerPlace3"   Unit="Badger"/>
+    <CActorModel parent="CustomPlace3" id="Scion_ProcessorPlace3"      Unit="Scion_Processor"/>
+    <CActorModel parent="CustomPlace3" id="ACRPlace3" Unit="ACR"/>
+    <CActorModel parent="CustomPlace3" id="CourierPlace3"  Unit="Courier"/>
+
+    <CActorModel parent="CustomPlace4" id="SpitfirePlace4"    Unit="Spitfire"/>
+    <CActorModel parent="CustomPlace4" id="BlitzerPlace4"      Unit="Blitzer"/>
+    <CActorModel parent="CustomPlace4" id="EqualizerPlace4"    Unit="Equalizer"/>
+    <CActorModel parent="CustomPlace4" id="FixerPlace4" Unit="Fixer"/>
+    <CActorModel parent="CustomPlace4" id="AquilaPlace4"      Unit="Aquila"/>
+    <CActorModel parent="CustomPlace4" id="InciterPlace4"      Unit="Inciter"/>
+    <CActorModel parent="CustomPlace4" id="MolePlace4"     Unit="Mole"/>
+    <CActorModel parent="CustomPlace4" id="TeslaPlace4"   Unit="Tesla"/>
+    <CActorModel parent="CustomPlace4" id="TorrentPlace4"    Unit="Torrent"/>
+    <CActorModel parent="CustomPlace4" id="VirtusPlace4"     Unit="Virtus"/>
+    <CActorModel parent="CustomPlace4" id="Scion_AvengerPlace4"      Unit="Scion_Avenger"/>
+    <CActorModel parent="CustomPlace4" id="HornetPlace4"    Unit="Hornet"/>
+    <CActorModel parent="CustomPlace4" id="BoarPlace4" Unit="Boar"/>
+    <CActorModel parent="CustomPlace4" id="JupiterPlace4"      Unit="Jupiter"/>
+    <CActorModel parent="CustomPlace4" id="BadgerPlace4"   Unit="Badger"/>
+    <CActorModel parent="CustomPlace4" id="Scion_ProcessorPlace4"      Unit="Scion_Processor"/>
+    <CActorModel parent="CustomPlace4" id="ACRPlace4" Unit="ACR"/>
+    <CActorModel parent="CustomPlace4" id="CourierPlace4"  Unit="Courier"/>
+
+    <CAbilEffectTarget parent="CustomReposition" id="ACRReposition" Unit="ACR" Space="Ground" Size="1"  />
+    <CAbilEffectTarget parent="CustomReposition" id="SpitfireReposition"    Unit="Spitfire"    Space="Ground" Size="1"  />
+    <CAbilEffectTarget parent="CustomReposition" id="BlitzerReposition"      Unit="Blitzer"      Space="Ground" Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="EqualizerReposition"    Unit="Equalizer"    Space="Ground" Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="FixerReposition" Unit="Fixer" Space="Ground" Size="1"  />
+    <CAbilEffectTarget parent="CustomReposition" id="AquilaReposition"      Unit="Aquila"      Space="Ground" Size="1"  />
+    <CAbilEffectTarget parent="CustomReposition" id="InciterReposition"      Unit="Inciter"      Space="Ground" Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="MoleReposition"     Unit="Mole"     Space="Ground" Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="TeslaReposition"   Unit="Tesla"   Space="Ground" Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="TorrentReposition"    Unit="Torrent"    Space="Ground" Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="VirtusReposition"     Unit="Virtus"     Space="Ground" Size="3"  />
+    <CAbilEffectTarget parent="CustomReposition" id="Scion_AvengerReposition"      Unit="Scion_Avenger"      Space="Air"    Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="Scion_ProcessorReposition"      Unit="Scion_Processor"      Space="Air"    Size="1"  />
+    <CAbilEffectTarget parent="CustomReposition" id="CourierReposition"  Unit="Courier"  Space="Air"    Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="HornetReposition"    Unit="Hornet"    Space="Air"    Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="JupiterReposition"      Unit="Jupiter"      Space="Air"    Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="BoarReposition" Unit="Boar" Space="Air"    Size="2"  />
+    <CAbilEffectTarget parent="CustomReposition" id="BadgerReposition"   Unit="Badger"   Space="Air"    Size="3"  />
+
+    <CAbilEffectTarget parent="CustomPlace"      id="ACRPlace"      Unit="ACR" Space="Ground" Size="1" Tier="1"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="SpitfirePlace"         Unit="Spitfire"       Space="Ground" Size="1" Tier="1"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="BlitzerPlace"           Unit="Blitzer"           Space="Ground" Size="2" Tier="1"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="EqualizerPlace"         Unit="Equalizer"       Space="Ground" Size="2" Tier="1"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="FixerPlace"      Unit="Fixer" Space="Ground" Size="1" Tier="1"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="AquilaPlace"           Unit="Aquila"           Space="Ground" Size="1" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="InciterPlace"           Unit="Inciter"           Space="Ground" Size="2" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="MolePlace"          Unit="Mole"         Space="Ground" Size="2" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="TeslaPlace"        Unit="Tesla"     Space="Ground" Size="2" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="TorrentPlace"         Unit="Torrent"       Space="Ground" Size="2" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="VirtusPlace"          Unit="Virtus"         Space="Ground" Size="3" Tier="3"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="Scion_AvengerPlace"           Unit="Scion_Avenger"           Space="Air"    Size="2" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="Scion_ProcessorPlace"           Unit="Scion_Processor"           Space="Air"    Size="1" Tier="1"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="CourierPlace"       Unit="Courier"   Space="Air"    Size="2" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="HornetPlace"         Unit="Hornet"       Space="Air"    Size="2" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="JupiterPlace"           Unit="Jupiter"           Space="Air"    Size="2" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="BoarPlace"      Unit="Boar" Space="Air"    Size="2" Tier="2"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="BadgerPlace"        Unit="Badger"     Space="Air"    Size="3" Tier="3"/>
+
+    <CEffectCreateUnit parent="DefaultPlace"     id="ACRPlace"      Unit="ACR" Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="SpitfirePlace"         Unit="Spitfire"    Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="BlitzerPlace"           Unit="Blitzer"      Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="EqualizerPlace"         Unit="Equalizer"    Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="FixerPlace"      Unit="Fixer" Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="AquilaPlace"           Unit="Aquila"      Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="InciterPlace"           Unit="Inciter"      Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="MolePlace"          Unit="Mole"     Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="TeslaPlace"        Unit="Tesla"   Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="TorrentPlace"         Unit="Torrent"    Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="VirtusPlace"          Unit="Virtus"     Space="Ground"/>
+    <CEffectCreateUnit parent="DefaultPlace"     id="Scion_AvengerPlace"           Unit="Scion_Avenger"      Space="Air"   />
+    <CEffectCreateUnit parent="DefaultPlace"     id="Scion_ProcessorPlace"           Unit="Scion_Processor"      Space="Air"   />
+    <CEffectCreateUnit parent="DefaultPlace"     id="CourierPlace"       Unit="Courier"  Space="Air"   />
+    <CEffectCreateUnit parent="DefaultPlace"     id="HornetPlace"         Unit="Hornet"    Space="Air"   />
+    <CEffectCreateUnit parent="DefaultPlace"     id="JupiterPlace"           Unit="Jupiter"      Space="Air"   />
+    <CEffectCreateUnit parent="DefaultPlace"     id="BoarPlace"      Unit="Boar" Space="Air"   />
+    <CEffectCreateUnit parent="DefaultPlace"     id="BadgerPlace"        Unit="Badger"   Space="Air"   />
+
+
+
+    <CUnit id="ACR">
+        <CostResource index="Minerals" value="40"/>
+        <PlacementFootprint value="1x1SpawnerPlacement"/>
+        <KillXP value="10"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronLight"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/><AbilArray index="3" Link=""/><AbilArray index="6" Link=""/>
+        <AbilArray Link="ACRReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition1Genetron" Type="AbilCmd" AbilCmd="ACRReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Spitfire"   >
+        <CostResource index="Minerals" value="80"/>
+        <PlacementFootprint value="1x1SpawnerPlacement"/>
+        <KillXP value="20"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronLight"/><TechAliasArray value="Alias_ModifiedGait"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="SpitfireReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition1Genetron" Type="AbilCmd" AbilCmd="SpitfireReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Blitzer"     >
+        <CostResource index="Minerals" value="125"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="40"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronLight"/><TechAliasArray value="Alias_ModifiedGait"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="BlitzerReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition1Genetron" Type="AbilCmd" AbilCmd="BlitzerReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Equalizer"   >
+        <CostResource index="Minerals" value="150"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="40"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronLight"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="EqualizerReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="EqualizerReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Fixer">
+        <CostResource index="Minerals" value="150"/>
+        <PlacementFootprint value="1x1SpawnerPlacement"/>
+        <KillXP value="40"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronLight"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="FixerReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="FixerReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Aquila"     >
+        <CostResource index="Minerals" value="200"/>
+        <PlacementFootprint value="1x1SpawnerPlacement"/>
+        <KillXP value="60"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronLight"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="AquilaReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="AquilaReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Inciter"     >
+        <CostResource index="Minerals" value="250"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="40"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronHeavy"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="InciterReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="InciterReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+
+    <CUnit id="Mole"    >
+        <CostResource index="Minerals" value="250"/>
+        <CostResource index="Vespene" value="0"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="80"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronHeavy"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray Link="MoveIgnoreUser"/>
+        <AbilArray Link="MoleReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="MoleReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="MoleBurrowed"    >
+        <CostResource index="Minerals" value="250"/>
+        <CostResource index="Vespene" value="0"/>
+        <KillXP value="80"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronHeavy"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="4" Link=""/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link="AttackIgnoreUser"/>
+    </CUnit>
+    <CUnit id="MoleBuried"    >
+        <CostResource index="Minerals" value="250"/>
+        <CostResource index="Vespene" value="0"/>
+        <KillXP value="80"/>
+        <AbilArray index="0" Link=""/>
+    </CUnit>
+    <CUnit id="Tesla"  >
+        <CostResource index="Minerals" value="300"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="100"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronHeavy"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="MoveIgnoreUser"/>
+        <AbilArray Link="TeslaReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="TeslaReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+        <WeaponArray Link="TeslaDummyWeapon"/>
+    </CUnit>
+    <CUnit id="Torrent"   >
+        <CostResource index="Minerals" value="150"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="100"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronHeavy"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="TorrentReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="TorrentReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Virtus"    >
+        <CostResource index="Minerals" value="300"/>
+        <PlacementFootprint value="3x3SpawnerPlacement"/>
+        <KillXP value="100"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronHeavy"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="VirtusReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition9Genetron" Type="AbilCmd" AbilCmd="VirtusReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Scion_Avenger"     >
+        <CostResource index="Minerals" value="100"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="20"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronAir"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="Scion_AvengerReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition1Genetron" Type="AbilCmd" AbilCmd="Scion_AvengerReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Scion_Processor"     >
+        <CostResource index="Minerals" value="100"/>
+        <PlacementFootprint value="1x1SpawnerPlacement"/>
+        <KillXP value="20"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronAir"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray Link="AttackWarpPrism"/>
+        <AbilArray Link="Scion_ProcessorReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition1Genetron" Type="AbilCmd" AbilCmd="Scion_ProcessorReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+        <WeaponArray Link="ProcessorDummyWeapon"/>
+    </CUnit>
+    <CUnit id="Courier" >
+        <CostResource index="Minerals" value="100"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="40"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronAir"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="CourierReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="CourierReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+        <WeaponArray Link="CourierDummyWeapon"/>
+    </CUnit>
+    <CUnit id="Hornet"   >
+        <CostResource index="Minerals" value="175"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="80"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronAir"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="HornetReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="HornetReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Jupiter"     >
+        <CostResource index="Minerals" value="225"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="100"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronAir"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="JupiterReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition4Genetron" Type="AbilCmd" AbilCmd="JupiterReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+        <EnergyStart value="100"/>
+    </CUnit>
+    <CUnit id="Boar">
+        <CostResource index="Minerals" value="250"/>
+        <PlacementFootprint value="2x2SpawnerPlacement"/>
+        <KillXP value="100"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronAir"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="BoarReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition9Genetron" Type="AbilCmd" AbilCmd="BoarReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="Badger"  >
+        <CostResource index="Minerals" value="400"/>
+        <PlacementFootprint value="3x3SpawnerPlacement"/>
+        <KillXP value="140"/>
+        <EnergyStart value="100"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_GenetronAir"/>
+        <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link=""/><AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray Link="BadgerReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Reposition9Genetron" Type="AbilCmd" AbilCmd="BadgerReposition,Execute" Row="0" Column="4"/>
+            <LayoutButtons index="1" Face="WaveUnit"  Type="Passive"  Behavior="WaveUnit"  Requirements="HasWaveUnit"  Row="0"  Column="4"/>
+            <LayoutButtons index="2" Face="Cancel" Type="AbilCmd" AbilCmd="Sell70,Cancel" Row="2" Column="4"/>
+            <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
+            <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
+        </CardLayouts>
+    </CUnit>
+
+
+
+
+    <!-- ==================================== -->
+    <!--  Abilities AutoCast Control Section  -->
+    <!-- ==================================== -->
+    <CUpgrade id="BadgerEnergyShieldDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="MoleSubterraneanSensorsDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="ProcessorToggleDetectionDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="BlitzerOverdriveDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="SuperChargeAquilaDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="SuperChargeDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="VirtusSelffixProtocolDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="CourierOpticalDisruptionDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="ELORProtocolDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="LaunchCloakChargeDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="LaunchShockChargeDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="NaniteGrenadeDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="ProcessorAnalyzeWeaknessDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="RevenantBombDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="VengeanceMissileDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="MoleActivateDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="CourierCloakDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="IgnitionBlastDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="SpeedCloakDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="MoleBuryDisable" parent="HiddenUpgrade"/>
+
+    <CRequirement id="BadgerEnergyShieldDisable"><NodeArray index="Use" Link="BadgerEnergyShieldDisable"/></CRequirement>
+    <CRequirement id="MoleSubterraneanSensorsDisable"><NodeArray index="Use" Link="MoleSubterraneanSensorsDisable"/></CRequirement>
+    <CRequirement id="ProcessorToggleDetectionDisable"><NodeArray index="Use" Link="ProcessorToggleDetectionDisable"/></CRequirement>
+    <CRequirement id="BlitzerOverdriveDisable"><NodeArray index="Use" Link="BlitzerOverdriveDisable"/></CRequirement>
+    <CRequirement id="SuperChargeAquilaDisable"><NodeArray index="Use" Link="SuperChargeAquilaDisable"/></CRequirement>
+    <CRequirement id="SuperChargeDisable"><NodeArray index="Use" Link="SuperChargeDisable"/></CRequirement>
+    <CRequirement id="VirtusSelffixProtocolDisable"><NodeArray index="Use" Link="VirtusSelffixProtocolDisable"/></CRequirement>
+    <CRequirement id="CourierOpticalDisruptionDisable"><NodeArray index="Use" Link="CourierOpticalDisruptionDisable"/></CRequirement>
+    <CRequirement id="ELORProtocolDisable"><NodeArray index="Use" Link="ELORProtocolDisable"/></CRequirement>
+    <CRequirement id="LaunchCloakChargeDisable"><NodeArray index="Use" Link="LaunchCloakChargeDisable"/></CRequirement>
+    <CRequirement id="LaunchShockChargeDisable"><NodeArray index="Use" Link="LaunchShockChargeDisable"/></CRequirement>
+    <CRequirement id="NaniteGrenadeDisable"><NodeArray index="Use" Link="NaniteGrenadeDisable"/></CRequirement>
+    <CRequirement id="ProcessorAnalyzeWeaknessDisable"><NodeArray index="Use" Link="ProcessorAnalyzeWeaknessDisable"/></CRequirement>
+    <CRequirement id="RevenantBombDisable"><NodeArray index="Use" Link="RevenantBombDisable"/></CRequirement>
+    <CRequirement id="VengeanceMissileDisable"><NodeArray index="Use" Link="VengeanceMissileDisable"/></CRequirement>
+    <CRequirement id="MoleActivateDisable"><NodeArray index="Use" Link="MoleActivateDisable"/></CRequirement>
+    <CRequirement id="CourierCloakDisable"><NodeArray index="Use" Link="CourierCloakDisable"/></CRequirement>
+    <CRequirement id="IgnitionBlastDisable"><NodeArray index="Use" Link="IgnitionBlastDisable"/></CRequirement>
+    <CRequirement id="SpeedCloakDisable"><NodeArray index="Use" Link="SpeedCloakDisable"/></CRequirement>
+    <CRequirement id="MoleBuryDisable"><NodeArray index="Use" Link="MoleBuryDisable"/></CRequirement>
+
+    <CRequirementCountUpgrade id="BadgerEnergyShieldDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="MoleSubterraneanSensorsDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="ProcessorToggleDetectionDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="BlitzerOverdriveDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="SuperChargeAquilaDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="SuperChargeDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="VirtusSelffixProtocolDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="CourierOpticalDisruptionDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="ELORProtocolDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="LaunchCloakChargeDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="LaunchShockChargeDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="NaniteGrenadeDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="ProcessorAnalyzeWeaknessDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="RevenantBombDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="VengeanceMissileDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="MoleActivateDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="CourierCloakDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="IgnitionBlastDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="SpeedCloakDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="MoleBuryDisable" parent="CustomCountUpgrade"/>
+
+    <CValidatorPlayerRequirement id="BadgerEnergyShieldDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="MoleSubterraneanSensorsDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="ProcessorToggleDetectionDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="BlitzerOverdriveDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="SuperChargeAquilaDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="SuperChargeDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="VirtusSelffixProtocolDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="CourierOpticalDisruptionDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="ELORProtocolDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="LaunchCloakChargeDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="LaunchShockChargeDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="NaniteGrenadeDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="ProcessorAnalyzeWeaknessDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="RevenantBombDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="VengeanceMissileDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="MoleActivateDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="CourierCloakDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="IgnitionBlastDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="SpeedCloakDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="MoleBuryDisable" parent="CustomDisableVal"/>
+
+
+    <CAbilBuild id="ACRBuild">
+        <InfoArray index="Build1"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build2"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build3"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build4"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build5"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build6"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build7"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build8"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build9"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build10"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build11"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build12"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build13"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build14"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build15"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build16"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build17"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build18"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build19"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build20"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build21"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build22"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build23"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build24"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build25"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build26"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build27"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build28"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build29"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build30"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+    </CAbilBuild>
+
+
+    <CWeaponLegacy id="TeslaDummyWeapon">
+        <Options index="Hidden" value="1"/>
+        <Options index="LinkedCooldown" value="0"/>
+        <Options index="RequireEnabledAttackAbil" value="0"/>
+        <Icon value="Assets\Textures\btn-command-attack.dds"/>
+        <TargetFilters value="Visible,Ground;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="11"/>
+        <Range value="1"/>
+        <Arc value="360"/>
+        <Period value="120"/>
+        <DamagePoint value="0"/>
+        <Backswing value="0"/>
+        <Effect value="DummyWeapon"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="ProcessorDummyWeapon">
+        <Options index="Hidden" value="1"/>
+        <Options index="LinkedCooldown" value="0"/>
+        <Options index="RequireEnabledAttackAbil" value="0"/>
+        <Icon value="Assets\Textures\btn-command-attack.dds"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="11"/>
+        <Range value="1"/>
+        <Arc value="360"/>
+        <Period value="120"/>
+        <DamagePoint value="0"/>
+        <Backswing value="0"/>
+        <Effect value="DummyWeapon"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="CourierDummyWeapon">
+        <Options index="Hidden" value="1"/>
+        <Options index="LinkedCooldown" value="0"/>
+        <Options index="RequireEnabledAttackAbil" value="0"/>
+        <Icon value="Assets\Textures\btn-command-attack.dds"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="11"/>
+        <Range value="1"/>
+        <Arc value="360"/>
+        <Period value="120"/>
+        <DamagePoint value="0"/>
+        <Backswing value="0"/>
+        <Effect value="DummyWeapon"/>
+    </CWeaponLegacy>
+</Catalog>
