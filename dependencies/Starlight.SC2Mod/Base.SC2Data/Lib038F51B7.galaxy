@@ -317,6 +317,11 @@ void lib038F51B7_gf_AbilityControlStartModified () {
     // Variable Declarations
     int lv_i;
     int lv_race;
+    string lv_customRace;
+    string lv_customUnit;
+    abilcmd lv_customAbilcmd;
+    string lv_customAbil;
+    string lv_customButton;
 
     // Automatic Variable Declarations
     playergroup autoF15F4FD3_g;
@@ -326,6 +331,11 @@ void lib038F51B7_gf_AbilityControlStartModified () {
     playergroup auto2C1E9EE3_g;
     int auto2C1E9EE3_var;
     string autoA0D25DDC_val;
+    int autoE0F82362_i;
+    string auto1CA4BA73_builder;
+    int auto1CA4BA73_buttons;
+    int auto1CA4BA73_j;
+    string auto1CA4BA73_type;
 
     // Variable Initialization
 
@@ -595,23 +605,26 @@ void lib038F51B7_gf_AbilityControlStartModified () {
         lib038F51B7_gf_AddAbility(lv_race, "ThorMengsk", "ThorMengskSiege", "DefenderModeDisable", false);
         lib038F51B7_gf_AddAbility(lv_race, "BattlecruiserMengsk", "YamatoGunMengsk", "YamatoCannonDisable", false);
         lib038F51B7_gf_AddAbility(lv_race, "BattlecruiserMengsk", "BattlecruiserMengskHyperjump", "HornerTacticalJumpDisable", false);
-        lv_race = 21;
-        lib038F51B7_gf_AddAbility(lv_race, "Pariah", "Projection", "ProjectionDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Crux", "Beholder", "BeholderDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Crux", "CruxLightningBolt", "CruxLightningBoltDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Crux", "CruxConvergence", "CruxConvergenceDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Umbra", "UmbraShieldCompulsion", "UmbraShieldCompulsionDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Echo", "SonicImage", "SonicImageDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Echo", "DiscordMode", "EchoDiscordModeDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Aurora", "PlaceEmanator", "EmanatorDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Harbinger", "HarbingerJudgementMode", "HarbingerJudgementModeStartDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Harbinger", "HarbingerExitJudgementMode", "HarbingerExitJudgementModeDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Gyre", "GyreAnnex", "GyreAnnexDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Gyre", "GyreShackle", "GyreShackleDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Ward", "Restitution", "WardRestitutionDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Ward", "ShellDome", "WardShellDomeDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Paragon", "EmissaryOrb", "EmissaryOrbDisable", true);
-        lib038F51B7_gf_AddAbility(lv_race, "Fuse", "Fusion", "FuseFusionDisable", true);
+        autoE0F82362_i = 1;
+        for ( ; autoE0F82362_i <= UserDataInstanceCount("CustomRaces"); autoE0F82362_i += 1 ) {
+            lv_customRace = UserDataInstance("CustomRaces", autoE0F82362_i);
+            lv_race += 1;
+            auto1CA4BA73_builder = UserDataGetGameLink("CustomRaces", lv_customRace , "Builder", 1);
+            auto1CA4BA73_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto1CA4BA73_builder, "CardLayouts[3].LayoutButtons", c_playerAny) - 1);
+            auto1CA4BA73_j = 1;
+            for ( ; auto1CA4BA73_j <= auto1CA4BA73_buttons; auto1CA4BA73_j += 1 ) {
+                auto1CA4BA73_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1CA4BA73_builder, "CardLayouts[3].LayoutButtons[" + IntToString(auto1CA4BA73_j) + "].Type", c_playerAny);
+
+                if ( (auto1CA4BA73_type == "AbilCmd")) {
+                    lv_customAbilcmd  = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto1CA4BA73_builder, "CardLayouts[3].LayoutButtons[" + IntToString(auto1CA4BA73_j) + "].AbilCmd", c_playerAny));
+                    lv_customUnit     = CatalogFieldValueGet(c_gameCatalogUnit, auto1CA4BA73_builder, "CardLayouts[3].LayoutButtons[" + IntToString(auto1CA4BA73_j) + "].Requirements", c_playerAny);
+                    lv_customButton     = CatalogFieldValueGet(c_gameCatalogUnit, auto1CA4BA73_builder, "CardLayouts[3].LayoutButtons[" + IntToString(auto1CA4BA73_j) + "].Face", c_playerAny);
+                    lv_customAbil = AbilityCommandGetAbility(lv_customAbilcmd);
+                    lib038F51B7_gf_AddAbility(lv_race, lv_customUnit, lv_customButton, lv_customAbil + "Disable", true);
+                }
+            }
+
+        }
         lib038F51B7_gf_CreateMainButton();
     }
 

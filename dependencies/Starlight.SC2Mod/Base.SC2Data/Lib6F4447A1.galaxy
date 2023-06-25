@@ -1,5 +1,4 @@
 include "TriggerLibs/NativeLib"
-include "LibScio"
 include "Lib95CAB67A_h"
 include "LibDDE92A83_h"
 include "Lib474957E9_h"
@@ -233,11 +232,9 @@ void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
                     }
                 }
             }
-
         }
 
     }
-
 }
 
 void lib6F4447A1_gf_TestTavernCreate (int lp_player, point lp_point) {
@@ -401,6 +398,47 @@ void lib6F4447A1_gf_EmoticonLoadAll () {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
+// Trigger: Genetron Energy
+//--------------------------------------------------------------------------------------------------
+bool lib6F4447A1_gt_GenetronEnergy_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+    point lv_specialPoint;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_player = EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster);
+    lv_specialPoint = libDDE92A83_gv_playerOrigin[lv_player];
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(UnitGroup("ProcessingCore", lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 1), c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((lv_player <= 3)) {
+        lv_specialPoint = PointWithOffset(libDDE92A83_gv_playerOrigin[lv_player], 15.0, 0.0);
+    }
+    else {
+        lv_specialPoint = PointWithOffset(libDDE92A83_gv_playerOrigin[lv_player], -15.0, 0.0);
+    }
+    UnitCreate(1, "Generator", c_unitCreateIgnorePlacement, lv_player, lv_specialPoint, 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib6F4447A1_gt_GenetronEnergy_Init () {
+    lib6F4447A1_gt_GenetronEnergy = TriggerCreate("lib6F4447A1_gt_GenetronEnergy_Func");
+    TriggerAddEventPlayerEffectUsed(lib6F4447A1_gt_GenetronEnergy, c_playerAny, "GenetronEnergyUpgrade");
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Test Mode
 //--------------------------------------------------------------------------------------------------
 bool lib6F4447A1_gt_TestMode_Func (bool testConds, bool runActions) {
@@ -424,7 +462,7 @@ bool lib6F4447A1_gt_TestMode_Func (bool testConds, bool runActions) {
 
     libNtve_gf_SetUpgradeLevelForPlayer(1, "IncludeStandardRacesInCommanderSelect", 1);
     PlayerSetRace(1, "Gen");
-    PlayerSetRace(2, "Xayi");
+    PlayerSetRace(2, "Gen");
     lib7550A90B_gf_TugofWarStartDefault(null, null);
     libNtve_gf_SetUpgradeLevelForPlayer(2, "SandboxModeOverpoweredBase", 1);
     lib16875C2F_gf_MutationExpandedArmaments(true);
@@ -432,7 +470,6 @@ bool lib6F4447A1_gt_TestMode_Func (bool testConds, bool runActions) {
     lib64DC5B97_gf_AddVespene(1, 1000);
     lib6F4447A1_gf_CreateUnitSet(1);
     lib6F4447A1_gf_CreateUnitSet(2);
-    TriggerExecute(libScio_gt_InitializeGenetronRace, true, false);
     return true;
 }
 
@@ -2138,6 +2175,7 @@ void lib6F4447A1_gt_SandboxModeChatEnemyZeratul_Init () {
 }
 
 void lib6F4447A1_InitTriggers () {
+    lib6F4447A1_gt_GenetronEnergy_Init();
     lib6F4447A1_gt_TestMode_Init();
     lib6F4447A1_gt_TestTavernRead_Init();
     lib6F4447A1_gt_ResetCommander_Init();
