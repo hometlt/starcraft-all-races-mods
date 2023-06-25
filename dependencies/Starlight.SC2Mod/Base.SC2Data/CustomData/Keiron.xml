@@ -27,7 +27,24 @@
         <!--        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>-->
         <!--        <On Terms="ActorOrphan" Send="Destroy"/>-->
     </CActorSimple>
-
+    <CActorModel default="1" id="PlaceStructureKeiron" parent="PlaceBase">
+        <On index="0" Send="AnimBracketStart BSD Birth Attack Death"/>
+        <On Terms="ActorCreation; !AnimPlayable Attack" Send="AnimBracketStart BSD {} Walk"/>
+        <On Terms="ActorCreation; !AnimPlayable Walk" Send="AnimBracketStart BSD {} Stand,Work"/>
+        <On Terms="ActorCreation" Send="AnimSetTimeScale BSD 1.300000"/>
+        <On Terms="ActorCreation" Send="Create PlaceRocker"/>
+        <On Terms="ActorCreation" Send="Create PlaceBeamTerran"/>
+        <HostSiteOps Ops="SOpBasicScopePositionFollowHoldRotation SOpHeightPlacement_Flyer SOpFacingPlacement_SW"/>
+    </CActorModel>
+    <CButton id="Reposition20Keiron">
+        <Tooltip value="Button/Tooltip/Reposition"/>
+        <TooltipFlags index="ShowHotkey" value="0"/>
+        <Icon value="Assets\Textures\btn-menu-reposition-terran.dds"/>
+        <AlertIcon value="Assets\Textures\btn-menu-reposition-terran.dds"/>
+        <Hotkey value="Button/Hotkey/Reposition"/>
+        <EditorCategories value="Race:Neutral"/>
+        <HidesForSimpleText value="0"/>
+    </CButton>
 
     <!-- =========================== -->
     <!--       Worker Section        -->
@@ -68,6 +85,10 @@
         >
         <Name value="Race/Name/Keir"/>
         <AbilArray Link="FormulatorMinerals"/>
+
+        <AbilArray Link="NullifierPlace"/>
+        <AbilArray Link="StratusPlace"/>
+        <AbilArray Link="OculusPlace"/>
         <CardLayouts index="0">
             <LayoutButtons Face="FormulatorMinerals" Type="AbilCmd" AbilCmd="FormulatorMinerals,Execute" Row="0" Column="4"/>
 
@@ -120,6 +141,10 @@
             <LayoutButtons  index="9"   AbilCmd="KeironResearch,Specialize9"/>
             <LayoutButtons  index="10"  AbilCmd="KeironResearch,Specialize10"/>
             <LayoutButtons  index="11"  AbilCmd="KeironResearch,Specialize11"/>
+
+            <LayoutButtons Face="NullifierPlace" Type="AbilCmd" AbilCmd="NullifierPlace,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="StratusPlace" Type="AbilCmd" AbilCmd="StratusPlace,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="OculusPlace" Type="AbilCmd" AbilCmd="OculusPlace,Execute" Row="2" Column="3"/>
         </CardLayouts>
         <CardLayouts index="3" CardId="Abil">
 
@@ -134,7 +159,7 @@
             <LayoutButtons Face="DiscordMode"                 Type="AbilCmd" Requirements="Echo"       AbilCmd="EchoDiscordMode,Execute"/>
             <LayoutButtons Face="Reverb"                      Type="AbilCmd" Requirements="Echo"       AbilCmd="ReverbRB,Execute"/>
 <!--            <LayoutButtons Face="FighterModeEcho"             Type="AbilCmd" Requirements="EchoDM"    AbilCmd="EchoFighterMode,Execute"/>-->
-            <LayoutButtons Face="Emanator"                    Type="AbilCmd" Requirements="Aurora"     AbilCmd="Emanator,Execute"/>
+            <LayoutButtons Face="PlaceEmanator"               Type="AbilCmd" Requirements="Aurora"     AbilCmd="Emanator,Execute"/>
             <LayoutButtons Face="HarbingerJudgementMode"      Type="AbilCmd" Requirements="Harbinger"  AbilCmd="HarbingerJudgementModeStart,Execute"/>
             <LayoutButtons Face="HarbingerExitJudgementMode"  Type="AbilCmd" Requirements="Harbinger"  AbilCmd="HarbingerExitJudgementMode,Execute"/>
             <LayoutButtons Face="GyreAnnex"                   Type="AbilCmd" Requirements="Gyre"       AbilCmd="GyreAnnex,Execute"/>
@@ -290,6 +315,349 @@
         <CaseArray Validator="FormulatorPlaceholder" Effect="ConverterBuildFormulatorSearch"/>
     </CEffectSwitch>
 
+
+
+    <!-- ============================= -->
+    <!--         Defense Section       -->
+    <!-- ============================= -->
+
+    <CUnit id="Nullifier">
+        <DeathTime value="-1"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <Collide index="TinyCritter" value="1"/>
+        <TechAliasArray value="Alias_AnyStructure"/>
+        <BehaviorArray Link="PermanentStructure"/>
+        <BehaviorArray Link="GlobalUnitModifier"/>
+
+        <CostResource index="Minerals" value="0"/>
+        <CostResource index="Vespene" value="0"/>
+        <AbilArray index="0" Link=""/>
+        <AbilArray index="1" Link="AttackWarpPrism"/>
+        <AbilArray index="2" Link=""/>
+        <AbilArray Link="NullifierReposition"/>
+        <AbilArray Link="NullifierProgress"/>
+        <BehaviorArray Link="NullifierMarker"/>
+        <EffectArray index="Create" value="StructureBirthNullifierSet"/>
+        <EffectArray index="Birth" value="StructureBirthNullifierSet"/>
+        <EffectArray index="Revive" value="StructureBirthNullifierSet"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="Reposition20Keiron" Type="AbilCmd" AbilCmd="NullifierReposition,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <PlacementFootprint value="Footprint2x2"/>
+        <DeadFootprint value="Footprint2x2NoCollision"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CButton id="NullifierPlace" parent="CustomPlaceButton" Name="Nullifier"      Art="btn-building-Keiron-Nullifier" Race="Keiron" Hotkey="Unit12"/>
+    <CAbilEffectTarget id="NullifierPlace" parent="CustomStructurePlace" Unit="Nullifier" Size="2" Tier="1"/>
+    <CAbilEffectInstant id="NullifierProgress" parent="CustomStructureProgressProgress" Unit="Nullifier"/>
+    <CAbilEffectTarget id="NullifierReposition" parent="Reposition" Placement="2x2PlaceDefense" Button="NullifierPlace" Unit="Nullifier">
+        <Cost index="0"><Charge><CountMax value="60"/><CountStart value="60"/><CountUse value="20"/><Link value="Abil/Reposition"/><Location value="Player"/><TimeUse value="1.5"/></Charge></Cost>
+        <CmdButtonArray index="Execute" Requirements=""/>
+        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
+    </CAbilEffectTarget>
+    <CActorModel id="NullifierMarker" parent="ModelAddition">
+        <On Terms="Behavior.NullifierMarker.On" Send="Create"/>
+        <On Terms="Behavior.NullifierMarker.Off" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow TerranBuildingFacing"/>
+        <Inherits index="TintColor" value="0"/>
+    </CActorModel>
+    <CActorRange id="NullifierPlaceRange">
+        <Inherits index="TeamColor" value="1"/>
+        <Host Subject="::Creator"/>
+        <HostSiteOps Ops="SOpShadow SOpBasicScopePositionFollowHoldRotation"/>
+        <Range value="7.750000"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.375000"/>
+    </CActorRange>
+    <CActorRange id="NullifierRange" parent="RangeWeapon" weapon="LongboltMissile">
+        <Inherits index="TeamColor" value="1"/>
+        <On Terms="SelectionLocalUpdate.Nullifier.Start" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.Nullifier.Stop" Send="Destroy"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.380000"/>
+    </CActorRange>
+    <CActorSound id="NullifierCursor" parent="DefaultCursorSound" Sound="Nullifier_What"/>
+    <CEffectSet id="StructureBirthNullifierSet">
+        <EffectArray value="StructureBirthNullifier"/>
+        <EffectArray value="NullifierProgressOrder"/>
+        <EffectArray value="SkinRefresh"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StructureBirthNullifier">
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="NullifierProgressOrder">
+        <WhichUnit Value="Source"/>
+        <Abil value="NullifierProgress"/>
+        <Player Value="Source"/>
+        <Target Value="SourceUnit"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="NullifierReposition">
+        <EffectArray value="RepositionTeleport"/>
+        <EffectArray value="StructureBirthNullifierRemove"/>
+        <EffectArray value="StructureBirthNullifier"/>
+        <EffectArray value="NullifierMarkerRemove"/>
+        <EffectArray value="NullifierMarkerDelay"/>
+        <EffectArray value="NullifierProgressOrder"/>
+        <TargetLocationType value="Point"/>
+        <ValidatorArray value="PermanentStructurePlacementValidator"/>
+    </CEffectSet>
+    <CBehaviorBuff id="NullifierMarker">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <BehaviorFlags index="EnabledWhileDead" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <BehaviorCategories index="Permanent" value="1"/>
+    </CBehaviorBuff>
+    <CActorModel id="NullifierPlace" parent="PlaceStructureKeiron" Model="Nullifier" Sound="NullifierCursor" A="NullifierPlace" B="NullifierReposition">
+        <On Terms="ActorCreation" Send="Create NullifierPlaceRange"/>
+    </CActorModel>
+    <CEffectCreateUnit id="NullifierPlace" parent="DefaultPlace">
+        <ValidatorArray index="0" removed="1"/>
+        <SpawnUnit value="Nullifier"/>
+        <SpawnEffect value="PermanentStructurePlaceSet"/>
+    </CEffectCreateUnit>
+    <CRequirement id="NullifierPlace">
+        <NodeArray index="Show" Link="NullifierPeak"/>
+    </CRequirement>
+    <CRequirementLT id="NullifierPeak">
+        <OperandArray index="0" value="Nullifier"/>
+        <OperandArray index="1" value="1"/>
+    </CRequirementLT>
+    <CRequirementCountUnit id="Nullifier" parent="CustomUnitReq"/>
+
+
+
+    <CUnit id="Stratus">
+        <DeathTime value="-1"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <Collide index="TinyCritter" value="1"/>
+        <TechAliasArray value="Alias_AnyStructure"/>
+        <BehaviorArray Link="PermanentStructure"/>
+        <BehaviorArray Link="GlobalUnitModifier"/>
+
+        <CostResource index="Minerals" value="0"/>
+        <CostResource index="Vespene" value="0"/>
+        <AbilArray index="0" Link=""/>
+        <AbilArray index="1" Link="AttackWarpPrism"/>
+        <AbilArray index="2" Link=""/>
+        <AbilArray Link="StratusReposition"/>
+        <AbilArray Link="StratusProgress"/>
+        <BehaviorArray Link="StratusMarker"/>
+        <EffectArray index="Create" value="StructureBirthStratusSet"/>
+        <EffectArray index="Birth" value="StructureBirthStratusSet"/>
+        <EffectArray index="Revive" value="StructureBirthStratusSet"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="Reposition20Keiron" Type="AbilCmd" AbilCmd="StratusReposition,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <PlacementFootprint value="Footprint2x2"/>
+        <DeadFootprint value="Footprint2x2NoCollision"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CButton id="StratusPlace" parent="CustomPlaceButton" Name="Stratus"      Art="btn-building-Keiron-Stratus" Race="Keiron" Hotkey="Unit13"/>
+    <CAbilEffectTarget id="StratusPlace" parent="CustomStructurePlace" Unit="Stratus" Size="2" Tier="1"/>
+    <CAbilEffectInstant id="StratusProgress" parent="CustomStructureProgressProgress" Unit="Stratus"/>
+    <CAbilEffectTarget id="StratusReposition" parent="Reposition" Placement="2x2PlaceDefense" Button="StratusPlace" Unit="Stratus">
+        <Cost index="0"><Charge><CountMax value="60"/><CountStart value="60"/><CountUse value="20"/><Link value="Abil/Reposition"/><Location value="Player"/><TimeUse value="1.5"/></Charge></Cost>
+        <CmdButtonArray index="Execute" Requirements=""/>
+        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
+    </CAbilEffectTarget>
+    <CActorModel id="StratusMarker" parent="ModelAddition">
+        <On Terms="Behavior.StratusMarker.On" Send="Create"/>
+        <On Terms="Behavior.StratusMarker.Off" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow TerranBuildingFacing"/>
+        <Inherits index="TintColor" value="0"/>
+    </CActorModel>
+    <CActorRange id="StratusPlaceRange">
+        <Inherits index="TeamColor" value="1"/>
+        <Host Subject="::Creator"/>
+        <HostSiteOps Ops="SOpShadow SOpBasicScopePositionFollowHoldRotation"/>
+        <Range value="7.750000"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.375000"/>
+    </CActorRange>
+    <CActorRange id="StratusRange" parent="RangeWeapon" weapon="LongboltMissile">
+        <Inherits index="TeamColor" value="1"/>
+        <On Terms="SelectionLocalUpdate.Stratus.Start" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.Stratus.Stop" Send="Destroy"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.380000"/>
+    </CActorRange>
+    <CActorSound id="StratusCursor" parent="DefaultCursorSound" Sound="Stratus_What"/>
+    <CEffectSet id="StructureBirthStratusSet">
+        <EffectArray value="StructureBirthStratus"/>
+        <EffectArray value="StratusProgressOrder"/>
+        <EffectArray value="SkinRefresh"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StructureBirthStratus">
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="StratusProgressOrder">
+        <WhichUnit Value="Source"/>
+        <Abil value="StratusProgress"/>
+        <Player Value="Source"/>
+        <Target Value="SourceUnit"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="StratusReposition">
+        <EffectArray value="RepositionTeleport"/>
+        <EffectArray value="StructureBirthStratusRemove"/>
+        <EffectArray value="StructureBirthStratus"/>
+        <EffectArray value="StratusMarkerRemove"/>
+        <EffectArray value="StratusMarkerDelay"/>
+        <EffectArray value="StratusProgressOrder"/>
+        <TargetLocationType value="Point"/>
+        <ValidatorArray value="PermanentStructurePlacementValidator"/>
+    </CEffectSet>
+    <CBehaviorBuff id="StratusMarker">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <BehaviorFlags index="EnabledWhileDead" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <BehaviorCategories index="Permanent" value="1"/>
+    </CBehaviorBuff>
+    <CActorModel id="StratusPlace" parent="PlaceStructureKeiron" Model="Stratus" Sound="StratusCursor" A="StratusPlace" B="StratusReposition">
+        <On Terms="ActorCreation" Send="Create StratusPlaceRange"/>
+    </CActorModel>
+    <CEffectCreateUnit id="StratusPlace" parent="DefaultPlace">
+        <ValidatorArray index="0" removed="1"/>
+        <SpawnUnit value="Stratus"/>
+        <SpawnEffect value="PermanentStructurePlaceSet"/>
+    </CEffectCreateUnit>
+    <CRequirement id="StratusPlace">
+        <NodeArray index="Show" Link="StratusPeak"/>
+    </CRequirement>
+    <CRequirementLT id="StratusPeak">
+        <OperandArray index="0" value="Stratus"/>
+        <OperandArray index="1" value="1"/>
+    </CRequirementLT>
+    <CRequirementCountUnit id="Stratus" parent="CustomUnitReq"/>
+
+
+    <CUnit id="Oculus">
+        <DeathTime value="-1"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <Collide index="TinyCritter" value="1"/>
+        <TechAliasArray value="Alias_AnyStructure"/>
+        <BehaviorArray Link="PermanentStructure"/>
+        <BehaviorArray Link="GlobalUnitModifier"/>
+
+        <CostResource index="Minerals" value="0"/>
+        <CostResource index="Vespene" value="0"/>
+        <AbilArray index="0" Link=""/>
+        <AbilArray index="1" Link=""/>
+        <AbilArray Link="OculusReposition"/>
+        <AbilArray Link="OculusProgress"/>
+        <BehaviorArray Link="OculusMarker"/>
+        <EffectArray index="Create" value="StructureBirthOculusSet"/>
+        <EffectArray index="Birth" value="StructureBirthOculusSet"/>
+        <EffectArray index="Revive" value="StructureBirthOculusSet"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="Reposition20Keiron" Type="AbilCmd" AbilCmd="OculusReposition,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <PlacementFootprint value="Footprint2x2"/>
+        <DeadFootprint value="Footprint2x2NoCollision"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CButton id="OculusPlace" parent="CustomPlaceButton" Name="Oculus"      Art="btn-building-Keiron-Oculus" Race="Keiron" Hotkey="Unit14"/>
+    <CAbilEffectTarget id="OculusPlace" parent="CustomStructurePlace" Unit="Oculus" Size="2" Tier="1"/>
+    <CAbilEffectInstant id="OculusProgress" parent="CustomStructureProgressProgress" Unit="Oculus"/>
+    <CAbilEffectTarget id="OculusReposition" parent="Reposition" Placement="2x2PlaceDefense" Button="OculusPlace" Unit="Oculus">
+        <Cost index="0"><Charge><CountMax value="60"/><CountStart value="60"/><CountUse value="20"/><Link value="Abil/Reposition"/><Location value="Player"/><TimeUse value="1.5"/></Charge></Cost>
+        <CmdButtonArray index="Execute" Requirements=""/>
+        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
+    </CAbilEffectTarget>
+    <CActorModel id="OculusMarker" parent="ModelAddition">
+        <On Terms="Behavior.OculusMarker.On" Send="Create"/>
+        <On Terms="Behavior.OculusMarker.Off" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow TerranBuildingFacing"/>
+        <Inherits index="TintColor" value="0"/>
+    </CActorModel>
+    <CActorRange id="OculusPlaceRange">
+        <Inherits index="TeamColor" value="1"/>
+        <Host Subject="::Creator"/>
+        <HostSiteOps Ops="SOpShadow SOpBasicScopePositionFollowHoldRotation"/>
+        <Range value="7.750000"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.375000"/>
+    </CActorRange>
+    <CActorRange id="OculusRange" parent="RangeWeapon" weapon="LongboltMissile">
+        <Inherits index="TeamColor" value="1"/>
+        <On Terms="SelectionLocalUpdate.Oculus.Start" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.Oculus.Stop" Send="Destroy"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.380000"/>
+    </CActorRange>
+    <CActorSound id="OculusCursor" parent="DefaultCursorSound" Sound="Oculus_What"/>
+    <CEffectSet id="StructureBirthOculusSet">
+        <EffectArray value="StructureBirthOculus"/>
+        <EffectArray value="OculusProgressOrder"/>
+        <EffectArray value="SkinRefresh"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StructureBirthOculus">
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="OculusProgressOrder">
+        <WhichUnit Value="Source"/>
+        <Abil value="OculusProgress"/>
+        <Player Value="Source"/>
+        <Target Value="SourceUnit"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="OculusReposition">
+        <EffectArray value="RepositionTeleport"/>
+        <EffectArray value="StructureBirthOculusRemove"/>
+        <EffectArray value="StructureBirthOculus"/>
+        <EffectArray value="OculusMarkerRemove"/>
+        <EffectArray value="OculusMarkerDelay"/>
+        <EffectArray value="OculusProgressOrder"/>
+        <TargetLocationType value="Point"/>
+        <ValidatorArray value="PermanentStructurePlacementValidator"/>
+    </CEffectSet>
+    <CBehaviorBuff id="OculusMarker">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <BehaviorFlags index="EnabledWhileDead" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <BehaviorCategories index="Permanent" value="1"/>
+    </CBehaviorBuff>
+    <CActorModel id="OculusPlace" parent="PlaceStructureKeiron" Model="Oculus" Sound="OculusCursor" A="OculusPlace" B="OculusReposition">
+        <On Terms="ActorCreation" Send="Create OculusPlaceRange"/>
+    </CActorModel>
+    <CEffectCreateUnit id="OculusPlace" parent="DefaultPlace">
+        <ValidatorArray index="0" removed="1"/>
+        <SpawnUnit value="Oculus"/>
+        <SpawnEffect value="PermanentStructurePlaceSet"/>
+    </CEffectCreateUnit>
+    <CRequirement id="OculusPlace">
+        <NodeArray index="Show" Link="OculusPeak"/>
+    </CRequirement>
+    <CRequirementLT id="OculusPeak">
+        <OperandArray index="0" value="Oculus"/>
+        <OperandArray index="1" value="1"/>
+    </CRequirementLT>
+    <CRequirementCountUnit id="Oculus" parent="CustomUnitReq"/>
 
     <!-- =========================== -->
     <!--     Refinery Section        -->
@@ -467,15 +835,6 @@
         <On Terms="TimerExpired; TimerName Transition" Send="Destroy"/>
         <On Terms="Behavior.StructureBirthFormulator.Off" Send="Destroy"/>
     </CActorSimple>
-    <CActorModel default="1" id="PlaceStructureKeiron" parent="PlaceBase">
-        <On index="0" Send="AnimBracketStart BSD Birth Attack Death"/>
-        <On Terms="ActorCreation; !AnimPlayable Attack" Send="AnimBracketStart BSD {} Walk"/>
-        <On Terms="ActorCreation; !AnimPlayable Walk" Send="AnimBracketStart BSD {} Stand,Work"/>
-        <On Terms="ActorCreation" Send="AnimSetTimeScale BSD 1.300000"/>
-        <On Terms="ActorCreation" Send="Create PlaceRocker"/>
-        <On Terms="ActorCreation" Send="Create PlaceBeamTerran"/>
-        <HostSiteOps Ops="SOpBasicScopePositionFollowHoldRotation SOpHeightPlacement_Flyer SOpFacingPlacement_SW"/>
-    </CActorModel>
     <CActorModel id="FormulatorPlace" parent="PlaceStructureKeiron" Unit="FormulatorMinerals">
         <On index="11" Terms="ActorCreation" Send="StatusSet {} 0"/>
         <On Terms="ActorCreation" Send="AnimPlay SpellA Work,D,00"/>
@@ -1024,7 +1383,7 @@
     <CAbilEffectTarget parent="CustomPlace"      id="InducerPlace"        Unit="Inducer"   Space="Ground" Size="2" Tier="2"/>
     <CAbilEffectTarget parent="CustomPlace"      id="MyriadPlace"         Unit="Myriad"    Space="Ground" Size="2" Tier="2"/>
     <CAbilEffectTarget parent="CustomPlace"      id="TitanPlace"          Unit="Titan"     Space="Ground" Size="3" Tier="3"/>
-    <CAbilEffectTarget parent="CustomPlace"      id="EchoPlace"           Unit="Echo"      Space="Air"    Size="1" Tier="1"/>
+    <CAbilEffectTarget parent="CustomPlace"      id="EchoPlace"           Unit="Echo"      Space="Air"    Size="1" Tier="2"/>
     <CAbilEffectTarget parent="CustomPlace"      id="FusePlace"           Unit="Fuse"      Space="Air"    Size="1" Tier="1"/>
     <CAbilEffectTarget parent="CustomPlace"      id="AperturePlace"       Unit="Aperture"  Space="Air"    Size="2" Tier="2"/>
     <CAbilEffectTarget parent="CustomPlace"      id="AuroraPlace"         Unit="Aurora"    Space="Air"    Size="2" Tier="2"/>
@@ -1057,7 +1416,7 @@
         <KillXP value="10"/>
         <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_KeironShields"/><TechAliasArray value="Alias_KeironBio"/>
         <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
-        <AbilArray index="0" Link=""/><AbilArray index="1" Link="AttackWarpPrism"/><AbilArray index="2" Link=""/>
+        <AbilArray index="0" Link=""/><AbilArray index="1" Link="AttackWarpPrism"/><AbilArray index="2" Link=""/><AbilArray index="4" Link=""/>
         <AbilArray Link="ConverterReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
         <CardLayouts index="0">
             <LayoutButtons index="0" Face="Reposition1Keiron" Type="AbilCmd" AbilCmd="ConverterReposition,Execute" Row="0" Column="4"/>
@@ -1217,7 +1576,7 @@
         <CostResource index="Minerals" value="425"/>
         <PlacementFootprint value="3x3SpawnerPlacement"/>
         <KillXP value="100"/>
-        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_KeironShields"/><TechAliasArray value="Alias_KeironBio"/>
+        <TechAliasArray value="Alias_AnyUnit"/><TechAliasArray value="Alias_KeironShields"/><TechAliasArray value="Alias_KeironMech"/>
         <BehaviorArray Link="GlobalUnitModifier"/><FlagArray index="AcquireRally" value="1"/>
         <AbilArray index="0" Link=""/><AbilArray index="1" Link="AttackWarpPrism"/><AbilArray index="2" Link=""/>
         <AbilArray Link="TitanReposition"/><AbilArray Link="Sell70"/><AbilArray Link="SellFull"/><AbilArray Link="InventoryUnit"/><AbilArray Link="IdleCheck"/>
@@ -1277,6 +1636,7 @@
             <LayoutButtons index="3" Face="SellFull" Type="AbilCmd" AbilCmd="SellFull,Execute" Row="1" Column="4"/>
             <LayoutButtons index="4" Face="Sell70" Type="AbilCmd" AbilCmd="Sell70,Execute" Row="1" Column="4"/>
         </CardLayouts>
+        <WeaponArray Link="ApertureDummyWeapon"/>
     </CUnit>
     <CUnit id="Aurora"   >
         <CostResource index="Minerals" value="175"/>
@@ -1473,7 +1833,7 @@
     <CValidatorLocationEnumArea id="PariahProjectionManualHostileSearch" parent="HostileSearch">
         <ResultFailed value="CantFindEnoughTargets,Error/RequiresNearbyEnemies"/>
         <AreaArray Radius="20"/>
-        <SearchFilters value="Visible;Player,Ally,Neutral,Worker,Missile,Stasis,Dead,Hidden,Invulnerable,Benign"/>
+        <SearchFilters value="Ground,Visible;Player,Ally,Neutral,Worker,Missile,Stasis,Dead,Hidden,Invulnerable,Benign"/>
     </CValidatorLocationEnumArea>
     <CEffectSet id="ProjectionSetCast">
                 <ValidatorArray value="NotUnitSpawnerCaster"/>
@@ -1741,20 +2101,6 @@
         <CombineArray value="NoMultipleAirHostilesNearby15"/>
     </CValidatorCombine>
 
-    <CWeaponLegacy id="GyreDummyWeapon">
-        <Options index="Hidden" value="1"/>
-        <Options index="LinkedCooldown" value="0"/>
-        <Options index="RequireEnabledAttackAbil" value="0"/>
-        <Icon value="Assets\Textures\btn-command-attack.dds"/>
-        <TargetFilters value="Ground;User1,Missile,Stasis,Dead,Hidden,Invulnerable"/>
-        <MinScanRange value="11"/>
-        <Range value="1"/>
-        <Arc value="360"/>
-        <Period value="120"/>
-        <DamagePoint value="0"/>
-        <Backswing value="0"/>
-        <Effect value="DummyWeapon"/>
-    </CWeaponLegacy>
 
     <CAbilEffectInstant id="GyreAnnex">
         <AutoCastRange value="2"/>
@@ -1827,21 +2173,6 @@
         <CombineArray value="GenericTargetedAoETargetSearch"/>
     </CValidatorCombine>
 
-    <CWeaponLegacy id="FuseDummyWeapon">
-        <EditorCategories value="Race:Terran"/>
-        <Options index="Hidden" value="1"/>
-        <Options index="LinkedCooldown" value="0"/>
-        <Options index="RequireEnabledAttackAbil" value="0"/>
-        <Icon value="Assets\Textures\btn-command-attack.dds"/>
-        <TargetFilters value="Visible;User1,Missile,Stasis,Dead,Hidden,Invulnerable"/>
-        <MinScanRange value="11"/>
-        <Range value="7"/>
-        <Arc value="360"/>
-        <Period value="120"/>
-        <DamagePoint value="0"/>
-        <Backswing value="0"/>
-        <Effect value="DummyWeapon"/>
-    </CWeaponLegacy>
 
     <CAbilEffectTarget id="FuseFusion">
         <AutoCastRange value="12"/>
@@ -1871,36 +2202,81 @@
     </CValidatorCombine>
 
     <CAbilBuild id="KeironBuild">
-        <InfoArray index="Build1"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build2"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build3"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build4"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build5"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build6"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build7"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build8"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build9"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build10"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build11"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build12"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build13"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build14"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build15"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build16"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build17"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build18"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build19"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build20"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build21"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build22"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build23"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build24"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build25"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build26"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build27"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build28"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build29"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build30"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build1"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build2"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build3"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build4"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build5"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build6"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build7"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build8"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build9"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build10"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build11"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build12"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build13"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build14"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build15"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build16"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build17"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build18"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build19"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build20"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build21"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build22"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build23"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build24"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build25"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build26"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build27"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build28"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build29"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build30"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
     </CAbilBuild>
+
+    <CWeaponLegacy id="FuseDummyWeapon">
+        <EditorCategories value="Race:Terran"/>
+        <Options index="Hidden" value="1"/>
+        <Options index="LinkedCooldown" value="0"/>
+        <Options index="RequireEnabledAttackAbil" value="0"/>
+        <Icon value="Assets\Textures\btn-command-attack.dds"/>
+        <TargetFilters value="Visible;User1,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="11"/>
+        <Range value="7"/>
+        <Arc value="360"/>
+        <Period value="120"/>
+        <DamagePoint value="0"/>
+        <Backswing value="0"/>
+        <Effect value="DummyWeapon"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="ApertureDummyWeapon">
+        <EditorCategories value="Race:Terran"/>
+        <Options index="Hidden" value="1"/>
+        <Options index="LinkedCooldown" value="0"/>
+        <Options index="RequireEnabledAttackAbil" value="0"/>
+        <Icon value="Assets\Textures\btn-command-attack.dds"/>
+        <TargetFilters value="Visible;User1,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="11"/>
+        <Range value="13"/>
+        <Arc value="360"/>
+        <Period value="120"/>
+        <DamagePoint value="0"/>
+        <Backswing value="0"/>
+        <Effect value="DummyWeapon"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="GyreDummyWeapon">
+        <Options index="Hidden" value="1"/>
+        <Options index="LinkedCooldown" value="0"/>
+        <Options index="RequireEnabledAttackAbil" value="0"/>
+        <Icon value="Assets\Textures\btn-command-attack.dds"/>
+        <TargetFilters value="Ground;User1,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="11"/>
+        <Range value="1"/>
+        <Arc value="360"/>
+        <Period value="120"/>
+        <DamagePoint value="0"/>
+        <Backswing value="0"/>
+        <Effect value="DummyWeapon"/>
+    </CWeaponLegacy>
 
 </Catalog>

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
-
-
-
     <CActorSimple default="1" id="GenetronPlaceSimple">
         <?token id="Unit" type="CUnit"?>
         <On Terms="Effect.##Unit##Place.Create" Send="Create"/>
@@ -28,9 +25,6 @@
         <!--        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>-->
         <!--        <On Terms="ActorOrphan" Send="Destroy"/>-->
     </CActorSimple>
-
-
-
     <CActorModel default="1" id="PlaceStructureGenetron" parent="PlaceBase">
         <On index="0" Send="AnimBracketStart BSD Birth Attack Death"/>
         <On Terms="ActorCreation; !AnimPlayable Attack" Send="AnimBracketStart BSD {} Walk"/>
@@ -73,13 +67,15 @@
        Unit17="Courier"
        Unit18="ACR"
 
-       Upgrade1="GenetronEnergy"
-       Upgrade2="CalibratedEngines"
-       Upgrade3="SpitfireMadcapRounds"
+       Upgrade1="CalibratedEngines"
+       Upgrade2="SpitfireMadcapRounds"
     >
     <Name value="Race/Name/Gen"/>
         <AbilArray Link="FilteringPlantMinerals"/>
+        <AbilArray Link="GeneratorPlace"/>
         <AbilArray Link="RelayTowerPlace"/>
+        <AbilArray Link="InterdictorPlace"/>
+        <AbilArray Link="RepulsorPlace"/>
 
 <!--&lt;!&ndash;        <BehaviorArray Link="NodePower"/>&ndash;&gt;-->
         <BehaviorArray Link="TrackGenetronPowerSupply"/>
@@ -131,8 +127,12 @@
         <CardLayouts index="2" CardId="Upgr">
             <LayoutButtons  index="1"   AbilCmd="GenetronResearch,Specialize1"/>
             <LayoutButtons  index="2"   AbilCmd="GenetronResearch,Specialize2"/>
-            <LayoutButtons  index="3"   AbilCmd="GenetronResearch,Specialize3"/>
-            <LayoutButtons Face="RelayTowerPlace" Type="AbilCmd" AbilCmd="RelayTowerPlace,Execute" Row="2" Column="3"/>
+
+
+            <LayoutButtons Face="RepulsorPlace" Type="AbilCmd" AbilCmd="RepulsorPlace,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="InterdictorPlace" Type="AbilCmd" AbilCmd="InterdictorPlace,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="RelayTowerPlace" Type="AbilCmd" AbilCmd="RelayTowerPlace,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="GeneratorPlace" Type="AbilCmd" AbilCmd="GeneratorPlace,Specialize1" Row="2" Column="3"/>
         </CardLayouts>
         <CardLayouts index="3" CardId="Abil">
             <LayoutButtons Face="BlitzerSupercharge"                      Type="AbilCmd" AbilCmd="SuperCharge,Execute"                      Requirements="Blitzer"/>
@@ -156,6 +156,11 @@
             <LayoutButtons Face="CloakOnCourier"                     Type="AbilCmd" AbilCmd="CourierCloak,Execute"                     Requirements="Courier"/>
             <LayoutButtons Face="SystemRecharge"          Type="AbilCmd" AbilCmd="ProcessorSystemRecharge,Execute"          Requirements="Scion_Processor"/>
             <LayoutButtons Face="ACRRepair"                        Type="AbilCmd" AbilCmd="ACRRepair,Execute"                        Requirements="ACR"/>
+            <LayoutButtons Face="CoreSystemRecharge"                        Type="AbilCmd" AbilCmd="CoreSystemRecharge,Execute"                        Requirements="RelayTower"/>
+            <LayoutButtons Face="StaticDBurrow"                        Type="AbilCmd" AbilCmd="InterdictorBurrow,Execute"                        Requirements="Interdictor"/>
+            <LayoutButtons Face="StaticDUnburrow"                        Type="AbilCmd" AbilCmd="InterdictorUnburrow,Execute"                        Requirements="Interdictor"/>
+            <LayoutButtons Face="StaticDBurrow"                        Type="AbilCmd" AbilCmd="RepulsorBurrow,Execute"                        Requirements="Repulsor"/>
+            <LayoutButtons Face="StaticDUnburrow"                        Type="AbilCmd" AbilCmd="RepulsorUnburrow,Execute"                        Requirements="Repulsor"/>
         </CardLayouts>
     </CUnit>
     <CActorSimple id="WorkerBirthGenetronSimple">
@@ -307,7 +312,97 @@
     <!--       Defense Section        -->
     <!-- =========================== -->
 
-    <CActorRange id="RelayTowerPlaceRange">
+    <CUnit id="InterdictorBurrowed">
+        <DeathTime value="-1"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <Collide index="TinyCritter" value="1"/>
+        <TechAliasArray value="Alias_AnyStructure"/>
+        <BehaviorArray Link="PermanentStructure"/>
+        <BehaviorArray Link="GlobalUnitModifier"/>
+
+        <TechAliasArray value="Alias_Interdictor"/>
+        <CostResource index="Minerals" value="0"/>
+        <CostResource index="Vespene" value="0"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="Reposition20Genetron" Type="AbilCmd" AbilCmd="InterdictorReposition,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <AbilArray index="0" Link=""/>
+        <AbilArray index="1" Link=""/>
+        <AbilArray index="3" Link=""/>
+        <AbilArray Link="InterdictorReposition"/>
+        <AbilArray Link="InterdictorProgress"/>
+        <BehaviorArray Link="InterdictorMarker"/>
+        <EffectArray index="Create" value="StructureBirthInterdictorSet"/>
+        <EffectArray index="Birth" value="StructureBirthInterdictorSet"/>
+        <EffectArray index="Revive" value="StructureBirthInterdictorSet"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="Reposition20Genetron" Type="AbilCmd" AbilCmd="InterdictorReposition,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <PlacementFootprint value="Footprint2x2"/>
+        <DeadFootprint value="Footprint2x2NoCollision"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CUnit id="Interdictor">
+        <DeathTime value="-1"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <Collide index="TinyCritter" value="1"/>
+        <TechAliasArray value="Alias_AnyStructure"/>
+        <BehaviorArray Link="PermanentStructure"/>
+        <BehaviorArray Link="GlobalUnitModifier"/>
+
+        <TechAliasArray value="Alias_Interdictor"/>
+        <CostResource index="Minerals" value="0"/>
+        <CostResource index="Vespene" value="0"/>
+        <AbilArray index="0" Link=""/>
+        <AbilArray index="1" Link=""/>
+        <AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray index="4" Link=""/>
+        <AbilArray Link="InterdictorReposition"/>
+        <AbilArray Link="InterdictorProgress"/>
+        <BehaviorArray Link="InterdictorMarker"/>
+        <EffectArray index="Create" value="StructureBirthInterdictorSet"/>
+        <EffectArray index="Birth" value="StructureBirthInterdictorSet"/>
+        <EffectArray index="Revive" value="StructureBirthInterdictorSet"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="Reposition20Genetron" Type="AbilCmd" AbilCmd="InterdictorReposition,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <PlacementFootprint value="Footprint2x2"/>
+        <DeadFootprint value="Footprint2x2NoCollision"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CButton id="InterdictorPlace" parent="CustomPlaceButton" Name="Interdictor"      Art="btn-building-genetron-Interdictor" Race="Genetron" Hotkey="Unit11"/>
+    <CAbilEffectTarget id="InterdictorPlace" parent="CustomStructurePlace" Unit="Interdictor" Size="2" Tier="1"/>
+    <CAbilEffectInstant id="InterdictorProgress" parent="CustomStructureProgressProgress" Unit="Interdictor"/>
+    <CAbilEffectTarget id="InterdictorReposition" parent="Reposition" Placement="2x2PlaceDefense" Button="InterdictorPlace" Unit="Interdictor">
+        <Cost index="0"><Charge><CountMax value="60"/><CountStart value="60"/><CountUse value="20"/><Link value="Abil/Reposition"/><Location value="Player"/><TimeUse value="1.5"/></Charge></Cost>
+        <CmdButtonArray index="Execute" Requirements=""/>
+        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
+    </CAbilEffectTarget>
+    <CActorModel id="InterdictorMarker" parent="ModelAddition">
+        <On Terms="Behavior.InterdictorMarker.On" Send="Create"/>
+        <On Terms="Behavior.InterdictorMarker.Off" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow TerranBuildingFacing"/>
+        <Inherits index="TintColor" value="0"/>
+    </CActorModel>
+    <CActorRange id="InterdictorPlaceRange">
         <Inherits index="TeamColor" value="1"/>
         <Host Subject="::Creator"/>
         <HostSiteOps Ops="SOpShadow SOpBasicScopePositionFollowHoldRotation"/>
@@ -315,42 +410,232 @@
         <Icon value="Assets\Textures\ui_rangeicon.dds"/>
         <IconArcLength value="0.375000"/>
     </CActorRange>
-    <CActorModel id="RelayTowerMarker" parent="ModelAddition">
-        <On Terms="Behavior.RelayTowerMarker.On" Send="Create"/>
-        <On Terms="Behavior.RelayTowerMarker.Off" Send="Destroy"/>
-        <HostSiteOps Ops="SOpShadow TerranBuildingFacing"/>
-        <Inherits index="TintColor" value="0"/>
-    </CActorModel>
-    <CBehaviorBuff id="RelayTowerMarker">
+    <CActorRange id="InterdictorRange" parent="RangeWeapon" weapon="LongboltMissile">
+        <Inherits index="TeamColor" value="1"/>
+        <On Terms="SelectionLocalUpdate.Interdictor.Start" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.Interdictor.Stop" Send="Destroy"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.380000"/>
+    </CActorRange>
+    <CActorSound id="InterdictorCursor" parent="DefaultCursorSound" Sound="Interdictor_What"/>
+    <CEffectSet id="StructureBirthInterdictorSet">
+        <EffectArray value="StructureBirthInterdictor"/>
+        <EffectArray value="InterdictorProgressOrder"/>
+        <EffectArray value="SkinRefresh"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StructureBirthInterdictor">
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="InterdictorProgressOrder">
+        <WhichUnit Value="Source"/>
+        <Abil value="InterdictorProgress"/>
+        <Player Value="Source"/>
+        <Target Value="SourceUnit"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="InterdictorReposition">
+        <EffectArray value="RepositionTeleport"/>
+        <EffectArray value="StructureBirthInterdictorRemove"/>
+        <EffectArray value="StructureBirthInterdictor"/>
+        <EffectArray value="InterdictorMarkerRemove"/>
+        <EffectArray value="InterdictorMarkerDelay"/>
+        <EffectArray value="InterdictorProgressOrder"/>
+        <TargetLocationType value="Point"/>
+        <ValidatorArray value="PermanentStructurePlacementValidator"/>
+    </CEffectSet>
+    <CBehaviorBuff id="InterdictorMarker">
         <BehaviorFlags index="Permanent" value="1"/>
         <BehaviorFlags index="EnabledWhileDead" value="1"/>
         <InfoFlags index="Hidden" value="1"/>
         <BehaviorCategories index="Permanent" value="1"/>
     </CBehaviorBuff>
-    <CEffectSet id="StructureBirthRelayTowerSet">
-        <EffectArray value="StructureBirthRelayTower"/>
-        <EffectArray value="RelayTowerProgressOrder"/>
+    <CActorModel id="InterdictorPlace" parent="PlaceStructureGenetron" Model="Interdictor" Sound="InterdictorCursor" A="InterdictorPlace" B="InterdictorReposition">
+        <On Terms="ActorCreation" Send="Create InterdictorPlaceRange"/>
+    </CActorModel>
+    <CEffectCreateUnit id="InterdictorPlace" parent="DefaultPlace">
+        <ValidatorArray index="0" removed="1"/>
+        <SpawnUnit value="Interdictor"/>
+        <SpawnEffect value="PermanentStructurePlaceSet"/>
+    </CEffectCreateUnit>
+    <CRequirement id="InterdictorPlace">
+        <NodeArray index="Show" Link="InterdictorPeak"/>
+    </CRequirement>
+    <CRequirementLT id="InterdictorPeak">
+        <OperandArray index="0" value="Alias_Interdictor"/>
+        <OperandArray index="1" value="1"/>
+    </CRequirementLT>
+    <CRequirementCountUnit id="Interdictor" parent="CustomUnitReq"/>
+
+
+
+    <CUnit id="RepulsorBurrowed">
+        <DeathTime value="-1"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <Collide index="TinyCritter" value="1"/>
+        <TechAliasArray value="Alias_AnyStructure"/>
+        <BehaviorArray Link="PermanentStructure"/>
+        <BehaviorArray Link="GlobalUnitModifier"/>
+
+        <TechAliasArray value="Alias_Repulsor"/>
+        <CostResource index="Minerals" value="0"/>
+        <CostResource index="Vespene" value="0"/>
+        <AbilArray index="0" Link=""/>
+        <AbilArray index="1" Link=""/>
+        <AbilArray index="3" Link=""/>
+        <AbilArray Link="RepulsorReposition"/>
+        <AbilArray Link="RepulsorProgress"/>
+        <BehaviorArray Link="RepulsorMarker"/>
+        <EffectArray index="Create" value="StructureBirthRepulsorSet"/>
+        <EffectArray index="Birth" value="StructureBirthRepulsorSet"/>
+        <EffectArray index="Revive" value="StructureBirthRepulsorSet"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="Reposition20Genetron" Type="AbilCmd" AbilCmd="RepulsorReposition,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <PlacementFootprint value="Footprint2x2"/>
+        <DeadFootprint value="Footprint2x2NoCollision"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CUnit id="Repulsor">
+        <DeathTime value="-1"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <Collide index="TinyCritter" value="1"/>
+        <TechAliasArray value="Alias_AnyStructure"/>
+        <BehaviorArray Link="PermanentStructure"/>
+        <BehaviorArray Link="GlobalUnitModifier"/>
+
+        <TechAliasArray value="Alias_Repulsor"/>
+        <CostResource index="Minerals" value="0"/>
+        <CostResource index="Vespene" value="0"/>
+        <AbilArray index="0" Link=""/>
+        <AbilArray index="1" Link=""/>
+        <AbilArray index="2" Link="AttackWarpPrism"/>
+        <AbilArray index="4" Link=""/>
+        <AbilArray Link="RepulsorReposition"/>
+        <AbilArray Link="RepulsorProgress"/>
+        <BehaviorArray Link="RepulsorMarker"/>
+        <EffectArray index="Create" value="StructureBirthRepulsorSet"/>
+        <EffectArray index="Birth" value="StructureBirthRepulsorSet"/>
+        <EffectArray index="Revive" value="StructureBirthRepulsorSet"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="Reposition20Genetron" Type="AbilCmd" AbilCmd="RepulsorReposition,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <PlacementFootprint value="Footprint2x2"/>
+        <DeadFootprint value="Footprint2x2NoCollision"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CButton id="RepulsorPlace" parent="CustomPlaceButton" Name="Repulsor"      Art="btn-building-genetron-Repulsor" Race="Genetron" Hotkey="Unit12"/>
+    <CAbilEffectTarget id="RepulsorPlace" parent="CustomStructurePlace" Unit="Repulsor" Size="2" Tier="1"/>
+    <CAbilEffectInstant id="RepulsorProgress" parent="CustomStructureProgressProgress" Unit="Repulsor"/>
+    <CAbilEffectTarget id="RepulsorReposition" parent="Reposition" Placement="2x2PlaceDefense" Button="RepulsorPlace" Unit="Repulsor">
+        <Cost index="0"><Charge><CountMax value="60"/><CountStart value="60"/><CountUse value="20"/><Link value="Abil/Reposition"/><Location value="Player"/><TimeUse value="1.5"/></Charge></Cost>
+        <CmdButtonArray index="Execute" Requirements=""/>
+        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
+    </CAbilEffectTarget>
+    <CActorModel id="RepulsorMarker" parent="ModelAddition">
+        <On Terms="Behavior.RepulsorMarker.On" Send="Create"/>
+        <On Terms="Behavior.RepulsorMarker.Off" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow TerranBuildingFacing"/>
+        <Inherits index="TintColor" value="0"/>
+    </CActorModel>
+    <CActorRange id="RepulsorPlaceRange">
+        <Inherits index="TeamColor" value="1"/>
+        <Host Subject="::Creator"/>
+        <HostSiteOps Ops="SOpShadow SOpBasicScopePositionFollowHoldRotation"/>
+        <Range value="7.750000"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.375000"/>
+    </CActorRange>
+    <CActorRange id="RepulsorRange" parent="RangeWeapon" weapon="LongboltMissile">
+        <Inherits index="TeamColor" value="1"/>
+        <On Terms="SelectionLocalUpdate.Repulsor.Start" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.Repulsor.Stop" Send="Destroy"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.380000"/>
+    </CActorRange>
+    <CActorSound id="RepulsorCursor" parent="DefaultCursorSound" Sound="Repulsor_What"/>
+    <CEffectSet id="StructureBirthRepulsorSet">
+        <EffectArray value="StructureBirthRepulsor"/>
+        <EffectArray value="RepulsorProgressOrder"/>
         <EffectArray value="SkinRefresh"/>
     </CEffectSet>
-    <CEffectApplyBehavior id="StructureBirthRelayTower">
+    <CEffectApplyBehavior id="StructureBirthRepulsor">
         <WhichUnit Value="Source"/>
     </CEffectApplyBehavior>
-    <CEffectIssueOrder id="RelayTowerProgressOrder">
+    <CEffectIssueOrder id="RepulsorProgressOrder">
         <WhichUnit Value="Source"/>
-        <Abil value="RelayTowerProgress"/>
+        <Abil value="RepulsorProgress"/>
         <Player Value="Source"/>
         <Target Value="SourceUnit"/>
     </CEffectIssueOrder>
-    <CAbilEffectInstant id="RelayTowerProgress">
-        <Effect index="0" value="DummyEffect"/>
-        <PrepTime value="7"/>
-        <ShowProgressArray index="Prep" value="1"/>
-        <UninterruptibleArray index="Prep" value="1"/>
-        <ProgressButtonArray index="Prep" value="RelayTowerPlace"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="RelayTowerPlace"/>
-        <AbilSetId value="StructureProgress"/>
-    </CAbilEffectInstant>
+    <CEffectSet id="RepulsorReposition">
+        <EffectArray value="RepositionTeleport"/>
+        <EffectArray value="StructureBirthRepulsorRemove"/>
+        <EffectArray value="StructureBirthRepulsor"/>
+        <EffectArray value="RepulsorMarkerRemove"/>
+        <EffectArray value="RepulsorMarkerDelay"/>
+        <EffectArray value="RepulsorProgressOrder"/>
+        <TargetLocationType value="Point"/>
+        <ValidatorArray value="PermanentStructurePlacementValidator"/>
+    </CEffectSet>
+    <CBehaviorBuff id="RepulsorMarker">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <BehaviorFlags index="EnabledWhileDead" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <BehaviorCategories index="Permanent" value="1"/>
+    </CBehaviorBuff>
+    <CActorModel id="RepulsorPlace" parent="PlaceStructureGenetron" Model="Repulsor" Sound="RepulsorCursor" A="RepulsorPlace" B="RepulsorReposition">
+        <On Terms="ActorCreation" Send="Create RepulsorPlaceRange"/>
+    </CActorModel>
+    <CEffectCreateUnit id="RepulsorPlace" parent="DefaultPlace">
+        <ValidatorArray index="0" removed="1"/>
+        <SpawnUnit value="Repulsor"/>
+        <SpawnEffect value="PermanentStructurePlaceSet"/>
+    </CEffectCreateUnit>
+    <CRequirement id="RepulsorPlace">
+        <NodeArray index="Show" Link="RepulsorPeak"/>
+    </CRequirement>
+    <CRequirementLT id="RepulsorPeak">
+        <OperandArray index="0" value="Alias_Repulsor"/>
+        <OperandArray index="1" value="1"/>
+    </CRequirementLT>
+    <CRequirementCountUnit id="Repulsor" parent="CustomUnitReq"/>
+
+
+
     <CUnit id="RelayTower">
+        <DeathTime value="-1"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <Collide index="TinyCritter" value="1"/>
+        <TechAliasArray value="Alias_AnyStructure"/>
+        <BehaviorArray Link="PermanentStructure"/>
+        <BehaviorArray Link="GlobalUnitModifier"/>
+
         <CostResource index="Minerals" value="0"/>
         <CostResource index="Vespene" value="0"/>
         <AbilArray index="0" Link="RelayTowerReposition"/>
@@ -369,6 +654,28 @@
         <DeadFootprint value="Footprint2x2NoCollision"/>
         <RankDisplay value="Never"/>
     </CUnit>
+    <CButton id="RelayTowerPlace" parent="CustomPlaceButton" Name="RelayTower"      Art="btn-building-genetron-RelayTower" Race="Genetron" Hotkey="Unit13"/>
+    <CAbilEffectTarget id="RelayTowerPlace" parent="CustomStructurePlace" Unit="RelayTower" Size="2" Tier="1"/>
+    <CAbilEffectInstant id="RelayTowerProgress" parent="CustomStructureProgressProgress" Unit="RelayTower"/>
+    <CAbilEffectTarget id="RelayTowerReposition" parent="Reposition" Placement="2x2PlaceDefense" Button="RelayTowerPlace" Unit="RelayTower">
+        <Cost index="0"><Charge><CountMax value="60"/><CountStart value="60"/><CountUse value="20"/><Link value="Abil/Reposition"/><Location value="Player"/><TimeUse value="1.5"/></Charge></Cost>
+        <CmdButtonArray index="Execute" Requirements=""/>
+        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
+    </CAbilEffectTarget>
+    <CActorModel id="RelayTowerMarker" parent="ModelAddition">
+        <On Terms="Behavior.RelayTowerMarker.On" Send="Create"/>
+        <On Terms="Behavior.RelayTowerMarker.Off" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow TerranBuildingFacing"/>
+        <Inherits index="TintColor" value="0"/>
+    </CActorModel>
+    <CActorRange id="RelayTowerPlaceRange">
+        <Inherits index="TeamColor" value="1"/>
+        <Host Subject="::Creator"/>
+        <HostSiteOps Ops="SOpShadow SOpBasicScopePositionFollowHoldRotation"/>
+        <Range value="7.750000"/>
+        <Icon value="Assets\Textures\ui_rangeicon.dds"/>
+        <IconArcLength value="0.375000"/>
+    </CActorRange>
     <CActorRange id="RelayTowerRange" parent="RangeWeapon" weapon="LongboltMissile">
         <Inherits index="TeamColor" value="1"/>
         <On Terms="SelectionLocalUpdate.RelayTower.Start" Send="Create"/>
@@ -376,20 +683,21 @@
         <Icon value="Assets\Textures\ui_rangeicon.dds"/>
         <IconArcLength value="0.380000"/>
     </CActorRange>
-    <CAbilEffectTarget id="RelayTowerReposition" parent="Reposition" Placement="2x2PlaceDefense" Button="RelayTowerPlace" Unit="RelayTower">
-        <Cost index="0">
-            <Charge>
-                <CountMax value="60"/>
-                <CountStart value="60"/>
-                <CountUse value="20"/>
-                <Link value="Abil/Reposition"/>
-                <Location value="Player"/>
-                <TimeUse value="1.5"/>
-            </Charge>
-        </Cost>
-        <CmdButtonArray index="Execute" Requirements=""/>
-        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
-    </CAbilEffectTarget>
+    <CActorSound id="RelayTowerCursor" parent="DefaultCursorSound" Sound="RelayTower_What"/>
+    <CEffectSet id="StructureBirthRelayTowerSet">
+        <EffectArray value="StructureBirthRelayTower"/>
+        <EffectArray value="RelayTowerProgressOrder"/>
+        <EffectArray value="SkinRefresh"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StructureBirthRelayTower">
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="RelayTowerProgressOrder">
+        <WhichUnit Value="Source"/>
+        <Abil value="RelayTowerProgress"/>
+        <Player Value="Source"/>
+        <Target Value="SourceUnit"/>
+    </CEffectIssueOrder>
     <CEffectSet id="RelayTowerReposition">
         <EffectArray value="RepositionTeleport"/>
         <EffectArray value="StructureBirthRelayTowerRemove"/>
@@ -400,25 +708,12 @@
         <TargetLocationType value="Point"/>
         <ValidatorArray value="PermanentStructurePlacementValidator"/>
     </CEffectSet>
-    <CActorSound id="RelayTowerCursor" parent="DefaultCursorSound" Sound="RelayTower_What"/>
-    <CButton id="RelayTowerPlace">
-        <Icon value="Assets\Textures\btn-building-genetron-RelayTower.dds"/>
-        <AlertIcon value="Assets\Textures\btn-building-genetron-RelayTower.dds"/>
-        <Name value="Unit/Name/RelayTower"/>
-        <Tooltip value="Button/Tooltip/RelayTower"/>
-    </CButton>
-    <CAbilEffectTarget id="RelayTowerPlace" parent="Place" Placement="2x2PlaceDefense" Button="RelayTowerPlace" Unit="RelayTower">
-        <Cost index="0">
-            <Charge>
-                <CountMax value="1"/>
-                <CountStart value="1"/>
-                <CountUse value="1"/>
-                <Location value="Player"/>
-            </Charge>
-        </Cost>
-        <PrepEffect index="0" value="2x2PlaceDefensiveArea"/>
-        <CmdButtonArray index="Execute" Requirements="RelayTowerPlace"/>
-    </CAbilEffectTarget>
+    <CBehaviorBuff id="RelayTowerMarker">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <BehaviorFlags index="EnabledWhileDead" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <BehaviorCategories index="Permanent" value="1"/>
+    </CBehaviorBuff>
     <CActorModel id="RelayTowerPlace" parent="PlaceStructureGenetron" Model="RelayTower" Sound="RelayTowerCursor" A="RelayTowerPlace" B="RelayTowerReposition">
         <On Terms="ActorCreation" Send="Create RelayTowerPlaceRange"/>
     </CActorModel>
@@ -429,20 +724,261 @@
     </CEffectCreateUnit>
     <CRequirement id="RelayTowerPlace">
         <NodeArray index="Use" Link="Generator"/>
-        <NodeArray index="Show" Link="LTCountUnitRelayTowerCompleteOnly1"/>
+        <NodeArray index="Show" Link="RelayTowerPeak"/>
     </CRequirement>
-    <CRequirementLT id="LTCountUnitRelayTowerCompleteOnly1">
-        <OperandArray index="0" value="RelayTower"/>
+    <CRequirementLT id="RelayTowerPeak"><OperandArray index="0" value="RelayTower"/>
         <OperandArray index="1" value="1"/>
     </CRequirementLT>
-    <CRequirementCountUnit id="RelayTower">
+    <CRequirementCountUnit id="RelayTower" parent="CustomUnitReq"/>
+
+
+
+
+
+
+    <!-- =========================== -->
+    <!--       Generator Section        -->
+    <!-- =========================== -->
+    <CButton id="GeneratorPlace" parent="CustomPlaceButton" Name="Generator"      Art="btn-building-genetron-generator" Race="Genetron" Hotkey="Unit14"/>
+
+    <CAbilSpecialize id="GeneratorPlace" parent="CustomSpecialize" Upgrade1="GenetronEnergy">
+        <InfoArray index="Specialize1" >
+            <Resource index="Minerals" value="100"/>
+            <Charge CountMax="1" CountUse="1" CountStart="1" Location="Player"/>
+        </InfoArray>
+    </CAbilSpecialize>
+    <CEffectModifyPlayer id="GenetronEnergyUpgrade" Upgrade="GenetronEnergy" parent="CustomUpgrade">
+        <Upgrades Upgrade="GenEnergyLevel1" Count="1"/>
+    </CEffectModifyPlayer>
+    <CEffectCreateHealer id="GeneratorPowerHealer">
+        <RechargeVitalRate value="0"/>
+    </CEffectCreateHealer>
+    <CBehaviorBuff id="MaximumPowerGenerator">
+        <Modification>
+            <VitalMaxArray index="Energy" value="0"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CRequirement id="GenetronEnergyUpgrade"       parent="CustomUpgradeReq"  Upgrade="GenetronEnergy"       />
+    <CRequirementAnd parent="UnitAndTierRequirements"  id="GenetronEnergyUpgradeRequirements"        Unit="Alias_GenetronEnergyUser"             Tier="1"/>
+
+    <CRequirementNot id="NotCountUpgradeGenetronEnergyQueuedOrBetter">
+        <OperandArray index="0" value="CountUpgradeGenetronEnergyQueuedOrBetter"/>
+    </CRequirementNot>
+    <CRequirementCountUpgrade id="CountUpgradeGenetronEnergyQueuedOrBetter">
         <Flags index="TechTreeCheat" value="0"/>
-        <Count Link="RelayTower" State="CompleteOnly"/>
-    </CRequirementCountUnit>
+        <Count Link="GenetronEnergy" State="QueuedOrBetter"/>
+    </CRequirementCountUpgrade>
+    <CUpgrade id="GenetronEnergy"/>
+
     <CRequirementCountUnit id="Generator">
         <Flags index="TechTreeCheat" value="0"/>
         <Count Link="Generator" State="CompleteOnly"/>
     </CRequirementCountUnit>
+
+    <CUpgrade id="GenEnergyLevel">
+        <EffectArray Reference="Effect,GeneratorPowerHealer,RechargeVitalRate" Value="2.8593"/>
+
+        <EffectArray Reference="Behavior,MaximumPowerGenerator,Modification.VitalMaxArray[Energy]" Value="50"/>
+    </CUpgrade>
+    <CUpgrade id="GenEnergyLevel1" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel2" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel3" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel4" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel5" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel6" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel7" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel8" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel9" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel10" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel11" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel12" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel13" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel14" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel15" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel16" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel17" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel18" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel19" parent="GenEnergyLevel"/>
+    <CUpgrade id="GenEnergyLevel20" parent="GenEnergyLevel"/>
+
+
+    <CButton default="1" id="GenEnergyLevel" parent="Upgrade">
+        <?token id="Art"?>
+        <?token id="Tooltip"?>
+        <?token id="Hotkey"?>
+        <?token id="Level"?>
+        <Name value="Button/Name/GenEnergyLevel"/>
+        <TooltipAppender Text="Button/Appender/NewLine"/>
+        <TooltipAppender Text="Button/TooltipAppender/Level##Level##"/>
+        <Tooltip value="Button/Tooltip/GenEnergyLevel"/>
+        <Icon value="Assets\Textures\btn-building-genetron-node.dds"/>
+        <AlertIcon value="Assets\Textures\btn-building-genetron-node.dds"/>
+        <Hotkey value="Button/Hotkey/Upgrade1"/>
+    </CButton>
+    <CButton id="GenEnergyLevel1"  parent="GenEnergyLevel" Level="1"/>
+    <CButton id="GenEnergyLevel2"  parent="GenEnergyLevel" Level="2"/>
+    <CButton id="GenEnergyLevel3"  parent="GenEnergyLevel" Level="3"/>
+    <CButton id="GenEnergyLevel4"  parent="GenEnergyLevel" Level="4"/>
+    <CButton id="GenEnergyLevel5"  parent="GenEnergyLevel" Level="5"/>
+    <CButton id="GenEnergyLevel6"  parent="GenEnergyLevel" Level="6"/>
+    <CButton id="GenEnergyLevel7"  parent="GenEnergyLevel" Level="7"/>
+    <CButton id="GenEnergyLevel8"  parent="GenEnergyLevel" Level="8"/>
+    <CButton id="GenEnergyLevel9"  parent="GenEnergyLevel" Level="9"/>
+    <CButton id="GenEnergyLevel10" parent="GenEnergyLevel" Level="10"/>
+    <CButton id="GenEnergyLevel11" parent="GenEnergyLevel" Level="11"/>
+    <CButton id="GenEnergyLevel12" parent="GenEnergyLevel" Level="12"/>
+    <CButton id="GenEnergyLevel13" parent="GenEnergyLevel" Level="13"/>
+    <CButton id="GenEnergyLevel14" parent="GenEnergyLevel" Level="14"/>
+    <CButton id="GenEnergyLevel15" parent="GenEnergyLevel" Level="15"/>
+    <CButton id="GenEnergyLevel16" parent="GenEnergyLevel" Level="16"/>
+    <CButton id="GenEnergyLevel17" parent="GenEnergyLevel" Level="17"/>
+    <CButton id="GenEnergyLevel18" parent="GenEnergyLevel" Level="18"/>
+    <CButton id="GenEnergyLevel19" parent="GenEnergyLevel" Level="19"/>
+    <CButton id="GenEnergyLevel20" parent="GenEnergyLevel" Level="20"/>
+
+    <CRequirement default="1" id="GenEnergyLevel"><?token id="Level"?><?token id="B"?><NodeArray index="Use" Link="GenEnergyLevel##B##"/><NodeArray index="Show" Link="NotGenEnergyLevel##Level##"/></CRequirement>
+    <CRequirement id="GenEnergyLevel1"><NodeArray index="Show" Link="NotGenEnergyLevel1"/></CRequirement>
+    <CRequirement id="GenEnergyLevel2"  Level="2" B="1"   parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel3"  Level="3" B="2"   parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel4"  Level="4" B="3"   parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel5"  Level="5" B="4"   parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel6"  Level="6" B="5"   parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel7"  Level="7" B="6"   parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel8"  Level="8" B="7"   parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel9"  Level="9" B="8"   parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel10" Level="10" B="9"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel11" Level="11" B="10"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel12" Level="12" B="11"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel13" Level="13" B="12"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel14" Level="14" B="13"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel15" Level="15" B="14"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel16" Level="16" B="15"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel17" Level="17" B="16"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel18" Level="18" B="17"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel19" Level="19" B="18"  parent="GenEnergyLevel"/>
+    <CRequirement id="GenEnergyLevel20" Level="20" B="19"  parent="GenEnergyLevel"/>
+
+    <CRequirementCountUpgrade default="1"  id="GenEnergyLevel"><?token id="Level"?><Flags index="TechTreeCheat" value="0"/><Count Link="GenEnergyLevel##Level##" State="QueuedOrBetter"/></CRequirementCountUpgrade>
+    <CRequirementCountUpgrade id="GenEnergyLevel1"  Level="1"   parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel2"  Level="2"   parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel3"  Level="3"   parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel4"  Level="4"   parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel5"  Level="5"   parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel6"  Level="6"   parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel7"  Level="7"   parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel8"  Level="8"   parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel9"  Level="9"   parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel10" Level="10"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel11" Level="11"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel12" Level="12"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel13" Level="13"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel14" Level="14"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel15" Level="15"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel16" Level="16"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel17" Level="17"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel18" Level="18"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel19" Level="19"  parent="GenEnergyLevel"/>
+    <CRequirementCountUpgrade id="GenEnergyLevel20" Level="20"  parent="GenEnergyLevel"/>
+
+    <CRequirementNot default="1"  id="NotGenEnergyLevel"><?token id="Level"?><OperandArray index="0" value="GenEnergyLevel##Level##"/></CRequirementNot>
+    <CRequirementNot id="NotGenEnergyLevel1"  Level="1"   parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel2"  Level="2"   parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel3"  Level="3"   parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel4"  Level="4"   parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel5"  Level="5"   parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel6"  Level="6"   parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel7"  Level="7"   parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel8"  Level="8"   parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel9"  Level="9"   parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel10" Level="10"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel11" Level="11"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel12" Level="12"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel13" Level="13"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel14" Level="14"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel15" Level="15"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel16" Level="16"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel17" Level="17"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel18" Level="18"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel19" Level="19"  parent="NotGenEnergyLevel"/>
+    <CRequirementNot id="NotGenEnergyLevel20" Level="20"  parent="NotGenEnergyLevel"/>
+
+    <CEffectModifyPlayer id="GenEnergyLevel1" Upgrade="GenEnergyLevel1" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel2" Upgrade="GenEnergyLevel2" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel3" Upgrade="GenEnergyLevel3" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel4" Upgrade="GenEnergyLevel4" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel5" Upgrade="GenEnergyLevel5" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel6" Upgrade="GenEnergyLevel6" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel7" Upgrade="GenEnergyLevel7" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel8" Upgrade="GenEnergyLevel8" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel9" Upgrade="GenEnergyLevel9" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel10" Upgrade="GenEnergyLevel10" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel11" Upgrade="GenEnergyLevel11" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel12" Upgrade="GenEnergyLevel12" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel13" Upgrade="GenEnergyLevel13" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel14" Upgrade="GenEnergyLevel14" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel15" Upgrade="GenEnergyLevel15" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel16" Upgrade="GenEnergyLevel16" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel17" Upgrade="GenEnergyLevel17" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel18" Upgrade="GenEnergyLevel18" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel19" Upgrade="GenEnergyLevel19" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id="GenEnergyLevel20" Upgrade="GenEnergyLevel20" parent="CustomUpgrade"/>
+
+    <CAbilSpecialize id="GenEnergyLevel">
+        <Activity value="UI/Researching"/>
+        <InfoArray index="Specialize1" Effect="GenEnergyLevel1"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel1" Requirements="GenEnergyLevel1"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize2" Effect="GenEnergyLevel2"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel2" Requirements="GenEnergyLevel2"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize3" Effect="GenEnergyLevel3"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel3" Requirements="GenEnergyLevel3"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize4" Effect="GenEnergyLevel4"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel4" Requirements="GenEnergyLevel4"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize5" Effect="GenEnergyLevel5"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel5" Requirements="GenEnergyLevel5"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize6" Effect="GenEnergyLevel6"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel6" Requirements="GenEnergyLevel6"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize7" Effect="GenEnergyLevel7"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel7" Requirements="GenEnergyLevel7"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize8" Effect="GenEnergyLevel8"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel8" Requirements="GenEnergyLevel8"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize9" Effect="GenEnergyLevel9"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel9" Requirements="GenEnergyLevel9"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize10" Effect="GenEnergyLevel10"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel10" Requirements="GenEnergyLevel10"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize11" Effect="GenEnergyLevel11"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel11" Requirements="GenEnergyLevel11"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize12" Effect="GenEnergyLevel12"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel12" Requirements="GenEnergyLevel12"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize13" Effect="GenEnergyLevel13"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel13" Requirements="GenEnergyLevel13"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize14" Effect="GenEnergyLevel14"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel14" Requirements="GenEnergyLevel14"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize15" Effect="GenEnergyLevel15"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel15" Requirements="GenEnergyLevel15"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize16" Effect="GenEnergyLevel16"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel16" Requirements="GenEnergyLevel16"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize17" Effect="GenEnergyLevel17"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel17" Requirements="GenEnergyLevel17"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize18" Effect="GenEnergyLevel18"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel18" Requirements="GenEnergyLevel18"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize19" Effect="GenEnergyLevel19"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel19" Requirements="GenEnergyLevel19"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <InfoArray index="Specialize20" Effect="GenEnergyLevel20"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel20" Requirements="GenEnergyLevel20"/><Flags index="AutoCast" value="1"/></InfoArray>
+        <Alert value="ResearchComplete"/>
+        <Flags index="Transient" value="1"/>
+        <AbilSetId value="Research"/>
+    </CAbilSpecialize>
+
+    <CUnit id="Generator">
+        <BehaviorArray index="2" Link="TrackAndMirrorGenetronPowerSupply"/>
+        <EffectArray index="Birth" value="GenetronUpdatePowerGenerationTargetSA"/>
+
+        <AbilArray Link="GenEnergyLevel"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="GenEnergyLevel1" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize1" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel2" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize2" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel3" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize3" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel4" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize4" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel5" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize5" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel6" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize6" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel7" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize7" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel8" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize8" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel9" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize9" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel10" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize10" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel11" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize11" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel12" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize12" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel13" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize13" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel14" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize14" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel15" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize15" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel16" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize16" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel17" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize17" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel18" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize18" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel19" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize19" Row="0" Column="0"/>
+            <LayoutButtons Face="GenEnergyLevel20" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize20" Row="0" Column="0"/>
+        </CardLayouts>
+    </CUnit>
 
     <!-- =========================== -->
     <!--     Refinery Section        -->
@@ -907,269 +1443,41 @@
     <CEffectModifyPlayer id="ProcessorSystemRechargeDisable" Upgrade="ProcessorSystemRecharge" parent="CustomUpgrade"/>
     <CEffectModifyPlayer id="MoleSubterraneanSensorsDisable" Upgrade="MoleSubterraneanSensors" parent="CustomUpgrade"/>
     <CEffectModifyPlayer id="ACRRepairDisable" Upgrade="ACRRepair" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id=" CoreSystemRechargeDisable" Upgrade=" CoreSystemRecharge" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id=" InterdictorBurrowDisable" Upgrade=" InterdictorBurrow" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id=" InterdictorUnburrowDisable" Upgrade=" InterdictorUnburrow" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id=" RepulsorBurrowDisable" Upgrade=" RepulsorBurrow" parent="CustomUpgrade"/>
+    <CEffectModifyPlayer id=" RepulsorUnburrowDisable" Upgrade=" RepulsorUnburrow" parent="CustomUpgrade"/>
+
+
+
+
+
+
 
     <CAbilSpecialize id="GenetronResearch" parent="CustomSpecialize"
-        Upgrade1="GenetronEnergy"
-        Upgrade2="CalibratedEngines"
-        Upgrade3="SpitfireMadcapRounds"
-    >
+        Upgrade1="CalibratedEngines"
+        Upgrade2="SpitfireMadcapRounds">
         <InfoArray index="Specialize1" ><Resource index="Minerals" value="100"/></InfoArray>
         <InfoArray index="Specialize2" ><Resource index="Minerals" value="100"/></InfoArray>
-        <InfoArray index="Specialize3" ><Resource index="Minerals" value="100"/></InfoArray>
     </CAbilSpecialize>
 
 
 
-    <CEffectCreateHealer id="GeneratorPowerHealer">
-        <RechargeVitalRate value="0"/>
-    </CEffectCreateHealer>
-
-    <CBehaviorBuff id="MaximumPowerGenerator">
-        <Modification>
-            <VitalMaxArray index="Energy" value="0"/>
-        </Modification>
-    </CBehaviorBuff>
-
-
-    <CEffectModifyPlayer id="GenetronEnergyUpgrade" Upgrade="GenetronEnergy" parent="CustomUpgrade">
-        <Upgrades Upgrade="GenEnergyLevel1" Count="1"/>
-    </CEffectModifyPlayer>
     <CEffectModifyPlayer id="CalibratedEnginesUpgrade" Upgrade="CalibratedEngines" parent="CustomUpgrade"/>
     <CEffectModifyPlayer id="SpitfireMadcapRoundsUpgrade" Upgrade="SpitfireMadcapRounds" parent="CustomUpgrade"/>
 
-    <CRequirement id="GenetronEnergyUpgrade"       parent="CustomUpgradeReq"  Upgrade="GenetronEnergy"       />
     <CRequirement id="CalibratedEnginesUpgrade"       parent="CustomUpgradeReq"  Upgrade="CalibratedEngines"       />
     <CRequirement id="SpitfireMadcapRoundsUpgrade"        parent="CustomUpgradeReq"  Upgrade="SpitfireMadcapRounds"        />
 
-    <CRequirementAnd parent="UnitAndTierRequirements"  id="GenetronEnergyUpgradeRequirements"        Unit="Alias_GenetronEnergyUser"             Tier="1"/>
     <CRequirementAnd parent="UnitAndTierRequirements"  id="CalibratedEnginesUpgradeRequirements"        Unit="Spitfire"             Tier="1"/>
     <CRequirementAnd parent="UnitAndTierRequirements"  id="SpitfireMadcapRoundsUpgradeRequirements"         Unit="Spitfire"               Tier="1"/>
 
+    <CButton id="CalibratedEnginesUpgrade"         parent="CustomUpgradeButton" Upgrade="CalibratedEngines"         Art="btn-upgrade-genetron-CalibratedEngines"         Tooltip="ResearchSpitfireCalibratedEngines" Hotkey="Upgrade1"/>
+    <CButton id="SpitfireMadcapRoundsUpgrade"       parent="CustomUpgradeButton" Upgrade="SpitfireMadcapRounds"       Art="btn-tips-terran-penetrator"       Tooltip="SpitfireMadcapRounds" Hotkey="Upgrade2"/>
 
-
-    <CButton id="GenetronEnergyUpgrade"         parent="CustomUpgradeButton" Upgrade="GenetronEnergy"         Art="btn-building-genetron-generator"         Tooltip="Generator" Hotkey="Upgrade1"><Name value="Unit/Name/Generator"/></CButton>
-    <CButton id="CalibratedEnginesUpgrade"         parent="CustomUpgradeButton" Upgrade="CalibratedEngines"         Art="btn-upgrade-genetron-CalibratedEngines"         Tooltip="ResearchSpitfireCalibratedEngines" Hotkey="Upgrade2"/>
-    <CButton id="SpitfireMadcapRoundsUpgrade"       parent="CustomUpgradeButton" Upgrade="SpitfireMadcapRounds"       Art="btn-tips-terran-penetrator"       Tooltip="SpitfireMadcapRounds" Hotkey="Upgrade3"/>
-
-
-    <CRequirementNot id="NotCountUpgradeGenetronEnergyQueuedOrBetter">
-        <OperandArray index="0" value="CountUpgradeGenetronEnergyQueuedOrBetter"/>
-    </CRequirementNot>
-    <CRequirementCountUpgrade id="CountUpgradeGenetronEnergyQueuedOrBetter">
-        <Flags index="TechTreeCheat" value="0"/>
-        <Count Link="GenetronEnergy" State="QueuedOrBetter"/>
-    </CRequirementCountUpgrade>
-    <CUpgrade id="GenetronEnergy"/>
-
-    <CUpgrade id="GenEnergyLevel">
-        <EffectArray Reference="Effect,GeneratorPowerHealer,RechargeVitalRate" Value="2.8593"/>
-
-        <EffectArray Reference="Behavior,MaximumPowerGenerator,Modification.VitalMaxArray[Energy]" Value="50"/>
-    </CUpgrade>
-    <CUpgrade id="GenEnergyLevel1" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel2" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel3" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel4" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel5" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel6" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel7" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel8" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel9" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel10" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel11" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel12" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel13" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel14" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel15" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel16" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel17" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel18" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel19" parent="GenEnergyLevel"/>
-    <CUpgrade id="GenEnergyLevel20" parent="GenEnergyLevel"/>
-
-
-    <CButton default="1" id="GenEnergyLevel" parent="Upgrade">
-        <?token id="Art"?>
-        <?token id="Tooltip"?>
-        <?token id="Hotkey"?>
-        <?token id="Level"?>
-        <Name value="Button/Name/GenEnergyLevel"/>
-        <TooltipAppender Text="Button/Appender/NewLine"/>
-        <TooltipAppender Text="Button/TooltipAppender/Level##Level##"/>
-        <Tooltip value="Button/Tooltip/GenEnergyLevel"/>
-        <Icon value="Assets\Textures\btn-building-genetron-node.dds"/>
-        <AlertIcon value="Assets\Textures\btn-building-genetron-node.dds"/>
-        <Hotkey value="Button/Hotkey/Upgrade1"/>
-    </CButton>
-    <CButton id="GenEnergyLevel1"  parent="GenEnergyLevel" Level="1"/>
-    <CButton id="GenEnergyLevel2"  parent="GenEnergyLevel" Level="2"/>
-    <CButton id="GenEnergyLevel3"  parent="GenEnergyLevel" Level="3"/>
-    <CButton id="GenEnergyLevel4"  parent="GenEnergyLevel" Level="4"/>
-    <CButton id="GenEnergyLevel5"  parent="GenEnergyLevel" Level="5"/>
-    <CButton id="GenEnergyLevel6"  parent="GenEnergyLevel" Level="6"/>
-    <CButton id="GenEnergyLevel7"  parent="GenEnergyLevel" Level="7"/>
-    <CButton id="GenEnergyLevel8"  parent="GenEnergyLevel" Level="8"/>
-    <CButton id="GenEnergyLevel9"  parent="GenEnergyLevel" Level="9"/>
-    <CButton id="GenEnergyLevel10" parent="GenEnergyLevel" Level="10"/>
-    <CButton id="GenEnergyLevel11" parent="GenEnergyLevel" Level="11"/>
-    <CButton id="GenEnergyLevel12" parent="GenEnergyLevel" Level="12"/>
-    <CButton id="GenEnergyLevel13" parent="GenEnergyLevel" Level="13"/>
-    <CButton id="GenEnergyLevel14" parent="GenEnergyLevel" Level="14"/>
-    <CButton id="GenEnergyLevel15" parent="GenEnergyLevel" Level="15"/>
-    <CButton id="GenEnergyLevel16" parent="GenEnergyLevel" Level="16"/>
-    <CButton id="GenEnergyLevel17" parent="GenEnergyLevel" Level="17"/>
-    <CButton id="GenEnergyLevel18" parent="GenEnergyLevel" Level="18"/>
-    <CButton id="GenEnergyLevel19" parent="GenEnergyLevel" Level="19"/>
-    <CButton id="GenEnergyLevel20" parent="GenEnergyLevel" Level="20"/>
-
-    <CRequirement default="1" id="GenEnergyLevel"><?token id="Level"?><?token id="B"?><NodeArray index="Use" Link="GenEnergyLevel##B##"/><NodeArray index="Show" Link="NotGenEnergyLevel##Level##"/></CRequirement>
-    <CRequirement id="GenEnergyLevel1"><NodeArray index="Show" Link="NotGenEnergyLevel1"/></CRequirement>
-    <CRequirement id="GenEnergyLevel2"  Level="2" B="1"   parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel3"  Level="3" B="2"   parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel4"  Level="4" B="3"   parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel5"  Level="5" B="4"   parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel6"  Level="6" B="5"   parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel7"  Level="7" B="6"   parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel8"  Level="8" B="7"   parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel9"  Level="9" B="8"   parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel10" Level="10" B="9"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel11" Level="11" B="10"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel12" Level="12" B="11"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel13" Level="13" B="12"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel14" Level="14" B="13"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel15" Level="15" B="14"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel16" Level="16" B="15"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel17" Level="17" B="16"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel18" Level="18" B="17"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel19" Level="19" B="18"  parent="GenEnergyLevel"/>
-    <CRequirement id="GenEnergyLevel20" Level="20" B="19"  parent="GenEnergyLevel"/>
-    
-    <CRequirementCountUpgrade default="1"  id="GenEnergyLevel"><?token id="Level"?><Flags index="TechTreeCheat" value="0"/><Count Link="GenEnergyLevel##Level##" State="QueuedOrBetter"/></CRequirementCountUpgrade>
-    <CRequirementCountUpgrade id="GenEnergyLevel1"  Level="1"   parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel2"  Level="2"   parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel3"  Level="3"   parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel4"  Level="4"   parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel5"  Level="5"   parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel6"  Level="6"   parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel7"  Level="7"   parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel8"  Level="8"   parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel9"  Level="9"   parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel10" Level="10"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel11" Level="11"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel12" Level="12"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel13" Level="13"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel14" Level="14"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel15" Level="15"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel16" Level="16"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel17" Level="17"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel18" Level="18"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel19" Level="19"  parent="GenEnergyLevel"/>
-    <CRequirementCountUpgrade id="GenEnergyLevel20" Level="20"  parent="GenEnergyLevel"/>
-
-    <CRequirementNot default="1"  id="NotGenEnergyLevel"><?token id="Level"?><OperandArray index="0" value="GenEnergyLevel##Level##"/></CRequirementNot>
-    <CRequirementNot id="NotGenEnergyLevel1"  Level="1"   parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel2"  Level="2"   parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel3"  Level="3"   parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel4"  Level="4"   parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel5"  Level="5"   parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel6"  Level="6"   parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel7"  Level="7"   parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel8"  Level="8"   parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel9"  Level="9"   parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel10" Level="10"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel11" Level="11"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel12" Level="12"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel13" Level="13"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel14" Level="14"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel15" Level="15"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel16" Level="16"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel17" Level="17"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel18" Level="18"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel19" Level="19"  parent="NotGenEnergyLevel"/>
-    <CRequirementNot id="NotGenEnergyLevel20" Level="20"  parent="NotGenEnergyLevel"/>
-
-    <CEffectModifyPlayer id="GenEnergyLevel1" Upgrade="GenEnergyLevel1" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel2" Upgrade="GenEnergyLevel2" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel3" Upgrade="GenEnergyLevel3" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel4" Upgrade="GenEnergyLevel4" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel5" Upgrade="GenEnergyLevel5" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel6" Upgrade="GenEnergyLevel6" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel7" Upgrade="GenEnergyLevel7" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel8" Upgrade="GenEnergyLevel8" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel9" Upgrade="GenEnergyLevel9" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel10" Upgrade="GenEnergyLevel10" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel11" Upgrade="GenEnergyLevel11" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel12" Upgrade="GenEnergyLevel12" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel13" Upgrade="GenEnergyLevel13" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel14" Upgrade="GenEnergyLevel14" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel15" Upgrade="GenEnergyLevel15" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel16" Upgrade="GenEnergyLevel16" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel17" Upgrade="GenEnergyLevel17" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel18" Upgrade="GenEnergyLevel18" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel19" Upgrade="GenEnergyLevel19" parent="CustomUpgrade"/>
-    <CEffectModifyPlayer id="GenEnergyLevel20" Upgrade="GenEnergyLevel20" parent="CustomUpgrade"/>
-
-
-
-    <CAbilSpecialize id="GenEnergyLevel">
-        <Activity value="UI/Researching"/>
-        <InfoArray index="Specialize1" Effect="GenEnergyLevel1"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel1" Requirements="GenEnergyLevel1"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize2" Effect="GenEnergyLevel2"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel2" Requirements="GenEnergyLevel2"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize3" Effect="GenEnergyLevel3"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel3" Requirements="GenEnergyLevel3"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize4" Effect="GenEnergyLevel4"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel4" Requirements="GenEnergyLevel4"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize5" Effect="GenEnergyLevel5"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel5" Requirements="GenEnergyLevel5"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize6" Effect="GenEnergyLevel6"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel6" Requirements="GenEnergyLevel6"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize7" Effect="GenEnergyLevel7"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel7" Requirements="GenEnergyLevel7"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize8" Effect="GenEnergyLevel8"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel8" Requirements="GenEnergyLevel8"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize9" Effect="GenEnergyLevel9"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel9" Requirements="GenEnergyLevel9"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize10" Effect="GenEnergyLevel10"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel10" Requirements="GenEnergyLevel10"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize11" Effect="GenEnergyLevel11"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel11" Requirements="GenEnergyLevel11"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize12" Effect="GenEnergyLevel12"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel12" Requirements="GenEnergyLevel12"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize13" Effect="GenEnergyLevel13"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel13" Requirements="GenEnergyLevel13"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize14" Effect="GenEnergyLevel14"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel14" Requirements="GenEnergyLevel14"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize15" Effect="GenEnergyLevel15"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel15" Requirements="GenEnergyLevel15"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize16" Effect="GenEnergyLevel16"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel16" Requirements="GenEnergyLevel16"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize17" Effect="GenEnergyLevel17"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel17" Requirements="GenEnergyLevel17"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize18" Effect="GenEnergyLevel18"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel18" Requirements="GenEnergyLevel18"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize19" Effect="GenEnergyLevel19"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel19" Requirements="GenEnergyLevel19"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <InfoArray index="Specialize20" Effect="GenEnergyLevel20"><Resource index="Minerals" value="100"/><Button DefaultButtonFace="GenEnergyLevel20" Requirements="GenEnergyLevel20"/><Flags index="AutoCast" value="1"/></InfoArray>
-        <Alert value="ResearchComplete"/>
-        <Flags index="Transient" value="1"/>
-        <AbilSetId value="Research"/>
-    </CAbilSpecialize>
-    
-
-
-    <CUnit id="Generator">
-        <BehaviorArray index="2" Link="TrackAndMirrorGenetronPowerSupply"/>
-        <EffectArray index="Birth" value="GenetronUpdatePowerGenerationTargetSA"/>
-
-        <AbilArray Link="GenEnergyLevel"/>
-        <FlagArray index="Invulnerable" value="1"/>
-        <CardLayouts index="0">
-            <LayoutButtons Face="GenEnergyLevel1" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize1" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel2" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize2" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel3" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize3" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel4" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize4" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel5" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize5" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel6" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize6" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel7" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize7" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel8" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize8" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel9" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize9" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel10" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize10" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel11" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize11" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel12" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize12" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel13" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize13" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel14" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize14" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel15" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize15" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel16" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize16" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel17" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize17" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel18" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize18" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel19" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize19" Row="0" Column="0"/>
-            <LayoutButtons Face="GenEnergyLevel20" Type="AbilCmd" AbilCmd="GenEnergyLevel,Specialize20" Row="0" Column="0"/>
-        </CardLayouts>
-    </CUnit>
-
+    <CRequirementCountUnit id="Alias_Interdictor" parent="CustomUnitReq"/>
+    <CRequirementCountUnit id="Alias_Nullifier" parent="CustomUnitReq"/>
     <CRequirementCountUnit id="Alias_GenetronEnergyUser" parent="CustomUnitReq"/>
     <CRequirementCountUnit id="Alias_AnyUnit" parent="CustomUnitReq"/>
     <CRequirementCountUnit id="Alias_GenetronAir" parent="CustomUnitReq"/>
@@ -1748,36 +2056,36 @@
 
 
     <CAbilBuild id="ACRBuild">
-        <InfoArray index="Build1"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build2"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build3"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build4"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build5"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build6"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build7"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build8"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build9"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build10"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build11"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build12"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build13"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build14"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build15"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build16"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build17"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build18"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build19"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build20"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build21"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build22"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build23"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build24"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build25"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build26"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build27"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build28"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build29"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
-        <InfoArray index="Build30"><Button><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build1"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build2"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build3"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build4"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build5"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build6"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build7"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build8"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build9"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build10"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build11"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build12"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build13"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build14"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build15"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build16"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build17"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build18"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build19"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build20"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build21"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build22"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build23"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build24"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build25"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build26"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build27"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build28"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build29"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
+        <InfoArray index="Build30"><Button Requirements=""><Flags index="IgnoreUser" value="1"/></Button></InfoArray>
     </CAbilBuild>
 
 
@@ -1805,6 +2113,11 @@
     <CUpgrade id="ProcessorSystemRechargeDisable" parent="HiddenUpgrade"/>
     <CUpgrade id="MoleSubterraneanSensorsDisable" parent="HiddenUpgrade"/>
     <CUpgrade id="ACRRepairDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="CoreSystemRechargeDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="InterdictorBurrowDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="InterdictorUnburrowDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="RepulsorBurrowDisable" parent="HiddenUpgrade"/>
+    <CUpgrade id="RepulsorUnburrowDisable" parent="HiddenUpgrade"/>
 
     <CRequirement id="SuperChargeDisable"><NodeArray index="Use" Link="SuperChargeDisable"/></CRequirement>
     <CRequirement id="BlitzerOverdriveDisable"><NodeArray index="Use" Link="BlitzerOverdriveDisable"/></CRequirement>
@@ -1824,8 +2137,13 @@
     <CRequirement id="CourierOpticalDisruptionDisable"><NodeArray index="Use" Link="CourierOpticalDisruptionDisable"/></CRequirement>
     <CRequirement id="CourierCloakDisable"><NodeArray index="Use" Link="CourierCloakDisable"/></CRequirement>
     <CRequirement id="ProcessorSystemRechargeDisable"><NodeArray index="Use" Link="ProcessorSystemRechargeDisable"/></CRequirement>
-    <CRequirement id="ACRRepairDisable"><NodeArray index="Use" Link="ACRRepairDisable"/></CRequirement>
     <CRequirement id="MoleSubterraneanSensorsDisable"><NodeArray index="Use" Link="MoleSubterraneanSensorsDisable"/></CRequirement>
+    <CRequirement id="ACRRepairDisable"><NodeArray index="Use" Link="ACRRepairDisable"/></CRequirement>
+    <CRequirement id="CoreSystemRechargeDisable"><NodeArray index="Use" Link="CoreSystemRechargeDisable"/></CRequirement>
+    <CRequirement id="InterdictorBurrowDisable"><NodeArray index="Use" Link="InterdictorBurrowDisable"/></CRequirement>
+    <CRequirement id="InterdictorUnburrowDisable"><NodeArray index="Use" Link="InterdictorUnburrowDisable"/></CRequirement>
+    <CRequirement id="RepulsorBurrowDisable"><NodeArray index="Use" Link="RepulsorBurrowDisable"/></CRequirement>
+    <CRequirement id="RepulsorUnburrowDisable"><NodeArray index="Use" Link="RepulsorUnburrowDisable"/></CRequirement>
 
     <CRequirementCountUpgrade id="SuperChargeDisable" parent="CustomCountUpgrade"/>
     <CRequirementCountUpgrade id="BlitzerOverdriveDisable" parent="CustomCountUpgrade"/>
@@ -1847,6 +2165,11 @@
     <CRequirementCountUpgrade id="ProcessorSystemRechargeDisable" parent="CustomCountUpgrade"/>
     <CRequirementCountUpgrade id="MoleSubterraneanSensorsDisable" parent="CustomCountUpgrade"/>
     <CRequirementCountUpgrade id="ACRRepairDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="CoreSystemRechargeDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="InterdictorBurrowDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="InterdictorUnburrowDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="RepulsorBurrowDisable" parent="CustomCountUpgrade"/>
+    <CRequirementCountUpgrade id="RepulsorUnburrowDisable" parent="CustomCountUpgrade"/>
 
     <CValidatorPlayerRequirement id="SuperChargeDisable" parent="CustomDisableVal"/>
     <CValidatorPlayerRequirement id="BlitzerOverdriveDisable" parent="CustomDisableVal"/>
@@ -1866,8 +2189,13 @@
     <CValidatorPlayerRequirement id="CourierOpticalDisruptionDisable" parent="CustomDisableVal"/>
     <CValidatorPlayerRequirement id="CourierCloakDisable" parent="CustomDisableVal"/>
     <CValidatorPlayerRequirement id="ProcessorSystemRechargeDisable" parent="CustomDisableVal"/>
-    <CValidatorPlayerRequirement id="ACRRepairDisable" parent="CustomDisableVal"/>
     <CValidatorPlayerRequirement id="MoleSubterraneanSensorsDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="ACRRepairDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="CoreSystemRechargeDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="InterdictorBurrowDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="InterdictorUnburrowDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="RepulsorBurrowDisable" parent="CustomDisableVal"/>
+    <CValidatorPlayerRequirement id="RepulsorUnburrowDisable" parent="CustomDisableVal"/>
 
     <!-- ==================================== -->
     <!--  Abilities AutoCast Control Section  -->
@@ -2170,5 +2498,117 @@
     <CValidatorUnitCompareBehaviorCount id="HasNoMoleSubterraneanSensors">
         <Behavior value="MoleSubterraneanSensors"/>
     </CValidatorUnitCompareBehaviorCount>
+
+    <CAbilEffectTarget id="CoreSystemRecharge">
+        <AutoCastValidatorArray value="CoreSystemRechargeDisable"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+    </CAbilEffectTarget>
+
+    <CAbilMorph id="InterdictorBurrow">
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="IgnoreFood" value="1"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastValidatorArray value="InterdictorBurrowAutocast"/>
+        <AutoCastRange value="1"/>
+        <AutoCastCountMin value="1"/>
+        <EditorCategories value="Race:Neutral,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" Requirements=""/>
+    </CAbilMorph>
+    <CValidatorCombine id="InterdictorBurrowAutocast">
+        <ResultFailed value="Error,Error/NoNearbyEnemies"/>
+        <Type value="And"/>
+        <CombineArray value="InterdictorHostileSearchEmpty"/>
+        <CombineArray value="InterdictorBurrowDisable"/>
+    </CValidatorCombine>
+    <CValidatorLocationEnumArea id="InterdictorHostileSearchEmpty">
+        <WhichLocation Value="CasterUnit"/>
+        <AreaArray Radius="7"/>
+        <Compare value="Eq"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,User1,Missile,Stasis,Dead,Hidden,Invulnerable,Benign"/>
+    </CValidatorLocationEnumArea>
+
+    <CAbilMorph id="InterdictorUnburrow">
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastValidatorArray value="InterdictorUnburrowAutocast"/>
+        <AutoCastRange value="1"/>
+        <AutoCastCountMin value="1"/>
+        <Flags index="IgnoreFood" value="1"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <EditorCategories value="Race:Neutral,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" Requirements=""/>
+    </CAbilMorph>
+    <CValidatorCombine id="InterdictorUnburrowAutocast">
+        <CombineArray value="InterdictorHostileSearchCheck"/>
+        <CombineArray value="InterdictorUnburrowDisable"/>
+        <Type value="And"/>
+    </CValidatorCombine>
+    <CValidatorLocationEnumArea id="InterdictorHostileSearchCheck">
+        <ResultFailed value="Error,Error/NoNearbyEnemies"/>
+        <WhichLocation Value="CasterUnit"/>
+        <AreaArray Radius="7"/>
+        <Compare value="GE"/>
+        <Count value="1"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,User1,Missile,Stasis,Dead,Hidden,Invulnerable,Benign"/>
+    </CValidatorLocationEnumArea>
+
+    <CAbilMorph id="RepulsorBurrow">
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="IgnoreFood" value="1"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastValidatorArray value="RepulsorBurrowAutocast"/>
+        <AutoCastRange value="1"/>
+        <AutoCastCountMin value="1"/>
+        <EditorCategories value="Race:Neutral,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" Requirements=""/>
+    </CAbilMorph>
+    <CValidatorCombine id="RepulsorBurrowAutocast">
+        <ResultFailed value="Error,Error/NoNearbyEnemies"/>
+        <Type value="And"/>
+        <CombineArray value="RepulsorHostileSearchEmpty"/>
+        <CombineArray value="RepulsorBurrowDisable"/>
+    </CValidatorCombine>
+    <CValidatorLocationEnumArea id="RepulsorHostileSearchEmpty">
+        <WhichLocation Value="CasterUnit"/>
+        <AreaArray Radius="7"/>
+        <Compare value="Eq"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="Ground,Visible;Player,Ally,Neutral,User1,Missile,Stasis,Dead,Hidden,Invulnerable,Benign"/>
+    </CValidatorLocationEnumArea>
+
+    <CAbilMorph id="RepulsorUnburrow">
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastValidatorArray value="RepulsorUnburrowAutocast"/>
+        <AutoCastRange value="1"/>
+        <AutoCastCountMin value="1"/>
+        <Flags index="IgnoreFood" value="1"/>
+        <Flags index="IgnoreUnitCost" value="1"/>
+        <EditorCategories value="Race:Neutral,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" Requirements=""/>
+    </CAbilMorph>
+    <CValidatorCombine id="RepulsorUnburrowAutocast">
+        <CombineArray value="RepulsorHostileSearchCheck"/>
+        <CombineArray value="RepulsorUnburrowDisable"/>
+        <Type value="And"/>
+    </CValidatorCombine>
+    <CValidatorLocationEnumArea id="RepulsorHostileSearchCheck">
+        <ResultFailed value="Error,Error/NoNearbyEnemies"/>
+        <WhichLocation Value="CasterUnit"/>
+        <AreaArray Radius="7"/>
+        <Compare value="GE"/>
+        <Count value="1"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="Ground,Visible;Player,Ally,Neutral,User1,Missile,Stasis,Dead,Hidden,Invulnerable,Benign"/>
+    </CValidatorLocationEnumArea>
 
 </Catalog>
