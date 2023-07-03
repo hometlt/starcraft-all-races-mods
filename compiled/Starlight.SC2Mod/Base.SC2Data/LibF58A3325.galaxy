@@ -1,0 +1,505 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+include "Lib948F000A_h"
+include "Lib038F51B7_h"
+include "LibBBFED31C_h"
+include "Lib57FF8648_h"
+include "Lib2A8CE4F7_h"
+include "LibCA960273_h"
+include "Lib479C7CBB_h"
+include "Lib39886FE6_h"
+include "LibD6A97973_h"
+
+include "LibF58A3325_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Mastery Code
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libF58A3325_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+    lib948F000A_InitVariables();
+    lib038F51B7_InitVariables();
+    libBBFED31C_InitVariables();
+    lib57FF8648_InitVariables();
+    lib2A8CE4F7_InitVariables();
+    libCA960273_InitVariables();
+    lib479C7CBB_InitVariables();
+    lib39886FE6_InitVariables();
+    libD6A97973_InitVariables();
+}
+
+// Variable Initialization
+bool libF58A3325_InitVariables_completed = false;
+
+void libF58A3325_InitVariables () {
+    int init_i;
+
+    if (libF58A3325_InitVariables_completed) {
+        return;
+    }
+
+    libF58A3325_InitVariables_completed = true;
+
+    libF58A3325_gv_masteryCodeDialog = c_invalidDialogId;
+    libF58A3325_gv_editBox = c_invalidDialogControlId;
+    libF58A3325_gv_masteryCodeOpen = PlayerGroupEmpty();
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        libF58A3325_gv_generatedCode[init_i] = "";
+    }
+}
+
+// Functions
+string libF58A3325_gf_EncodeIntegerHandle (string lp_handle, string lp_integer) {
+    // Variable Declarations
+    int lv_i;
+    int lv_checksum;
+    string lv_randomLength3;
+    string lv_regionLength1;
+    string lv_subregionLength1;
+    string lv_handleLength9;
+    string lv_valueLength9;
+    string lv_total;
+
+    // Automatic Variable Declarations
+    int autoF1C95FE7_ae;
+    const int autoF1C95FE7_ai = 1;
+
+    // Variable Initialization
+    lv_checksum = 100;
+    lv_randomLength3 = IntToString(RandomInt(100, 999));
+    lv_regionLength1 = IntToString(StringToInt(StringSub(lp_handle, 1, 1)));
+    lv_subregionLength1 = IntToString(StringToInt(StringSub(lp_handle, 6, 6)));
+    lv_handleLength9 = IntToString(StringToInt(StringSub(lp_handle, 8, 16)));
+    lv_valueLength9 = IntToString(StringToInt(StringSub(lp_integer, 1, 9)));
+    lv_total = (lv_randomLength3 + IntToString((StringToInt(lv_valueLength9) + StringToInt(lv_randomLength3) + 1000000000)) + IntToString((StringToInt(lv_handleLength9) + StringToInt(lv_randomLength3) + 1000000000)) + lv_regionLength1 + lv_subregionLength1);
+
+    // Implementation
+    lv_total = (lv_randomLength3 + lv_subregionLength1 + IntToString((StringToInt(lv_valueLength9) + StringToInt(lv_randomLength3) + 1000000000)) + IntToString((StringToInt(lv_handleLength9) + StringToInt(lv_randomLength3) + 1000000000)) + lv_regionLength1);
+    autoF1C95FE7_ae = StringLength(lv_total);
+    lv_i = 1;
+    for ( ; ( (autoF1C95FE7_ai >= 0 && lv_i <= autoF1C95FE7_ae) || (autoF1C95FE7_ai < 0 && lv_i >= autoF1C95FE7_ae) ) ; lv_i += autoF1C95FE7_ai ) {
+        lv_checksum += StringToInt(StringSub(lv_total, lv_i, lv_i));
+    }
+    lv_total = (lv_randomLength3 + lv_subregionLength1 + IntToString((StringToInt(lv_valueLength9) + StringToInt(lv_randomLength3) + 1000000000)) + IntToString((StringToInt(lv_handleLength9) + StringToInt(lv_randomLength3) + 1000000000)) + lv_regionLength1 + IntToString(lv_checksum));
+    if ((StringLength(IntToString(StringToInt(StringSub(lp_handle, 8, 99)))) <= 9)) {
+        if ((StringLength(lp_integer) <= 9)) {
+            return (libDDE92A83_gf_Convert7Integersto4Characters(StringToInt(StringSub(lv_total, 1, 7))) + "-" + libDDE92A83_gf_Convert7Integersto4Characters(StringToInt(StringSub(lv_total, 8, 14))) + "-" + libDDE92A83_gf_Convert7Integersto4Characters(StringToInt(StringSub(lv_total, 15, 21))) + "-" + libDDE92A83_gf_Convert7Integersto4Characters(StringToInt(StringSub(lv_total, 22, 28))));
+        }
+        else {
+            return "Error - Value Too Long";
+        }
+    }
+    else {
+        return "Error - Handle Too Long";
+    }
+}
+
+int libF58A3325_gf_DecodeInteger (string lp_code) {
+    // Variable Declarations
+    string lv_total;
+    int lv_i;
+    int lv_checksum;
+    int lv_randomLength3;
+    int lv_valueLength9;
+
+    // Automatic Variable Declarations
+    const int auto421BBA44_ae = 25;
+    const int auto421BBA44_ai = 1;
+
+    // Variable Initialization
+    lv_total = (libDDE92A83_gf_Convert4Charactersto7Integers(StringSub(lp_code, 1, 4)) + libDDE92A83_gf_Convert4Charactersto7Integers(StringSub(lp_code, 6, 9)) + libDDE92A83_gf_Convert4Charactersto7Integers(StringSub(lp_code, 11, 14)) + libDDE92A83_gf_Convert4Charactersto7Integers(StringSub(lp_code, 16, 19)));
+    lv_checksum = 100;
+    lv_randomLength3 = StringToInt(StringSub(lv_total, 1, 3));
+    lv_valueLength9 = ((StringToInt(StringSub(lv_total, 5, 14)) - lv_randomLength3) - 1000000000);
+
+    // Implementation
+    lv_i = 1;
+    for ( ; ( (auto421BBA44_ai >= 0 && lv_i <= auto421BBA44_ae) || (auto421BBA44_ai < 0 && lv_i >= auto421BBA44_ae) ) ; lv_i += auto421BBA44_ai ) {
+        lv_checksum += StringToInt(StringSub(lv_total, lv_i, lv_i));
+    }
+    if ((StringLength(lv_total) == 28)) {
+        if ((lv_checksum == StringToInt(StringSub(lv_total, 26, 28)))) {
+            return lv_valueLength9;
+        }
+        else {
+            UIDisplayMessage(PlayerGroupAll(), c_messageAreaError, StringToText(("Checksum returned " + IntToString(StringToInt(StringSub(lv_total, 26, 28))) + " but is actually " + IntToString(lv_checksum))));
+            return -1;
+        }
+    }
+    else {
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaError, StringToText(("String should be " + IntToString(28) + " characters long, but is actually " + IntToString(StringLength(lv_total)))));
+        return -1;
+    }
+}
+
+string libF58A3325_gf_DecodeHandle (string lp_code) {
+    // Variable Declarations
+    string lv_total;
+    int lv_i;
+    int lv_checksum;
+    int lv_randomLength3;
+    int lv_handleLength9;
+    int lv_regionLength1;
+    int lv_subregionLength1;
+
+    // Automatic Variable Declarations
+    const int auto7ADD4B09_ae = 25;
+    const int auto7ADD4B09_ai = 1;
+
+    // Variable Initialization
+    lv_total = (libDDE92A83_gf_Convert4Charactersto7Integers(StringSub(lp_code, 1, 4)) + libDDE92A83_gf_Convert4Charactersto7Integers(StringSub(lp_code, 6, 9)) + libDDE92A83_gf_Convert4Charactersto7Integers(StringSub(lp_code, 11, 14)) + libDDE92A83_gf_Convert4Charactersto7Integers(StringSub(lp_code, 16, 19)));
+    lv_checksum = 100;
+    lv_randomLength3 = StringToInt(StringSub(lv_total, 1, 3));
+    lv_handleLength9 = ((StringToInt(StringSub(lv_total, 15, 24)) - lv_randomLength3) - 1000000000);
+    lv_regionLength1 = StringToInt(StringSub(lv_total, 25, 25));
+    lv_subregionLength1 = StringToInt(StringSub(lv_total, 4, 4));
+
+    // Implementation
+    lv_i = 1;
+    for ( ; ( (auto7ADD4B09_ai >= 0 && lv_i <= auto7ADD4B09_ae) || (auto7ADD4B09_ai < 0 && lv_i >= auto7ADD4B09_ae) ) ; lv_i += auto7ADD4B09_ai ) {
+        lv_checksum += StringToInt(StringSub(lv_total, lv_i, lv_i));
+    }
+    if ((lv_checksum == StringToInt(StringSub(lv_total, 26, 28)))) {
+        return (IntToString(lv_regionLength1) + "-S2-" + IntToString(lv_subregionLength1) + "-" + IntToString(lv_handleLength9));
+    }
+    else {
+        return "Error";
+    }
+}
+
+void libF58A3325_gf_MasteryCodeBorder (int lp_dialog) {
+    // Variable Declarations
+    int lv_randomInteger;
+    color lv_mainColor;
+    string lv_hero;
+    string lv_planet;
+    int lv_border;
+    int lv_background;
+
+    // Automatic Variable Declarations
+    int auto1340E085_val;
+
+    // Variable Initialization
+    lv_randomInteger = RandomInt(0, 6);
+    lv_mainColor = Color(100,100,100);
+    lv_hero = "Assets\\Textures\\ui_donationbackground.dds";
+    lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    lv_border = c_invalidDialogControlId;
+    lv_background = c_invalidDialogControlId;
+
+    // Implementation
+    lv_randomInteger = RandomInt(0, 11);
+    auto1340E085_val = lv_randomInteger;
+    if (auto1340E085_val == 0) {
+        lv_mainColor = Color(100.00, 25.10, 12.55);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_alarak.dds";
+        lv_planet = "Assets\\Textures\\ui_hots_loading_planetviewzerus.dds";
+    }
+    else if (auto1340E085_val == 1) {
+        lv_mainColor = Color(0.00, 50.20, 100.00);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_raynor.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    }
+    else if (auto1340E085_val == 2) {
+        lv_mainColor = Color(25.10, 75.29, 100.00);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_nova.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    }
+    else if (auto1340E085_val == 3) {
+        lv_mainColor = Color(86.27, 29.41, 98.04);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_kerrigan.dds";
+        lv_planet = "Assets\\Textures\\armysetbackground.dds";
+    }
+    else if (auto1340E085_val == 4) {
+        lv_mainColor = Color(100.00, 84.31, 0.00);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_swann.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_korhal01.dds";
+    }
+    else if (auto1340E085_val == 5) {
+        lv_mainColor = Color(25.10, 100.00, 62.75);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_vorazun.dds";
+        lv_planet = "Assets\\Textures\\loading-aiur.dds";
+    }
+    else if (auto1340E085_val == 6) {
+        lv_mainColor = Color(25.10, 100.00, 12.55);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_abathur.dds";
+        lv_planet = "Assets\\Textures\\kerriganupgradesetbackground.dds";
+    }
+    else if (auto1340E085_val == 7) {
+        lv_mainColor = Color(90.20, 80.00, 50.20);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_karax.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_purifier02.dds";
+    }
+    else if (auto1340E085_val == 8) {
+        lv_mainColor = Color(86.27, 62.75, 25.10);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_stukov.dds";
+        lv_planet = "Assets\\Textures\\ui_nova_loading_nova05.dds";
+    }
+    else if (auto1340E085_val == 9) {
+        lv_mainColor = Color(100.00, 54.90, 18.82);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_fenix.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    }
+    else if (auto1340E085_val == 10) {
+        lv_mainColor = Color(86.27, 35.29, 74.51);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_hanandhorner.dds";
+        lv_planet = "Assets\\Textures\\ui_nova_loading_nova05.dds";
+    }
+    else {
+        lv_mainColor = Color(50.20, 75.29, 25.10);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_zagara.dds";
+        lv_planet = "Assets\\Textures\\kerriganupgradesetbackground.dds";
+    }
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 660, 300, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_dialogstandardbg_White.dds", c_triggerImageTypeNineSlice, true, lv_mainColor, c_triggerBlendModeNormal);
+    lv_border = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 336, libNtve_gf_ArithmeticIntClamp(872, 1, DialogControlGetHeight(lv_border, 0)), c_anchorLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_dialogbg_glow_colorless.dds", c_triggerImageTypeNormal, false, lv_mainColor, c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorRight, lv_border, c_anchorLeft, 12, 0);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 336, libNtve_gf_ArithmeticIntClamp(872, 1, DialogControlGetHeight(lv_border, 0)), c_anchorLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_dialogbg_glow_colorless.dds", c_triggerImageTypeNormal, false, lv_mainColor, c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorLeft, lv_border, c_anchorRight, -12, 0);
+    libNtve_gf_SetDialogItemRotation(DialogControlLastCreated(), 180, PlayerGroupAll());
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), (DialogControlGetHeight(lv_border, 0) - 40), c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\white.dds", c_triggerImageTypeNormal, true, Color(0,0,0), c_triggerBlendModeNormal);
+    lv_background = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), 252, c_anchorTop, 0, 75, StringToText(""), lv_planet, c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_background, c_anchorTop, 0, 0);
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(37.65, 37.65, 37.65), PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), 252, c_anchorTop, 0, 75, StringToText(""), lv_hero, c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_background, c_anchorTop, 0, 0);
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(37.65, 37.65, 37.65), PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), 252, c_anchorTop, 0, 75, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_standardelements_artbackground_vignette.dds", c_triggerImageTypeNormal, false, Color(0,0,0), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_background, c_anchorTop, 0, 0);
+    libNtve_gf_CreateDialogItemButton(lp_dialog, 69, 37, c_anchorTopRight, 0, 0, StringToText(""), StringToText(""), "");
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTopRight, lv_border, c_anchorTopRight, -9, 11);
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\sc2_ui_glues_bluebuttons_close_normalpressed_white.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\sc2_ui_glues_bluebuttons_close_normaloverpressedover_white.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_mainColor, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), DialogControlGetWidth(lv_border, 0), 35, c_anchorTop, 0, 0, (StringToText("<s val=\"DonationLink\">") + TextWithColor(StringExternal("Param/Value/lib_F58A3325_83B9FC06"), lv_mainColor)), ColorWithAlpha(0,0,0,0), false, 2.0);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_border, c_anchorTop, 0, 25);
+    DialogControlCreate(DialogLastCreated(), c_triggerControlTypeEditBox);
+    libF58A3325_gv_editBox = DialogControlLastCreated();
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 300, 60);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_border, c_anchorTop, 0, 120);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 1000, PlayerGroupAll());
+    libNtve_gf_SetDialogItemTooltip(DialogControlLastCreated(), (StringToText("<s val=\"StandardTooltipHeader\"></c>") + StringExternal("Param/Value/lib_F58A3325_BE659B72") + StringToText("</s><n/><n/>") + StringExternal("Param/Value/lib_F58A3325_0A8565E3")), PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), (DialogControlGetWidth(libF58A3325_gv_editBox, 0) + 0), (DialogControlGetHeight(libF58A3325_gv_editBox, 0) + 0), c_anchorTop, 0, 0, StringToText(""), "Assets\\Textures\\ui_arcade_credits_frame_colorless.dds", c_triggerImageTypeBorder, false, Color(100,100,100), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, libF58A3325_gv_editBox, c_anchorCenter, 0, 0);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 1100, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_mainColor, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), (DialogControlGetWidth(libF58A3325_gv_editBox, 0) - 20), (DialogControlGetHeight(libF58A3325_gv_editBox, 0) - 20), c_anchorTop, 0, 0, StringToText(""), "Assets\\Textures\\white.dds", c_triggerImageTypeBorder, false, Color(0,0,0), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, libF58A3325_gv_editBox, c_anchorCenter, 0, 0);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 900, PlayerGroupAll());
+}
+
+void libF58A3325_gf_MasteryCodeGenerate (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((PlayerType(lp_player) == c_playerTypeUser)) {
+        if ((GameIsTestMap(false) == true)) {
+            libF58A3325_gv_generatedCode[lp_player] = libF58A3325_gf_EncodeIntegerHandle("1-S2-2-123456789", "123456789");
+        }
+        else {
+            libF58A3325_gv_generatedCode[lp_player] = libF58A3325_gf_EncodeIntegerHandle(PlayerHandle(lp_player), IntToString(lib39886FE6_gf_MasteryBarPlayerXP(lp_player)));
+        }
+    }
+
+}
+
+void libF58A3325_gf_MasteryCodeRefresh () {
+    // Automatic Variable Declarations
+    playergroup auto1F9B7133_g;
+    int auto1F9B7133_var;
+
+    // Implementation
+    if ((libF58A3325_gv_created == true)) {
+        auto1F9B7133_g = libF58A3325_gv_masteryCodeOpen;
+        auto1F9B7133_var = -1;
+        while (true) {
+            auto1F9B7133_var = PlayerGroupNextPlayer(auto1F9B7133_g, auto1F9B7133_var);
+            if (auto1F9B7133_var < 0) { break; }
+            if ((PlayerType(auto1F9B7133_var) == c_playerTypeUser)) {
+                libNtve_gf_SetDialogItemEditorValue(libF58A3325_gv_editBox, libF58A3325_gv_generatedCode[auto1F9B7133_var], PlayerGroupSingle(auto1F9B7133_var));
+            }
+
+        }
+    }
+
+}
+
+void libF58A3325_gf_MasteryCodeShowHide (int lp_player, bool lp_toggle, bool lp_sound) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((libF58A3325_gv_created == false)) {
+        libF58A3325_gf_MasteryCodeCreate();
+    }
+
+    if ((lp_sound == true) && (lp_toggle == true) && (DialogIsVisible(libF58A3325_gv_masteryCodeDialog, lp_player) == false)) {
+        SoundPlayForPlayer(SoundLink("Silent", -1), c_maxPlayers, PlayerGroupSingle(EventPlayer()), 100.0, 0.0);
+    }
+
+    if ((lp_toggle == true) && (DialogIsVisible(libF58A3325_gv_masteryCodeDialog, lp_player) == false)) {
+        libF58A3325_gf_MasteryCodeGenerate(lp_player);
+    }
+
+    if ((lp_toggle == true)) {
+        PlayerGroupAdd(libF58A3325_gv_masteryCodeOpen, lp_player);
+    }
+    else {
+        PlayerGroupRemove(libF58A3325_gv_masteryCodeOpen, lp_player);
+    }
+    DialogSetVisible(libF58A3325_gv_masteryCodeDialog, PlayerGroupSingle(lp_player), lp_toggle);
+    libF58A3325_gf_MasteryCodeRefresh();
+}
+
+void libF58A3325_gf_MasteryCodeCreate () {
+    // Automatic Variable Declarations
+    // Implementation
+    TriggerEnable(libF58A3325_gt_MasteryCodeOpen, true);
+    TriggerEnable(libF58A3325_gt_MasteryCodeClose, true);
+    TriggerEnable(libF58A3325_gt_MasteryCodeSave, true);
+    libF58A3325_gv_created = true;
+    DialogCreate(1100, 600, c_anchorCenter, 0, 0, true);
+    libF58A3325_gv_masteryCodeDialog = DialogLastCreated();
+    DialogSetImageVisible(DialogLastCreated(), false);
+    libF58A3325_gf_MasteryCodeBorder(DialogLastCreated());
+    libF58A3325_gf_MasteryCodeRefresh();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Mastery Code Save
+//--------------------------------------------------------------------------------------------------
+bool libF58A3325_gt_MasteryCodeSave_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((lib479C7CBB_gv_created == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib038F51B7_gf_AbilityControlShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libD6A97973_gf_MasteryPanelShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib948F000A_gf_WorkerSelectShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libCA960273_gf_StagingAreaCustomizationShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libCA960273_gf_PremiumDialogShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false, false);
+    lib479C7CBB_gf_LiveScoreboardShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib57FF8648_gf_BlacklistShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libBBFED31C_gf_EndGameShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib2A8CE4F7_gf_StatsMenuShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    if ((libF58A3325_gv_created == false)) {
+        libF58A3325_gf_MasteryCodeCreate();
+    }
+
+    if ((DialogIsVisible(libF58A3325_gv_masteryCodeDialog, EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)) == true)) {
+        libF58A3325_gf_MasteryCodeShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, true);
+    }
+    else {
+        libF58A3325_gf_MasteryCodeShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), true, true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libF58A3325_gt_MasteryCodeSave_Init () {
+    libF58A3325_gt_MasteryCodeSave = TriggerCreate("libF58A3325_gt_MasteryCodeSave_Func");
+    TriggerEnable(libF58A3325_gt_MasteryCodeSave, false);
+    TriggerAddEventPlayerEffectUsed(libF58A3325_gt_MasteryCodeSave, c_playerAny, "WorkerSubmenuMasteryCode");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Mastery Code Close
+//--------------------------------------------------------------------------------------------------
+bool libF58A3325_gt_MasteryCodeClose_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((DialogIsVisible(libF58A3325_gv_masteryCodeDialog, EventPlayer()) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libF58A3325_gf_MasteryCodeShowHide(EventPlayer(), false, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libF58A3325_gt_MasteryCodeClose_Init () {
+    libF58A3325_gt_MasteryCodeClose = TriggerCreate("libF58A3325_gt_MasteryCodeClose_Func");
+    TriggerEnable(libF58A3325_gt_MasteryCodeClose, false);
+    TriggerAddEventDialogControl(libF58A3325_gt_MasteryCodeClose, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Mastery Code Open
+//--------------------------------------------------------------------------------------------------
+bool libF58A3325_gt_MasteryCodeOpen_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libF58A3325_gf_MasteryCodeShowHide(EventPlayer(), true, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libF58A3325_gt_MasteryCodeOpen_Init () {
+    libF58A3325_gt_MasteryCodeOpen = TriggerCreate("libF58A3325_gt_MasteryCodeOpen_Func");
+    TriggerEnable(libF58A3325_gt_MasteryCodeOpen, false);
+    TriggerAddEventChatMessage(libF58A3325_gt_MasteryCodeOpen, c_playerAny, "-code", true);
+}
+
+void libF58A3325_InitTriggers () {
+    libF58A3325_gt_MasteryCodeSave_Init();
+    libF58A3325_gt_MasteryCodeClose_Init();
+    libF58A3325_gt_MasteryCodeOpen_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libF58A3325_InitLib_completed = false;
+
+void libF58A3325_InitLib () {
+    if (libF58A3325_InitLib_completed) {
+        return;
+    }
+
+    libF58A3325_InitLib_completed = true;
+
+    libF58A3325_InitLibraries();
+    libF58A3325_InitVariables();
+    libF58A3325_InitTriggers();
+}
+
+include "LibDDE92A83"
+include "Lib948F000A"
+include "Lib038F51B7"
+include "LibBBFED31C"
+include "Lib57FF8648"
+include "Lib2A8CE4F7"
+include "LibCA960273"
+include "Lib479C7CBB"
+include "Lib39886FE6"
+include "LibD6A97973"
+

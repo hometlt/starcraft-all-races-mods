@@ -1,0 +1,498 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+include "Lib948F000A_h"
+include "Lib038F51B7_h"
+include "LibBBFED31C_h"
+include "LibDBB0BE4A_h"
+include "Lib2A8CE4F7_h"
+include "LibCA960273_h"
+include "Lib479C7CBB_h"
+include "LibF58A3325_h"
+include "LibD6A97973_h"
+
+include "Lib57FF8648_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Blacklist
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib57FF8648_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+    lib948F000A_InitVariables();
+    lib038F51B7_InitVariables();
+    libBBFED31C_InitVariables();
+    libDBB0BE4A_InitVariables();
+    lib2A8CE4F7_InitVariables();
+    libCA960273_InitVariables();
+    lib479C7CBB_InitVariables();
+    libF58A3325_InitVariables();
+    libD6A97973_InitVariables();
+}
+
+// Variable Initialization
+bool lib57FF8648_InitVariables_completed = false;
+
+void lib57FF8648_InitVariables () {
+    int init_i;
+    int init_j;
+
+    if (lib57FF8648_InitVariables_completed) {
+        return;
+    }
+
+    lib57FF8648_InitVariables_completed = true;
+
+    for (init_i = 0; init_i <= 16; init_i += 1) {
+        for (init_j = 0; init_j <= 1; init_j += 1) {
+            lib57FF8648_gv_blacklistButton[init_i][init_j] = c_invalidDialogControlId;
+        }
+    }
+    lib57FF8648_gv_blacklistDialog = c_invalidDialogId;
+}
+
+// Functions
+void lib57FF8648_gf_BlacklistAddCommander (int lp_dialog, int lp_race, string lp_upgrade) {
+    // Variable Declarations
+    int lv_button;
+
+    // Automatic Variable Declarations
+    int auto5E693A82_val;
+
+    // Variable Initialization
+    lv_button = c_invalidDialogControlId;
+
+    // Implementation
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 76, 76, c_anchorTopLeft, ((600 - FixedToInt((78.0 * 3.0))) + lib57FF8648_gv_offsetX[lp_race]), (280 + (lp_race * 78)), StringToText(""), (CatalogFieldValueGet(c_gameCatalogUpgrade, lp_upgrade, "Icon", c_playerAny)), c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
+    lv_button = DialogControlLastCreated();
+    lib57FF8648_gv_blacklistButton[lib57FF8648_gv_blacklistButtonCount][0] = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 620, PlayerGroupAll());
+    libNtve_gf_SetDialogItemDesaturationColor(DialogControlLastCreated(), Color(50.20, 50.20, 50.20), PlayerGroupAll());
+    libNtve_gf_CreateDialogItemButton(lp_dialog, 76, 76, c_anchorTopLeft, 0, 0, StringToText(""), StringToText(""), "");
+    lib57FF8648_gv_blacklistButton[lib57FF8648_gv_blacklistButtonCount][1] = DialogControlLastCreated();
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+    libNtve_gf_SetDialogItemDesaturationColor(DialogControlLastCreated(), Color(50.20, 50.20, 50.20), PlayerGroupAll());
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 610, PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libNtve_gf_SetDialogItemEditorValue(DialogControlLastCreated(), (lp_upgrade), PlayerGroupSingle(0));
+    auto5E693A82_val = lp_race;
+    if (auto5E693A82_val == 1) {
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_terran_normalpressed.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_terran_normaloverpressedover.dds", PlayerGroupAll());
+    }
+    else if (auto5E693A82_val == 2) {
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_zerg_normalpressed.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_zerg_normaloverpressedover.dds", PlayerGroupAll());
+    }
+    else {
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupAll());
+    }
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 100, 100, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_abilitycontrol_background.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 590, PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+    lib57FF8648_gv_offsetX[lp_race] += 78;
+    lib57FF8648_gv_blacklistButtonCount += 1;
+}
+
+void lib57FF8648_gf_BlacklistRefresh (int lp_player) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    int autoF3AE4146_ae;
+    const int autoF3AE4146_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lib57FF8648_gv_created == true)) {
+        autoF3AE4146_ae = (lib57FF8648_gv_blacklistButtonCount - 1);
+        lv_i = 0;
+        for ( ; ( (autoF3AE4146_ai >= 0 && lv_i <= autoF3AE4146_ae) || (autoF3AE4146_ai < 0 && lv_i >= autoF3AE4146_ae) ) ; lv_i += autoF3AE4146_ai ) {
+            if ((TechTreeUpgradeCount(lp_player, (libNtve_gf_DialogItemEditValue(lib57FF8648_gv_blacklistButton[lv_i][1], 0)), c_techCountCompleteOnly) == 1)) {
+                libNtve_gf_SetDialogItemDesaturated(lib57FF8648_gv_blacklistButton[lv_i][0], true, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemDesaturated(lib57FF8648_gv_blacklistButton[lv_i][1], true, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemTooltip(lib57FF8648_gv_blacklistButton[lv_i][1], (StringToText("<s val=\"StandardTooltipHeader\"></c>") + StringExternal("Param/Value/lib_57FF8648_787DAF2F") + StringToText(" ") + StringExternal("Abil/Name/OracleStasisTrapActivate") + StringToText(" ") + StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, (libNtve_gf_DialogItemEditValue(lib57FF8648_gv_blacklistButton[lv_i][1], 0)), "Name", c_playerAny))), PlayerGroupSingle(lp_player));
+            }
+            else {
+                libNtve_gf_SetDialogItemDesaturated(lib57FF8648_gv_blacklistButton[lv_i][0], false, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemDesaturated(lib57FF8648_gv_blacklistButton[lv_i][1], false, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemTooltip(lib57FF8648_gv_blacklistButton[lv_i][1], (StringToText("<s val=\"StandardTooltipHeader\"></c>") + StringExternal("Param/Value/lib_57FF8648_F3D46F5B") + StringToText(" ") + StringExternal("UI/ClubOptionsDialog/Ban") + StringToText(" ") + StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, (libNtve_gf_DialogItemEditValue(lib57FF8648_gv_blacklistButton[lv_i][1], 0)), "Name", c_playerAny))), PlayerGroupSingle(lp_player));
+            }
+        }
+        lib57FF8648_gf_BlacklistSave(lp_player);
+    }
+
+}
+
+void lib57FF8648_gf_BlacklistBorder (int lp_dialog) {
+    // Variable Declarations
+    int lv_randomInteger;
+    color lv_mainColor;
+    string lv_hero;
+    string lv_planet;
+    int lv_border;
+    int lv_background;
+
+    // Automatic Variable Declarations
+    int autoDA10296F_val;
+
+    // Variable Initialization
+    lv_randomInteger = RandomInt(0, 6);
+    lv_mainColor = Color(100,100,100);
+    lv_hero = "Assets\\Textures\\ui_donationbackground.dds";
+    lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    lv_border = c_invalidDialogControlId;
+    lv_background = c_invalidDialogControlId;
+
+    // Implementation
+    lv_randomInteger = RandomInt(0, 11);
+    autoDA10296F_val = lv_randomInteger;
+    if (autoDA10296F_val == 0) {
+        lv_mainColor = Color(100.00, 25.10, 12.55);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_alarak.dds";
+        lv_planet = "Assets\\Textures\\ui_hots_loading_planetviewzerus.dds";
+    }
+    else if (autoDA10296F_val == 1) {
+        lv_mainColor = Color(0.00, 50.20, 100.00);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_raynor.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    }
+    else if (autoDA10296F_val == 2) {
+        lv_mainColor = Color(25.10, 75.29, 100.00);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_nova.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    }
+    else if (autoDA10296F_val == 3) {
+        lv_mainColor = Color(86.27, 29.41, 98.04);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_kerrigan.dds";
+        lv_planet = "Assets\\Textures\\armysetbackground.dds";
+    }
+    else if (autoDA10296F_val == 4) {
+        lv_mainColor = Color(100.00, 84.31, 0.00);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_swann.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_korhal01.dds";
+    }
+    else if (autoDA10296F_val == 5) {
+        lv_mainColor = Color(25.10, 100.00, 62.75);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_vorazun.dds";
+        lv_planet = "Assets\\Textures\\loading-aiur.dds";
+    }
+    else if (autoDA10296F_val == 6) {
+        lv_mainColor = Color(25.10, 100.00, 12.55);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_abathur.dds";
+        lv_planet = "Assets\\Textures\\kerriganupgradesetbackground.dds";
+    }
+    else if (autoDA10296F_val == 7) {
+        lv_mainColor = Color(90.20, 80.00, 50.20);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_karax.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_purifier02.dds";
+    }
+    else if (autoDA10296F_val == 8) {
+        lv_mainColor = Color(86.27, 62.75, 25.10);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_stukov.dds";
+        lv_planet = "Assets\\Textures\\ui_nova_loading_nova05.dds";
+    }
+    else if (autoDA10296F_val == 9) {
+        lv_mainColor = Color(100.00, 54.90, 18.82);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_fenix.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    }
+    else if (autoDA10296F_val == 10) {
+        lv_mainColor = Color(86.27, 35.29, 74.51);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_hanandhorner.dds";
+        lv_planet = "Assets\\Textures\\ui_nova_loading_nova05.dds";
+    }
+    else {
+        lv_mainColor = Color(50.20, 75.29, 25.10);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_zagara.dds";
+        lv_planet = "Assets\\Textures\\kerriganupgradesetbackground.dds";
+    }
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 660, 440, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_dialogstandardbg_White.dds", c_triggerImageTypeNineSlice, true, lv_mainColor, c_triggerBlendModeNormal);
+    lv_border = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 336, libNtve_gf_ArithmeticIntClamp(872, 1, DialogControlGetHeight(lv_border, 0)), c_anchorLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_dialogbg_glow_colorless.dds", c_triggerImageTypeNormal, false, lv_mainColor, c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorRight, lv_border, c_anchorLeft, 12, 0);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 336, libNtve_gf_ArithmeticIntClamp(872, 1, DialogControlGetHeight(lv_border, 0)), c_anchorLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_dialogbg_glow_colorless.dds", c_triggerImageTypeNormal, false, lv_mainColor, c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorLeft, lv_border, c_anchorRight, -12, 0);
+    libNtve_gf_SetDialogItemRotation(DialogControlLastCreated(), 180, PlayerGroupAll());
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), (DialogControlGetHeight(lv_border, 0) - 40), c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\white.dds", c_triggerImageTypeNormal, true, Color(0,0,0), c_triggerBlendModeNormal);
+    lv_background = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), 252, c_anchorTop, 0, 75, StringToText(""), lv_planet, c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_background, c_anchorTop, 0, 0);
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(37.65, 37.65, 37.65), PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), 252, c_anchorTop, 0, 75, StringToText(""), lv_hero, c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_background, c_anchorTop, 0, 0);
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(37.65, 37.65, 37.65), PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), 252, c_anchorTop, 0, 75, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_standardelements_artbackground_vignette.dds", c_triggerImageTypeNormal, false, Color(0,0,0), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_background, c_anchorTop, 0, 0);
+    libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 500, 35, c_anchorTopLeft, 0, 0, StringToText(""), (StringToText("<s val=\"StandardTooltipHeader\">") + TextWithColor(StringExternal("Param/Value/lib_57FF8648_751382CC"), lv_mainColor)), "");
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\black.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\black.dds", PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_border, c_anchorTop, 0, 25);
+    libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 400, 70, c_anchorTopLeft, 0, 0, StringToText(""), (StringToText("<s val=\"StandardTooltip\">") + TextWithColor(StringExternal("Param/Value/lib_57FF8648_DD122802"), lv_mainColor)), "");
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\black.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\black.dds", PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorBottom, lv_border, c_anchorBottom, 0, -25);
+    libNtve_gf_CreateDialogItemButton(lp_dialog, 69, 37, c_anchorTopRight, 0, 0, StringToText(""), StringToText(""), "");
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTopRight, lv_border, c_anchorTopRight, -9, 11);
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\sc2_ui_glues_bluebuttons_close_normalpressed_white.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\sc2_ui_glues_bluebuttons_close_normaloverpressedover_white.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_mainColor, PlayerGroupAll());
+    libNtve_gf_SetDialogItemEditorValue(DialogControlLastCreated(), "Close", PlayerGroupSingle(0));
+}
+
+void lib57FF8648_gf_BlacklistSave (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistAbathur", TechTreeUpgradeCount(lp_player, "BlacklistAbathur", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistAlarak", TechTreeUpgradeCount(lp_player, "BlacklistAlarak", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistArtanis", TechTreeUpgradeCount(lp_player, "BlacklistArtanis", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistDehaka", TechTreeUpgradeCount(lp_player, "BlacklistDehaka", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistFenix", TechTreeUpgradeCount(lp_player, "BlacklistFenix", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistHorner", TechTreeUpgradeCount(lp_player, "BlacklistHorner", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistKarax", TechTreeUpgradeCount(lp_player, "BlacklistKarax", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistKerrigan", TechTreeUpgradeCount(lp_player, "BlacklistKerrigan", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistMengsk", TechTreeUpgradeCount(lp_player, "BlacklistMengsk", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistNova", TechTreeUpgradeCount(lp_player, "BlacklistNova", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistRaynor", TechTreeUpgradeCount(lp_player, "BlacklistRaynor", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistStetmann", TechTreeUpgradeCount(lp_player, "BlacklistStetmann", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistStukov", TechTreeUpgradeCount(lp_player, "BlacklistStukov", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistSwann", TechTreeUpgradeCount(lp_player, "BlacklistSwann", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistTychus", TechTreeUpgradeCount(lp_player, "BlacklistTychus", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistVorazun", TechTreeUpgradeCount(lp_player, "BlacklistVorazun", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSaveInteger(lp_player, "BlacklistZagara", TechTreeUpgradeCount(lp_player, "BlacklistZagara", c_techCountCompleteOnly));
+    libDBB0BE4A_gf_SettingsSave(lp_player);
+}
+
+void lib57FF8648_gf_BlacklistLoad (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistAbathur", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistAbathur"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistAlarak", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistAlarak"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistArtanis", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistArtanis"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistDehaka", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistDehaka"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistFenix", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistFenix"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistHorner", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistHorner"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistKarax", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistKarax"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistKerrigan", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistKerrigan"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistMengsk", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistMengsk"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistNova", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistNova"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistRaynor", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistRaynor"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistStetmann", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistStetmann"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistStukov", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistStukov"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistSwann", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistSwann"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistTychus", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistTychus"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistVorazun", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistVorazun"));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "BlacklistZagara", libDBB0BE4A_gf_SettingsLoadInteger(lp_player, "BlacklistZagara"));
+    lib57FF8648_gf_BlacklistRefresh(lp_player);
+}
+
+void lib57FF8648_gf_BlacklistCreate (bool lp_showBlacklist) {
+    // Automatic Variable Declarations
+    playergroup autoF10BE75E_g;
+    int autoF10BE75E_var;
+
+    // Implementation
+    TriggerEnable(lib57FF8648_gt_WorkerSubmenuBlacklist, true);
+    lib57FF8648_gv_created = true;
+    DialogCreate(1200, 800, c_anchorCenter, 0, 0, true);
+    lib57FF8648_gv_blacklistDialog = DialogLastCreated();
+    DialogSetImageVisible(DialogLastCreated(), false);
+    lib57FF8648_gf_BlacklistBorder(DialogLastCreated());
+    autoF10BE75E_g = PlayerGroupActive();
+    autoF10BE75E_var = -1;
+    while (true) {
+        autoF10BE75E_var = PlayerGroupNextPlayer(autoF10BE75E_g, autoF10BE75E_var);
+        if (autoF10BE75E_var < 0) { break; }
+        lib57FF8648_gf_BlacklistLoad(autoF10BE75E_var);
+        if ((lp_showBlacklist == true)) {
+            libNtve_gf_SetUpgradeLevelForPlayer(autoF10BE75E_var, "WorkerSubmenuBlacklist", 1);
+        }
+
+    }
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 0, "BlacklistArtanis");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 0, "BlacklistVorazun");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 0, "BlacklistKarax");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 0, "BlacklistAlarak");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 0, "BlacklistFenix");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 1, "BlacklistRaynor");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 1, "BlacklistSwann");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 1, "BlacklistNova");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 1, "BlacklistHorner");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 1, "BlacklistTychus");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 1, "BlacklistMengsk");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 2, "BlacklistKerrigan");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 2, "BlacklistZagara");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 2, "BlacklistAbathur");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 2, "BlacklistStukov");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 2, "BlacklistDehaka");
+    lib57FF8648_gf_BlacklistAddCommander(DialogLastCreated(), 2, "BlacklistStetmann");
+}
+
+void lib57FF8648_gf_BlacklistShowHide (int lp_player, bool lp_toggle, bool lp_sound) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((lib57FF8648_gv_created == true)) {
+        if ((lp_sound == true) && (lp_toggle == true) && (DialogIsVisible(lib57FF8648_gv_blacklistDialog, lp_player) == false)) {
+            SoundPlayForPlayer(SoundLink("UI_MenuSounds_Blacklist_Open", -1), c_maxPlayers, PlayerGroupSingle(lp_player), 100.0, 0.0);
+        }
+
+        if ((lp_toggle == true)) {
+            lib57FF8648_gf_BlacklistLoad(lp_player);
+        }
+
+        DialogSetVisible(lib57FF8648_gv_blacklistDialog, PlayerGroupSingle(lp_player), lp_toggle);
+    }
+
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Blacklist Use
+//--------------------------------------------------------------------------------------------------
+bool lib57FF8648_gt_BlacklistUse_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+    bool lv_allow;
+
+    // Automatic Variable Declarations
+    int autoD837D5BA_ae;
+    const int autoD837D5BA_ai = 1;
+
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((lib57FF8648_gv_created == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((DialogControlGetDialog(EventDialogControl()) == lib57FF8648_gv_blacklistDialog)) {
+        if ((libNtve_gf_DialogItemEditValue(EventDialogControl(), 0) == "Close")) {
+            lib57FF8648_gf_BlacklistShowHide(EventPlayer(), false, true);
+        }
+        else {
+            if ((TechTreeUpgradeCount(EventPlayer(), (libNtve_gf_DialogItemEditValue(EventDialogControl(), 0)), c_techCountCompleteOnly) == 1)) {
+                libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), (libNtve_gf_DialogItemEditValue(EventDialogControl(), 0)), 0);
+            }
+            else {
+                libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), (libNtve_gf_DialogItemEditValue(EventDialogControl(), 0)), 1);
+            }
+            autoD837D5BA_ae = (lib57FF8648_gv_blacklistButtonCount - 1);
+            lv_i = 0;
+            for ( ; ( (autoD837D5BA_ai >= 0 && lv_i <= autoD837D5BA_ae) || (autoD837D5BA_ai < 0 && lv_i >= autoD837D5BA_ae) ) ; lv_i += autoD837D5BA_ai ) {
+                if ((TechTreeUpgradeCount(EventPlayer(), (libNtve_gf_DialogItemEditValue(lib57FF8648_gv_blacklistButton[lv_i][1], 0)), c_techCountCompleteOnly) == 0)) {
+                    lv_allow = true;
+                }
+
+            }
+            if ((lv_allow == false)) {
+                UIDisplayMessage(PlayerGroupAll(), c_messageAreaError, StringToText("Must allow at least one option"));
+                libNtve_gf_SetUpgradeLevelForPlayer(EventPlayer(), (libNtve_gf_DialogItemEditValue(EventDialogControl(), 0)), 0);
+            }
+
+            lib57FF8648_gf_BlacklistRefresh(EventPlayer());
+        }
+    }
+    else {
+        lib57FF8648_gf_BlacklistShowHide(EventPlayer(), false, false);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib57FF8648_gt_BlacklistUse_Init () {
+    lib57FF8648_gt_BlacklistUse = TriggerCreate("lib57FF8648_gt_BlacklistUse_Func");
+    TriggerAddEventDialogControl(lib57FF8648_gt_BlacklistUse, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Worker Submenu Blacklist
+//--------------------------------------------------------------------------------------------------
+bool lib57FF8648_gt_WorkerSubmenuBlacklist_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((lib038F51B7_gv_created == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libD6A97973_gf_MasteryPanelShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib479C7CBB_gf_LiveScoreboardShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib948F000A_gf_WorkerSelectShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libCA960273_gf_StagingAreaCustomizationShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libCA960273_gf_PremiumDialogShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false, false);
+    libF58A3325_gf_MasteryCodeShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib038F51B7_gf_AbilityControlShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libBBFED31C_gf_EndGameShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib2A8CE4F7_gf_StatsMenuShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    if ((DialogIsVisible(lib57FF8648_gv_blacklistDialog, EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)) == true)) {
+        lib57FF8648_gf_BlacklistShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, true);
+    }
+    else {
+        lib57FF8648_gf_BlacklistShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), true, true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib57FF8648_gt_WorkerSubmenuBlacklist_Init () {
+    lib57FF8648_gt_WorkerSubmenuBlacklist = TriggerCreate("lib57FF8648_gt_WorkerSubmenuBlacklist_Func");
+    TriggerEnable(lib57FF8648_gt_WorkerSubmenuBlacklist, false);
+    TriggerAddEventPlayerEffectUsed(lib57FF8648_gt_WorkerSubmenuBlacklist, c_playerAny, "WorkerSubmenuBlacklist");
+}
+
+void lib57FF8648_InitTriggers () {
+    lib57FF8648_gt_BlacklistUse_Init();
+    lib57FF8648_gt_WorkerSubmenuBlacklist_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib57FF8648_InitLib_completed = false;
+
+void lib57FF8648_InitLib () {
+    if (lib57FF8648_InitLib_completed) {
+        return;
+    }
+
+    lib57FF8648_InitLib_completed = true;
+
+    lib57FF8648_InitLibraries();
+    lib57FF8648_InitVariables();
+    lib57FF8648_InitTriggers();
+}
+
+include "LibDDE92A83"
+include "Lib948F000A"
+include "Lib038F51B7"
+include "LibBBFED31C"
+include "LibDBB0BE4A"
+include "Lib2A8CE4F7"
+include "LibCA960273"
+include "Lib479C7CBB"
+include "LibF58A3325"
+include "LibD6A97973"
+

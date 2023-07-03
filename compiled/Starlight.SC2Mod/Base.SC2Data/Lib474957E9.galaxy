@@ -1,0 +1,993 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+include "LibDBB0BE4A_h"
+include "Lib39886FE6_h"
+include "LibD6A97973_h"
+
+include "Lib474957E9_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Decorations
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib474957E9_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+    libDBB0BE4A_InitVariables();
+    lib39886FE6_InitVariables();
+    libD6A97973_InitVariables();
+}
+
+// Variable Initialization
+bool lib474957E9_InitVariables_completed = false;
+
+void lib474957E9_InitVariables () {
+    int init_i;
+
+    if (lib474957E9_InitVariables_completed) {
+        return;
+    }
+
+    lib474957E9_InitVariables_completed = true;
+
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lib474957E9_gv_decorationItems[init_i] = UnitGroupEmpty();
+    }
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lib474957E9_gv_decorations[init_i] = UnitGroupEmpty();
+    }
+    lib474957E9_gv_decorationData = "CurrentSubscribers";
+}
+
+// Functions
+void lib474957E9_gf_DecorationCharges (int lp_player, string lp_decoration) {
+    // Automatic Variable Declarations
+    // Implementation
+    CatalogFieldValueSet(c_gameCatalogAbil, ((lp_decoration) + "Place"), "Cost[" + IntToString(0) + "].Charge.CountMax", lp_player, IntToString((CatalogFieldValueGetAsInt(c_gameCatalogBehavior, (((lp_decoration) + "Charge")), "MaxPoints", lp_player) - UnitGroupCount(UnitGroup(lp_decoration, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterUncommandable), 0), 0), c_unitCountAlive))));
+    CatalogFieldValueSet(c_gameCatalogAbil, ((lp_decoration) + "Place"), "Cost[" + IntToString(0) + "].Charge.CountStart", lp_player, IntToString((CatalogFieldValueGetAsInt(c_gameCatalogBehavior, (((lp_decoration) + "Charge")), "MaxPoints", lp_player) - UnitGroupCount(UnitGroup(lp_decoration, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterUncommandable), 0), 0), c_unitCountAlive))));
+    libNtve_gf_PlayerRemoveChargeUsed(lp_player, ("Abil/" + (lp_decoration) + "Place"));
+    if (((CatalogFieldValueGetAsInt(c_gameCatalogBehavior, (((lp_decoration) + "Charge")), "MaxPoints", lp_player) - UnitGroupCount(UnitGroup(lp_decoration, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterUncommandable), 0), 0), c_unitCountAlive)) > 0)) {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, (((lp_decoration) + "Used")), 0);
+    }
+    else {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, (((lp_decoration) + "Used")), 1);
+    }
+}
+
+void lib474957E9_gf_DecorationUpdateAll (int lp_player, point lp_origin, string lp_unitType) {
+    // Variable Declarations
+    int lv_i;
+    unitgroup lv_ug;
+
+    // Automatic Variable Declarations
+    int auto946A73AA_ae;
+    const int auto946A73AA_ai = 1;
+
+    // Variable Initialization
+    lv_ug = UnitGroup(lp_unitType, lp_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterHover), 0, (1 << c_targetFilterUncommandable), 0), 0);
+
+    // Implementation
+    lib474957E9_gf_DecorationItemAdd(lp_player, lp_unitType);
+    libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + "Count"), IntToString(UnitGroupCount(lv_ug, c_unitCountAlive)));
+    auto946A73AA_ae = UnitGroupCount(lv_ug, c_unitCountAlive);
+    lv_i = 1;
+    for ( ; ( (auto946A73AA_ai >= 0 && lv_i <= auto946A73AA_ae) || (auto946A73AA_ai < 0 && lv_i >= auto946A73AA_ae) ) ; lv_i += auto946A73AA_ai ) {
+        if ((lib474957E9_gv_invertCoordinates[lp_player] == false)) {
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "X"), FixedToString((PointGetX(UnitGetPosition(UnitGroupUnit(lv_ug, lv_i))) - PointGetX(lp_origin)), 1));
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Y"), FixedToString((PointGetY(UnitGetPosition(UnitGroupUnit(lv_ug, lv_i))) - PointGetY(lp_origin)), 1));
+        }
+        else {
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "X"), FixedToString((PointGetX(lp_origin) - PointGetX(UnitGetPosition(UnitGroupUnit(lv_ug, lv_i)))), 1));
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Y"), FixedToString((PointGetY(lp_origin) - PointGetY(UnitGetPosition(UnitGroupUnit(lv_ug, lv_i)))), 1));
+        }
+        libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Skin"), libDDE92A83_gf_UnitSkin(UnitGroupUnit(lv_ug, lv_i)));
+        if ((UnitHasBehavior2(UnitGroupUnit(lv_ug, lv_i), "DecorationAlternateForm") == true)) {
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Alt"), IntToString(1));
+        }
+        else {
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Alt"), IntToString(0));
+        }
+    }
+    libDBB0BE4A_gf_SettingsSave(lp_player);
+    lib474957E9_gf_DecorationPassives(lp_player);
+}
+
+void lib474957E9_gf_DecorationUpdateSingle (int lp_player, point lp_origin, string lp_unitType) {
+    // Variable Declarations
+    int lv_i;
+    unitgroup lv_ug;
+
+    // Automatic Variable Declarations
+    int autoCC0C8DA7_ae;
+    const int autoCC0C8DA7_ai = 1;
+
+    // Variable Initialization
+    lv_ug = UnitGroup(lp_unitType, lp_player, RegionEntireMap(), UnitFilter((1 << c_targetFilterHover), 0, (1 << c_targetFilterUncommandable), 0), 0);
+
+    // Implementation
+    lib474957E9_gf_DecorationItemAdd(lp_player, lp_unitType);
+    libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + "Count"), IntToString(UnitGroupCount(lv_ug, c_unitCountAlive)));
+    autoCC0C8DA7_ae = UnitGroupCount(lv_ug, c_unitCountAlive);
+    lv_i = 1;
+    for ( ; ( (autoCC0C8DA7_ai >= 0 && lv_i <= autoCC0C8DA7_ae) || (autoCC0C8DA7_ai < 0 && lv_i >= autoCC0C8DA7_ae) ) ; lv_i += autoCC0C8DA7_ai ) {
+        if ((lib474957E9_gv_invertCoordinates[lp_player] == false)) {
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "X"), FixedToString((PointGetX(UnitGetPosition(UnitGroupUnit(lv_ug, lv_i))) - PointGetX(lp_origin)), 1));
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Y"), FixedToString((PointGetY(UnitGetPosition(UnitGroupUnit(lv_ug, lv_i))) - PointGetY(lp_origin)), 1));
+        }
+        else {
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "X"), FixedToString((PointGetX(lp_origin) - PointGetX(UnitGetPosition(UnitGroupUnit(lv_ug, lv_i)))), 1));
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Y"), FixedToString((PointGetY(lp_origin) - PointGetY(UnitGetPosition(UnitGroupUnit(lv_ug, lv_i)))), 1));
+        }
+        libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Skin"), libDDE92A83_gf_UnitSkin(UnitGroupUnit(lv_ug, lv_i)));
+        if ((UnitHasBehavior2(UnitGroupUnit(lv_ug, lv_i), "DecorationAlternateForm") == true)) {
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Alt"), IntToString(1));
+        }
+        else {
+            libDBB0BE4A_gf_SettingsSaveString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Alt"), IntToString(0));
+        }
+    }
+    libDBB0BE4A_gf_SettingsSave(lp_player);
+}
+
+void lib474957E9_gf_DecorationItemAdd (int lp_player, string lp_unitType) {
+    // Automatic Variable Declarations
+    unitgroup auto3B62E4FE_g;
+    int auto3B62E4FE_u;
+    unit auto3B62E4FE_var;
+
+    // Implementation
+    if ((UnitGroupCount(UnitGroupFilter("DecorationsContainerItem", lp_player, UnitInventoryGroup(UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(lp_player), 1)), UnitFilter(0, 0, 0, 0), 0), c_unitCountAlive) == 0)) {
+        UnitInventoryCreate(UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(lp_player), 1), "DecorationsContainerItem");
+    }
+
+    if ((UnitGroupCount(UnitGroupFilter((((lp_unitType) + "Item")), lp_player, UnitInventoryGroup(UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(lp_player), 1)), UnitFilter(0, 0, 0, 0), 0), c_unitCountAlive) == 0)) {
+        auto3B62E4FE_g = UnitGroup((((lp_unitType) + "Item")), lp_player, RegionEntireMap(), UnitFilter(0, 0, 0, 0), 0);
+        auto3B62E4FE_u = UnitGroupCount(auto3B62E4FE_g, c_unitCountAll);
+        for (;; auto3B62E4FE_u -= 1) {
+            auto3B62E4FE_var = UnitGroupUnitFromEnd(auto3B62E4FE_g, auto3B62E4FE_u);
+            if (auto3B62E4FE_var == null) { break; }
+            UnitRemove(auto3B62E4FE_var);
+        }
+        UnitInventoryCreate(UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(lp_player), 1), (((lp_unitType) + "Item")));
+        UnitGroupAdd(lib474957E9_gv_decorationItems[lp_player], UnitInventoryLastCreated());
+    }
+
+}
+
+void lib474957E9_gf_DecorationCollisionCheck (unit lp_unit) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((UnitGroupCount(UnitGroup(UnitGetType(lp_unit), c_playerAny, RegionCircle(UnitGetPosition(lp_unit), 0.0), UnitFilter(0, 0, 0, 0), 0), c_unitCountAlive) > 1)) {
+        UnitBehaviorAdd(lp_unit, "DecorationInisdeOtherDecorations", lp_unit, 1);
+    }
+    else {
+        UnitBehaviorRemove(lp_unit, "DecorationInisdeOtherDecorations", 1);
+    }
+}
+
+void lib474957E9_gf_DecorationCreate (int lp_player, string lp_unitType, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((lp_count >= 0)) {
+        lib474957E9_gf_DecorationItemAdd(lp_player, lp_unitType);
+        CatalogFieldValueModify(c_gameCatalogBehavior, (((lp_unitType) + "Charge")), "MaxPoints", lp_player, IntToString(lp_count), c_upgradeOperationAdd);
+        lib474957E9_gf_DecorationAdd(lp_player, lp_unitType);
+        TriggerEnable(lib474957E9_gt_DecorationExperience, true);
+    }
+
+}
+
+void lib474957E9_gf_DecorationInvert (int lp_player, bool lp_invert) {
+    // Automatic Variable Declarations
+    // Implementation
+    lib474957E9_gv_invertCoordinates[lp_player] = lp_invert;
+}
+
+void lib474957E9_gf_DecorationRemove (int lp_player) {
+    // Automatic Variable Declarations
+    unitgroup auto27AC468A_g;
+    int auto27AC468A_u;
+    unit auto27AC468A_var;
+
+    // Implementation
+    auto27AC468A_g = lib474957E9_gv_decorations[lp_player];
+    auto27AC468A_u = UnitGroupCount(auto27AC468A_g, c_unitCountAll);
+    for (;; auto27AC468A_u -= 1) {
+        auto27AC468A_var = UnitGroupUnitFromEnd(auto27AC468A_g, auto27AC468A_u);
+        if (auto27AC468A_var == null) { break; }
+        UnitRemove(auto27AC468A_var);
+    }
+}
+
+void lib474957E9_gf_DecorationAdd (int lp_player, string lp_unitType) {
+    // Variable Declarations
+    int lv_i;
+    fixed lv_x;
+    fixed lv_y;
+
+    // Automatic Variable Declarations
+    int auto2B5C1E0F_n;
+    int auto2B5C1E0F_i;
+
+    // Variable Initialization
+    lv_i = (UnitGroupCount(UnitGroup(lp_unitType, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterUncommandable), 0), 0), c_unitCountAlive) - 0);
+
+    // Implementation
+    if ((CatalogFieldValueGetAsInt(c_gameCatalogBehavior, (((lp_unitType) + "Charge")), "MaxPoints", lp_player) > 0) && (StringLength(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + "Count"))) > 0)) {
+        auto2B5C1E0F_n = (StringToInt(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + "Count"))) - lv_i);
+        for (auto2B5C1E0F_i = 1; auto2B5C1E0F_i <= auto2B5C1E0F_n; auto2B5C1E0F_i += 1) {
+            lv_i += 1;
+            if ((CatalogFieldValueGetAsInt(c_gameCatalogBehavior, (((lp_unitType) + "Charge")), "MaxPoints", lp_player) >= lv_i) && (((FixedToInt(StringToFixed(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "X")))) >= -32) && (FixedToInt(StringToFixed(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "X")))) <= 32)) == true) && (((FixedToInt(StringToFixed(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Y")))) >= -32) && (FixedToInt(StringToFixed(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Y")))) <= 32)) == true)) {
+                libNtve_gf_SetUpgradeLevelForPlayer(lp_player, (libDBB0BE4A_gf_SettingsLoadString(lp_player, (lp_unitType))), 1);
+                if ((lib474957E9_gv_invertCoordinates[lp_player] == false)) {
+                    libNtve_gf_CreateUnitsWithDefaultFacing(1, lp_unitType, 0, lp_player, PointWithOffset(libDDE92A83_gv_playerOrigin[lp_player], StringToFixed(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "X"))), StringToFixed(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Y")))));
+                }
+                else {
+                    libNtve_gf_CreateUnitsWithDefaultFacing(1, lp_unitType, 0, lp_player, PointWithOffset(libDDE92A83_gv_playerOrigin[lp_player], (0.0 - StringToFixed(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "X")))), (0.0 - StringToFixed(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Y"))))));
+                }
+                UnitGroupAdd(lib474957E9_gv_decorations[lp_player], UnitLastCreated());
+                UnitCreateEffectUnit(UnitLastCreated(), (((lp_unitType) + "Fallback")), UnitLastCreated());
+                if ((StringLength(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Alt"))) > 0) && (StringToInt(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Alt"))) == 1)) {
+                    UnitIssueOrder(UnitLastCreated(), Order(AbilityCommand("DecorationAdvancedAlternateForm", 0)), c_orderQueueAddToFront);
+                }
+
+                if ((StringLength(libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Skin"))) > 0)) {
+                    UnitBehaviorAdd(UnitLastCreated(), (libDBB0BE4A_gf_SettingsLoadString(lp_player, ((lp_unitType) + IntToString(lv_i) + "Skin"))), UnitLastCreated(), 1);
+                }
+
+                lib474957E9_gf_DecorationCollisionCheck(UnitLastCreated());
+            }
+
+        }
+    }
+
+    lib474957E9_gf_DecorationCharges(lp_player, lp_unitType);
+}
+
+void lib474957E9_gf_DecorationPassives (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasteryPassiveExperienceExtra", (TechTreeBehaviorCount(lp_player, "DecorationPassivePassiveExperience", c_techCountCompleteOnly) * 1));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "DecorationPassiveSprayCount", (UnitGroupCount(UnitGroup("DecorationFood", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterUncommandable), (1 << (c_targetFilterDead - 32))), 0), c_unitCountAlive) + (TechTreeBehaviorCount(lp_player, "DecorationPassiveSprayCount", c_techCountCompleteOnly) * CatalogFieldValueGetAsInt(c_gameCatalogEffect, "DecorationPassiveSprayCountAmount", "Amount", lp_player))));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasterySpraySizeExtra", (TechTreeBehaviorCount(lp_player, "DecorationPassiveSpraySize", c_techCountCompleteOnly) * CatalogFieldValueGetAsInt(c_gameCatalogEffect, "DecorationPassiveSpraySizeAmount", "Amount", lp_player)));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasterySprayCooldownExtra", (TechTreeBehaviorCount(lp_player, "DecorationPassiveSprayCooldown", c_techCountCompleteOnly) * CatalogFieldValueGetAsInt(c_gameCatalogEffect, "DecorationPassiveSprayCooldownAmount", "Amount", lp_player)));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "DecorationPassiveEmoteCount", ((TechTreeBehaviorCount(lp_player, "DecorationPassiveEmoteCount", c_techCountCompleteOnly) * CatalogFieldValueGetAsInt(c_gameCatalogEffect, "DecorationPassiveEmoteCountAmount", "Amount", lp_player))));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasteryEmoteCooldownExtra", (TechTreeBehaviorCount(lp_player, "DecorationPassiveEmoteCooldown", c_techCountCompleteOnly) * CatalogFieldValueGetAsInt(c_gameCatalogEffect, "DecorationPassiveEmoteCooldownAmount", "Amount", lp_player)));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasteryEmoteDurationExtra", (TechTreeBehaviorCount(lp_player, "DecorationPassiveEmoteDuration", c_techCountCompleteOnly) * CatalogFieldValueGetAsInt(c_gameCatalogEffect, "DecorationPassiveEmoteDurationAmount", "Amount", lp_player)));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasteryWorkerSpeedExtra", (TechTreeBehaviorCount(lp_player, "DecorationPassiveWorkerSpeed", c_techCountCompleteOnly) * CatalogFieldValueGetAsInt(c_gameCatalogEffect, "DecorationPassiveWorkerSpeedAmount", "Amount", lp_player)));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasteryWorkerSizeExtra", (TechTreeBehaviorCount(lp_player, "DecorationPassiveWorkerSize", c_techCountCompleteOnly) * CatalogFieldValueGetAsInt(c_gameCatalogEffect, "DecorationPassiveWorkerSizeAmount", "Amount", lp_player)));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "MasteryRefinerySizeExtra", (TechTreeBehaviorCount(lp_player, "DecorationPassiveRefinerySize", c_techCountCompleteOnly) * CatalogFieldValueGetAsInt(c_gameCatalogEffect, "DecorationPassiveRefinerySizeAmount", "Amount", lp_player)));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "EmoteVictoryRed", TechTreeBehaviorCount(lp_player, "DecorationPassiveEmoteRed", c_techCountCompleteOnly));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "DecorationPassiveUnitKillCounter", TechTreeBehaviorCount(lp_player, "DecorationPassiveUnitKillCounter", c_techCountCompleteOnly));
+    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "DecorationPassiveUpgradeSpendingCounter", TechTreeBehaviorCount(lp_player, "DecorationPassiveUpgradeSpendingCounter", c_techCountCompleteOnly));
+    if ((TechTreeBehaviorCount(lp_player, "DecorationPassiveKillFanfare", c_techCountCompleteOnly) > 0)) {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "DecorationKillFanfare", 1);
+    }
+    else {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "DecorationKillFanfare", 0);
+    }
+    libD6A97973_gf_MasteryPanelUpdatePoints(lp_player);
+    libDDE92A83_gf_SetWorkerAttributes(lp_player);
+    libDDE92A83_gf_PlayerAttributesUpdate(lp_player);
+}
+
+int lib474957E9_gf_PlayerRewardsLevel (int lp_level) {
+    // Variable Declarations
+    int lv_x;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_x = lp_level;
+
+    // Implementation
+    lv_x += 10;
+    lv_x -= ModI(lv_x, 20);
+    lv_x /= 20;
+    if ((lv_x < 0)) {
+        lv_x = 0;
+    }
+
+    return lv_x;
+}
+
+void lib474957E9_gf_PlayerRewardsApply (int lp_player) {
+    // Variable Declarations
+    const int lv_maximumRewards = 200;
+    int lv_rewardLevel;
+
+    // Automatic Variable Declarations
+    int autoBCB04055_val;
+
+    // Variable Initialization
+    lv_rewardLevel = libNtve_gf_ArithmeticIntClamp(lib474957E9_gf_PlayerRewardsLevel(lib39886FE6_gf_PlayerHighestLevel(lp_player)), 0, lv_maximumRewards);
+
+    // Implementation
+    TriggerEnable(lib474957E9_gt_DecorationPlace, true);
+    TriggerEnable(lib474957E9_gt_DecorationSell, true);
+    TriggerEnable(lib474957E9_gt_DecorationSkins, true);
+    TriggerEnable(lib474957E9_gt_DecorationUpdate, true);
+    TriggerEnable(lib474957E9_gt_DecorationReposition, true);
+    TriggerEnable(lib474957E9_gt_DecorationMode, true);
+    TriggerEnable(lib474957E9_gt_DecorationModel, true);
+    TriggerEnable(lib474957E9_gt_DecorationDebugRecall, true);
+    if ((TechTreeUpgradeCount(lp_player, "PremiumReward", c_techCountCompleteOnly) == 1) && (lib474957E9_gv_decorationCoreApplied[lp_player] == false)) {
+        lib474957E9_gv_decorationCoreApplied[lp_player] = true;
+        lib474957E9_gf_DecorationCreate(lp_player, "DecorationCore", 1);
+    }
+
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationDefense", 0);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationFood", 0);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationCore", 0);
+    while ((lv_rewardLevel > 0) && (lv_rewardLevel > PlayerScoreValueGetAsInt(lp_player, "PlayerLevelReward"))) {
+        PlayerScoreValueSetFromInt(lp_player, "PlayerLevelReward", (PlayerScoreValueGetAsInt(lp_player, "PlayerLevelReward") + 1));
+        autoBCB04055_val = ModI(PlayerScoreValueGetAsInt(lp_player, "PlayerLevelReward"), 5);
+        if (autoBCB04055_val == 1) {
+            lib474957E9_gf_DecorationCreate(lp_player, "DecorationDefense", 1);
+        }
+        else if (autoBCB04055_val == 2) {
+            lib474957E9_gf_DecorationCreate(lp_player, "DecorationFood", 1);
+        }
+        else if (autoBCB04055_val == 3) {
+        }
+        else if (autoBCB04055_val == 4) {
+        }
+        else if (autoBCB04055_val == 5) {
+        }
+        else {
+        }
+    }
+}
+
+trigger auto_lib474957E9_gf_PlayerRewardsSave_Trigger = null;
+int auto_lib474957E9_gf_PlayerRewardsSave_lp_player;
+
+void lib474957E9_gf_PlayerRewardsSave (int lp_player) {
+    auto_lib474957E9_gf_PlayerRewardsSave_lp_player = lp_player;
+
+    if (auto_lib474957E9_gf_PlayerRewardsSave_Trigger == null) {
+        auto_lib474957E9_gf_PlayerRewardsSave_Trigger = TriggerCreate("auto_lib474957E9_gf_PlayerRewardsSave_TriggerFunc");
+    }
+
+    TriggerExecute(auto_lib474957E9_gf_PlayerRewardsSave_Trigger, false, false);
+}
+
+bool auto_lib474957E9_gf_PlayerRewardsSave_TriggerFunc (bool testConds, bool runActions) {
+    int lp_player = auto_lib474957E9_gf_PlayerRewardsSave_lp_player;
+
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    unitgroup autoE3AF52F0_g;
+    int autoE3AF52F0_u;
+    unit autoE3AF52F0_var;
+
+    // Variable Initialization
+
+    // Implementation
+    autoE3AF52F0_g = lib474957E9_gv_decorationItems[lp_player];
+    autoE3AF52F0_u = UnitGroupCount(autoE3AF52F0_g, c_unitCountAll);
+    for (;; autoE3AF52F0_u -= 1) {
+        autoE3AF52F0_var = UnitGroupUnitFromEnd(autoE3AF52F0_g, autoE3AF52F0_u);
+        if (autoE3AF52F0_var == null) { break; }
+        lib474957E9_gv_decorationItemSaved[lp_player][lv_i] = UnitGetType(autoE3AF52F0_var);
+        lv_i += 1;
+    }
+    return true;
+}
+
+trigger auto_lib474957E9_gf_PlayerRewardsLoad_Trigger = null;
+int auto_lib474957E9_gf_PlayerRewardsLoad_lp_player;
+
+void lib474957E9_gf_PlayerRewardsLoad (int lp_player) {
+    auto_lib474957E9_gf_PlayerRewardsLoad_lp_player = lp_player;
+
+    if (auto_lib474957E9_gf_PlayerRewardsLoad_Trigger == null) {
+        auto_lib474957E9_gf_PlayerRewardsLoad_Trigger = TriggerCreate("auto_lib474957E9_gf_PlayerRewardsLoad_TriggerFunc");
+    }
+
+    TriggerExecute(auto_lib474957E9_gf_PlayerRewardsLoad_Trigger, false, false);
+}
+
+bool auto_lib474957E9_gf_PlayerRewardsLoad_TriggerFunc (bool testConds, bool runActions) {
+    int lp_player = auto_lib474957E9_gf_PlayerRewardsLoad_lp_player;
+
+    // Variable Declarations
+    unitgroup lv_items;
+    int lv_i;
+
+    // Automatic Variable Declarations
+    const int auto37033B2E_ae = 63;
+    const int auto37033B2E_ai = 1;
+
+    // Variable Initialization
+    lv_items = lib474957E9_gv_decorationItems[lp_player];
+
+    // Implementation
+    UnitGroupClear(lib474957E9_gv_decorationItems[lp_player]);
+    if ((UnitGroupCount(lib474957E9_gv_decorationItems[lp_player], c_unitCountAlive) > 0) && (UnitGroupCount(UnitGroupFilter("DecorationsContainerItem", lp_player, UnitInventoryGroup(UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(lp_player), 1)), UnitFilter(0, 0, 0, 0), 0), c_unitCountAlive) == 0)) {
+        UnitInventoryCreate(UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(lp_player), 1), "DecorationsContainerItem");
+    }
+
+    lv_i = 0;
+    for ( ; ( (auto37033B2E_ai >= 0 && lv_i <= auto37033B2E_ae) || (auto37033B2E_ai < 0 && lv_i >= auto37033B2E_ae) ) ; lv_i += auto37033B2E_ai ) {
+        if ((lib474957E9_gv_decorationItemSaved[lp_player][lv_i] != null)) {
+            UnitInventoryCreate(UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(lp_player), 1), lib474957E9_gv_decorationItemSaved[lp_player][lv_i]);
+            UnitGroupAdd(lib474957E9_gv_decorationItems[lp_player], UnitInventoryLastCreated());
+        }
+
+    }
+    return true;
+}
+
+void lib474957E9_gf_PacksStart () {
+    // Variable Declarations
+    int lv_i;
+    const int lv_userDataHandle = 1;
+
+    // Automatic Variable Declarations
+    playergroup auto73C7848D_g;
+    int auto73C7848D_var;
+    int autoB2E6FD90_ae;
+    const int autoB2E6FD90_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    auto73C7848D_g = PlayerGroupActive();
+    auto73C7848D_var = -1;
+    while (true) {
+        auto73C7848D_var = PlayerGroupNextPlayer(auto73C7848D_g, auto73C7848D_var);
+        if (auto73C7848D_var < 0) { break; }
+        autoB2E6FD90_ae = UserDataInstanceCount(lib474957E9_gv_decorationData);
+        lv_i = 1;
+        for ( ; ( (autoB2E6FD90_ai >= 0 && lv_i <= autoB2E6FD90_ae) || (autoB2E6FD90_ai < 0 && lv_i >= autoB2E6FD90_ae) ) ; lv_i += autoB2E6FD90_ai ) {
+            if ((GameIsTestMap(false) == false) && (lib474957E9_gv_decorationData != null) && ((PlayerHandle(auto73C7848D_var) == UserDataGetString(lib474957E9_gv_decorationData, UserDataInstance(lib474957E9_gv_decorationData, lv_i), UserDataField(lib474957E9_gv_decorationData, lv_userDataHandle), 1)) || (PlayerHandle(auto73C7848D_var) == UserDataGetString(lib474957E9_gv_decorationData, UserDataInstance(lib474957E9_gv_decorationData, lv_i), UserDataField(lib474957E9_gv_decorationData, lv_userDataHandle), 2)))) {
+                libNtve_gf_SetUpgradeLevelForPlayer(auto73C7848D_var, "Patron", 1);
+                lib474957E9_gf_PacksSet(auto73C7848D_var, lv_i);
+            }
+
+        }
+        if ((TechTreeUpgradeCount(auto73C7848D_var, "VespeneCustomer", c_techCountCompleteOnly) >= 1)) {
+            lib474957E9_gf_DecorationPackVespene(auto73C7848D_var);
+        }
+
+    }
+}
+
+void lib474957E9_gf_PacksSet (int lp_player, int lp_instance) {
+    // Variable Declarations
+    const int lv_userDataDate01Begin = 2;
+    const int lv_userDataDate01End = 3;
+    int lv_field;
+
+    // Automatic Variable Declarations
+    const int autoB7D1E820_ae = 2;
+    const int autoB7D1E820_ai = 1;
+
+    // Variable Initialization
+    lv_field = 1;
+
+    // Implementation
+    if ((lib474957E9_gv_decorationData != null)) {
+        lv_field = 1;
+        for ( ; ( (autoB7D1E820_ai >= 0 && lv_field <= autoB7D1E820_ae) || (autoB7D1E820_ai < 0 && lv_field >= autoB7D1E820_ae) ) ; lv_field += autoB7D1E820_ai ) {
+            if ((StringLength((UserDataGetUserInstance(lib474957E9_gv_decorationData, UserDataInstance(lib474957E9_gv_decorationData, lp_instance), UserDataField(lib474957E9_gv_decorationData, lv_userDataDate01Begin), lv_field))) > 0)) {
+                lib474957E9_gf_PacksApply(lp_player, (UserDataGetUserInstance(lib474957E9_gv_decorationData, UserDataInstance(lib474957E9_gv_decorationData, lp_instance), UserDataField(lib474957E9_gv_decorationData, lv_userDataDate01Begin), lv_field)), (UserDataGetUserInstance(lib474957E9_gv_decorationData, UserDataInstance(lib474957E9_gv_decorationData, lp_instance), UserDataField(lib474957E9_gv_decorationData, lv_userDataDate01End), lv_field)));
+            }
+
+        }
+    }
+
+    lib474957E9_gf_PacksAdd(lp_player);
+}
+
+void lib474957E9_gf_PacksApply (int lp_player, string lp_begin, string lp_end) {
+    // Variable Declarations
+    int lv_i;
+    int lv_x;
+    bool lv_dateCorrected;
+    string lv_monthEnd;
+    int lv_monthDifference;
+    int lv_yearDifference;
+    int lv_months;
+    int lv_startingMonth;
+    datetime lv_date;
+
+    // Automatic Variable Declarations
+    int auto9C155464_ae;
+    const int auto9C155464_ai = 1;
+
+    // Variable Initialization
+    lv_monthEnd = "";
+    lv_date = CurrentDateTimeGet();
+
+    // Implementation
+    if ((lp_begin != "[Default]") && (lp_end != "[Default]") && (StringLength(lp_begin) > 0) && (StringLength(lp_end) > 0)) {
+        if ((lp_end == "[Active]")) {
+            lv_monthEnd = (IntToString(GetDateTimeYear(lv_date)) + "/" + IntToString(GetDateTimeMonth(lv_date)));
+            lv_dateCorrected = true;
+        }
+        else {
+            lv_monthEnd = lp_end;
+        }
+        if ((lv_dateCorrected == false) && (StringToInt(StringSub(lv_monthEnd, 1, 4)) > GetDateTimeYear(lv_date))) {
+            lv_monthEnd = (IntToString(GetDateTimeYear(lv_date)) + "/" + IntToString(GetDateTimeMonth(lv_date)));
+        }
+
+        if ((lv_dateCorrected == false) && (StringToInt(StringSub(lv_monthEnd, 1, 4)) == GetDateTimeYear(lv_date)) && (StringToInt(StringSub(lv_monthEnd, 6, 7)) > GetDateTimeMonth(lv_date))) {
+            lv_monthEnd = (IntToString(GetDateTimeYear(lv_date)) + "/" + IntToString(GetDateTimeMonth(lv_date)));
+        }
+
+        lv_monthDifference = (StringToInt(StringSub(lv_monthEnd, 6, 7)) - StringToInt(StringSub(lp_begin, 6, 7)));
+        lv_yearDifference = (StringToInt(StringSub(lv_monthEnd, 1, 4)) - StringToInt(StringSub(lp_begin, 1, 4)));
+        lv_months = (lv_monthDifference + (lv_yearDifference * 12));
+        lv_startingMonth = StringToInt(StringSub(lp_begin, 6, 7));
+        lv_x = lv_startingMonth;
+        auto9C155464_ae = (lv_startingMonth + lv_months);
+        lv_i = lv_startingMonth;
+        for ( ; ( (auto9C155464_ai >= 0 && lv_i <= auto9C155464_ae) || (auto9C155464_ai < 0 && lv_i >= auto9C155464_ae) ) ; lv_i += auto9C155464_ai ) {
+            if ((lv_x > 12)) {
+                lv_x = 1;
+            }
+
+            lib474957E9_gv_playerPacks[lp_player][lv_x] += 1;
+            lv_x += 1;
+        }
+    }
+
+}
+
+void lib474957E9_gf_PacksAdd (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    lib474957E9_gf_DecorationPackJanuary(lp_player, lib474957E9_gv_playerPacks[lp_player][1]);
+    lib474957E9_gf_DecorationPackFebuary(lp_player, lib474957E9_gv_playerPacks[lp_player][2]);
+    lib474957E9_gf_DecorationPackMarch(lp_player, lib474957E9_gv_playerPacks[lp_player][3]);
+    lib474957E9_gf_DecorationPackApril(lp_player, lib474957E9_gv_playerPacks[lp_player][4]);
+    lib474957E9_gf_DecorationPackMay(lp_player, lib474957E9_gv_playerPacks[lp_player][5]);
+    lib474957E9_gf_DecorationPackJune(lp_player, lib474957E9_gv_playerPacks[lp_player][6]);
+    lib474957E9_gf_DecorationPackJuly(lp_player, lib474957E9_gv_playerPacks[lp_player][7]);
+    lib474957E9_gf_DecorationPackAugust(lp_player, lib474957E9_gv_playerPacks[lp_player][8]);
+    lib474957E9_gf_DecorationPackSeptember(lp_player, lib474957E9_gv_playerPacks[lp_player][9]);
+    lib474957E9_gf_DecorationPackOctober(lp_player, lib474957E9_gv_playerPacks[lp_player][10]);
+    lib474957E9_gf_DecorationPackNovember(lp_player, lib474957E9_gv_playerPacks[lp_player][11]);
+    lib474957E9_gf_DecorationPackDecember(lp_player, lib474957E9_gv_playerPacks[lp_player][12]);
+}
+
+void lib474957E9_gf_DecorationPackTest (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    lib474957E9_gf_DecorationPackApril(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackAugust(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackDecember(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackFebuary(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackJanuary(lp_count, 1);
+    lib474957E9_gf_DecorationPackJuly(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackJune(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackMarch(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackMay(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackNovember(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackOctober(lp_player, lp_count);
+    lib474957E9_gf_DecorationPackSeptember(lp_player, lp_count);
+}
+
+void lib474957E9_gf_DecorationPackVespene (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationProduction", 1);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationUpgrades", 1);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationSupport", 1);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationFoundry", 1);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationCaster", 1);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationTech", 1);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationAdvanced", 1);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationUltimate", 1);
+}
+
+void lib474957E9_gf_DecorationPackJanuary (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationCaster", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationAdvanced", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackFebuary (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationTech", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationUltimate", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackMarch (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationProduction", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationFoundry", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackApril (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationSupport", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationTech", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackMay (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationCaster", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationAdvanced", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackJune (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationProduction", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationUpgrades", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackJuly (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationFoundry", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationUltimate", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackAugust (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationCaster", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationSupport", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackSeptember (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationProduction", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationAdvanced", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackOctober (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationTech", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationUpgrades", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackNovember (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationFoundry", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationUltimate", lp_count);
+}
+
+void lib474957E9_gf_DecorationPackDecember (int lp_player, int lp_count) {
+    // Automatic Variable Declarations
+    // Implementation
+    TechTreeUpgradeAddLevel(lp_player, "PatronMonths", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationUpgrades", lp_count);
+    lib474957E9_gf_DecorationCreate(lp_player, "DecorationSupport", lp_count);
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Decoration Place
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_gt_DecorationPlace_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib474957E9_gf_DecorationCharges(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)));
+    lib474957E9_gf_DecorationPassives(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster));
+    lib474957E9_gf_DecorationCollisionCheck(EventPlayerEffectUsedUnit(c_effectUnitTarget));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib474957E9_gt_DecorationPlace_Init () {
+    lib474957E9_gt_DecorationPlace = TriggerCreate("lib474957E9_gt_DecorationPlace_Func");
+    TriggerEnable(lib474957E9_gt_DecorationPlace, false);
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationPlace, c_playerAny, "DecorationChargeUpdate");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Decoration Sell
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_gt_DecorationSell_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib474957E9_gf_DecorationCharges(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)));
+    lib474957E9_gf_DecorationPassives(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib474957E9_gt_DecorationSell_Init () {
+    lib474957E9_gt_DecorationSell = TriggerCreate("lib474957E9_gt_DecorationSell_Func");
+    TriggerEnable(lib474957E9_gt_DecorationSell, false);
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSell, c_playerAny, "DecorationSell");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Decoration Experience
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_gt_DecorationExperience_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto9566BFCD_g;
+    int auto9566BFCD_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(lib474957E9_gt_DecorationExperience, false);
+    auto9566BFCD_g = PlayerGroupActive();
+    auto9566BFCD_var = -1;
+    while (true) {
+        auto9566BFCD_var = PlayerGroupNextPlayer(auto9566BFCD_g, auto9566BFCD_var);
+        if (auto9566BFCD_var < 0) { break; }
+        lib474957E9_gf_DecorationPassives(auto9566BFCD_var);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib474957E9_gt_DecorationExperience_Init () {
+    lib474957E9_gt_DecorationExperience = TriggerCreate("lib474957E9_gt_DecorationExperience_Func");
+    TriggerEnable(lib474957E9_gt_DecorationExperience, false);
+    TriggerAddEventTimePeriodic(lib474957E9_gt_DecorationExperience, 1.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Decoration Skins
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_gt_DecorationSkins_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitFilterMatch(EventPlayerEffectUsedUnit(c_effectUnitCaster), EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), UnitFilter((1 << c_targetFilterHover), 0, 0, 0)) == true)) {
+        lib474957E9_gf_DecorationUpdateAll(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), libDDE92A83_gv_playerOrigin[EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)], EventPlayerEffectUsedUnitType(c_effectUnitTarget));
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib474957E9_gt_DecorationSkins_Init () {
+    lib474957E9_gt_DecorationSkins = TriggerCreate("lib474957E9_gt_DecorationSkins_Func");
+    TriggerEnable(lib474957E9_gt_DecorationSkins, false);
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinBiomassSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinCybrosSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinHighlightSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinHologramSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinJadeSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinMineralSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinPsionicSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinRedstoneSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinSepiaSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinShadowSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinSnowSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinSolariteSetStart");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationSkins, c_playerAny, "SkinVoidSetStart");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Decoration Debug Recall
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_gt_DecorationDebugRecall_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup autoBD5D0D5F_g;
+    int autoBD5D0D5F_u;
+    unit autoBD5D0D5F_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoBD5D0D5F_g = UnitGroup(null, EventPlayer(), RegionEntireMap(), UnitFilter((1 << c_targetFilterHover), (1 << (c_targetFilterInvulnerable - 32)), (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoBD5D0D5F_u = UnitGroupCount(autoBD5D0D5F_g, c_unitCountAll);
+    for (;; autoBD5D0D5F_u -= 1) {
+        autoBD5D0D5F_var = UnitGroupUnitFromEnd(autoBD5D0D5F_g, autoBD5D0D5F_u);
+        if (autoBD5D0D5F_var == null) { break; }
+        if ((UnitAbilityExists(autoBD5D0D5F_var, "DecorationSell") == true)) {
+            UIDisplayMessage(PlayerGroupSingle(EventPlayer()), c_messageAreaChat, (StringToText("DEBUG: Attempting to recall ") + UnitGetName(autoBD5D0D5F_var)));
+            UnitIssueOrder(autoBD5D0D5F_var, Order(AbilityCommand("DecorationSell", 0)), c_orderQueueReplace);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib474957E9_gt_DecorationDebugRecall_Init () {
+    lib474957E9_gt_DecorationDebugRecall = TriggerCreate("lib474957E9_gt_DecorationDebugRecall_Func");
+    TriggerEnable(lib474957E9_gt_DecorationDebugRecall, false);
+    TriggerAddEventChatMessage(lib474957E9_gt_DecorationDebugRecall, c_playerAny, "-debug recalldecorations", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Decoration Update
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_gt_DecorationUpdate_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib474957E9_gf_DecorationUpdateAll(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), libDDE92A83_gv_playerOrigin[EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)], EventPlayerEffectUsedUnitType(c_effectUnitTarget));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib474957E9_gt_DecorationUpdate_Init () {
+    lib474957E9_gt_DecorationUpdate = TriggerCreate("lib474957E9_gt_DecorationUpdate_Func");
+    TriggerEnable(lib474957E9_gt_DecorationUpdate, false);
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationUpdate, c_playerAny, "DecorationPlace");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationUpdate, c_playerAny, "DecorationSell");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Decoration Reposition
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_gt_DecorationReposition_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib474957E9_gf_DecorationUpdateAll(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), libDDE92A83_gv_playerOrigin[EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)], EventPlayerEffectUsedUnitType(c_effectUnitCaster));
+    lib474957E9_gf_DecorationCollisionCheck(EventPlayerEffectUsedUnit(c_effectUnitCaster));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib474957E9_gt_DecorationReposition_Init () {
+    lib474957E9_gt_DecorationReposition = TriggerCreate("lib474957E9_gt_DecorationReposition_Func");
+    TriggerEnable(lib474957E9_gt_DecorationReposition, false);
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationReposition, c_playerAny, "DecorationReposition");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Decoration Mode
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_gt_DecorationMode_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((GameGetMissionTime() >= 1))) {
+            return false;
+        }
+
+        if (!((UnitIsValid(EventUnit()) == true))) {
+            return false;
+        }
+
+        if (!((UnitFilterMatch(EventUnit(), 1, UnitFilter(0, 0, (1 << c_targetFilterUncommandable), 0)) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib474957E9_gf_DecorationUpdateAll(EventPlayer(), libDDE92A83_gv_playerOrigin[EventPlayer()], UnitGetType(EventUnit()));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib474957E9_gt_DecorationMode_Init () {
+    lib474957E9_gt_DecorationMode = TriggerCreate("lib474957E9_gt_DecorationMode_Func");
+    TriggerEnable(lib474957E9_gt_DecorationMode, false);
+    TriggerAddEventUnitBehaviorChange(lib474957E9_gt_DecorationMode, null, "DecorationAlternateForm", c_unitBehaviorChangeActivate);
+    TriggerAddEventUnitBehaviorChange(lib474957E9_gt_DecorationMode, null, "DecorationAlternateForm", c_unitBehaviorChangeDeactivate);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Decoration Model
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_gt_DecorationModel_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup autoDE7A8E2B_g;
+    int autoDE7A8E2B_u;
+    unit autoDE7A8E2B_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libDBB0BE4A_gf_SettingsSaveString(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), ((UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitCaster)))), ((UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitCaster))) + StringSub((EventPlayerEffectUsed()), (StringLength((EventPlayerEffectUsed())) - 3), StringLength((EventPlayerEffectUsed())))));
+    libDBB0BE4A_gf_SettingsSave(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster));
+    lib474957E9_gf_DecorationItemAdd(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitCaster)));
+    autoDE7A8E2B_g = UnitGroup(EventPlayerEffectUsedUnitType(c_effectUnitCaster), EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), RegionEntireMap(), UnitFilter(0, 0, 0, 0), 0);
+    autoDE7A8E2B_u = UnitGroupCount(autoDE7A8E2B_g, c_unitCountAll);
+    for (;; autoDE7A8E2B_u -= 1) {
+        autoDE7A8E2B_var = UnitGroupUnitFromEnd(autoDE7A8E2B_g, autoDE7A8E2B_u);
+        if (autoDE7A8E2B_var == null) { break; }
+        UnitCreateEffectUnit(autoDE7A8E2B_var, "SkinRefreshInstant", autoDE7A8E2B_var);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib474957E9_gt_DecorationModel_Init () {
+    lib474957E9_gt_DecorationModel = TriggerCreate("lib474957E9_gt_DecorationModel_Func");
+    TriggerEnable(lib474957E9_gt_DecorationModel, false);
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_0_0");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_0_1");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_0_2");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_0_3");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_0_4");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_1_0");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_1_1");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_1_2");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_1_3");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_1_4");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_2_0");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_2_1");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_2_2");
+    TriggerAddEventPlayerEffectUsed(lib474957E9_gt_DecorationModel, c_playerAny, "DecorationChanged_2_3");
+}
+
+void lib474957E9_InitTriggers () {
+    lib474957E9_gt_DecorationPlace_Init();
+    lib474957E9_gt_DecorationSell_Init();
+    lib474957E9_gt_DecorationExperience_Init();
+    lib474957E9_gt_DecorationSkins_Init();
+    lib474957E9_gt_DecorationDebugRecall_Init();
+    lib474957E9_gt_DecorationUpdate_Init();
+    lib474957E9_gt_DecorationReposition_Init();
+    lib474957E9_gt_DecorationMode_Init();
+    lib474957E9_gt_DecorationModel_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib474957E9_InitLib_completed = false;
+
+void lib474957E9_InitLib () {
+    if (lib474957E9_InitLib_completed) {
+        return;
+    }
+
+    lib474957E9_InitLib_completed = true;
+
+    lib474957E9_InitLibraries();
+    lib474957E9_InitVariables();
+    lib474957E9_InitTriggers();
+}
+
+include "LibDDE92A83"
+include "LibDBB0BE4A"
+include "Lib39886FE6"
+include "LibD6A97973"
+

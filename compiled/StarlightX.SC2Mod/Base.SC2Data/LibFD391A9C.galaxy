@@ -1,0 +1,371 @@
+include "TriggerLibs/NativeLib"
+
+include "LibFD391A9C_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Scoreboard
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libFD391A9C_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Variable Initialization
+bool libFD391A9C_InitVariables_completed = false;
+
+void libFD391A9C_InitVariables () {
+    int init_i;
+
+    if (libFD391A9C_InitVariables_completed) {
+        return;
+    }
+
+    libFD391A9C_InitVariables_completed = true;
+
+    libFD391A9C_gv_players = PlayerGroupEmpty();
+    for (init_i = 0; init_i <= 9; init_i += 1) {
+        libFD391A9C_gv_columnHeader[init_i] = c_invalidDialogControlId;
+    }
+    libFD391A9C_gv_columns = 6;
+    for (init_i = 0; init_i <= 9; init_i += 1) {
+        libFD391A9C_gv_scoreValues[init_i] = "APM";
+    }
+    libFD391A9C_gv_tabDialog = c_invalidDialogId;
+    libFD391A9C_gv_offsetX = -100;
+    libFD391A9C_gv_offsetY = 65;
+    for (init_i = 0; init_i <= 9; init_i += 1) {
+        libFD391A9C_gv_boardButton[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= 9; init_i += 1) {
+        libFD391A9C_gv_boardClose[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= 9; init_i += 1) {
+        libFD391A9C_gv_boardDialog[init_i] = c_invalidDialogId;
+    }
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        libFD391A9C_gv_playerIconColor[init_i] = Color(100,100,100);
+    }
+}
+
+// Functions
+void libFD391A9C_gf_Scoreboard (playergroup lp_players, string lp_score1, string lp_score2, string lp_score3, string lp_score4, string lp_score5, string lp_score6, string lp_score7, string lp_score8, string lp_score9, int lp_offsetX, int lp_offsetY) {
+    // Variable Declarations
+    int lv_border;
+
+    // Automatic Variable Declarations
+    playergroup autoD21EC888_g;
+    int autoD21EC888_var;
+
+    // Variable Initialization
+    lv_border = c_invalidPortraitId;
+
+    // Implementation
+    PlayerGroupClear(libFD391A9C_gv_players);
+    libNtve_gf_AddPlayerGroupToPlayerGroup(lp_players, libFD391A9C_gv_players);
+    TriggerEnable(libFD391A9C_gt_Open, true);
+    TriggerEnable(libFD391A9C_gt_Close, true);
+    libFD391A9C_gv_offsetX = lp_offsetX;
+    libFD391A9C_gv_offsetY = lp_offsetY;
+    DialogCreate(libFD391A9C_gv_tabWidth, libFD391A9C_gv_tabHeight, c_anchorTop, 0, 0, true);
+    libFD391A9C_gv_tabDialog = DialogLastCreated();
+    autoD21EC888_g = PlayerGroupAll();
+    autoD21EC888_var = -1;
+    while (true) {
+        autoD21EC888_var = PlayerGroupNextPlayer(autoD21EC888_g, autoD21EC888_var);
+        if (autoD21EC888_var < 0) { break; }
+        DialogSetVisible(DialogLastCreated(), PlayerGroupSingle(autoD21EC888_var), true);
+    }
+    DialogSetImageVisible(DialogLastCreated(), false);
+    libFD391A9C_gf_ScoreboardAddTab(StringExternal("ScoreResult/Name/Overview"), lp_score1, lp_score2, lp_score3, lp_score4, lp_score5, lp_score6, lp_score7, lp_score8, lp_score9);
+}
+
+void libFD391A9C_gf_ScoreboardAddTab (text lp_title, string lp_score1, string lp_score2, string lp_score3, string lp_score4, string lp_score5, string lp_score6, string lp_score7, string lp_score8, string lp_score9) {
+    // Variable Declarations
+    int lv_i;
+    string[10] lv_scoreValue;
+    int lv_rowSpacing;
+    int lv_columnSpacing;
+
+    // Automatic Variable Declarations
+    const int autoD6906C4C_ae = 9;
+    const int autoD6906C4C_ai = 1;
+
+    // Variable Initialization
+    lv_rowSpacing = 80;
+    lv_columnSpacing = 180;
+
+    // Implementation
+    libFD391A9C_gv_columns = 0;
+    lv_scoreValue[1] = lp_score1;
+    lv_scoreValue[2] = lp_score2;
+    lv_scoreValue[3] = lp_score3;
+    lv_scoreValue[4] = lp_score4;
+    lv_scoreValue[5] = lp_score5;
+    lv_scoreValue[6] = lp_score6;
+    lv_scoreValue[7] = lp_score7;
+    lv_scoreValue[8] = lp_score8;
+    lv_scoreValue[9] = lp_score9;
+    lv_i = 1;
+    for ( ; ( (autoD6906C4C_ai >= 0 && lv_i <= autoD6906C4C_ae) || (autoD6906C4C_ai < 0 && lv_i >= autoD6906C4C_ae) ) ; lv_i += autoD6906C4C_ai ) {
+        if ((lv_scoreValue[lv_i] != null)) {
+            libFD391A9C_gv_columns += 1;
+            libFD391A9C_gv_scoreValues[libFD391A9C_gv_columns] = lv_scoreValue[lv_i];
+        }
+
+    }
+    if ((PlayerGroupCount(libFD391A9C_gv_players) >= 8)) {
+        lv_rowSpacing = 70;
+    }
+
+    if ((PlayerGroupCount(libFD391A9C_gv_players) >= 10)) {
+        lv_rowSpacing = 60;
+    }
+
+    libFD391A9C_gf_Create(lv_rowSpacing, lv_columnSpacing, libFD391A9C_gv_offsetX, libFD391A9C_gv_offsetY);
+    libFD391A9C_gf_CreateTab(lp_title);
+    libFD391A9C_gv_boardCurrent += 1;
+}
+
+void libFD391A9C_gf_ScoreboardSetIcon (int lp_player, color lp_color, string lp_image) {
+    // Automatic Variable Declarations
+    // Implementation
+    libFD391A9C_gv_playerIcon[lp_player] = lp_image;
+    libFD391A9C_gv_playerIconColor[lp_player] = lp_color;
+}
+
+void libFD391A9C_gf_Create (int lp_rowSpacing, int lp_columnSpacing, int lp_offsetX, int lp_offsetY) {
+    int init_i;
+
+    // Variable Declarations
+    int lv_i;
+    int lv_x;
+    int lv_textHeight;
+    int[16] lv_playerNames;
+    int[16] lv_colorIndicator;
+    const fixed lv_fadeTime = 1.5;
+    const int lv_leftOffset = 100;
+
+    // Automatic Variable Declarations
+    int auto4B31ECAC_ae;
+    const int auto4B31ECAC_ai = 1;
+    int autoCC465D24_ae;
+    const int autoCC465D24_ai = 1;
+    int autoF81DAEAC_ae;
+    const int autoF81DAEAC_ai = 1;
+    int autoF496CE59_ae;
+    const int autoF496CE59_ai = 1;
+
+    // Variable Initialization
+    lv_textHeight = 50;
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lv_playerNames[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lv_colorIndicator[init_i] = c_invalidDialogControlId;
+    }
+
+    // Implementation
+    DialogCreate((((libFD391A9C_gv_columns + 1) * lp_columnSpacing) + 150), ((PlayerGroupCount(libFD391A9C_gv_players) * lp_rowSpacing) + 160), c_anchorTop, lp_offsetX, (libFD391A9C_gv_tabHeight + lp_offsetY), true);
+    libFD391A9C_gv_boardDialog[libFD391A9C_gv_boardCurrent] = DialogLastCreated();
+    DialogSetVisible(DialogLastCreated(), PlayerGroupAll(), false);
+    DialogSetImageVisible(DialogLastCreated(), false);
+    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), DialogGetWidth(DialogLastCreated()), DialogGetHeight(DialogLastCreated()), c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glue_frame_small_base.dds", c_triggerImageTypeHorizontalBorder, true, Color(100,100,100), c_triggerBlendModeNormal);
+    auto4B31ECAC_ae = libFD391A9C_gv_columns;
+    lv_i = 0;
+    for ( ; ( (auto4B31ECAC_ai >= 0 && lv_i <= auto4B31ECAC_ae) || (auto4B31ECAC_ai < 0 && lv_i >= auto4B31ECAC_ae) ) ; lv_i += auto4B31ECAC_ai ) {
+        libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), (lp_columnSpacing - 10), lv_textHeight, c_anchorTopLeft, ((lv_i * lp_columnSpacing) + (lv_leftOffset + 25)), 25, (StringToText("<s val=\"ScoreboardTitle\">") + StringExternal(CatalogFieldValueGet(c_gameCatalogScoreValue, libFD391A9C_gv_scoreValues[lv_i], "PublishName", 0))), ColorWithAlpha(0,0,0,0), false, 2.0);
+        libFD391A9C_gv_columnHeader[lv_i] = DialogControlLastCreated();
+    }
+    DialogControlSetVisible(libFD391A9C_gv_columnHeader[0], PlayerGroupAll(), false);
+    lv_i = 0;
+    autoCC465D24_ae = PlayerGroupCount(libFD391A9C_gv_players);
+    lv_x = 1;
+    for ( ; ( (autoCC465D24_ai >= 0 && lv_x <= autoCC465D24_ae) || (autoCC465D24_ai < 0 && lv_x >= autoCC465D24_ae) ) ; lv_x += autoCC465D24_ai ) {
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), (DialogGetWidth(DialogLastCreated()) - 100), lp_rowSpacing, c_anchorTopLeft, 50, ((lv_x * lp_rowSpacing) + 15), StringToText(""), "Assets\\Textures\\ui_scoreboard_playerfill.dds", c_triggerImageTypeNormal, false, libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(libFD391A9C_gv_players, lv_x), false)), c_triggerBlendModeNormal);
+        lv_colorIndicator[lv_x] = DialogControlLastCreated();
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), lp_rowSpacing, lp_rowSpacing, c_anchorTopLeft, 0, 0, StringToText(""), libFD391A9C_gv_playerIcon[PlayerGroupPlayer(libFD391A9C_gv_players, lv_x)], c_triggerImageTypeNormal, false, libFD391A9C_gv_playerIconColor[PlayerGroupPlayer(libFD391A9C_gv_players, lv_x)], c_triggerBlendModeNormal);
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorLeft, lv_colorIndicator[lv_x], c_anchorLeft, -10, 0);
+        libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), lp_columnSpacing, lv_textHeight, c_anchorTopLeft, 0, 0, (StringToText("<s val=\"ResourcePanel\">") + PlayerName(PlayerGroupPlayer(libFD391A9C_gv_players, lv_x))), ColorWithAlpha(0,0,0,0), false, 2.0);
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorLeft, lv_colorIndicator[lv_x], c_anchorLeft, ((lv_i * lp_columnSpacing) + (lv_leftOffset - 25)), 11);
+        lv_playerNames[lv_x] = DialogControlLastCreated();
+    }
+    autoF81DAEAC_ae = libFD391A9C_gv_columns;
+    lv_i = 1;
+    for ( ; ( (autoF81DAEAC_ai >= 0 && lv_i <= autoF81DAEAC_ae) || (autoF81DAEAC_ai < 0 && lv_i >= autoF81DAEAC_ae) ) ; lv_i += autoF81DAEAC_ai ) {
+        autoF496CE59_ae = PlayerGroupCount(libFD391A9C_gv_players);
+        lv_x = 1;
+        for ( ; ( (autoF496CE59_ai >= 0 && lv_x <= autoF496CE59_ae) || (autoF496CE59_ai < 0 && lv_x >= autoF496CE59_ae) ) ; lv_x += autoF496CE59_ai ) {
+            libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), lp_columnSpacing, lv_textHeight, c_anchorTopLeft, 0, 0, (StringToText("<s val=\"ResourcePanel\">") + FormatNumber(PlayerScoreValueGetAsInt(PlayerGroupPlayer(libFD391A9C_gv_players, lv_x), libFD391A9C_gv_scoreValues[lv_i]))), ColorWithAlpha(0,0,0,0), false, 2.0);
+            DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorLeft, lv_colorIndicator[lv_x], c_anchorLeft, ((lv_i * lp_columnSpacing) + (lv_leftOffset - 25)), 11);
+        }
+    }
+    libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 23, 23, c_anchorTopRight, 26, 7, StringToText(""), StringToText(""), "");
+    libFD391A9C_gv_boardClose[libFD391A9C_gv_boardCurrent] = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_challenge_closebutton_normalandpressed.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_challenge_closebutton_normaloverpressedover.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemTintColor(DialogControlLastCreated(), Color(50.20, 50.20, 50.20), PlayerGroupAll());
+}
+
+void libFD391A9C_gf_CreateTab (text lp_text) {
+    // Variable Declarations
+    const fixed lv_fadeTime = 1.5;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    DialogSetSize(libFD391A9C_gv_tabDialog, (libFD391A9C_gv_tabOffset + libFD391A9C_gv_tabWidth), libFD391A9C_gv_tabHeight);
+    libNtve_gf_CreateDialogItemButton(libFD391A9C_gv_tabDialog, libFD391A9C_gv_tabWidth, libFD391A9C_gv_tabHeight, c_anchorTopLeft, libFD391A9C_gv_tabOffset, 0, StringToText(""), (StringToText("<s val=\"UnitInfoTip_Prot\">") + lp_text + StringToText("</c>")), "");
+    libFD391A9C_gv_boardButton[libFD391A9C_gv_boardCurrent] = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_battlenet_glue_dropdownbutton_normalpressed.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_battlenet_glue_dropdownbutton_normaloverpressedover.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeEndCap, PlayerGroupAll());
+    DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+    DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), lv_fadeTime, 0.0);
+    libFD391A9C_gv_tabOffset += libFD391A9C_gv_tabWidth;
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Close
+//--------------------------------------------------------------------------------------------------
+bool libFD391A9C_gt_Close_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    int auto7E36E18D_ae;
+    const int auto7E36E18D_ai = 1;
+    int auto8D724153_ae;
+    const int auto8D724153_ai = 1;
+
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!(((EventDialogControl() == libFD391A9C_gv_boardClose[0]) || (EventDialogControl() == libFD391A9C_gv_boardClose[1]) || (EventDialogControl() == libFD391A9C_gv_boardClose[2]) || (EventDialogControl() == libFD391A9C_gv_boardClose[3]) || (EventDialogControl() == libFD391A9C_gv_boardClose[4]) || (EventDialogControl() == libFD391A9C_gv_boardClose[5]) || (EventDialogControl() == libFD391A9C_gv_boardClose[6]) || (EventDialogControl() == libFD391A9C_gv_boardClose[7]) || (EventDialogControl() == libFD391A9C_gv_boardClose[8]) || (EventDialogControl() == libFD391A9C_gv_boardClose[9])))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto7E36E18D_ae = (libFD391A9C_gv_boardCurrent - 1);
+    lv_i = 0;
+    for ( ; ( (auto7E36E18D_ai >= 0 && lv_i <= auto7E36E18D_ae) || (auto7E36E18D_ai < 0 && lv_i >= auto7E36E18D_ae) ) ; lv_i += auto7E36E18D_ai ) {
+        DialogSetVisible(libFD391A9C_gv_boardDialog[lv_i], PlayerGroupSingle(EventPlayer()), false);
+    }
+    auto8D724153_ae = (libFD391A9C_gv_boardCurrent - 1);
+    lv_i = 0;
+    for ( ; ( (auto8D724153_ai >= 0 && lv_i <= auto8D724153_ae) || (auto8D724153_ai < 0 && lv_i >= auto8D724153_ae) ) ; lv_i += auto8D724153_ai ) {
+        libNtve_gf_SetDialogItemImage(libFD391A9C_gv_boardButton[lv_i], "Assets\\Textures\\ui_battlenet_glue_dropdownbutton_normalpressed.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage2(libFD391A9C_gv_boardButton[lv_i], "Assets\\Textures\\ui_battlenet_glue_dropdownbutton_normaloverpressedover.dds", PlayerGroupAll());
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libFD391A9C_gt_Close_Init () {
+    libFD391A9C_gt_Close = TriggerCreate("libFD391A9C_gt_Close_Func");
+    TriggerEnable(libFD391A9C_gt_Close, false);
+    TriggerAddEventDialogControl(libFD391A9C_gt_Close, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Open
+//--------------------------------------------------------------------------------------------------
+bool libFD391A9C_gt_Open_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+    int lv_x;
+
+    // Automatic Variable Declarations
+    const int auto0D5E8C87_ae = 9;
+    const int auto0D5E8C87_ai = 1;
+    int auto7664A9BF_ae;
+    const int auto7664A9BF_ai = 1;
+    int auto76438ECB_ae;
+    const int auto76438ECB_ai = 1;
+    int autoA097B185_ae;
+    const int autoA097B185_ai = 1;
+
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!(((EventDialogControl() == libFD391A9C_gv_boardButton[0]) || (EventDialogControl() == libFD391A9C_gv_boardButton[1]) || (EventDialogControl() == libFD391A9C_gv_boardButton[2]) || (EventDialogControl() == libFD391A9C_gv_boardButton[3]) || (EventDialogControl() == libFD391A9C_gv_boardButton[4]) || (EventDialogControl() == libFD391A9C_gv_boardButton[5]) || (EventDialogControl() == libFD391A9C_gv_boardButton[6]) || (EventDialogControl() == libFD391A9C_gv_boardButton[7]) || (EventDialogControl() == libFD391A9C_gv_boardButton[8]) || (EventDialogControl() == libFD391A9C_gv_boardButton[9])))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_x = 0;
+    for ( ; ( (auto0D5E8C87_ai >= 0 && lv_x <= auto0D5E8C87_ae) || (auto0D5E8C87_ai < 0 && lv_x >= auto0D5E8C87_ae) ) ; lv_x += auto0D5E8C87_ai ) {
+        if ((EventDialogControl() == libFD391A9C_gv_boardButton[lv_x])) {
+            break;
+        }
+
+    }
+    auto7664A9BF_ae = (libFD391A9C_gv_boardCurrent - 1);
+    lv_i = 0;
+    for ( ; ( (auto7664A9BF_ai >= 0 && lv_i <= auto7664A9BF_ae) || (auto7664A9BF_ai < 0 && lv_i >= auto7664A9BF_ae) ) ; lv_i += auto7664A9BF_ai ) {
+        libNtve_gf_SetDialogItemImage(libFD391A9C_gv_boardButton[lv_i], "Assets\\Textures\\ui_battlenet_glue_dropdownbutton_normalpressed.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage2(libFD391A9C_gv_boardButton[lv_i], "Assets\\Textures\\ui_battlenet_glue_dropdownbutton_normaloverpressedover.dds", PlayerGroupAll());
+    }
+    if ((DialogIsVisible(libFD391A9C_gv_boardDialog[lv_x], EventPlayer()) == false)) {
+        autoA097B185_ae = (libFD391A9C_gv_boardCurrent - 1);
+        lv_i = 0;
+        for ( ; ( (autoA097B185_ai >= 0 && lv_i <= autoA097B185_ae) || (autoA097B185_ai < 0 && lv_i >= autoA097B185_ae) ) ; lv_i += autoA097B185_ai ) {
+            DialogSetVisible(libFD391A9C_gv_boardDialog[lv_i], PlayerGroupSingle(EventPlayer()), false);
+        }
+        DialogSetVisible(libFD391A9C_gv_boardDialog[lv_x], PlayerGroupSingle(EventPlayer()), true);
+        libNtve_gf_SetDialogItemImage(libFD391A9C_gv_boardButton[lv_x], "Assets\\Textures\\ui_battlenet_glue_dropdownbutton_normalpressed_highlight.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage2(libFD391A9C_gv_boardButton[lv_x], "Assets\\Textures\\ui_battlenet_glue_dropdownbutton_normalpressed_highlight.dds", PlayerGroupAll());
+    }
+    else {
+        auto76438ECB_ae = (libFD391A9C_gv_boardCurrent - 1);
+        lv_i = 0;
+        for ( ; ( (auto76438ECB_ai >= 0 && lv_i <= auto76438ECB_ae) || (auto76438ECB_ai < 0 && lv_i >= auto76438ECB_ae) ) ; lv_i += auto76438ECB_ai ) {
+            DialogSetVisible(libFD391A9C_gv_boardDialog[lv_i], PlayerGroupSingle(EventPlayer()), false);
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libFD391A9C_gt_Open_Init () {
+    libFD391A9C_gt_Open = TriggerCreate("libFD391A9C_gt_Open_Func");
+    TriggerEnable(libFD391A9C_gt_Open, false);
+    TriggerAddEventDialogControl(libFD391A9C_gt_Open, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+void libFD391A9C_InitTriggers () {
+    libFD391A9C_gt_Close_Init();
+    libFD391A9C_gt_Open_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libFD391A9C_InitLib_completed = false;
+
+void libFD391A9C_InitLib () {
+    if (libFD391A9C_InitLib_completed) {
+        return;
+    }
+
+    libFD391A9C_InitLib_completed = true;
+
+    libFD391A9C_InitLibraries();
+    libFD391A9C_InitVariables();
+    libFD391A9C_InitTriggers();
+}
+

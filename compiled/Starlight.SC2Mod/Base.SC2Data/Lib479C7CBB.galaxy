@@ -1,0 +1,448 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+include "Lib948F000A_h"
+include "Lib038F51B7_h"
+include "LibBBFED31C_h"
+include "Lib57FF8648_h"
+include "Lib2A8CE4F7_h"
+include "LibCA960273_h"
+include "LibF58A3325_h"
+include "LibD6A97973_h"
+
+include "Lib479C7CBB_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Live Scoreboard
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib479C7CBB_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+    lib948F000A_InitVariables();
+    lib038F51B7_InitVariables();
+    libBBFED31C_InitVariables();
+    lib57FF8648_InitVariables();
+    lib2A8CE4F7_InitVariables();
+    libCA960273_InitVariables();
+    libF58A3325_InitVariables();
+    libD6A97973_InitVariables();
+}
+
+// Variable Initialization
+bool lib479C7CBB_InitVariables_completed = false;
+
+void lib479C7CBB_InitVariables () {
+    int init_i;
+    int init_j;
+
+    if (lib479C7CBB_InitVariables_completed) {
+        return;
+    }
+
+    lib479C7CBB_InitVariables_completed = true;
+
+    lib479C7CBB_gv_liveScoreboardDialog = c_invalidDialogId;
+    for (init_i = 0; init_i <= 1; init_i += 1) {
+        for (init_j = 0; init_j <= 15; init_j += 1) {
+            lib479C7CBB_gv_liveScoreboardLabel[init_i][init_j] = c_invalidDialogControlId;
+        }
+    }
+    lib479C7CBB_gv_offset = 250;
+    lib479C7CBB_gv_mainColor = Color(0,0,0);
+}
+
+// Functions
+void lib479C7CBB_gf_LiveScoreboardTeam (int lp_player, int lp_dialogItem, string lp_score) {
+    // Variable Declarations
+    playergroup lv_playerAllies;
+    int lv_score;
+    int lv_p;
+
+    // Automatic Variable Declarations
+    playergroup auto8AB8DBB5_g;
+    playergroup auto2F5786B3_g;
+
+    // Variable Initialization
+    lv_playerAllies = PlayerGroupEmpty();
+
+    // Implementation
+    auto8AB8DBB5_g = libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Ally, lp_player);
+    lv_p = -1;
+    while (true) {
+        lv_p = PlayerGroupNextPlayer(auto8AB8DBB5_g, lv_p);
+        if (lv_p < 0) { break; }
+        if ((PlayerStatus(lv_p) != c_playerStatusLeft) && (PlayerGetAlliance(lp_player, c_allianceIdChat, lv_p) == true) && ((PlayerType(lv_p) == c_playerTypeUser) || (PlayerType(lv_p) == c_playerTypeComputer))) {
+            PlayerGroupAdd(lv_playerAllies, lv_p);
+        }
+
+    }
+    auto2F5786B3_g = lv_playerAllies;
+    lv_p = -1;
+    while (true) {
+        lv_p = PlayerGroupNextPlayer(auto2F5786B3_g, lv_p);
+        if (lv_p < 0) { break; }
+        lv_score += PlayerScoreValueGetAsInt(lv_p, lp_score);
+    }
+    if ((PlayerGroupCount(lv_playerAllies) > 1)) {
+        DialogControlSetVisible(lp_dialogItem, PlayerGroupSingle(lp_player), true);
+        if ((lv_score > 0)) {
+            libNtve_gf_SetDialogItemText(lp_dialogItem, (StringToText("<s val=\"AiurChefCenterSize20Bold\">") + StringToText(" (") + IntToText(FixedToInt((((IntToFixed(PlayerScoreValueGetAsInt(lp_player, lp_score)) / 100.0) / (lv_score / 100.0)) * 100.0))) + StringToText("% ") + StringExternal("UI/ScreenScoreStatsFrame/Team") + StringToText(")")), PlayerGroupSingle(lp_player));
+        }
+        else {
+            libNtve_gf_SetDialogItemText(lp_dialogItem, (StringToText("<s val=\"AiurChefCenterSize20Bold\">") + StringToText(" (") + IntToText(0) + StringToText("% ") + StringExternal("UI/ScreenScoreStatsFrame/Team") + StringToText(")")), PlayerGroupSingle(lp_player));
+        }
+    }
+    else {
+        DialogControlSetVisible(lp_dialogItem, PlayerGroupSingle(lp_player), false);
+    }
+}
+
+void lib479C7CBB_gf_LiveScoreboardSelf (int lp_player, int lp_dialogItem, string lp_score) {
+    // Automatic Variable Declarations
+    // Implementation
+    libNtve_gf_SetDialogItemText(lp_dialogItem, (StringToText("<s val=\"AiurChefCenterSize20Bold\">") + FormatNumber(PlayerScoreValueGetAsInt(lp_player, lp_score))), PlayerGroupSingle(lp_player));
+}
+
+void lib479C7CBB_gf_LiveScoreboardBorder (int lp_dialog) {
+    // Variable Declarations
+    int lv_randomInteger;
+    color lv_mainColor;
+    string lv_hero;
+    string lv_planet;
+    int lv_border;
+    int lv_background;
+
+    // Automatic Variable Declarations
+    int auto15DFC3CF_val;
+
+    // Variable Initialization
+    lv_randomInteger = RandomInt(0, 6);
+    lv_mainColor = Color(100,100,100);
+    lv_hero = "Assets\\Textures\\ui_donationbackground.dds";
+    lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    lv_border = c_invalidDialogControlId;
+    lv_background = c_invalidDialogControlId;
+
+    // Implementation
+    lv_randomInteger = RandomInt(0, 11);
+    auto15DFC3CF_val = lv_randomInteger;
+    if (auto15DFC3CF_val == 0) {
+        lv_mainColor = Color(100.00, 25.10, 12.55);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_alarak.dds";
+        lv_planet = "Assets\\Textures\\ui_hots_loading_planetviewzerus.dds";
+    }
+    else if (auto15DFC3CF_val == 1) {
+        lv_mainColor = Color(0.00, 50.20, 100.00);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_raynor.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    }
+    else if (auto15DFC3CF_val == 2) {
+        lv_mainColor = Color(25.10, 75.29, 100.00);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_nova.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    }
+    else if (auto15DFC3CF_val == 3) {
+        lv_mainColor = Color(86.27, 29.41, 98.04);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_kerrigan.dds";
+        lv_planet = "Assets\\Textures\\armysetbackground.dds";
+    }
+    else if (auto15DFC3CF_val == 4) {
+        lv_mainColor = Color(100.00, 84.31, 0.00);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_swann.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_korhal01.dds";
+    }
+    else if (auto15DFC3CF_val == 5) {
+        lv_mainColor = Color(25.10, 100.00, 62.75);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_vorazun.dds";
+        lv_planet = "Assets\\Textures\\loading-aiur.dds";
+    }
+    else if (auto15DFC3CF_val == 6) {
+        lv_mainColor = Color(25.10, 100.00, 12.55);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_abathur.dds";
+        lv_planet = "Assets\\Textures\\kerriganupgradesetbackground.dds";
+    }
+    else if (auto15DFC3CF_val == 7) {
+        lv_mainColor = Color(90.20, 80.00, 50.20);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_karax.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_purifier02.dds";
+    }
+    else if (auto15DFC3CF_val == 8) {
+        lv_mainColor = Color(86.27, 62.75, 25.10);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_stukov.dds";
+        lv_planet = "Assets\\Textures\\ui_nova_loading_nova05.dds";
+    }
+    else if (auto15DFC3CF_val == 9) {
+        lv_mainColor = Color(100.00, 54.90, 18.82);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_fenix.dds";
+        lv_planet = "Assets\\Textures\\ui_void_loading_tutorial01.dds";
+    }
+    else if (auto15DFC3CF_val == 10) {
+        lv_mainColor = Color(86.27, 35.29, 74.51);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_hanandhorner.dds";
+        lv_planet = "Assets\\Textures\\ui_nova_loading_nova05.dds";
+    }
+    else {
+        lv_mainColor = Color(50.20, 75.29, 25.10);
+        lv_hero = "Assets\\Textures\\sc2_ui_userprofile_summary_commander_zagara.dds";
+        lv_planet = "Assets\\Textures\\kerriganupgradesetbackground.dds";
+    }
+    lib479C7CBB_gv_mainColor = lv_mainColor;
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 660, 440, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_dialogstandardbg_White.dds", c_triggerImageTypeNineSlice, true, lv_mainColor, c_triggerBlendModeNormal);
+    lv_border = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 336, libNtve_gf_ArithmeticIntClamp(872, 1, DialogControlGetHeight(lv_border, 0)), c_anchorLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_dialogbg_glow_colorless.dds", c_triggerImageTypeNormal, false, lv_mainColor, c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorRight, lv_border, c_anchorLeft, 12, 0);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, 336, libNtve_gf_ArithmeticIntClamp(872, 1, DialogControlGetHeight(lv_border, 0)), c_anchorLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_dialogbg_glow_colorless.dds", c_triggerImageTypeNormal, false, lv_mainColor, c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorLeft, lv_border, c_anchorRight, -12, 0);
+    libNtve_gf_SetDialogItemRotation(DialogControlLastCreated(), 180, PlayerGroupAll());
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), (DialogControlGetHeight(lv_border, 0) - 40), c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\white.dds", c_triggerImageTypeNormal, true, Color(0,0,0), c_triggerBlendModeNormal);
+    lv_background = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), 252, c_anchorTop, 0, 75, StringToText(""), lv_planet, c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_background, c_anchorTop, 0, 0);
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(37.65, 37.65, 37.65), PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), 252, c_anchorTop, 0, 75, StringToText(""), lv_hero, c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_background, c_anchorTop, 0, 0);
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(37.65, 37.65, 37.65), PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lp_dialog, (DialogControlGetWidth(lv_border, 0) - 40), 252, c_anchorTop, 0, 75, StringToText(""), "Assets\\Textures\\ui_battlenet_glues_pageassets_standardelements_artbackground_vignette.dds", c_triggerImageTypeNormal, false, Color(0,0,0), c_triggerBlendModeNormal);
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_background, c_anchorTop, 0, 0);
+    libNtve_gf_CreateDialogItemButton(lp_dialog, 69, 37, c_anchorTopRight, 0, 0, StringToText(""), StringToText(""), "");
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTopRight, lv_border, c_anchorTopRight, -9, 11);
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\sc2_ui_glues_bluebuttons_close_normalpressed_white.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\sc2_ui_glues_bluebuttons_close_normaloverpressedover_white.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_mainColor, PlayerGroupAll());
+}
+
+void lib479C7CBB_gf_LiveScoreboardUpdate () {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    playergroup auto82E76543_g;
+    int auto82E76543_var;
+    int auto7F03480B_ae;
+    const int auto7F03480B_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lib479C7CBB_gv_created == true)) {
+        auto82E76543_g = PlayerGroupActive();
+        auto82E76543_var = -1;
+        while (true) {
+            auto82E76543_var = PlayerGroupNextPlayer(auto82E76543_g, auto82E76543_var);
+            if (auto82E76543_var < 0) { break; }
+            if ((DialogIsVisible(lib479C7CBB_gv_liveScoreboardDialog, auto82E76543_var) == true)) {
+                auto7F03480B_ae = (lib479C7CBB_gv_currentScore - 1);
+                lv_i = 0;
+                for ( ; ( (auto7F03480B_ai >= 0 && lv_i <= auto7F03480B_ae) || (auto7F03480B_ai < 0 && lv_i >= auto7F03480B_ae) ) ; lv_i += auto7F03480B_ai ) {
+                    lib479C7CBB_gf_LiveScoreboardSelf(auto82E76543_var, lib479C7CBB_gv_liveScoreboardLabel[0][lv_i], lib479C7CBB_gv_liveScoreboardScore[lv_i]);
+                    lib479C7CBB_gf_LiveScoreboardTeam(auto82E76543_var, lib479C7CBB_gv_liveScoreboardLabel[1][lv_i], lib479C7CBB_gv_liveScoreboardScore[lv_i]);
+                }
+            }
+
+        }
+    }
+
+}
+
+void lib479C7CBB_gf_LiveScoreboardUpdatePlayer (int lp_player) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    int autoE775B8AB_ae;
+    const int autoE775B8AB_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lib479C7CBB_gv_created == true)) {
+        autoE775B8AB_ae = (lib479C7CBB_gv_currentScore - 1);
+        lv_i = 0;
+        for ( ; ( (autoE775B8AB_ai >= 0 && lv_i <= autoE775B8AB_ae) || (autoE775B8AB_ai < 0 && lv_i >= autoE775B8AB_ae) ) ; lv_i += autoE775B8AB_ai ) {
+            lib479C7CBB_gf_LiveScoreboardSelf(lp_player, lib479C7CBB_gv_liveScoreboardLabel[0][lv_i], lib479C7CBB_gv_liveScoreboardScore[lv_i]);
+            lib479C7CBB_gf_LiveScoreboardTeam(lp_player, lib479C7CBB_gv_liveScoreboardLabel[1][lv_i], lib479C7CBB_gv_liveScoreboardScore[lv_i]);
+        }
+    }
+
+}
+
+void lib479C7CBB_gf_LiveScoreboardAddScore (string lp_score) {
+    // Variable Declarations
+    const int lv_labelXOffset = 290;
+    const int lv_valueXOffset = 540;
+    const int lv_teamXOffset = 670;
+
+    // Automatic Variable Declarations
+    playergroup auto93BD99AE_g;
+    int auto93BD99AE_var;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lib479C7CBB_gv_created == false)) {
+        lib479C7CBB_gv_created = true;
+        DialogCreate(1100, 600, c_anchorCenter, 0, 0, true);
+        lib479C7CBB_gv_liveScoreboardDialog = DialogLastCreated();
+        DialogSetImageVisible(DialogLastCreated(), false);
+        lib479C7CBB_gf_LiveScoreboardBorder(DialogLastCreated());
+        TriggerEnable(lib479C7CBB_gt_LiveScoreboardClose, true);
+        auto93BD99AE_g = PlayerGroupActive();
+        auto93BD99AE_var = -1;
+        while (true) {
+            auto93BD99AE_var = PlayerGroupNextPlayer(auto93BD99AE_g, auto93BD99AE_var);
+            if (auto93BD99AE_var < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(auto93BD99AE_var, "WorkerSubmenuLiveScoreboard", 1);
+        }
+    }
+
+    libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 500, 50, c_anchorTopLeft, lv_labelXOffset, lib479C7CBB_gv_offset, (StringToText("<s val=\"AiurChefCenterSize20Bold\">") + TextWithColor((StringExternal(CatalogFieldValueGet(c_gameCatalogScoreValue, lp_score, "PublishName", c_playerAny)) + StringToText(":")), lib479C7CBB_gv_mainColor)), ColorWithAlpha(0,0,0,0), false, 2.0);
+    libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 500, 50, c_anchorTopLeft, lv_valueXOffset, lib479C7CBB_gv_offset, (StringToText("<s val=\"AiurChefCenterSize20Bold\">") + FormatNumber(0)), ColorWithAlpha(0,0,0,0), false, 2.0);
+    lib479C7CBB_gv_liveScoreboardLabel[0][lib479C7CBB_gv_currentScore] = DialogControlLastCreated();
+    libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 500, 50, c_anchorTopLeft, lv_teamXOffset, lib479C7CBB_gv_offset, (StringToText("<s val=\"AiurChefCenterSize20Bold\">") + StringToText(" (") + IntToText(0) + StringToText("% ") + StringExternal("UI/ScreenScoreStatsFrame/Team") + StringToText(")")), ColorWithAlpha(0,0,0,0), false, 2.0);
+    lib479C7CBB_gv_liveScoreboardLabel[1][lib479C7CBB_gv_currentScore] = DialogControlLastCreated();
+    lib479C7CBB_gv_liveScoreboardScore[lib479C7CBB_gv_currentScore] = lp_score;
+    lib479C7CBB_gv_offset += 40;
+    lib479C7CBB_gv_currentScore += 1;
+}
+
+void lib479C7CBB_gf_LiveScoreboardAddGap () {
+    // Automatic Variable Declarations
+    // Implementation
+    lib479C7CBB_gv_offset += 20;
+}
+
+void lib479C7CBB_gf_LiveScoreboardShowHide (int lp_player, bool lp_toggle, bool lp_sound) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((lib479C7CBB_gv_created == true)) {
+        lib479C7CBB_gf_LiveScoreboardUpdate();
+        if ((lp_sound == true) && (lp_toggle == true) && (DialogIsVisible(lib479C7CBB_gv_liveScoreboardDialog, lp_player) == false)) {
+            SoundPlayForPlayer(SoundLink("UI_MenuSounds_LiveScoreboard_Open", -1), c_maxPlayers, PlayerGroupSingle(EventPlayer()), 100.0, 0.0);
+        }
+
+        DialogSetVisible(lib479C7CBB_gv_liveScoreboardDialog, PlayerGroupSingle(lp_player), lp_toggle);
+        if ((lp_sound == true)) {
+            SoundPlayForPlayer(SoundLink("UI_MenuSounds_LiveScoreboard_Close", -1), c_maxPlayers, PlayerGroupSingle(EventPlayer()), 100.0, 0.0);
+        }
+
+    }
+
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Live Scoreboard Close
+//--------------------------------------------------------------------------------------------------
+bool lib479C7CBB_gt_LiveScoreboardClose_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((DialogIsVisible(lib479C7CBB_gv_liveScoreboardDialog, EventPlayer()) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib479C7CBB_gf_LiveScoreboardShowHide(EventPlayer(), false, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib479C7CBB_gt_LiveScoreboardClose_Init () {
+    lib479C7CBB_gt_LiveScoreboardClose = TriggerCreate("lib479C7CBB_gt_LiveScoreboardClose_Func");
+    TriggerEnable(lib479C7CBB_gt_LiveScoreboardClose, false);
+    TriggerAddEventDialogControl(lib479C7CBB_gt_LiveScoreboardClose, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Worker Submenu Live Scoreboard
+//--------------------------------------------------------------------------------------------------
+bool lib479C7CBB_gt_WorkerSubmenuLiveScoreboard_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((lib479C7CBB_gv_created == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib038F51B7_gf_AbilityControlShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libD6A97973_gf_MasteryPanelShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib948F000A_gf_WorkerSelectShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libCA960273_gf_StagingAreaCustomizationShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libCA960273_gf_PremiumDialogShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false, false);
+    libF58A3325_gf_MasteryCodeShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib57FF8648_gf_BlacklistShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libBBFED31C_gf_EndGameShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib2A8CE4F7_gf_StatsMenuShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    if ((lib479C7CBB_gv_created == true)) {
+        if ((DialogIsVisible(lib479C7CBB_gv_liveScoreboardDialog, EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)) == true)) {
+            lib479C7CBB_gf_LiveScoreboardShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, true);
+        }
+        else {
+            lib479C7CBB_gf_LiveScoreboardShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), true, true);
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib479C7CBB_gt_WorkerSubmenuLiveScoreboard_Init () {
+    lib479C7CBB_gt_WorkerSubmenuLiveScoreboard = TriggerCreate("lib479C7CBB_gt_WorkerSubmenuLiveScoreboard_Func");
+    TriggerAddEventPlayerEffectUsed(lib479C7CBB_gt_WorkerSubmenuLiveScoreboard, c_playerAny, "WorkerSubmenuLiveScoreboard");
+}
+
+void lib479C7CBB_InitTriggers () {
+    lib479C7CBB_gt_LiveScoreboardClose_Init();
+    lib479C7CBB_gt_WorkerSubmenuLiveScoreboard_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib479C7CBB_InitLib_completed = false;
+
+void lib479C7CBB_InitLib () {
+    if (lib479C7CBB_InitLib_completed) {
+        return;
+    }
+
+    lib479C7CBB_InitLib_completed = true;
+
+    lib479C7CBB_InitLibraries();
+    lib479C7CBB_InitVariables();
+    lib479C7CBB_InitTriggers();
+}
+
+include "LibDDE92A83"
+include "Lib948F000A"
+include "Lib038F51B7"
+include "LibBBFED31C"
+include "Lib57FF8648"
+include "Lib2A8CE4F7"
+include "LibCA960273"
+include "LibF58A3325"
+include "LibD6A97973"
+

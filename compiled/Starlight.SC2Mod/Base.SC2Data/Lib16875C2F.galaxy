@@ -1,0 +1,2189 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+include "Lib7A9A9B22_h"
+include "Lib038F51B7_h"
+include "Lib7550A90B_h"
+include "LibE1C8E1CC_h"
+
+include "Lib16875C2F_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Mutations
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib16875C2F_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+    lib7A9A9B22_InitVariables();
+    lib038F51B7_InitVariables();
+    lib7550A90B_InitVariables();
+    libE1C8E1CC_InitVariables();
+}
+
+// Variable Initialization
+bool lib16875C2F_InitVariables_completed = false;
+
+void lib16875C2F_InitVariables () {
+    int init_i;
+
+    if (lib16875C2F_InitVariables_completed) {
+        return;
+    }
+
+    lib16875C2F_InitVariables_completed = true;
+
+    for (init_i = 0; init_i <= 7; init_i += 1) {
+        lib16875C2F_gv_mutationButton[init_i] = c_invalidDialogControlId;
+    }
+    lib16875C2F_gv_allowBankToApplyPremium = true;
+}
+
+// Functions
+void lib16875C2F_gf_ModeWeeklyBrawl (int lp_forceBrawl) {
+    // Variable Declarations
+    int lv_i;
+    int lv_brawl;
+
+    // Automatic Variable Declarations
+    playergroup auto8C7FAA18_g;
+    int auto8C7FAA18_var;
+    const int autoC4D96623_ae = 6;
+    const int autoC4D96623_ai = 1;
+    playergroup auto7F4BDCCB_g;
+    int auto7F4BDCCB_var;
+    playergroup autoB1F91971_g;
+    int autoB1F91971_var;
+
+    // Variable Initialization
+    lv_brawl = lib16875C2F_gf_GetWeekofYear(GetDateTimeYear(CurrentDateTimeGet()), GetDateTimeMonth(CurrentDateTimeGet()), GetDateTimeDay(CurrentDateTimeGet()), -2);
+
+    // Implementation
+    if ((lp_forceBrawl >= 0)) {
+        lv_brawl = lp_forceBrawl;
+    }
+
+    lib16875C2F_gf_MutationAdd("MutationExpandedArmaments");
+    auto8C7FAA18_g = PlayerGroupAll();
+    auto8C7FAA18_var = -1;
+    while (true) {
+        auto8C7FAA18_var = PlayerGroupNextPlayer(auto8C7FAA18_g, auto8C7FAA18_var);
+        if (auto8C7FAA18_var < 0) { break; }
+        TechTreeUpgradeAddLevel(auto8C7FAA18_var, "MutationExpandedArmaments", 1);
+    }
+    lv_i = 1;
+    for ( ; ( (autoC4D96623_ai >= 0 && lv_i <= autoC4D96623_ae) || (autoC4D96623_ai < 0 && lv_i >= autoC4D96623_ae) ) ; lv_i += autoC4D96623_ai ) {
+        if ((UserDataGetUpgrade("WeeklyBrawlMutations", UserDataInstance("WeeklyBrawlMutations", lv_brawl), "Mutation", lv_i) != "")) {
+            lib16875C2F_gf_MutationAdd(((UserDataGetUpgrade("WeeklyBrawlMutations", UserDataInstance("WeeklyBrawlMutations", lv_brawl), "Mutation", lv_i))));
+            auto7F4BDCCB_g = PlayerGroupAll();
+            auto7F4BDCCB_var = -1;
+            while (true) {
+                auto7F4BDCCB_var = PlayerGroupNextPlayer(auto7F4BDCCB_g, auto7F4BDCCB_var);
+                if (auto7F4BDCCB_var < 0) { break; }
+                TechTreeUpgradeAddLevel(auto7F4BDCCB_var, UserDataGetUpgrade("WeeklyBrawlMutations", UserDataInstance("WeeklyBrawlMutations", lv_brawl), "Mutation", lv_i), 1);
+            }
+        }
+
+    }
+    autoB1F91971_g = PlayerGroupAll();
+    autoB1F91971_var = -1;
+    while (true) {
+        autoB1F91971_var = PlayerGroupNextPlayer(autoB1F91971_g, autoB1F91971_var);
+        if (autoB1F91971_var < 0) { break; }
+        libNtve_gf_SetUpgradeLevelForPlayer(autoB1F91971_var, "GameModeBrawl", 1);
+        CatalogFieldValueSet(c_gameCatalogButton, "Mutation", "Icon", autoB1F91971_var, ("Assets\\Textures\\btn-menu-gameplayhelp_yellow.dds"));
+        if ((TechTreeUpgradeCount(autoB1F91971_var, "MutationBrilliance", c_techCountQueuedOrBetter) == 1)) {
+            PlayerCreateEffectPoint(autoB1F91971_var, "AllUpgradesLevel1", Point(0.0, 0.0));
+            PlayerCreateEffectPoint(autoB1F91971_var, "AllUpgradesLevel2", Point(0.0, 0.0));
+            PlayerCreateEffectPoint(autoB1F91971_var, "AllUpgradesLevel3", Point(0.0, 0.0));
+        }
+
+        if ((TechTreeUpgradeCount(autoB1F91971_var, "MutationAura", c_techCountQueuedOrBetter) >= 1)) {
+            libNtve_gf_SetUpgradeLevelForPlayer(autoB1F91971_var, "WorkerAuraAvailable", TechTreeUpgradeCount(autoB1F91971_var, "MutationAura", c_techCountQueuedOrBetter));
+        }
+
+        if ((TechTreeUpgradeCount(autoB1F91971_var, "MutationSynergy", c_techCountQueuedOrBetter) == 1)) {
+            libDDE92A83_gf_ChangeUnitCostsModified(autoB1F91971_var, 1.5, 0.0);
+        }
+
+        if ((TechTreeUpgradeCount(autoB1F91971_var, "MutationEntropy", c_techCountQueuedOrBetter) == 1)) {
+            libDDE92A83_gf_ChangeUnitCostsModified(autoB1F91971_var, 0.875, 0.125);
+        }
+
+        if ((TechTreeUpgradeCount(autoB1F91971_var, "MutationDowntime", c_techCountQueuedOrBetter) == 1)) {
+            PlayerAddCooldown(autoB1F91971_var, "Abil/MineralUpgrade", (336.0 - GameGetMissionTime()));
+        }
+
+        if ((TechTreeUpgradeCount(autoB1F91971_var, "MutationGridlock", c_techCountQueuedOrBetter) == 1)) {
+            PlayerAddCooldown(autoB1F91971_var, "Abil/NeutralUpgradesAutocast01", (336.0 - GameGetMissionTime()));
+            PlayerAddCooldown(autoB1F91971_var, "Abil/NeutralUpgradesAutocast02", (756.0 - GameGetMissionTime()));
+        }
+
+        if ((TechTreeUpgradeCount(autoB1F91971_var, "MutationInsight", c_techCountQueuedOrBetter) == 1)) {
+            VisRevealArea(autoB1F91971_var, RegionEntireMap(), 0.0, false);
+        }
+
+        if ((TechTreeUpgradeCount(autoB1F91971_var, "MutationBountiful", c_techCountQueuedOrBetter) == 1)) {
+            lib7A9A9B22_gf_MineralIncomeSetIncrement(1.0);
+        }
+
+    }
+    if ((TechTreeUpgradeCount(0, "MutationSynergy", c_techCountQueuedOrBetter) == 1)) {
+        lib7550A90B_gf_TugofWarSetSpawnPeriod(42.0);
+    }
+
+    lib16875C2F_gf_MutationSeasonal();
+}
+
+void lib16875C2F_gf_MutationSeasonal () {
+    // Variable Declarations
+    int lv_player;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+}
+
+void lib16875C2F_gf_MutationAriseMyChampions (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationAriseMyChampions";
+
+    // Automatic Variable Declarations
+    bool auto54D0107F_val;
+    playergroup auto32D3AD54_g;
+    playergroup auto93C189DA_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationAriseMyChampions");
+    auto54D0107F_val = lp_toggle;
+    if (auto54D0107F_val == true) {
+        auto32D3AD54_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto32D3AD54_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto54D0107F_val == false) {
+        auto93C189DA_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto93C189DA_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationDowntime (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationDowntime";
+
+    // Automatic Variable Declarations
+    bool auto55BD891D_val;
+    playergroup auto120542F9_g;
+    playergroup auto437D61AF_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationDowntime");
+    auto55BD891D_val = lp_toggle;
+    if (auto55BD891D_val == true) {
+        auto120542F9_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto120542F9_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+            PlayerAddCooldown(lv_player, "Abil/MineralUpgrade", (336.0 - GameGetMissionTime()));
+        }
+    }
+    else if (auto55BD891D_val == false) {
+        auto437D61AF_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto437D61AF_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationSynergy (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationSynergy";
+
+    // Automatic Variable Declarations
+    bool auto9CD655BF_val;
+    playergroup auto12A040EC_g;
+    playergroup autoF7F88611_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationSynergy");
+    auto9CD655BF_val = lp_toggle;
+    if (auto9CD655BF_val == true) {
+        lib7550A90B_gf_TugofWarSetSpawnPeriod(42.0);
+        libDDE92A83_gf_ChangeUnitCostsModified(lv_player, 1.5, 0.0);
+        auto12A040EC_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto12A040EC_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto9CD655BF_val == false) {
+        autoF7F88611_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoF7F88611_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationGridlock (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationGridlock";
+
+    // Automatic Variable Declarations
+    bool auto32EE9BD4_val;
+    playergroup auto20CF7093_g;
+    playergroup autoD9F5FEF0_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationGridlock");
+    auto32EE9BD4_val = lp_toggle;
+    if (auto32EE9BD4_val == true) {
+        auto20CF7093_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto20CF7093_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+            PlayerAddCooldown(lv_player, "Abil/NeutralUpgradesAutocast01", (336.0 - GameGetMissionTime()));
+            PlayerAddCooldown(lv_player, "Abil/NeutralUpgradesAutocast02", (756.0 - GameGetMissionTime()));
+        }
+    }
+    else if (auto32EE9BD4_val == false) {
+        autoD9F5FEF0_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoD9F5FEF0_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationInsight (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationInsight";
+
+    // Automatic Variable Declarations
+    bool auto92490347_val;
+    playergroup auto88F6651F_g;
+    playergroup auto68A7E33C_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationInsight");
+    lib16875C2F_gf_MutationShroud(true);
+    auto92490347_val = lp_toggle;
+    if (auto92490347_val == true) {
+        auto88F6651F_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto88F6651F_g, lv_player);
+            if (lv_player < 0) { break; }
+            VisRevealArea(lv_player, RegionEntireMap(), 0.0, false);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto92490347_val == false) {
+        auto68A7E33C_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto68A7E33C_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationBrilliance (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationBrilliance";
+
+    // Automatic Variable Declarations
+    bool auto4E7E3838_val;
+    playergroup auto5EB93D2F_g;
+    playergroup autoA62F4E6D_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationBrilliance");
+    auto4E7E3838_val = lp_toggle;
+    if (auto4E7E3838_val == true) {
+        auto5EB93D2F_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto5EB93D2F_g, lv_player);
+            if (lv_player < 0) { break; }
+            PlayerCreateEffectPoint(lv_player, "AllUpgradesLevel1", Point(0.0, 0.0));
+            PlayerCreateEffectPoint(lv_player, "AllUpgradesLevel2", Point(0.0, 0.0));
+            PlayerCreateEffectPoint(lv_player, "AllUpgradesLevel3", Point(0.0, 0.0));
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto4E7E3838_val == false) {
+        autoA62F4E6D_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoA62F4E6D_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationExpandedArmaments (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationExpandedArmaments";
+
+    // Automatic Variable Declarations
+    bool autoB5B2FFD5_val;
+    playergroup auto095E790E_g;
+    playergroup auto2181FB84_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationExpandedArmaments");
+    autoB5B2FFD5_val = lp_toggle;
+    if (autoB5B2FFD5_val == true) {
+        auto095E790E_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto095E790E_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoB5B2FFD5_val == false) {
+        auto2181FB84_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto2181FB84_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationEntropy (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationEntropy";
+
+    // Automatic Variable Declarations
+    bool auto9D2A3AD5_val;
+    playergroup auto7FAC65E0_g;
+    playergroup autoAD1A4A78_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationEntropy");
+    auto9D2A3AD5_val = lp_toggle;
+    if (auto9D2A3AD5_val == true) {
+        auto7FAC65E0_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto7FAC65E0_g, lv_player);
+            if (lv_player < 0) { break; }
+            libDDE92A83_gf_ChangeUnitCostsModified(lv_player, 0.875, 0.125);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto9D2A3AD5_val == false) {
+        autoAD1A4A78_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoAD1A4A78_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationAura (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationAura";
+
+    // Automatic Variable Declarations
+    bool auto41F8136C_val;
+    playergroup auto22B98731_g;
+    playergroup autoE695EAA5_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationAura");
+    auto41F8136C_val = lp_toggle;
+    if (auto41F8136C_val == true) {
+        auto22B98731_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto22B98731_g, lv_player);
+            if (lv_player < 0) { break; }
+            TechTreeUpgradeAddLevel(lv_player, lv_upgrade, 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "WorkerAuraAvailable", 1);
+        }
+    }
+    else if (auto41F8136C_val == false) {
+        autoE695EAA5_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoE695EAA5_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "WorkerAuraAvailable", 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationBountiful (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationBountiful";
+
+    // Automatic Variable Declarations
+    bool auto680D887F_val;
+    playergroup auto298DE586_g;
+    playergroup autoE7B1D539_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationBountiful");
+    auto680D887F_val = lp_toggle;
+    if (auto680D887F_val == true) {
+        auto298DE586_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto298DE586_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto680D887F_val == false) {
+        autoE7B1D539_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoE7B1D539_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationStockpile (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationStockpile";
+
+    // Automatic Variable Declarations
+    bool auto6B962984_val;
+    playergroup autoD54B7A49_g;
+    playergroup autoF38D28E7_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationStockpile");
+    auto6B962984_val = lp_toggle;
+    if (auto6B962984_val == true) {
+        autoD54B7A49_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoD54B7A49_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto6B962984_val == false) {
+        autoF38D28E7_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoF38D28E7_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationHillsCantina (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationHillsCantina";
+
+    // Automatic Variable Declarations
+    bool auto0C85E27A_val;
+    playergroup autoF88AC6A8_g;
+    playergroup auto5C3CF91A_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationHillsCantina");
+    auto0C85E27A_val = lp_toggle;
+    if (auto0C85E27A_val == true) {
+        autoF88AC6A8_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoF88AC6A8_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto0C85E27A_val == false) {
+        auto5C3CF91A_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto5C3CF91A_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationMercs (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationMercs";
+
+    // Automatic Variable Declarations
+    bool autoF1823A35_val;
+    playergroup auto1328C7F2_g;
+    playergroup auto991D0411_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationMercs");
+    autoF1823A35_val = lp_toggle;
+    if (autoF1823A35_val == true) {
+        auto1328C7F2_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto1328C7F2_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoF1823A35_val == false) {
+        auto991D0411_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto991D0411_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationHeavensDevils (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationHeavensDevils";
+
+    // Automatic Variable Declarations
+    bool auto34C433ED_val;
+    playergroup auto2704E5CB_g;
+    playergroup auto6CAE73A7_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationHeavensDevils");
+    auto34C433ED_val = lp_toggle;
+    if (auto34C433ED_val == true) {
+        auto2704E5CB_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto2704E5CB_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto34C433ED_val == false) {
+        auto6CAE73A7_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto6CAE73A7_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationLizzyBrigade (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationLizzyBrigade";
+
+    // Automatic Variable Declarations
+    bool auto85542367_val;
+    playergroup auto893081E5_g;
+    playergroup auto61E350A3_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationLizzyBrigade");
+    auto85542367_val = lp_toggle;
+    if (auto85542367_val == true) {
+        auto893081E5_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto893081E5_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto85542367_val == false) {
+        auto61E350A3_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto61E350A3_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationStetapult (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationStetapult";
+
+    // Automatic Variable Declarations
+    bool auto3979FA65_val;
+    playergroup auto478F0F05_g;
+    playergroup autoA7D446F9_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationStetapult");
+    auto3979FA65_val = lp_toggle;
+    if (auto3979FA65_val == true) {
+        auto478F0F05_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto478F0F05_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto3979FA65_val == false) {
+        autoA7D446F9_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoA7D446F9_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationTheBestOil (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationTheBestOil";
+
+    // Automatic Variable Declarations
+    bool autoD44ECC1C_val;
+    playergroup autoB492F861_g;
+    playergroup auto3F8A114D_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationTheBestOil");
+    autoD44ECC1C_val = lp_toggle;
+    if (autoD44ECC1C_val == true) {
+        autoB492F861_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoB492F861_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoD44ECC1C_val == false) {
+        auto3F8A114D_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto3F8A114D_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationRaidBoss (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationRaidBoss";
+
+    // Automatic Variable Declarations
+    bool autoC40E3497_val;
+    playergroup autoD76731E3_g;
+    playergroup auto15567EEC_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationRaidBoss");
+    autoC40E3497_val = lp_toggle;
+    if (autoC40E3497_val == true) {
+        autoD76731E3_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoD76731E3_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoC40E3497_val == false) {
+        auto15567EEC_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto15567EEC_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationStronghold (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationStronghold";
+
+    // Automatic Variable Declarations
+    bool auto85557962_val;
+    playergroup auto2E11AB67_g;
+    playergroup autoF4C1078E_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationStronghold");
+    auto85557962_val = lp_toggle;
+    if (auto85557962_val == true) {
+        auto2E11AB67_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto2E11AB67_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto85557962_val == false) {
+        autoF4C1078E_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoF4C1078E_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationHallowed (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationHallowed";
+
+    // Automatic Variable Declarations
+    bool auto54B2C9F7_val;
+    playergroup autoC3243059_g;
+    playergroup auto94F7AE26_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationHallowed");
+    auto54B2C9F7_val = lp_toggle;
+    if (auto54B2C9F7_val == true) {
+        autoC3243059_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoC3243059_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto54B2C9F7_val == false) {
+        auto94F7AE26_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto94F7AE26_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationTychusHomebrew (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationTychusHomebrew";
+
+    // Automatic Variable Declarations
+    bool auto4C999895_val;
+    playergroup auto4D7D3A3C_g;
+    playergroup autoEA0A963F_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationTychusHomebrew");
+    auto4C999895_val = lp_toggle;
+    if (auto4C999895_val == true) {
+        auto4D7D3A3C_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto4D7D3A3C_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto4C999895_val == false) {
+        autoEA0A963F_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoEA0A963F_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationAccord (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationAccord";
+
+    // Automatic Variable Declarations
+    bool auto1CAA6003_val;
+    playergroup auto69DC9953_g;
+    playergroup auto84D9DF36_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationAccord");
+    auto1CAA6003_val = lp_toggle;
+    if (auto1CAA6003_val == true) {
+        auto69DC9953_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto69DC9953_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto1CAA6003_val == false) {
+        auto84D9DF36_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto84D9DF36_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationEquality (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationEquality";
+
+    // Automatic Variable Declarations
+    bool autoA1634296_val;
+    playergroup auto9906521E_g;
+    playergroup auto6DD26CB0_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationEquality");
+    autoA1634296_val = lp_toggle;
+    if (autoA1634296_val == true) {
+        auto9906521E_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto9906521E_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoA1634296_val == false) {
+        auto6DD26CB0_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto6DD26CB0_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationBastion (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationBastion";
+
+    // Automatic Variable Declarations
+    bool auto37344E98_val;
+    playergroup auto67DD01E4_g;
+    playergroup auto85221691_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationBastion");
+    auto37344E98_val = lp_toggle;
+    if (auto37344E98_val == true) {
+        auto67DD01E4_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto67DD01E4_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto37344E98_val == false) {
+        auto85221691_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto85221691_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationSap (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationSap";
+
+    // Automatic Variable Declarations
+    bool autoF65A326B_val;
+    playergroup autoFF85F840_g;
+    playergroup auto54BD99C6_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationSap");
+    autoF65A326B_val = lp_toggle;
+    if (autoF65A326B_val == true) {
+        autoFF85F840_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoFF85F840_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoF65A326B_val == false) {
+        auto54BD99C6_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto54BD99C6_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationDischarge (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationDischarge";
+
+    // Automatic Variable Declarations
+    bool autoA1AE4D12_val;
+    playergroup auto6C0D7A1D_g;
+    playergroup autoD2632DED_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationDischarge");
+    autoA1AE4D12_val = lp_toggle;
+    if (autoA1AE4D12_val == true) {
+        auto6C0D7A1D_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto6C0D7A1D_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoA1AE4D12_val == false) {
+        autoD2632DED_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoD2632DED_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationUnstoppable (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationUnstoppable";
+
+    // Automatic Variable Declarations
+    bool auto105D6B75_val;
+    playergroup autoA653B70D_g;
+    playergroup autoE283BFD6_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationUnstoppable");
+    auto105D6B75_val = lp_toggle;
+    if (auto105D6B75_val == true) {
+        autoA653B70D_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoA653B70D_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto105D6B75_val == false) {
+        autoE283BFD6_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoE283BFD6_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationVoid (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationVoid";
+
+    // Automatic Variable Declarations
+    bool autoCF49B2C6_val;
+    playergroup auto9B24AEB0_g;
+    playergroup autoDDC3E848_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationVoid");
+    autoCF49B2C6_val = lp_toggle;
+    if (autoCF49B2C6_val == true) {
+        auto9B24AEB0_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto9B24AEB0_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoCF49B2C6_val == false) {
+        autoDDC3E848_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoDDC3E848_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationEndurance (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationEndurance";
+
+    // Automatic Variable Declarations
+    bool autoABFC3B03_val;
+    playergroup auto399BE358_g;
+    playergroup autoC9A01DD4_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationEndurance");
+    autoABFC3B03_val = lp_toggle;
+    if (autoABFC3B03_val == true) {
+        auto399BE358_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto399BE358_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoABFC3B03_val == false) {
+        autoC9A01DD4_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoC9A01DD4_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationSN1PSN4P (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationSN1PSN4P";
+
+    // Automatic Variable Declarations
+    bool autoE248E39A_val;
+    playergroup auto246EEC87_g;
+    playergroup auto9270DC67_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationSN1PSN4P");
+    autoE248E39A_val = lp_toggle;
+    if (autoE248E39A_val == true) {
+        auto246EEC87_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto246EEC87_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+            TechTreeAbilityAllow(lv_player, AbilityCommand("UpgradeToBanelingStetmann", 0), false);
+            TechTreeAbilityAllow(lv_player, AbilityCommand("BroodLordStetmannPlaceFromCorruptorStetmann", 0), false);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "BanelingStetmannExtraDamage", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "BanelingStetmannManaShieldBonus", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "BanelingStetmannMovementSpeed", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "BroodLordStetmannBombers", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "BroodLordStetmannYamato", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "CorruptorStetmannBiggerAoE", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "CorruptorStetmannCausticSpray", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "HydraliskStetmannDamage", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "HydraliskStetmannMovementSpeed", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "HydraliskStetmannRange", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "InfestorStetmannBonusRavager", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "InfestorStetmannRecharge", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "LurkerStetmannChannelingSpines", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "LurkerStetmannTunnelingBurstRange", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "LurkerStetmannTunnelingBurstRange", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "OverlordStetmannSpeed", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "UltraliskStetmannArmor", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "UltraliskStetmannBurrowCharge", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "UltraliskStetmannMechanicalLifeLeech", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "ZerglingStetmannAttackSpeed", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "ZerglingStetmannHardenedShield", 1);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "ZerglingStetmannMovementSpeed", 1);
+        }
+    }
+    else if (autoE248E39A_val == false) {
+        auto9270DC67_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto9270DC67_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationHeroism (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationHeroism";
+
+    // Automatic Variable Declarations
+    bool auto175E1EB5_val;
+    playergroup auto8C46A2F5_g;
+    playergroup auto40146F4F_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationHeroism");
+    auto175E1EB5_val = lp_toggle;
+    if (auto175E1EB5_val == true) {
+        auto8C46A2F5_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto8C46A2F5_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto175E1EB5_val == false) {
+        auto40146F4F_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto40146F4F_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationHaste (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationHaste";
+
+    // Automatic Variable Declarations
+    bool auto256DFF46_val;
+    playergroup autoC06EC81A_g;
+    playergroup auto799DC715_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationHaste");
+    auto256DFF46_val = lp_toggle;
+    if (auto256DFF46_val == true) {
+        libDDE92A83_gf_SetGlobalTimeScale(1.3);
+        autoC06EC81A_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoC06EC81A_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto256DFF46_val == false) {
+        auto799DC715_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto799DC715_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationUnityPvE (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationUnity";
+
+    // Automatic Variable Declarations
+    bool auto3CFCB53E_val;
+    playergroup auto35B79D72_g;
+    playergroup autoAC84715C_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib16875C2F_gf_MutationAdd("MutationUnity");
+    auto3CFCB53E_val = lp_toggle;
+    if (auto3CFCB53E_val == true) {
+        auto35B79D72_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto35B79D72_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto3CFCB53E_val == false) {
+        autoAC84715C_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoAC84715C_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationOvertime (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationOvertime";
+
+    // Automatic Variable Declarations
+    bool auto5285A0DF_val;
+    playergroup auto5B977F82_g;
+    playergroup auto3AD1AF01_g;
+
+    // Variable Initialization
+
+    // Implementation
+    auto5285A0DF_val = lp_toggle;
+    if (auto5285A0DF_val == true) {
+        auto5B977F82_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto5B977F82_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto5285A0DF_val == false) {
+        auto3AD1AF01_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto3AD1AF01_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationSimplified (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationSimplified";
+
+    // Automatic Variable Declarations
+    bool auto4ED06752_val;
+    playergroup autoC648C06A_g;
+    playergroup auto2075A22E_g;
+
+    // Variable Initialization
+
+    // Implementation
+    auto4ED06752_val = lp_toggle;
+    if (auto4ED06752_val == true) {
+        autoC648C06A_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoC648C06A_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto4ED06752_val == false) {
+        auto2075A22E_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto2075A22E_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationCommanders (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationCommanders";
+
+    // Automatic Variable Declarations
+    bool autoB60D735B_val;
+    playergroup auto59F7213E_g;
+    playergroup autoB7EB4729_g;
+
+    // Variable Initialization
+
+    // Implementation
+    autoB60D735B_val = lp_toggle;
+    if (autoB60D735B_val == true) {
+        auto59F7213E_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto59F7213E_g, lv_player);
+            if (lv_player < 0) { break; }
+            if ((TechTreeUpgradeCount(lv_player, "WorkerOverride", c_techCountCompleteOnly) == 0)) {
+                lib038F51B7_gf_AbilityControlEnable(false, PlayerGroupSingle(lv_player));
+                libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "HideWorkerCommandCard", 1);
+                libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "WorkerCommanderSelect", 1);
+            }
+
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoB60D735B_val == false) {
+        autoB7EB4729_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoB7EB4729_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "HideWorkerCommandCard", 0);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, "WorkerCommanderSelect", 0);
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationSuperscan (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationSuperscan";
+
+    // Automatic Variable Declarations
+    bool autoB8C18C1B_val;
+    playergroup autoD684D084_g;
+    playergroup autoE1AF4E33_g;
+
+    // Variable Initialization
+
+    // Implementation
+    autoB8C18C1B_val = lp_toggle;
+    if (autoB8C18C1B_val == true) {
+        autoD684D084_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoD684D084_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoB8C18C1B_val == false) {
+        autoE1AF4E33_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoE1AF4E33_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationRescue (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationRescue";
+
+    // Automatic Variable Declarations
+    bool auto831E7C4D_val;
+    playergroup auto1F4970EB_g;
+    playergroup auto5B2B6E2B_g;
+
+    // Variable Initialization
+
+    // Implementation
+    auto831E7C4D_val = lp_toggle;
+    if (auto831E7C4D_val == true) {
+        auto1F4970EB_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto1F4970EB_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto831E7C4D_val == false) {
+        auto5B2B6E2B_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto5B2B6E2B_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+trigger auto_lib16875C2F_gf_MutationShroud_Trigger = null;
+bool auto_lib16875C2F_gf_MutationShroud_lp_toggle;
+
+void lib16875C2F_gf_MutationShroud (bool lp_toggle) {
+    auto_lib16875C2F_gf_MutationShroud_lp_toggle = lp_toggle;
+
+    if (auto_lib16875C2F_gf_MutationShroud_Trigger == null) {
+        auto_lib16875C2F_gf_MutationShroud_Trigger = TriggerCreate("auto_lib16875C2F_gf_MutationShroud_TriggerFunc");
+    }
+
+    TriggerExecute(auto_lib16875C2F_gf_MutationShroud_Trigger, false, false);
+}
+
+bool auto_lib16875C2F_gf_MutationShroud_TriggerFunc (bool testConds, bool runActions) {
+    bool lp_toggle = auto_lib16875C2F_gf_MutationShroud_lp_toggle;
+
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationShroud";
+    revealer[16] lv_revealer;
+
+    // Automatic Variable Declarations
+    bool autoBF690EC5_val;
+    playergroup auto19D3A597_g;
+    playergroup auto9029D1FB_g;
+    playergroup auto92ECECDB_g;
+    int auto92ECECDB_var;
+    playergroup auto0C9013BE_g;
+    int auto0C9013BE_var;
+    playergroup auto6EE1AD78_g;
+    int auto6EE1AD78_var;
+
+    // Variable Initialization
+
+    // Implementation
+    autoBF690EC5_val = lp_toggle;
+    if (autoBF690EC5_val == true) {
+        auto19D3A597_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto19D3A597_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoBF690EC5_val == false) {
+        auto9029D1FB_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto9029D1FB_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+    auto92ECECDB_g = PlayerGroupAll();
+    auto92ECECDB_var = -1;
+    while (true) {
+        auto92ECECDB_var = PlayerGroupNextPlayer(auto92ECECDB_g, auto92ECECDB_var);
+        if (auto92ECECDB_var < 0) { break; }
+        VisRevealerCreate(auto92ECECDB_var, RegionEntireMap());
+        lv_revealer[auto92ECECDB_var] = VisRevealerLastCreated();
+    }
+    Wait(0.0, c_timeGame);
+    auto0C9013BE_g = PlayerGroupAll();
+    auto0C9013BE_var = -1;
+    while (true) {
+        auto0C9013BE_var = PlayerGroupNextPlayer(auto0C9013BE_g, auto0C9013BE_var);
+        if (auto0C9013BE_var < 0) { break; }
+        VisRevealerDestroy(lv_revealer[auto0C9013BE_var]);
+    }
+    Wait(0.125, c_timeGame);
+    auto6EE1AD78_g = PlayerGroupAll();
+    auto6EE1AD78_var = -1;
+    while (true) {
+        auto6EE1AD78_var = PlayerGroupNextPlayer(auto6EE1AD78_g, auto6EE1AD78_var);
+        if (auto6EE1AD78_var < 0) { break; }
+        VisExploreArea(auto6EE1AD78_var, RegionEntireMap(), false, false);
+    }
+    return true;
+}
+
+void lib16875C2F_gf_MutationExile (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationExile";
+
+    // Automatic Variable Declarations
+    bool auto218D3B51_val;
+    playergroup autoB5C002DF_g;
+    playergroup auto3605050C_g;
+
+    // Variable Initialization
+
+    // Implementation
+    auto218D3B51_val = lp_toggle;
+    if (auto218D3B51_val == true) {
+        autoB5C002DF_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoB5C002DF_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (auto218D3B51_val == false) {
+        auto3605050C_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto3605050C_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationExpansion (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationExpansion";
+
+    // Automatic Variable Declarations
+    bool autoD9C913B0_val;
+    playergroup auto1634309E_g;
+    playergroup autoC269D45B_g;
+
+    // Variable Initialization
+
+    // Implementation
+    autoD9C913B0_val = lp_toggle;
+    if (autoD9C913B0_val == true) {
+        auto1634309E_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto1634309E_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoD9C913B0_val == false) {
+        autoC269D45B_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(autoC269D45B_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationCovenant (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationCovenant";
+
+    // Automatic Variable Declarations
+    bool autoF180DFE0_val;
+    playergroup auto18617432_g;
+    playergroup auto89EEE71E_g;
+
+    // Variable Initialization
+
+    // Implementation
+    autoF180DFE0_val = lp_toggle;
+    if (autoF180DFE0_val == true) {
+        auto18617432_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto18617432_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoF180DFE0_val == false) {
+        auto89EEE71E_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto89EEE71E_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_MutationEquipment (bool lp_toggle) {
+    // Variable Declarations
+    int lv_player;
+    const string lv_upgrade = "MutationEquipment";
+
+    // Automatic Variable Declarations
+    bool autoE6FA6B3B_val;
+    playergroup auto2F39F564_g;
+    playergroup auto3EDDCF96_g;
+
+    // Variable Initialization
+
+    // Implementation
+    autoE6FA6B3B_val = lp_toggle;
+    if (autoE6FA6B3B_val == true) {
+        auto2F39F564_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto2F39F564_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 1);
+        }
+    }
+    else if (autoE6FA6B3B_val == false) {
+        auto3EDDCF96_g = PlayerGroupAll();
+        lv_player = -1;
+        while (true) {
+            lv_player = PlayerGroupNextPlayer(auto3EDDCF96_g, lv_player);
+            if (lv_player < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(lv_player, lv_upgrade, 0);
+        }
+    }
+    else {
+    }
+}
+
+void lib16875C2F_gf_ModeDuel () {
+    // Automatic Variable Declarations
+    // Implementation
+    lib16875C2F_gf_MutationSuperscan(true);
+}
+
+void lib16875C2F_gf_ModeTutorial () {
+    // Automatic Variable Declarations
+    playergroup autoA31D4827_g;
+    int autoA31D4827_var;
+
+    // Implementation
+    if ((PlayerGroupCount(PlayerGroupActive()) == 1)) {
+        libDDE92A83_gf_SetTutorialMode(true);
+        lib16875C2F_gf_MutationExpandedArmaments(true);
+        autoA31D4827_g = PlayerGroupAll();
+        autoA31D4827_var = -1;
+        while (true) {
+            autoA31D4827_var = PlayerGroupNextPlayer(autoA31D4827_g, autoA31D4827_var);
+            if (autoA31D4827_var < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(autoA31D4827_var, "GameModeTutorial", 1);
+            if ((PlayerType(autoA31D4827_var) != c_playerTypeUser)) {
+                CatalogFieldValueSet(c_gameCatalogAbil, "NeutralUpgradesAutocast", "InfoArray[" + IntToString(0) + "].Time", autoA31D4827_var, IntToString(0));
+                CatalogFieldValueSet(c_gameCatalogAbil, "NeutralUpgradesAutocast", "InfoArray[" + IntToString(1) + "].Time", autoA31D4827_var, IntToString(0));
+            }
+
+        }
+    }
+
+}
+
+void lib16875C2F_gf_ModeGear () {
+    // Automatic Variable Declarations
+    playergroup autoA8263677_g;
+    int autoA8263677_var;
+
+    // Implementation
+    lib16875C2F_gf_MutationEquipment(true);
+    autoA8263677_g = PlayerGroupAll();
+    autoA8263677_var = -1;
+    while (true) {
+        autoA8263677_var = PlayerGroupNextPlayer(autoA8263677_g, autoA8263677_var);
+        if (autoA8263677_var < 0) { break; }
+        libNtve_gf_SetUpgradeLevelForPlayer(autoA8263677_var, "GameModeGear", 1);
+        CatalogFieldValueSet(c_gameCatalogButton, "Mutation", "Icon", autoA8263677_var, ("Assets\\Textures\\btn-menu-gameplayhelp_orange.dds"));
+    }
+}
+
+void lib16875C2F_gf_ModeSwitch () {
+    // Automatic Variable Declarations
+    playergroup auto7B977787_g;
+    int auto7B977787_var;
+
+    // Implementation
+    lib16875C2F_gf_MutationCovenant(true);
+    auto7B977787_g = PlayerGroupAll();
+    auto7B977787_var = -1;
+    while (true) {
+        auto7B977787_var = PlayerGroupNextPlayer(auto7B977787_g, auto7B977787_var);
+        if (auto7B977787_var < 0) { break; }
+        libNtve_gf_SetUpgradeLevelForPlayer(auto7B977787_var, "GameModeSwitch", 1);
+        CatalogFieldValueSet(c_gameCatalogButton, "Mutation", "Icon", auto7B977787_var, ("Assets\\Textures\\btn-menu-gameplayhelp_silver.dds"));
+    }
+}
+
+void lib16875C2F_gf_ModeCommanders () {
+    // Automatic Variable Declarations
+    playergroup auto5E53B24C_g;
+    int auto5E53B24C_var;
+
+    // Implementation
+    lib16875C2F_gf_MutationCommanders(true);
+    auto5E53B24C_g = PlayerGroupAll();
+    auto5E53B24C_var = -1;
+    while (true) {
+        auto5E53B24C_var = PlayerGroupNextPlayer(auto5E53B24C_g, auto5E53B24C_var);
+        if (auto5E53B24C_var < 0) { break; }
+        libNtve_gf_SetUpgradeLevelForPlayer(auto5E53B24C_var, "GameModeCommanders", 1);
+        CatalogFieldValueSet(c_gameCatalogButton, "Mutation", "Icon", auto5E53B24C_var, ("Assets\\Textures\\btn-menu-gameplayhelp_coop.dds"));
+    }
+}
+
+void lib16875C2F_gf_ModeHeroicCommanders () {
+    // Automatic Variable Declarations
+    playergroup autoB4FFEF91_g;
+    int autoB4FFEF91_var;
+
+    // Implementation
+    lib16875C2F_gf_MutationCommanders(true);
+    lib16875C2F_gf_MutationExpansion(true);
+    lib16875C2F_gf_MutationSeasonal();
+    autoB4FFEF91_g = PlayerGroupAll();
+    autoB4FFEF91_var = -1;
+    while (true) {
+        autoB4FFEF91_var = PlayerGroupNextPlayer(autoB4FFEF91_g, autoB4FFEF91_var);
+        if (autoB4FFEF91_var < 0) { break; }
+        libNtve_gf_SetUpgradeLevelForPlayer(autoB4FFEF91_var, "GameModeHeroicCommanders", 1);
+        CatalogFieldValueSet(c_gameCatalogButton, "Mutation", "Icon", autoB4FFEF91_var, ("Assets\\Textures\\btn-menu-gameplayhelp_mutator.dds"));
+    }
+}
+
+void lib16875C2F_gf_ModeSabotage () {
+    // Automatic Variable Declarations
+    playergroup autoE24917E5_g;
+    int autoE24917E5_var;
+
+    // Implementation
+    lib16875C2F_gf_MutationExile(true);
+    lib16875C2F_gf_MutationRescue(true);
+    lib16875C2F_gf_MutationShroud(true);
+    libE1C8E1CC_gf_BanMenuSC2Multi(GameAttributePlayersForTeam(1), GameAttributePlayersForTeam(2));
+    autoE24917E5_g = PlayerGroupAll();
+    autoE24917E5_var = -1;
+    while (true) {
+        autoE24917E5_var = PlayerGroupNextPlayer(autoE24917E5_g, autoE24917E5_var);
+        if (autoE24917E5_var < 0) { break; }
+        libNtve_gf_SetUpgradeLevelForPlayer(autoE24917E5_var, "GameModeSabotage", 1);
+        CatalogFieldValueSet(c_gameCatalogButton, "Mutation", "Icon", autoE24917E5_var, ("Assets\\Textures\\btn-menu-gameplayhelp_purple.dds"));
+    }
+}
+
+int lib16875C2F_gf_GetWeekofYear (int lp_year, int lp_month, int lp_day, int lp_dayOffset) {
+    // Variable Declarations
+    string lv_startofYear;
+    string lv_current;
+    int lv_daysSinceStartofYear;
+    int lv_initialWeekday;
+    int lv_daysSinceInitialWeekday;
+    int lv_week;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_startofYear = (IntToString(lp_year) + ":01:01:00:00:00");
+    lv_current = (IntToString(lp_year) + ":" + IntToString(lp_month) + ":" + IntToString(lp_day) + ":00:00:00");
+    lv_daysSinceStartofYear = ((DateTimeToInt(StringToDateTime(lv_current)) - DateTimeToInt(StringToDateTime(lv_startofYear))) / 86400);
+    lv_initialWeekday = ((0 - GetDateTimeWeekday(StringToDateTime(lv_startofYear))) + lp_dayOffset);
+    lv_week = 1;
+
+    // Implementation
+    if ((GetDateTimeMonth(CurrentDateTimeGet()) >= 3) && (GetDateTimeYear(CurrentDateTimeGet()) == 2020)) {
+        lv_daysSinceStartofYear += 1;
+    }
+
+    lv_daysSinceInitialWeekday = (lv_daysSinceStartofYear - lv_initialWeekday);
+    while ((lv_daysSinceInitialWeekday >= 7)) {
+        lv_daysSinceInitialWeekday -= 7;
+        lv_week += 1;
+    }
+    if ((lv_week > 53)) {
+        return 1;
+    }
+    else {
+        return libNtve_gf_ArithmeticIntClamp(lv_week, 1, 53);
+    }
+}
+
+string lib16875C2F_gf_GetTimeuntilNextBrawl () {
+    // Variable Declarations
+    datetime lv_time;
+    int lv_day;
+    int lv_hour;
+    int lv_minute;
+    string lv_days;
+    string lv_hours;
+    string lv_minutes;
+    string lv_daysHoursConnector;
+    string lv_hoursMinutesConnector;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_time = CurrentDateTimeGet();
+    lv_day = (6 - (GetDateTimeWeekday(lv_time) + 2));
+    lv_hour = (23 - GetDateTimeHour(lv_time));
+    lv_minute = (60 - GetDateTimeMinute(lv_time));
+    lv_days = "";
+    lv_hours = "";
+    lv_minutes = "";
+    lv_daysHoursConnector = "";
+    lv_hoursMinutesConnector = "";
+
+    // Implementation
+    if ((lv_minute == 60)) {
+        lv_minute = 0;
+        lv_hour += 1;
+    }
+
+    if ((lv_hour == 24)) {
+        lv_hour = 0;
+        lv_day += 1;
+    }
+
+    if ((lv_day < 0)) {
+        lv_day += 7;
+    }
+
+    if ((lv_day >= 1)) {
+        if ((lv_day == 1)) {
+            lv_days = (IntToString(lv_day) + " " + "day" + "");
+        }
+        else {
+            lv_days = (IntToString(lv_day) + " " + "days" + "");
+        }
+    }
+
+    if ((lv_hour >= 1)) {
+        if ((lv_hour == 1)) {
+            lv_hours = (IntToString(lv_hour) + " " + "hour" + "");
+        }
+        else {
+            lv_hours = (IntToString(lv_hour) + " " + "hours" + "");
+        }
+    }
+
+    if ((lv_minute >= 1)) {
+        if ((lv_minute == 1)) {
+            lv_minutes = (IntToString(lv_minute) + " " + "minute" + "");
+        }
+        else {
+            lv_minutes = (IntToString(lv_minute) + " " + "minutes" + "");
+        }
+    }
+
+    if ((lv_day > 0) && (lv_hour > 0)) {
+        lv_daysHoursConnector = ", ";
+    }
+
+    if (((lv_day > 0) || (lv_hour > 0)) && (lv_minute > 0)) {
+        lv_hoursMinutesConnector = ", and ";
+    }
+
+    if ((lv_day > 0) && (lv_hour > 0) && (lv_minute == 0)) {
+        lv_daysHoursConnector = ", and ";
+    }
+
+    if (((libDDE92A83_gv_nextBrawlReady == true) || ((lv_day == 0) && (lv_hour == 0) && (lv_minute == 0)))) {
+        libDDE92A83_gv_nextBrawlReady = true;
+        return "0 minutes.";
+    }
+    else {
+        return (lv_days + lv_daysHoursConnector + lv_hours + lv_hoursMinutesConnector + lv_minutes);
+    }
+}
+
+trigger auto_lib16875C2F_gf_MutationAdd_Trigger = null;
+string auto_lib16875C2F_gf_MutationAdd_lp_button;
+
+void lib16875C2F_gf_MutationAdd (string lp_button) {
+    auto_lib16875C2F_gf_MutationAdd_lp_button = lp_button;
+
+    if (auto_lib16875C2F_gf_MutationAdd_Trigger == null) {
+        auto_lib16875C2F_gf_MutationAdd_Trigger = TriggerCreate("auto_lib16875C2F_gf_MutationAdd_TriggerFunc");
+    }
+
+    TriggerExecute(auto_lib16875C2F_gf_MutationAdd_Trigger, false, false);
+}
+
+bool auto_lib16875C2F_gf_MutationAdd_TriggerFunc (bool testConds, bool runActions) {
+    string lp_button = auto_lib16875C2F_gf_MutationAdd_lp_button;
+
+    // Variable Declarations
+    int lv_dialog;
+    int lv_border;
+    int lv_icon;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_dialog = c_invalidDialogId;
+    lv_border = c_invalidDialogControlId;
+    lv_icon = c_invalidDialogControlId;
+
+    // Implementation
+    DialogCreate(700, 300, c_anchorBottomRight, -10, (237 + (lib16875C2F_gv_mutationCurrent * 75)), true);
+    lv_dialog = DialogLastCreated();
+    DialogSetVisible(DialogLastCreated(), PlayerGroupAll(), true);
+    DialogSetImageVisible(DialogLastCreated(), false);
+    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 64, 64, c_anchorRight, 15, 0, StringToText(""), (CatalogFieldValueGet(c_gameCatalogButton, lp_button, "Icon", 0)), c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+    lv_icon = DialogControlLastCreated();
+    DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+    libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 71, 73, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_starlight_mutatorframe.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+    libNtve_gf_SetDialogItemEditorValue(DialogControlLastCreated(), (lp_button), PlayerGroupSingle(0));
+    lib16875C2F_gv_mutationButton[lib16875C2F_gv_mutationCurrent] = DialogControlLastCreated();
+    lv_border = DialogControlLastCreated();
+    lib16875C2F_gf_MutationTooltipUpdateModified(DialogControlLastCreated());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_icon, c_anchorCenter, 0, 0);
+    DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+    libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+    lib16875C2F_gv_mutationCurrent += 1;
+    TriggerEnable(lib16875C2F_gt_MutationUpdate, true);
+    Wait((IntToFixed(lib16875C2F_gv_mutationCurrent) * 0.5), c_timeReal);
+    DialogControlFadeTransparency(lv_border, PlayerGroupAll(), 1.0, 0.0);
+    DialogControlFadeTransparency(lv_icon, PlayerGroupAll(), 1.0, 0.0);
+    libNtve_gf_SetDialogItemAcceptMouse(lv_border, true, PlayerGroupAll());
+    return true;
+}
+
+void lib16875C2F_gf_MutationTooltipUpdateModified (int lp_tooltip) {
+    // Automatic Variable Declarations
+    // Implementation
+    libNtve_gf_SetDialogItemTooltip(lp_tooltip, (StringToText("<s val=\"StandardTooltipHeader\"></c>") + StringExternal(CatalogFieldValueGet(c_gameCatalogButton, (libNtve_gf_DialogItemEditValue(lp_tooltip, 0)), "Name", 0)) + StringToText("</s><n/><n/>") + StringExternal(CatalogFieldValueGet(c_gameCatalogButton, (libNtve_gf_DialogItemEditValue(lp_tooltip, 0)), "Tooltip", 0))), PlayerGroupAll());
+}
+
+void lib16875C2F_gf_MutationTooltipUpdateAll () {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    int auto8C9E15F4_ae;
+    const int auto8C9E15F4_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    auto8C9E15F4_ae = (lib16875C2F_gv_mutationCurrent - 1);
+    lv_i = 0;
+    for ( ; ( (auto8C9E15F4_ai >= 0 && lv_i <= auto8C9E15F4_ae) || (auto8C9E15F4_ai < 0 && lv_i >= auto8C9E15F4_ae) ) ; lv_i += auto8C9E15F4_ai ) {
+        lib16875C2F_gf_MutationTooltipUpdateModified(lib16875C2F_gv_mutationButton[lv_i]);
+    }
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Mutation Update
+//--------------------------------------------------------------------------------------------------
+bool lib16875C2F_gt_MutationUpdate_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib16875C2F_gf_MutationTooltipUpdateAll();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib16875C2F_gt_MutationUpdate_Init () {
+    lib16875C2F_gt_MutationUpdate = TriggerCreate("lib16875C2F_gt_MutationUpdate_Func");
+    TriggerEnable(lib16875C2F_gt_MutationUpdate, false);
+    TriggerAddEventTimePeriodic(lib16875C2F_gt_MutationUpdate, 60.0, c_timeReal);
+}
+
+void lib16875C2F_InitTriggers () {
+    lib16875C2F_gt_MutationUpdate_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib16875C2F_InitLib_completed = false;
+
+void lib16875C2F_InitLib () {
+    if (lib16875C2F_InitLib_completed) {
+        return;
+    }
+
+    lib16875C2F_InitLib_completed = true;
+
+    lib16875C2F_InitLibraries();
+    lib16875C2F_InitVariables();
+    lib16875C2F_InitTriggers();
+}
+
+include "LibDDE92A83"
+include "Lib7A9A9B22"
+include "Lib038F51B7"
+include "Lib7550A90B"
+include "LibE1C8E1CC"
+

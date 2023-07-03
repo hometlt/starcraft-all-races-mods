@@ -1,0 +1,741 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+include "Lib26F1E49B_h"
+include "Lib29554E00_h"
+include "LibCA960273_h"
+
+include "LibBBFED31C_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: End Game
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libBBFED31C_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+    lib26F1E49B_InitVariables();
+    lib29554E00_InitVariables();
+    libCA960273_InitVariables();
+}
+
+// Variable Initialization
+bool libBBFED31C_InitVariables_completed = false;
+
+void libBBFED31C_InitVariables () {
+    int init_i;
+
+    if (libBBFED31C_InitVariables_completed) {
+        return;
+    }
+
+    libBBFED31C_InitVariables_completed = true;
+
+    for (init_i = 0; init_i <= 1; init_i += 1) {
+        libBBFED31C_gv_editBox[init_i] = c_invalidDialogControlId;
+    }
+    libBBFED31C_gv_endGameDialog = c_invalidDialogId;
+    for (init_i = 0; init_i <= 13; init_i += 1) {
+        libBBFED31C_gv_endGameDialogItem[init_i] = c_invalidDialogControlId;
+    }
+    libBBFED31C_gv_closeButton = c_invalidDialogControlId;
+    libBBFED31C_gv_mainButton = c_invalidDialogControlId;
+    libBBFED31C_gv_defeatDialog = c_invalidDialogId;
+    libBBFED31C_gv_defeatDialogItem = c_invalidDialogControlId;
+    libBBFED31C_gv_victoryDialog = c_invalidDialogId;
+    libBBFED31C_gv_victoryDialogItem = c_invalidDialogControlId;
+    libBBFED31C_gv_usedEndGameDialog = PlayerGroupEmpty();
+    libBBFED31C_gv_endGameLinkA = "Discord.gg/2CEbwMf";
+    for (init_i = 0; init_i <= 16; init_i += 1) {
+        libBBFED31C_gv_victoryGlow[init_i] = c_invalidPortraitId;
+    }
+    libBBFED31C_gv_victoryGlowMain = c_invalidDialogControlId;
+    libBBFED31C_gv_defeatGlowMain = c_invalidDialogControlId;
+    libBBFED31C_gv_winners = PlayerGroupEmpty();
+    libBBFED31C_gv_left = PlayerGroupEmpty();
+    libBBFED31C_gv_endGameTimer = TimerCreate();
+    libBBFED31C_gv_color = Color(0,0,0);
+}
+
+// Functions
+void libBBFED31C_gf_DialogVictory (int lp_player) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    const int auto0770E078_ae = 4;
+    const int auto0770E078_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libBBFED31C_gv_endGameDialog == c_invalidDialogId)) {
+        lib26F1E49B_gf_DiscordDialogCreate();
+    }
+
+    libBBFED31C_gf_EndGameDialogForceOn();
+    if ((PlayerStatus(lp_player) == c_playerStatusActive) && (PlayerType(lp_player) == c_playerTypeUser)) {
+        PortraitCreate(0, 430, c_anchorCenter, 1600, 1600, "StarlightGlowYellow", "", "Stand", true, false);
+        libBBFED31C_gv_victoryGlow[lp_player] = PortraitLastCreated();
+        PortraitSetBorderVisible(PortraitLastCreated(), false);
+        PortraitSetBackgroundVisible(PortraitLastCreated(), false);
+        PortraitUseTransition(PortraitLastCreated(), false);
+        PortraitSetMouseTarget(PortraitLastCreated(), false);
+        PortraitSetVisible(PortraitLastCreated(), PlayerGroupAll(), false, false);
+        PortraitSetVisible(PortraitLastCreated(), PlayerGroupSingle(lp_player), true, false);
+        SoundPlay(SoundLink("UI_ObjectiveComplete", -1), PlayerGroupSingle(lp_player), 100.0, 0.0);
+        DialogSetVisible(libBBFED31C_gv_victoryDialog, PlayerGroupSingle(lp_player), true);
+        DialogControlFadeTransparency(libBBFED31C_gv_victoryDialogItem, PlayerGroupSingle(lp_player), 0.0, 100.0);
+        DialogControlFadeTransparency(libBBFED31C_gv_victoryDialogItem, PlayerGroupSingle(lp_player), 0.25, 0.0);
+        lv_i = 0;
+        for ( ; ( (auto0770E078_ai >= 0 && lv_i <= auto0770E078_ae) || (auto0770E078_ai < 0 && lv_i >= auto0770E078_ae) ) ; lv_i += auto0770E078_ai ) {
+            DialogControlCreate(libBBFED31C_gv_victoryDialog, c_triggerControlTypePortrait);
+            DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), false);
+            DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupSingle(lp_player), true);
+            DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupSingle(lp_player), c_anchorCenter, libBBFED31C_gv_victoryDialogItem, c_anchorCenter, 0, 0);
+            libNtve_gf_SetDialogItemRenderType(DialogControlLastCreated(), c_triggerRenderTypeLDR, PlayerGroupSingle(lp_player));
+            DialogControlSetSize(DialogControlLastCreated(), PlayerGroupSingle(lp_player), 600, 600);
+            libNtve_gf_SetDialogItemModel(DialogControlLastCreated(), "VictoryGlow", PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemAnimation(DialogControlLastCreated(), "Birth", PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemCamera(DialogControlLastCreated(), "Star2CameraMid03", PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemBorderVisible(DialogControlLastCreated(), false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemBackgroundVisible(DialogControlLastCreated(), false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemUseTransition(DialogControlLastCreated(), false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemAnimation(DialogControlLastCreated(), "Birth", PlayerGroupAll());
+            DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupSingle(lp_player), 1.5, 100.0);
+        }
+    }
+
+}
+
+void libBBFED31C_gf_DialogDefeat (int lp_player) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    const int autoB968B64B_ae = 4;
+    const int autoB968B64B_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libBBFED31C_gv_endGameDialog == c_invalidDialogId)) {
+        lib26F1E49B_gf_DiscordDialogCreate();
+    }
+
+    libBBFED31C_gf_EndGameDialogForceOn();
+    if ((PlayerStatus(lp_player) == c_playerStatusActive) && (PlayerType(lp_player) == c_playerTypeUser)) {
+        PortraitCreate(0, 430, c_anchorCenter, 1600, 1600, "StarlightGlowRed", "", "Stand", true, false);
+        libBBFED31C_gv_victoryGlow[lp_player] = PortraitLastCreated();
+        PortraitSetBorderVisible(PortraitLastCreated(), false);
+        PortraitSetBackgroundVisible(PortraitLastCreated(), false);
+        PortraitUseTransition(PortraitLastCreated(), false);
+        PortraitSetMouseTarget(PortraitLastCreated(), false);
+        PortraitSetVisible(PortraitLastCreated(), PlayerGroupAll(), false, false);
+        PortraitSetVisible(PortraitLastCreated(), PlayerGroupSingle(lp_player), true, false);
+        SoundPlay(SoundLink("UI_ObjectiveFailed", -1), PlayerGroupSingle(lp_player), 100.0, 0.0);
+        DialogSetVisible(libBBFED31C_gv_defeatDialog, PlayerGroupSingle(lp_player), true);
+        DialogControlFadeTransparency(libBBFED31C_gv_defeatDialogItem, PlayerGroupSingle(lp_player), 0.0, 100.0);
+        DialogControlFadeTransparency(libBBFED31C_gv_defeatDialogItem, PlayerGroupSingle(lp_player), 0.25, 0.0);
+        lv_i = 0;
+        for ( ; ( (autoB968B64B_ai >= 0 && lv_i <= autoB968B64B_ae) || (autoB968B64B_ai < 0 && lv_i >= autoB968B64B_ae) ) ; lv_i += autoB968B64B_ai ) {
+            DialogControlCreate(libBBFED31C_gv_defeatDialog, c_triggerControlTypePortrait);
+            DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), false);
+            DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupSingle(lp_player), true);
+            DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupSingle(lp_player), c_anchorCenter, libBBFED31C_gv_defeatDialogItem, c_anchorCenter, 0, 0);
+            libNtve_gf_SetDialogItemRenderType(DialogControlLastCreated(), c_triggerRenderTypeLDR, PlayerGroupSingle(lp_player));
+            DialogControlSetSize(DialogControlLastCreated(), PlayerGroupSingle(lp_player), 600, 600);
+            libNtve_gf_SetDialogItemModel(DialogControlLastCreated(), "VictoryGlow", PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemAnimation(DialogControlLastCreated(), "Birth", PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemCamera(DialogControlLastCreated(), "Star2CameraMid03", PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemBorderVisible(DialogControlLastCreated(), false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemBackgroundVisible(DialogControlLastCreated(), false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemUseTransition(DialogControlLastCreated(), false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemAnimation(DialogControlLastCreated(), "Birth", PlayerGroupAll());
+            DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupSingle(lp_player), 1.5, 100.0);
+        }
+    }
+
+}
+
+trigger auto_libBBFED31C_gf_EndGameUnitPause_Trigger = null;
+
+void libBBFED31C_gf_EndGameUnitPause () {
+    if (auto_libBBFED31C_gf_EndGameUnitPause_Trigger == null) {
+        auto_libBBFED31C_gf_EndGameUnitPause_Trigger = TriggerCreate("auto_libBBFED31C_gf_EndGameUnitPause_TriggerFunc");
+    }
+
+    TriggerExecute(auto_libBBFED31C_gf_EndGameUnitPause_Trigger, false, false);
+}
+
+bool auto_libBBFED31C_gf_EndGameUnitPause_TriggerFunc (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+    fixed lv_delay;
+    fixed lv_timescale;
+
+    // Automatic Variable Declarations
+    unitgroup autoA82DBD47_g;
+    int autoA82DBD47_u;
+    unit autoA82DBD47_var;
+    const int autoA440D76C_ae = 20;
+    const int autoA440D76C_ai = 1;
+    unitgroup auto465FA374_g;
+    int auto465FA374_u;
+    unit auto465FA374_var;
+
+    // Variable Initialization
+    lv_delay = 0.25;
+    lv_timescale = 1.0;
+
+    // Implementation
+    autoA82DBD47_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterHidden - 32))), 0);
+    autoA82DBD47_u = UnitGroupCount(autoA82DBD47_g, c_unitCountAll);
+    for (;; autoA82DBD47_u -= 1) {
+        autoA82DBD47_var = UnitGroupUnitFromEnd(autoA82DBD47_g, autoA82DBD47_u);
+        if (autoA82DBD47_var == null) { break; }
+        libNtve_gf_MakeUnitUncommandable(autoA82DBD47_var, true);
+    }
+    lv_i = 1;
+    for ( ; ( (autoA440D76C_ai >= 0 && lv_i <= autoA440D76C_ae) || (autoA440D76C_ai < 0 && lv_i >= autoA440D76C_ae) ) ; lv_i += autoA440D76C_ai ) {
+        Wait(lv_delay, c_timeGame);
+        lv_timescale -= 0.025;
+        GameSetGlobalTimeScale(libNtve_gf_ArithmeticRealClamp(lv_timescale, 0.5, 1.0));
+    }
+    auto465FA374_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    auto465FA374_u = UnitGroupCount(auto465FA374_g, c_unitCountAll);
+    for (;; auto465FA374_u -= 1) {
+        auto465FA374_var = UnitGroupUnitFromEnd(auto465FA374_g, auto465FA374_u);
+        if (auto465FA374_var == null) { break; }
+        libNtve_gf_PauseUnit(auto465FA374_var, true);
+        libNtve_gf_SendActorMessageToUnit(auto465FA374_var, "AnimSetPausedAll");
+    }
+    return true;
+}
+
+trigger auto_libBBFED31C_gf_EndGameDialogForceOn_Trigger = null;
+
+void libBBFED31C_gf_EndGameDialogForceOn () {
+    if (auto_libBBFED31C_gf_EndGameDialogForceOn_Trigger == null) {
+        auto_libBBFED31C_gf_EndGameDialogForceOn_Trigger = TriggerCreate("auto_libBBFED31C_gf_EndGameDialogForceOn_TriggerFunc");
+    }
+
+    TriggerExecute(auto_libBBFED31C_gf_EndGameDialogForceOn_Trigger, false, false);
+}
+
+bool auto_libBBFED31C_gf_EndGameDialogForceOn_TriggerFunc (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    playergroup auto505FF93A_g;
+    int auto505FF93A_var;
+    const int autoF48F2F6E_ae = 13;
+    const int autoF48F2F6E_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libBBFED31C_gv_endGameDialog == c_invalidDialogId)) {
+        lib26F1E49B_gf_DiscordDialogCreate();
+    }
+
+    if ((libBBFED31C_gv_endGameDialogMoved == false)) {
+        libBBFED31C_gv_endGameDialogMoved = true;
+        DialogSetPosition(libBBFED31C_gv_endGameDialog, c_anchorBottom, 0, -180);
+        if ((lib26F1E49B_gv_showEndGameDiscordLink == true)) {
+            auto505FF93A_g = PlayerGroupActive();
+            auto505FF93A_var = -1;
+            while (true) {
+                auto505FF93A_var = PlayerGroupNextPlayer(auto505FF93A_g, auto505FF93A_var);
+                if (auto505FF93A_var < 0) { break; }
+                libBBFED31C_gf_EndGameShowHide(auto505FF93A_var, true, false);
+            }
+        }
+
+        lv_i = 0;
+        for ( ; ( (autoF48F2F6E_ai >= 0 && lv_i <= autoF48F2F6E_ae) || (autoF48F2F6E_ai < 0 && lv_i >= autoF48F2F6E_ae) ) ; lv_i += autoF48F2F6E_ai ) {
+            DialogControlFadeTransparency(libBBFED31C_gv_endGameDialogItem[lv_i], PlayerGroupAll(), 0.0, 100.0);
+            DialogControlFadeTransparency(libBBFED31C_gv_endGameDialogItem[lv_i], PlayerGroupAll(), 2.5, 0.0);
+        }
+        Wait(2.0, c_timeGame);
+    }
+
+    return true;
+}
+
+trigger auto_libBBFED31C_gf_EndGameGameOver_Trigger = null;
+point auto_libBBFED31C_gf_EndGameGameOver_lp_panCamera;
+bool auto_libBBFED31C_gf_EndGameGameOver_lp_stunAllUnits;
+playergroup auto_libBBFED31C_gf_EndGameGameOver_lp_winners;
+
+void libBBFED31C_gf_EndGameGameOver (point lp_panCamera, bool lp_stunAllUnits, playergroup lp_winners) {
+    auto_libBBFED31C_gf_EndGameGameOver_lp_panCamera = lp_panCamera;
+    auto_libBBFED31C_gf_EndGameGameOver_lp_stunAllUnits = lp_stunAllUnits;
+    auto_libBBFED31C_gf_EndGameGameOver_lp_winners = lp_winners;
+
+    if (auto_libBBFED31C_gf_EndGameGameOver_Trigger == null) {
+        auto_libBBFED31C_gf_EndGameGameOver_Trigger = TriggerCreate("auto_libBBFED31C_gf_EndGameGameOver_TriggerFunc");
+    }
+
+    TriggerExecute(auto_libBBFED31C_gf_EndGameGameOver_Trigger, false, false);
+}
+
+bool auto_libBBFED31C_gf_EndGameGameOver_TriggerFunc (bool testConds, bool runActions) {
+    point lp_panCamera = auto_libBBFED31C_gf_EndGameGameOver_lp_panCamera;
+    bool lp_stunAllUnits = auto_libBBFED31C_gf_EndGameGameOver_lp_stunAllUnits;
+    playergroup lp_winners = auto_libBBFED31C_gf_EndGameGameOver_lp_winners;
+
+    // Automatic Variable Declarations
+    playergroup auto3AA55711_g;
+    int auto3AA55711_var;
+    playergroup autoFE09E860_g;
+    int autoFE09E860_var;
+    playergroup auto902D48F0_g;
+    int auto902D48F0_var;
+    unitgroup auto61F14969_g;
+    int auto61F14969_u;
+    unit auto61F14969_var;
+
+    // Implementation
+    libDDE92A83_gv_gameOver = true;
+    TriggerSendEvent("GameOver");
+    lib26F1E49B_gf_DiscordDialogCreate();
+    GameSetMissionTimePaused(true);
+    GameSetPauseable(false);
+    UISetGameMenuItemVisible(PlayerGroupAll(), c_gameMenuDialogPauseButton, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeResourcePanel, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeAllianceButton, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeTeamResourceButton, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeAlertPanel, false);
+    UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeInventoryPanel, false);
+    libNtve_gf_AddPlayerGroupToPlayerGroup(lp_winners, libBBFED31C_gv_winners);
+    auto3AA55711_g = PlayerGroupAll();
+    auto3AA55711_var = -1;
+    while (true) {
+        auto3AA55711_var = PlayerGroupNextPlayer(auto3AA55711_g, auto3AA55711_var);
+        if (auto3AA55711_var < 0) { break; }
+        if ((lib29554E00_gf_PlayerIsAFK(auto3AA55711_var) == true)) {
+            PlayerGroupRemove(libBBFED31C_gv_winners, auto3AA55711_var);
+        }
+
+        if ((PlayerGroupHasPlayer(libBBFED31C_gv_usedEndGameDialog, auto3AA55711_var) == false) && (PlayerType(auto3AA55711_var) == c_playerTypeUser) && (PlayerGroupHasPlayer(lp_winners, auto3AA55711_var) == true) && (PlayerStatus(auto3AA55711_var) != c_playerStatusActive)) {
+            PlayerGroupAdd(libBBFED31C_gv_usedEndGameDialog, auto3AA55711_var);
+            GameOver(auto3AA55711_var, c_gameOverVictory, false, false);
+        }
+
+        if ((PlayerGroupHasPlayer(libBBFED31C_gv_usedEndGameDialog, auto3AA55711_var) == false) && (PlayerType(auto3AA55711_var) == c_playerTypeUser) && (PlayerGroupHasPlayer(lp_winners, auto3AA55711_var) == false) && (PlayerStatus(auto3AA55711_var) != c_playerStatusActive)) {
+            PlayerGroupAdd(libBBFED31C_gv_usedEndGameDialog, auto3AA55711_var);
+            GameOver(auto3AA55711_var, c_gameOverDefeat, false, false);
+        }
+
+    }
+    if ((lp_panCamera != null)) {
+        autoFE09E860_g = PlayerGroupAll();
+        autoFE09E860_var = -1;
+        while (true) {
+            autoFE09E860_var = PlayerGroupNextPlayer(autoFE09E860_g, autoFE09E860_var);
+            if (autoFE09E860_var < 0) { break; }
+            VisRevealArea(autoFE09E860_var, RegionCircle(lp_panCamera, 12.0), 0.0, false);
+            CameraPan(autoFE09E860_var, PointWithOffset(lp_panCamera, 0.0, -1.63), 1.0, -1, 10.0, false);
+        }
+    }
+
+    if ((lp_panCamera != null)) {
+        auto902D48F0_g = PlayerGroupAll();
+        auto902D48F0_var = -1;
+        while (true) {
+            auto902D48F0_var = PlayerGroupNextPlayer(auto902D48F0_g, auto902D48F0_var);
+            if (auto902D48F0_var < 0) { break; }
+            VisRevealArea(auto902D48F0_var, RegionCircle(lp_panCamera, 12.0), 0.0, false);
+            CameraPan(auto902D48F0_var, PointWithOffset(lp_panCamera, 0.0, -1.63), 1.0, -1, 10.0, false);
+        }
+    }
+
+    if ((lp_stunAllUnits == true)) {
+        auto61F14969_g = UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto61F14969_u = UnitGroupCount(auto61F14969_g, c_unitCountAll);
+        for (;; auto61F14969_u -= 1) {
+            auto61F14969_var = UnitGroupUnitFromEnd(auto61F14969_g, auto61F14969_u);
+            if (auto61F14969_var == null) { break; }
+            UnitSetState(auto61F14969_var, c_unitStateStunned, true);
+        }
+    }
+
+    return true;
+}
+
+void libBBFED31C_gf_EndGameShowHide (int lp_player, bool lp_toggle, bool lp_sound) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((libBBFED31C_gv_created == true)) {
+        if ((lp_sound == true) && (lp_toggle == true) && (DialogIsVisible(libBBFED31C_gv_endGameDialog, lp_player) == false)) {
+            SoundPlayForPlayer(SoundLink("Silent", -1), c_maxPlayers, PlayerGroupSingle(lp_player), 100.0, 0.0);
+        }
+
+        if ((lp_toggle == true) && (libBBFED31C_gv_endGameDialogMoved == true)) {
+            UISetFrameVisible(PlayerGroupSingle(lp_player), c_syncFrameTypeInfoPanel, false);
+        }
+
+        if ((lp_toggle == false) && (libBBFED31C_gv_endGameDialogMoved == true)) {
+            UISetFrameVisible(PlayerGroupSingle(lp_player), c_syncFrameTypeInfoPanel, true);
+        }
+
+        libNtve_gf_SetDialogItemEditorValue(libBBFED31C_gv_endGameDialogItem[4], libBBFED31C_gv_endGameLinkA, PlayerGroupAll());
+        DialogSetVisible(libBBFED31C_gv_endGameDialog, PlayerGroupSingle(lp_player), lp_toggle);
+        if ((lp_toggle == true) && (libDDE92A83_gf_PlayerIsMuted(lp_player) == true)) {
+            DialogSetVisible(libBBFED31C_gv_endGameDialog, PlayerGroupSingle(lp_player), false);
+        }
+
+    }
+
+}
+
+void libBBFED31C_gf_VictoryDialog () {
+    // Automatic Variable Declarations
+    // Implementation
+    DialogCreate(600, 600, c_anchorBottom, 0, -115, true);
+    DialogSetImageVisible(DialogLastCreated(), false);
+    libBBFED31C_gv_victoryDialog = DialogLastCreated();
+    DialogControlCreate(libBBFED31C_gv_victoryDialog, c_triggerControlTypePortrait);
+    libBBFED31C_gv_victoryGlowMain = DialogControlLastCreated();
+    DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), false);
+    DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), true);
+    libNtve_gf_SetDialogItemRenderType(DialogControlLastCreated(), c_triggerRenderTypeLDR, PlayerGroupAll());
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 600, 600);
+    libNtve_gf_SetDialogItemModel(DialogControlLastCreated(), "VictoryGlow", PlayerGroupAll());
+    libNtve_gf_SetDialogItemAnimation(DialogControlLastCreated(), "Birth", PlayerGroupAll());
+    libNtve_gf_SetDialogItemBorderVisible(DialogControlLastCreated(), false, PlayerGroupAll());
+    libNtve_gf_SetDialogItemBackgroundVisible(DialogControlLastCreated(), false, PlayerGroupAll());
+    libNtve_gf_SetDialogItemUseTransition(DialogControlLastCreated(), false, PlayerGroupAll());
+    libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+    libNtve_gf_SetDialogItemTransitionModel(DialogControlLastCreated(), "Invisible", PlayerGroupAll());
+    libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 260, 70, c_anchorCenter, 0, 0, StringToText(""), (StringExternal("Param/Value/lib_BBFED31C_1E2F4264") + StringExternal("UI/Text/Victory")), "");
+    libBBFED31C_gv_victoryDialogItem = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_void_storybutton_gold_normaloverpressedover.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_void_storybutton_gold_normalpressed.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeEndCap, PlayerGroupAll());
+}
+
+void libBBFED31C_gf_DefeatDialog () {
+    // Automatic Variable Declarations
+    // Implementation
+    DialogCreate(600, 600, c_anchorBottom, 0, -115, true);
+    DialogSetImageVisible(DialogLastCreated(), false);
+    libBBFED31C_gv_defeatDialog = DialogLastCreated();
+    DialogControlCreate(libBBFED31C_gv_defeatDialog, c_triggerControlTypePortrait);
+    libBBFED31C_gv_defeatGlowMain = DialogControlLastCreated();
+    DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), false);
+    DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), true);
+    libNtve_gf_SetDialogItemRenderType(DialogControlLastCreated(), c_triggerRenderTypeLDR, PlayerGroupAll());
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 600, 600);
+    libNtve_gf_SetDialogItemModel(DialogControlLastCreated(), "VictoryGlow", PlayerGroupAll());
+    libNtve_gf_SetDialogItemAnimation(DialogControlLastCreated(), "Birth", PlayerGroupAll());
+    libNtve_gf_SetDialogItemBorderVisible(DialogControlLastCreated(), false, PlayerGroupAll());
+    libNtve_gf_SetDialogItemBackgroundVisible(DialogControlLastCreated(), false, PlayerGroupAll());
+    libNtve_gf_SetDialogItemUseTransition(DialogControlLastCreated(), false, PlayerGroupAll());
+    libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+    libNtve_gf_SetDialogItemTransitionModel(DialogControlLastCreated(), "Invisible", PlayerGroupAll());
+    libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 260, 70, c_anchorCenter, 0, 0, StringToText(""), (StringExternal("Param/Value/lib_BBFED31C_1540C2A7") + StringExternal("UI/Text/Defeat")), "");
+    libBBFED31C_gv_defeatDialogItem = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_void_storybutton_red_normalpressed.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_void_storybutton_red_normaloverpressedover.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeEndCap, PlayerGroupAll());
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Create End Game Hotkey
+//--------------------------------------------------------------------------------------------------
+bool libBBFED31C_gt_CreateEndGameHotkey_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libBBFED31C_gv_hotkeyCreated == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libBBFED31C_gv_hotkeyCreated = true;
+    DialogCreate(1, 1, c_anchorBottomLeft, 0, 0, true);
+    DialogControlCreate(DialogLastCreated(), c_triggerControlTypeButton);
+    libNtve_gf_SetDialogItemHotkey(DialogControlLastCreated(), c_hotkeyHeroSelect5, PlayerGroupAll());
+    libBBFED31C_gv_mainButton = DialogControlLastCreated();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libBBFED31C_gt_CreateEndGameHotkey_Init () {
+    libBBFED31C_gt_CreateEndGameHotkey = TriggerCreate("libBBFED31C_gt_CreateEndGameHotkey_Func");
+    TriggerAddEventMapInit(libBBFED31C_gt_CreateEndGameHotkey);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: End Game Dialog Refresh
+//--------------------------------------------------------------------------------------------------
+bool libBBFED31C_gt_EndGameDialogRefresh_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetDialogItemEditorValue(libBBFED31C_gv_editBox[0], libBBFED31C_gv_endGameLinkA, PlayerGroupAll());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libBBFED31C_gt_EndGameDialogRefresh_Init () {
+    libBBFED31C_gt_EndGameDialogRefresh = TriggerCreate("libBBFED31C_gt_EndGameDialogRefresh_Func");
+    TriggerEnable(libBBFED31C_gt_EndGameDialogRefresh, false);
+    TriggerAddEventTimePeriodic(libBBFED31C_gt_EndGameDialogRefresh, 0.5, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: End Game Force Close
+//--------------------------------------------------------------------------------------------------
+bool libBBFED31C_gt_EndGameForceClose_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto77B1A46A_g;
+    int auto77B1A46A_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto77B1A46A_g = PlayerGroupAll();
+    auto77B1A46A_var = -1;
+    while (true) {
+        auto77B1A46A_var = PlayerGroupNextPlayer(auto77B1A46A_g, auto77B1A46A_var);
+        if (auto77B1A46A_var < 0) { break; }
+        if ((PlayerGroupHasPlayer(libBBFED31C_gv_left, auto77B1A46A_var) == false)) {
+            if ((PlayerGroupHasPlayer(libBBFED31C_gv_winners, auto77B1A46A_var) == true)) {
+                GameOver(auto77B1A46A_var, c_gameOverVictory, false, false);
+            }
+            else {
+                GameOver(auto77B1A46A_var, c_gameOverDefeat, false, false);
+            }
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libBBFED31C_gt_EndGameForceClose_Init () {
+    libBBFED31C_gt_EndGameForceClose = TriggerCreate("libBBFED31C_gt_EndGameForceClose_Func");
+    TriggerEnable(libBBFED31C_gt_EndGameForceClose, false);
+    TriggerAddEventTimer(libBBFED31C_gt_EndGameForceClose, libBBFED31C_gv_endGameTimer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Victory Dialog Use
+//--------------------------------------------------------------------------------------------------
+bool libBBFED31C_gt_VictoryDialogUse_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupHasPlayer(libBBFED31C_gv_usedEndGameDialog, EventPlayer()) == false))) {
+            return false;
+        }
+
+        if (!((EventDialogControl() == libBBFED31C_gv_victoryDialogItem))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerGroupAdd(libBBFED31C_gv_usedEndGameDialog, EventPlayer());
+    DialogControlSetEnabled(libBBFED31C_gv_victoryDialogItem, PlayerGroupSingle(EventPlayer()), false);
+    libNtve_gf_SetDialogItemImage(libBBFED31C_gv_victoryDialogItem, "Assets\\Textures\\black.dds", PlayerGroupSingle(EventPlayer()));
+    libNtve_gf_SetDialogItemImage2(libBBFED31C_gv_victoryDialogItem, "Assets\\Textures\\black.dds", PlayerGroupSingle(EventPlayer()));
+    DialogControlFadeTransparency(libBBFED31C_gv_victoryDialogItem, PlayerGroupSingle(EventPlayer()), 0.125, 100.0);
+    libNtve_gf_SetDialogItemAnimation(libBBFED31C_gv_victoryGlowMain, "Death", PlayerGroupSingle(EventPlayer()));
+    DialogControlFadeTransparency(libBBFED31C_gv_victoryGlowMain, PlayerGroupSingle(EventPlayer()), 1.5, 100.0);
+    libNtve_gf_PortraitSetAnim(libBBFED31C_gv_victoryGlow[EventPlayer()], "Death", "TriggerPortraitAnim", c_animFlagPlayForever | c_animFlagNonLooping, c_animTimeDefault);
+    GameOver(EventPlayer(), c_gameOverVictory, false, true);
+    SoundPlayForPlayer(SoundLink("UI_NovaUT_EquipClick", -1), c_maxPlayers, PlayerGroupSingle(EventPlayer()), 100.0, 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libBBFED31C_gt_VictoryDialogUse_Init () {
+    libBBFED31C_gt_VictoryDialogUse = TriggerCreate("libBBFED31C_gt_VictoryDialogUse_Func");
+    TriggerAddEventDialogControl(libBBFED31C_gt_VictoryDialogUse, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Defeat Dialog Use
+//--------------------------------------------------------------------------------------------------
+bool libBBFED31C_gt_DefeatDialogUse_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((PlayerGroupHasPlayer(libBBFED31C_gv_usedEndGameDialog, EventPlayer()) == false))) {
+            return false;
+        }
+
+        if (!((EventDialogControl() == libBBFED31C_gv_defeatDialogItem))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerGroupAdd(libBBFED31C_gv_usedEndGameDialog, EventPlayer());
+    DialogControlSetEnabled(libBBFED31C_gv_defeatDialogItem, PlayerGroupSingle(EventPlayer()), false);
+    libNtve_gf_SetDialogItemImage(libBBFED31C_gv_defeatDialogItem, "Assets\\Textures\\black.dds", PlayerGroupSingle(EventPlayer()));
+    libNtve_gf_SetDialogItemImage2(libBBFED31C_gv_defeatDialogItem, "Assets\\Textures\\black.dds", PlayerGroupSingle(EventPlayer()));
+    DialogControlFadeTransparency(libBBFED31C_gv_defeatDialogItem, PlayerGroupSingle(EventPlayer()), 0.125, 100.0);
+    libNtve_gf_SetDialogItemAnimation(libBBFED31C_gv_defeatGlowMain, "Death", PlayerGroupSingle(EventPlayer()));
+    DialogControlFadeTransparency(libBBFED31C_gv_defeatGlowMain, PlayerGroupSingle(EventPlayer()), 1.5, 100.0);
+    libNtve_gf_PortraitSetAnim(libBBFED31C_gv_victoryGlow[EventPlayer()], "Death", "TriggerPortraitAnim", c_animFlagPlayForever | c_animFlagNonLooping, c_animTimeDefault);
+    GameOver(EventPlayer(), c_gameOverDefeat, false, true);
+    SoundPlayForPlayer(SoundLink("UI_NovaUT_UnequipClick", -1), c_maxPlayers, PlayerGroupSingle(EventPlayer()), 100.0, 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libBBFED31C_gt_DefeatDialogUse_Init () {
+    libBBFED31C_gt_DefeatDialogUse = TriggerCreate("libBBFED31C_gt_DefeatDialogUse_Func");
+    TriggerAddEventDialogControl(libBBFED31C_gt_DefeatDialogUse, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Leaver
+//--------------------------------------------------------------------------------------------------
+bool libBBFED31C_gt_Leaver_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerGroupAdd(libBBFED31C_gv_left, EventPlayer());
+    if ((PlayerGroupHasPlayer(libBBFED31C_gv_usedEndGameDialog, EventPlayer()) == false)) {
+        if ((PlayerGroupHasPlayer(libBBFED31C_gv_winners, EventPlayer()) == true)) {
+            GameOver(EventPlayer(), c_gameOverVictory, false, true);
+        }
+        else {
+            GameOver(EventPlayer(), c_gameOverDefeat, false, true);
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libBBFED31C_gt_Leaver_Init () {
+    libBBFED31C_gt_Leaver = TriggerCreate("libBBFED31C_gt_Leaver_Func");
+    TriggerAddEventPlayerLeft(libBBFED31C_gt_Leaver, c_playerAny, c_gameResultUndecided);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Open
+//--------------------------------------------------------------------------------------------------
+bool libBBFED31C_gt_Open_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((EventDialogControl() == libBBFED31C_gv_mainButton))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((libBBFED31C_gv_created == false)) {
+        lib26F1E49B_gf_DiscordDialogCreate();
+    }
+
+    if ((DialogIsVisible(libBBFED31C_gv_endGameDialog, EventPlayer()) == true)) {
+        libBBFED31C_gf_EndGameShowHide(EventPlayer(), false, true);
+    }
+    else {
+        libBBFED31C_gf_EndGameShowHide(EventPlayer(), true, true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libBBFED31C_gt_Open_Init () {
+    libBBFED31C_gt_Open = TriggerCreate("libBBFED31C_gt_Open_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Close
+//--------------------------------------------------------------------------------------------------
+bool libBBFED31C_gt_Close_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((EventDialogControl() == libBBFED31C_gv_closeButton))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libBBFED31C_gf_EndGameShowHide(EventPlayer(), false, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libBBFED31C_gt_Close_Init () {
+    libBBFED31C_gt_Close = TriggerCreate("libBBFED31C_gt_Close_Func");
+    TriggerAddEventDialogControl(libBBFED31C_gt_Close, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+void libBBFED31C_InitTriggers () {
+    libBBFED31C_gt_CreateEndGameHotkey_Init();
+    libBBFED31C_gt_EndGameDialogRefresh_Init();
+    libBBFED31C_gt_EndGameForceClose_Init();
+    libBBFED31C_gt_VictoryDialogUse_Init();
+    libBBFED31C_gt_DefeatDialogUse_Init();
+    libBBFED31C_gt_Leaver_Init();
+    libBBFED31C_gt_Open_Init();
+    libBBFED31C_gt_Close_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libBBFED31C_InitLib_completed = false;
+
+void libBBFED31C_InitLib () {
+    if (libBBFED31C_InitLib_completed) {
+        return;
+    }
+
+    libBBFED31C_InitLib_completed = true;
+
+    libBBFED31C_InitLibraries();
+    libBBFED31C_InitVariables();
+    libBBFED31C_InitTriggers();
+}
+
+include "LibDDE92A83"
+include "Lib26F1E49B"
+include "Lib29554E00"
+include "LibCA960273"
+
