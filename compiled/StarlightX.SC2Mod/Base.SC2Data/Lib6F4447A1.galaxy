@@ -192,6 +192,7 @@ void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
     int auto1FBA976C_buttons;
     int auto1FBA976C_j;
     string auto1FBA976C_type;
+    string auto1FBA976C_s;
     abilcmd auto1FBA976C_a;
 
     // Variable Initialization
@@ -206,8 +207,14 @@ void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
             auto1FBA976C_j = 1;
             for ( ; auto1FBA976C_j <= auto1FBA976C_buttons; auto1FBA976C_j += 1 ) {
                 auto1FBA976C_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].Type", c_playerAny);
-                auto1FBA976C_a  = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny));
+                auto1FBA976C_s = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny);
+
+                auto1FBA976C_a  = StringToAbilCmd(auto1FBA976C_s);
+
                 if ((auto1FBA976C_a != null) && (auto1FBA976C_type == "AbilCmd")) {
+                    if ((CatalogEntryIsValid(c_gameCatalogAbil, AbilityCommandGetAbility(auto1FBA976C_a)) == false)) {
+                        continue;
+                    }
                     lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto1FBA976C_a)), "ProducedUnitArray[0]", c_playerAny));
                     if ((lv_unit != "")) {
                         UnitCreate(1, lv_unit, c_unitCreateIgnorePlacement, lp_palyer, RegionRandomPoint(RegionCircle(PointWithOffset(UnitGetPosition(UnitGroupUnit(UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreas(), lp_palyer, 0), 1)), lv_distance, (0.0 - lv_distance)), 5.0)), 225.0);
@@ -216,20 +223,20 @@ void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
                     }
                 }
             }
-            auto1FBA976C_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons", c_playerAny) - 1);
-            auto1FBA976C_j = 31;
-            for ( ; auto1FBA976C_j <= auto1FBA976C_buttons && auto1FBA976C_j <= 34; auto1FBA976C_j += 1 ) {
-                auto1FBA976C_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].Type", c_playerAny);
-                auto1FBA976C_a  = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny));
-                if ((auto1FBA976C_a != null) && (auto1FBA976C_type == "AbilCmd")) {
-                    lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto1FBA976C_a)), "ProducedUnitArray[0]", c_playerAny));
-                    if ((lv_unit != "")) {
-                        UnitCreate(1, lv_unit, c_unitCreateIgnorePlacement, lp_palyer, RegionRandomPoint(RegionCircle(PointWithOffset(UnitGetPosition(UnitGroupUnit(UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreas(), lp_palyer, 0), 1)), lv_distance, (0.0 - lv_distance)), 5.0)), 225.0);
+            //auto1FBA976C_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons", c_playerAny) - 1);
+            //auto1FBA976C_j = 31;
+            //for ( ; auto1FBA976C_j <= auto1FBA976C_buttons && auto1FBA976C_j <= 34; auto1FBA976C_j += 1 ) {
+                //    auto1FBA976C_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].Type", c_playerAny);
+                //    auto1FBA976C_a  = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny));
+                //    if ((auto1FBA976C_a != null) && (auto1FBA976C_type == "AbilCmd")) {
+                    //        lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto1FBA976C_a)), "ProducedUnitArray[0]", c_playerAny));
+                    //        if ((lv_unit != "")) {
+                        //            UnitCreate(1, lv_unit, c_unitCreateIgnorePlacement, lp_palyer, RegionRandomPoint(RegionCircle(PointWithOffset(UnitGetPosition(UnitGroupUnit(UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreas(), lp_palyer, 0), 1)), lv_distance, (0.0 - lv_distance)), 5.0)), 225.0);
                         UnitGroupAdd(lib7A9A9B22_gv_stagingAreaSpawners, UnitLastCreated());
                         UnitCreateEffectUnit(UnitLastCreated(), "UnitSpawner", UnitLastCreated());
-                    }
-                }
-            }
+                        //        }
+                    //    }
+                //}
         }
 
     }
@@ -311,27 +318,6 @@ void lib6F4447A1_gf_EmoticonLoadAll () {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
-// Trigger: UI Fix
-//--------------------------------------------------------------------------------------------------
-bool lib6F4447A1_gt_UIFix_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    DialogControlHookupStandard(c_triggerControlTypeImage, "UIContainer/FullscreenUpperContainer/MenuBar/MenuBarBackgroundImage");
-    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_battlebuddy_frame_terran.dds", PlayerGroupAll());
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void lib6F4447A1_gt_UIFix_Init () {
-    lib6F4447A1_gt_UIFix = TriggerCreate("lib6F4447A1_gt_UIFix_Func");
-    TriggerAddEventMapInit(lib6F4447A1_gt_UIFix);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: Test Mode
 //--------------------------------------------------------------------------------------------------
 bool lib6F4447A1_gt_TestMode_Func (bool testConds, bool runActions) {
@@ -354,7 +340,7 @@ bool lib6F4447A1_gt_TestMode_Func (bool testConds, bool runActions) {
     }
 
     libNtve_gf_SetUpgradeLevelForPlayer(1, "IncludeStandardRacesInCommanderSelect", 1);
-    PlayerSetRace(1, "ARC@Prot");
+    PlayerSetRace(1, "Keir");
     PlayerSetRace(2, "ARC@Terr");
     lib7550A90B_gf_TugofWarStartDefault(null, null);
     libNtve_gf_SetUpgradeLevelForPlayer(2, "SandboxModeOverpoweredBase", 1);
@@ -378,6 +364,27 @@ bool lib6F4447A1_gt_TestMode_Func (bool testConds, bool runActions) {
 void lib6F4447A1_gt_TestMode_Init () {
     lib6F4447A1_gt_TestMode = TriggerCreate("lib6F4447A1_gt_TestMode_Func");
     TriggerAddEventMapInit(lib6F4447A1_gt_TestMode);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: UI Fix
+//--------------------------------------------------------------------------------------------------
+bool lib6F4447A1_gt_UIFix_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogControlHookupStandard(c_triggerControlTypeImage, "UIContainer/FullscreenUpperContainer/MenuBar/MenuBarBackgroundImage");
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_battlebuddy_frame_terran.dds", PlayerGroupAll());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib6F4447A1_gt_UIFix_Init () {
+    lib6F4447A1_gt_UIFix = TriggerCreate("lib6F4447A1_gt_UIFix_Func");
+    TriggerAddEventMapInit(lib6F4447A1_gt_UIFix);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2051,8 +2058,8 @@ void lib6F4447A1_gt_SandboxModeChatEnemyZeratul_Init () {
 }
 
 void lib6F4447A1_InitTriggers () {
-    lib6F4447A1_gt_UIFix_Init();
     lib6F4447A1_gt_TestMode_Init();
+    lib6F4447A1_gt_UIFix_Init();
     lib6F4447A1_gt_NYIUnitDisabler_Init();
     lib6F4447A1_gt_ResetCommander_Init();
     lib6F4447A1_gt_KerriganImmobilizationWaveCooldownFix_Init();
