@@ -182,6 +182,7 @@ void lib6F4447A1_gf_TestStart (fixed lp_timescale, fixed lp_spawnPeriod, int lp_
 void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
     // Variable Declarations
     string lv_unit;
+    abilcmd lv_acmd;
     string lv_race;
     const fixed lv_distance = 3.0;
     int lv_i;
@@ -192,8 +193,6 @@ void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
     int auto1FBA976C_buttons;
     int auto1FBA976C_j;
     string auto1FBA976C_type;
-    string auto1FBA976C_s;
-    abilcmd auto1FBA976C_a;
 
     // Variable Initialization
 
@@ -207,15 +206,13 @@ void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
             auto1FBA976C_j = 1;
             for ( ; auto1FBA976C_j <= auto1FBA976C_buttons; auto1FBA976C_j += 1 ) {
                 auto1FBA976C_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].Type", c_playerAny);
-                auto1FBA976C_s = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny);
+                lv_acmd = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny));
 
-                auto1FBA976C_a  = StringToAbilCmd(auto1FBA976C_s);
-
-                if ((auto1FBA976C_a != null) && (auto1FBA976C_type == "AbilCmd")) {
-                    if ((CatalogEntryIsValid(c_gameCatalogAbil, AbilityCommandGetAbility(auto1FBA976C_a)) == false)) {
+                if ((lv_acmd != null) && (auto1FBA976C_type == "AbilCmd")) {
+                    if ((CatalogEntryIsValid(c_gameCatalogAbil, AbilityCommandGetAbility(lv_acmd)) == false)) {
                         continue;
                     }
-                    lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto1FBA976C_a)), "ProducedUnitArray[0]", c_playerAny));
+                    lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(lv_acmd)), "ProducedUnitArray[0]", c_playerAny));
                     if ((lv_unit != "")) {
                         UnitCreate(1, lv_unit, c_unitCreateIgnorePlacement, lp_palyer, RegionRandomPoint(RegionCircle(PointWithOffset(UnitGetPosition(UnitGroupUnit(UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreas(), lp_palyer, 0), 1)), lv_distance, (0.0 - lv_distance)), 5.0)), 225.0);
                         UnitGroupAdd(lib7A9A9B22_gv_stagingAreaSpawners, UnitLastCreated());
@@ -223,20 +220,6 @@ void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
                     }
                 }
             }
-            //auto1FBA976C_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons", c_playerAny) - 1);
-            //auto1FBA976C_j = 31;
-            //for ( ; auto1FBA976C_j <= auto1FBA976C_buttons && auto1FBA976C_j <= 34; auto1FBA976C_j += 1 ) {
-                //    auto1FBA976C_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].Type", c_playerAny);
-                //    auto1FBA976C_a  = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny));
-                //    if ((auto1FBA976C_a != null) && (auto1FBA976C_type == "AbilCmd")) {
-                    //        lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto1FBA976C_a)), "ProducedUnitArray[0]", c_playerAny));
-                    //        if ((lv_unit != "")) {
-                        //            UnitCreate(1, lv_unit, c_unitCreateIgnorePlacement, lp_palyer, RegionRandomPoint(RegionCircle(PointWithOffset(UnitGetPosition(UnitGroupUnit(UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreas(), lp_palyer, 0), 1)), lv_distance, (0.0 - lv_distance)), 5.0)), 225.0);
-                        UnitGroupAdd(lib7A9A9B22_gv_stagingAreaSpawners, UnitLastCreated());
-                        UnitCreateEffectUnit(UnitLastCreated(), "UnitSpawner", UnitLastCreated());
-                        //        }
-                    //    }
-                //}
         }
 
     }
@@ -345,18 +328,15 @@ bool lib6F4447A1_gt_TestMode_Func (bool testConds, bool runActions) {
     lib7550A90B_gf_TugofWarStartDefault(null, null);
     libNtve_gf_SetUpgradeLevelForPlayer(2, "SandboxModeOverpoweredBase", 1);
     lib16875C2F_gf_MutationAdd("ScionRaces");
-    lib16875C2F_gf_MutationAdd("PlayDefensive");
     lib16875C2F_gf_MutationAdd("Switch");
     lib16875C2F_gf_MutationCovenant(true);
     lib16875C2F_gf_MutationExpandedArmaments(true);
-    libNtve_gf_SetUpgradeLevelForPlayer(1, "StaticDefenses", 1);
-    libNtve_gf_SetUpgradeLevelForPlayer(2, "StaticDefenses", 1);
-    libNtve_gf_SetUpgradeLevelForPlayer(3, "StaticDefenses", 1);
-    libNtve_gf_SetUpgradeLevelForPlayer(4, "StaticDefenses", 1);
-    libNtve_gf_SetUpgradeLevelForPlayer(5, "StaticDefenses", 1);
-    libNtve_gf_SetUpgradeLevelForPlayer(6, "StaticDefenses", 1);
     libNtve_gf_SetUpgradeLevelForPlayer(1, "Tier2", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "Tier3", 1);
     lib64DC5B97_gf_AddVespene(1, 1000);
+    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 5000);
+    lib6F4447A1_gf_CreateUnitSet(1);
+    lib6F4447A1_gf_CreateUnitSet(2);
     return true;
 }
 

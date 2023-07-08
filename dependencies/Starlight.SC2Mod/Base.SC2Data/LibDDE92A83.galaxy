@@ -1,4 +1,5 @@
 include "TriggerLibs/NativeLib"
+include "LibARRA"
 include "Lib948F000A_h"
 include "Lib7A9A9B22_h"
 include "Lib29554E00_h"
@@ -15,6 +16,7 @@ include "LibDDE92A83_h"
 // External Library Initialization
 void libDDE92A83_InitLibraries () {
     libNtve_InitVariables();
+    libARRA_InitVariables();
     lib948F000A_InitVariables();
     lib7A9A9B22_InitVariables();
     lib29554E00_InitVariables();
@@ -2290,82 +2292,75 @@ void libDDE92A83_gf_PlayerAttributesUpdate (int lp_player) {
 
 void libDDE92A83_gf_AddAllUnitTypesModified (int lp_player) {
     // Variable Declarations
-    bool lv_addStandardRaces;
-    string lv_custom_worker;
-    string lv_unit;
+    string lv_dSBuilder;
+    string lv_placableUnit;
+    string lv_repositionAbility;
     string lv_race;
-    string lv_custom_type;
-    abilcmd lv_custom_abilcmd;
-    int lv_custom_button;
+    int lv_size;
+    int lv_player;
+    int lv_weight;
+    string lv_placeAbility;
+    int lv_dSBuilderAbilIndex;
 
     // Automatic Variable Declarations
     int autoBEBE62A6_i;
-    string auto66AC6BD2_builder;
-    int auto66AC6BD2_buttons;
-    int auto66AC6BD2_j;
-    string auto66AC6BD2_type;
-    string auto66AC6BD2_s;
-    abilcmd auto66AC6BD2_a;
+    int auto0A77B4D1_ae;
+    const int auto0A77B4D1_ai = 1;
+    string auto88218FB7_val;
+    int autoC085B990_ae;
+    int autoC085B990_var;
+    const int auto199B8134_ae = 6;
+    const int auto199B8134_ai = 1;
 
     // Variable Initialization
-    lv_addStandardRaces = true;
-    lv_custom_type = "";
 
     // Implementation
     autoBEBE62A6_i = 1;
     for ( ; autoBEBE62A6_i <= UserDataInstanceCount("CustomRaces"); autoBEBE62A6_i += 1 ) {
         lv_race = UserDataInstance("CustomRaces", autoBEBE62A6_i);
-        auto66AC6BD2_builder = UserDataGetGameLink("CustomRaces", lv_race , "Builder", 1);
-        auto66AC6BD2_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto66AC6BD2_builder, "CardLayouts[1].LayoutButtons", c_playerAny) - 1);
-        auto66AC6BD2_j = 1;
-        for ( ; auto66AC6BD2_j <= auto66AC6BD2_buttons; auto66AC6BD2_j += 1 ) {
-            auto66AC6BD2_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto66AC6BD2_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto66AC6BD2_j) + "].Type", c_playerAny);
-            auto66AC6BD2_s = CatalogFieldValueGet(c_gameCatalogUnit, auto66AC6BD2_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto66AC6BD2_j) + "].AbilCmd", c_playerAny);
-
-            auto66AC6BD2_a  = StringToAbilCmd(auto66AC6BD2_s);
-
-            if ((auto66AC6BD2_a != null) && (auto66AC6BD2_type == "AbilCmd")) {
-                if ((CatalogEntryIsValid(c_gameCatalogAbil, AbilityCommandGetAbility(auto66AC6BD2_a)) == false)) {
-                    continue;
-                }
-                lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto66AC6BD2_a)), "ProducedUnitArray[0]", c_playerAny));
-                if ((lv_unit != "")) {
-                    libDDE92A83_gf_AddUnitType(lv_unit, true);
+        lv_dSBuilder = UserDataGetGameLink("CustomRaces", lv_race, "Builder", 1);
+        auto0A77B4D1_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_dSBuilder, "AbilArray", c_playerAny) - 1);
+        lv_dSBuilderAbilIndex = 0;
+        for ( ; ( (auto0A77B4D1_ai >= 0 && lv_dSBuilderAbilIndex <= auto0A77B4D1_ae) || (auto0A77B4D1_ai < 0 && lv_dSBuilderAbilIndex >= auto0A77B4D1_ae) ) ; lv_dSBuilderAbilIndex += auto0A77B4D1_ai ) {
+            lv_placeAbility = (CatalogFieldValueGet(c_gameCatalogUnit, lv_dSBuilder, "AbilArray[" + IntToString(lv_dSBuilderAbilIndex) + "].Link", c_playerAny));
+            if ((AbilityClass(lv_placeAbility) == c_classIdCAbilEffectTarget) && ((CatalogFieldValueGet(c_gameCatalogAbil, lv_placeAbility, "Placeholder", c_playerAny)) != lv_placableUnit)) {
+                lv_placableUnit = (CatalogFieldValueGet(c_gameCatalogAbil, lv_placeAbility, "Placeholder", c_playerAny));
+                if ((lv_placableUnit != null)) {
+                    auto88218FB7_val = CatalogFieldValueGet(c_gameCatalogUnit, lv_placableUnit, "PlacementFootprint", c_playerAny);
+                    if (auto88218FB7_val == "1x1SpawnerPlacement") {
+                        lv_size = 1;
+                    }
+                    else if (auto88218FB7_val == "2x2SpawnerPlacement") {
+                        lv_size = 2;
+                    }
+                    else if (auto88218FB7_val == "3x3SpawnerPlacement") {
+                        lv_size = 3;
+                    }
+                    else if (auto88218FB7_val == "4x4SpawnerPlacement") {
+                        lv_size = 4;
+                    }
+                    else {
+                    }
+                    lv_weight = (lv_size * lv_size);
+                    lv_repositionAbility = null;
+                    autoC085B990_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_placableUnit, "AbilArray", c_playerAny) - 1);
+                    autoC085B990_var = 0;
+                    for ( ; autoC085B990_var <= autoC085B990_ae; autoC085B990_var += 1 ) {
+                        lv_repositionAbility = (CatalogFieldValueGet(c_gameCatalogUnit, lv_placableUnit, "AbilArray[" + IntToString(autoC085B990_var) + "].Link", c_playerAny));
+                        if ((AbilityClass(lv_repositionAbility) == c_classIdCAbilEffectTarget) && ((CatalogFieldValueGet(c_gameCatalogAbil, lv_repositionAbility, "Placeholder", c_playerAny)) == lv_placableUnit)) {
+                            break;
+                        }
+                    }
+                    lv_player = 1;
+                    for ( ; ( (auto199B8134_ai >= 0 && lv_player <= auto199B8134_ae) || (auto199B8134_ai < 0 && lv_player >= auto199B8134_ae) ) ; lv_player += auto199B8134_ai ) {
+                        CatalogFieldValueSet(c_gameCatalogAbil, lv_placeAbility, "Cost[" + IntToString(0) + "].Resource[" + IntToString(0) + "]", lv_player, CatalogFieldValueGet(c_gameCatalogUnit, lv_placableUnit, "CostResource[" + IntToString(0) + "]", lv_player));
+                        CatalogFieldValueSet(c_gameCatalogAbil, lv_repositionAbility, "Cost[" + IntToString(0) + "].Charge.CountUse", lv_player, IntToString(lv_weight));
+                    }
+                    libDDE92A83_gf_AddUnitType(lv_placableUnit);
                 }
             }
         }
-        //auto66AC6BD2_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto66AC6BD2_builder, "CardLayouts[0].LayoutButtons", c_playerAny) - 1);
-        //auto66AC6BD2_j = 31;
-        //for ( ; auto66AC6BD2_j <= auto66AC6BD2_buttons && auto66AC6BD2_j <= 34; auto66AC6BD2_j += 1 ) {
-            //    auto66AC6BD2_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto66AC6BD2_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto66AC6BD2_j) + "].Type", c_playerAny);
-            //    auto66AC6BD2_a  = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto66AC6BD2_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto66AC6BD2_j) + "].AbilCmd", c_playerAny));
-            //    if ((auto66AC6BD2_a != null) && (auto66AC6BD2_type == "AbilCmd")) {
-                //        lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto66AC6BD2_a)), "ProducedUnitArray[0]", c_playerAny));
-                //        if ((lv_unit != "")) {
-                    //            libDDE92A83_gf_AddUnitType(lv_unit, true);
-                    //        }
-                //    }
-            //}
     }
-    libDDE92A83_gf_AddUnitType("SpineCrawlerPermanent", false);
-    libDDE92A83_gf_AddUnitType("SporeCrawlerPermanent", false);
-    libDDE92A83_gf_AddUnitType("PhotonCannonPermanent", false);
-    libDDE92A83_gf_AddUnitType("PhotonCannonPermanentPurifier", false);
-    libDDE92A83_gf_AddUnitType("PhotonCannonPermanentTaldarim", false);
-    libDDE92A83_gf_AddUnitType("DehakaPrimalWurm", false);
-    libDDE92A83_gf_AddUnitType("DehakaGreaterPrimalWurm", false);
-    libDDE92A83_gf_AddUnitType("MissileTurretHorner", false);
-    libDDE92A83_gf_AddUnitType("MissileTurretNova", false);
-    libDDE92A83_gf_AddUnitType("MissileTurretPermanent", false);
-    libDDE92A83_gf_AddUnitType("MissileTurretStukov", false);
-    libDDE92A83_gf_AddUnitType("ShieldBatteryKarax", false);
-    libDDE92A83_gf_AddUnitType("KhaydarinMonolithKarax", false);
-    libDDE92A83_gf_AddUnitType("RailgunTurretPermanent", false);
-    libDDE92A83_gf_AddUnitType("BunkerPermanent", false);
-    libDDE92A83_gf_AddUnitType("SwannDrakkenLaserDrill", false);
-    libDDE92A83_gf_AddUnitType("DevastationTurret", false);
-    libDDE92A83_gf_AddUnitType("TychusAutoTurret", false);
-    libDDE92A83_gf_AddUnitType("BileLauncher", false);
 }
 
 void libDDE92A83_gf_CreateAllUnits () {
@@ -2396,51 +2391,11 @@ void libDDE92A83_gf_CreateAllUnits () {
     }
 }
 
-void libDDE92A83_gf_AddUnitType (string lp_unit, bool lp_custom) {
-    // Variable Declarations
-    int lv_size;
-    int lv_player;
-    int lv_weight;
-    string lv_placeAbility;
-    string lv_repositionAbility;
-
+void libDDE92A83_gf_AddUnitType (string lp_unit) {
     // Automatic Variable Declarations
-    string auto743FB7D8_val;
-    const int autoC40A4350_ae = 10;
-    const int autoC40A4350_ai = 1;
-
-    // Variable Initialization
-
     // Implementation
     libDDE92A83_gv_allUnitTypesCurrent += 1;
     libDDE92A83_gv_allUnitTypes[libDDE92A83_gv_allUnitTypesCurrent] = lp_unit;
-    if ((lp_custom == false)) {
-        return ;
-    }
-
-    lv_placeAbility = (lp_unit + "Place");
-    lv_repositionAbility = (lp_unit + "Reposition");
-    auto743FB7D8_val = CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "PlacementFootprint", c_playerAny);
-    if (auto743FB7D8_val == "1x1SpawnerPlacement") {
-        lv_size = 1;
-    }
-    else if (auto743FB7D8_val == "2x2SpawnerPlacement") {
-        lv_size = 2;
-    }
-    else if (auto743FB7D8_val == "3x3SpawnerPlacement") {
-        lv_size = 3;
-    }
-    else if (auto743FB7D8_val == "4x4SpawnerPlacement") {
-        lv_size = 4;
-    }
-    else {
-    }
-    lv_weight = (lv_size * lv_size);
-    lv_player = 1;
-    for ( ; ( (autoC40A4350_ai >= 0 && lv_player <= autoC40A4350_ae) || (autoC40A4350_ai < 0 && lv_player >= autoC40A4350_ae) ) ; lv_player += autoC40A4350_ai ) {
-        CatalogFieldValueSet(c_gameCatalogAbil, lv_placeAbility, "Cost[" + IntToString(0) + "].Resource[" + IntToString(0) + "]", lv_player, CatalogFieldValueGet(c_gameCatalogUnit, lp_unit, "CostResource[" + IntToString(0) + "]", lv_player));
-        CatalogFieldValueSet(c_gameCatalogAbil, lv_repositionAbility, "Cost[" + IntToString(0) + "].Charge.CountUse", lv_player, IntToString(lv_weight));
-    }
 }
 
 void libDDE92A83_gf_ListAllUnits () {
