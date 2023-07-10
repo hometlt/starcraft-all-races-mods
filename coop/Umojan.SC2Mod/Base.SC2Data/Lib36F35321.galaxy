@@ -1,4 +1,5 @@
 include "TriggerLibs/NativeLib"
+include "LibARRA"
 include "LibCOMI"
 
 include "Lib36F35321_h"
@@ -9,6 +10,7 @@ include "Lib36F35321_h"
 // External Library Initialization
 void lib36F35321_InitLibraries () {
     libNtve_InitVariables();
+    libARRA_InitVariables();
     libCOMI_InitVariables();
 }
 
@@ -362,6 +364,45 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
 void lib36F35321_gt_DUT_CommanderUmojanKerrigan_Init () {
     lib36F35321_gt_DUT_CommanderUmojanKerrigan = TriggerCreate("lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func");
     TriggerAddEventGeneric(lib36F35321_gt_DUT_CommanderUmojanKerrigan, libCOMI_gv_mISSIONINITIALIZED);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_KerriganCheat
+//--------------------------------------------------------------------------------------------------
+bool lib36F35321_gt_CM_KerriganCheat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto90666EE4_g;
+    int auto90666EE4_var;
+
+    // Conditions
+    if (testConds) {
+        if (!((libARRA_gf_UT_DevCommandsActive(libARRA_ge_UT_DevCommandTypes_Gamealtering, EventPlayer()) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/lib_36F35321_DA487F80"));
+    auto90666EE4_g = PlayerGroupAll();
+    auto90666EE4_var = -1;
+    while (true) {
+        auto90666EE4_var = PlayerGroupNextPlayer(auto90666EE4_g, auto90666EE4_var);
+        if (auto90666EE4_var < 0) { break; }
+        PlayerAddChargeUsed(auto90666EE4_var, "Abil/UmojanKerriganUpgrade", -99.0);
+        AchievementsDisable(auto90666EE4_var);
+    }
+    libARRA_gf_UT_Cheat();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib36F35321_gt_CM_KerriganCheat_Init () {
+    lib36F35321_gt_CM_KerriganCheat = TriggerCreate("lib36F35321_gt_CM_KerriganCheat_Func");
+    TriggerAddEventChatMessage(lib36F35321_gt_CM_KerriganCheat, c_playerAny, "Kerrigan Overwelming", false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -884,6 +925,7 @@ void lib36F35321_gt_CM_UmojanShadowteamNukeDeploy_Init () {
 
 void lib36F35321_InitTriggers () {
     lib36F35321_gt_DUT_CommanderUmojanKerrigan_Init();
+    lib36F35321_gt_CM_KerriganCheat_Init();
     lib36F35321_gt_CM_UmojanZergSupply_Init();
     lib36F35321_gt_CM_UmojanKerriganShadow_Init();
     lib36F35321_gt_CM_MasteryCMDKerriganArmyCostList_Init();
