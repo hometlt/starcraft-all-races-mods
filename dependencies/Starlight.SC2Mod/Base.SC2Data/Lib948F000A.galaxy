@@ -127,7 +127,7 @@ void lib948F000A_gf_WorkerSelectCreate () {
             libNtve_gf_SetUpgradeLevelForPlayer(autoD2E8C7D5_var, "WorkerSubmenuWorkerSelect", 1);
         }
         libDDE92A83_gf_DiscordMod();
-        lib948F000A_gf_CreateMainButton();
+        lib948F000A_gf_CreateMainButtonModified();
         TimerStart(lib948F000A_gv_recentlyCreated, 2.0, false, c_timeGame);
         TriggerEnable(lib948F000A_gt_UseDialogItem, true);
         TriggerEnable(lib948F000A_gt_MasteryBarLevelUp, true);
@@ -314,10 +314,10 @@ void lib948F000A_gf_WorkerSelectRefreshModified (unit lp_unit) {
     // Implementation
     UnitBehaviorRemoveCategory(lp_unit, c_unitBehaviorFlagTemporary);
     UnitBehaviorAdd(lp_unit, "WorkerSwapNoTransition", lp_unit, 1);
-    auto56C64072_ae = UserDataInstanceCount("CustomRaces");
+    auto56C64072_ae = UserDataInstanceCount("Races");
     auto56C64072_var = 1;
     for ( ; auto56C64072_var <= auto56C64072_ae; auto56C64072_var += 1 ) {
-        lv_custom_race = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto56C64072_var), "Race", 1);
+        lv_custom_race = UserDataGetGameLink("Races", UserDataInstance("Races", auto56C64072_var), "Race", 1);
         lv_custom_race_string = (lv_custom_race);
         if ((PlayerRace(UnitGetOwner(lp_unit)) == lv_custom_race)) {
             UnitBehaviorAdd(lp_unit, "WorkerBirth" + lv_custom_race_string + "Instant", lp_unit, 1);
@@ -387,7 +387,6 @@ void lib948F000A_gf_WorkerSelectShowHide (int lp_player, bool lp_toggle, bool lp
 
 void lib948F000A_gf_ReplaceWorker (unit lp_unit, string lp_unitType) {
     // Automatic Variable Declarations
-    string auto2FEB41D9_val;
     string auto87DAD247_val;
 
     // Implementation
@@ -404,27 +403,8 @@ void lib948F000A_gf_ReplaceWorker (unit lp_unit, string lp_unitType) {
         lib038F51B7_gf_AbilityControlForceClose(UnitGetOwner(lp_unit));
         lib948F000A_gf_WorkerSelectRefreshModified(libNtve_gf_LastReplacedUnit());
         PlayerScoreValueSetFromInt(UnitGetOwner(lp_unit), "WorkersTotalCount", (PlayerScoreValueGetAsInt(UnitGetOwner(lp_unit), "WorkersTotalCount") - 1));
-        auto2FEB41D9_val = PlayerRace(UnitGetOwner(libNtve_gf_LastReplacedUnit()));
-        if (auto2FEB41D9_val == "Terr") {
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-command-terran-buildstructure.dds"));
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "AlertIcon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-command-terran-buildstructure.dds"));
-        }
-        else if (auto2FEB41D9_val == "Zerg") {
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-ability-zerg-basicmutation.dds"));
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "AlertIcon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-ability-zerg-basicmutation.dds"));
-        }
-        else if (auto2FEB41D9_val == "Prot") {
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-command-protoss-buildstructure.dds"));
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "AlertIcon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-command-protoss-buildstructure.dds"));
-        }
-        else if (auto2FEB41D9_val == "Keir") {
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-command-protoss-buildstructure.dds"));
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "AlertIcon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-command-protoss-buildstructure.dds"));
-        }
-        else {
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-command-protoss-buildstructure.dds"));
-            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "AlertIcon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), ("Assets\\Textures\\btn-command-protoss-buildstructure.dds"));
-        }
+        CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), UserDataGetString("Races", libDDE92A83_gf_GetRaceUserData(PlayerRace(UnitGetOwner(libNtve_gf_LastReplacedUnit()))), "DecorationsContainerIcon", 1));
+        CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "AlertIcon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), UserDataGetString("Races", libDDE92A83_gf_GetRaceUserData(PlayerRace(UnitGetOwner(libNtve_gf_LastReplacedUnit()))), "DecorationsContainerIcon", 1));
         auto87DAD247_val = lp_unitType;
         if (auto87DAD247_val == "WorkerMengsk") {
             if ((TechTreeUpgradeCount(UnitGetOwner(libNtve_gf_LastReplacedUnit()), "MutationKitchenSink", c_techCountCompleteOnly) == 0)) {
@@ -455,12 +435,12 @@ void lib948F000A_gf_WorkerSelectValidateModified (int lp_player) {
 
     // Implementation
     if ((lib39886FE6_gf_MasteryBarPlayerLevel(lp_player) < (StringToInt(libNtve_gf_DialogItemEditValue(lib948F000A_gv_workerDialogItem[lp_player], lib948F000A_gv_editValueLevelRequirement)) - 1))) {
-        auto47AB232A_ae = UserDataInstanceCount("CustomRaces");
+        auto47AB232A_ae = UserDataInstanceCount("Races");
         auto47AB232A_var = 1;
         for ( ; auto47AB232A_var <= auto47AB232A_ae; auto47AB232A_var += 1 ) {
-            lv_custom_race = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto47AB232A_var), "Race", 1);
+            lv_custom_race = UserDataGetGameLink("Races", UserDataInstance("Races", auto47AB232A_var), "Race", 1);
             if ((PlayerRace(lp_player) == lv_custom_race)) {
-                lib948F000A_gf_ApplyViaBehavior(lp_player, (("Worker" + (UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto47AB232A_var), "Worker", 1)))), false);
+                lib948F000A_gf_ApplyViaBehavior(lp_player, (("Worker" + (UserDataGetGameLink("Races", UserDataInstance("Races", auto47AB232A_var), "Worker", 1)))), false);
             }
 
         }
@@ -626,7 +606,7 @@ void lib948F000A_gf_LevelFanfare (int lp_player, string lp_behavior) {
 
 }
 
-void lib948F000A_gf_CreateMainButton () {
+void lib948F000A_gf_CreateMainButtonModified () {
     // Variable Declarations
     int lv_iconBackground;
     const int lv_iconSize = 76;
@@ -641,10 +621,8 @@ void lib948F000A_gf_CreateMainButton () {
     string autoC8A293AD_val;
     playergroup autoDFB29E59_g;
     int autoDFB29E59_var;
-    string auto3F009C3E_val;
     playergroup auto7A807309_g;
     int auto7A807309_var;
-    string autoE43D18C8_val;
     playergroup autoFFC499A9_g;
     int autoFFC499A9_var;
     unitgroup autoA8AD9B70_g;
@@ -732,28 +710,7 @@ void lib948F000A_gf_CreateMainButton () {
     while (true) {
         autoDFB29E59_var = PlayerGroupNextPlayer(autoDFB29E59_g, autoDFB29E59_var);
         if (autoDFB29E59_var < 0) { break; }
-        auto3F009C3E_val = PlayerRace(autoDFB29E59_var);
-        if (auto3F009C3E_val == "Terr") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-terran-scv.dds", PlayerGroupSingle(autoDFB29E59_var));
-        }
-        else if (auto3F009C3E_val == "Zerg") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-zerg-drone.dds", PlayerGroupSingle(autoDFB29E59_var));
-        }
-        else if (auto3F009C3E_val == "Prot") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-protoss-probe.dds", PlayerGroupSingle(autoDFB29E59_var));
-        }
-        else if (auto3F009C3E_val == "Keir") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-keiron-converter.dds", PlayerGroupSingle(autoDFB29E59_var));
-        }
-        else if (auto3F009C3E_val == "Gen") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "assets\\textures\\btn-unit-genetron-acr.dds", PlayerGroupSingle(autoDFB29E59_var));
-        }
-        else if (auto3F009C3E_val == "Xayi") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "assets\\textures\\btn-unit-xayid-scavenger.dds", PlayerGroupSingle(autoDFB29E59_var));
-        }
-        else {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-protoss-probe.dds", PlayerGroupSingle(autoDFB29E59_var));
-        }
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), (CatalogFieldValueGet(c_gameCatalogActor, UserDataGetGameLink("Races", libDDE92A83_gf_GetRaceUserData(PlayerRace(autoDFB29E59_var)), "Worker", 1), "UnitIcon", c_playerAny)), PlayerGroupSingle(autoDFB29E59_var));
     }
     libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 620, PlayerGroupAll());
     libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(0,0,0), PlayerGroupAll());
@@ -767,28 +724,7 @@ void lib948F000A_gf_CreateMainButton () {
     while (true) {
         auto7A807309_var = PlayerGroupNextPlayer(auto7A807309_g, auto7A807309_var);
         if (auto7A807309_var < 0) { break; }
-        autoE43D18C8_val = PlayerRace(auto7A807309_var);
-        if (autoE43D18C8_val == "Terr") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-terran-scv.dds", PlayerGroupSingle(auto7A807309_var));
-        }
-        else if (autoE43D18C8_val == "Zerg") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-zerg-drone.dds", PlayerGroupSingle(auto7A807309_var));
-        }
-        else if (autoE43D18C8_val == "Prot") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-protoss-probe.dds", PlayerGroupSingle(auto7A807309_var));
-        }
-        else if (autoE43D18C8_val == "Keir") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-keiron-converter.dds", PlayerGroupSingle(auto7A807309_var));
-        }
-        else if (autoE43D18C8_val == "Gen") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "assets\\textures\\btn-unit-genetron-acr.dds", PlayerGroupSingle(auto7A807309_var));
-        }
-        else if (autoE43D18C8_val == "Xayi") {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "assets\\textures\\btn-unit-xayid-scavenger.dds", PlayerGroupSingle(auto7A807309_var));
-        }
-        else {
-            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\btn-unit-protoss-probe.dds", PlayerGroupSingle(auto7A807309_var));
-        }
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), (CatalogFieldValueGet(c_gameCatalogActor, UserDataGetGameLink("Races", libDDE92A83_gf_GetRaceUserData(PlayerRace(auto7A807309_var)), "Worker", 1), "UnitIcon", c_playerAny)), PlayerGroupSingle(auto7A807309_var));
     }
     DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_iconBackground, c_anchorCenter, 0, 0);
     libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 630, PlayerGroupAll());
@@ -1387,12 +1323,12 @@ bool auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_TriggerFunc (bool test
             lib948F000A_gf_ApplyViaInteger(lp_player, (libDBB0BE4A_gv_starlightLoadOutput[lv_i] - 1), true);
         }
         else {
-            autoA87C8F34_ae = UserDataInstanceCount("CustomRaces");
+            autoA87C8F34_ae = UserDataInstanceCount("Races");
             autoA87C8F34_var = 1;
             for ( ; autoA87C8F34_var <= autoA87C8F34_ae; autoA87C8F34_var += 1 ) {
-                lv_custom_race = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", autoA87C8F34_var), "Race", 1);
+                lv_custom_race = UserDataGetGameLink("Races", UserDataInstance("Races", autoA87C8F34_var), "Race", 1);
                 if ((PlayerRace(lp_player) == lv_custom_race)) {
-                    lib948F000A_gf_ApplyViaBehavior(lp_player, (("Worker" + (UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", autoA87C8F34_var), "Worker", 1)))), false);
+                    lib948F000A_gf_ApplyViaBehavior(lp_player, (("Worker" + (UserDataGetGameLink("Races", UserDataInstance("Races", autoA87C8F34_var), "Worker", 1)))), false);
                 }
 
             }

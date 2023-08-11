@@ -1,0 +1,100 @@
+
+
+static bool NoMutantLarva(unit hatchery) {
+    return UnitBehaviorCount(hatchery, "QueenSpawnLarvaHiddenStack") < 2;
+    // !UnitHasBehavior2(hatchery, "QueenSpawnLarvaTimer");
+}
+
+static order TRC_SpawnLarva(int player, unit queen) {
+    order ord;
+    unitgroup hatcheries;
+    unit random_hatch;
+
+    //  Only cast if idle.
+    if (UnitOrder(queen, 0) != null) {
+        return null;
+    }
+
+    ord = AICreateOrder(player, c_AB_SpawnMutantLarva, 0);
+    if (!UnitOrderIsValid(queen, ord)) {
+        return null;
+    }
+
+    //  Don't cast if we already own at least 64 larva
+    if (TechTreeUnitCount(player, c_ZU_Larva, c_techCountQueuedOrBetter) >= 64) {
+        return null;
+    }
+
+    hatcheries = AIFindUnits(player, c_ZB_Hatchery_Alias, UnitGetPosition(queen), 15, c_noMaxCount);
+
+    if (UnitGroupCount(hatcheries, c_unitCountAlive) == 0) {
+        return null;
+    }
+
+    random_hatch = UnitGroupRandomUnit(hatcheries, c_unitCountAlive);
+    OrderSetTargetUnit(ord, random_hatch);
+    if (!UnitOrderIsValid(queen, ord)) {
+        return null;
+    }
+
+    return ord;
+}
+
+void TRC_AIThink_Queen(int player, unit queen, unitgroup scan_group) {
+    order ord;
+    marker mark;
+    
+    string bully = AIGetBullyType(queen);
+    if (bully != null) {
+        ord = TRC_SpawnLarva(player, queen);
+        if (ord != null) {
+           AICast(queen, ord, c_noMarker, c_castHold);
+           return;
+        }
+    }
+
+    mark = AIMarker(queen, c_MK_Transfusion);
+    ord = Transfusion(player, queen, mark);
+    if (ord != null) {
+        AICast(queen, ord, mark, c_castHold);
+        return;
+    }
+
+    ord = CreepTumor(player, queen);
+    if (ord != null) {
+        AICast(queen, ord, c_noMarker, c_castRetreat);
+        return;
+    }
+}
+
+void TRC_AIThink_Ravager(int player, unit ravager, unitgroup scan_group) {
+    order ord;
+    unitgroup target_group;
+    int count;
+
+    if (AIEvalTacticalData(ravager, null)) {
+        return;
+    }
+
+    ord = AICreateOrder(player, "RavagerAbathurCorrosiveBile", 0);
+    if (!UnitOrderIsValid(ravager, ord)) {
+        return;
+    }
+
+    target_group = UnitGroupFilterPlane(scan_group, c_planeGround, 0);
+    count = UnitGroupCount(target_group, c_unitCountAll);
+    if (count == 0) {
+        return;
+    }
+
+    // try a random target first
+    OrderSetTargetUnit(ord, UnitGroupUnit(target_group, RandomInt(1, count)));
+    if (!UnitOrderIsValid(ravager, ord)) {
+        ord = AIUnitGroupGetValidOrder(target_group, ord, ravager, c_forwards);  
+    }
+    if (ord == null) {
+        return;
+    }
+
+    AICast(ravager, ord, c_noMarker, c_castHold);
+}

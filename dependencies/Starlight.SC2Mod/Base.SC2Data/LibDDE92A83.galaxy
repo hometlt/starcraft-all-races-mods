@@ -215,6 +215,22 @@ bool auto_libDDE92A83_gf_StarlightFullscreenBorder_TriggerFunc (bool testConds, 
     return true;
 }
 
+string libDDE92A83_gf_GetRaceUserData (string lp_race) {
+    // Automatic Variable Declarations
+    int autoD1A20CEE_ae;
+    int autoD1A20CEE_var;
+
+    // Implementation
+    autoD1A20CEE_ae = CatalogEntryCount(c_gameCatalogRace);
+    autoD1A20CEE_var = 1;
+    for ( ; autoD1A20CEE_var <= autoD1A20CEE_ae; autoD1A20CEE_var += 1 ) {
+        if ((UserDataGetGameLink("Races", UserDataInstance("Races", autoD1A20CEE_var), "Race", 1) == lp_race)) {
+            return UserDataInstance("Races", autoD1A20CEE_var);
+        }
+    }
+    return null;
+}
+
 playergroup libDDE92A83_gf_OriginalPlayers () {
     // Automatic Variable Declarations
     // Implementation
@@ -1089,10 +1105,10 @@ void libDDE92A83_gf_ToggleUpgradesSC2MultiModified (playergroup lp_players, int 
         libNtve_gf_SetUpgradeLevelForPlayer(auto492FF311_var, "EvolveGroovedSpines", lp_level);
         libNtve_gf_SetUpgradeLevelForPlayer(auto492FF311_var, "DiggingClaws", lp_level);
         libNtve_gf_SetUpgradeLevelForPlayer(auto492FF311_var, "LurkerRange", lp_level);
-        auto5692E6CA_ae = UserDataInstanceCount("CustomRaces");
+        auto5692E6CA_ae = UserDataInstanceCount("Races");
         auto5692E6CA_var = 1;
         for ( ; auto5692E6CA_var <= auto5692E6CA_ae; auto5692E6CA_var += 1 ) {
-            lv_custom_research = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto5692E6CA_var), "Specialize", 1);
+            lv_custom_research = UserDataGetGameLink("Races", UserDataInstance("Races", auto5692E6CA_var), "Specialize", 1);
             autoF8E738E9_ae = (CatalogFieldValueCount(c_gameCatalogAbil, lv_custom_research, "InfoArray", c_playerAny) - 1);
             lv_custom_button = 1;
             for ( ; ( (autoF8E738E9_ai >= 0 && lv_custom_button <= autoF8E738E9_ae) || (autoF8E738E9_ai < 0 && lv_custom_button >= autoF8E738E9_ae) ) ; lv_custom_button += autoF8E738E9_ai ) {
@@ -1770,7 +1786,6 @@ void libDDE92A83_gf_CreateWorkers (bool lp_select, int lp_controlGroup, playergr
     int auto56E4EEA5_ae;
     int auto56E4EEA5_var;
     string auto55F86E24_val;
-    string auto3859C96E_val;
 
     // Variable Initialization
     lv_randomGroup = UnitGroupEmpty();
@@ -2142,11 +2157,11 @@ void libDDE92A83_gf_CreateWorkers (bool lp_select, int lp_controlGroup, playergr
 
             if ((lv_workerOverride == false)) {
                 lv_is_custom_race = false;
-                auto56E4EEA5_ae = UserDataInstanceCount("CustomRaces");
+                auto56E4EEA5_ae = UserDataInstanceCount("Races");
                 auto56E4EEA5_var = 1;
                 for ( ; auto56E4EEA5_var <= auto56E4EEA5_ae; auto56E4EEA5_var += 1 ) {
-                    lv_custom_race = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto56E4EEA5_var), "Race", 1);
-                    lv_custom_worker = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto56E4EEA5_var), "Builder", 1);
+                    lv_custom_race = UserDataGetGameLink("Races", UserDataInstance("Races", auto56E4EEA5_var), "Race", 1);
+                    lv_custom_worker = UserDataGetGameLink("Races", UserDataInstance("Races", auto56E4EEA5_var), "Builder", 1);
                     if ((PlayerRace(auto2A2F389B_var) == lv_custom_race)) {
                         libNtve_gf_CreateUnitsWithDefaultFacing(1, lv_custom_worker, 0, auto2A2F389B_var, libDDE92A83_gv_playerOrigin[auto2A2F389B_var]);
                         libFD391A9C_gf_ScoreboardSetIcon(auto2A2F389B_var, libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(auto2A2F389B_var, false)), "Assets\\Textures\\btn-ability-protoss-raceicon.dds");
@@ -2189,22 +2204,7 @@ void libDDE92A83_gf_CreateWorkers (bool lp_select, int lp_controlGroup, playergr
 
             UnitSelect(UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(auto2A2F389B_var), 1), auto2A2F389B_var, lp_select);
             UnitControlGroupAddUnit(auto2A2F389B_var, lp_controlGroup, UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(auto2A2F389B_var), 1));
-            auto3859C96E_val = PlayerRace(auto2A2F389B_var);
-            if (auto3859C96E_val == "Terr") {
-                CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", auto2A2F389B_var, ("Assets\\Textures\\btn-command-terran-buildstructure.dds"));
-            }
-            else if (auto3859C96E_val == "Zerg") {
-                CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", auto2A2F389B_var, ("Assets\\Textures\\btn-ability-zerg-basicmutation.dds"));
-            }
-            else if (auto3859C96E_val == "Prot") {
-                CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", auto2A2F389B_var, ("Assets\\Textures\\btn-command-protoss-buildstructure.dds"));
-            }
-            else if (auto3859C96E_val == "Keir") {
-                CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", auto2A2F389B_var, ("Assets\\Textures\\btn-command-protoss-buildstructure.dds"));
-            }
-            else {
-                CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", auto2A2F389B_var, ("Assets\\Textures\\btn-command-protoss-buildstructure.dds"));
-            }
+            CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", auto2A2F389B_var, UserDataGetString("Races", libDDE92A83_gf_GetRaceUserData(PlayerRace(auto2A2F389B_var)), "DecorationsContainerIcon", 1));
         }
 
     }
@@ -2316,9 +2316,9 @@ void libDDE92A83_gf_AddAllUnitTypesModified (int lp_player) {
 
     // Implementation
     autoBEBE62A6_i = 1;
-    for ( ; autoBEBE62A6_i <= UserDataInstanceCount("CustomRaces"); autoBEBE62A6_i += 1 ) {
-        lv_race = UserDataInstance("CustomRaces", autoBEBE62A6_i);
-        lv_dSBuilder = UserDataGetGameLink("CustomRaces", lv_race, "Builder", 1);
+    for ( ; autoBEBE62A6_i <= UserDataInstanceCount("Races"); autoBEBE62A6_i += 1 ) {
+        lv_race = UserDataInstance("Races", autoBEBE62A6_i);
+        lv_dSBuilder = UserDataGetGameLink("Races", lv_race, "Builder", 1);
         auto0A77B4D1_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_dSBuilder, "AbilArray", c_playerAny) - 1);
         lv_dSBuilderAbilIndex = 0;
         for ( ; ( (auto0A77B4D1_ai >= 0 && lv_dSBuilderAbilIndex <= auto0A77B4D1_ae) || (auto0A77B4D1_ai < 0 && lv_dSBuilderAbilIndex >= auto0A77B4D1_ae) ) ; lv_dSBuilderAbilIndex += auto0A77B4D1_ai ) {
@@ -2545,10 +2545,10 @@ void libDDE92A83_gf_DebugUnitCostsModified (int lp_player) {
         libDDE92A83_gf_DebugUnitCostSimilar(lp_player, "Zergling", "ZerglingLightweight");
     }
 
-    auto69A440F0_ae = UserDataInstanceCount("CustomRaces");
+    auto69A440F0_ae = UserDataInstanceCount("Races");
     auto69A440F0_var = 1;
     for ( ; auto69A440F0_var <= auto69A440F0_ae; auto69A440F0_var += 1 ) {
-        lv_custom_worker = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto69A440F0_var), "Builder", 1);
+        lv_custom_worker = UserDataGetGameLink("Races", UserDataInstance("Races", auto69A440F0_var), "Builder", 1);
         autoF0D96EAF_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_custom_worker, "CardLayouts[" + IntToString(1) + "].LayoutButtons", c_playerAny) - 1);
         lv_custom_button = 1;
         for ( ; ( (autoF0D96EAF_ai >= 0 && lv_custom_button <= autoF0D96EAF_ae) || (autoF0D96EAF_ai < 0 && lv_custom_button >= autoF0D96EAF_ae) ) ; lv_custom_button += autoF0D96EAF_ai ) {
@@ -3013,10 +3013,10 @@ void libDDE92A83_gf_ChangeUnitCostsModified (int lp_player, fixed lp_amount, fix
         libDDE92A83_gf_ChangeUnitCostMorph(lp_player, "RavagerPlaceFromRoach", "Roach");
     }
 
-    auto9FA7ECBE_ae = UserDataInstanceCount("CustomRaces");
+    auto9FA7ECBE_ae = UserDataInstanceCount("Races");
     auto9FA7ECBE_var = 1;
     for ( ; auto9FA7ECBE_var <= auto9FA7ECBE_ae; auto9FA7ECBE_var += 1 ) {
-        lv_custom_worker = UserDataGetGameLink("CustomRaces", UserDataInstance("CustomRaces", auto9FA7ECBE_var), "Builder", 1);
+        lv_custom_worker = UserDataGetGameLink("Races", UserDataInstance("Races", auto9FA7ECBE_var), "Builder", 1);
         auto937E6894_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_custom_worker, "CardLayouts[" + IntToString(1) + "].LayoutButtons", c_playerAny) - 1);
         lv_custom_button = 1;
         for ( ; ( (auto937E6894_ai >= 0 && lv_custom_button <= auto937E6894_ae) || (auto937E6894_ai < 0 && lv_custom_button >= auto937E6894_ae) ) ; lv_custom_button += auto937E6894_ai ) {
@@ -3702,6 +3702,8 @@ bool libDDE92A83_gt_StarlightBasics_Func (bool testConds, bool runActions) {
     int lv_playerHandleDialog;
 
     // Automatic Variable Declarations
+    int autoAE7E3620_ae;
+    int autoAE7E3620_var;
     playergroup autoCFCB143E_g;
     int autoCFCB143E_var;
     playergroup auto353EBF5D_g;
@@ -3738,10 +3740,11 @@ bool libDDE92A83_gt_StarlightBasics_Func (bool testConds, bool runActions) {
     HelpPanelEnableTechGlossaryButton(PlayerGroupAll(), true);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeTeamResourceButton, false);
     UISetFrameVisible(PlayerGroupAll(), c_syncFrameTypeAllianceButton, false);
-    HelpPanelShowTechTreeRace(PlayerGroupAll(), "Prot", false);
-    HelpPanelShowTechTreeRace(PlayerGroupAll(), "Terr", false);
-    HelpPanelShowTechTreeRace(PlayerGroupAll(), "Zerg", false);
-    HelpPanelShowTechTreeRace(PlayerGroupAll(), "Keir", false);
+    autoAE7E3620_ae = CatalogEntryCount(c_gameCatalogRace);
+    autoAE7E3620_var = 1;
+    for ( ; autoAE7E3620_var <= autoAE7E3620_ae; autoAE7E3620_var += 1 ) {
+        HelpPanelShowTechTreeRace(PlayerGroupAll(), ((CatalogEntryGet(c_gameCatalogRace, autoAE7E3620_var))), false);
+    }
     UISetGameMenuItemVisible(PlayerGroupAll(), c_gameMenuDialogLoadButton, false);
     UISetGameMenuItemVisible(PlayerGroupAll(), c_gameMenuDialogSaveButton, false);
     libDDE92A83_gf_AddAllUnitTypesModified(1);

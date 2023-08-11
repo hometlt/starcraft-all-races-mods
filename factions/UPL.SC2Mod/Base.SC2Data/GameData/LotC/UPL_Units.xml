@@ -636,13 +636,13 @@
     </CAbilEffectTarget>
     <CAbilBehavior id="MiningDroneSwitchMode">
         <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
-        <CmdButtonArray index="On" DefaultButtonFace="MiningDroneSwitchMode"/>
+        <CmdButtonArray index="On" DefaultButtonFace="MiningDroneSwitchMode" Requirements="HaveMinigDronesGrenadeLauncher"/>
         <CmdButtonArray index="Off" DefaultButtonFace="MiningDroneSwitchModeOff"/>
         <Flags index="Toggle" value="1"/>
         <Flags index="Transient" value="1"/>
         <BehaviorArray value="MiningDroneSwitchMode"/>
         <Cost>
-            <Resource index="Minerals" value="5"/>
+            <Resource index="Minerals" value="25"/>
             <Cooldown TimeUse="5"/>
         </Cost>
         <OffCost>
@@ -943,11 +943,11 @@
         <AlertIcon value="Assets\Textures\btn-ability-UPL-LongRangeMortar.dds"/>
     </CButton>
     <CButton id="InfantryMortarModeChangeMtoA">
-        <Icon value="Assets\icons\Button_InfantryMortar\btn-ability-UPL-MortarSiege.dds"/>
+        <Icon value="Assets\textures\btn-ability-UPL-MortarSiege.dds"/>
         <EditorCategories value="Race:UPL"/>
     </CButton>
     <CButton id="InfantryMortarModeChangeAtoM">
-        <Icon value="Assets\icons\Button_InfantryMortar\btn-ability-UPL-MortarWalk.dds"/>
+        <Icon value="Assets\textures\btn-ability-UPL-MortarWalk.dds"/>
         <EditorCategories value="Race:UPL"/>
     </CButton>
     <CRequirementAllowUpgrade id="AllowUpgradeInfantryMortarRangeUpgrade">
@@ -1578,6 +1578,9 @@
         <On Terms="Abil.MiningDroneGather.Start" Send="TimerSet 0.000000,0.300000 Gather"/>
         <On Terms="Abil.MiningDroneGather.Stop" Send="AnimClear Gather"/>
         <On Terms="Abil.MiningDroneGather.Stop" Send="TimerKill Gather"/>
+        <On Terms="Abil.SCVHarvest.Start" Send="TimerSet 0.000000,0.300000 Gather"/>
+        <On Terms="Abil.SCVHarvest.Stop" Send="AnimClear Gather"/>
+        <On Terms="Abil.SCVHarvest.Stop" Send="TimerKill Gather"/>
         <On Terms="AnimDone.*.Complete; AnimName Gather" Send="TimerSet 0.000000,0.300000 Gather"/>
         <On Terms="TimerExpired; TimerName Gather" Send="AnimPlay Gather Work NonLooping"/>
         <On Terms="TimerExpired; TimerName Gather" Send="Create MiningDroneGatherSound"/>
@@ -3587,7 +3590,8 @@
         <AbilArray Link="stop"/>
         <AbilArray Link="attack"/>
         <AbilArray Link="move"/>
-        <AbilArray Link="MiningDroneGather"/>
+<!--        <AbilArray Link="MiningDroneGather"/>-->
+        <AbilArray Link="SCVHarvest"/>
         <AbilArray Link="UPLBuild"/>
         <AbilArray Link="MiningDroneSwitchMode"/>
         <AbilArray Link="UPLMiningDroneRepair"/>
@@ -3599,8 +3603,8 @@
             <LayoutButtons Face="AttackWorker" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
             <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
             <LayoutButtons Face="UPLMiningDroneRepair" Type="AbilCmd" AbilCmd="UPLMiningDroneRepair,Execute" Row="2" Column="1"/>
-            <LayoutButtons Face="GatherUPL" Type="AbilCmd" AbilCmd="MiningDroneGather,Gather" Row="1" Column="0"/>
-            <LayoutButtons Face="ReturnCargo" Type="AbilCmd" AbilCmd="MiningDroneGather,Return" Row="1" Column="1"/>
+            <LayoutButtons Face="GatherUPL" Type="AbilCmd" AbilCmd="SCVHarvest,Gather" Row="1" Column="0"/>
+            <LayoutButtons Face="ReturnCargo" Type="AbilCmd" AbilCmd="SCVHarvest,Return" Row="1" Column="1"/>
             <LayoutButtons Face="TerranBuild" Type="Submenu" SubmenuCardId="TBl1" Row="2" Column="0"/>
             <LayoutButtons Face="MiningDroneSwitchMode" Type="AbilCmd" AbilCmd="MiningDroneSwitchMode,On" Row="2" Column="2"/>
             <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="UPLBuild,Halt" Row="2" Column="4"/>
@@ -3902,7 +3906,7 @@
         <BuffFlags index="UpdateDurationWhileDisabled" value="1"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="InfantryFlamethrowerBurning">
-        <InfoIcon value="Assets\icons\Button_Raptor Fighter Jet\btn-ability-UPL-Thermite.dds"/>
+        <InfoIcon value="Assets\textures\btn-ability-UPL-Thermite.dds"/>
         <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
         <Duration value="2.5"/>
         <Period value="0.25"/>
@@ -3983,7 +3987,7 @@
         <EffectArray Operation="Set" Reference="Effect,InfantryMortarLaunchDirected,Movers[1].Link" Value="InfantryMortarMissileMoverUpgraded"/>
         <Race value="UPL"/>
         <EditorCategories value="UpgradeType:Talents,Race:UPL"/>
-        <Icon value="Assets\icons\Button_InfantryMortar\btn-ability-UPL-LongRangeMortarShells.dds"/>
+        <Icon value="Assets\textures\btn-ability-UPL-LongRangeMortarShells.dds"/>
         <AffectedUnitArray value="InfantryMortar"/>
     </CUpgrade>
     <CUpgrade id="InfantryRifleRangeUpgrade">
@@ -4074,6 +4078,7 @@
         <Arc value="360"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="APCSmokeGrenade"/>
         <Cost>
+            <Vital index="Energy" value="75"/>
             <Cooldown TimeUse="9"/>
         </Cost>
     </CAbilEffectTarget>
@@ -4113,6 +4118,16 @@
         <AutoCastRange value="5"/>
         <AutoCastValidatorArray value="RaptorJetCloakAutoCast"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="RaptorCloak" Requirements="HaveRaptorCloakAbilUpgrade">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectInstant>
+    <CAbilEffectInstant id="Sprint">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Cooldown TimeUse="20"/>
+        </Cost>
+        <CmdButtonArray index="Execute" DefaultButtonFace="Sprint">
             <Flags index="ToSelection" value="1"/>
         </CmdButtonArray>
     </CAbilEffectInstant>

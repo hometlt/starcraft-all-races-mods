@@ -1,0 +1,502 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+include "Lib948F000A_h"
+include "Lib7A9A9B22_h"
+include "Lib038F51B7_h"
+include "Lib7550A90B_h"
+include "LibF095282B_h"
+include "Lib22D496B3_h"
+include "Lib2A8CE4F7_h"
+include "LibCA960273_h"
+include "Lib39886FE6_h"
+
+include "Lib29554E00_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: AFK Timer
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib29554E00_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+    lib948F000A_InitVariables();
+    lib7A9A9B22_InitVariables();
+    lib038F51B7_InitVariables();
+    lib7550A90B_InitVariables();
+    libF095282B_InitVariables();
+    lib22D496B3_InitVariables();
+    lib2A8CE4F7_InitVariables();
+    libCA960273_InitVariables();
+    lib39886FE6_InitVariables();
+}
+
+// Variable Initialization
+bool lib29554E00_InitVariables_completed = false;
+
+void lib29554E00_InitVariables () {
+    if (lib29554E00_InitVariables_completed) {
+        return;
+    }
+
+    lib29554E00_InitVariables_completed = true;
+
+    lib29554E00_gv_playerIsAFK = PlayerGroupEmpty();
+    lib29554E00_gv_aFKTimerDialog = c_invalidDialogId;
+    lib29554E00_gv_aFKTimerFullscreen = c_invalidDialogId;
+    lib29554E00_gv_aFKTimerDialogButton = c_invalidDialogControlId;
+    lib29554E00_gv_aFKTimerDialogImage = c_invalidDialogControlId;
+    lib29554E00_gv_aFKTimerDialogLabel = c_invalidDialogControlId;
+    lib29554E00_gv_aFKTimerDialogDescription = c_invalidDialogControlId;
+}
+
+// Functions
+bool lib29554E00_gf_PlayerIsAFK (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return PlayerGroupHasPlayer(lib29554E00_gv_playerIsAFK, lp_player);
+}
+
+int lib29554E00_gf_AFKTimerCount (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UnitBehaviorCount(lib29554E00_gv_aFKTimerUnit[lp_player], "AFKTimerAcceleration");
+}
+
+void lib29554E00_gf_UnitSpawnerSellAbuse (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((lib29554E00_gf_PlayerIsAFK(lp_player) == false) && (libDDE92A83_gv_gameOver == false) && (PlayerType(lp_player) == c_playerTypeUser) && (PlayerStatus(lp_player) == c_playerStatusActive)) {
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel1", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel2", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel3", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel4", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel5", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerValueAcceleratorLevel1", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerValueAcceleratorLevel2", 0);
+        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerValueAcceleratorLevel3", 0);
+        if ((lib29554E00_gf_PlayerIsAFK(lp_player) == false) && (libDDE92A83_gv_gameOver == false) && (PlayerScoreValueGetAsInt(lp_player, "MineralsCollected") >= 2000) && ((IntToFixed(PlayerScoreValueGetAsInt(lp_player, "MineralsLosttoSelling")) / (IntToFixed(PlayerScoreValueGetAsInt(lp_player, "UnitSpawnersValue")) + 1.0)) >= 0.1)) {
+            libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel1", 1);
+            if ((PlayerScoreValueGetAsInt(lp_player, "MineralsCollected") >= 2500) && ((IntToFixed(PlayerScoreValueGetAsInt(lp_player, "MineralsLosttoSelling")) / (IntToFixed(PlayerScoreValueGetAsInt(lp_player, "UnitSpawnersValue")) + 1.0)) >= 0.2)) {
+                libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel2", 1);
+                if ((PlayerScoreValueGetAsInt(lp_player, "MineralsCollected") >= 3000) && ((IntToFixed(PlayerScoreValueGetAsInt(lp_player, "MineralsLosttoSelling")) / (IntToFixed(PlayerScoreValueGetAsInt(lp_player, "UnitSpawnersValue")) + 1.0)) >= 0.3)) {
+                    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel3", 1);
+                    if ((PlayerScoreValueGetAsInt(lp_player, "MineralsCollected") >= 3500) && ((IntToFixed(PlayerScoreValueGetAsInt(lp_player, "MineralsLosttoSelling")) / (IntToFixed(PlayerScoreValueGetAsInt(lp_player, "UnitSpawnersValue")) + 1.0)) >= 0.4)) {
+                        libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel4", 1);
+                        if ((PlayerScoreValueGetAsInt(lp_player, "MineralsCollected") >= 4000) && ((IntToFixed(PlayerScoreValueGetAsInt(lp_player, "MineralsLosttoSelling")) / (IntToFixed(PlayerScoreValueGetAsInt(lp_player, "UnitSpawnersValue")) + 1.0)) >= 0.5)) {
+                            libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerSellAcceleratorLevel5", 1);
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        if ((lib29554E00_gf_PlayerIsAFK(lp_player) == false) && (libDDE92A83_gv_gameOver == false) && ((IntToFixed(PlayerScoreValueGetAsInt(lp_player, "UnitSpawnersValue")) / (IntToFixed(PlayerScoreValueGetAsInt(lp_player, "MineralsCollected")) + 1.0)) < 0.25) && (GameGetMissionTime() > 300.0)) {
+            libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerValueAcceleratorLevel1", 1);
+            if ((GameGetMissionTime() > 450.0)) {
+                libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerValueAcceleratorLevel2", 1);
+                if ((GameGetMissionTime() > 600.0)) {
+                    libNtve_gf_SetUpgradeLevelForPlayer(lp_player, "AFKTimerValueAcceleratorLevel3", 1);
+                }
+
+            }
+
+        }
+
+    }
+
+}
+
+void lib29554E00_gf_AFKTimerCreate (playergroup lp_playerGroup) {
+    // Variable Declarations
+    int lv_p;
+
+    // Automatic Variable Declarations
+    playergroup auto5AF03C94_g;
+
+    // Variable Initialization
+
+    // Implementation
+    lib29554E00_gf_AFKTimerWarningDialog();
+    TriggerEnable(lib29554E00_gt_AFKTimerButton, true);
+    TriggerEnable(lib29554E00_gt_AFKTimerComplete, true);
+    TriggerEnable(lib29554E00_gt_AFKTimerRefresh, true);
+    TriggerEnable(lib29554E00_gt_AFKTimerWarning, true);
+    lib29554E00_gv_created = true;
+    auto5AF03C94_g = lp_playerGroup;
+    lv_p = -1;
+    while (true) {
+        lv_p = PlayerGroupNextPlayer(auto5AF03C94_g, lv_p);
+        if (lv_p < 0) { break; }
+        if ((lib29554E00_gv_aFKTimerUnit[lv_p] == null) && (PlayerStatus(lv_p) == c_playerStatusActive) && (PlayerType(lv_p) == c_playerTypeUser)) {
+            libNtve_gf_CreateUnitsWithDefaultFacing(1, "AFKTimer", c_unitCreateIgnorePlacement, lv_p, Point(0.0, 0.0));
+            lib29554E00_gv_aFKTimerUnit[lv_p] = UnitLastCreated();
+            lib29554E00_gf_AFKTimerRefresh(lv_p);
+        }
+
+    }
+}
+
+void lib29554E00_gf_AFKTimerPremiumBonus (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    CatalogFieldValueSet(c_gameCatalogUnit, "AFKTimer", "EnergyMax", lp_player, FixedToString(336.0, 0));
+}
+
+void lib29554E00_gf_AFKTimerDestroy () {
+    // Automatic Variable Declarations
+    unitgroup autoA17E3EEC_g;
+    int autoA17E3EEC_u;
+    unit autoA17E3EEC_var;
+
+    // Implementation
+    if ((lib29554E00_gv_created == true)) {
+        TriggerEnable(lib29554E00_gt_AFKTimerButton, false);
+        TriggerEnable(lib29554E00_gt_AFKTimerComplete, false);
+        TriggerEnable(lib29554E00_gt_AFKTimerRefresh, false);
+        TriggerEnable(lib29554E00_gt_AFKTimerWarning, false);
+        autoA17E3EEC_g = UnitGroup("AFKTimer", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        autoA17E3EEC_u = UnitGroupCount(autoA17E3EEC_g, c_unitCountAll);
+        for (;; autoA17E3EEC_u -= 1) {
+            autoA17E3EEC_var = UnitGroupUnitFromEnd(autoA17E3EEC_g, autoA17E3EEC_u);
+            if (autoA17E3EEC_var == null) { break; }
+            lib29554E00_gv_aFKTimerUnit[UnitGetOwner(autoA17E3EEC_var)] = null;
+            UnitRemove(autoA17E3EEC_var);
+        }
+    }
+
+}
+
+void lib29554E00_gf_AFKTimerRefresh (int lp_player) {
+    // Variable Declarations
+    playergroup lv_allies;
+
+    // Automatic Variable Declarations
+    playergroup auto2BB162D6_g;
+    int auto2BB162D6_var;
+
+    // Variable Initialization
+    lv_allies = PlayerGroupEmpty();
+
+    // Implementation
+    if ((lib29554E00_gv_created == true)) {
+        auto2BB162D6_g = PlayerGroupAlliance(c_playerGroupAlly, lp_player);
+        auto2BB162D6_var = -1;
+        while (true) {
+            auto2BB162D6_var = PlayerGroupNextPlayer(auto2BB162D6_g, auto2BB162D6_var);
+            if (auto2BB162D6_var < 0) { break; }
+            if ((PlayerType(auto2BB162D6_var) == c_playerTypeUser)) {
+                PlayerGroupAdd(lv_allies, lp_player);
+            }
+
+        }
+        if ((((GameIsTestMap(false) == false) && (PlayerGroupCount(PlayerGroupActive()) > 2) && (PlayerGroupCount(lv_allies) > 0)) || ((GameIsTestMap(false) == true) && (lib29554E00_gv_allowAFKTimerinTestMode == true)))) {
+            DialogSetVisible(lib29554E00_gv_aFKTimerDialog, PlayerGroupSingle(lp_player), false);
+            DialogSetVisible(lib29554E00_gv_aFKTimerFullscreen, PlayerGroupSingle(lp_player), false);
+            if ((libDDE92A83_gv_gameOver == false) && (lib29554E00_gv_aFKTimerUnit[lp_player] != null) && (TechTreeUpgradeCount(lp_player, "PlayerIsAFK", c_techCountCompleteOnly) == 0)) {
+                UnitSetPropertyFixed(lib29554E00_gv_aFKTimerUnit[lp_player], c_unitPropEnergyPercent, 100.0);
+            }
+
+        }
+        else {
+            DialogSetVisible(lib29554E00_gv_aFKTimerDialog, PlayerGroupSingle(lp_player), false);
+            DialogSetVisible(lib29554E00_gv_aFKTimerFullscreen, PlayerGroupSingle(lp_player), false);
+            UnitBehaviorRemove(lib29554E00_gv_aFKTimerUnit[lp_player], "AFKTimerUnitComplete", 1);
+            UnitBehaviorRemove(lib29554E00_gv_aFKTimerUnit[lp_player], "AFKTimerUnitWarning", 1);
+        }
+    }
+
+}
+
+void lib29554E00_gf_AFKTimerWarningDialog () {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((lib29554E00_gv_aFKTimerDialog == c_invalidDialogId)) {
+        DialogCreate(300, 250, c_anchorCenter, 0, 0, true);
+        lib29554E00_gv_aFKTimerFullscreen = DialogLastCreated();
+        DialogSetFullscreen(DialogLastCreated(), true);
+        DialogSetImage(DialogLastCreated(), "Assets\\Textures\\ui_afkborder.dds");
+        DialogCreate(1600, 1100, c_anchorCenter, 0, 0, true);
+        lib29554E00_gv_aFKTimerDialog = DialogLastCreated();
+        DialogSetImageVisible(DialogLastCreated(), false);
+        libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 292, 66, c_anchorCenter, 0, 0, StringToText(""), (StringToText("<s val=\"AFK_Button_Gold\">") + StringExternal("Param/Value/lib_29554E00_2959AE11")), "");
+        lib29554E00_gv_aFKTimerDialogButton = DialogControlLastCreated();
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_void_storybutton_gold_normalpressed.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_void_storybutton_gold_normaloverpressedover.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeEndCap, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 76, 76, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_afkwarning.dds", c_triggerImageTypeNormal, true, Color(100,100,100), c_triggerBlendModeNormal);
+        lib29554E00_gv_aFKTimerDialogImage = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorBottom, lib29554E00_gv_aFKTimerDialogButton, c_anchorTop, 0, -40);
+        libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 250, 76, c_anchorTop, 0, 0, (StringToText("<s val=\"AFK_Title\">") + StringExternal("UI/SlashCommandAwayAlternate") + StringToText(" ") + StringExternal("UI/GraphicsOptions/QualityExceedsMaximum/Title")), ColorWithAlpha(0,0,0,0), false, 2.0);
+        lib29554E00_gv_aFKTimerDialogLabel = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lib29554E00_gv_aFKTimerDialogImage, c_anchorBottom, 0, -20);
+        libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 250, 76, c_anchorBottom, 0, 0, (StringToText("<s val=\"AFK_Description\">") + StringExternal("Param/Value/lib_29554E00_0F10B805")), ColorWithAlpha(0,0,0,0), false, 2.0);
+        lib29554E00_gv_aFKTimerDialogDescription = DialogControlLastCreated();
+        DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), false);
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lib29554E00_gv_aFKTimerDialogButton, c_anchorBottom, 0, 0);
+    }
+
+}
+
+void lib29554E00_gf_AFKTimerComplete (int lp_player) {
+    // Variable Declarations
+    int lv_p;
+
+    // Automatic Variable Declarations
+    playergroup auto06476A2C_g;
+    unitgroup auto66FB5DCF_g;
+    int auto66FB5DCF_u;
+    unit auto66FB5DCF_var;
+    unitgroup auto7760031E_g;
+    int auto7760031E_u;
+    unit auto7760031E_var;
+
+    // Variable Initialization
+
+    // Implementation
+    SoundPlay(SoundLink("UI_ChatMessageReceived", -1), PlayerGroupAll(), 100.0, 0.0);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, (TextWithColor(PlayerName(lp_player), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false))) + StringToText(" ") + StringExternal("Param/Value/lib_29554E00_B47E946C")));
+    UISetFrameVisible(PlayerGroupSingle(lp_player), c_syncFrameTypeResourcePanel, false);
+    PlayerModifyPropertyInt(lp_player, c_playerPropMinerals, c_playerPropOperSetTo, 0);
+    PlayerModifyPropertyInt(lp_player, c_playerPropVespene, c_playerPropOperSetTo, 0);
+    PlayerModifyPropertyInt(lp_player, c_playerPropTerrazine, c_playerPropOperSetTo, 0);
+    PlayerModifyPropertyInt(lp_player, c_playerPropCustom, c_playerPropOperSetTo, 0);
+    PlayerGroupAdd(lib29554E00_gv_playerIsAFK, lp_player);
+    libNtve_gf_SetDialogItemImage(lib29554E00_gv_aFKTimerDialogImage, "Assets\\Textures\\ui_afk.dds", PlayerGroupSingle(lp_player));
+    libNtve_gf_SetDialogItemText(lib29554E00_gv_aFKTimerDialogLabel, (StringToText("<s val=\"AFK_Title\">") + StringExternal("UI/SlashCommandAwayAlternate")), PlayerGroupSingle(lp_player));
+    libNtve_gf_SetDialogItemImage(lib29554E00_gv_aFKTimerDialogButton, "Assets\\Textures\\ui_void_storybutton_red_normalpressed.dds", PlayerGroupSingle(lp_player));
+    libNtve_gf_SetDialogItemImage2(lib29554E00_gv_aFKTimerDialogButton, "Assets\\Textures\\ui_void_storybutton_red_normaloverpressedover.dds", PlayerGroupSingle(lp_player));
+    libNtve_gf_SetDialogItemText(lib29554E00_gv_aFKTimerDialogButton, (StringToText("<s val=\"AFK_Button_Red\">") + StringExternal("UI/Ok")), PlayerGroupSingle(lp_player));
+    DialogControlSetVisible(lib29554E00_gv_aFKTimerDialogDescription, PlayerGroupSingle(lp_player), true);
+    DialogSetVisible(lib29554E00_gv_aFKTimerFullscreen, PlayerGroupSingle(lp_player), false);
+    auto06476A2C_g = PlayerGroupAlliance(c_playerGroupAlly, lp_player);
+    lv_p = -1;
+    while (true) {
+        lv_p = PlayerGroupNextPlayer(auto06476A2C_g, lv_p);
+        if (lv_p < 0) { break; }
+        libNtve_gf_SetAlliance(lv_p, lp_player, libNtve_ge_AllianceSetting_NeutralWithSharedVision);
+    }
+    auto66FB5DCF_g = UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreaSpawns(), lp_player, 0);
+    auto66FB5DCF_u = UnitGroupCount(auto66FB5DCF_g, c_unitCountAll);
+    for (;; auto66FB5DCF_u -= 1) {
+        auto66FB5DCF_var = UnitGroupUnitFromEnd(auto66FB5DCF_g, auto66FB5DCF_u);
+        if (auto66FB5DCF_var == null) { break; }
+        libNtve_gf_MakeUnitUncommandable(auto66FB5DCF_var, true);
+    }
+    auto7760031E_g = UnitGroup("MineralIncome", lp_player, RegionEntireMap(), UnitFilter(0, 0, 0, 0), 0);
+    auto7760031E_u = UnitGroupCount(auto7760031E_g, c_unitCountAll);
+    for (;; auto7760031E_u -= 1) {
+        auto7760031E_var = UnitGroupUnitFromEnd(auto7760031E_g, auto7760031E_u);
+        if (auto7760031E_var == null) { break; }
+        UnitRemove(auto7760031E_var);
+    }
+    UnitClearSelection(lp_player);
+    UISetSelectionTypeEnabled(PlayerGroupSingle(lp_player), c_localSelectionTypeUnknown, false);
+    UnitSetState(UnitGroupUnit(libDDE92A83_gf_PlayerWorkers(lp_player), 1), c_unitStateStunned, true);
+    lib948F000A_gf_WorkerSelectShowHide(lp_player, false, false);
+    lib948F000A_gf_WorkerSelectFade(PlayerGroupSingle(lp_player), false, 0.5);
+    libCA960273_gf_StagingAreaCustomizationShowHide(lp_player, false, false);
+    libCA960273_gf_StagingAreaCustomizationFade(PlayerGroupSingle(lp_player), false, 0.5);
+    lib038F51B7_gf_AbilityControlShowHide(lp_player, false, false);
+    lib038F51B7_gf_AbilityControlFade(PlayerGroupSingle(lp_player), false, 0.5);
+    lib2A8CE4F7_gf_StatsMenuShowHide(lp_player, false, false);
+    lib2A8CE4F7_gf_StatsMenuFade(PlayerGroupSingle(lp_player), false, 0.5);
+    lib39886FE6_gf_MasteryBarFade(PlayerGroupSingle(lp_player), false, 0.5);
+    lib22D496B3_gf_PartyFrameFade(PlayerGroupSingle(lp_player), false, 0.5);
+    libF095282B_gf_ObjectiveIconFade(PlayerGroupSingle(lp_player), 0, false, 0.5);
+    libF095282B_gf_ObjectiveIconFade(PlayerGroupSingle(lp_player), 1, false, 0.5);
+    CameraLockInput(lp_player, true);
+    UISetFrameVisible(PlayerGroupSingle(lp_player), c_syncFrameTypeMinimapPanel, false);
+    UISetFrameVisible(PlayerGroupSingle(lp_player), c_syncFrameTypeMissionTimePanel, false);
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: AFK Timer Button
+//--------------------------------------------------------------------------------------------------
+bool lib29554E00_gt_AFKTimerButton_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((EventDialogControl() == lib29554E00_gv_aFKTimerDialogButton))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogSetVisible(lib29554E00_gv_aFKTimerDialog, PlayerGroupSingle(EventPlayer()), false);
+    DialogSetVisible(lib29554E00_gv_aFKTimerFullscreen, PlayerGroupSingle(EventPlayer()), false);
+    lib29554E00_gf_AFKTimerRefresh(EventPlayer());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29554E00_gt_AFKTimerButton_Init () {
+    lib29554E00_gt_AFKTimerButton = TriggerCreate("lib29554E00_gt_AFKTimerButton_Func");
+    TriggerEnable(lib29554E00_gt_AFKTimerButton, false);
+    TriggerAddEventDialogControl(lib29554E00_gt_AFKTimerButton, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: AFK Timer Warning
+//--------------------------------------------------------------------------------------------------
+bool lib29554E00_gt_AFKTimerWarning_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((PlayerStatus(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)) == c_playerStatusActive))) {
+            return false;
+        }
+
+        if (!((PlayerType(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)) == c_playerTypeUser))) {
+            return false;
+        }
+
+        if (!((TechTreeUpgradeCount(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource), "PlayerIsAFK", c_techCountCompleteOnly) == 0))) {
+            return false;
+        }
+
+        if (!((DialogIsVisible(lib29554E00_gv_aFKTimerDialog, EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)) == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogControlSetPosition(lib29554E00_gv_aFKTimerDialogButton, PlayerGroupSingle(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)), c_anchorCenter, RandomInt(-400, 400), RandomInt(-300, 200));
+    DialogSetVisible(lib29554E00_gv_aFKTimerDialog, PlayerGroupSingle(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)), true);
+    DialogSetVisible(lib29554E00_gv_aFKTimerFullscreen, PlayerGroupSingle(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)), true);
+    UnitBehaviorAdd(lib29554E00_gv_aFKTimerUnit[EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)], "AFKTimerWarningAccelerator", lib29554E00_gv_aFKTimerUnit[EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)], 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29554E00_gt_AFKTimerWarning_Init () {
+    lib29554E00_gt_AFKTimerWarning = TriggerCreate("lib29554E00_gt_AFKTimerWarning_Func");
+    TriggerEnable(lib29554E00_gt_AFKTimerWarning, false);
+    TriggerAddEventPlayerEffectUsed(lib29554E00_gt_AFKTimerWarning, c_playerAny, "AFKTimerWarningTrigger");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: AFK Timer Complete
+//--------------------------------------------------------------------------------------------------
+bool lib29554E00_gt_AFKTimerComplete_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((PlayerStatus(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)) == c_playerStatusActive))) {
+            return false;
+        }
+
+        if (!((PlayerType(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)) == c_playerTypeUser))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogControlSetPosition(lib29554E00_gv_aFKTimerDialogButton, PlayerGroupSingle(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource)), c_anchorCenter, 0, -200);
+    lib29554E00_gf_AFKTimerComplete(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource));
+    lib7550A90B_gf_TugofWarRemovePlayer(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29554E00_gt_AFKTimerComplete_Init () {
+    lib29554E00_gt_AFKTimerComplete = TriggerCreate("lib29554E00_gt_AFKTimerComplete_Func");
+    TriggerEnable(lib29554E00_gt_AFKTimerComplete, false);
+    TriggerAddEventPlayerEffectUsed(lib29554E00_gt_AFKTimerComplete, c_playerAny, "PlayerIsAFKTrigger");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: AFK Timer Refresh
+//--------------------------------------------------------------------------------------------------
+bool lib29554E00_gt_AFKTimerRefresh_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((PlayerStatus(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)) == c_playerStatusActive))) {
+            return false;
+        }
+
+        if (!((PlayerType(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)) == c_playerTypeUser))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib29554E00_gf_AFKTimerRefresh(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib29554E00_gt_AFKTimerRefresh_Init () {
+    lib29554E00_gt_AFKTimerRefresh = TriggerCreate("lib29554E00_gt_AFKTimerRefresh_Func");
+    TriggerEnable(lib29554E00_gt_AFKTimerRefresh, false);
+    TriggerAddEventPlayerEffectUsed(lib29554E00_gt_AFKTimerRefresh, c_playerAny, "AFKTimerRefreshTrigger");
+}
+
+void lib29554E00_InitTriggers () {
+    lib29554E00_gt_AFKTimerButton_Init();
+    lib29554E00_gt_AFKTimerWarning_Init();
+    lib29554E00_gt_AFKTimerComplete_Init();
+    lib29554E00_gt_AFKTimerRefresh_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib29554E00_InitLib_completed = false;
+
+void lib29554E00_InitLib () {
+    if (lib29554E00_InitLib_completed) {
+        return;
+    }
+
+    lib29554E00_InitLib_completed = true;
+
+    lib29554E00_InitLibraries();
+    lib29554E00_InitVariables();
+    lib29554E00_InitTriggers();
+}
+
+include "LibDDE92A83"
+include "Lib948F000A"
+include "Lib7A9A9B22"
+include "Lib038F51B7"
+include "Lib7550A90B"
+include "LibF095282B"
+include "Lib22D496B3"
+include "Lib2A8CE4F7"
+include "LibCA960273"
+include "Lib39886FE6"
+

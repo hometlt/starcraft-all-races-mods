@@ -1,0 +1,78 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+
+include "Lib93413008_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Custom Triggers
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib93413008_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Genetron Energy
+//--------------------------------------------------------------------------------------------------
+bool lib93413008_gt_GenetronEnergy_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+    point lv_specialPoint;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_player = EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster);
+    lv_specialPoint = libDDE92A83_gv_playerOrigin[lv_player];
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(UnitGroup("ProcessingCore", lv_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 1), c_unitCountAlive) == 0))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((lv_player <= 3)) {
+        lv_specialPoint = PointWithOffset(libDDE92A83_gv_playerOrigin[lv_player], 15.0, 0.0);
+    }
+    else {
+        lv_specialPoint = PointWithOffset(libDDE92A83_gv_playerOrigin[lv_player], -15.0, 0.0);
+    }
+    UnitCreate(1, "Generator", c_unitCreateIgnorePlacement, lv_player, lv_specialPoint, 270.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib93413008_gt_GenetronEnergy_Init () {
+    lib93413008_gt_GenetronEnergy = TriggerCreate("lib93413008_gt_GenetronEnergy_Func");
+    TriggerAddEventPlayerEffectUsed(lib93413008_gt_GenetronEnergy, c_playerAny, "GenetronEnergyUpgrade");
+}
+
+void lib93413008_InitTriggers () {
+    lib93413008_gt_GenetronEnergy_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib93413008_InitLib_completed = false;
+
+void lib93413008_InitLib () {
+    if (lib93413008_InitLib_completed) {
+        return;
+    }
+
+    lib93413008_InitLib_completed = true;
+
+    lib93413008_InitLibraries();
+    lib93413008_InitTriggers();
+}
+
+include "LibDDE92A83"
+
