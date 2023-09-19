@@ -67,7 +67,7 @@
         <Flags index="ReExecutable" value="1"/>
         <Flags index="Smart" value="1"/>
         <Flags index="PassengerAcquirePassengers" value="1"/>
-        <TargetFilters value="Mechanical,Visible;Self,Enemy,Missile,Stasis,UnderConstruction,Dead,Hidden"/>
+        <TargetFilters value="Mechanical,Visible;Self,Enemy,Missile,Stasis,UnderConstruction,Dead"/>
         <RangeSlop value="0.2"/>
         <AutoCastAcquireLevel value="Defensive"/>
         <AutoCastFilters value="Visible;Neutral,Enemy"/>
@@ -108,12 +108,13 @@
     </CAbilResearch>
     <CAbilEffectInstant id="BlitzerOverdrive">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
+        <Effect index="0" value="BlitzerOverdrivePowerEnum"/>
         <Flags index="Transient" value="1"/>
         <Cost>
             <Vital index="Energy" value="15"/>
             <Cooldown TimeUse="5"/>
         </Cost>
-        <CmdButtonArray index="Execute" DefaultButtonFace="BlitzerSupercharge"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BlitzerSupercharge" Requirements="BlitzerOverdriveReq"/>
     </CAbilEffectInstant>
     <CAbilBuildable id="BuildInProgress">
         <CmdButtonArray index="Halt" DefaultButtonFace="Halt">
@@ -155,20 +156,43 @@
     </CAbilEffectTarget>
     <CAbilTrain id="GenetronProductionModeSwitch">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
-        <InfoArray index="Train1" Time="7" Effect="GenetronProductionModePerformance">
+        <InfoArray index="Train1" Time="2.8" Effect="GenetronProductionModePerformance">
             <Button DefaultButtonFace="GenetronPerformanceMode" Requirements="GenetronPerformanceModeNotQueuedOrActive"/>
             <Unit value="GenetronPerformanceModeDummy"/>
         </InfoArray>
-        <InfoArray index="Train2" Time="7" Effect="GenetronProductionModeStandard">
+        <InfoArray index="Train2" Time="2.8" Effect="GenetronProductionModeStandard">
             <Button DefaultButtonFace="GenetronStandardMode" Requirements="GenetronStandardModeNotQueuedOrActive"/>
             <Unit value="GenetronStandardModeDummy"/>
         </InfoArray>
-        <InfoArray index="Train3" Time="7" Effect="GenetronProductionModeOverclock">
+        <InfoArray index="Train3" Time="2.8" Effect="GenetronProductionModeOverclock">
             <Button DefaultButtonFace="GenetronOverclockMode" Requirements="GenetronOverclockModeNotQueuedOrActive"/>
             <Unit value="GenetronOverclockModeDummy"/>
         </InfoArray>
         <Flags index="BestUnit" value="0"/>
     </CAbilTrain>
+    <CAbilEffectInstant id="GhostHoldFire">
+        <AbilSetId value="HoldFire"/>
+    </CAbilEffectInstant>
+    <CAbilEffectInstant id="PulsarHoldFire">
+        <AbilSetId value="HoldFire"/>
+        <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
+        <Effect index="0" value="GhostHoldFireB"/>
+        <Flags index="Transient" value="1"/>
+        <AINotifyEffect value="GhostHoldFireB"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="HoldFire" Requirements="GhostNotHoldingFire">
+            <Flags index="ShowInGlossary" value="0"/>
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectInstant>
+    <CAbilEffectInstant id="GyreInflux">
+        <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
+        <Effect index="0" value="GyreInfluxSet"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Vital index="Shields" value="100"/>
+        </Cost>
+        <CmdButtonArray index="Execute" DefaultButtonFace="GyreInflux"/>
+    </CAbilEffectInstant>
     <CAbilMorph id="MoleBury">
         <AbilSetId value="MBuryD"/>
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
@@ -193,6 +217,7 @@
         <CmdButtonArray index="On" DefaultButtonFace="SubterraneanSensors"/>
         <CmdButtonArray index="Off" DefaultButtonFace="MoleSubterraneanSensorsOff"/>
         <Flags index="Toggle" value="1"/>
+        <Flags index="ToggledOn" value="1"/>
         <Flags index="Transient" value="1"/>
         <BehaviorArray value="MoleSubterraneanSensors"/>
     </CAbilBehavior>
@@ -264,12 +289,13 @@
     <CAbilEffectTarget id="OlympusDischarge">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
         <Cost>
-            <VitalFraction index="Energy" value="1"/>
+            <Cooldown TimeUse="21"/>
         </Cost>
         <Range value="500"/>
         <Arc value="360"/>
         <CursorEffect value="OlympusDischargeSA"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="OlympusDischarge"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="OlympusDischarge" Requirements="OlympusDischargeReq"/>
+        <Effect index="0" value="OlympusDischargeInitTarget"/>
     </CAbilEffectTarget>
     <CAbilEffectTarget id="CourierOpticalDisruption">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
@@ -278,10 +304,11 @@
         <Range value="10"/>
         <Arc value="360"/>
         <AINotifyEffect value="CourierOpticalDisruptionCreatePersistent"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="OpticalDisruption"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="OpticalDisruption" Requirements="CourierOpticalDisruptionReq"/>
         <Cost>
             <Vital index="Energy" value="50"/>
         </Cost>
+        <Effect index="0" value="CourierOpticalDisruptionInitTarget"/>
     </CAbilEffectTarget>
     <CAbilResearch id="OutfittingStationResearch">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
@@ -327,7 +354,7 @@
                 <Flags index="ShowInGlossary" value="1"/>
             </Button>
         </InfoArray>
-        <InfoArray index="Research8" Time="110" Upgrade="GenetronShapedHull">
+        <InfoArray index="Research8" Time="110" Upgrade="BoarShapedHull">
             <Resource index="Minerals" value="150"/>
             <Resource index="Vespene" value="150"/>
             <Button DefaultButtonFace="ResearchBoarShapedHull" Requirements="LearnShapedHull">
@@ -363,8 +390,54 @@
             <Vital index="Energy" value="50"/>
             <Cooldown TimeUse="4.2"/>
         </Cost>
-        <CmdButtonArray index="Execute" DefaultButtonFace="IgnitionBlast"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="IgnitionBlast" Requirements="BoarIgnitionBlastReq"/>
+        <Effect index="0" value="BoarIgnitionBlastPowerEnum"/>
     </CAbilEffectInstant>
+    <CAbilMorph id="ProcessorStaticMode">
+        <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ProcessorStaticMode"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <InfoArray Unit="Scion_ProcessorStatic">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="0.5"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="0.5"/>
+            </SectionArray>
+            <SectionArray index="Collide">
+                <DurationArray index="Duration" value="0.5"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Duration" value="0.75"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="0.5"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="ProcessorStaticModeOff">
+        <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ProcessorCancelStaticMode"/>
+        <ActorKey value="ProcessorStaticMode"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <InfoArray Unit="Scion_Processor">
+            <SectionArray index="Abils">
+                <DurationArray index="Duration" value="0.5"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="0.5"/>
+            </SectionArray>
+            <SectionArray index="Collide">
+                <DurationArray index="Duration" value="0.5"/>
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Duration" value="0.75"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="0.5"/>
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
     <CAbilRally id="RallyProcessingCore">
         <OrderArray index="0">
             <DisplayType value="Rally"/>
@@ -385,8 +458,8 @@
         <Flags index="ReExecutable" value="1"/>
         <Flags index="Smart" value="1"/>
         <Flags index="PassengerAcquirePassengers" value="1"/>
-        <TargetFilters value="Mechanical,Visible;Self,Enemy,Missile,Stasis,UnderConstruction,Dead,Hidden"/>
-        <RangeSlop value="0.25"/>
+        <TargetFilters value="Mechanical,Visible;Self,Enemy,Missile,Stasis,UnderConstruction,Dead"/>
+        <RangeSlop value="0.5"/>
         <AutoCastAcquireLevel value="Defensive"/>
         <AutoCastFilters value="Visible;Neutral,Enemy"/>
         <AutoCastRange value="7"/>
@@ -406,13 +479,14 @@
             <Flags index="ToSelection" value="1"/>
         </CmdButtonArray>
         <AcquirePriority value="1"/>
-        <Range value="0.25"/>
+        <Range value="2"/>
         <AutoCastValidatorArray value="NotStructureTarget"/>
         <AINotifyEffect value="FixerRepairHealer"/>
     </CAbilEffectTarget>
     <CAbilEffectInstant id="SuperCharge">
+        <AbilSetId value="Supercharge"/>
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
-        <Effect index="0" value="Supercharge"/>
+        <Effect index="0" value="BlitzerSuperchargePowerEnum"/>
         <Flags index="Transient" value="1"/>
         <Cost>
             <Vital index="Energy" value="15"/>
@@ -422,12 +496,11 @@
         <CmdButtonArray index="Execute" DefaultButtonFace="BlitzerSupercharge" Requirements="IsNotSupercharged">
             <Flags index="ToSelection" value="1"/>
         </CmdButtonArray>
-        <AbilSetId value="Supercharge"/>
     </CAbilEffectInstant>
     <CAbilBehavior id="CourierCloak">
         <AbilSetId value="Clok"/>
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
-        <CmdButtonArray index="On" DefaultButtonFace="CloakOnCourier">
+        <CmdButtonArray index="On" DefaultButtonFace="CloakOnCourier" Requirements="CourierCloakingFieldReq">
             <Flags index="ToSelection" value="1"/>
         </CmdButtonArray>
         <CmdButtonArray index="Off" DefaultButtonFace="CloakOffCourier">
@@ -470,10 +543,9 @@
         </InfoArray>
     </CAbilTrain>
     <CAbilSpecialize id="ConstructTeslaCharge">
-        <OrderArray index="0" Model="Assets\UI\Cursors\WayPointAttack_Void\WayPointAttack_Void.m3"/>
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
         <Activity value="UI/Constructing"/>
-        <InfoArray index="Specialize1" Time="14" Effect="TeslaChargeCompleteShockCharge">
+        <InfoArray index="Specialize1" Time="17" Effect="TeslaChargeCompleteShockCharge">
             <Vital index="Energy" value="150"/>
             <Charge CountMax="1" CountUse="1" Location="Unit"/>
             <Cooldown Location="Unit"/>
@@ -516,18 +588,19 @@
         <UninterruptibleArray index="Cast" value="1"/>
         <UninterruptibleArray index="Finish" value="1"/>
         <CursorEffect value="NaniteGrenadeImpact"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="NaniteGrenade"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="NaniteGrenade" Requirements="AquilaNaniteGrenadeReq"/>
+        <Effect index="0" value="AquilaNaniteGrenadeInitTarget"/>
     </CAbilEffectTarget>
     <CAbilEffectInstant id="SuperChargeAquila">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
-        <Effect index="0" value="Supercharge"/>
+        <Effect index="0" value="AquilaSuperchargePowerEnum"/>
         <Flags index="Transient" value="1"/>
         <Cost>
-            <Vital index="Energy" value="30"/>
+            <Vital index="Energy" value="35"/>
             <Charge Link="Abil/CannonReset"/>
             <Cooldown Link="Abil/CannonReset"/>
         </Cost>
-        <CmdButtonArray index="Execute" DefaultButtonFace="BlitzerSupercharge" Requirements="IsNotSupercharged">
+        <CmdButtonArray index="Execute" DefaultButtonFace="BlitzerSupercharge" Requirements="AquilaIsNotSupercharged">
             <Flags index="ToSelection" value="1"/>
         </CmdButtonArray>
         <AbilSetId value="Supercharge"/>
@@ -536,7 +609,7 @@
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
         <Effect index="0" value="LaunchShockChargeLS"/>
         <Range value="9"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="LaunchShockCharge"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="LaunchShockCharge" Requirements="TeslaAbilitiesReq"/>
         <Cost>
             <Charge>
                 <CountMax value="1"/>
@@ -554,7 +627,7 @@
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
         <Effect index="0" value="LaunchCloakChargeLS"/>
         <Range value="9"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="LaunchCloakCharge"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="LaunchCloakCharge" Requirements="TeslaAbilitiesReq"/>
         <Cost>
             <Charge>
                 <CountMax value="1"/>
@@ -574,16 +647,15 @@
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
         <CmdButtonArray index="Load" DefaultButtonFace="CourierLoad"/>
         <CmdButtonArray index="UnloadAt" DefaultButtonFace="CourierUnloadAll"/>
-        <MaxCargoCount value="10"/>
-        <TotalCargoSpace value="10"/>
         <UnloadCargoEffect value="CargoUnloadStopOrder"/>
     </CAbilTransport>
     <CAbilEffectInstant id="MiningPriority">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
         <Cost/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="MiningPriority"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="MiningPriority" Requirements="ProcessingCoreMiningPriorityReq"/>
         <Effect index="0" value="ProcessingCoreMiningPriority"/>
         <AINotifyEffect value="MiningPrioritySearchArea"/>
+        <Flags index="Transient" value="1"/>
     </CAbilEffectInstant>
     <CAbilBuild id="ACRBuild">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
@@ -625,7 +697,7 @@
             <Button DefaultButtonFace="TechVault" Requirements="HaveAnalysisTerminal"/>
         </InfoArray>
         <InfoArray index="Build12" Unit="AssemblyArray" Time="60">
-            <Button DefaultButtonFace="AssemblyArray" Requirements="HaveFabricationStation"/>
+            <Button DefaultButtonFace="AssemblyArray" Requirements="HaveRelayTower"/>
         </InfoArray>
         <InfoArray index="Build13" Unit="AnalysisTerminal" Time="50">
             <Button DefaultButtonFace="AnalysisTerminal" Requirements="HaveNode"/>
@@ -761,6 +833,7 @@
         </Cost>
         <CursorEffect value="JupiterRevenantBombDamage"/>
         <PostEffectBehavior Behavior="RevenantBombAbilityChannel"/>
+        <Arc value="360"/>
     </CAbilEffectTarget>
     <CAbilHarvest id="ACRGather">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
@@ -806,6 +879,7 @@
         <AINotifyEffect value="SystemOffloadSA"/>
     </CAbilEffectTarget>
     <CAbilEffectTarget id="ProcessorSystemRecharge">
+        <Alignment value="Positive"/>
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
         <Effect index="0" value="ProcessorSystemRechargeCH"/>
         <Flags index="AllowMovement" value="1"/>
@@ -815,26 +889,25 @@
         <Flags index="ReExecutable" value="1"/>
         <Flags index="Smart" value="1"/>
         <TargetFilters value="CanHaveEnergy;Self,Ally,Neutral,Enemy,Structure,Missile,Stasis,UnderConstruction,Dead,Hidden"/>
-        <Range value="5"/>
-        <SmartValidatorArray value="healSmartTargetFilters"/>
-        <SmartValidatorArray value="NotWarpingIn"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="SystemRecharge"/>
-        <AutoCastFilters value="-;Ally"/>
-        <AutoCastRange value="6"/>
-        <AutoCastValidatorArray value="CasterEnergyGTE5"/>
-        <AutoCastValidatorArray value="NotWarpingIn"/>
-        <AutoCastValidatorArray value="TargetUnitTypeIsNotCasterUnitType"/>
-        <Alignment value="Positive"/>
         <TargetSorts RequestCount="1">
             <SortArray value="TSAlliancePassive"/>
             <SortArray value="TSEnergyFraction"/>
             <SortArray value="TSDistance"/>
         </TargetSorts>
+        <Range value="5"/>
         <Arc value="14.9963"/>
+        <SmartValidatorArray value="healSmartTargetFilters"/>
+        <SmartValidatorArray value="NotWarpingIn"/>
         <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastFilters value="-;Ally"/>
+        <AutoCastRange value="6"/>
+        <AutoCastValidatorArray value="CasterEnergyGTE5"/>
+        <AutoCastValidatorArray value="NotWarpingIn"/>
+        <AutoCastValidatorArray value="TargetUnitTypeIsNotCasterUnitType"/>
         <UseMarkerArray index="Approach" value="0"/>
         <UseMarkerArray index="Prep" value="0"/>
         <AINotifyEffect value="ProcessorSystemRechargeCH"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SystemRecharge"/>
         <AcquireAttackers value="1"/>
     </CAbilEffectTarget>
     <CAbilEffectTarget id="CoreSystemRecharge">
@@ -850,12 +923,12 @@
         <Arc value="360"/>
         <SmartValidatorArray value="healSmartTargetFilters"/>
         <SmartValidatorArray value="NotWarpingIn"/>
-        <AutoCastFilters value="-;Ally"/>
+        <AutoCastFilters value="-;Ally,Neutral,Enemy"/>
         <AutoCastRange value="8"/>
         <AutoCastValidatorArray value="NotWarpingIn"/>
         <AutoCastValidatorArray value="IsNotTeslaCharge"/>
         <AutoCastValidatorArray value="EnergyNotFull"/>
-        <AutoCastValidatorArray value="GenetronPowerSupplyGE5"/>
+        <AutoCastValidatorArray value="GenetronPowerSupplyGE05"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="CoreSystemRecharge"/>
         <TargetSorts RequestCount="1">
             <SortArray value="TSAlliancePassive"/>
@@ -866,6 +939,9 @@
         <UseMarkerArray index="Approach" value="0"/>
         <UseMarkerArray index="Prep" value="0"/>
         <AINotifyEffect value="SystemRechargeCoreCH"/>
+        <Cost>
+            <Cooldown TimeUse="0.0625"/>
+        </Cost>
     </CAbilEffectTarget>
     <CAbilResearch id="TechVaultResearch">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
@@ -938,7 +1014,7 @@
             <Button DefaultButtonFace="FabricateMole" Requirements="HaveAnalysisTerminal"/>
             <Unit value="Mole"/>
         </InfoArray>
-        <InfoArray index="Train3" Time="56" Effect="FabricatorFinishTeslaInit">
+        <InfoArray index="Train3" Time="70" Effect="FabricatorFinishTeslaInit">
             <Button DefaultButtonFace="FabricateTesla" Requirements="HaveChemicalFirm"/>
             <Unit value="Tesla"/>
         </InfoArray>
@@ -1043,7 +1119,6 @@
     </CAbilEffectTarget>
     <CAbilEffectTarget id="VengeanceMissile">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
-        <Effect index="0" value="VengeanceMissileS"/>
         <Flags index="AllowMovement" value="1"/>
         <Flags index="NoDeceleration" value="1"/>
         <Flags index="TransientPreferred" value="1"/>
@@ -1052,7 +1127,7 @@
         </Cost>
         <TargetFilters value="-;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <Range value="8"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="VengeanceMissile"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VengeanceMissile" Requirements="AvengerVengeanceMissileReq"/>
         <SharedFlags index="RegisterChargeEvent" value="1"/>
         <Arc value="360"/>
     </CAbilEffectTarget>
@@ -1061,10 +1136,10 @@
         <Cost>
             <Vital index="Energy" value="100"/>
         </Cost>
-        <CastOutroTime value="5.6"/>
-        <UninterruptibleArray index="Cast" value="1"/>
+        <CastOutroTime value="4.2"/>
         <UninterruptibleArray index="Channel" value="1"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="SelfFixProtocol"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SelfFixProtocol" Requirements="VirtusSelfFixReq"/>
+        <Effect index="0" value="VirtusSelffixProtocolChannelDummy"/>
     </CAbilEffectInstant>
     <CAbilEffectTarget id="WardRestitution">
         <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
@@ -1096,6 +1171,19 @@
         </Cost>
         <CmdButtonArray index="Execute" DefaultButtonFace="Cancel" Requirements="WardShellDomeCancel"/>
     </CAbilEffectInstant>
+    <CAbilEffectTarget id="XayithoanWatcher">
+        <EditorCategories value="Race:Xayid,AbilityorEffectType:Units"/>
+        <Effect index="0" value="XayithoanWatcherInitTarget"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+        </Cost>
+        <Range value="1000"/>
+        <CastIntroTime value="0.25"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="SpawnWatcher"/>
+    </CAbilEffectTarget>
     <CAbilQueue id="que1Passive">
         <EditorCategories value="Race:Neutral,AbilityorEffectType:Structures"/>
         <QueueSize value="1"/>
@@ -1137,13 +1225,13 @@
     </CAbilMorph>
     <CAbilEffectTarget id="AdaptiveInjection">
         <EditorCategories value="Race:Xayid,AbilityorEffectType:Units"/>
+        <Flags index="AllowMovement" value="1"/>
         <Cost>
-            <Vital index="Energy" value="50"/>
+            <Vital index="Energy" value="25"/>
         </Cost>
-        <Range value="9"/>
+        <Range value="10"/>
         <CastIntroTime value="0.25"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="AdaptiveInjection"/>
-        <Flags index="AllowMovement" value="1"/>
     </CAbilEffectTarget>
     <CAbilTrain id="AerialNestWaspMutateXayidFlyers">
         <EditorCategories value="Race:Xayid,AbilityorEffectType:Units"/>
@@ -1172,7 +1260,7 @@
             <Button DefaultButtonFace="Kraken" Requirements="HaveSunkenWarren"/>
             <Unit value="Kraken"/>
         </InfoArray>
-        <InfoArray index="Train8" Time="45">
+        <InfoArray index="Train8" Time="38">
             <Button DefaultButtonFace="Assailant"/>
             <Unit value="Assailant"/>
         </InfoArray>
@@ -1221,7 +1309,7 @@
         <Flags index="WaitForFood" value="0"/>
         <MorphUnit value="XayidCocoon"/>
         <Range value="4"/>
-        <InfoArray index="Train1" Time="38">
+        <InfoArray index="Train1" Time="30">
             <Button DefaultButtonFace="Reviler"/>
             <Unit value="Reviler"/>
         </InfoArray>
@@ -1237,7 +1325,7 @@
             <Button DefaultButtonFace="Massalisk" Requirements="HaveBiomassCavern"/>
             <Unit value="Massalisk"/>
         </InfoArray>
-        <InfoArray index="Train7" Time="38">
+        <InfoArray index="Train7" Time="30">
             <Button DefaultButtonFace="Prowler"/>
             <Unit value="Prowler"/>
         </InfoArray>
@@ -1297,13 +1385,13 @@
         <InfoArray index="Research3" Time="80" Alert="ResearchComplete_Zerg" Upgrade="PersistentSpores">
             <Resource index="Minerals" value="100"/>
             <Resource index="Vespene" value="100"/>
-            <Button DefaultButtonFace="MutatePersistentSpores" Requirements="LearnCoveringSpray">
+            <Button DefaultButtonFace="MutatePersistentSpores" Requirements="LearnPersistentSpores">
                 <Flags index="ShowInGlossary" value="1"/>
             </Button>
         </InfoArray>
-        <InfoArray index="Research4" Time="110" Alert="ResearchComplete_Zerg" Upgrade="OcularAcuity">
-            <Resource index="Minerals" value="150"/>
-            <Resource index="Vespene" value="150"/>
+        <InfoArray index="Research4" Time="60" Alert="ResearchComplete_Zerg" Upgrade="OcularAcuity">
+            <Resource index="Minerals" value="100"/>
+            <Resource index="Vespene" value="100"/>
             <Button DefaultButtonFace="MutateOcularAcuity" Requirements="LearnOcularAcuity">
                 <Flags index="ShowInGlossary" value="1"/>
             </Button>
@@ -1316,8 +1404,8 @@
             </Button>
         </InfoArray>
         <InfoArray index="Research6" Time="110" Upgrade="BileDucts">
-            <Resource index="Minerals" value="100"/>
-            <Resource index="Vespene" value="100"/>
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
             <Button DefaultButtonFace="MutateBileDucts" Requirements="LearnBileDucts">
                 <Flags index="ShowInGlossary" value="1"/>
             </Button>
@@ -1333,7 +1421,7 @@
     <CAbilEffectTarget id="CoveringSpray">
         <EditorCategories value="Race:Xayid,AbilityorEffectType:Units"/>
         <Cost>
-            <Vital index="Energy" value="100"/>
+            <Vital index="Energy" value="75"/>
         </Cost>
         <TargetFilters value="-;Self,Neutral,Enemy,Structure,Missile,Cloaked,Stasis"/>
         <Range value="5"/>
@@ -1348,12 +1436,13 @@
         <Flags index="RequireTargetVision" value="0"/>
         <Cost>
             <Charge Link="Abil/Dash"/>
-            <Cooldown Link="Abil/Dash" TimeUse="10"/>
+            <Cooldown Link="Abil/Dash" TimeUse="9.8"/>
         </Cost>
         <Range value="500"/>
         <UninterruptibleArray index="Cast" value="1"/>
         <UninterruptibleArray index="Channel" value="1"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="Dash"/>
+        <Arc value="360"/>
     </CAbilEffectTarget>
     <CAbilResearch id="CatalystPitResearch">
         <EditorCategories value="Race:Xayid,AbilityorEffectType:Units"/>
@@ -1387,6 +1476,20 @@
             <Resource index="Vespene" value="300"/>
             <Button DefaultButtonFace="MutateFlyerCarapaceLevel3" Requirements="LearnXayidFlyerCarapaceLevel3"/>
         </InfoArray>
+        <InfoArray index="Research7" Time="80" Upgrade="CleavingSpores">
+            <Resource index="Minerals" value="100"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="MutateCleavingSpores" Requirements="LearnCleavingSpores">
+                <Flags index="ShowInGlossary" value="1"/>
+            </Button>
+        </InfoArray>
+        <InfoArray index="Research8" Time="110" Upgrade="RefinedExcretion">
+            <Resource index="Minerals" value="100"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="MutateRefinedExcretion" Requirements="LearnRefinedExcretion">
+                <Flags index="ShowInGlossary" value="1"/>
+            </Button>
+        </InfoArray>
         <Activity value="UI/Mutating"/>
     </CAbilResearch>
     <CAbilEffectTarget id="IncendiaryInfusion">
@@ -1397,7 +1500,7 @@
         <Range value="8"/>
         <FinishTime value="0.45"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="IncendiaryInfusion"/>
-        <TargetFilters value="-;Player,Ally,Neutral,Structure,RawResource,HarvestableResource,Missile,Stasis,Hidden,Invulnerable"/>
+        <TargetFilters value="-;Player,Ally,Structure,RawResource,HarvestableResource,Missile,Stasis,Hidden,Invulnerable"/>
         <Flags index="AllowMovement" value="1"/>
     </CAbilEffectTarget>
     <CAbilEffectTarget id="ExplosiveGlob">
@@ -1592,14 +1695,13 @@
             <Button DefaultButtonFace="Eroder" Requirements="HaveCasnoliskDen"/>
             <Unit value="Eroder"/>
         </InfoArray>
-        <InfoArray index="Train8" Time="35">
+        <InfoArray index="Train8" Time="30">
             <Button DefaultButtonFace="Roamer" Requirements="HaveMutagenChamber"/>
             <Unit value="Roamer"/>
         </InfoArray>
     </CAbilTrain>
     <CAbilBuild id="PlaceAcidNest">
         <EditorCategories value="Race:Xayid,AbilityorEffectType:Units"/>
-        <FlagArray index="Interruptible" value="1"/>
         <FlagArray index="PeonMaintained" value="0"/>
         <FlagArray index="ShowProgress" value="1"/>
         <InfoArray index="Build1" Unit="AcidNestBuild" Time="15">
@@ -1645,35 +1747,22 @@
         <Range value="13"/>
         <CursorEffect value="StagnatingBileImpact"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="StagnatingBile"/>
+        <EffectRange index="0" value="1.75,1000"/>
     </CAbilEffectTarget>
     <CAbilResearch id="SunkenWarrenResearch">
         <EditorCategories value="Race:Xayid,AbilityorEffectType:Units"/>
         <Activity value="UI/Mutating"/>
-        <InfoArray index="Research1" Time="110" Alert="ResearchComplete_Zerg" Upgrade="VolatileDischarge">
+        <InfoArray index="Research1" Time="110" Upgrade="VolatileDischarge">
             <Resource index="Minerals" value="200"/>
             <Resource index="Vespene" value="200"/>
             <Button DefaultButtonFace="MutateVolatileDischarge" Requirements="LearnVolatileDischarge">
                 <Flags index="ShowInGlossary" value="1"/>
             </Button>
         </InfoArray>
-        <InfoArray index="Research2" Time="110" Alert="ResearchComplete_Zerg" Upgrade="IncendiaryInfusion">
+        <InfoArray index="Research2" Time="110" Upgrade="IncendiaryInfusion">
             <Resource index="Minerals" value="150"/>
             <Resource index="Vespene" value="150"/>
             <Button DefaultButtonFace="MutateIncendiaryInfusion" Requirements="LearnIncendiaryInfusion"/>
-        </InfoArray>
-        <InfoArray index="Research3" Time="80" Alert="ResearchComplete_Zerg" Upgrade="CleavingSpores">
-            <Resource index="Minerals" value="100"/>
-            <Resource index="Vespene" value="100"/>
-            <Button DefaultButtonFace="MutateCleavingSpores" Requirements="LearnCleavingSpores">
-                <Flags index="ShowInGlossary" value="1"/>
-            </Button>
-        </InfoArray>
-        <InfoArray index="Research4" Time="110" Upgrade="RefinedExcretion">
-            <Resource index="Minerals" value="150"/>
-            <Resource index="Vespene" value="150"/>
-            <Button DefaultButtonFace="MutateRefinedExcretion" Requirements="LearnRefinedExcretion">
-                <Flags index="ShowInGlossary" value="1"/>
-            </Button>
         </InfoArray>
     </CAbilResearch>
     <CAbilTransport id="TransportFerrion" parent="OverlordTransport">
@@ -1698,15 +1787,15 @@
     <CAbilEffectTarget id="VolatileDischarge">
         <EditorCategories value="Race:Xayid,AbilityorEffectType:Units"/>
         <Cost>
-            <Resource index="Minerals" value="50"/>
-            <Resource index="Vespene" value="50"/>
+            <Resource index="Minerals" value="25"/>
+            <Resource index="Vespene" value="25"/>
             <Cooldown TimeUse="60"/>
         </Cost>
         <Range value="8"/>
         <CastIntroTime value="0.4"/>
         <CastOutroTime value="0.4"/>
         <CursorEffect value="VolatileDischargeDMG"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="VolatileDischarge" Requirements="UseVolatileDischarge">
+        <CmdButtonArray index="Execute" DefaultButtonFace="VolatileDischarge">
             <Flags index="AllowMinimap" value="0"/>
         </CmdButtonArray>
         <Flags index="AllowMovement" value="1"/>
@@ -1797,16 +1886,13 @@
             <Vital index="Energy" value="125"/>
         </Cost>
         <RangeSlop value="10"/>
-        <UninterruptibleArray index="Prep" value="1"/>
-        <UninterruptibleArray index="Cast" value="1"/>
         <UninterruptibleArray index="Channel" value="1"/>
-        <UninterruptibleArray index="Finish" value="1"/>
         <TargetFilters value="Ground;Self,Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <Alignment value="Negative"/>
-        <PrepEffect value="ParagonDisableAntiAir"/>
-        <PrepTime value="3"/>
-        <ShowProgressArray index="Prep" value="1"/>
-        <ProgressButtonArray index="Prep" value="EmissaryOrb"/>
+        <ShowProgressArray index="Channel" value="1"/>
+        <ProgressButtonArray index="Channel" value="EmissaryOrb"/>
+        <Effect index="0" value="ParagonEmissaryOrbChannel"/>
+        <CastOutroTime value="3"/>
     </CAbilEffectTarget>
     <CAbilEffectTarget id="FuseFusion">
         <EditorCategories value="AbilityorEffectType:Units,Race:Keiron"/>
@@ -1819,6 +1905,7 @@
         </Cost>
         <TargetFilters value="-;Self,Ally,Neutral,Enemy,Structure,Missile,Stasis,Dead,Hidden"/>
         <AINotifyEffect value="FuseFusionAB"/>
+        <Arc value="360"/>
     </CAbilEffectTarget>
     <CAbilEffectInstant id="HarbingerExitJudgementMode">
         <EditorCategories value="AbilityorEffectType:Units,Race:Keiron"/>
@@ -1840,10 +1927,12 @@
         <Cost>
             <Cooldown TimeUse="10.5"/>
         </Cost>
-        <Range value="38"/>
+        <Range value="45"/>
         <Arc value="360"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="Reveal"/>
-        <CursorEffect value="OculusReveal"/>
+        <CursorEffect value="OculusRevealVision"/>
+        <Effect index="0" value="OculusRevealInit"/>
+        <AINotifyEffect value="OculusRevealVision"/>
     </CAbilEffectTarget>
     <CAbilResearch id="OutletResearch">
         <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
@@ -2011,8 +2100,8 @@
             </Button>
         </InfoArray>
         <InfoArray index="Research2" Time="110" Alert="ResearchComplete" Upgrade="PulsarDampener">
-            <Resource index="Minerals" value="200"/>
-            <Resource index="Vespene" value="200"/>
+            <Resource index="Minerals" value="150"/>
+            <Resource index="Vespene" value="150"/>
             <Button DefaultButtonFace="DevelopPulsarDampener" Requirements="LearnDampener"/>
         </InfoArray>
     </CAbilResearch>
@@ -2038,8 +2127,8 @@
             </Button>
         </InfoArray>
         <InfoArray index="Research2" Time="110" Alert="ResearchComplete" Upgrade="ShieldCompulsion">
-            <Resource index="Minerals" value="150"/>
-            <Resource index="Vespene" value="150"/>
+            <Resource index="Minerals" value="200"/>
+            <Resource index="Vespene" value="200"/>
             <Button DefaultButtonFace="DevelopUmbraShieldCompulsion" Requirements="LearnShieldCompulsion"/>
         </InfoArray>
     </CAbilResearch>
@@ -2061,6 +2150,13 @@
             <Resource index="Minerals" value="100"/>
             <Resource index="Vespene" value="100"/>
             <Button DefaultButtonFace="DevelopDissonanceProjector" Requirements="LearnDissonanceProjector">
+                <Flags index="ShowInGlossary" value="1"/>
+            </Button>
+        </InfoArray>
+        <InfoArray index="Research2" Time="110" Upgrade="InterlacingBond">
+            <Resource index="Minerals" value="100"/>
+            <Resource index="Vespene" value="100"/>
+            <Button DefaultButtonFace="DevelopInterlacingBond" Requirements="LearnInterlacingBond">
                 <Flags index="ShowInGlossary" value="1"/>
             </Button>
         </InfoArray>
@@ -2090,7 +2186,7 @@
             <Cooldown TimeUse="94.5"/>
         </Cost>
         <Placeholder value="Emanator"/>
-        <Range value="4"/>
+        <Range value="5"/>
         <AINotifyEffect value="EmanatorLM"/>
         <ProducedUnitArray value="Emanator"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="PlaceEmanator"/>
@@ -2427,7 +2523,7 @@
         <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
         <Activity value="UI/Building"/>
         <Leash value="14"/>
-        <InfoArray index="Ammo1" Time="12" CountStart="1" Manage="Recall" Unit="Elytron">
+        <InfoArray index="Ammo1" Time="15.4" CountStart="1" Manage="Recall" Unit="Elytron">
             <Charge Link="MyriadElytra" Location="Unit"/>
             <Cooldown Link="MyriadTrainElytra" TimeUse="0.01"/>
             <Button DefaultButtonFace="CreateElytron" Requirements="ArmElytra">
@@ -2508,6 +2604,7 @@
         </Cost>
         <Range value="500"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="Projection"/>
+        <Arc value="360"/>
     </CAbilEffectTarget>
     <CAbilMorph id="ProjectionEnd">
         <EditorCategories value="Race:Keiron,AbilityorEffectType:Units"/>
@@ -2590,6 +2687,8 @@
             <Cooldown TimeUse="1.4"/>
         </Cost>
         <CmdButtonArray index="Execute" DefaultButtonFace="UmbraShieldCompulsion" Requirements="UseShieldCompulsion"/>
+        <Effect index="0" value="UmbraStealthCompulsion"/>
+        <AINotifyEffect value="UmbraStealthCompulsion"/>
     </CAbilEffectInstant>
     <CAbilEffectInstant id="FuseUnfuse">
         <EditorCategories value="AbilityorEffectType:Units,Race:Keiron"/>
@@ -2600,8 +2699,9 @@
         <TargetFilters value="-;Ally,Neutral,Enemy,Structure,Stasis,Dead,Hidden"/>
         <AINotifyEffect value="FuseUnfuseRB"/>
     </CAbilEffectInstant>
-    <CAbilEffectTarget id="ELORProtocol">
+    <CAbilEffectTarget id="InciterELORProtocol">
         <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
+        <Effect index="0" value="ELORProtocolInitTarget"/>
         <Flags index="AllowMovement" value="1"/>
         <Flags index="BestUnit" value="0"/>
         <Flags index="RequireTargetVision" value="0"/>
@@ -2612,6 +2712,6 @@
         <Range value="10"/>
         <AINotifyEffect value="ELORProtocolLM"/>
         <EffectRange index="0" value="1,500"/>
-        <CmdButtonArray index="Execute" DefaultButtonFace="ELORProtocol"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ELORProtocol" Requirements="InciterELORReq"/>
     </CAbilEffectTarget>
 </Catalog>
