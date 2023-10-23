@@ -1,0 +1,68 @@
+include "TriggerLibs/NativeLib"
+
+include "LibFA3E8371_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: My Mod
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libFA3E8371_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: All Race Trigger
+//--------------------------------------------------------------------------------------------------
+bool libFA3E8371_gt_AllRaceTrigger_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto37223B1A_g;
+    int auto37223B1A_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(2.0, c_timeGame);
+    auto37223B1A_g = PlayerGroupActive();
+    auto37223B1A_var = -1;
+    while (true) {
+        auto37223B1A_var = PlayerGroupNextPlayer(auto37223B1A_g, auto37223B1A_var);
+        if (auto37223B1A_var < 0) { break; }
+        if (((GameAttributePlayerValue("[bnet:local/0.0/319427]1", auto37223B1A_var) == "0002") || (GameAttributePlayerValue("[bnet:local/0.0/319427]1", auto37223B1A_var) == "0002")) && (PlayerType(auto37223B1A_var) != c_playerTypeComputer)) {
+            UnitCreate(1, "Test001Creator", 0, auto37223B1A_var, Point(0.0, 0.0), 270.0);
+            AISetUnitScriptControlled(UnitLastCreated(), false);
+            UnitControlGroupAddUnit(auto37223B1A_var, 7, UnitLastCreated());
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libFA3E8371_gt_AllRaceTrigger_Init () {
+    libFA3E8371_gt_AllRaceTrigger = TriggerCreate("libFA3E8371_gt_AllRaceTrigger_Func");
+    TriggerAddEventMapInit(libFA3E8371_gt_AllRaceTrigger);
+}
+
+void libFA3E8371_InitTriggers () {
+    libFA3E8371_gt_AllRaceTrigger_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libFA3E8371_InitLib_completed = false;
+
+void libFA3E8371_InitLib () {
+    if (libFA3E8371_InitLib_completed) {
+        return;
+    }
+
+    libFA3E8371_InitLib_completed = true;
+
+    libFA3E8371_InitLibraries();
+    libFA3E8371_InitTriggers();
+}
+

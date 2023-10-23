@@ -1,0 +1,2905 @@
+include "TriggerLibs/NativeLib"
+
+include "Lib4E716EEF_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Game Mode
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib4E716EEF_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Variable Initialization
+bool lib4E716EEF_InitVariables_completed = false;
+
+void lib4E716EEF_InitVariables () {
+    int init_i;
+
+    if (lib4E716EEF_InitVariables_completed) {
+        return;
+    }
+
+    lib4E716EEF_InitVariables_completed = true;
+
+    lib4E716EEF_gv_gameMode_CTF_FirstFlagSpawn = true;
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lib4E716EEF_gv_gameMode_CTF_AttachedPings[init_i] = c_invalidPingId;
+    }
+    lib4E716EEF_gv_gameMode_CTF_RespawnTimer = TimerCreate();
+    lib4E716EEF_gv_gameMode_Slaughter_Timer = TimerCreate();
+    lib4E716EEF_gv_gameMode_InfoIcon_Dialog = c_invalidDialogId;
+    lib4E716EEF_gv_gameMode_InfoIcon_DialogItem = c_invalidDialogControlId;
+    lib4E716EEF_gv_gameMode_Objective_Dialog = c_invalidDialogId;
+    lib4E716EEF_gv_gameMode_Objective_DialogItem = c_invalidDialogControlId;
+}
+
+// Functions
+text lib4E716EEF_gf_HandleGameModeforPlayerX (int lp_player) {
+    // Variable Declarations
+    text lv_displayText;
+
+    // Automatic Variable Declarations
+    string autoB28160A2_val;
+
+    // Variable Initialization
+    lv_displayText = StringToText("");
+
+    // Implementation
+    autoB28160A2_val = GameAttributeGameValue("[bnet:local/0.0/280012]16");
+    if (autoB28160A2_val == "0002") {
+        if ((lib4E716EEF_gv_gameMode_TeamMode == true)) {
+            lv_displayText = lib4E716EEF_gf_HandleTeamSlaughter(lp_player, lv_displayText);
+        }
+        else {
+            lv_displayText = lib4E716EEF_gf_HandleSoloSlaughter(lp_player, lv_displayText);
+        }
+    }
+    else if (autoB28160A2_val == "0003") {
+        if ((lib4E716EEF_gv_gameMode_TeamMode == true)) {
+            lv_displayText = lib4E716EEF_gf_HandleTeamGreed(lp_player, lv_displayText);
+        }
+        else {
+            lv_displayText = lib4E716EEF_gf_HandleSoloGreed(lp_player, lv_displayText);
+        }
+    }
+    else if (autoB28160A2_val == "0004") {
+        if ((lib4E716EEF_gv_gameMode_TeamMode == true) && (GameAttributeGameValue("[bnet:local/0.0/280012]22") != "0003") && (GameAttributeGameValue("[bnet:local/0.0/280012]22") != "0001") && (GameAttributeGameValue("[bnet:local/0.0/280012]22") != "0004")) {
+            lv_displayText = lib4E716EEF_gf_HandleTeamCTF(lp_player, lv_displayText);
+        }
+        else {
+            lv_displayText = lib4E716EEF_gf_HandleSoloCTF(lp_player, lv_displayText);
+        }
+    }
+    else if (autoB28160A2_val == "0006") {
+        if ((lib4E716EEF_gv_gameMode_TeamMode == true)) {
+            lv_displayText = lib4E716EEF_gf_HandleTeamKing(lp_player, lv_displayText);
+        }
+        else {
+            lv_displayText = lib4E716EEF_gf_HandleSoloKing(lp_player, lv_displayText);
+        }
+    }
+    else {
+        lv_displayText = StringToText("");
+    }
+    return lv_displayText;
+}
+
+text lib4E716EEF_gf_HandleSoloSlaughter (int lp_player, text lp_text) {
+    // Variable Declarations
+    text lv_displayText;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_displayText = lp_text;
+
+    // Implementation
+    if ((PlayerStatus(lp_player) != c_playerStatusUnused)) {
+        if ((PlayerStatus(lp_player) == c_playerStatusActive)) {
+            lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_0FE6153B") + TextWithColor(PlayerName(lp_player), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false))) + StringExternal("Param/Value/lib_4E716EEF_914A54AA"));
+        }
+        else {
+            lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_58EBD9A1") + TextWithColor(PlayerName(lp_player), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_35BCD6B6"));
+        }
+        lv_displayText = (lv_displayText + IntToText(lib4E716EEF_gv_gameMode_Slaughter_Kills[lp_player]) + StringExternal("Param/Value/lib_4E716EEF_F6DB3818"));
+    }
+
+    return lv_displayText;
+}
+
+text lib4E716EEF_gf_HandleSoloGreed (int lp_player, text lp_text) {
+    // Variable Declarations
+    text lv_displayText;
+
+    // Automatic Variable Declarations
+    string auto92F5C3D0_val;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((PlayerStatus(lp_player) != c_playerStatusUnused)) {
+        if ((PlayerStatus(lp_player) == c_playerStatusActive)) {
+            lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_8BD70749") + TextWithColor(PlayerName(lp_player), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false))) + StringExternal("Param/Value/lib_4E716EEF_1BB84F67"));
+        }
+        else {
+            lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_1672B103") + TextWithColor(PlayerName(lp_player), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_1A8E945D"));
+        }
+        auto92F5C3D0_val = GameAttributeGameValue("[bnet:local/0.0/280012]21");
+        if (auto92F5C3D0_val == "0001") {
+            lv_displayText = (lv_displayText + IntToText(PlayerGetPropertyInt(lp_player, c_playerPropMinerals)) + StringExternal("Param/Value/lib_4E716EEF_13CC9260") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_0E76C1C1"));
+            if ((lib4E716EEF_gv_gameMode_Greed_Goal <= PlayerGetPropertyInt(lp_player, c_playerPropMinerals))) {
+                lib4E716EEF_gf_GameOverEnd(lp_player);
+            }
+
+        }
+        else if (auto92F5C3D0_val == "0002") {
+            lv_displayText = (lv_displayText + IntToText(PlayerGetPropertyInt(lp_player, c_playerPropVespene)) + StringExternal("Param/Value/lib_4E716EEF_CF695EFA") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_19FA3191"));
+            if ((lib4E716EEF_gv_gameMode_Greed_Goal <= PlayerGetPropertyInt(lp_player, c_playerPropVespene))) {
+                lib4E716EEF_gf_GameOverEnd(lp_player);
+            }
+
+        }
+        else if (auto92F5C3D0_val == "0003") {
+            lv_displayText = (lv_displayText + IntToText((PlayerGetPropertyInt(lp_player, c_playerPropMinerals) + PlayerGetPropertyInt(lp_player, c_playerPropVespene))) + StringExternal("Param/Value/lib_4E716EEF_26CFC555") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_E4B518BF"));
+            if ((lib4E716EEF_gv_gameMode_Greed_Goal <= (PlayerGetPropertyInt(lp_player, c_playerPropMinerals) + PlayerGetPropertyInt(lp_player, c_playerPropVespene)))) {
+                lib4E716EEF_gf_GameOverEnd(lp_player);
+            }
+
+        }
+        else {
+        }
+    }
+
+    return lv_displayText;
+}
+
+text lib4E716EEF_gf_HandleSoloCTF (int lp_player, text lp_text) {
+    // Variable Declarations
+    text lv_displayText;
+
+    // Automatic Variable Declarations
+    string autoD84BFB7F_val;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((PlayerStatus(lp_player) != c_playerStatusUnused)) {
+        if ((PlayerStatus(lp_player) == c_playerStatusActive)) {
+            lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_593261EC") + TextWithColor(PlayerName(lp_player), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false))) + StringExternal("Param/Value/lib_4E716EEF_54C9C937"));
+        }
+        else {
+            lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_C82AA89C") + TextWithColor(PlayerName(lp_player), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_41966493"));
+        }
+        autoD84BFB7F_val = GameAttributeGameValue("[bnet:local/0.0/280012]22");
+        if (autoD84BFB7F_val == "0003") {
+            if ((lib4E716EEF_gv_gameMode_CTF_FlagPoints[lib4E716EEF_gv_gameMode_CTF_PlayerColorConnection[lp_player]] == 1)) {
+                lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_3942AADA") + StringExternal("Param/Value/lib_4E716EEF_8DEE947D"));
+            }
+            else {
+                if ((PlayerStatus(lp_player) == c_playerStatusActive)) {
+                    lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_619EE5B2") + StringExternal("Param/Value/lib_4E716EEF_F122F045"));
+                }
+                else {
+                    lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_8EEE02FA"));
+                }
+            }
+        }
+        else if (autoD84BFB7F_val == "0002") {
+            lv_displayText = (lv_displayText + IntToText(lib4E716EEF_gv_gameMode_CTF_FlagPoints[lp_player]) + StringExternal("Param/Value/lib_4E716EEF_11AE2DEB") + StringExternal("Param/Value/lib_4E716EEF_366FFEAA"));
+            if ((lib4E716EEF_gv_gameMode_CTF_FlagPoints[lp_player] >= lib4E716EEF_gv_gameMode_CTF_GoalPoints)) {
+                lib4E716EEF_gf_GameOverEnd(lp_player);
+            }
+
+        }
+        else if (autoD84BFB7F_val == "0005") {
+            lv_displayText = (lv_displayText + IntToText(lib4E716EEF_gv_gameMode_CTF_FlagPoints[lp_player]) + StringExternal("Param/Value/lib_4E716EEF_AB0EFECA"));
+            if ((lib4E716EEF_gv_gameMode_CTF_FlagPoints[lp_player] <= 0)) {
+                lib4E716EEF_gf_EndGamewithSound(lp_player, "Lose", false);
+            }
+
+        }
+        else if (autoD84BFB7F_val == "0006") {
+            lv_displayText = (lv_displayText + IntToText(lib4E716EEF_gv_gameMode_CTF_FlagPoints[lp_player]) + StringExternal("Param/Value/lib_4E716EEF_40B300DC") + StringExternal("Param/Value/lib_4E716EEF_3A89E313"));
+            if ((lib4E716EEF_gv_gameMode_CTF_FlagPoints[lp_player] >= lib4E716EEF_gv_gameMode_CTF_GoalPoints)) {
+                lib4E716EEF_gf_GameOverEnd(lp_player);
+            }
+
+        }
+        else {
+        }
+    }
+
+    return lv_displayText;
+}
+
+text lib4E716EEF_gf_HandleSoloKing (int lp_player, text lp_text) {
+    // Variable Declarations
+    text lv_displayText;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((PlayerStatus(lp_player) != c_playerStatusUnused)) {
+        if ((PlayerStatus(lp_player) == c_playerStatusActive)) {
+            lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_35BD0917") + TextWithColor(PlayerName(lp_player), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lp_player, false))) + StringExternal("Param/Value/lib_4E716EEF_585E4FB8"));
+        }
+        else {
+            lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_A9E2D80C") + TextWithColor(PlayerName(lp_player), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_E8220ED5"));
+        }
+        if ((UnitGroupCount(UnitGroup("TunnelingLingsKing", lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
+            lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_630E3391"));
+        }
+        else {
+            lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_11281EB5"));
+        }
+    }
+
+    return lv_displayText;
+}
+
+text lib4E716EEF_gf_HandleTeamSlaughter (int lp_player, text lp_text) {
+    // Variable Declarations
+    text lv_displayText;
+    int lv_b;
+    int lv_tKills;
+
+    // Automatic Variable Declarations
+    int autoE6D00D2E_ae;
+    const int autoE6D00D2E_ai = 1;
+    int auto1F2EECB2_ae;
+    const int auto1F2EECB2_ai = 1;
+
+    // Variable Initialization
+    lv_displayText = lp_text;
+
+    // Implementation
+    if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) > 0)) {
+        if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+            if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)) == c_playerStatusActive)) {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_DEBCEA57") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), false))) + StringExternal("Param/Value/lib_4E716EEF_3545B590"));
+            }
+            else {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_0EB0121D") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_604662BD"));
+            }
+            lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_D23F8E69") + IntToText(lib4E716EEF_gv_gameMode_Slaughter_Kills[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)]) + StringExternal("Param/Value/lib_4E716EEF_FF412876"));
+        }
+        else {
+            lv_tKills = 0;
+            autoE6D00D2E_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+            lv_b = 1;
+            for ( ; ( (autoE6D00D2E_ai >= 0 && lv_b <= autoE6D00D2E_ae) || (autoE6D00D2E_ai < 0 && lv_b >= autoE6D00D2E_ae) ) ; lv_b += autoE6D00D2E_ai ) {
+                lv_tKills += lib4E716EEF_gv_gameMode_Slaughter_Kills[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)];
+            }
+            lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_F6BA285F") + IntToText(lp_player) + StringExternal("Param/Value/lib_4E716EEF_ECB021F4") + IntToText(lv_tKills) + StringExternal("Param/Value/lib_4E716EEF_593620FF"));
+            auto1F2EECB2_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+            lv_b = 1;
+            for ( ; ( (auto1F2EECB2_ai >= 0 && lv_b <= auto1F2EECB2_ae) || (auto1F2EECB2_ai < 0 && lv_b >= auto1F2EECB2_ae) ) ; lv_b += auto1F2EECB2_ai ) {
+                if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)) == c_playerStatusActive)) {
+                    lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_01648F43") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), false))) + StringExternal("Param/Value/lib_4E716EEF_F9E94310"));
+                }
+                else {
+                    lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_F16B2475") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_88F950D4"));
+                }
+                lv_displayText = (lv_displayText + IntToText(lib4E716EEF_gv_gameMode_Slaughter_Kills[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)]) + StringExternal("Param/Value/lib_4E716EEF_61776420"));
+            }
+        }
+    }
+
+    return lv_displayText;
+}
+
+text lib4E716EEF_gf_HandleTeamGreed (int lp_player, text lp_text) {
+    // Variable Declarations
+    text lv_displayText;
+    int lv_b;
+    int lv_tResources;
+
+    // Automatic Variable Declarations
+    string autoC4CD54BD_val;
+    int auto13B3971E_ae;
+    const int auto13B3971E_ai = 1;
+    int auto1966968E_ae;
+    const int auto1966968E_ai = 1;
+    int autoC32F1672_ae;
+    const int autoC32F1672_ai = 1;
+    int auto573F7771_ae;
+    const int auto573F7771_ai = 1;
+    int autoC96382B9_ae;
+    const int autoC96382B9_ai = 1;
+    int auto035BED58_ae;
+    const int auto035BED58_ai = 1;
+
+    // Variable Initialization
+    lv_displayText = lp_text;
+
+    // Implementation
+    if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) > 0)) {
+        if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+            if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)) == c_playerStatusActive)) {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_1A57992B") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), false))) + StringExternal("Param/Value/lib_4E716EEF_CDE0B42A"));
+            }
+            else {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_72EC30A5") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_1A79A7EC"));
+            }
+        }
+
+        autoC4CD54BD_val = GameAttributeGameValue("[bnet:local/0.0/280012]21");
+        if (autoC4CD54BD_val == "0001") {
+            if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+                lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_10A63784") + IntToText(PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), c_playerPropMinerals)) + StringExternal("Param/Value/lib_4E716EEF_49E8FBE7") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_0C0011D6"));
+                if ((lib4E716EEF_gv_gameMode_Greed_Goal <= PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), c_playerPropMinerals))) {
+                    lib4E716EEF_gv_gameMode_GameOver = true;
+                    lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                }
+
+            }
+            else {
+                lv_tResources = 0;
+                autoC32F1672_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (autoC32F1672_ai >= 0 && lv_b <= autoC32F1672_ae) || (autoC32F1672_ai < 0 && lv_b >= autoC32F1672_ae) ) ; lv_b += autoC32F1672_ai ) {
+                    lv_tResources += PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), c_playerPropMinerals);
+                }
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_2B40C886") + IntToText(lp_player) + StringExternal("Param/Value/lib_4E716EEF_17EB871E") + IntToText(lv_tResources) + StringExternal("Param/Value/lib_4E716EEF_E66E852D") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_1E4E4637"));
+                auto573F7771_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (auto573F7771_ai >= 0 && lv_b <= auto573F7771_ae) || (auto573F7771_ai < 0 && lv_b >= auto573F7771_ae) ) ; lv_b += auto573F7771_ai ) {
+                    if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)) == c_playerStatusActive)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_FE445EE5") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), false))) + StringExternal("Param/Value/lib_4E716EEF_3FC35ADD"));
+                    }
+                    else {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_ED0F7BBE") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_8D77487D"));
+                    }
+                    lv_displayText = (lv_displayText + IntToText(PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), c_playerPropMinerals)) + StringExternal("Param/Value/lib_4E716EEF_A683229B"));
+                    if ((lib4E716EEF_gv_gameMode_Greed_Goal <= lv_tResources)) {
+                        lib4E716EEF_gv_gameMode_GameOver = true;
+                        lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                    }
+
+                }
+            }
+        }
+        else if (autoC4CD54BD_val == "0002") {
+            if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+                lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_DA17823D") + IntToText(PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), c_playerPropVespene)) + StringExternal("Param/Value/lib_4E716EEF_5FD98572") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_6EF8491B"));
+                if ((lib4E716EEF_gv_gameMode_Greed_Goal <= PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), c_playerPropVespene))) {
+                    lib4E716EEF_gv_gameMode_GameOver = true;
+                    lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                }
+
+            }
+            else {
+                lv_tResources = 0;
+                autoC96382B9_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (autoC96382B9_ai >= 0 && lv_b <= autoC96382B9_ae) || (autoC96382B9_ai < 0 && lv_b >= autoC96382B9_ae) ) ; lv_b += autoC96382B9_ai ) {
+                    lv_tResources += PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), c_playerPropVespene);
+                }
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_35D12F77") + IntToText(lp_player) + StringExternal("Param/Value/lib_4E716EEF_3D1130AF") + IntToText(lv_tResources) + StringExternal("Param/Value/lib_4E716EEF_E001EBF7") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_8CC7B412"));
+                auto035BED58_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (auto035BED58_ai >= 0 && lv_b <= auto035BED58_ae) || (auto035BED58_ai < 0 && lv_b >= auto035BED58_ae) ) ; lv_b += auto035BED58_ai ) {
+                    if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)) == c_playerStatusActive)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_2E2B184E") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), false))) + StringExternal("Param/Value/lib_4E716EEF_02FED104"));
+                    }
+                    else {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_1EC5097F") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_50BDF1D4"));
+                    }
+                    lv_displayText = (lv_displayText + IntToText(PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), c_playerPropVespene)) + StringExternal("Param/Value/lib_4E716EEF_DD0CB2DA"));
+                    if ((lib4E716EEF_gv_gameMode_Greed_Goal <= lv_tResources)) {
+                        lib4E716EEF_gv_gameMode_GameOver = true;
+                        lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                    }
+
+                }
+            }
+        }
+        else {
+            if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+                lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_18E8D059") + IntToText((PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), c_playerPropMinerals) + PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), c_playerPropVespene))) + StringExternal("Param/Value/lib_4E716EEF_E2E0FBB3") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_D45AC8E2"));
+                if ((lib4E716EEF_gv_gameMode_Greed_Goal <= (PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), c_playerPropMinerals) + PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), c_playerPropVespene)))) {
+                    lib4E716EEF_gv_gameMode_GameOver = true;
+                    lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                }
+
+            }
+            else {
+                lv_tResources = 0;
+                auto13B3971E_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (auto13B3971E_ai >= 0 && lv_b <= auto13B3971E_ae) || (auto13B3971E_ai < 0 && lv_b >= auto13B3971E_ae) ) ; lv_b += auto13B3971E_ai ) {
+                    lv_tResources += (PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), c_playerPropMinerals) + PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), c_playerPropVespene));
+                }
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_ABD83A95") + IntToText(lp_player) + StringExternal("Param/Value/lib_4E716EEF_3D0519C4") + IntToText(lv_tResources) + StringExternal("Param/Value/lib_4E716EEF_3005DB5D") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_02260D50"));
+                auto1966968E_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (auto1966968E_ai >= 0 && lv_b <= auto1966968E_ae) || (auto1966968E_ai < 0 && lv_b >= auto1966968E_ae) ) ; lv_b += auto1966968E_ai ) {
+                    if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)) == c_playerStatusActive)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_2B5DEA62") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), false))) + StringExternal("Param/Value/lib_4E716EEF_717F10C8"));
+                    }
+                    else {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_22A9115D") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_61CD63E1"));
+                    }
+                    lv_displayText = (lv_displayText + IntToText((PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), c_playerPropMinerals) + PlayerGetPropertyInt(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), c_playerPropVespene))) + StringExternal("Param/Value/lib_4E716EEF_39398856"));
+                    if ((lib4E716EEF_gv_gameMode_Greed_Goal <= lv_tResources)) {
+                        lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                    }
+
+                }
+            }
+        }
+    }
+
+    return lv_displayText;
+}
+
+text lib4E716EEF_gf_HandleTeamKing (int lp_player, text lp_text) {
+    // Variable Declarations
+    text lv_displayText;
+    int lv_b;
+    int lv_tKings;
+
+    // Automatic Variable Declarations
+    string auto15381341_val;
+    int auto0A76CF8C_ae;
+    const int auto0A76CF8C_ai = 1;
+    int auto2E6D2D07_ae;
+    const int auto2E6D2D07_ai = 1;
+    int auto8288A351_ae;
+    const int auto8288A351_ai = 1;
+    int autoD7EEFDE1_ae;
+    const int autoD7EEFDE1_ai = 1;
+
+    // Variable Initialization
+    lv_displayText = lp_text;
+
+    // Implementation
+    if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) > 0)) {
+        if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+            if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)) == c_playerStatusActive)) {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_4A72B008") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), false))) + StringExternal("Param/Value/lib_4E716EEF_3C655DD0"));
+            }
+            else {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_5CC2C947") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_735C9082"));
+            }
+        }
+
+        auto15381341_val = GameAttributeGameValue("[bnet:local/0.0/280012]25");
+        if (auto15381341_val == "0001") {
+            if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+                if ((UnitGroupCount(UnitGroup("TunnelingLingsKing", PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
+                    lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_631FDF2F"));
+                }
+                else {
+                    lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_29818010"));
+                }
+            }
+            else {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_87DF47DC") + IntToText(lp_player) + StringExternal("Param/Value/lib_4E716EEF_7263E84A"));
+                auto0A76CF8C_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (auto0A76CF8C_ai >= 0 && lv_b <= auto0A76CF8C_ae) || (auto0A76CF8C_ai < 0 && lv_b >= auto0A76CF8C_ae) ) ; lv_b += auto0A76CF8C_ai ) {
+                    if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)) == c_playerStatusActive)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_4722264C") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), false))) + StringExternal("Param/Value/lib_4E716EEF_DEBC5D84"));
+                    }
+                    else {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_49B2CFE0") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_61402BD8"));
+                    }
+                    if ((UnitGroupCount(UnitGroup("TunnelingLingsKing", PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_2B03F851"));
+                    }
+                    else {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_BB8CEAA8"));
+                    }
+                }
+            }
+        }
+        else if (auto15381341_val == "0002") {
+            if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+                if ((UnitGroupCount(UnitGroup("TunnelingLingsKing", PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
+                    lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_D3BE341A"));
+                    lv_tKings = 1;
+                }
+                else {
+                    lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_000D591A"));
+                    lv_tKings = 0;
+                }
+            }
+            else {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_8D1B7A8D") + IntToText(lp_player));
+                auto2E6D2D07_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (auto2E6D2D07_ai >= 0 && lv_b <= auto2E6D2D07_ae) || (auto2E6D2D07_ai < 0 && lv_b >= auto2E6D2D07_ae) ) ; lv_b += auto2E6D2D07_ai ) {
+                    if ((UnitGroupCount(UnitGroup("TunnelingLingsKing", PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_7814B9AD"));
+                        lv_tKings += 1;
+                    }
+
+                }
+                lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_5E0515F8"));
+                auto8288A351_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (auto8288A351_ai >= 0 && lv_b <= auto8288A351_ae) || (auto8288A351_ai < 0 && lv_b >= auto8288A351_ae) ) ; lv_b += auto8288A351_ai ) {
+                    if ((PlayerStatus(lp_player) == c_playerStatusActive)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_C6578F80") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), false))) + StringExternal("Param/Value/lib_4E716EEF_85F2371C"));
+                    }
+                    else {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_87835CC7") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_DADE4D75"));
+                    }
+                    if ((UnitGroupCount(UnitGroup("TunnelingLingsKing", PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_525B36F6"));
+                    }
+                    else {
+                        if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)) == c_playerStatusActive)) {
+                            lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_9F25A494"));
+                        }
+                        else {
+                            lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_ED4CE55B"));
+                        }
+                    }
+                }
+            }
+            if ((lv_tKings == 0)) {
+                autoD7EEFDE1_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (autoD7EEFDE1_ai >= 0 && lv_b <= autoD7EEFDE1_ae) || (autoD7EEFDE1_ai < 0 && lv_b >= autoD7EEFDE1_ae) ) ; lv_b += autoD7EEFDE1_ai ) {
+                    lib4E716EEF_gf_EndGamewithSound(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), "Lose", true);
+                }
+            }
+
+        }
+        else {
+        }
+    }
+
+    return lv_displayText;
+}
+
+text lib4E716EEF_gf_HandleTeamCTF (int lp_player, text lp_text) {
+    // Variable Declarations
+    text lv_displayText;
+    int lv_b;
+    int lv_tPoints;
+
+    // Automatic Variable Declarations
+    string autoD934A5A9_val;
+    int autoD01473BC_ae;
+    const int autoD01473BC_ai = 1;
+    int auto9EF0AD94_ae;
+    const int auto9EF0AD94_ai = 1;
+    int auto0DB49545_ae;
+    const int auto0DB49545_ai = 1;
+    int autoDB883C7C_ae;
+    const int autoDB883C7C_ai = 1;
+    playergroup auto984F65F4_g;
+    int auto984F65F4_var;
+    int autoF034CBAC_ae;
+    const int autoF034CBAC_ai = 1;
+    int autoB68D30B2_ae;
+    const int autoB68D30B2_ai = 1;
+
+    // Variable Initialization
+    lv_displayText = lp_text;
+
+    // Implementation
+    if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) > 0)) {
+        if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+            if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)) == c_playerStatusActive)) {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_51023615") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1), false))) + StringExternal("Param/Value/lib_4E716EEF_81E1E4D8"));
+            }
+            else {
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_75F7D058") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_CD185FB7"));
+            }
+        }
+
+        autoD934A5A9_val = GameAttributeGameValue("[bnet:local/0.0/280012]22");
+        if (autoD934A5A9_val == "0002") {
+            if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+                lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_66523A43") + IntToText(lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)]) + StringExternal("Param/Value/lib_4E716EEF_47363006"));
+                if ((lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)] >= lib4E716EEF_gv_gameMode_CTF_GoalPoints)) {
+                    lib4E716EEF_gv_gameMode_GameOver = true;
+                    lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                }
+
+            }
+            else {
+                autoD01473BC_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (autoD01473BC_ai >= 0 && lv_b <= autoD01473BC_ae) || (autoD01473BC_ai < 0 && lv_b >= autoD01473BC_ae) ) ; lv_b += autoD01473BC_ai ) {
+                    lv_tPoints += lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)];
+                }
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_F490FF37") + IntToText(lp_player) + StringExternal("Param/Value/lib_4E716EEF_DF40A778") + IntToText(lv_tPoints) + StringExternal("Param/Value/lib_4E716EEF_5D1D382C") + IntToText(lib4E716EEF_gv_gameMode_CTF_GoalPoints) + StringExternal("Param/Value/lib_4E716EEF_E60EE2B2"));
+                auto9EF0AD94_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (auto9EF0AD94_ai >= 0 && lv_b <= auto9EF0AD94_ae) || (auto9EF0AD94_ai < 0 && lv_b >= auto9EF0AD94_ae) ) ; lv_b += auto9EF0AD94_ai ) {
+                    if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)) == c_playerStatusActive)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_AB18D44F") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), false))) + StringExternal("Param/Value/lib_4E716EEF_73D0912E"));
+                    }
+                    else {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_4F9D3A0E") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_640B4135"));
+                    }
+                    lv_displayText = (lv_displayText + IntToText(lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)]) + StringExternal("Param/Value/lib_4E716EEF_FBC61E67"));
+                    if ((lib4E716EEF_gv_gameMode_CTF_GoalPoints <= lv_tPoints)) {
+                        lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                    }
+
+                }
+            }
+        }
+        else if (autoD934A5A9_val == "0005") {
+            if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+                lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_F4AAC974") + IntToText(lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)]) + StringExternal("Param/Value/lib_4E716EEF_3491B840"));
+                if ((lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)] <= 0)) {
+                    lib4E716EEF_gf_EndGamewithSound(lp_player, "Lose", false);
+                }
+
+            }
+            else {
+                auto0DB49545_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (auto0DB49545_ai >= 0 && lv_b <= auto0DB49545_ae) || (auto0DB49545_ai < 0 && lv_b >= auto0DB49545_ae) ) ; lv_b += auto0DB49545_ai ) {
+                    lv_tPoints += lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)];
+                }
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_0ACC18C8") + IntToText(lp_player) + StringExternal("Param/Value/lib_4E716EEF_01D81AFF") + IntToText(lv_tPoints) + StringExternal("Param/Value/lib_4E716EEF_FAC07953"));
+                autoDB883C7C_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (autoDB883C7C_ai >= 0 && lv_b <= autoDB883C7C_ae) || (autoDB883C7C_ai < 0 && lv_b >= autoDB883C7C_ae) ) ; lv_b += autoDB883C7C_ai ) {
+                    if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)) == c_playerStatusActive)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_08E9DB31") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), false))) + StringExternal("Param/Value/lib_4E716EEF_C548EA3B"));
+                    }
+                    else {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_4C2CF2D9") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_7B2881BA"));
+                    }
+                    lv_displayText = (lv_displayText + IntToText(lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)]) + StringExternal("Param/Value/lib_4E716EEF_E0C75B17"));
+                    if ((lv_tPoints <= 0)) {
+                        auto984F65F4_g = PlayerGroupAll();
+                        auto984F65F4_var = -1;
+                        while (true) {
+                            auto984F65F4_var = PlayerGroupNextPlayer(auto984F65F4_g, auto984F65F4_var);
+                            if (auto984F65F4_var < 0) { break; }
+                            if ((PlayerGroupHasPlayer(GameAttributePlayersForTeam(lp_player), auto984F65F4_var) == true)) {
+                                lib4E716EEF_gf_EndGamewithSound(auto984F65F4_var, "Lose", true);
+                            }
+
+                        }
+                    }
+
+                }
+            }
+        }
+        else if (autoD934A5A9_val == "0006") {
+            if ((PlayerGroupCount(GameAttributePlayersForTeam(lp_player)) == 1)) {
+                lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_80B0442B") + IntToText(lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)]) + StringExternal("Param/Value/lib_4E716EEF_AB2C2EEC"));
+                if ((lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1)] >= lib4E716EEF_gv_gameMode_CTF_GoalPoints)) {
+                    lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                }
+
+            }
+            else {
+                autoF034CBAC_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (autoF034CBAC_ai >= 0 && lv_b <= autoF034CBAC_ae) || (autoF034CBAC_ai < 0 && lv_b >= autoF034CBAC_ae) ) ; lv_b += autoF034CBAC_ai ) {
+                    lv_tPoints += lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)];
+                }
+                lv_displayText = (StringExternal("Param/Value/lib_4E716EEF_EB498CAE") + IntToText(lp_player) + StringExternal("Param/Value/lib_4E716EEF_9C9C9F80") + IntToText(lv_tPoints) + StringExternal("Param/Value/lib_4E716EEF_36268215") + IntToText(lib4E716EEF_gv_gameMode_CTF_GoalPoints) + StringExternal("Param/Value/lib_4E716EEF_EC1B5BAE"));
+                autoB68D30B2_ae = PlayerGroupCount(GameAttributePlayersForTeam(lp_player));
+                lv_b = 1;
+                for ( ; ( (autoB68D30B2_ai >= 0 && lv_b <= autoB68D30B2_ae) || (autoB68D30B2_ai < 0 && lv_b >= autoB68D30B2_ae) ) ; lv_b += autoB68D30B2_ai ) {
+                    if ((PlayerStatus(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)) == c_playerStatusActive)) {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_A024C375") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b), false))) + StringExternal("Param/Value/lib_4E716EEF_A392D84C"));
+                    }
+                    else {
+                        lv_displayText = (lv_displayText + StringExternal("Param/Value/lib_4E716EEF_49D64F06") + TextWithColor(PlayerName(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)), Color(66.67, 66.67, 66.67)) + StringExternal("Param/Value/lib_4E716EEF_D17D09C9"));
+                    }
+                    lv_displayText = (lv_displayText + IntToText(lib4E716EEF_gv_gameMode_CTF_FlagPoints[PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), lv_b)]) + StringExternal("Param/Value/lib_4E716EEF_213EA3FA"));
+                    if ((lib4E716EEF_gv_gameMode_CTF_GoalPoints <= lv_tPoints)) {
+                        lib4E716EEF_gf_GameOverEnd(PlayerGroupPlayer(GameAttributePlayersForTeam(lp_player), 1));
+                    }
+
+                }
+            }
+        }
+        else {
+        }
+    }
+
+    return lv_displayText;
+}
+
+void lib4E716EEF_gf_EndGamewithSound (int lp_player, string lp_winLose, bool lp_trueDeath) {
+    // Variable Declarations
+    int lv_int;
+
+    // Automatic Variable Declarations
+    string auto3F9C4C24_val;
+    string auto72D4DE1F_val;
+    unitgroup autoC240E79D_g;
+    int autoC240E79D_u;
+    unit autoC240E79D_var;
+    unitgroup autoE2612481_g;
+    int autoE2612481_u;
+    unit autoE2612481_var;
+    playergroup auto2E1A9258_g;
+    unitgroup auto61E4B178_g;
+    int auto61E4B178_u;
+    unit auto61E4B178_var;
+    unitgroup auto0492D2FF_g;
+    int auto0492D2FF_u;
+    unit auto0492D2FF_var;
+    unitgroup auto0E436B53_g;
+    int auto0E436B53_u;
+    unit auto0E436B53_var;
+    unitgroup auto9A1FC852_g;
+    int auto9A1FC852_u;
+    unit auto9A1FC852_var;
+    unitgroup auto06CEB1AF_g;
+    int auto06CEB1AF_u;
+    unit auto06CEB1AF_var;
+
+    // Variable Initialization
+
+    // Implementation
+    auto3F9C4C24_val = lp_winLose;
+    if (auto3F9C4C24_val == "Win") {
+        GameOver(lp_player, c_gameOverVictory, true, true);
+    }
+    else if (auto3F9C4C24_val == "Lose") {
+        if ((lp_trueDeath == true)) {
+            PlayerModifyPropertyInt(lp_player, c_playerPropMinerals, c_playerPropOperSetTo, 0);
+            PlayerModifyPropertyInt(lp_player, c_playerPropVespene, c_playerPropOperSetTo, 0);
+            GameOver(lp_player, c_gameOverDefeat, true, true);
+        }
+
+        auto72D4DE1F_val = GameAttributeGameValue("[bnet:local/0.0/280012]16");
+        if (auto72D4DE1F_val == "0004") {
+            if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0003")) {
+                autoE2612481_g = UnitGroup(null, lp_player, null, UnitFilter(0, 0, (1 << c_targetFilterUser1) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32)) | (1 << (c_targetFilterMapBoss - 32))), 0);
+                autoE2612481_u = UnitGroupCount(autoE2612481_g, c_unitCountAll);
+                for (;; autoE2612481_u -= 1) {
+                    autoE2612481_var = UnitGroupUnitFromEnd(autoE2612481_g, autoE2612481_u);
+                    if (autoE2612481_var == null) { break; }
+                    UnitIssueOrder(autoE2612481_var, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
+                    UnitBehaviorAdd(autoE2612481_var, "Exterminated", autoE2612481_var, 1);
+                    auto2E1A9258_g = PlayerGroupActive();
+                    lv_int = -1;
+                    while (true) {
+                        lv_int = PlayerGroupNextPlayer(auto2E1A9258_g, lv_int);
+                        if (lv_int < 0) { break; }
+                        VisRevealArea(1, RegionCircle(UnitGetPosition(autoE2612481_var), 0.25), 0.15, false);
+                    }
+                    libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingWarningMini", UnitGetPosition(autoE2612481_var), Color(100.00, 50.20, 25.10), 0.75, 270.0);
+                    Wait(0.03, c_timeGame);
+                }
+                auto61E4B178_g = UnitGroup(null, lp_player, null, UnitFilter(0, 0, (1 << c_targetFilterUser1) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32)) | (1 << (c_targetFilterMapBoss - 32))), 0);
+                auto61E4B178_u = UnitGroupCount(auto61E4B178_g, c_unitCountAll);
+                for (;; auto61E4B178_u -= 1) {
+                    auto61E4B178_var = UnitGroupUnitFromEnd(auto61E4B178_g, auto61E4B178_u);
+                    if (auto61E4B178_var == null) { break; }
+                    UnitSetOwner(auto61E4B178_var, 0, true);
+                }
+            }
+            else {
+                autoC240E79D_g = UnitGroup(null, lp_player, null, UnitFilter(0, 0, (1 << c_targetFilterUser1) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32)) | (1 << (c_targetFilterMapBoss - 32))), 0);
+                autoC240E79D_u = UnitGroupCount(autoC240E79D_g, c_unitCountAll);
+                for (;; autoC240E79D_u -= 1) {
+                    autoC240E79D_var = UnitGroupUnitFromEnd(autoC240E79D_g, autoC240E79D_u);
+                    if (autoC240E79D_var == null) { break; }
+                    UnitKill(autoC240E79D_var);
+                }
+            }
+        }
+        else if (auto72D4DE1F_val == "0006") {
+            auto0492D2FF_g = UnitGroup(null, lp_player, null, UnitFilter(0, 0, (1 << c_targetFilterStructure) | (1 << c_targetFilterUser1) | (1 << c_targetFilterMissile) | (1 << c_targetFilterItem), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32)) | (1 << (c_targetFilterMapBoss - 32))), 0);
+            auto0492D2FF_u = UnitGroupCount(auto0492D2FF_g, c_unitCountAll);
+            for (;; auto0492D2FF_u -= 1) {
+                auto0492D2FF_var = UnitGroupUnitFromEnd(auto0492D2FF_g, auto0492D2FF_u);
+                if (auto0492D2FF_var == null) { break; }
+                UnitKill(auto0492D2FF_var);
+            }
+            auto0E436B53_g = UnitGroup(null, lp_player, null, UnitFilter(0, 0, (1 << c_targetFilterUser1) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32)) | (1 << (c_targetFilterMapBoss - 32))), 0);
+            auto0E436B53_u = UnitGroupCount(auto0E436B53_g, c_unitCountAll);
+            for (;; auto0E436B53_u -= 1) {
+                auto0E436B53_var = UnitGroupUnitFromEnd(auto0E436B53_g, auto0E436B53_u);
+                if (auto0E436B53_var == null) { break; }
+                UnitIssueOrder(auto0E436B53_var, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
+                UnitBehaviorAdd(auto0E436B53_var, "DefeatedNation", auto0E436B53_var, 1);
+            }
+            auto9A1FC852_g = UnitGroup(null, lp_player, null, UnitFilter(0, 0, (1 << c_targetFilterUser1) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32)) | (1 << (c_targetFilterMapBoss - 32))), 0);
+            auto9A1FC852_u = UnitGroupCount(auto9A1FC852_g, c_unitCountAll);
+            for (;; auto9A1FC852_u -= 1) {
+                auto9A1FC852_var = UnitGroupUnitFromEnd(auto9A1FC852_g, auto9A1FC852_u);
+                if (auto9A1FC852_var == null) { break; }
+                UnitSetOwner(auto9A1FC852_var, 0, true);
+            }
+        }
+        else if (auto72D4DE1F_val == "0007") {
+            auto06CEB1AF_g = UnitGroup(null, lp_player, null, UnitFilter(0, 0, (1 << c_targetFilterUser1) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32)) | (1 << (c_targetFilterMapBoss - 32))), 0);
+            auto06CEB1AF_u = UnitGroupCount(auto06CEB1AF_g, c_unitCountAll);
+            for (;; auto06CEB1AF_u -= 1) {
+                auto06CEB1AF_var = UnitGroupUnitFromEnd(auto06CEB1AF_g, auto06CEB1AF_u);
+                if (auto06CEB1AF_var == null) { break; }
+                UnitKill(auto06CEB1AF_var);
+            }
+        }
+        else {
+        }
+    }
+    else {
+    }
+    Wait(0.5, c_timeGame);
+    if ((lib4E716EEF_gv_gameMode_GameOver == false)) {
+        TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    }
+
+}
+
+void lib4E716EEF_gf_GameOverEnd (int lp_player) {
+    // Automatic Variable Declarations
+    playergroup autoD6F9CA76_g;
+    int autoD6F9CA76_var;
+    playergroup auto8CDE7189_g;
+    int auto8CDE7189_var;
+
+    // Implementation
+    lib4E716EEF_gv_gameMode_GameOver = true;
+    autoD6F9CA76_g = PlayerGroupAll();
+    autoD6F9CA76_var = -1;
+    while (true) {
+        autoD6F9CA76_var = PlayerGroupNextPlayer(autoD6F9CA76_g, autoD6F9CA76_var);
+        if (autoD6F9CA76_var < 0) { break; }
+        if ((PlayerGroupHasPlayer(libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Ally, lp_player), autoD6F9CA76_var) == true) && (lp_player != autoD6F9CA76_var)) {
+            lib4E716EEF_gf_EndGamewithSound(autoD6F9CA76_var, "Win", false);
+        }
+
+    }
+    auto8CDE7189_g = PlayerGroupAll();
+    auto8CDE7189_var = -1;
+    while (true) {
+        auto8CDE7189_var = PlayerGroupNextPlayer(auto8CDE7189_g, auto8CDE7189_var);
+        if (auto8CDE7189_var < 0) { break; }
+        if ((PlayerGroupHasPlayer(libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Ally, lp_player), auto8CDE7189_var) == false) && (lp_player != auto8CDE7189_var)) {
+            lib4E716EEF_gf_EndGamewithSound(auto8CDE7189_var, "Lose", true);
+        }
+
+    }
+    lib4E716EEF_gf_EndGamewithSound(lp_player, "Win", false);
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_Initialization_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_forEachVariables;
+
+    // Automatic Variable Declarations
+    string auto0C7FB6F2_val;
+    string auto5B7881AB_val;
+    const int auto48DAFF30_ae = 15;
+    const int auto48DAFF30_ai = 1;
+    string auto6818F6FF_val;
+    string autoFF9773EB_val;
+    string autoACAA9263_val;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogCreate(300, 500, c_anchorTopLeft, 0, 0, true);
+    lib4E716EEF_gv_gameMode_Objective_Dialog = DialogLastCreated();
+    libNtve_gf_CreateDialogItemLabel(lib4E716EEF_gv_gameMode_Objective_Dialog, 300, 500, c_anchorTopLeft, 8, 8, StringToText(""), ColorWithAlpha(0,0,0,0), false, 2.0);
+    lib4E716EEF_gv_gameMode_Objective_DialogItem = DialogControlLastCreated();
+    DialogSetVisible(lib4E716EEF_gv_gameMode_Objective_Dialog, PlayerGroupAll(), false);
+    DialogSetImageVisible(lib4E716EEF_gv_gameMode_Objective_Dialog, false);
+    DialogCreate(64, 64, c_anchorBottomRight, 16, 360, true);
+    lib4E716EEF_gv_gameMode_InfoIcon_Dialog = DialogLastCreated();
+    DialogSetVisible(lib4E716EEF_gv_gameMode_InfoIcon_Dialog, PlayerGroupAll(), false);
+    libNtve_gf_CreateDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_Dialog, 64, 64, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\sc2_ui_userprofile_achievements_criteria_achievement.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+    lib4E716EEF_gv_gameMode_InfoIcon_DialogItem = DialogControlLastCreated();
+    auto0C7FB6F2_val = GameAttributeGameValue("[bnet:local/0.0/280012]16");
+    if (auto0C7FB6F2_val == "0004") {
+        if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0003")) {
+            libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\btn-ability-zerg-stukov-summonpsiemitter.dds", PlayerGroupAll());
+        }
+        else {
+            if (((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0001") || (GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0002"))) {
+                libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\btn-ability-zeratul-avatarofessence-devolutionwave.dds", PlayerGroupAll());
+            }
+            else {
+                libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\btn-ability-zeratul-avatarofessence-evolutionaura.dds", PlayerGroupAll());
+            }
+        }
+        TriggerEnable(lib4E716EEF_gt_GameMode_CTF_Flag_Pickup, true);
+        TriggerEnable(lib4E716EEF_gt_GameMode_CTF_Flag_CaptureTakentoBase, true);
+        TriggerEnable(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, true);
+        TriggerEnable(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, true);
+        if ((GameAttributeGameValue("[bnet:local/0.0/280012]23") == "0007")) {
+            lib4E716EEF_gv_gameMode_CTF_GoalPoints = 2;
+        }
+        else {
+            if ((GameAttributeGameValue("[bnet:local/0.0/280012]23") == "0001")) {
+                lib4E716EEF_gv_gameMode_CTF_GoalPoints = 3;
+            }
+            else {
+                if ((GameAttributeGameValue("[bnet:local/0.0/280012]23") == "0002")) {
+                    lib4E716EEF_gv_gameMode_CTF_GoalPoints = 4;
+                }
+                else {
+                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]23") == "0003")) {
+                        lib4E716EEF_gv_gameMode_CTF_GoalPoints = 5;
+                    }
+                    else {
+                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]23") == "0004")) {
+                            lib4E716EEF_gv_gameMode_CTF_GoalPoints = 6;
+                        }
+                        else {
+                            if ((GameAttributeGameValue("[bnet:local/0.0/280012]23") == "0005")) {
+                                lib4E716EEF_gv_gameMode_CTF_GoalPoints = 8;
+                            }
+                            else {
+                                if ((GameAttributeGameValue("[bnet:local/0.0/280012]23") == "0006")) {
+                                    lib4E716EEF_gv_gameMode_CTF_GoalPoints = 10;
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        auto5B7881AB_val = GameAttributeGameValue("[bnet:local/0.0/280012]22");
+        if (auto5B7881AB_val == "0003") {
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_3F589560"), PlayerGroupAll());
+            TriggerEnable(lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag, true);
+            TriggerEnable(lib4E716EEF_gt_GameMode_CTF_PsiEmitter_PlantedTakentoEnemyBase, true);
+            TriggerEnable(lib4E716EEF_gt_GameMode_Handler, true);
+            TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+            DialogSetVisible(lib4E716EEF_gv_gameMode_Objective_Dialog, PlayerGroupAll(), true);
+        }
+        else if (auto5B7881AB_val == "0001") {
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_357D50DB"), PlayerGroupAll());
+            TriggerEnable(lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag, true);
+        }
+        else if (auto5B7881AB_val == "0002") {
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, (StringExternal("Param/Value/lib_4E716EEF_9C3F9045") + IntToText(lib4E716EEF_gv_gameMode_CTF_GoalPoints) + StringExternal("Param/Value/lib_4E716EEF_27654F13")), PlayerGroupAll());
+            TriggerEnable(lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag, true);
+            TriggerEnable(lib4E716EEF_gt_GameMode_Handler, true);
+            TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+            DialogSetVisible(lib4E716EEF_gv_gameMode_Objective_Dialog, PlayerGroupAll(), true);
+        }
+        else if (auto5B7881AB_val == "0004") {
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_4B58DA52"), PlayerGroupAll());
+        }
+        else if (auto5B7881AB_val == "0005") {
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_97C72EA2"), PlayerGroupAll());
+            lv_forEachVariables = 1;
+            for ( ; ( (auto48DAFF30_ai >= 0 && lv_forEachVariables <= auto48DAFF30_ae) || (auto48DAFF30_ai < 0 && lv_forEachVariables >= auto48DAFF30_ae) ) ; lv_forEachVariables += auto48DAFF30_ai ) {
+                if ((PlayerStatus(lv_forEachVariables) != c_playerStatusUnused)) {
+                    lib4E716EEF_gv_gameMode_CTF_FlagPoints[lv_forEachVariables] = 1;
+                }
+
+            }
+            TriggerEnable(lib4E716EEF_gt_GameMode_Handler, true);
+            TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+            DialogSetVisible(lib4E716EEF_gv_gameMode_Objective_Dialog, PlayerGroupAll(), true);
+        }
+        else if (auto5B7881AB_val == "0006") {
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, (StringExternal("Param/Value/lib_4E716EEF_9F92C134") + IntToText(lib4E716EEF_gv_gameMode_CTF_GoalPoints) + StringExternal("Param/Value/lib_4E716EEF_E8482CCC")), PlayerGroupAll());
+            TriggerEnable(lib4E716EEF_gt_GameMode_Handler, true);
+            TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+            DialogSetVisible(lib4E716EEF_gv_gameMode_Objective_Dialog, PlayerGroupAll(), true);
+        }
+        else {
+        }
+        DialogSetVisible(lib4E716EEF_gv_gameMode_InfoIcon_Dialog, PlayerGroupAll(), true);
+    }
+    else if (auto0C7FB6F2_val == "0003") {
+        TriggerEnable(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, true);
+        libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\icon-highyieldmineral-zerg.dds", PlayerGroupAll());
+        DialogSetVisible(lib4E716EEF_gv_gameMode_InfoIcon_Dialog, PlayerGroupAll(), true);
+        DialogSetVisible(lib4E716EEF_gv_gameMode_Objective_Dialog, PlayerGroupAll(), true);
+        if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0001")) {
+            lib4E716EEF_gv_gameMode_Greed_Goal = 500;
+        }
+        else {
+            if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0002")) {
+                lib4E716EEF_gv_gameMode_Greed_Goal = 1000;
+            }
+            else {
+                if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0003")) {
+                    lib4E716EEF_gv_gameMode_Greed_Goal = 2000;
+                }
+                else {
+                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0004")) {
+                        lib4E716EEF_gv_gameMode_Greed_Goal = 3000;
+                    }
+                    else {
+                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0005")) {
+                            lib4E716EEF_gv_gameMode_Greed_Goal = 4000;
+                        }
+                        else {
+                            if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0006")) {
+                                lib4E716EEF_gv_gameMode_Greed_Goal = 5000;
+                            }
+                            else {
+                                if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0007")) {
+                                    lib4E716EEF_gv_gameMode_Greed_Goal = 6000;
+                                }
+                                else {
+                                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0008")) {
+                                        lib4E716EEF_gv_gameMode_Greed_Goal = 7000;
+                                    }
+                                    else {
+                                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0009")) {
+                                            lib4E716EEF_gv_gameMode_Greed_Goal = 8000;
+                                        }
+                                        else {
+                                            if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0010")) {
+                                                lib4E716EEF_gv_gameMode_Greed_Goal = 9000;
+                                            }
+                                            else {
+                                                if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0011")) {
+                                                    lib4E716EEF_gv_gameMode_Greed_Goal = 10000;
+                                                }
+                                                else {
+                                                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0014")) {
+                                                        lib4E716EEF_gv_gameMode_Greed_Goal = 12000;
+                                                    }
+                                                    else {
+                                                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0012")) {
+                                                            lib4E716EEF_gv_gameMode_Greed_Goal = 15000;
+                                                        }
+                                                        else {
+                                                            if ((GameAttributeGameValue("[bnet:local/0.0/280012]17") == "0013")) {
+                                                                lib4E716EEF_gv_gameMode_Greed_Goal = 20000;
+                                                            }
+
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        auto6818F6FF_val = GameAttributeGameValue("[bnet:local/0.0/280012]21");
+        if (auto6818F6FF_val == "0001") {
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, (StringExternal("Param/Value/lib_4E716EEF_4D1EF9F4") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_706E5193")), PlayerGroupAll());
+        }
+        else if (auto6818F6FF_val == "0002") {
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, (StringExternal("Param/Value/lib_4E716EEF_116EE9AF") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_CD448D0F")), PlayerGroupAll());
+        }
+        else {
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, (StringExternal("Param/Value/lib_4E716EEF_C661A98E") + IntToText(lib4E716EEF_gv_gameMode_Greed_Goal) + StringExternal("Param/Value/lib_4E716EEF_C878DAC9")), PlayerGroupAll());
+        }
+        TriggerEnable(lib4E716EEF_gt_GameMode_Handler, true);
+        TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    }
+    else if (auto0C7FB6F2_val == "0002") {
+        TriggerEnable(lib4E716EEF_gt_GameMode_Slaughter_KillCounter, true);
+        TriggerEnable(lib4E716EEF_gt_GameMode_Slaughter_TimesUp, true);
+        libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\btn-tips-fallenheroes.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_E2501240"), PlayerGroupAll());
+        DialogSetVisible(lib4E716EEF_gv_gameMode_InfoIcon_Dialog, PlayerGroupAll(), true);
+        DialogSetVisible(lib4E716EEF_gv_gameMode_Objective_Dialog, PlayerGroupAll(), true);
+        if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0001")) {
+            lib4E716EEF_gv_gameMode_Slaughter_Time = 300.0;
+        }
+        else {
+            if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0012")) {
+                lib4E716EEF_gv_gameMode_Slaughter_Time = 420.0;
+            }
+            else {
+                if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0002")) {
+                    lib4E716EEF_gv_gameMode_Slaughter_Time = 600.0;
+                }
+                else {
+                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0013")) {
+                        lib4E716EEF_gv_gameMode_Slaughter_Time = 720.0;
+                    }
+                    else {
+                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0003")) {
+                            lib4E716EEF_gv_gameMode_Slaughter_Time = 900.0;
+                        }
+                        else {
+                            if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0014")) {
+                                lib4E716EEF_gv_gameMode_Slaughter_Time = 1080.0;
+                            }
+                            else {
+                                if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0004")) {
+                                    lib4E716EEF_gv_gameMode_Slaughter_Time = 1200.0;
+                                }
+                                else {
+                                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0005")) {
+                                        lib4E716EEF_gv_gameMode_Slaughter_Time = 1500.0;
+                                    }
+                                    else {
+                                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0011")) {
+                                            lib4E716EEF_gv_gameMode_Slaughter_Time = 1800.0;
+                                        }
+                                        else {
+                                            if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0008")) {
+                                                lib4E716EEF_gv_gameMode_Slaughter_Time = 2700.0;
+                                            }
+                                            else {
+                                                if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0015")) {
+                                                    lib4E716EEF_gv_gameMode_Slaughter_Time = 3600.0;
+                                                }
+                                                else {
+                                                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0006")) {
+                                                        lib4E716EEF_gv_gameMode_Slaughter_Time = 5400.0;
+                                                    }
+                                                    else {
+                                                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]19") == "0007")) {
+                                                            lib4E716EEF_gv_gameMode_Slaughter_Time = 7200.0;
+                                                        }
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        TimerStart(lib4E716EEF_gv_gameMode_Slaughter_Timer, lib4E716EEF_gv_gameMode_Slaughter_Time, false, c_timeGame);
+        TimerWindowCreate(lib4E716EEF_gv_gameMode_Slaughter_Timer, StringExternal("Param/Value/lib_4E716EEF_99AF78C7"), true, false);
+        TriggerEnable(lib4E716EEF_gt_GameMode_Handler, true);
+        TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    }
+    else if (auto0C7FB6F2_val == "0007") {
+        TriggerEnable(lib4E716EEF_gt_GameMode_SuddenDeath_NormalDefeat, true);
+        TriggerEnable(lib4E716EEF_gt_GameMode_SuddenDeath_InfestDefeat, true);
+        libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\btn-upgrade-karax-fortificationbarrier.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_55DA558D"), PlayerGroupAll());
+        DialogSetVisible(lib4E716EEF_gv_gameMode_InfoIcon_Dialog, PlayerGroupAll(), true);
+    }
+    else if (auto0C7FB6F2_val == "0005") {
+        autoFF9773EB_val = GameAttributeGameValue("[bnet:local/0.0/280012]24");
+        if (autoFF9773EB_val == "0001") {
+            libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\btn-ability-hornerhan-mechbioweaponupgrades-c.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_E5EE52EF"), PlayerGroupAll());
+        }
+        else if (autoFF9773EB_val == "0002") {
+            libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\btn-ability-hornerhan-mechbioweaponupgrades-b.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_38419EE9"), PlayerGroupAll());
+        }
+        else {
+        }
+        TriggerEnable(lib4E716EEF_gt_GameMode_KillerSpawn, true);
+        DialogSetVisible(lib4E716EEF_gv_gameMode_InfoIcon_Dialog, PlayerGroupAll(), true);
+    }
+    else if (auto0C7FB6F2_val == "0006") {
+        autoACAA9263_val = GameAttributeGameValue("[bnet:local/0.0/280012]25");
+        if (autoACAA9263_val == "0001") {
+            libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\ui-TL-KingSoloNation.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_ECD4E1ED"), PlayerGroupAll());
+        }
+        else if (autoACAA9263_val == "0002") {
+            libNtve_gf_SetDialogItemImage(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, "Assets\\Textures\\ui-TL-KingCovenant.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemTooltip(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, StringExternal("Param/Value/lib_4E716EEF_25EF798D"), PlayerGroupAll());
+        }
+        else {
+        }
+        TriggerEnable(lib4E716EEF_gt_GameMode_King, true);
+        DialogSetVisible(lib4E716EEF_gv_gameMode_InfoIcon_Dialog, PlayerGroupAll(), true);
+        DialogSetPosition(DialogLastCreated(), c_anchorBottomRight, 86, 360);
+        DialogSetVisible(lib4E716EEF_gv_gameMode_Objective_Dialog, PlayerGroupAll(), true);
+        TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    }
+    else {
+    }
+    DialogControlSetVisible(lib4E716EEF_gv_gameMode_Objective_DialogItem, PlayerGroupAll(), true);
+    DialogControlSetVisible(lib4E716EEF_gv_gameMode_InfoIcon_DialogItem, PlayerGroupAll(), true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_Initialization_Init () {
+    lib4E716EEF_gt_GameMode_Initialization = TriggerCreate("lib4E716EEF_gt_GameMode_Initialization_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_Handler
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_Handler_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_forEach_Player;
+    text[16] lv_displayText;
+    text lv_combinedText;
+
+    // Automatic Variable Declarations
+    const int auto7EDC0CE3_ae = 10;
+    const int auto7EDC0CE3_ai = 1;
+    unitgroup auto968757BE_g;
+    int auto968757BE_u;
+    unit auto968757BE_var;
+    unitgroup auto0678E28F_g;
+    int auto0678E28F_u;
+    unit auto0678E28F_var;
+    unitgroup auto1B065DC5_g;
+    int auto1B065DC5_u;
+    unit auto1B065DC5_var;
+    unitgroup autoF2373849_g;
+    int autoF2373849_u;
+    unit autoF2373849_var;
+    unitgroup auto56AC8FD6_g;
+    int auto56AC8FD6_u;
+    unit auto56AC8FD6_var;
+    unitgroup auto5ACB231E_g;
+    int auto5ACB231E_u;
+    unit auto5ACB231E_var;
+    unitgroup auto3C692A0C_g;
+    int auto3C692A0C_u;
+    unit auto3C692A0C_var;
+    unitgroup auto890F81AF_g;
+    int auto890F81AF_u;
+    unit auto890F81AF_var;
+    unitgroup auto8A7D4DE6_g;
+    int auto8A7D4DE6_u;
+    unit auto8A7D4DE6_var;
+    unitgroup auto72BF7F0F_g;
+    int auto72BF7F0F_u;
+    unit auto72BF7F0F_var;
+    unitgroup autoB401B484_g;
+    int autoB401B484_u;
+    unit autoB401B484_var;
+    unitgroup autoADEFA675_g;
+    int autoADEFA675_u;
+    unit autoADEFA675_var;
+    unitgroup auto3261E125_g;
+    int auto3261E125_u;
+    unit auto3261E125_var;
+    unitgroup autoCAE74D28_g;
+    int autoCAE74D28_u;
+    unit autoCAE74D28_var;
+    unitgroup auto939F833F_g;
+    int auto939F833F_u;
+    unit auto939F833F_var;
+    unitgroup autoDC9D1AAD_g;
+    int autoDC9D1AAD_u;
+    unit autoDC9D1AAD_var;
+
+    // Variable Initialization
+    lv_combinedText = StringToText("");
+
+    // Conditions
+    if (testConds) {
+        if (!((lib4E716EEF_gv_gameMode_GameOver == false))) {
+            return false;
+        }
+
+        if (!((GameAttributeGameValue("[bnet:local/0.0/280012]16") != "0001"))) {
+            return false;
+        }
+
+        if (!((GameAttributeGameValue("[bnet:local/0.0/280012]16") != "0007"))) {
+            return false;
+        }
+
+        if (!((GameAttributeGameValue("[bnet:local/0.0/280012]16") != "0005"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (true) {
+        lv_forEach_Player = 1;
+        for ( ; ( (auto7EDC0CE3_ai >= 0 && lv_forEach_Player <= auto7EDC0CE3_ae) || (auto7EDC0CE3_ai < 0 && lv_forEach_Player >= auto7EDC0CE3_ae) ) ; lv_forEach_Player += auto7EDC0CE3_ai ) {
+            lv_displayText[lv_forEach_Player] = lib4E716EEF_gf_HandleGameModeforPlayerX(lv_forEach_Player);
+            lv_combinedText = (lv_combinedText + lv_displayText[lv_forEach_Player]);
+        }
+    }
+
+    if (true) {
+        auto968757BE_g = UnitGroup("CTFNormalBlueFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto968757BE_u = UnitGroupCount(auto968757BE_g, c_unitCountAll);
+        for (;; auto968757BE_u -= 1) {
+            auto968757BE_var = UnitGroupUnitFromEnd(auto968757BE_g, auto968757BE_u);
+            if (auto968757BE_var == null) { break; }
+            UnitKill(auto968757BE_var);
+        }
+        auto0678E28F_g = UnitGroup("CTFNormalBrownFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto0678E28F_u = UnitGroupCount(auto0678E28F_g, c_unitCountAll);
+        for (;; auto0678E28F_u -= 1) {
+            auto0678E28F_var = UnitGroupUnitFromEnd(auto0678E28F_g, auto0678E28F_u);
+            if (auto0678E28F_var == null) { break; }
+            UnitKill(auto0678E28F_var);
+        }
+        auto1B065DC5_g = UnitGroup("CTFNormalDarkGreenFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto1B065DC5_u = UnitGroupCount(auto1B065DC5_g, c_unitCountAll);
+        for (;; auto1B065DC5_u -= 1) {
+            auto1B065DC5_var = UnitGroupUnitFromEnd(auto1B065DC5_g, auto1B065DC5_u);
+            if (auto1B065DC5_var == null) { break; }
+            UnitKill(auto1B065DC5_var);
+        }
+        autoF2373849_g = UnitGroup("CTFNormalDarkGreyFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        autoF2373849_u = UnitGroupCount(autoF2373849_g, c_unitCountAll);
+        for (;; autoF2373849_u -= 1) {
+            autoF2373849_var = UnitGroupUnitFromEnd(autoF2373849_g, autoF2373849_u);
+            if (autoF2373849_var == null) { break; }
+            UnitKill(autoF2373849_var);
+        }
+        auto56AC8FD6_g = UnitGroup("CTFNormalGreenFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto56AC8FD6_u = UnitGroupCount(auto56AC8FD6_g, c_unitCountAll);
+        for (;; auto56AC8FD6_u -= 1) {
+            auto56AC8FD6_var = UnitGroupUnitFromEnd(auto56AC8FD6_g, auto56AC8FD6_u);
+            if (auto56AC8FD6_var == null) { break; }
+            UnitKill(auto56AC8FD6_var);
+        }
+        auto5ACB231E_g = UnitGroup("CTFNormalLightGreenFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto5ACB231E_u = UnitGroupCount(auto5ACB231E_g, c_unitCountAll);
+        for (;; auto5ACB231E_u -= 1) {
+            auto5ACB231E_var = UnitGroupUnitFromEnd(auto5ACB231E_g, auto5ACB231E_u);
+            if (auto5ACB231E_var == null) { break; }
+            UnitKill(auto5ACB231E_var);
+        }
+        auto3C692A0C_g = UnitGroup("CTFNormalLightGreyFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto3C692A0C_u = UnitGroupCount(auto3C692A0C_g, c_unitCountAll);
+        for (;; auto3C692A0C_u -= 1) {
+            auto3C692A0C_var = UnitGroupUnitFromEnd(auto3C692A0C_g, auto3C692A0C_u);
+            if (auto3C692A0C_var == null) { break; }
+            UnitKill(auto3C692A0C_var);
+        }
+        auto890F81AF_g = UnitGroup("CTFNormalLightPinkFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto890F81AF_u = UnitGroupCount(auto890F81AF_g, c_unitCountAll);
+        for (;; auto890F81AF_u -= 1) {
+            auto890F81AF_var = UnitGroupUnitFromEnd(auto890F81AF_g, auto890F81AF_u);
+            if (auto890F81AF_var == null) { break; }
+            UnitKill(auto890F81AF_var);
+        }
+        auto8A7D4DE6_g = UnitGroup("CTFNormalOrangeFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto8A7D4DE6_u = UnitGroupCount(auto8A7D4DE6_g, c_unitCountAll);
+        for (;; auto8A7D4DE6_u -= 1) {
+            auto8A7D4DE6_var = UnitGroupUnitFromEnd(auto8A7D4DE6_g, auto8A7D4DE6_u);
+            if (auto8A7D4DE6_var == null) { break; }
+            UnitKill(auto8A7D4DE6_var);
+        }
+        auto72BF7F0F_g = UnitGroup("CTFNormalPinkFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto72BF7F0F_u = UnitGroupCount(auto72BF7F0F_g, c_unitCountAll);
+        for (;; auto72BF7F0F_u -= 1) {
+            auto72BF7F0F_var = UnitGroupUnitFromEnd(auto72BF7F0F_g, auto72BF7F0F_u);
+            if (auto72BF7F0F_var == null) { break; }
+            UnitKill(auto72BF7F0F_var);
+        }
+        autoB401B484_g = UnitGroup("CTFNormalPurpleFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        autoB401B484_u = UnitGroupCount(autoB401B484_g, c_unitCountAll);
+        for (;; autoB401B484_u -= 1) {
+            autoB401B484_var = UnitGroupUnitFromEnd(autoB401B484_g, autoB401B484_u);
+            if (autoB401B484_var == null) { break; }
+            UnitKill(autoB401B484_var);
+        }
+        autoADEFA675_g = UnitGroup("CTFNormalRedFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        autoADEFA675_u = UnitGroupCount(autoADEFA675_g, c_unitCountAll);
+        for (;; autoADEFA675_u -= 1) {
+            autoADEFA675_var = UnitGroupUnitFromEnd(autoADEFA675_g, autoADEFA675_u);
+            if (autoADEFA675_var == null) { break; }
+            UnitKill(autoADEFA675_var);
+        }
+        auto3261E125_g = UnitGroup("CTFNormalTealFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto3261E125_u = UnitGroupCount(auto3261E125_g, c_unitCountAll);
+        for (;; auto3261E125_u -= 1) {
+            auto3261E125_var = UnitGroupUnitFromEnd(auto3261E125_g, auto3261E125_u);
+            if (auto3261E125_var == null) { break; }
+            UnitKill(auto3261E125_var);
+        }
+        autoCAE74D28_g = UnitGroup("CTFNormalVioletFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        autoCAE74D28_u = UnitGroupCount(autoCAE74D28_g, c_unitCountAll);
+        for (;; autoCAE74D28_u -= 1) {
+            autoCAE74D28_var = UnitGroupUnitFromEnd(autoCAE74D28_g, autoCAE74D28_u);
+            if (autoCAE74D28_var == null) { break; }
+            UnitKill(autoCAE74D28_var);
+        }
+        auto939F833F_g = UnitGroup("CTFNormalYellowFlag", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto939F833F_u = UnitGroupCount(auto939F833F_g, c_unitCountAll);
+        for (;; auto939F833F_u -= 1) {
+            auto939F833F_var = UnitGroupUnitFromEnd(auto939F833F_g, auto939F833F_u);
+            if (auto939F833F_var == null) { break; }
+            UnitKill(auto939F833F_var);
+        }
+        autoDC9D1AAD_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        autoDC9D1AAD_u = UnitGroupCount(autoDC9D1AAD_g, c_unitCountAll);
+        for (;; autoDC9D1AAD_u -= 1) {
+            autoDC9D1AAD_var = UnitGroupUnitFromEnd(autoDC9D1AAD_g, autoDC9D1AAD_u);
+            if (autoDC9D1AAD_var == null) { break; }
+            UnitKill(autoDC9D1AAD_var);
+        }
+    }
+
+    libNtve_gf_SetDialogItemText(lib4E716EEF_gv_gameMode_Objective_DialogItem, lv_combinedText, PlayerGroupAll());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_Handler_Init () {
+    lib4E716EEF_gt_GameMode_Handler = TriggerCreate("lib4E716EEF_gt_GameMode_Handler_Func");
+    TriggerAddEventPlayerLeft(lib4E716EEF_gt_GameMode_Handler, c_playerAny, c_gameResultUndecided);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_CTF_Flag_Pickup
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_CTF_Flag_Pickup_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_cNumber;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    SoundPlayForPlayer(SoundLink("C_UI_Money01", -1), c_maxPlayers, PlayerGroupAll(), 100.0, 0.0);
+    if ((UnitGetType(EventUnit()) != "CTFMainWhiteFlag") && (UnitGetType(EventUnit()) != "CTFPsiEmitter")) {
+        if ((UnitGetType(EventUnit()) == "CTFNormalBlueFlag")) {
+            lv_cNumber = 2;
+            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_5DD986CD"));
+        }
+        else {
+            if ((UnitGetType(EventUnit()) == "CTFNormalBrownFlag")) {
+                lv_cNumber = 12;
+                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_B0249732"));
+            }
+            else {
+                if ((UnitGetType(EventUnit()) == "CTFNormalDarkGreenFlag")) {
+                    lv_cNumber = 11;
+                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_CE938347"));
+                }
+                else {
+                    if ((UnitGetType(EventUnit()) == "CTFNormalDarkGreyFlag")) {
+                        lv_cNumber = 14;
+                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_C778AFB1"));
+                    }
+                    else {
+                        if ((UnitGetType(EventUnit()) == "CTFNormalGreenFlag")) {
+                            lv_cNumber = 7;
+                            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_506E0A71"));
+                        }
+                        else {
+                            if ((UnitGetType(EventUnit()) == "CTFNormalLightGreenFlag")) {
+                                lv_cNumber = 13;
+                                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_47434032"));
+                            }
+                            else {
+                                if ((UnitGetType(EventUnit()) == "CTFNormalLightGreyFlag")) {
+                                    lv_cNumber = 10;
+                                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_E3421CFB"));
+                                }
+                                else {
+                                    if ((UnitGetType(EventUnit()) == "CTFNormalLightPinkFlag")) {
+                                        lv_cNumber = 8;
+                                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_F3B8F6D3"));
+                                    }
+                                    else {
+                                        if ((UnitGetType(EventUnit()) == "CTFNormalOrangeFlag")) {
+                                            lv_cNumber = 6;
+                                            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_0C3B4E5A"));
+                                        }
+                                        else {
+                                            if ((UnitGetType(EventUnit()) == "CTFNormalPinkFlag")) {
+                                                lv_cNumber = 15;
+                                                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_D3D7B406"));
+                                            }
+                                            else {
+                                                if ((UnitGetType(EventUnit()) == "CTFNormalPurpleFlag")) {
+                                                    lv_cNumber = 4;
+                                                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_963CF376"));
+                                                }
+                                                else {
+                                                    if ((UnitGetType(EventUnit()) == "CTFNormalRedFlag")) {
+                                                        lv_cNumber = 1;
+                                                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_EAF88BC7"));
+                                                    }
+                                                    else {
+                                                        if ((UnitGetType(EventUnit()) == "CTFNormalTealFlag")) {
+                                                            lv_cNumber = 3;
+                                                            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_C1D5693E"));
+                                                        }
+                                                        else {
+                                                            if ((UnitGetType(EventUnit()) == "CTFNormalVioletFlag")) {
+                                                                lv_cNumber = 9;
+                                                                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_90FAE62C") + TextWithColor(StringExternal("Param/Value/lib_4E716EEF_7CDDFCB7"), libNtve_gf_ConvertPlayerColorToColor(9)) + StringExternal("Param/Value/lib_4E716EEF_B71AFE27")));
+                                                            }
+                                                            else {
+                                                                if ((UnitGetType(EventUnit()) == "CTFNormalYellowFlag")) {
+                                                                    lv_cNumber = 5;
+                                                                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_F687A258"));
+                                                                }
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[lv_cNumber] = EventUnitTargetUnit();
+        lib4E716EEF_gv_gameMode_CTF_PlayerColorConnection[lv_cNumber] = UnitGetOwner(EventUnit());
+        libNtve_gf_CreatePingFacingAngle(libNtve_gf_UnionOfPlayerGroups(libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Ally, EventPlayer()), libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Ally, UnitGetOwner(lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[lv_cNumber]))), "PingSimple", UnitGetPosition(EventUnit()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(lv_cNumber, true)), 0.0, 270.0);
+        PingSetUnit(PingLastCreated(), lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[lv_cNumber]);
+        lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber] = PingLastCreated();
+    }
+    else {
+        PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[0]);
+        if ((UnitGetType(EventUnit()) == "CTFMainWhiteFlag")) {
+            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_C2AFCB95"));
+            libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingSimple", UnitGetPosition(EventUnitTargetUnit()), Color(100.00, 100.00, 100.00), 0.0, 270.0);
+        }
+        else {
+            if ((UnitGetType(EventUnit()) == "CTFPsiEmitter")) {
+                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_A9BB898B"));
+                libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingSimple", UnitGetPosition(EventUnitTargetUnit()), Color(100.00, 50.20, 25.10), 0.0, 270.0);
+            }
+
+        }
+        lib4E716EEF_gv_gameMode_CTF_CTF1Bringer = EventUnitTargetUnit();
+        lib4E716EEF_gv_gameMode_CTF_AttachedPings[0] = PingLastCreated();
+        PingSetUnit(lib4E716EEF_gv_gameMode_CTF_AttachedPings[0], lib4E716EEF_gv_gameMode_CTF_CTF1Bringer);
+    }
+    TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_CTF_Flag_Pickup_Init () {
+    lib4E716EEF_gt_GameMode_CTF_Flag_Pickup = TriggerCreate("lib4E716EEF_gt_GameMode_CTF_Flag_Pickup_Func");
+    TriggerAddEventUnitAbility(lib4E716EEF_gt_GameMode_CTF_Flag_Pickup, null, AbilityCommand("PickupFlagCTFGeneral", 0), c_unitAbilStageExecute, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_CTF_Flag_Capture (Taken to Base)
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_CTF_Flag_CaptureTakentoBase_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_forEach;
+    int lv_cNumber;
+
+    // Automatic Variable Declarations
+    unitgroup autoB00AA914_g;
+    int autoB00AA914_u;
+    unit autoB00AA914_var;
+    unitgroup autoCDC6270E_g;
+    int autoCDC6270E_u;
+    unit autoCDC6270E_var;
+    unitgroup auto65C3E35B_g;
+    int auto65C3E35B_u;
+    unit auto65C3E35B_var;
+    unitgroup auto4F358B44_g;
+    int auto4F358B44_u;
+    unit auto4F358B44_var;
+    unitgroup auto8D21B629_g;
+    int auto8D21B629_u;
+    unit auto8D21B629_var;
+    unitgroup auto6A91015F_g;
+    int auto6A91015F_u;
+    unit auto6A91015F_var;
+    unitgroup auto0FD49E82_g;
+    int auto0FD49E82_u;
+    unit auto0FD49E82_var;
+    unitgroup autoD1A57753_g;
+    int autoD1A57753_u;
+    unit autoD1A57753_var;
+    unitgroup auto1393BFC0_g;
+    int auto1393BFC0_u;
+    unit auto1393BFC0_var;
+    unitgroup auto30F9A66F_g;
+    int auto30F9A66F_u;
+    unit auto30F9A66F_var;
+    unitgroup auto480CC906_g;
+    int auto480CC906_u;
+    unit auto480CC906_var;
+    unitgroup autoD28FDC81_g;
+    int autoD28FDC81_u;
+    unit autoD28FDC81_var;
+    unitgroup autoDEC5E389_g;
+    int autoDEC5E389_u;
+    unit autoDEC5E389_var;
+    unitgroup autoBFF12BA4_g;
+    int autoBFF12BA4_u;
+    unit autoBFF12BA4_var;
+    unitgroup auto7A7B0D65_g;
+    int auto7A7B0D65_u;
+    unit auto7A7B0D65_var;
+    unitgroup auto42FA3BC6_g;
+    int auto42FA3BC6_u;
+    unit auto42FA3BC6_var;
+    unitgroup autoBB5815D9_g;
+    int autoBB5815D9_u;
+    unit autoBB5815D9_var;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    SoundPlayForPlayer(SoundLink("UI_TimerBirth", -1), c_maxPlayers, PlayerGroupAll(), 100.0, 0.0);
+    if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryMainWhiteFlagCTF") != true)) {
+        if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryBlueFlagCTF") == true)) {
+            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_F59C8611") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_DAF79F9C")));
+            lv_cNumber = 2;
+            if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                auto42FA3BC6_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                auto42FA3BC6_u = UnitGroupCount(auto42FA3BC6_g, c_unitCountAll);
+                for (;; auto42FA3BC6_u -= 1) {
+                    auto42FA3BC6_var = UnitGroupUnitFromEnd(auto42FA3BC6_g, auto42FA3BC6_u);
+                    if (auto42FA3BC6_var == null) { break; }
+                    UnitCreate(1, "CTFNormalBlueFlag", 0, EventPlayer(), UnitGetPosition(auto42FA3BC6_var), 270.0);
+                }
+            }
+
+        }
+        else {
+            if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryBrownFlagCTF") == true)) {
+                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_0D002E04") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_600D6606")));
+                lv_cNumber = 12;
+                if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                    auto7A7B0D65_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                    auto7A7B0D65_u = UnitGroupCount(auto7A7B0D65_g, c_unitCountAll);
+                    for (;; auto7A7B0D65_u -= 1) {
+                        auto7A7B0D65_var = UnitGroupUnitFromEnd(auto7A7B0D65_g, auto7A7B0D65_u);
+                        if (auto7A7B0D65_var == null) { break; }
+                        UnitCreate(1, "CTFNormalBrownFlag", 0, EventPlayer(), UnitGetPosition(auto7A7B0D65_var), 270.0);
+                    }
+                }
+
+            }
+            else {
+                if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryDarkGreenFlagCTF") == true)) {
+                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_35103C8B") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_2CAAA9D4")));
+                    lv_cNumber = 11;
+                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                        autoBFF12BA4_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                        autoBFF12BA4_u = UnitGroupCount(autoBFF12BA4_g, c_unitCountAll);
+                        for (;; autoBFF12BA4_u -= 1) {
+                            autoBFF12BA4_var = UnitGroupUnitFromEnd(autoBFF12BA4_g, autoBFF12BA4_u);
+                            if (autoBFF12BA4_var == null) { break; }
+                            UnitCreate(1, "CTFNormalDarkGreenFlag", 0, EventPlayer(), UnitGetPosition(autoBFF12BA4_var), 270.0);
+                        }
+                    }
+
+                }
+                else {
+                    if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryDarkGreyFlagCTF") == true)) {
+                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_CBB3B8CC") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_7A36734D")));
+                        lv_cNumber = 14;
+                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                            autoDEC5E389_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                            autoDEC5E389_u = UnitGroupCount(autoDEC5E389_g, c_unitCountAll);
+                            for (;; autoDEC5E389_u -= 1) {
+                                autoDEC5E389_var = UnitGroupUnitFromEnd(autoDEC5E389_g, autoDEC5E389_u);
+                                if (autoDEC5E389_var == null) { break; }
+                                UnitCreate(1, "CTFNormalDarkGreyFlag", 0, EventPlayer(), UnitGetPosition(autoDEC5E389_var), 270.0);
+                            }
+                        }
+
+                    }
+                    else {
+                        if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryGreenFlagCTF") == true)) {
+                            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_55E37AEC") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_2B1C8987")));
+                            lv_cNumber = 7;
+                            if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                autoD28FDC81_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                autoD28FDC81_u = UnitGroupCount(autoD28FDC81_g, c_unitCountAll);
+                                for (;; autoD28FDC81_u -= 1) {
+                                    autoD28FDC81_var = UnitGroupUnitFromEnd(autoD28FDC81_g, autoD28FDC81_u);
+                                    if (autoD28FDC81_var == null) { break; }
+                                    UnitCreate(1, "CTFNormalGreenFlag", 0, EventPlayer(), UnitGetPosition(autoD28FDC81_var), 270.0);
+                                }
+                            }
+
+                        }
+                        else {
+                            if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryLightGreenFlagCTF") == true)) {
+                                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_7B7D417E") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_98123E8F")));
+                                lv_cNumber = 13;
+                                if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                    autoCDC6270E_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                    autoCDC6270E_u = UnitGroupCount(autoCDC6270E_g, c_unitCountAll);
+                                    for (;; autoCDC6270E_u -= 1) {
+                                        autoCDC6270E_var = UnitGroupUnitFromEnd(autoCDC6270E_g, autoCDC6270E_u);
+                                        if (autoCDC6270E_var == null) { break; }
+                                        UnitCreate(1, "CTFNormalLightGreenFlag", 0, EventPlayer(), UnitGetPosition(autoCDC6270E_var), 270.0);
+                                    }
+                                }
+
+                            }
+                            else {
+                                if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryLightGreyFlagCTF") == true)) {
+                                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_FD0AEE6C") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_4948BC0A")));
+                                    lv_cNumber = 10;
+                                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                        auto480CC906_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                        auto480CC906_u = UnitGroupCount(auto480CC906_g, c_unitCountAll);
+                                        for (;; auto480CC906_u -= 1) {
+                                            auto480CC906_var = UnitGroupUnitFromEnd(auto480CC906_g, auto480CC906_u);
+                                            if (auto480CC906_var == null) { break; }
+                                            UnitCreate(1, "CTFNormalLightGreyFlag", 0, EventPlayer(), UnitGetPosition(auto480CC906_var), 270.0);
+                                        }
+                                    }
+
+                                }
+                                else {
+                                    if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryLightPinkFlagCTF") == true)) {
+                                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_A3904133") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_61CD1CEA")));
+                                        lv_cNumber = 8;
+                                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                            auto30F9A66F_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                            auto30F9A66F_u = UnitGroupCount(auto30F9A66F_g, c_unitCountAll);
+                                            for (;; auto30F9A66F_u -= 1) {
+                                                auto30F9A66F_var = UnitGroupUnitFromEnd(auto30F9A66F_g, auto30F9A66F_u);
+                                                if (auto30F9A66F_var == null) { break; }
+                                                UnitCreate(1, "CTFNormalLightPinkFlag", 0, EventPlayer(), UnitGetPosition(auto30F9A66F_var), 270.0);
+                                            }
+                                        }
+
+                                    }
+                                    else {
+                                        if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryOrangeFlagCTF") == true)) {
+                                            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_A4636B54") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_8955CA7E")));
+                                            lv_cNumber = 6;
+                                            if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                                auto1393BFC0_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                auto1393BFC0_u = UnitGroupCount(auto1393BFC0_g, c_unitCountAll);
+                                                for (;; auto1393BFC0_u -= 1) {
+                                                    auto1393BFC0_var = UnitGroupUnitFromEnd(auto1393BFC0_g, auto1393BFC0_u);
+                                                    if (auto1393BFC0_var == null) { break; }
+                                                    UnitCreate(1, "CTFNormalOrangeFlag", 0, EventPlayer(), UnitGetPosition(auto1393BFC0_var), 270.0);
+                                                }
+                                            }
+
+                                        }
+                                        else {
+                                            if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryPinkFlagCTF") == true)) {
+                                                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_D505C2BB") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_290328D8")));
+                                                lv_cNumber = 15;
+                                                if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                                    autoD1A57753_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                    autoD1A57753_u = UnitGroupCount(autoD1A57753_g, c_unitCountAll);
+                                                    for (;; autoD1A57753_u -= 1) {
+                                                        autoD1A57753_var = UnitGroupUnitFromEnd(autoD1A57753_g, autoD1A57753_u);
+                                                        if (autoD1A57753_var == null) { break; }
+                                                        UnitCreate(1, "CTFNormalPinkFlag", 0, EventPlayer(), UnitGetPosition(autoD1A57753_var), 270.0);
+                                                    }
+                                                }
+
+                                            }
+                                            else {
+                                                if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryPurpleFlagCTF") == true)) {
+                                                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_0686C88A") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_6DD371A6")));
+                                                    lv_cNumber = 4;
+                                                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                                        auto0FD49E82_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                        auto0FD49E82_u = UnitGroupCount(auto0FD49E82_g, c_unitCountAll);
+                                                        for (;; auto0FD49E82_u -= 1) {
+                                                            auto0FD49E82_var = UnitGroupUnitFromEnd(auto0FD49E82_g, auto0FD49E82_u);
+                                                            if (auto0FD49E82_var == null) { break; }
+                                                            UnitCreate(1, "CTFNormalPurpleFlag", 0, EventPlayer(), UnitGetPosition(auto0FD49E82_var), 270.0);
+                                                        }
+                                                    }
+
+                                                }
+                                                else {
+                                                    if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryRedFlagCTF") == true)) {
+                                                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_68BE808C") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_F258888E")));
+                                                        lv_cNumber = 1;
+                                                        if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                                            auto6A91015F_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                            auto6A91015F_u = UnitGroupCount(auto6A91015F_g, c_unitCountAll);
+                                                            for (;; auto6A91015F_u -= 1) {
+                                                                auto6A91015F_var = UnitGroupUnitFromEnd(auto6A91015F_g, auto6A91015F_u);
+                                                                if (auto6A91015F_var == null) { break; }
+                                                                UnitCreate(1, "CTFNormalRedFlag", 0, EventPlayer(), UnitGetPosition(auto6A91015F_var), 270.0);
+                                                            }
+                                                        }
+
+                                                    }
+                                                    else {
+                                                        if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryTealFlagCTF") == true)) {
+                                                            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_00899069") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_F8C7C7DE")));
+                                                            lv_cNumber = 3;
+                                                            if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                                                auto8D21B629_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                                auto8D21B629_u = UnitGroupCount(auto8D21B629_g, c_unitCountAll);
+                                                                for (;; auto8D21B629_u -= 1) {
+                                                                    auto8D21B629_var = UnitGroupUnitFromEnd(auto8D21B629_g, auto8D21B629_u);
+                                                                    if (auto8D21B629_var == null) { break; }
+                                                                    UnitCreate(1, "CTFNormalTealFlag", 0, EventPlayer(), UnitGetPosition(auto8D21B629_var), 270.0);
+                                                                }
+                                                            }
+
+                                                        }
+                                                        else {
+                                                            if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryVioletFlagCTF") == true)) {
+                                                                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_2B1EF778") + TextWithColor(StringExternal("Param/Value/lib_4E716EEF_E55E8F17"), libNtve_gf_ConvertPlayerColorToColor(9)) + StringExternal("Param/Value/lib_4E716EEF_1AD64EB8") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_4E2A664F")));
+                                                                lv_cNumber = 9;
+                                                                if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                                                    auto4F358B44_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                                    auto4F358B44_u = UnitGroupCount(auto4F358B44_g, c_unitCountAll);
+                                                                    for (;; auto4F358B44_u -= 1) {
+                                                                        auto4F358B44_var = UnitGroupUnitFromEnd(auto4F358B44_g, auto4F358B44_u);
+                                                                        if (auto4F358B44_var == null) { break; }
+                                                                        UnitCreate(1, "CTFNormalVioletFlag", 0, EventPlayer(), UnitGetPosition(auto4F358B44_var), 270.0);
+                                                                    }
+                                                                }
+
+                                                            }
+                                                            else {
+                                                                if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryYellowFlagCTF") == true)) {
+                                                                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_B9B06666") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_03494965")));
+                                                                    lv_cNumber = 5;
+                                                                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0006")) {
+                                                                        auto65C3E35B_g = UnitGroup("FlagBasement", UnitGetOwner(EventUnitTargetUnit()), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                                        auto65C3E35B_u = UnitGroupCount(auto65C3E35B_g, c_unitCountAll);
+                                                                        for (;; auto65C3E35B_u -= 1) {
+                                                                            auto65C3E35B_var = UnitGroupUnitFromEnd(auto65C3E35B_g, auto65C3E35B_u);
+                                                                            if (auto65C3E35B_var == null) { break; }
+                                                                            UnitCreate(1, "CTFNormalYellowFlag", 0, EventPlayer(), UnitGetPosition(auto65C3E35B_var), 270.0);
+                                                                        }
+                                                                    }
+
+                                                                }
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[lv_cNumber] = null;
+        PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+        if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0004")) {
+            autoBB5815D9_g = UnitGroup(null, lib4E716EEF_gv_gameMode_CTF_PlayerColorConnection[lv_cNumber], null, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+            autoBB5815D9_u = UnitGroupCount(autoBB5815D9_g, c_unitCountAll);
+            for (;; autoBB5815D9_u -= 1) {
+                autoBB5815D9_var = UnitGroupUnitFromEnd(autoBB5815D9_g, autoBB5815D9_u);
+                if (autoBB5815D9_var == null) { break; }
+                UnitKill(autoBB5815D9_var);
+            }
+        }
+        else {
+            if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0005")) {
+                lib4E716EEF_gv_gameMode_CTF_FlagPoints[lib4E716EEF_gv_gameMode_CTF_PlayerColorConnection[lv_cNumber]] -= 1;
+            }
+            else {
+                lib4E716EEF_gv_gameMode_CTF_FlagPoints[EventPlayer()] += 1;
+            }
+        }
+        TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    }
+    else {
+        if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryMainWhiteFlagCTF") == true)) {
+            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_2DDAB6B4") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_8139B1A0")));
+            lib4E716EEF_gv_gameMode_CTF_CTF1Bringer = null;
+            PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[0]);
+            if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0001")) {
+                autoB00AA914_g = UnitGroupAlliance(EventPlayer(), c_unitAllianceEnemy, null, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                autoB00AA914_u = UnitGroupCount(autoB00AA914_g, c_unitCountAll);
+                for (;; autoB00AA914_u -= 1) {
+                    autoB00AA914_var = UnitGroupUnitFromEnd(autoB00AA914_g, autoB00AA914_u);
+                    if (autoB00AA914_var == null) { break; }
+                    UnitKill(autoB00AA914_var);
+                }
+            }
+            else {
+                if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0002")) {
+                    lib4E716EEF_gv_gameMode_CTF_FlagPoints[EventPlayer()] += 1;
+                }
+
+                TimerStart(lib4E716EEF_gv_gameMode_CTF_RespawnTimer, 200.0, false, c_timeGame);
+                TimerWindowCreate(TimerLastStarted(), StringExternal("Param/Value/lib_4E716EEF_C064521C"), true, false);
+                Wait(200.0, c_timeGame);
+                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_A79D5A9E"));
+                TimerWindowDestroy(TimerWindowLastCreated());
+                TriggerExecute(lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag, true, true);
+            }
+        }
+
+    }
+    Wait(1.0, c_timeGame);
+    TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_CTF_Flag_CaptureTakentoBase_Init () {
+    lib4E716EEF_gt_GameMode_CTF_Flag_CaptureTakentoBase = TriggerCreate("lib4E716EEF_gt_GameMode_CTF_Flag_CaptureTakentoBase_Func");
+    TriggerAddEventUnitAbility(lib4E716EEF_gt_GameMode_CTF_Flag_CaptureTakentoBase, null, AbilityCommand("CTFBaseTakeFlag", 0), c_abilEffectStageApproach, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_CTF_PsiEmitter_Planted (Taken to Enemy Base)
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_CTF_PsiEmitter_PlantedTakentoEnemyBase_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_forEach;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitHasBehavior2(EventUnitTargetUnit(), "CarryPsiEmitterCTF") == true)) {
+        SoundPlayForPlayer(SoundLink("UI_TimerBirth", -1), c_maxPlayers, PlayerGroupAll(), 100.0, 0.0);
+        PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[0]);
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_8760224A") + TextWithColor(PlayerName(EventPlayer()), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(EventPlayer(), false))) + StringExternal("Param/Value/lib_4E716EEF_405CF501")));
+        MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, Color(100.00, 50.20, 25.10));
+        lib4E716EEF_gv_gameMode_CTF_CTF1Bringer = null;
+        PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[0]);
+        Wait(0.3, c_timeGame);
+        libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingPsiEmitterShockwave", UnitGetPosition(EventUnit()), Color(100.00, 50.20, 25.10), 1.0, 270.0);
+        lib4E716EEF_gf_EndGamewithSound(EventPlayer(), "Lose", false);
+        lib4E716EEF_gv_gameMode_CTF_FlagPoints[EventPlayer()] += 1;
+        TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    }
+
+    Wait(3.0, c_timeGame);
+    TimerStart(lib4E716EEF_gv_gameMode_CTF_RespawnTimer, 200.0, false, c_timeGame);
+    TimerWindowCreate(TimerLastStarted(), StringExternal("Param/Value/lib_4E716EEF_647B2DCF"), true, false);
+    Wait(200.0, c_timeGame);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_583AEBBD"));
+    TimerWindowDestroy(TimerWindowLastCreated());
+    TriggerExecute(lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_CTF_PsiEmitter_PlantedTakentoEnemyBase_Init () {
+    lib4E716EEF_gt_GameMode_CTF_PsiEmitter_PlantedTakentoEnemyBase = TriggerCreate("lib4E716EEF_gt_GameMode_CTF_PsiEmitter_PlantedTakentoEnemyBase_Func");
+    TriggerAddEventUnitAbility(lib4E716EEF_gt_GameMode_CTF_PsiEmitter_PlantedTakentoEnemyBase, null, AbilityCommand("CTFBaseTakePsiEmitter", 0), c_abilEffectStageApproach, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_CTF_Flag_Dropped (By unit death)
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_u;
+    int lv_cNumber;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!(((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[1] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[2] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[3] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[4] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[5] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[6] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[7] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[8] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[9] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[10] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[11] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[12] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[13] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[14] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[15] == EventUnit()) || (lib4E716EEF_gv_gameMode_CTF_CTF1Bringer == EventUnit())))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    SoundPlayForPlayer(SoundLink("C_UI_CampaignPanel_Whoosh", -1), c_maxPlayers, PlayerGroupAll(), 100.0, 0.0);
+    if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[2] == EventUnit())) {
+        lv_cNumber = 2;
+        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_8AC06442"));
+        MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+        PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+    }
+    else {
+        if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[12] == EventUnit())) {
+            lv_cNumber = 12;
+            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_10FFF095"));
+            MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+            PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+        }
+        else {
+            if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[11] == EventUnit())) {
+                lv_cNumber = 11;
+                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_D66F7C81"));
+                MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+            }
+            else {
+                if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[14] == EventUnit())) {
+                    lv_cNumber = 14;
+                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_7E9E09E6"));
+                    MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                    PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                }
+                else {
+                    if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[7] == EventUnit())) {
+                        lv_cNumber = 7;
+                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_4100DD46"));
+                        MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                        PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                    }
+                    else {
+                        if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[13] == EventUnit())) {
+                            lv_cNumber = 13;
+                            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_C014057C"));
+                            MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                            PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                        }
+                        else {
+                            if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[10] == EventUnit())) {
+                                lv_cNumber = 10;
+                                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_5FCCED5D"));
+                                MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                                PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                            }
+                            else {
+                                if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[8] == EventUnit())) {
+                                    lv_cNumber = 8;
+                                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_294417B1"));
+                                    MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                                    PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                                }
+                                else {
+                                    if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[6] == EventUnit())) {
+                                        lv_cNumber = 6;
+                                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_979DA1AD"));
+                                        MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                                        PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                                    }
+                                    else {
+                                        if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[15] == EventUnit())) {
+                                            lv_cNumber = 15;
+                                            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_5F9725EA"));
+                                            MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                                            PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                                        }
+                                        else {
+                                            if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[4] == EventUnit())) {
+                                                lv_cNumber = 4;
+                                                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_B6A2AC68"));
+                                                MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                                                PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                                            }
+                                            else {
+                                                if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[1] == EventUnit())) {
+                                                    lv_cNumber = 1;
+                                                    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_4DE8A223"));
+                                                    MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                                                    PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                                                }
+                                                else {
+                                                    if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[3] == EventUnit())) {
+                                                        lv_cNumber = 3;
+                                                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_DBFC9ADC"));
+                                                        MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                                                        PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                                                    }
+                                                    else {
+                                                        if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[9] == EventUnit())) {
+                                                            lv_cNumber = 9;
+                                                            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (StringExternal("Param/Value/lib_4E716EEF_61420BD4") + TextWithColor(StringExternal("Param/Value/lib_4E716EEF_942FBD48"), libNtve_gf_ConvertPlayerColorToColor(9)) + StringExternal("Param/Value/lib_4E716EEF_1E382704")));
+                                                            MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                                                            PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                                                        }
+                                                        else {
+                                                            if ((lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[5] == EventUnit())) {
+                                                                lv_cNumber = 5;
+                                                                UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_2BC7D9D2"));
+                                                                MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, PingGetColor(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]));
+                                                                PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[lv_cNumber]);
+                                                            }
+                                                            else {
+                                                                if ((lib4E716EEF_gv_gameMode_CTF_CTF1Bringer == EventUnit())) {
+                                                                    PingDestroy(lib4E716EEF_gv_gameMode_CTF_AttachedPings[0]);
+                                                                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0003")) {
+                                                                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_D15CDE30"));
+                                                                        MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, Color(100.00, 50.20, 25.10));
+                                                                        libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingSimple", UnitGetPosition(EventUnit()), Color(100.00, 50.20, 25.10), 0.0, 270.0);
+                                                                        lib4E716EEF_gv_gameMode_CTF_AttachedPings[0] = PingLastCreated();
+                                                                    }
+                                                                    else {
+                                                                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_044EA497"));
+                                                                        MinimapPing(PlayerGroupAll(), UnitGetPosition(EventUnit()), 2.0, Color(100.00, 100.00, 100.00));
+                                                                        libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingSimple", UnitGetPosition(EventUnit()), Color(100.00, 100.00, 100.00), 0.0, 270.0);
+                                                                        lib4E716EEF_gv_gameMode_CTF_AttachedPings[0] = PingLastCreated();
+                                                                    }
+                                                                }
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath_Init () {
+    lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath = TriggerCreate("lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath_Func");
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[1]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[2]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[3]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[4]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[5]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[6]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[7]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[8]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[9]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[10]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[11]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[12]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[13]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[14]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF2Bringer[15]"));
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath, UnitRefFromVariable("lib4E716EEF_gv_gameMode_CTF_CTF1Bringer"));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_CTF_Spawn Flag
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_CTF_SpawnFlag_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_cTF_MainFlagSpawn_Counter;
+    fixed lv_cTF_MainFlagSpawn_Distance;
+    bool lv_cTF_MainFlagSpawn_IsSpawned;
+
+    // Automatic Variable Declarations
+    unitgroup auto9B1F1C4F_g;
+    int auto9B1F1C4F_u;
+    unit auto9B1F1C4F_var;
+    unitgroup auto3816CFC2_g;
+    int auto3816CFC2_u;
+    unit auto3816CFC2_var;
+    unitgroup autoF19C7799_g;
+    int autoF19C7799_u;
+    unit autoF19C7799_var;
+    unitgroup autoB950C076_g;
+    int autoB950C076_u;
+    unit autoB950C076_var;
+    unitgroup auto75CDE54B_g;
+    int auto75CDE54B_u;
+    unit auto75CDE54B_var;
+    unitgroup auto1C64B87D_g;
+    int auto1C64B87D_u;
+    unit auto1C64B87D_var;
+    unitgroup auto01981193_g;
+    int auto01981193_u;
+    unit auto01981193_var;
+    unitgroup auto9FB18F34_g;
+    int auto9FB18F34_u;
+    unit auto9FB18F34_var;
+    unitgroup autoECD85C95_g;
+    int autoECD85C95_u;
+    unit autoECD85C95_var;
+    unitgroup auto3D7EB68E_g;
+    int auto3D7EB68E_u;
+    unit auto3D7EB68E_var;
+    unitgroup autoF52B69D8_g;
+    int autoF52B69D8_u;
+    unit autoF52B69D8_var;
+    unitgroup autoDACEBEF9_g;
+    int autoDACEBEF9_u;
+    unit autoDACEBEF9_var;
+    unitgroup auto76BDBA77_g;
+    int auto76BDBA77_u;
+    unit auto76BDBA77_var;
+    unitgroup auto64096B4B_g;
+    int auto64096B4B_u;
+    unit auto64096B4B_var;
+    unitgroup auto65173965_g;
+    int auto65173965_u;
+    unit auto65173965_var;
+
+    // Variable Initialization
+    lv_cTF_MainFlagSpawn_Distance = 160.0;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0003") || (GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0001") || (GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0002"))) {
+        TriggerExecute(lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag, true, false);
+    }
+    else {
+        if ((lib4E716EEF_gv_gameMode_CTF_FirstFlagSpawn == true) && (GameAttributeGameValue("[bnet:local/0.0/280012]16") == "0004")) {
+            UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_19440FB1"));
+            lib4E716EEF_gv_gameMode_CTF_FirstFlagSpawn = false;
+        }
+
+        if ((PlayerGetColorIndex(EventPlayer(), false) == 2)) {
+            auto9B1F1C4F_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+            auto9B1F1C4F_u = UnitGroupCount(auto9B1F1C4F_g, c_unitCountAll);
+            for (;; auto9B1F1C4F_u -= 1) {
+                auto9B1F1C4F_var = UnitGroupUnitFromEnd(auto9B1F1C4F_g, auto9B1F1C4F_u);
+                if (auto9B1F1C4F_var == null) { break; }
+                UnitCreate(1, "CTFNormalBlueFlag", 0, EventPlayer(), UnitGetPosition(auto9B1F1C4F_var), 270.0);
+            }
+        }
+        else {
+            if ((PlayerGetColorIndex(EventPlayer(), false) == 12)) {
+                auto65173965_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                auto65173965_u = UnitGroupCount(auto65173965_g, c_unitCountAll);
+                for (;; auto65173965_u -= 1) {
+                    auto65173965_var = UnitGroupUnitFromEnd(auto65173965_g, auto65173965_u);
+                    if (auto65173965_var == null) { break; }
+                    UnitCreate(1, "CTFNormalBrownFlag", 0, EventPlayer(), UnitGetPosition(auto65173965_var), 270.0);
+                }
+            }
+            else {
+                if ((PlayerGetColorIndex(EventPlayer(), false) == 11)) {
+                    auto64096B4B_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                    auto64096B4B_u = UnitGroupCount(auto64096B4B_g, c_unitCountAll);
+                    for (;; auto64096B4B_u -= 1) {
+                        auto64096B4B_var = UnitGroupUnitFromEnd(auto64096B4B_g, auto64096B4B_u);
+                        if (auto64096B4B_var == null) { break; }
+                        UnitCreate(1, "CTFNormalDarkGreenFlag", 0, EventPlayer(), UnitGetPosition(auto64096B4B_var), 270.0);
+                    }
+                }
+                else {
+                    if ((PlayerGetColorIndex(EventPlayer(), false) == 14)) {
+                        auto76BDBA77_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                        auto76BDBA77_u = UnitGroupCount(auto76BDBA77_g, c_unitCountAll);
+                        for (;; auto76BDBA77_u -= 1) {
+                            auto76BDBA77_var = UnitGroupUnitFromEnd(auto76BDBA77_g, auto76BDBA77_u);
+                            if (auto76BDBA77_var == null) { break; }
+                            UnitCreate(1, "CTFNormalDarkGreyFlag", 0, EventPlayer(), UnitGetPosition(auto76BDBA77_var), 270.0);
+                        }
+                    }
+                    else {
+                        if ((PlayerGetColorIndex(EventPlayer(), false) == 7)) {
+                            autoDACEBEF9_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                            autoDACEBEF9_u = UnitGroupCount(autoDACEBEF9_g, c_unitCountAll);
+                            for (;; autoDACEBEF9_u -= 1) {
+                                autoDACEBEF9_var = UnitGroupUnitFromEnd(autoDACEBEF9_g, autoDACEBEF9_u);
+                                if (autoDACEBEF9_var == null) { break; }
+                                UnitCreate(1, "CTFNormalGreenFlag", 0, EventPlayer(), UnitGetPosition(autoDACEBEF9_var), 270.0);
+                            }
+                        }
+                        else {
+                            if ((PlayerGetColorIndex(EventPlayer(), false) == 13)) {
+                                autoF52B69D8_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                autoF52B69D8_u = UnitGroupCount(autoF52B69D8_g, c_unitCountAll);
+                                for (;; autoF52B69D8_u -= 1) {
+                                    autoF52B69D8_var = UnitGroupUnitFromEnd(autoF52B69D8_g, autoF52B69D8_u);
+                                    if (autoF52B69D8_var == null) { break; }
+                                    UnitCreate(1, "CTFNormalLightGreenFlag", 0, EventPlayer(), UnitGetPosition(autoF52B69D8_var), 270.0);
+                                }
+                            }
+                            else {
+                                if ((PlayerGetColorIndex(EventPlayer(), false) == 10)) {
+                                    auto3D7EB68E_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                    auto3D7EB68E_u = UnitGroupCount(auto3D7EB68E_g, c_unitCountAll);
+                                    for (;; auto3D7EB68E_u -= 1) {
+                                        auto3D7EB68E_var = UnitGroupUnitFromEnd(auto3D7EB68E_g, auto3D7EB68E_u);
+                                        if (auto3D7EB68E_var == null) { break; }
+                                        UnitCreate(1, "CTFNormalLightGreyFlag", 0, EventPlayer(), UnitGetPosition(auto3D7EB68E_var), 270.0);
+                                    }
+                                }
+                                else {
+                                    if ((PlayerGetColorIndex(EventPlayer(), false) == 8)) {
+                                        autoECD85C95_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                        autoECD85C95_u = UnitGroupCount(autoECD85C95_g, c_unitCountAll);
+                                        for (;; autoECD85C95_u -= 1) {
+                                            autoECD85C95_var = UnitGroupUnitFromEnd(autoECD85C95_g, autoECD85C95_u);
+                                            if (autoECD85C95_var == null) { break; }
+                                            UnitCreate(1, "CTFNormalLightPinkFlag", 0, EventPlayer(), UnitGetPosition(autoECD85C95_var), 270.0);
+                                        }
+                                    }
+                                    else {
+                                        if ((PlayerGetColorIndex(EventPlayer(), false) == 6)) {
+                                            auto9FB18F34_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                            auto9FB18F34_u = UnitGroupCount(auto9FB18F34_g, c_unitCountAll);
+                                            for (;; auto9FB18F34_u -= 1) {
+                                                auto9FB18F34_var = UnitGroupUnitFromEnd(auto9FB18F34_g, auto9FB18F34_u);
+                                                if (auto9FB18F34_var == null) { break; }
+                                                UnitCreate(1, "CTFNormalOrangeFlag", 0, EventPlayer(), UnitGetPosition(auto9FB18F34_var), 270.0);
+                                            }
+                                        }
+                                        else {
+                                            if ((PlayerGetColorIndex(EventPlayer(), false) == 15)) {
+                                                auto01981193_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                auto01981193_u = UnitGroupCount(auto01981193_g, c_unitCountAll);
+                                                for (;; auto01981193_u -= 1) {
+                                                    auto01981193_var = UnitGroupUnitFromEnd(auto01981193_g, auto01981193_u);
+                                                    if (auto01981193_var == null) { break; }
+                                                    UnitCreate(1, "CTFNormalPinkFlag", 0, EventPlayer(), UnitGetPosition(auto01981193_var), 270.0);
+                                                }
+                                            }
+                                            else {
+                                                if ((PlayerGetColorIndex(EventPlayer(), false) == 4)) {
+                                                    auto1C64B87D_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                    auto1C64B87D_u = UnitGroupCount(auto1C64B87D_g, c_unitCountAll);
+                                                    for (;; auto1C64B87D_u -= 1) {
+                                                        auto1C64B87D_var = UnitGroupUnitFromEnd(auto1C64B87D_g, auto1C64B87D_u);
+                                                        if (auto1C64B87D_var == null) { break; }
+                                                        UnitCreate(1, "CTFNormalPurpleFlag", 0, EventPlayer(), UnitGetPosition(auto1C64B87D_var), 270.0);
+                                                    }
+                                                }
+                                                else {
+                                                    if ((PlayerGetColorIndex(EventPlayer(), false) == 1)) {
+                                                        auto75CDE54B_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                        auto75CDE54B_u = UnitGroupCount(auto75CDE54B_g, c_unitCountAll);
+                                                        for (;; auto75CDE54B_u -= 1) {
+                                                            auto75CDE54B_var = UnitGroupUnitFromEnd(auto75CDE54B_g, auto75CDE54B_u);
+                                                            if (auto75CDE54B_var == null) { break; }
+                                                            UnitCreate(1, "CTFNormalRedFlag", 0, EventPlayer(), UnitGetPosition(auto75CDE54B_var), 270.0);
+                                                        }
+                                                    }
+                                                    else {
+                                                        if ((PlayerGetColorIndex(EventPlayer(), false) == 3)) {
+                                                            autoB950C076_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                            autoB950C076_u = UnitGroupCount(autoB950C076_g, c_unitCountAll);
+                                                            for (;; autoB950C076_u -= 1) {
+                                                                autoB950C076_var = UnitGroupUnitFromEnd(autoB950C076_g, autoB950C076_u);
+                                                                if (autoB950C076_var == null) { break; }
+                                                                UnitCreate(1, "CTFNormalTealFlag", 0, EventPlayer(), UnitGetPosition(autoB950C076_var), 270.0);
+                                                            }
+                                                        }
+                                                        else {
+                                                            if ((PlayerGetColorIndex(EventPlayer(), false) == 9)) {
+                                                                autoF19C7799_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                                autoF19C7799_u = UnitGroupCount(autoF19C7799_g, c_unitCountAll);
+                                                                for (;; autoF19C7799_u -= 1) {
+                                                                    autoF19C7799_var = UnitGroupUnitFromEnd(autoF19C7799_g, autoF19C7799_u);
+                                                                    if (autoF19C7799_var == null) { break; }
+                                                                    UnitCreate(1, "CTFNormalVioletFlag", 0, EventPlayer(), UnitGetPosition(autoF19C7799_var), 270.0);
+                                                                }
+                                                            }
+                                                            else {
+                                                                if ((PlayerGetColorIndex(EventPlayer(), false) == 5)) {
+                                                                    auto3816CFC2_g = UnitGroup("FlagBasement", EventPlayer(), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+                                                                    auto3816CFC2_u = UnitGroupCount(auto3816CFC2_g, c_unitCountAll);
+                                                                    for (;; auto3816CFC2_u -= 1) {
+                                                                        auto3816CFC2_var = UnitGroupUnitFromEnd(auto3816CFC2_g, auto3816CFC2_u);
+                                                                        if (auto3816CFC2_var == null) { break; }
+                                                                        UnitCreate(1, "CTFNormalYellowFlag", 0, EventPlayer(), UnitGetPosition(auto3816CFC2_var), 270.0);
+                                                                    }
+                                                                }
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_CTF_SpawnFlag_Init () {
+    lib4E716EEF_gt_GameMode_CTF_SpawnFlag = TriggerCreate("lib4E716EEF_gt_GameMode_CTF_SpawnFlag_Func");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 1, "CTFCreateBaseFlag");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 2, "CTFCreateBaseFlag");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 3, "CTFCreateBaseFlag");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 4, "CTFCreateBaseFlag");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 5, "CTFCreateBaseFlag");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 6, "CTFCreateBaseFlag");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 7, "CTFCreateBaseFlag");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 8, "CTFCreateBaseFlag");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 9, "CTFCreateBaseFlag");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_CTF_SpawnFlag, 10, "CTFCreateBaseFlag");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_CTF_Spawn MainFlag
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_cTF_MainFlagSpawn_Counter;
+    fixed lv_cTF_MainFlagSpawn_Distance;
+    bool lv_cTF_MainFlagSpawn_IsSpawned;
+
+    // Automatic Variable Declarations
+    unitgroup auto9E37B596_g;
+    int auto9E37B596_u;
+    unit auto9E37B596_var;
+
+    // Variable Initialization
+    lv_cTF_MainFlagSpawn_Distance = 200.0;
+
+    // Conditions
+    if (testConds) {
+        if (!((lib4E716EEF_gv_gameMode_CTF_FirstFlagSpawn == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib4E716EEF_gv_gameMode_CTF_FirstFlagSpawn = false;
+    while ((lv_cTF_MainFlagSpawn_IsSpawned == false)) {
+        Wait(0.0001, c_timeGame);
+        while ((lv_cTF_MainFlagSpawn_Counter < 50)) {
+            lv_cTF_MainFlagSpawn_Counter += 1;
+            if ((lv_cTF_MainFlagSpawn_IsSpawned == false)) {
+                if ((UnitGroupCount(UnitGroup(null, 1, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup(null, 2, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup(null, 3, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup(null, 4, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup(null, 5, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup(null, 6, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup(null, 7, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup(null, 8, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup(null, 9, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup(null, 10, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, lv_cTF_MainFlagSpawn_Distance), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0) && (UnitGroupCount(UnitGroup("CTFFlagSpot", c_playerAny, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, (lv_cTF_MainFlagSpawn_Distance / 1.3)), UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) == 0)) {
+                    lv_cTF_MainFlagSpawn_IsSpawned = true;
+                    Wait(4.0, c_timeGame);
+                    auto9E37B596_g = UnitGroup(null, 0, RegionCircle(lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, 4.0), UnitFilter((1 << c_targetFilterGround) | (1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 0);
+                    auto9E37B596_u = UnitGroupCount(auto9E37B596_g, c_unitCountAll);
+                    for (;; auto9E37B596_u -= 1) {
+                        auto9E37B596_var = UnitGroupUnitFromEnd(auto9E37B596_g, auto9E37B596_u);
+                        if (auto9E37B596_var == null) { break; }
+                        UnitRemove(auto9E37B596_var);
+                    }
+                    Wait(4.0, c_timeGame);
+                    UnitCreate(1, "CTFFlagSpot", c_unitCreateIgnorePlacement, 0, lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, 270.0);
+                    Wait(2.0, c_timeGame);
+                    if ((GameAttributeGameValue("[bnet:local/0.0/280012]22") == "0003")) {
+                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_DDBB9C7F"));
+                        MinimapPing(PlayerGroupAll(), lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, 2.0, Color(100.00, 50.20, 25.10));
+                        UnitCreate(1, "CTFPsiEmitter", 0, 0, lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, 270.0);
+                        libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingSimple", UnitGetPosition(UnitLastCreated()), Color(100.00, 50.20, 25.10), 0.0, 270.0);
+                        lib4E716EEF_gv_gameMode_CTF_AttachedPings[0] = PingLastCreated();
+                    }
+                    else {
+                        UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, StringExternal("Param/Value/lib_4E716EEF_8CD4675B"));
+                        MinimapPing(PlayerGroupAll(), lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, 2.0, Color(100.00, 100.00, 100.00));
+                        UnitCreate(1, "CTFMainWhiteFlag", 0, 0, lib4E716EEF_gv_gameMode_CTF_CTF1FlagPoint, 270.0);
+                        libNtve_gf_CreatePingFacingAngle(PlayerGroupAll(), "PingSimple", UnitGetPosition(UnitLastCreated()), Color(100.00, 100.00, 100.00), 0.0, 270.0);
+                        lib4E716EEF_gv_gameMode_CTF_AttachedPings[0] = PingLastCreated();
+                    }
+                    lib4E716EEF_gv_gameMode_CTF_FirstFlagSpawn = true;
+                }
+
+            }
+
+        }
+        lv_cTF_MainFlagSpawn_Counter = 0;
+        if ((lv_cTF_MainFlagSpawn_Distance > 18.0)) {
+            lv_cTF_MainFlagSpawn_Distance -= 0.5;
+        }
+
+    }
+    TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag_Init () {
+    lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag = TriggerCreate("lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_Slaughter_Kill Counter
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_Slaughter_KillCounter_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((GameAttributeGameValue("[bnet:local/0.0/280012]16") == "0002"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventPlayer() != libNtve_gf_KillingPlayer()) && (PlayerGetAlliance(EventPlayer(), c_allianceIdChat, libNtve_gf_KillingPlayer()) == false) && (PlayerGetAlliance(libNtve_gf_KillingPlayer(), c_allianceIdChat, EventPlayer()) == false) && (PlayerGetAlliance(EventPlayer(), c_allianceIdTrade, libNtve_gf_KillingPlayer()) == false) && (PlayerGetAlliance(libNtve_gf_KillingPlayer(), c_allianceIdTrade, EventPlayer()) == false) && (EventPlayer() != 0) && (EventPlayer() <= 10) && (libNtve_gf_KillingPlayer() != 0) && (libNtve_gf_KillingPlayer() <= 10) && (PlayerStatus(libNtve_gf_KillingPlayer()) != c_playerStatusUnused) && (PlayerStatus(EventPlayer()) != c_playerStatusUnused)) {
+        lib4E716EEF_gv_gameMode_Slaughter_Kills[libNtve_gf_KillingPlayer()] += 1;
+        TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_Slaughter_KillCounter_Init () {
+    lib4E716EEF_gt_GameMode_Slaughter_KillCounter = TriggerCreate("lib4E716EEF_gt_GameMode_Slaughter_KillCounter_Func");
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_Slaughter_KillCounter, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_Slaughter_Times Up
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_Slaughter_TimesUp_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_winner;
+    int lv_forEach;
+    int lv_forEachB;
+    int lv_max;
+    int lv_tKill;
+
+    // Automatic Variable Declarations
+    const int autoCB3F1B22_ae = 10;
+    const int autoCB3F1B22_ai = 1;
+    const int autoAF0A8624_ae = 10;
+    const int autoAF0A8624_ai = 1;
+    int autoF4A64238_ae;
+    const int autoF4A64238_ai = 1;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringExternal("Param/Value/lib_4E716EEF_40CD7FFB"));
+    if ((lib4E716EEF_gv_gameMode_TeamMode == true)) {
+        lv_forEach = 1;
+        for ( ; ( (autoAF0A8624_ai >= 0 && lv_forEach <= autoAF0A8624_ae) || (autoAF0A8624_ai < 0 && lv_forEach >= autoAF0A8624_ae) ) ; lv_forEach += autoAF0A8624_ai ) {
+            lv_tKill = 0;
+            autoF4A64238_ae = PlayerGroupCount(GameAttributePlayersForTeam(lv_forEach));
+            lv_forEachB = 1;
+            for ( ; ( (autoF4A64238_ai >= 0 && lv_forEachB <= autoF4A64238_ae) || (autoF4A64238_ai < 0 && lv_forEachB >= autoF4A64238_ae) ) ; lv_forEachB += autoF4A64238_ai ) {
+                lv_tKill += lib4E716EEF_gv_gameMode_Slaughter_Kills[PlayerGroupPlayer(GameAttributePlayersForTeam(lv_forEach), lv_forEachB)];
+            }
+            if ((lv_tKill > lv_max)) {
+                lv_winner = PlayerGroupPlayer(GameAttributePlayersForTeam(lv_forEach), 1);
+                lv_max = lv_tKill;
+            }
+
+        }
+    }
+    else {
+        lv_forEach = 1;
+        for ( ; ( (autoCB3F1B22_ai >= 0 && lv_forEach <= autoCB3F1B22_ae) || (autoCB3F1B22_ai < 0 && lv_forEach >= autoCB3F1B22_ae) ) ; lv_forEach += autoCB3F1B22_ai ) {
+            if ((lib4E716EEF_gv_gameMode_Slaughter_Kills[lv_forEach] > lv_max)) {
+                lv_winner = lv_forEach;
+                lv_max = lib4E716EEF_gv_gameMode_Slaughter_Kills[lv_forEach];
+            }
+
+        }
+    }
+    lib4E716EEF_gf_GameOverEnd(lv_winner);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_Slaughter_TimesUp_Init () {
+    lib4E716EEF_gt_GameMode_Slaughter_TimesUp = TriggerCreate("lib4E716EEF_gt_GameMode_Slaughter_TimesUp_Func");
+    TriggerAddEventTimer(lib4E716EEF_gt_GameMode_Slaughter_TimesUp, lib4E716EEF_gv_gameMode_Slaughter_Timer);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_SuddenDeath_NormalDefeat
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_SuddenDeath_NormalDefeat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((EventUnitDamageDeathCheck(c_deathTypeRemove) == false))) {
+            return false;
+        }
+
+        if (!((GameAttributeGameValue("[bnet:local/0.0/280012]16") == "0007"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if (((EventUnitDamageDeathCheck(c_deathTypeCancel) == false) && (EventUnitDamageDeathCheck(c_deathTypeMorph) == false) && ((UnitGetType(EventUnit()) == "InfestedCC") || (UnitGetType(EventUnit()) == "InfestedPlanetaryFortress") || (UnitGetType(EventUnit()) == "InfestedOrbitalCommand") || (UnitGetType(EventUnit()) == "CommandCenter") || (UnitGetType(EventUnit()) == "PlanetaryFortress") || (UnitGetType(EventUnit()) == "OrbitalCommand") || (UnitGetType(EventUnit()) == "Nexus") || (UnitGetType(EventUnit()) == "Hatchery") || (UnitGetType(EventUnit()) == "Lair") || (UnitGetType(EventUnit()) == "Hive")))) {
+        CameraPan(UnitGetOwner(EventUnit()), UnitGetPosition(EventUnit()), 0.75, -1, 10.0, false);
+        lib4E716EEF_gf_EndGamewithSound(UnitGetOwner(EventUnit()), "Lose", false);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_SuddenDeath_NormalDefeat_Init () {
+    lib4E716EEF_gt_GameMode_SuddenDeath_NormalDefeat = TriggerCreate("lib4E716EEF_gt_GameMode_SuddenDeath_NormalDefeat_Func");
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_SuddenDeath_NormalDefeat, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_SuddenDeath_InfestDefeat
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_SuddenDeath_InfestDefeat_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_deadPlayer;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((GameAttributeGameValue("[bnet:local/0.0/280012]16") == "0007"))) {
+            return false;
+        }
+
+        if (!(((UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "CommandCenter") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "HHCommandCenter") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "MengskCommandCenter") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "NovaCommandCenter") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "RaynorCommandCenter") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "StukovInfestedCommandCenter") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "SwannCommandCenter") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "TychusCommandCenter") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "OrbitalCommand") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "OrbitalCommandCenterMengsk") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "OrbitalCommandACGluescreenDummy") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "SwannOrbitalCommand") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "PlanetaryFortress") || (UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == "MercenaryFortress")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_deadPlayer = UnitGetOwner(EventPlayerEffectUsedUnitImpact());
+    Wait(0.25, c_timeGame);
+    CameraPan(lv_deadPlayer, UnitGetPosition(EventPlayerEffectUsedUnitImpact()), 0.75, -1, 10.0, false);
+    lib4E716EEF_gf_EndGamewithSound(lv_deadPlayer, "Lose", false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_SuddenDeath_InfestDefeat_Init () {
+    lib4E716EEF_gt_GameMode_SuddenDeath_InfestDefeat = TriggerCreate("lib4E716EEF_gt_GameMode_SuddenDeath_InfestDefeat_Func");
+    TriggerAddEventPlayerEffectUsed(lib4E716EEF_gt_GameMode_SuddenDeath_InfestDefeat, c_playerAny, "ColonyInfestationAB");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_KillerSpawn
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_KillerSpawn_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    string autoAD07A6FA_val;
+
+    // Conditions
+    if (testConds) {
+        if (!((EventUnitDamageDeathCheck(c_deathTypeRemove) == false))) {
+            return false;
+        }
+
+        if (!((GameAttributeGameValue("[bnet:local/0.0/280012]16") == "0005"))) {
+            return false;
+        }
+
+        if (!((UnitGetOwner(EventUnit()) != 15))) {
+            return false;
+        }
+
+        if (!((UnitGetOwner(EventUnit()) != 14))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoAD07A6FA_val = GameAttributeGameValue("[bnet:local/0.0/280012]24");
+    if (autoAD07A6FA_val == "0001") {
+        if ((UnitGetOwner(EventUnit()) != 0) && (UnitGetOwner(EventUnit()) != UnitGetOwner(libNtve_gf_KillingUnit())) && (UnitGetType(EventUnit()) != "Larva") && (UnitGetType(EventUnit()) != "Egg") && (UnitGetType(EventUnit()) != "Interceptor") && (PlayerGetAlliance(UnitGetOwner(EventUnit()), c_allianceIdPassive, UnitGetOwner(libNtve_gf_KillingUnit())) == false)) {
+            if ((UnitGetType(libNtve_gf_KillingUnit()) == "Interceptor")) {
+                UnitCreate(1, "Carrier", 0, UnitGetOwner(libNtve_gf_KillingUnit()), UnitGetPosition(EventUnit()), libNtve_gf_RandomAngle());
+            }
+            else {
+                if ((UnitGetType(libNtve_gf_KillingUnit()) == "KD8Charge")) {
+                    UnitCreate(1, "Reaper", 0, UnitGetOwner(libNtve_gf_KillingUnit()), UnitGetPosition(EventUnit()), libNtve_gf_RandomAngle());
+                }
+                else {
+                    UnitCreate(1, UnitGetType(libNtve_gf_KillingUnit()), 0, UnitGetOwner(libNtve_gf_KillingUnit()), UnitGetPosition(EventUnit()), libNtve_gf_RandomAngle());
+                }
+            }
+        }
+
+    }
+    else if (autoAD07A6FA_val == "0002") {
+        if ((UnitGetOwner(EventUnit()) != 0) && (UnitGetOwner(EventUnit()) != UnitGetOwner(libNtve_gf_KillingUnit())) && (UnitGetType(EventUnit()) != "Larva") && (UnitGetType(EventUnit()) != "Egg") && (UnitGetType(EventUnit()) != "Interceptor") && (PlayerGetAlliance(UnitGetOwner(EventUnit()), c_allianceIdPassive, UnitGetOwner(libNtve_gf_KillingUnit())) == false)) {
+            UnitCreate(1, UnitGetType(EventUnit()), 0, UnitGetOwner(libNtve_gf_KillingUnit()), UnitGetPosition(EventUnit()), libNtve_gf_RandomAngle());
+        }
+
+    }
+    else {
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_KillerSpawn_Init () {
+    lib4E716EEF_gt_GameMode_KillerSpawn = TriggerCreate("lib4E716EEF_gt_GameMode_KillerSpawn_Func");
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_KillerSpawn, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_Greed_Resource Collected
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_Greed_ResourceCollected_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((GameAttributeGameValue("[bnet:local/0.0/280012]16") == "0003"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_Greed_ResourceCollected_Init () {
+    lib4E716EEF_gt_GameMode_Greed_ResourceCollected = TriggerCreate("lib4E716EEF_gt_GameMode_Greed_ResourceCollected_Func");
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 1, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 2, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 3, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 4, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 5, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 6, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 7, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 8, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 9, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 10, c_playerPropMinerals);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 1, c_playerPropVespene);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 2, c_playerPropVespene);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 3, c_playerPropVespene);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 4, c_playerPropVespene);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 5, c_playerPropVespene);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 6, c_playerPropVespene);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 7, c_playerPropVespene);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 8, c_playerPropVespene);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 9, c_playerPropVespene);
+    TriggerAddEventPlayerPropChange(lib4E716EEF_gt_GameMode_Greed_ResourceCollected, 10, c_playerPropVespene);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: GameMode_King
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_gt_GameMode_King_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_tKings;
+    int lv_b;
+
+    // Automatic Variable Declarations
+    int auto171AAF63_ae;
+    const int auto171AAF63_ai = 1;
+    unitgroup auto6960C410_g;
+    int auto6960C410_u;
+    unit auto6960C410_var;
+
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((EventUnitDamageDeathCheck(c_deathTypeRemove) == false))) {
+            return false;
+        }
+
+        if (!((GameAttributeGameValue("[bnet:local/0.0/280012]16") == "0006"))) {
+            return false;
+        }
+
+        if (!((UnitGetType(EventUnit()) == "TunnelingLingsKing"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CameraPan(UnitGetOwner(EventUnit()), UnitGetPosition(EventUnit()), 0.75, -1, 10.0, false);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaChat, (TextWithColor(PlayerName(UnitGetOwner(EventUnit())), libNtve_gf_ConvertPlayerColorToColor(PlayerGetColorIndex(UnitGetOwner(EventUnit()), false))) + StringExternal("Param/Value/lib_4E716EEF_780D3226")));
+    if ((GameAttributeGameValue("[bnet:local/0.0/280012]25") == "0001")) {
+        lib4E716EEF_gf_EndGamewithSound(UnitGetOwner(EventUnit()), "Lose", false);
+    }
+    else {
+        auto171AAF63_ae = PlayerGroupCount(PlayerGroupAlliance(c_playerGroupAlly, UnitGetOwner(EventUnit())));
+        lv_b = 1;
+        for ( ; ( (auto171AAF63_ai >= 0 && lv_b <= auto171AAF63_ae) || (auto171AAF63_ai < 0 && lv_b >= auto171AAF63_ae) ) ; lv_b += auto171AAF63_ai ) {
+            if ((UnitGroupCount(UnitGroup("TunnelingLingsKing", PlayerGroupPlayer(PlayerGroupAlliance(c_playerGroupAlly, UnitGetOwner(EventUnit())), lv_b), RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive) > 0)) {
+                lv_tKings += 1;
+            }
+
+        }
+        if ((lv_tKings > 0) && (PlayerGroupCount(PlayerGroupAlliance(c_playerGroupAlly, EventPlayer())) > 0)) {
+            PlayerModifyPropertyInt(EventPlayer(), c_playerPropHandicap, c_playerPropOperSetTo, 30);
+            auto6960C410_g = UnitGroup(null, EventPlayer(), null, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+            auto6960C410_u = UnitGroupCount(auto6960C410_g, c_unitCountAll);
+            for (;; auto6960C410_u -= 1) {
+                auto6960C410_var = UnitGroupUnitFromEnd(auto6960C410_g, auto6960C410_u);
+                if (auto6960C410_var == null) { break; }
+                if ((UnitGetPropertyFixed(auto6960C410_var, c_unitPropLife, c_unitPropCurrent) <= 1)) {
+                    UnitKill(auto6960C410_var);
+                }
+
+            }
+        }
+
+    }
+    TriggerExecute(lib4E716EEF_gt_GameMode_Handler, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib4E716EEF_gt_GameMode_King_Init () {
+    lib4E716EEF_gt_GameMode_King = TriggerCreate("lib4E716EEF_gt_GameMode_King_Func");
+    TriggerAddEventUnitDied(lib4E716EEF_gt_GameMode_King, null);
+}
+
+void lib4E716EEF_InitTriggers () {
+    lib4E716EEF_gt_GameMode_Initialization_Init();
+    lib4E716EEF_gt_GameMode_Handler_Init();
+    lib4E716EEF_gt_GameMode_CTF_Flag_Pickup_Init();
+    lib4E716EEF_gt_GameMode_CTF_Flag_CaptureTakentoBase_Init();
+    lib4E716EEF_gt_GameMode_CTF_PsiEmitter_PlantedTakentoEnemyBase_Init();
+    lib4E716EEF_gt_GameMode_CTF_Flag_DroppedByunitdeath_Init();
+    lib4E716EEF_gt_GameMode_CTF_SpawnFlag_Init();
+    lib4E716EEF_gt_GameMode_CTF_SpawnMainFlag_Init();
+    lib4E716EEF_gt_GameMode_Slaughter_KillCounter_Init();
+    lib4E716EEF_gt_GameMode_Slaughter_TimesUp_Init();
+    lib4E716EEF_gt_GameMode_SuddenDeath_NormalDefeat_Init();
+    lib4E716EEF_gt_GameMode_SuddenDeath_InfestDefeat_Init();
+    lib4E716EEF_gt_GameMode_KillerSpawn_Init();
+    lib4E716EEF_gt_GameMode_Greed_ResourceCollected_Init();
+    lib4E716EEF_gt_GameMode_King_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib4E716EEF_InitLib_completed = false;
+
+void lib4E716EEF_InitLib () {
+    if (lib4E716EEF_InitLib_completed) {
+        return;
+    }
+
+    lib4E716EEF_InitLib_completed = true;
+
+    lib4E716EEF_InitLibraries();
+    lib4E716EEF_InitVariables();
+    lib4E716EEF_InitTriggers();
+}
+

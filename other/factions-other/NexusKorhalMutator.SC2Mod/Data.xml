@@ -1,0 +1,458 @@
+<Catalog>
+
+    <CSound id="WarFeverFlying" parent="Ambience_Map">
+        <AssetArray File="Assets\Sounds\BG_Sm_Long_FlyBy_01.wav"/>
+        <Flags index="Unpausable" value="1"/>
+        <LoopCount value="0"/>
+        <Pitch value="5.000000,5.000000"/>
+        <SpeakerMix index="FrontLeft" value="2.000000"/>
+        <SpeakerMix index="FrontRight" value="2.000000"/>
+        <SpeakerMix index="Center" value="0.000000"/>
+        <SpeakerMix index="BackLeft" value="2.000000"/>
+        <SpeakerMix index="BackRight" value="2.000000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+        <Volume value="-4.000000,-3.500000"/>
+    </CSound>
+    <CSound id="WarFeverImpactSound" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\WarHawk_Missile_Launch_08.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\WarHawk_Missile_Launch_09.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\WarHawk_Missile_Launch_10.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\WarHawk_Missile_Launch_11.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\WarHawk_Missile_Launch_12.wav" FacialGroup=""/>
+        <Pitch value="-1.000000,0.500000"/>
+        <Volume value="1.500000,1.500000"/>
+    </CSound>
+    <CSound id="WarFeverLaunchSound" parent="Combat">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\Zerg\Hybrid\HybridMaar_PlasmaBlastLaunch0.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Hybrid\HybridMaar_PlasmaBlastLaunch1.wav"/>
+        <AssetArray File="Assets\Sounds\Zerg\Hybrid\HybridMaar_PlasmaBlastLaunch2.wav"/>
+    </CSound>
+    <CActorAction id="WarFeverAttack" parent="GenericAttack" effectImpact="WarFeverDamage" effectLaunch="WarFeverLM">
+        <LaunchAttachQuery Methods="Weapon 16"/>
+        <LaunchAssets Sound="WarFeverLaunchSound"/>
+        <Missile value="WarFeverMissile"/>
+        <ImpactSiteOps HoldPosition="1"/>
+        <ImpactMap index="None" Model="WarFeverImpactExplode" Sound="WarFeverImpactSound"/>
+        <ImpactModel value="WarFeverImpact"/>
+    </CActorAction>
+    <CActorModel id="WarFeverExplode" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.WarFeverDamage.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpTargetPoint SOpShadow"/>
+        <Model value="WarFeverImpact"/>
+    </CActorModel>
+    <CActorModel id="WarFeverFlame">
+        <FogVisibility value="Visible"/>
+        <On Terms="ActorCreation" Send="AnimPlay StandWork Stand,Work PlayForever"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.250000"/>
+        <On Terms="ActorCreation" Send="SetScale 2.800000,2.800000,5.800000"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorSound id="WarFeverFlying" parent="SoundOneShot">
+        <InheritType value="Continuous"/>
+    </CActorSound>
+    <CActorModel id="WarFeverImpact" parent="GenericAttackModel"/>
+    <CActorMissile id="WarFeverMissile" parent="GenericAttackMissile" unitName="WarFeverMissile">
+        <EditorCategories value=""/>
+        <On Terms="ActorCreation" Send="Create WarFeverFlame"/>
+        <On Terms="ActorCreation" Send="Create WarFeverFlying"/>
+        <HostSiteOps Ops="WarFeverModelRotator"/>
+        <Scale value="0.200000"/>
+        <EditorModel value="WarFeverMissile"/>
+    </CActorMissile>
+    <CActorSiteOpRotator id="WarFeverModelRotator">
+        <LocalAxis value="0.000000,1.000000,0.000000"/>
+        <Rate value="180.000000"/>
+    </CActorSiteOpRotator>
+    <CActorModel id="WarFeverUI">
+        <Macros value="GlobalLoopMacro"/>
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <FogVisibility value="Hidden"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorCreation" Send="TimerSet 5.000000 Death"/>
+        <On Terms="TimerExpired; TimerName Death" Send="AnimBracketStop BSD"/>
+        <On Terms="Effect.WarFeverLM.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorModel>
+    <CBehaviorBuff id="KorhalMutatorDroneWarFever">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Period value="20"/>
+        <PeriodicEffect value="KorhalMutatorDroneWarFeverSetDummy"/>
+        <DamageResponse Handled="KorhalMutatorDroneWarFeverAB">
+            <Chance value="1"/>
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CEffectApplyBehavior id="KorhalMutatorDroneWarFeverAB">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Source"/>
+        <Behavior value="KorhalMutatorDroneSpeedUp"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="KorhalMutatorDroneWarFeverSetDummy">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectSet>
+    <CModel id="WarFeverUI" parent="UI">
+        <Model value="Assets\UI\Cursors\Badger_AOE_Reticle\Badger_AOE_Reticle.m3"/>
+        <ScaleMax value="1.350000,1.350000,1.350000"/>
+        <ScaleMin value="1.350000,1.350000,1.350000"/>
+    </CModel>
+    <CModel id="WarFeverImpactExplode" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\MiraHorner_NapalmBomb_Coop_Explosion\MiraHorner_NapalmBomb_Coop_Explosion.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ScaleMax value="1.600000,1.600000,1.400000"/>
+        <ScaleMin value="1.600000,1.600000,1.400000"/>
+    </CModel>
+    <CModel id="WarFeverImpact" parent="RaceImpactFX" Race="Protoss">
+        <Model value="Assets\Effects\Terran\SiegeTankWeaponImpact\SiegeTankWeaponImpact.m3"/>
+        <ScaleMax value="1.500000,1.500000,1.000000"/>
+        <ScaleMin value="1.500000,1.500000,1.000000"/>
+    </CModel>
+    <CModel id="WarFeverMissile" parent="MissileFX">
+        <Model value="Assets\Effects\Terran\Mutator_Standard_Missile\Mutator_Standard_Missile.m3"/>
+        <EditorCategories value="Race:Terran"/>
+        <ScaleMax value="4.500000,4.000000,4.500000"/>
+        <ScaleMin value="4.500000,4.000000,4.500000"/>
+    </CModel>
+    <CModel id="WarFeverFlame" parent="Building" Race="Terran">
+        <Model value="Assets\Effects\Zerg\YagdraFireBallMissile\YagdraFireBallMissile.m3"/>
+        <ScaleMax value="0.150000,0.250000,0.150000"/>
+        <ScaleMin value="0.150000,0.250000,0.150000"/>
+    </CModel>
+    <CModel id="KorhalMutatorDrone" parent="Unit">
+        <Model value="Assets\Units\Terran\SpaceUtilityBot\SpaceUtilityBot.m3"/>
+        <ScaleMax value="1.500000,1.500000,1.500000"/>
+        <ScaleMin value="1.500000,1.500000,1.500000"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneDeath" parent="UnitDeath">
+        <Model value="Assets\Effects\Terran\TerranSmallUnitDeath\TerranSmallUnitDeath_Low.m3"/>
+        <LowQualityModel value="TerranSmallUnitDeathLow"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneFaceSplat">
+        <Model value="Assets\Splats\Nova_ShotGunCone\Nova_ShotGunCone.m3"/>
+        <ScaleMax value="1.800000,0.400000,1.000000"/>
+    </CModel>
+    <CModel id="KorhalMutatorDronePortrait" parent="Portrait">
+        <Model value="Assets\Portraits\Critters\UtilityBotPortrait\UtilityBotPortrait.m3"/>
+        <Image value="Assets\Textures\UtilityBotPortrait_Static.dds"/>
+        <Lighting value="UtilityBotPortrait"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneRecovery" parent="PersistentSpellFX">
+        <Model value="Assets\COOP\Stetmann\Effects\Ultralisk_Stetmann_COOP_Stunned\Ultralisk_Stetmann_COOP_Stunned.m3"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneSpeedUp">
+        <Model value="Assets\Effects\Protoss\Colossus_FireBeam_Unit_Impact\Colossus_FireBeam_Unit_Impact.m3"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneDeathFall" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Terran\NukeFalling\NukeFalling.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneDeathImpact" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Terran\Nuke\Nuke.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneDeathIndicator" parent="PersistentSpellFX">
+        <Model value="Assets\UI\Cursors\NukeCursor1\NukeCursor1.m3"/>
+        <EditorCategories value="Race:Terran"/>
+        <ScaleMax value="1.800000,1.800000,1.800000"/>
+        <ScaleMin value="1.800000,1.800000,1.800000"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneWeaponBuildingAttackBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\TempestGroundBeam\TempestGroundBeam.m3"/>
+        <EditorCategories value="Race:Terran"/>
+        <RadiusLoose value="1.000000"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneWeaponUnitAttackBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\ProbeBeam\ProbeBeam.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CModel id="KorhalMutatorDroneWeaponUnitAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Protoss\ProbeImpact\ProbeImpact.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CEffectDamage id="WarFeverDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <AttributeBonus index="Structure" value="50"/>
+        <Visibility value="Visible"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Amount value="150"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="0.5" Fraction="1"/>
+        <AreaArray Radius="2" Fraction="0.25"/>
+        <SearchFilters value="-;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="WarFeverLM">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="WarFeverDamage"/>
+        <AmmoUnit value="WarFeverMissile"/>
+    </CEffectLaunchMissile>
+    <CAttachMethodPattern id="KorhalMutatorTentenGrandpaStormLaunch">
+        <Keyword value="Weapon"/>
+        <Driver value="KorhalMutatorTentenGrandpaStormLaunchMissile"/>
+    </CAttachMethodPattern>
+    <CAttachMethodPattern id="KorhalMutatorTentenGrandpaWeaponLaunch">
+        <Keyword value="SetA"/>
+        <Base value="::RollingIndex"/>
+        <Multiplier value="2"/>
+        <Driver value="KorhalMutatorTentenGrandpaWeaponLaunchMissile"/>
+    </CAttachMethodPattern>
+
+    <CBehaviorBuff id="KorhalMutatorDroneBirth">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <DisplayDuration index="Self" value="1"/>
+        <DisplayDuration index="Ally" value="1"/>
+        <DisplayDuration index="Neutral" value="1"/>
+        <DisplayDuration index="Enemy" value="1"/>
+        <Duration value="3"/>
+        <ExpireEffect value="KorhalMutatorDroneMoveApplyBehavior"/>
+        <Modification MoveSpeedBonus="-100"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorDroneActive">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Period value="0.5"/>
+        <PeriodicEffect value="KorhalMutatorDroneActive"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorDroneDeath">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Modification>
+            <DeathResponse Chance="1" Effect="KorhalMutatorDroneDeathCreatePersitent"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorDroneRecovery">
+        <InfoIcon value="Assets\Textures\btn-ability-mengsk-ghost-pyrokineticimmolation_blue.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="5"/>
+        <Modification MoveSpeedBonus="-100"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorDroneMove">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Period value="2"/>
+        <PeriodicEffect value="KorhalMutatorDroneMoveSearchArea"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorDroneSpeedUp">
+        <InfoIcon value="Assets\Textures\btn-ability-mengsk-ghost-pyrokineticimmolation_orange.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="8"/>
+        <Modification MoveSpeedBonus="2"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorIceFlame">
+        <InfoIcon value="Assets\Textures\btn-upgrade-mengsk-engineeringbay-orbitaldrop.dds"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <Duration value="4.1"/>
+        <Period value="1"/>
+        <PeriodicEffect value="KorhalMutatorIceFlameDamage"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorMissBettyFogDebuff">
+        <InfoIcon value="Assets\New Icons\Packs0617\Sandstorm.dds"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Terran"/>
+        <RemoveValidatorArray value="CasternotHasIceFlame"/>
+        <Duration value="0.6"/>
+        <DurationBonusMax value="0.6"/>
+        <Modification MoveSpeedMultiplier="0.8" AttackSpeedMultiplier="0.8"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorTentenGrandpaRangeTarget">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-upgrade-stetmann-lurkertunnelingburstrange.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="1.5"/>
+        <Modification WeaponRange="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorTentenGrandpaRangeCaster">
+        <InfoIcon value="Assets\Textures\btn-upgrade-stetmann-lurkertunnelingburstrange.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Period value="1"/>
+        <PeriodicEffect value="KorhalMutatorTentenGrandpaRangeSearchArea"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KorhalMutatorTentenGrandpaStorm">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-terran-ultrasonicpulse.dds"/>
+        <BehaviorCategories index="Stun" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="0.1"/>
+        <Modification>
+            <StateFlags index="Stun" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CEffectEnumArea id="KorhalMutatorDroneActive">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray>
+            <Arc value="119.9926"/>
+            <MaxCount value="1"/>
+            <Radius value="2.5"/>
+            <Effect value="KorhalMutatorDroneActiveCreatePersitent"/>
+        </AreaArray>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="KorhalMutatorDroneActiveCreatePersitent">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="CasterUnit"/>
+        <InitialDelay value="1"/>
+        <InitialEffect value="KorhalMutatorDroneActiveCreatePersitent2"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="KorhalMutatorDroneActiveCreatePersitent2">
+        <ValidatorArray value="KorhalMutatorDroneActivate"/>
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <Flags index="Kill" value="1"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="KorhalMutatorDroneDeathCreatePersitent">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="3"/>
+        <PeriodicEffectArray value="KorhalMutatorDroneDeathFirstRandomPoint"/>
+        <PeriodicEffectArray value="KorhalMutatorDroneDeathKorhalMutator"/>
+        <PeriodicEffectArray value="KorhalMutatorDroneDeathKorhalMutator"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="8"/>
+        <PeriodicPeriodArray value="3"/>
+        <WhichLocation Value="CasterPoint"/>
+        <InitialEffect value="Suicide"/>
+    </CEffectCreatePersistent>
+    <CEffectRandomPointInCircle id="KorhalMutatorDroneDeathEndRandomPoint">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetPoint"/>
+        <Effect value="KorhalMutatorDroneDeathFallCreatePersitent"/>
+        <Count value="3"/>
+        <Radius value="5"/>
+    </CEffectRandomPointInCircle>
+    <CEffectCreatePersistent id="KorhalMutatorDroneDeathFallCreatePersitent">
+        <EditorCategories value="Race:Terran"/>
+        <InitialDelay value="1.25"/>
+        <InitialEffect value="KorhalMutatorDroneDeathImpactDamage"/>
+        <ExpireDelay value="8.25"/>
+        <RevealRadius value="8"/>
+        <RevealFlags index="Unfog" value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="KorhalMutatorDroneDeathFirstFallCreatePersitent">
+        <EditorCategories value="Race:Terran"/>
+        <InitialDelay value="1.25"/>
+        <InitialEffect value="KorhalMutatorDroneDeathImpactDamage"/>
+        <ExpireDelay value="8.25"/>
+        <RevealRadius value="8"/>
+        <RevealFlags index="Unfog" value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="KorhalMutatorDroneDeathFirstGuideCreatePersitent">
+        <EditorCategories value="Race:Terran"/>
+        <InitialDelay value="5"/>
+        <InitialEffect value="KorhalMutatorDroneDeathFirstFallCreatePersitent"/>
+        <ExpireDelay value="6"/>
+        <ExpireEffect value="KorhalMutatorDroneDeathEndRandomPoint"/>
+    </CEffectCreatePersistent>
+    <CEffectRandomPointInCircle id="KorhalMutatorDroneDeathFirstRandomPoint">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Effect="KorhalMutatorDroneDeathCreatePersitent" Value="TargetPoint"/>
+        <Effect value="KorhalMutatorDroneDeathFirstGuideCreatePersitent"/>
+        <Radius value="5"/>
+    </CEffectRandomPointInCircle>
+    <CEffectDamage id="KorhalMutatorDroneDeathImpactDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="TargetPoint"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ArmorReduction value="0"/>
+        <Kind value="Spell"/>
+        <Amount value="800"/>
+        <AreaArray Radius="6" Fraction="1"/>
+        <AreaArray Radius="8" Fraction="0.75"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectRandomPointInCircle id="KorhalMutatorDroneDeathKorhalMutator">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Effect="KorhalMutatorDroneDeathCreatePersitent" Value="TargetPoint"/>
+        <Effect value="KorhalMutatorDroneDeathFallCreatePersitent"/>
+        <Radius value="5"/>
+    </CEffectRandomPointInCircle>
+    <CEffectApplyBehavior id="KorhalMutatorDroneMoveApplyBehavior">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="KorhalMutatorDroneMove"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="KorhalMutatorDroneMoveIssueOrder">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="attack"/>
+        <CmdFlags index="Preempt" value="1"/>
+        <Target Value="TargetPoint"/>
+    </CEffectIssueOrder>
+    <CEffectEnumArea id="KorhalMutatorDroneMoveSearchArea">
+        <EditorCategories value="Race:Terran"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="250" Effect="KorhalMutatorDroneMoveIssueOrder"/>
+        <TargetSorts>
+            <SortArray value="TSDistance"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectDamage id="KorhalMutatorDroneWeaponBuildingDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="200"/>
+    </CEffectDamage>
+    <CEffectDamage id="KorhalMutatorDroneWeaponUnitDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="5"/>
+    </CEffectDamage>
+    <CWeaponLegacy id="KorhalMutatorProjector">
+        <Icon value="Assets\Textures\btn-ability-mengsk-commandcenter-draftlaborers.dds"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="15"/>
+        <Range value="15"/>
+        <Period value="1"/>
+        <DamagePoint value="0.05"/>
+        <Effect value="TrooperMengskCCAirDropSet"/>
+    </CWeaponLegacy>
+    <CButton id="KorhalMutatorDroneActivate">
+        <Icon value="Assets\Textures\btn-progression-hornerhan-14-nukefortelefrag.dds"/>
+        <AlertIcon value="Assets\Textures\btn-progression-hornerhan-14-nukefortelefrag.dds"/>
+        <EditorCategories value="Race:Terran"/>
+    </CButton>
+    <CValidatorLocationEnumArea id="KorhalMutatorDroneActivate">
+        <ResultFailed value="CantFindEnoughTargets"/>
+        <WhichLocation Value="CasterUnit"/>
+        <AreaArray Compare="GE" Count="0" Radius="5"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Missile,Dead,Hidden"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorCombine id="KorhalMutatorDroneActivateTarget">
+        <Type value="And"/>
+        <CombineArray value="IsNotPhasedUnit"/>
+        <CombineArray value="IsNotDisguisedChangeling"/>
+    </CValidatorCombine>
+    <CValidatorUnitFilters id="KorhalMutatorTentenGrandpaStorm">
+        <Filters value="-;MapBoss"/>
+    </CValidatorUnitFilters>
+    <CValidatorUnitType id="KorhalMutatorTentenGrandpaRange">
+        <Value value="KorhalMutatorTentenGrandpa"/>
+    </CValidatorUnitType>
+    <CValidatorUnitCompareBehaviorCount id="TargetnotHasIceFlame">
+        <Behavior value="KorhalMutatorIceFlame"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="CasternotHasIceFlame">
+        <WhichUnit Value="Source"/>
+        <Behavior value="KorhalMutatorIceFlame"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="TargetHasIceFlame">
+        <Value value="1"/>
+        <Behavior value="KorhalMutatorMissBettyFogDebuff"/>
+    </CValidatorUnitCompareBehaviorCount>
+
+    <CUnit id="WarFeverMissile">
+        <FlagArray index="Missile" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <Mover value="ValerianTopbarMissileAttackMissile"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Coop"/>
+    </CUnit>
+
+
+</Catalog>

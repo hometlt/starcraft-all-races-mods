@@ -1,0 +1,388 @@
+<Catalog>
+
+    <CUnit id="HansonInfestedColonistHut">
+        <Description value="Button/Tooltip/HansonInfestedColonistHut211"/>
+        <Race value="Hanson"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="SISupplyDepotLower"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="stop"/>
+        <BehaviorArray Link="makeCreep3x3"/>
+        <BehaviorArray Link="StukovInfestedCivilianSpawnBroodlingOnDeath4"/>
+        <BehaviorArray Link="makeCreep4x42"/>
+        <WeaponArray Link="InfestedBunkerFakeRangedUprooted2"/>
+        <CardLayouts>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+            <LayoutButtons Face="ColonyInfestation3" Type="Passive" Row="2" Column="0"/>
+            <LayoutButtons Face="MothershipCoreAttack" Type="AbilCmd" AbilCmd="attack,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="2" Column="0"/>
+        </CardLayouts>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Coop"/>
+        <TechAliasArray value="Alias_SupplyDepot"/>
+    </CUnit>
+    <CBehaviorBuff id="HansonSupplyPrestigeInfestCreate" parent="TimedLife">
+        <InfoIcon value="Assets\Textures\btn-ability-zerg-explode.dds"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="25"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="StukovInfestedCivilianSpawnBroodlingOnDeath4">
+        <Alignment value="Positive"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\talent-zagara-level08-incubatebroodlings.dds"/>
+        <Modification>
+            <DeathResponse Chance="1" Effect="StukovInfestedCivilianSpawnBroodlingOnDeath4"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorCreepSource id="makeCreep4x42" parent="makeCreep4x4">
+        <Name value="Behavior/Name/makeCreep4x42"/>
+        <Tooltip value="Behavior/Tooltip/makeCreep4x42"/>
+        <Requirements value="HaveStukovInfestedCivilianSpawnBroodlingOnDeath2"/>
+    </CBehaviorCreepSource>
+    <CBehaviorBuff id="BroodlingFate13" parent="TimedLife">
+        <InfoIcon value="Assets\Textures\btn-ability-zerg-explode.dds"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="60"/>
+        <ExpireEffect value="TimedLifeFate45"/>
+        <KillCredit Value="Unknown"/>
+    </CBehaviorBuff>
+    <CButton id="ColonyInfestation3">
+        <Icon value="Assets\New Icons\btn-custom-zerg-infestedcivilian.dds"/>
+        <AlertIcon value="Assets\New Icons\btn-custom-zerg-infestedcivilian.dds"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CButton>
+    <CEffectApplyBehavior id="BroodlingTimedLife12">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="BroodlingFate13"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="HansonSupplyCreatePersitent">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <InitialEffect value="HansonSupplyInfestSwitch"/>
+    </CEffectCreatePersistent>
+    <CEffectIssueOrder id="HansonSupplyInfestComand">
+        <EditorCategories value=""/>
+        <Abil value="attack"/>
+        <CmdFlags index="Preempt" value="1"/>
+        <Target Effect="HansonSupplyCreatePersitent" Value="TargetPoint"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="HansonSupplyInfestComand2">
+        <EditorCategories value=""/>
+        <EffectArray value="BroodlingTimedLife12"/>
+        <EffectArray value="HansonSupplyInfestComand"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="HansonSupplyInfestCreate">
+        <EditorCategories value=""/>
+        <WhichLocation Value="CasterPoint"/>
+        <SpawnEffect value="HansonSupplyInfestComand2"/>
+        <SpawnUnit value="SIInfestedCivilian"/>
+    </CEffectCreateUnit>
+    <CEffectSwitch id="HansonSupplyInfestSwitch">
+        <EditorCategories value="Race:Zerg"/>
+        <CaseArray Validator="HansonPrestigeUnexpectedHorror" Effect="HansonSupplyPrestigeInfestCreate"/>
+        <CaseDefault value="HansonSupplyInfestCreate"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="HansonSupplyPrestigeInfestApply">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="HansonSupplyPrestigeInfestCreate"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="HansonSupplyPrestigeInfestCreate">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="CasterPoint"/>
+        <SpawnEffect value="HansonSupplyPrestigeInfestSet"/>
+        <SpawnUnit value="HansonUnstableAbomination"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="HansonSupplyPrestigeInfestSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="HansonSupplyInfestComand"/>
+        <EffectArray value="HansonSupplyPrestigeInfestApply"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="StukovInfestedCivilianSpawnBroodlingOnDeath4">
+        <EditorCategories value=""/>
+        <SpawnEffect value="BroodlingTimedLife12"/>
+        <SpawnUnit value="SIInfestedCivilian"/>
+        <SpawnCount value="16"/>
+        <SpawnRange value="8"/>
+    </CEffectCreateUnit>
+    <CEffectDamage id="TimedLifeFate45">
+        <ImpactLocation Value="SourceUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <Flags index="NoVitalAbsorbShields" value="1"/>
+        <Death value="Timeout"/>
+    </CEffectDamage>
+    <CWeaponLegacy id="InfestedBunkerFakeRangedUprooted2">
+        <Options index="OnlyFireWhileInAttackOrder" value="0"/>
+        <Options index="OnlyFireAtAttackOrderTarget" value="0"/>
+        <Options index="RequireEnabledAttackAbil" value="0"/>
+        <Icon value="Assets\New Icons\btn-custom-zerg-infestedcivilian.dds"/>
+        <DisplayEffect value="SIInfestedCivilianDamage"/>
+        <DisplayAttackCount value="1"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="8.5"/>
+        <Range value="8"/>
+        <Arc value="360"/>
+        <Period value="7"/>
+        <Effect value="HansonSupplyCreatePersitent"/>
+    </CWeaponLegacy>
+    <CUnit id="HansonColonistHut">
+        <Description value="Button/Tooltip/HansonColonistHut1"/>
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="Hanson"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="10"/>
+        <LifeMax value="350"/>
+        <LifeArmor value="1"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranBuildingPlating"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostCategory value="Economy"/>
+        <CostResource index="Minerals" value="100"/>
+        <RepairTime value="30"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="Rally"/>
+        <AbilArray Link="ConstructDrakkenLaserDrillCoop222223"/>
+        <AbilArray Link="CarrierRepairDroneHanger232"/>
+        <AbilArray Link="SalvageShared2"/>
+        <BehaviorArray Link="UnknownBehavior3"/>
+        <BehaviorArray Link="Unrepairable"/>
+        <BehaviorArray Link="HansonBuildingHeal1002"/>
+        <CardLayouts>
+            <LayoutButtons Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3"/>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="SalvageShared2,On" Row="2" Column="4"/>
+            <LayoutButtons Face="SelectBuilder" Type="SelectBuilder" Row="1" Column="3"/>
+        </CardLayouts>
+        <Radius value="1.25"/>
+        <SeparationRadius value="1.25"/>
+        <Footprint value="Footprint2x2CreepNormalContour"/>
+        <PlacementFootprint value="Footprint2x2CreepNormal"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="3"/>
+        <MinimapRadius value="1.25"/>
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Coop"/>
+        <LeaderAlias value="HansonInfestedColonistHut"/>
+        <HotkeyAlias value="HansonInfestedColonistHut"/>
+        <SelectAlias value="HansonInfestedColonistHut"/>
+        <SubgroupAlias value="HansonInfestedColonistHut"/>
+        <TechAliasArray value="Alias_SupplyDepot"/>
+        <GlossaryCategory value="Unit/Category/InfestedTerranUnits"/>
+        <GlossaryPriority value="10"/>
+    </CUnit>
+    <CAbilMorph id="ConstructDrakkenLaserDrillCoop222223">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="BuildDrakkenLaserDrill">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <Flags index="Automatic" value="1"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="Birth" value="1"/>
+        <Flags index="FastBuild" value="1"/>
+        <Flags index="IgnoreFacing" value="1"/>
+        <Flags index="IgnoreFood" value="1"/>
+        <Flags index="ShowProgress" value="1"/>
+        <Flags index="SuppressMovement" value="1"/>
+        <InfoArray Score="1" Unit="HansonInfestedColonistHut">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="30"/>
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Delay" value="30"/>
+            </SectionArray>
+            <SectionArray index="Collide">
+                <DurationArray index="Duration" value="30"/>
+                <EffectArray index="Finish" value="FullHeal"/>
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="30"/>
+            </SectionArray>
+        </InfoArray>
+        <Activity value="UI/Building"/>
+    </CAbilMorph>
+    <CActorUnit id="HansonColonistHut" parent="TerranBuilding">
+        <On index="0" Terms="UnitBirth.HansonColonistHut" Send="Create SoundEmitter HansonColonistHut_Ambience"/>
+        <On index="1" Terms="UnitBirth.HansonColonistHut"/>
+        <On index="2" Terms="UnitRevive.HansonColonistHut"/>
+        <On index="3" Terms="UnitRevive.HansonColonistHut"/>
+        <On index="4" Terms="UnitConstruction.HansonColonistHut.Start"/>
+        <On index="5" Terms="UnitConstruction.HansonColonistHut.Finish"/>
+        <On index="69" Terms="UnitConstruction.HansonColonistHut.Start" Send="Create HansonColonistHutBuild"/>
+        <On index="70" Terms="UnitConstruction.HansonColonistHut.Start" Send="Create BuildingTerrainFlatten"/>
+        <On index="71" Terms="UnitConstruction.HansonColonistHut.Cancel" Target="_BuildingTerrainFlatten" Send="Destroy"/>
+        <On index="72" Terms="UnitConstruction.HansonColonistHut.Finish" Target="_BuildingTerrainFlatten" Send="Destroy"/>
+        <On index="73" Terms="UnitConstruction.HansonColonistHut.Start" Send="QueryRadius 1.750000 BuildingCrushQueryResponse"/>
+        <On index="74" Terms="UnitBirth.HansonColonistHut.Normal" Send="Create BuildingTerrainFlatten"/>
+        <On index="75" Terms="UnitBirth.HansonColonistHut.Suppressed" Send="Create BuildingTerrainFlattenInstant"/>
+        <On index="76" Terms="UnitBirth.HansonColonistHut.EditorPlaced" Send="Create BuildingTerrainFlattenEditor"/>
+        <On index="77" Terms="UnitDeath.HansonColonistHut" Target="_BuildingTerrainFlatten" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Start; MorphTo SISupplyDepotLowered" Send="AnimGroupRemove Unburrow"/>
+        <On Terms="AbilMorph.*.Start; MorphTo SISupplyDepotLowered" Send="AnimGroupApply Burrow Burrow Stand,Burrow ClosingFull"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom SISupplyDepot" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom SISupplyDepotLowered" Send="Create"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom SISupplyDepotLowered" Send="AnimGroupRemove Burrow"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom SISupplyDepotLowered" Send="AnimGroupApply Unburrow Stand,Unburrow Stand,Unburrow Instant"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom SISupplyDepot" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Start; MorphTo SISupplyDepot" Send="Create"/>
+        <On Terms="ActorCreation" Send="Create HybridWarpInEffect2"/>
+        <On Terms="ActorCreation" Send="Create HybridWarpInEffect222"/>
+        <On Terms="ActorCreation" Send="Create InfestationSupplyDepot24"/>
+        <Model value="HansonColonistHut"/>
+        <EventDataFootprint index="0" Model="HansonColonistHutFootprint"/>
+        <CreepHeightClass value="Small"/>
+        <BuildModel value="HansonColonistHut"/>
+        <DeathArray index="Normal" ModelLink="TerranLargeBuildingDeath" SoundLink="Factory_Explode" VoiceLink="InfestedFactory2DeathVoice"/>
+        <PlacementModel value="SupplyDepotPlacement"/>
+        <PlacementSound value="Terran_BuildingPlacementSmall"/>
+        <PortraitModel value="SJEnemyFighterPortrait"/>
+        <BarOffset value="70"/>
+        <BarWidth value="80"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-SupplyDepot-Raised.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="What" value="HansonColonistHut_GroupWhat"/>
+        <GroupSoundArray index="Yes" value="HansonColonistHut_GroupYes"/>
+        <GroupSoundArray index="Attack" value="HansonColonistHut_GroupAttack"/>
+        <GroupSoundArray index="Board" value="HansonColonistHut_GroupBoard"/>
+        <HeroIcon value="Assets\Textures\btn-building-terran-supplydepot.dds"/>
+        <HighlightTooltip value="Unit/Name/HansonColonistHut"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <NameOffset value="40"/>
+        <SoundArray index="Birth" value="HansonColonistHut_Birth"/>
+        <SoundArray index="Ready" value="HansonColonistHut_Ready"/>
+        <SoundArray index="Help" value="HansonColonistHut_Help"/>
+        <SoundArray index="What" value="HansonColonistHut_What"/>
+        <SoundArray index="Yes" value="HansonColonistHut_Yes"/>
+        <SoundArray index="Attack" value="HansonColonistHut_Attack"/>
+        <SoundArray index="Pissed" value="HansonColonistHut_Pissed"/>
+        <SoundArray index="Movement" value="HansonColonistHut_Movement"/>
+        <SoundArray index="Turning" value="HansonColonistHut_Turning"/>
+        <SoundArray index="Board" value="HansonColonistHut_Board"/>
+        <SoundArray index="Construction" value="Terran_ConstructionWhat"/>
+        <SoundArray index="Click" value="HansonColonistHut_Click"/>
+        <SoundArray index="ClickError" value="HansonColonistHut_ClickError"/>
+        <SoundArray index="Highlight" value="HansonColonistHut_Highlight"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-terran-building-hanson-supplydepot.dds"/>
+        <WireframeVariations Number="0">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut00.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="1">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut01.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="2">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut02.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="3">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut03.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="4">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut04.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="5">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut05.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="6">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut06.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="7">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut07.dds"/>
+        </WireframeVariations>
+    </CActorUnit>
+    <CActorSplat id="HansonColonistHutSplat" parent="GenericUnitSplat" unitName="HansonColonistHut">
+        <Model value="SupplyDepotSplat"/>
+    </CActorSplat>
+    <CActorUnit id="SISupplyDepot2" parent="TerranBuilding" unitName="HansonColonistHut">
+        <On Terms="AbilMorph.*.Start; MorphTo SISupplyDepotLowered" Send="AnimGroupRemove Unburrow"/>
+        <On Terms="AbilMorph.*.Start; MorphTo SISupplyDepotLowered" Send="AnimGroupApply Burrow Burrow Stand,Burrow ClosingFull"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom SISupplyDepot" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom SISupplyDepotLowered" Send="Create"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom SISupplyDepotLowered" Send="AnimGroupRemove Burrow"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom SISupplyDepotLowered" Send="AnimGroupApply Unburrow Stand,Unburrow Stand,Unburrow Instant"/>
+        <On Terms="UnitBirth" Send="Create HybridStasisChamberAAddition23222"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom SISupplyDepot2" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Start; MorphTo SISupplyDepot2" Send="Create"/>
+        <CreepHeightClass value="Small"/>
+        <DeathArray index="Normal" ModelLink="TerranLargeBuildingDeath" SoundLink="Factory_Explode"/>
+        <!--VoiceLink="InfestedFactory2DeathVoice"-->
+        <PlacementSound value="Terran_BuildingPlacementSmall"/>
+        <PortraitModel value="SJEnemyFighterPortrait"/>
+        <BarOffset value="70"/>
+        <BarWidth value="80"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-SupplyDepot-Raised.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-terran-supplydepot.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds"/>
+        <NameOffset value="40"/>
+        <SoundArray index="Construction" value="Terran_ConstructionWhat"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-terran-building-hanson-supplydepot.dds"/>
+        <WireframeVariations Number="0">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut00.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="1">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut01.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="2">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut02.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="3">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut03.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="4">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut04.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="5">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut05.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="6">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut06.dds"/>
+        </WireframeVariations>
+        <WireframeVariations Number="7">
+            <Image value="Assets\Textures\Wireframe-Terran-ColonistHut07.dds"/>
+        </WireframeVariations>
+        <Model value="SISupplyDepot2"/>
+        <BuildModel value="SISupplyDepot2"/>
+        <PlacementModel value="SISupplyDepot2"/>
+        <HighlightTooltip value="Unit/Name/SISupplyDepot2"/>
+    </CActorUnit>
+    <CBehaviorBuff id="UnknownBehavior3">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Modification Food="-8"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <Duration value="29.9"/>
+    </CBehaviorBuff>
+
+    <CModel id="HansonColonistHut" parent="SupplyDepotBase">
+        <Model value="Assets\Doodads\ColonistHut_EX3\ColonistHut_EX3.m3"/>
+        <Lighting value="SupplyDepot"/>
+        <VariationCount value="8"/>
+    </CModel>
+    <CModel id="SISupplyDepot2" parent="SupplyDepot">
+        <Model value="Assets\Doodads\BioDomeHalfBuilt\BioDomeHalfBuilt.m3"/>
+        <ScaleMax value="0.560000,0.560000,0.560000"/>
+        <ScaleMin value="0.560000,0.560000,0.560000"/>
+        <VariationCount value="2"/>
+    </CModel>
+</Catalog>

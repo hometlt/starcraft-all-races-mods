@@ -257,6 +257,77 @@ void lib6F4447A1_gf_EmoticonLoadAll () {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
+// Trigger: Deselection
+//--------------------------------------------------------------------------------------------------
+bool lib6F4447A1_gt_Deselection_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+    int lv_player;
+    unitgroup lv_selection;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_unit = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_player = UnitGetOwner(lv_unit);
+    lv_selection = UnitGroupSelected(lv_player);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupSelect(lv_selection, lv_player, false);
+    UnitGroupRemove(lv_selection, lv_unit);
+    UnitGroupSelect(lv_selection, lv_player, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib6F4447A1_gt_Deselection_Init () {
+    lib6F4447A1_gt_Deselection = TriggerCreate("lib6F4447A1_gt_Deselection_Func");
+    TriggerAddEventPlayerEffectUsed(lib6F4447A1_gt_Deselection, c_playerAny, "VS_DeselectCasterAB");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Spawn Unit Created
+//--------------------------------------------------------------------------------------------------
+bool lib6F4447A1_gt_SpawnUnitCreated_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_unit = EventUnitCreatedUnit();
+    lv_player = UnitGetOwner(lv_unit);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((TechTreeUpgradeCount(lv_player, "PlacementFacingNE", c_techCountQueuedOrBetter) == 1)) {
+        UnitSetFacing(lv_unit, 45.0, 0.0);
+    }
+    if ((TechTreeUpgradeCount(lv_player, "PlacementFacingSE", c_techCountQueuedOrBetter) == 1)) {
+        UnitSetFacing(lv_unit, 135.0, 0.0);
+    }
+    if ((TechTreeUpgradeCount(lv_player, "PlacementFacingSW", c_techCountQueuedOrBetter) == 1)) {
+        UnitSetFacing(lv_unit, 225.0, 0.0);
+    }
+    if ((TechTreeUpgradeCount(lv_player, "PlacementFacingNW", c_techCountQueuedOrBetter) == 1)) {
+        UnitSetFacing(lv_unit, 315.0, 0.0);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib6F4447A1_gt_SpawnUnitCreated_Init () {
+    lib6F4447A1_gt_SpawnUnitCreated = TriggerCreate("lib6F4447A1_gt_SpawnUnitCreated_Func");
+    TriggerAddEventUnitCreated(lib6F4447A1_gt_SpawnUnitCreated, null, null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Initialize
 //--------------------------------------------------------------------------------------------------
 bool lib6F4447A1_gt_MapInitialize_Func (bool testConds, bool runActions) {
@@ -271,7 +342,7 @@ bool lib6F4447A1_gt_MapInitialize_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    PlayerSetRace(1, "Keir");
+    PlayerSetRace(1, "Zerg");
     lib7550A90B_gf_TugofWarCustom(null, null);
     PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 5000);
     autoCE08396E_g = PlayerGroupAll();
@@ -1976,6 +2047,8 @@ void lib6F4447A1_gt_SandboxModeChatEnemyZeratul_Init () {
 }
 
 void lib6F4447A1_InitTriggers () {
+    lib6F4447A1_gt_Deselection_Init();
+    lib6F4447A1_gt_SpawnUnitCreated_Init();
     lib6F4447A1_gt_MapInitialize_Init();
     lib6F4447A1_gt_UIFix_Init();
     lib6F4447A1_gt_ResetCommander_Init();

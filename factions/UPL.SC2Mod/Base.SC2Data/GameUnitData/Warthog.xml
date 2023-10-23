@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectDamage id="WarthogDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="5"/>
+    </CEffectDamage>
+    <CButton id="Warthog">
+        <Icon value="Assets\Textures\btn-unit-collection-hellion-umojan.dds"/>
+        <AlertIcon value="Assets\Textures\btn-unit-collection-hellion-umojan.dds"/>
+        <EditorCategories value="Race:Terr"/>
+    </CButton>
+    <CActorSiteOpRotator id="WarthogBulletRotation">
+        <EditorCategories value=""/>
+        <LocalAxis value="0.100000,0.100000,0.100000"/>
+        <InitialAngle value="180.000000"/>
+    </CActorSiteOpRotator>
+    <CActorSiteOpAttach id="WarthogBulletAttachment">
+        <EditorCategories value=""/>
+        <AttachQuery Methods="Hardpoint 2" Fallback="Turret"/>
+    </CActorSiteOpAttach>
+    <CActorModel id="WarthogBulletModelAddition" parent="ModelAddition">
+        <EditorCategories value=""/>
+        <On Terms="WeaponStart.WarthogVulcanTurret" Send="Create"/>
+        <On Terms="WeaponStart.WarthogVulcanTurret" Send="AnimBracketStart Attack Dialogue,11"/>
+        <On Terms="WeaponStop.WarthogVulcanTurret" Send="AnimBracketStop Attack 0 5.000000 AsDuration"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName Attack" Send="Destroy"/>
+        <Host Subject="WarthogActor"/>
+        <HostSiteOps Ops="WarthogBulletAttachment WarthogBulletOffset WarthogBulletRotation"/>
+        <Model value="WarthogRifleShells"/>
+    </CActorModel>
+    <CActorSiteOpLocalOffset id="WarthogBulletOffset">
+        <EditorCategories value=""/>
+        <LocalOffset value="4.500000,-4.500000,1.450000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorSiteOpAttach id="WarthogMarineDriverAttachment">
+        <EditorCategories value=""/>
+        <AttachQuery Methods="Hardpoint 0" Fallback="Center"/>
+    </CActorSiteOpAttach>
+    <CActorModel id="WarthogMarineDriverModelAddition" parent="ModelAddition">
+        <EditorCategories value=""/>
+        <On Terms="UnitBirth.Warthog" Send="Create"/>
+        <On Terms="UnitDeath.Warthog" Send="Destroy"/>
+        <Host Subject="WarthogActor"/>
+        <HostSiteOps Ops="WarthogMarineDriverAttachment WarthogMarineDriverOffset"/>
+        <Model value="WarthogGunnerDriver"/>
+    </CActorModel>
+    <CActorSiteOpLocalOffset id="WarthogMarineDriverOffset">
+        <EditorCategories value=""/>
+    </CActorSiteOpLocalOffset>
+    <CActorSiteOpAttach id="WarthogMarineGunnerAttachment">
+        <EditorCategories value=""/>
+        <AttachQuery Methods="Hardpoint 1" Fallback="TurretZ"/>
+    </CActorSiteOpAttach>
+    <CActorModel id="WarthogMarineGunnerModelAddition" parent="ModelAddition">
+        <EditorCategories value=""/>
+        <On Terms="UnitBirth.Warthog" Send="Create"/>
+        <On Terms="UnitDeath.Warthog" Send="Destroy"/>
+        <On Terms="TurretRotationUpdate.WarthogTurret" Send="SetRotationFrom ::HostTurretBody"/>
+        <On Terms="TurretRotation.WarthogTurret" Send="SetRotationFrom ::HostTurretBody"/>
+        <On Terms="TurretTarget.WarthogTurret" Send="SetRotationFrom ::HostTurretBody"/>
+        <On Terms="TurretFidget.WarthogTurret" Send="SetRotationFrom ::HostTurretBody"/>
+        <Host Subject="WarthogActor"/>
+        <HostSiteOps Ops="WarthogMarineGunnerAttachment WarthogMarineGunnerOffset"/>
+        <Model value="WarthogGunnerDriver"/>
+    </CActorModel>
+    <CActorSiteOpLocalOffset id="WarthogMarineGunnerOffset">
+        <EditorCategories value=""/>
+    </CActorSiteOpLocalOffset>
+    <CActorAction id="WarthogAttack" parent="GenericAttack" effectAttack="WarthogDamage">
+        <LaunchAttachQuery Methods="Weapon 0"/>
+        <LaunchAssets Model="MarineAttackLaunch" Sound="Marine_AttackLaunch"/>
+        <ImpactMap index="None" Model="WarthogArenaTurretAttackImpact" Sound="Marine_AttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+    </CActorAction>
+    <CActorUnit id="WarthogActor" parent="GenericUnitBase" unitName="Warthog">
+        <Aliases value="_UnitMedium"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="TimerSet 0.250000 KillBeam"/>
+        <On Terms="Abil.attack.ReadyStop" Send="TimerSet 0.250000 KillBeam"/>
+        <On Terms="TimerExpired; TimerName KillBeam" Target="HellionAttackBeam" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo Hellion" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom Hellion" Send="Destroy"/>
+        <On Terms="UnitPortrait.*.Configure" Target="::PortraitGameSelf" Send="AnimClear Visor 0.000000"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Hellion_Land"/>
+        <Scale value="0.750000"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="WarthogDeath" SoundLink="Hellion_Explode"/>
+        <DeathCustoms ModelLink="HellionDeathRagdoll" Name="RagdollBasic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms>
+            <ModelLink value="DeathVoidShadowMedium"/>
+            <SoundLink value="ShadowUnit_DeathFX"/>
+            <VoiceLink value="ShadowUnit_DeathVox"/>
+            <Name value="Shadow"/>
+        </DeathCustoms>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
+        <PortraitActor value="HellionPortrait"/>
+        <PortraitModel value="HellionPortrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="1.000000"/>
+            <RangeDown value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLargeVehicle"/>
+        </TerrainSquibs>
+        <BarOffset value="50"/>
+        <BarWidth value="90"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-hellionex1.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-hellion.dds"/>
+        <HighlightTooltip value="Unit/Name/WarthogActor"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
+        <SoundArray index="Ready" value="Hellion_Ready"/>
+        <SoundArray index="Help" value="Hellion_Help"/>
+        <SoundArray index="What" value="Hellion_What"/>
+        <SoundArray index="Yes" value="Hellion_Yes"/>
+        <SoundArray index="Attack" value="Hellion_Attack"/>
+        <SoundArray index="Pissed" value="Hellion_Pissed"/>
+        <SoundArray index="Movement" value="Hellion_Movement"/>
+        <UnitFlags index="StandAnimBirthVariation" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-hellion.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-hellionex1.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CModel id="WarthogArenaTurretAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\AutoTurretWeaponImpact\AutoTurretWeaponImpact.m3"/>
+        <EditorCategories value="Race:Terran"/>
+        <ScaleMax value="1.250000,1.250000,1.250000"/>
+        <ScaleMin value="0.750000,0.750000,0.750000"/>
+    </CModel>
+    <CModel id="WarthogGunnerDriver" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\MarineFreeHands\NanaKey_Marine_Freehands.m3"/>
+        <RequiredAnims value="Assets\Units\Terran\Marine_SwarmAnims\Marine_SwarmAnims.m3a"/>
+        <Occlusion value="Show"/>
+        <PlanetPanelCamera value="Star2CameraMid03"/>
+        <Radius value="0.375000"/>
+        <ScaleMax value="1.500000,1.500000,1.500000"/>
+        <ScaleMin value="1.500000,1.500000,1.500000"/>
+        <SelectionRadius value="0.375000"/>
+        <ShadowRadius value="0.375000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <TechPurchaseCamera value="TechPurchaseInfantry"/>
+        <UnitGlossaryCamera value="Star2CameraMid03"/>
+    </CModel>
+    <CModel id="Warthog" parent="HellionBase">
+        <Model value="Assets\Units\Warthog\NanaKey_TO_warthogV2_Gatlinggun.m3"/>
+        <ScaleMax value="0.800000,0.800000,0.800000"/>
+        <ScaleMin value="0.800000,0.800000,0.800000"/>
+        <SelectionRadius value="2.000000"/>
+    </CModel>
+    <CModel id="WarthogDeath" parent="HellionDeathBase">
+        <Model value="Assets\Units\Warthog\NanaKey_TO_warthogV2_Gatlinggun_Death.m3"/>
+    </CModel>
+    <CModel id="WarthogMissile" parent="HellionBase">
+        <Model value="Assets\Units\Warthog\NanaKey_TO_warthogV2_Missile.m3"/>
+        <ScaleMax value="0.800000,0.800000,0.800000"/>
+        <ScaleMin value="0.800000,0.800000,0.800000"/>
+        <SelectionRadius value="2.000000"/>
+    </CModel>
+    <CModel id="WarthogMissileDeath" parent="HellionDeathBase">
+        <Model value="Assets\Units\Warthog\NanaKey_TO_warthogV2_Missile_Death.m3"/>
+    </CModel>
+    <CModel id="WarthogRailGun" parent="HellionBase">
+        <Model value="Assets\Units\Warthog\NanaKey_TO_warthogV2_RailGun.m3"/>
+        <ScaleMax value="0.800000,0.800000,0.800000"/>
+        <ScaleMin value="0.800000,0.800000,0.800000"/>
+        <SelectionRadius value="2.000000"/>
+    </CModel>
+    <CModel id="WarthogRailGunDeath" parent="HellionDeathBase">
+        <Model value="Assets\Units\Warthog\NanaKey_TO_warthogV2_RailGun_Death.m3"/>
+    </CModel>
+    <CModel id="WarthogRifleShells" parent="SMSET">
+        <AnimSpeed value="3.000000"/>
+        <Model value="Assets\StoryModeProps\Terran\SM_Terran11Props_RifleShells\SM_Terran11Props_RifleShells.m3"/>
+    </CModel>
+    <CWeaponLegacy id="WarthogVulcanTurret">
+        <EditorCategories value="Race:Terran"/>
+        <Options index="OnlyFireWhileInAttackOrder" value="0"/>
+        <Options index="OnlyFireAtAttackOrderTarget" value="0"/>
+        <Options index="LinkedCooldown" value="0"/>
+        <Options index="DisplayCooldown" value="1"/>
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel0.dds"/>
+        <DisplayEffect value="WarthogDamage"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="12"/>
+        <Period value="0.45"/>
+        <Effect value="WarthogDamage"/>
+        <AllowedMovement value="Moving"/>
+    </CWeaponLegacy>
+    <CTurret id="WarthogTurret">
+        <Idle value="FollowMovement"/>
+        <YawArc value="360"/>
+        <YawRate value="239.9414"/>
+        <Fidget DelayMax="15" DelayMin="10" TurningRate="45"/>
+    </CTurret>
+    <CUnit id="Warthog">
+        <DeathRevealRadius value="3"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AISplash" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="120"/>
+        <LifeMax value="120"/>
+        <LifeArmorName value="Unit/LifeArmorName/UNSCVehiclePlating1"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/CovenantPlasmaShields"/>
+        <Speed value="3.6484"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46"/>
+        <StationaryTurningRate value="1499.9414"/>
+        <TurningRate value="104.9414"/>
+        <Sight value="9"/>
+        <Food value="-2"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="150"/>
+        <RepairTime value="30"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="30"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <WeaponArray Link="WarthogVulcanTurret" Turret="WarthogTurret"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="FireOnTheMove" Type="Passive" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="1.125"/>
+        <SeparationRadius value="0.75"/>
+        <InnerRadius value="0.5"/>
+        <CargoSize value="2"/>
+        <ScoreMake value="100"/>
+        <ScoreKill value="100"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="66"/>
+        <MinimapRadius value="0.625"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
+        <TacticalAIThink value="AIThinkHellion"/>
+        <TechAliasArray value="Alias_Hellion"/>
+        <TechAliasArray value="Alias_Hellion"/>
+        <GlossaryCategory value="Unit/Category/TerranUnits"/>
+        <GlossaryPriority value="80"/>
+        <GlossaryStrongArray value="SCV"/>
+        <GlossaryStrongArray value="Zergling"/>
+        <GlossaryStrongArray value="Probe"/>
+        <GlossaryWeakArray value="Cyclone"/>
+        <GlossaryWeakArray value="Roach"/>
+        <GlossaryWeakArray value="Stalker"/>
+        <HotkeyCategory value="Unit/Category/TerranUnits"/>
+        <AIEvaluateAlias value="Hellion"/>
+    </CUnit>
+    <CUnit id="WarthogRifleShells" parent="SMSET">
+        <Race value="Terr"/>
+        <Height value="3"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+    <CUpgrade id="UNSCVehicleArmorLevel1UNSC22" parent="TerranInfantryArmors">
+        <Flags index="TechTreeCheat" value="1"/>
+        <Name value="Upgrade/Name/UNSCVehicleArmorLevel1UNSC22"/>
+        <InfoTooltipPriority value="0"/>
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel2.dds"/>
+        <ScoreAmount value="200"/>
+        <EffectArray Reference="Unit,Warthog,LifeArmor" Value="1"/>
+        <EffectArray Reference="Unit,Warthog,LifeArmorLevel" Value="1"/>
+        <EffectArray Operation="Set" Reference="Actor,WarthogActor,LifeArmorIcon" Value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel2.dds"/>
+        <AffectedUnitArray value="Warthog"/>
+        <LeaderLevel value="1"/>
+    </CUpgrade>
+    <CUpgrade id="UNSCVehicleArmorLevel1UNSC32" parent="TerranInfantryArmors">
+        <Flags index="TechTreeCheat" value="1"/>
+        <Name value="Upgrade/Name/UNSCVehicleArmorLevel1UNSC32"/>
+        <InfoTooltipPriority value="0"/>
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel3.dds"/>
+        <ScoreAmount value="200"/>
+        <EffectArray Reference="Unit,Warthog,LifeArmor" Value="1"/>
+        <EffectArray Reference="Unit,Warthog,LifeArmorLevel" Value="1"/>
+        <EffectArray Operation="Set" Reference="Actor,WarthogActor,LifeArmorIcon" Value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel3.dds"/>
+        <AffectedUnitArray value="Warthog"/>
+        <LeaderLevel value="1"/>
+    </CUpgrade>
+    <CUpgrade id="UNSCVehicleArmorLevel1UNSC4" parent="TerranInfantryArmors">
+        <Flags index="TechTreeCheat" value="1"/>
+        <Name value="Upgrade/Name/UNSCVehicleArmorLevel1UNSC4"/>
+        <InfoTooltipPriority value="0"/>
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel1.dds"/>
+        <ScoreAmount value="200"/>
+        <EffectArray Reference="Unit,Warthog,LifeArmor" Value="1"/>
+        <EffectArray Reference="Unit,Warthog,LifeArmorLevel" Value="1"/>
+        <EffectArray Operation="Set" Reference="Actor,WarthogActor,LifeArmorIcon" Value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel1.dds"/>
+        <AffectedUnitArray value="Warthog"/>
+        <LeaderLevel value="1"/>
+    </CUpgrade>
+    <CUpgrade id="UNSCVehicleWeaponLevel1UNSC22" parent="TerranInfantryArmors">
+        <Flags index="TechTreeCheat" value="1"/>
+        <Name value="Upgrade/Name/UNSCVehicleWeaponLevel1UNSC22"/>
+        <InfoTooltipPriority value="0"/>
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel2.dds"/>
+        <ScoreAmount value="200"/>
+        <EffectArray Reference="Weapon,WarthogVulcanTurret,Level" Value="1"/>
+        <EffectArray Operation="Set" Reference="Weapon,WarthogVulcanTurret,Icon" Value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel2.dds"/>
+        <EffectArray Reference="Effect,WarthogDamage,Amount" Value="1"/>
+        <AffectedUnitArray value="Warthog"/>
+        <LeaderLevel value="1"/>
+    </CUpgrade>
+    <CUpgrade id="UNSCVehicleWeaponLevel1UNSC32" parent="TerranInfantryArmors">
+        <Flags index="TechTreeCheat" value="1"/>
+        <Name value="Upgrade/Name/UNSCVehicleWeaponLevel1UNSC32"/>
+        <InfoTooltipPriority value="0"/>
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel3.dds"/>
+        <ScoreAmount value="200"/>
+        <EffectArray Reference="Weapon,WarthogVulcanTurret,Level" Value="1"/>
+        <EffectArray Operation="Set" Reference="Weapon,WarthogVulcanTurret,Icon" Value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel3.dds"/>
+        <EffectArray Reference="Effect,WarthogDamage,Amount" Value="1"/>
+        <AffectedUnitArray value="Warthog"/>
+        <LeaderLevel value="1"/>
+    </CUpgrade>
+    <CUpgrade id="UNSCVehicleWeaponLevel1UNSC4" parent="TerranInfantryArmors">
+        <Flags index="TechTreeCheat" value="1"/>
+        <Name value="Upgrade/Name/UNSCVehicleWeaponLevel1UNSC4"/>
+        <InfoTooltipPriority value="0"/>
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel1.dds"/>
+        <ScoreAmount value="200"/>
+        <EffectArray Operation="Set" Reference="Weapon,WarthogVulcanTurret,Icon" Value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel1.dds"/>
+        <EffectArray Reference="Weapon,WarthogVulcanTurret,Level" Value="1"/>
+        <EffectArray Reference="Effect,WarthogDamage,Amount" Value="1"/>
+        <AffectedUnitArray value="Warthog"/>
+        <LeaderLevel value="1"/>
+    </CUpgrade>
+</Catalog>

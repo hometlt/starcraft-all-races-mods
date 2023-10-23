@@ -1,0 +1,174 @@
+include "TriggerLibs/natives"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Game Events
+//--------------------------------------------------------------------------------------------------
+// Preset Declarations
+const int libBF359936_ge_UnitBuffMultiplierMethod_Exponential = 0;
+const int libBF359936_ge_UnitBuffMultiplierMethod_Linear = 1;
+
+// Constants
+const string libBF359936_gv_StukovInfestedWraithSnareBehavior = "StukovInfestedDiamondbackSnare";
+const fixed libBF359936_gv_StukovInfestedWraithSnareBehavior2 = 1.0;
+const fixed libBF359936_gv_StukovInfestedWraithSnareBehavior3 = 1.0;
+
+// Variable Declarations
+unit[100] libBF359936_gv_cM_Stukov_CreepTumorSource;
+unitgroup libBF359936_gv_cM_Stukov_CreepTumorSourceActive;
+unitgroup[100] libBF359936_gv_cM_Stukov_CreepTumorSpread;
+unit[16] libBF359936_gv_cM_Stukov_InfestedStructure;
+unitgroup[16] libBF359936_gv_cM_Stukov_HordeGroup;
+unitgroup[16] libBF359936_gv_cM_Stukov_HordeCurrentWave;
+int[16] libBF359936_gv_cM_Stukov_HordeCount;
+unit[16] libBF359936_gv_cM_Stukov_RallyTarget;
+point[16] libBF359936_gv_cM_Stukov_RallyPoint;
+unit[16] libBF359936_gv_cM_Stukov_RallyBeaconUnit;
+unitgroup[16] libBF359936_gv_cM_Stukov_BunkerGroup;
+bool libBF359936_gv_stukov_InfestedBunker_Enabled;
+int[51] libBF359936_gv_gE_P_TPadUnitGroups;
+unit[16] libBF359936_gv_cM_Zeratul_VoidRift;
+unitgroup libBF359936_gv_cM_Mengsk_XPHungryUnits;
+unitgroup libBF359936_gv_cM_Mengsk_VeteranUnits;
+unitgroup libBF359936_gv_cM_Mengsk_PropagandaUnits;
+unitgroup libBF359936_gv_cM_Mengsk_ReturningWorkers;
+unitgroup libBF359936_gv_cM_Mengsk_WeaponPickups;
+unitgroup libBF359936_gv_cM_Mengsk_WeaponPickerUppers;
+fixed libBF359936_gv_cM_Mengsk_ArtilleryExperimentalStrikeRange;
+fixed libBF359936_gv_cM_Mengsk_EnergyRegenRoyalGuard;
+fixed libBF359936_gv_cM_Mengsk_EnergyRegenTrooper;
+
+// Function Declarations
+string libBF359936_gf_TraingingUnitTypeInAbilCommand (abilcmd lp_abilityCommand, int lp_p, int lp_unitIndex);
+bool libBF359936_gf_HeroCanSpendSkillPoint (unit lp_hero, string lp_learnAbility);
+void libBF359936_gf_SetUnitBuffMultiplier (unit lp_unit, fixed lp_multiplierAmount, string lp_behavior, fixed lp_baseValue, int lp_method);
+void libBF359936_gf_SetUnitAttributePoints (string lp_attribute, unit lp_unit, int lp_points);
+void libBF359936_gf_PlayerApplySkinSignal (int lp_player, string lp_skin, bool lp_activateDeactivate, string lp_extraMessage);
+void libBF359936_gf_ButtonReplacement (int lp_player, string lp_button, string lp_buttonReplacement);
+void libBF359936_gf_FindandAttackNearestEnemy (unit lp_attacker, fixed lp_searchRadius, fixed lp_satisfiedPathingDistance, fixed lp_thinkPeriod, unitfilter lp_targetFilter, unitfilter lp_fallbackTargetFilter);
+fixed libBF359936_gf_CombinedPropertyofUnitGroup (unitgroup lp_unitGroup, int lp_unitProperty, bool lp_currentDefault);
+unitgroup libBF359936_gf_ConjoinedTrainsofTrainCar (unit lp_trainCar);
+void libBF359936_gf_SynchronizeConjoinedTrainHealth (unitgroup lp_trainCars, fixed lp_maxHealth);
+void libBF359936_gf_CM_Stukov_SingleUnitGoToRally (unit lp_rallyingUnit, bool lp_overrideExistingOrders);
+void libBF359936_gf_CM_Stukov_HordeGoToRally (int lp_player);
+void libBF359936_gf_CM_Stukov_NewBunkerUnitProcess (unit lp_newUnit);
+void libBF359936_gf_Stukov_InfestedBunker_Attack (unit lp_u, unit lp_targ_u, int lp_i, fixed lp_wait);
+void libBF359936_gf_CM_Stukov_InfestStructureInitialCooldown (int lp_player);
+void libBF359936_gf_CM_Zeratul_PurificationNova_SpawnSmallOrb (unit lp_caster, point lp_spawnPoint, point lp_targetPoint);
+fixed libBF359936_gf_CM_Mengsk_SupplyLevel (unitgroup lp_unitGroup);
+void libBF359936_gf_CM_Mengsk_EnergyChanged (int lp_mengskPlayer);
+void libBF359936_gf_CM_Mengsk_GlobalCasterEnergyRegen (unit lp_mengskGlobalCaster);
+void libBF359936_gf_CM_Mengsk_GlobalCasterEnergyRegenCalculateRoyalGuard (int lp_mengskPlayer);
+void libBF359936_gf_CM_Mengsk_GlobalCasterEnergyRegenCalculateTrooper (int lp_mengskPlayer);
+void libBF359936_gf_CM_Mengsk_ForceMorphTrooper (unit lp_trooper, unit lp_pickup, string lp_morphEffect, string lp_morphBehavior, string lp_actorSignal);
+
+// Trigger Declarations
+trigger libBF359936_gt_GE_Enabler;
+trigger libBF359936_gt_CM_TargetLockOrder;
+trigger libBF359936_gt_CM_TargetLockOrderRaven;
+trigger libBF359936_gt_GE_Enabler_Neutral;
+trigger libBF359936_gt_GE_CreateUnit_HideTerrain;
+trigger libBF359936_gt_GE_DestroyUnit_ShowTerrain;
+trigger libBF359936_gt_StasisChamber_LoadUnit;
+trigger libBF359936_gt_General_RotationDummy;
+trigger libBF359936_gt_GlazeDeathCustomize_VoidShade;
+trigger libBF359936_gt_Rotate1800;
+trigger libBF359936_gt_GE_Enabler_Zerg;
+trigger libBF359936_gt_CM_Stukov_FullSupplyCheat;
+trigger libBF359936_gt_CM_Stukov_CreepSource_Create;
+trigger libBF359936_gt_CM_Stukov_CreepSource_Deactivate;
+trigger libBF359936_gt_CM_Stukov_CreepSource_Activate;
+trigger libBF359936_gt_CM_Stukov_CreepSource_Death;
+trigger libBF359936_gt_CM_Stukov_CreepSource_Spread;
+trigger libBF359936_gt_CM_Stukov_InfestedStructureInitialSpawn;
+trigger libBF359936_gt_CM_Stukov_InfestedStructureRebuilt;
+trigger libBF359936_gt_CM_Stukov_HordeWaveSpawner;
+trigger libBF359936_gt_CM_Stukov_HordeWaveCreated;
+trigger libBF359936_gt_CM_Stukov_HordeWaveExploderCreated;
+trigger libBF359936_gt_CM_Stukov_HordeWaveInteruptionReissueOrder;
+trigger libBF359936_gt_CM_Stukov_RallyPlaced;
+trigger libBF359936_gt_CM_Stukov_RallyToUnitDies;
+trigger libBF359936_gt_CM_Stukov_InfestedBunkerInitialSpawn;
+trigger libBF359936_gt_CM_Stukov_InfestedBunkerRegister;
+trigger libBF359936_gt_CM_Stukov_InfestedBunkerUnloadRally;
+trigger libBF359936_gt_CM_Stukov_InfestedBunkerAutoLoad;
+trigger libBF359936_gt_Stukov_InfestedBunker_RedirectAttack;
+trigger libBF359936_gt_Stukov_InfestedBunker_RedirectStop;
+trigger libBF359936_gt_Stukov_InfestedBunker_WeaponsLoopOFF;
+trigger libBF359936_gt_Stukov_InfestedBunker_ONCreate;
+trigger libBF359936_gt_Stukov_InfestedBunker_ONMorph;
+trigger libBF359936_gt_CM_Stukov_TriggersInit;
+trigger libBF359936_gt_CM_Stukov_InfestedTimedLifeFoodHackBurrow;
+trigger libBF359936_gt_CM_Stukov_InfestedTimedLifeFoodHackTrain;
+trigger libBF359936_gt_CM_Stukov_InfestedTimedLifeFoodHackBirth;
+trigger libBF359936_gt_CM_Stukov_UnitCostRefund;
+trigger libBF359936_gt_CM_Stukov_InfestedSiegeTankDeath;
+trigger libBF359936_gt_StukovSnareBehaviorOn2;
+trigger libBF359936_gt_GE_Z_MutaliskStrainBroodLordSpawned;
+trigger libBF359936_gt_GE_Z_CreepTumorAB;
+trigger libBF359936_gt_GE_Enabler_Protoss;
+trigger libBF359936_gt_GE_P_WarpGate_SupplicantWarpIn;
+trigger libBF359936_gt_GE_P_Havoc_BloodshardResonanceUpgrade;
+trigger libBF359936_gt_GE_P_Havoc_BloodshardResonanceOwnerChange;
+trigger libBF359936_gt_GE_P_TPadTeleport;
+trigger libBF359936_gt_GE_P_TPadConnect;
+trigger libBF359936_gt_GE_Enabler_Zeratul;
+trigger libBF359936_gt_CM_Zeratul_PurificationNova_Finale;
+trigger libBF359936_gt_CM_Zeratul_PurificationNova_Create;
+trigger libBF359936_gt_CM_Zeratul_PurificationNova_MainImpact;
+trigger libBF359936_gt_CM_Zeratul_AutomatedAssimilatorAutoBuild;
+trigger libBF359936_gt_CM_Zeratul_ReflectionShield;
+trigger libBF359936_gt_CM_Zeratul_DarkTemplarRetreat;
+trigger libBF359936_gt_CM_Zeratul_WarpPrismAutoUnload;
+trigger libBF359936_gt_CM_Zeratul_WarpPrismAutoUnloadOff;
+trigger libBF359936_gt_CM_Zeratul_WarpPrismSelectRift;
+trigger libBF359936_gt_CM_Zeratul_WarpPrismMorphUnloadState;
+trigger libBF359936_gt_CM_Zeratul_Projection_UnitLink;
+trigger libBF359936_gt_CM_Zeratul_Projection_TimedLifeFate;
+trigger libBF359936_gt_CM_Zeratul_Projection_Cancel;
+trigger libBF359936_gt_GE_P_KaraxChangeOwner;
+trigger libBF359936_gt_GE_P_HTSC1Hallu2;
+trigger libBF359936_gt_GE_P_WarpConduitAutoMoves;
+trigger libBF359936_gt_GE_P_PowerUsers;
+trigger libBF359936_gt_GE_Enabler_Terran;
+trigger libBF359936_gt_GE_Terr_Excavator50;
+trigger libBF359936_gt_GE_Terr_NeoluxEnergyTowerStopSendingEnergy;
+trigger libBF359936_gt_GE_Terr_NeoluxEnergyTowerStopReceivingEnergy;
+trigger libBF359936_gt_GE_Terr_MengskBunkerDropLoad;
+trigger libBF359936_gt_CM_Mengsk_TriggersInit;
+trigger libBF359936_gt_CM_Mengsk_ArtilleryBombardmentTarget;
+trigger libBF359936_gt_CM_Mengsk_ArtilleryExperimentalStrikeTarget;
+trigger libBF359936_gt_CM_Mengsk_ArtilleryGlobalExperimentalStrikeTarget;
+trigger libBF359936_gt_CM_Mengsk_GlobalAbilityCast;
+trigger libBF359936_gt_CM_Mengsk_ArtilleryExperimentalStrikeFearApply;
+trigger libBF359936_gt_CM_Mengsk_NuclearAnnihilationSmallNukes;
+trigger libBF359936_gt_CM_Mengsk_ArtilleryBombardmentCargoChange;
+trigger libBF359936_gt_CM_Mengsk_VeteranDies;
+trigger libBF359936_gt_CM_Mengsk_VeteranDing;
+trigger libBF359936_gt_CM_Mengsk_RegisterPropagandaUnit;
+trigger libBF359936_gt_CM_Mengsk_RemovePropagandaUnit;
+trigger libBF359936_gt_CM_Mengsk_PropagandaUpgraded;
+trigger libBF359936_gt_CM_Mengsk_MedivacAirlift;
+trigger libBF359936_gt_CM_Mengsk_MedivacAirliftDing;
+trigger libBF359936_gt_CM_Mengsk_EnlistStart;
+trigger libBF359936_gt_CM_Mengsk_EnlistStop;
+trigger libBF359936_gt_CM_Mengsk_WeaponPickupRegister;
+trigger libBF359936_gt_CM_Mengsk_WeaponPickerUpperRegister;
+trigger libBF359936_gt_CM_Mengsk_WeaponPickup;
+trigger libBF359936_gt_CM_Mengsk_ZergSeekDestroy;
+trigger libBF359936_gt_CM_Mengsk_ZerglingMengskSpawn;
+trigger libBF359936_gt_CM_Mengsk_HydraliskMengskSpawn;
+trigger libBF359936_gt_CM_Mengsk_MutaliskMengskSpawn;
+trigger libBF359936_gt_CM_Mengsk_UltraliskMengskSpawn;
+trigger libBF359936_gt_CM_Mengsk_BunkerDepotDropFillCargo;
+trigger libBF359936_gt_CM_Mengsk_DirtyBombSweetener;
+trigger libBF359936_gt_GE_Terr_Raynor_TrainBuff;
+trigger libBF359936_gt_GE_Terr_MoebiusTrain;
+trigger libBF359936_gt_GE_Terr_DominionAPC;
+trigger libBF359936_gt_GE_Terr_NovaEradicator_FlamethrowerResetTurret;
+trigger libBF359936_gt_GE_Terr_NovaEradicator_RailgunCast;
+trigger libBF359936_gt_GE_Terr_Units007;
+trigger libBF359936_gt_GE_ArmyUpgradesAddon;
+
+// Library Initialization
+void libBF359936_InitVariables ();
+

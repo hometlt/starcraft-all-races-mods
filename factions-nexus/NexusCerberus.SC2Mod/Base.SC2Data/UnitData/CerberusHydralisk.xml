@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CUnit id="CerberusHydralisk">
+        <Description value="Button/Tooltip/HydraliskLurkerRCZ"/>
+        <DeathRevealRadius value="3"/>
+        <Race value="Nafash"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <LifeStart value="100"/>
+        <LifeMax value="100"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergGroundArmor"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ZergWildMutation"/>
+        <Speed value="2.5"/>
+        <SpeedMultiplierCreep value="1.3"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="9"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="100"/>
+        <CostResource index="Vespene" value="50"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="que1"/>
+        <AbilArray Link="HydraliskFrenzy2"/>
+        <BehaviorArray Link="StukovInfestedTerranTimedLife31022"/>
+        <WeaponArray Link="HydraliskMelee"/>
+        <WeaponArray Link="EvolvedNeedleSpines"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="HydraliskFrenzy" Type="AbilCmd" AbilCmd="HydraliskFrenzy2,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="0.625"/>
+        <InnerRadius value="0.375"/>
+        <CargoSize value="2"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="16"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Coop"/>
+        <AIEvalFactor value="2"/>
+        <GlossaryCategory value="Unit/Category/ZergUnits"/>
+        <GlossaryPriority value="71"/>
+        <GlossaryStrongArray value="Battlecruiser"/>
+        <GlossaryStrongArray value="VoidRay"/>
+        <GlossaryStrongArray value="Mutalisk"/>
+        <GlossaryWeakArray value="Marine"/>
+        <GlossaryWeakArray value="Zealot"/>
+        <GlossaryWeakArray value="Zergling"/>
+        <KillDisplay value="Always"/>
+        <RankDisplay value="Always"/>
+        <TauntDuration index="Cheer" value="5"/>
+        <TauntDuration index="Dance" value="5"/>
+    </CUnit>
+    <CAbilEffectInstant id="HydraliskFrenzy2" parent="HydraliskFrenzy">
+        <Name value="Abil/Name/HydraliskFrenzy2"/>
+        <Cost index="0">
+            <Cooldown TimeUse="25"/>
+        </Cost>
+        <CmdButtonArray index="Execute" Requirements=""/>
+    </CAbilEffectInstant>
+    <CActorUnit id="HydraliskEvolved2" parent="GenericUnitBase" unitName="CerberusHydralisk">
+        <Macros value="ZergBurrowStandardAnimMacro"/>
+        <Macros value="ZergMediumBurrowEffects"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.EvolvedNeedleSpines.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimBracketStart AttackSuperior Attack,Superior"/>
+        <On Terms="WeaponStart.EvolvedNeedleSpines.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimBracketStart AttackInferior Attack,Inferior"/>
+        <On Terms="WeaponStart.HydraliskMelee.AttackStart" Send="AnimPlay AttackCover Attack,Cover"/>
+        <On Terms="WeaponStart.EvolvedNeedleSpines.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStop.EvolvedNeedleSpines.AttackStop" Send="AnimBracketStop AttackSuperior"/>
+        <On Terms="WeaponStop.EvolvedNeedleSpines.AttackStop" Send="AnimBracketStop AttackInferior"/>
+        <On Terms="WeaponStop.EvolvedNeedleSpines.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="WeaponStart.HydraliskMelee.AttackStart; AnimPlaying AttackCover Cover,00" Send="TimerSet 0.400000 MeleeAttackLaunch"/>
+        <On Terms="WeaponStart.HydraliskMelee.AttackStart; AnimPlaying AttackCover Cover,01" Send="TimerSet 0.100000 MeleeAttackLaunch"/>
+        <On Terms="TimerExpired; TimerName MeleeAttackLaunch" Send="Create HydraliskMeleeAttackLaunch"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Hydra_Land"/>
+        <On Terms="UnitMovementUpdate.*.Walk; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <On Terms="ActorCreation" Send="Create NafashUnitSnowStorm"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <EventDataSound Name="HydraliskAttackImpactMelee" Actor="UnitSound" Sound="Hydralisk_AttackImpactMelee"/>
+        <DeathArray index="Normal" ModelLink="HydraliskLurkerDeath2" SoundLink="Hydralisk_Explode"/>
+        <DeathArray index="Disintegrate" ModelLink="HydraliskDeathAcid" SoundLink="Uni_DeathFXAcid"/>
+        <DeathArray index="Fire" ModelLink="HydraliskDeathFire" SoundLink="Uni_DeathFXFire"/>
+        <PortraitModel value="HydraliskLurkerPortrait2"/>
+        <TerrainSquibs>
+            <GroupName value="RippleStandard"/>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="1.000000"/>
+            <RangeDown value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLarge"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="2.086"/>
+        <BarOffset value="60"/>
+        <BarWidth value="48"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Zerg-Hydralisk.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-zerg-hydralisk-rcz.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-groundcarapace-level0.dds"/>
+        <ShieldArmorIcon value="Assets\Textures\btn-upgrade-zerg-swarmfrenzy.dds"/>
+        <SoundArray index="Ready" value="Hydralisk_Ready"/>
+        <SoundArray index="Help" value="Hydralisk_Help"/>
+        <SoundArray index="What" value="Hydralisk_What"/>
+        <SoundArray index="Yes" value="Hydralisk_Yes"/>
+        <SoundArray index="Attack" value="Hydralisk_Attack"/>
+        <SoundArray index="Pissed" value="Hydralisk_Pissed"/>
+        <StatusColors index="Shields">
+            <ColorArray index="0" value="255,0,128,0"/>
+        </StatusColors>
+        <UnitIcon value="Assets\Textures\btn-unit-zerg-hydralisk-rcz.dds"/>
+        <VitalColors index="Shields">
+            <ColorArray value="255,0,128,0"/>
+        </VitalColors>
+        <VitalNames index="Shields" value="Vital/ZergShields"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Zerg-Hydralisk.dds"/>
+        </Wireframe>
+        <WireframeShieldColor value="255,0,128,0"/>
+        <Model value="HydraliskEvolved2"/>
+        <BuildModel value="HydraliskEvolved2"/>
+        <PlacementModel value="HydraliskEvolved2"/>
+        <HighlightTooltip value="Unit/Name/HydraliskEvolved2"/>
+    </CActorUnit>
+    <CActorAction id="HydraliskAttack">
+        <On Terms="Effect.EvolvedNeedleSpinesLaunchMissile.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.EvolvedNeedleSpinesDamage.Start; FromEffectTreeDescendant" Send="ActionImpact"/>
+        <On Terms="Effect.EvolvedNeedleSpinesDamage.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics"/>
+    </CActorAction>
+    <CModel id="HydraliskEvolved2" parent="Unit" Race="Zerg">
+        <Model value="Assets\Units\Zerg\Hydralisk_RCZ\Hydralisk_RCZ.m3"/>
+        <RequiredAnims value="Assets\Units\Zerg\Hydralisk_SwarmAnims\Hydralisk_SwarmAnims.m3a"/>
+        <AttachProps Id="Ref_Weapon">
+            <Keys index="SetA" value="0"/>
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon Right">
+            <Keys index="SetA" value="1"/>
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon Left">
+            <Keys index="SetA" value="1"/>
+        </AttachProps>
+        <Events>
+            <Anim value="Attack,Cover,00"/>
+            <Name value="HydraliskAttackImpactMelee"/>
+            <Type value="Sound"/>
+            <Time value="0.500000"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,Cover,00"/>
+            <Name value="HydraliskAttackImpactMelee"/>
+            <Type value="Sound"/>
+            <Time value="0.550000"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,Cover,01"/>
+            <Name value="HydraliskAttackImpactMelee"/>
+            <Type value="Sound"/>
+            <Time value="0.230000"/>
+        </Events>
+        <Events>
+            <Anim value="Attack,Cover,01"/>
+            <Name value="HydraliskAttackImpactMelee"/>
+            <Type value="Sound"/>
+            <Time value="0.400000"/>
+        </Events>
+        <Occlusion value="Show"/>
+        <PlanetPanelCamera value="Star2CameraMid08"/>
+        <Radius value="0.600000"/>
+        <ScaleMax value="0.770000,0.770000,0.770000"/>
+        <ScaleMin value="0.770000,0.770000,0.770000"/>
+        <SelectionRadius value="0.571000"/>
+        <ShadowRadius value="0.571000"/>
+        <SquibTypeDefault value="Flesh"/>
+        <TechPurchaseCamera value="Star2CameraMid08"/>
+        <Tipability value="0.750000"/>
+        <TipabilityLength value="0.800000"/>
+        <TipabilityWidth value="0.800000"/>
+        <UnitGlossaryCamera value="Star2CameraMid08"/>
+    </CModel>
+    <CModel id="HydraliskLurkerPortrait2" parent="Portrait" Race="Zerg">
+        <Model value="Assets\Portraits\Zerg\Hydralisk_RCZ_Portrait\Hydralisk_RCZ_Portrait.m3"/>
+        <Image value="Assets\Textures\HydraliskPortrait_Static.dds"/>
+        <Lighting value="HydraliskLurkerPortrait"/>
+    </CModel>
+</Catalog>
