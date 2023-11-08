@@ -323,12 +323,13 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
     TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamNukeBuilt, true);
     TriggerEnable(lib36F35321_gt_CM_UmojanShadowteamNukeDeploy, true);
     TriggerEnable(lib36F35321_gt_CM_UmojanKerriganShadow, true);
+    TriggerEnable(lib36F35321_gt_CM_UmojanZergSupply, true);
+    TriggerEnable(lib36F35321_gt_CM_UmojanZergSupplyStart, true);
+    TriggerEnable(lib36F35321_gt_CM_UmojanZergSupplyEnd, true);
     DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer/UmojanSupplyPanel");
     lib36F35321_gv_cM_CommanderKerriganZergSupplyDialog = DialogControlLastCreated();
     DialogControlHookupStandard(c_triggerControlTypeLabel, "UIContainer/FullscreenUpperContainer/UmojanSupplyPanel/SupplyLabel");
     lib36F35321_gv_cM_CommanderKerriganZergSupplyDialogText = DialogControlLastCreated();
-    DialogControlHookupStandard(c_triggerControlTypeLabel, "UIContainer/FullscreenUpperContainer/UmojanSupplyPanel/SupplyIcon");
-    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\icon-supply-zerg-terranborder.dds", PlayerGroupAll());
     auto90444C1F_g = lv_players;
     auto90444C1F_var = -1;
     while (true) {
@@ -355,8 +356,6 @@ bool lib36F35321_gt_DUT_CommanderUmojanKerrigan_Func (bool testConds, bool runAc
         UnitGroupAdd(lib36F35321_gv_cM_Shadowteam[UnitGetOwner(autoBCC72BEA_var)], autoBCC72BEA_var);
         UnitGroupAdd(lib36F35321_gv_cM_Shadowteam_Ready[UnitGetOwner(autoBCC72BEA_var)], autoBCC72BEA_var);
     }
-    Wait(5.0, c_timeGame);
-    TriggerEnable(lib36F35321_gt_CM_UmojanZergSupply, true);
     return true;
 }
 
@@ -438,7 +437,6 @@ bool lib36F35321_gt_CM_UmojanZergSupply_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    DialogControlSetVisible(lib36F35321_gv_cM_CommanderKerriganZergSupplyDialog, PlayerGroupSingle(EventPlayer()), true);
     lv_overlordCount = (TechTreeUnitCount(EventPlayer(), "Overlord", c_techCountQueuedOrBetter));
     lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "Overlord", c_techCountCompleteOnly)) * 8.0);
     lv_realSupplyMax = (lv_realSupplyMax + IntToFixed(TechTreeUnitCount(EventPlayer(), "UmojanArtificialHatchery", c_techCountCompleteOnly)) * 2.0);
@@ -493,6 +491,58 @@ void lib36F35321_gt_CM_UmojanZergSupply_Init () {
     TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 13, c_playerPropCustom);
     TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 14, c_playerPropCustom);
     TriggerAddEventPlayerPropChange(lib36F35321_gt_CM_UmojanZergSupply, 15, c_playerPropCustom);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_UmojanZergSupplyStart
+//--------------------------------------------------------------------------------------------------
+bool lib36F35321_gt_CM_UmojanZergSupplyStart_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    playergroup lv_players;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_players = libCOMI_gf_PlayersOfCommander("UmojanCMD");
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(1.5, c_timeGame);
+    DialogControlSetVisible(lib36F35321_gv_cM_CommanderKerriganZergSupplyDialog, lv_players, true);
+    TextExpressionSetToken("Param/Expression/lib_36F35321_88366D09", "A", StringExternal("Param/Value/lib_36F35321_2088E040"));
+    TextExpressionSetToken("Param/Expression/lib_36F35321_88366D09", "B", StringExternal("Param/Value/lib_36F35321_C470559F"));
+    libNtve_gf_SetDialogItemText(lib36F35321_gv_cM_CommanderKerriganZergSupplyDialogText, TextExpressionAssemble("Param/Expression/lib_36F35321_88366D09"), lv_players);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib36F35321_gt_CM_UmojanZergSupplyStart_Init () {
+    lib36F35321_gt_CM_UmojanZergSupplyStart = TriggerCreate("lib36F35321_gt_CM_UmojanZergSupplyStart_Func");
+    TriggerEnable(lib36F35321_gt_CM_UmojanZergSupplyStart, false);
+    TriggerAddEventGeneric(lib36F35321_gt_CM_UmojanZergSupplyStart, libCOMI_gv_mISSIONREADY);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_UmojanZergSupplyEnd
+//--------------------------------------------------------------------------------------------------
+bool lib36F35321_gt_CM_UmojanZergSupplyEnd_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    DialogControlSetVisible(lib36F35321_gv_cM_CommanderKerriganZergSupplyDialog, PlayerGroupAll(), false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib36F35321_gt_CM_UmojanZergSupplyEnd_Init () {
+    lib36F35321_gt_CM_UmojanZergSupplyEnd = TriggerCreate("lib36F35321_gt_CM_UmojanZergSupplyEnd_Func");
+    TriggerEnable(lib36F35321_gt_CM_UmojanZergSupplyEnd, false);
+    TriggerAddEventGeneric(lib36F35321_gt_CM_UmojanZergSupplyEnd, libCOMI_gv_COOP_MISSION_STARTED_EVENT2);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -927,6 +977,8 @@ void lib36F35321_InitTriggers () {
     lib36F35321_gt_DUT_CommanderUmojanKerrigan_Init();
     lib36F35321_gt_CM_KerriganCheat_Init();
     lib36F35321_gt_CM_UmojanZergSupply_Init();
+    lib36F35321_gt_CM_UmojanZergSupplyStart_Init();
+    lib36F35321_gt_CM_UmojanZergSupplyEnd_Init();
     lib36F35321_gt_CM_UmojanKerriganShadow_Init();
     lib36F35321_gt_CM_MasteryCMDKerriganArmyCostList_Init();
     lib36F35321_gt_CM_MasteryCMDKerriganBuildingCostList_Init();
