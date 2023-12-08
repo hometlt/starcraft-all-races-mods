@@ -1,42 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
-    <CEffectApplyBehavior id="NHbrNetworkNEW@ApplyShortBuff">
-        <ValidatorArray index="0" value="NHbrNetwork@NonChargedDistance"/>
+    <CEffectApplyBehavior id="NHbrNetwork@ApplyPowerUserBehaviorBigRange">
+        <ValidatorArray index="0" value="NHbrNetwork@DistanceBig"/>
+        <ValidatorArray value="RequiresNHbr"/>
+        <ValidatorArray value="NHbrDreadnokPermanentConnection@TargetHasNoBuff"/>
+        <EditorCategories value="Race:NHbr"/>
+        <Behavior value="NHbrNetwork@PowerUser"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="NHbrNetwork@ApplyPowerUserBehaviorNormalRange">
+        <ValidatorArray index="0" value="NHbrNetwork@DistanceNormal"/>
+        <ValidatorArray value="RequiresNHbr"/>
+        <ValidatorArray value="NHbrDreadnokPermanentConnection@TargetHasNoBuff"/>
+        <EditorCategories value="Race:NHbr"/>
+        <Behavior value="NHbrNetwork@PowerUser"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyUnit id="NHbrNetworkNEW@RestoreNetwork">
+        <ValidatorArray value="EnergyNotFull"/>
+        <ValidatorArray value="NHbrNetwork@NetworkUser"/>
+        <EditorCategories value="Race:NHbr"/>
+        <VitalArray index="Energy">
+            <Change value="0.5"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectModifyPlayer id="NHbrNetworkNEW@UpdateTimer">
+        <ValidatorArray value="NHbrNetwork@DistanceNormal"/>
         <ValidatorArray value="RequiresNHbr"/>
         <EditorCategories value="Race:NHbr"/>
-        <Behavior value="NHbrNetworkNEW@ShortBuff"/>
-    </CEffectApplyBehavior>
-    <CEffectApplyBehavior id="NHbrNetworkNEW@ApplyShortBuffCharged">
-        <ValidatorArray index="0" value="NHbrNetwork@ChargedDistance"/>
+        <Cost>
+            <Cooldown>
+                <Link value="NHBRNetworkTimer"/>
+                <Location value="Unit"/>
+                <Operation value="Max"/>
+                <TimeUse value="0.825"/>
+            </Cooldown>
+            <Unit Value="Target"/>
+        </Cost>
+    </CEffectModifyPlayer>
+    <CEffectModifyPlayer id="NHbrNetworkNEW@UpdateTimerExpanded">
+        <ValidatorArray value="NHbrNetwork@DistanceBig"/>
         <ValidatorArray value="RequiresNHbr"/>
         <EditorCategories value="Race:NHbr"/>
-        <Behavior value="NHbrNetworkNEW@ShortBuff"/>
-    </CEffectApplyBehavior>
+        <Cost>
+            <Cooldown>
+                <Link value="NHBRNetworkTimer"/>
+                <Location value="Unit"/>
+                <Operation value="Max"/>
+                <TimeUse value="0.825"/>
+            </Cooldown>
+            <Unit Value="Target"/>
+        </Cost>
+    </CEffectModifyPlayer>
     <CEffectSet id="NHbrNetworkNEW@PowerSourceCreatedDummySet">
         <EditorCategories value="Race:NHbr"/>
     </CEffectSet>
+    <CEffectEnumArea id="NHbrNetworkNEW@SeachBig">
+        <EditorCategories value="Race:NHbr"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,Dead"/>
+        <AreaArray Radius="9.75" Effect="NHbrNetwork@ApplyPowerUserBehaviorBigRange"/>
+    </CEffectEnumArea>
     <CEffectSet id="NHbrNetworkNEW@PowerSourceDestroyedDummySet">
         <EditorCategories value="Race:NHbr"/>
-        <ValidatorArray value="NotUnderConstruction"/>
     </CEffectSet>
     <CEffectEnumArea id="NHbrNetworkNEW@Seach">
         <EditorCategories value="Race:NHbr"/>
-        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,UnderConstruction,Dead"/>
-        <AreaArray Radius="6.7" Effect="NHbrNetworkNEW@ApplyShortBuff"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,Dead"/>
+        <AreaArray Radius="6.5" Effect="NHbrNetwork@ApplyPowerUserBehaviorNormalRange"/>
     </CEffectEnumArea>
-    <CEffectEnumArea id="NHbrNetworkNEW@SeachCharged">
+    <CEffectAddTrackedUnit id="NHbrNetworkNEW@PowerSourceAddTrackedUnit">
         <EditorCategories value="Race:NHbr"/>
-        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,UnderConstruction,Dead"/>
-        <AreaArray Radius="8.85" Effect="NHbrNetworkNEW@ApplyShortBuffCharged"/>
-    </CEffectEnumArea>
+        <BehaviorLink value="NHbrNetwork@PowerSourceUnitTracker"/>
+    </CEffectAddTrackedUnit>
     <CEffectSwitch id="NHbrNetworkNEW@SearchSwitch">
         <EditorCategories value="Race:NHbr"/>
-        <CaseArray Validator="NHbrNetwork@PowerSourceIsChargedCaster" Effect="NHbrNetworkNEW@SeachCharged"/>
+        <CaseArray Validator="NHbrNetworkVoidNetwork@UpgradeCompletedCaster" Effect="NHbrNetworkNEW@SeachBig"/>
         <CaseDefault value="NHbrNetworkNEW@Seach"/>
     </CEffectSwitch>
-    <CEffectSet id="NHbrNetworkNEW@PowerSourceUpdateAmountDummySet">
-        <EditorCategories value="Race:NHbr"/>
-    </CEffectSet>
     <CEffectRemoveBehavior id="NHbrNetworkNEW@RemoveNetworkChargedDisplay">
         <EditorCategories value="Race:NHbr"/>
         <StackAlias value="NHbrNetworkChargedDisplay"/>
@@ -55,7 +93,7 @@
     </CEffectApplyBehavior>
     <CEffectSwitch id="NHbrNetworkCharging@ApplyChargingTimerSwitch">
         <EditorCategories value="Race:NHbr"/>
-        <CaseArray Validator="NHbrNetworkFastCharging@UpgradeCompleted" Effect="NHbrNetworkCharging@ApplyChargingTimerReduced"/>
+        <CaseArray Validator="NHbrNetworkVoidNetwork@UpgradeCompleted" Effect="NHbrNetworkCharging@ApplyChargingTimerReduced"/>
         <CaseDefault value="NHbrNetworkCharging@ApplyChargingTimerFull"/>
         <ValidatorArray value="TargetNotDead"/>
     </CEffectSwitch>
@@ -63,9 +101,55 @@
         <EditorCategories value="Race:NHbr"/>
         <Behavior value="NHbrNetworkCharging@Charged"/>
     </CEffectApplyBehavior>
+    <CValidatorCondition id="NHbrNetwork@PowerSourceNearbyCondition">
+        <ResultFailed value="Error,Error/RequiresPowerSourceNearby"/>
+        <IfArray Test="NHbrNetworkVoidNetwork@UpgradeCompleted" Return="NHbrNetwork@PowerSourceNearbyBig"/>
+        <Else value="NHbrNetwork@PowerSourceNearbyNormal"/>
+    </CValidatorCondition>
+    <CValidatorUnitCompareBehaviorCount id="NHbrNetwork@CasterHasPowerSourceBehavior">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="NHbrNetworkNEW@PowerSource"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationCompareRange id="NHbrNetwork@DistanceNormal">
+        <ResultFailed value="TargetIsOutOfRange"/>
+        <Compare value="LE"/>
+        <Range value="6.5"/>
+        <Value Value="CasterPoint"/>
+    </CValidatorLocationCompareRange>
+    <CValidatorLocationEnumArea id="NHbrNetwork@PowerSourceNearbyNormal0">
+        <AreaArray Count="0" Radius="6" Validator="NHbrNetwork@TargetHasPowerSourceBehavior"/>
+        <Compare value="Eq"/>
+        <SearchFlags index="OffsetAreaByAngle" value="0"/>
+        <LaunchLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,UnderConstruction,Dead,Hidden"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorLocationEnumArea id="NHbrNetwork@PowerSourceNearbyNormal">
+        <AreaArray>
+            <Compare value="GT"/>
+            <Count value="0"/>
+            <Radius value="6"/>
+            <Validator value="NHbrNetwork@TargetHasPowerSourceBehavior"/>
+        </AreaArray>
+        <SearchFlags index="OffsetAreaByAngle" value="0"/>
+        <LaunchLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,UnderConstruction,Dead,Hidden"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorUnitCompareBehaviorCount id="NHbrNetwork@TargetHasPowerSourceBehavior">
+        <Compare value="GT"/>
+        <Behavior value="NHbrNetworkNEW@PowerSource"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="NHbrNetwork@TargetHasPowerUserBehavior">
+        <Value value="1"/>
+        <Behavior value="NHbrNetwork@PowerUser"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareCooldown id="NHbrNetworkNEW@NotConnectedToNetwork">
+        <Compare value="LE"/>
+        <CooldownLink value="NHBRNetworkTimer"/>
+        <Location value="Unit"/>
+    </CValidatorUnitCompareCooldown>
     <CValidatorCombine id="NHbrNetwork@NetworkUser">
         <ResultFailed value="Error,Error/RequiresNetworkUser"/>
-        <CombineArray value="NHbrCommon@IsMinion"/>
         <CombineArray value="NHbrCommon@IsWarbringer"/>
         <CombineArray value="NHbrCommon@IsAdvancedDominator"/>
         <CombineArray value="NHbrCommon@IsDominator"/>
@@ -77,36 +161,19 @@
         <CombineArray value="NHbrCommon@IsNemesis"/>
         <CombineArray value="NHbrCommon@IsNemesisAdvanced"/>
         <CombineArray value="NHbrCommon@IsHorror"/>
-        <CombineArray value="NHbrCommon@IsTemple"/>
-        <CombineArray value="NHbrCommon@IsIonicCrystal"/>
-        <CombineArray value="NHbrCommon@IsVoidRift"/>
-        <CombineArray value="NHbrCommon@IsStasisCell"/>
-        <CombineArray value="NHbrCommon@IsVespeneConcentrator"/>
-        <CombineArray value="NHbrCommon@IsEngine"/>
-        <CombineArray value="NHbrCommon@IsVoidPortal"/>
-        <CombineArray value="NHbrCommon@IsProcessingCore"/>
-        <CombineArray value="NHbrCommon@IsProcessor"/>
-        <CombineArray value="NHbrCommon@IsCrystallicShrine"/>
-        <CombineArray value="NHbrCommon@IsNemesisCatacomb"/>
         <CombineArray value="NHbrCommon@IsSilent"/>
     </CValidatorCombine>
+    <CValidatorLocationCompareRange id="NHbrNetwork@DistanceBig">
+        <ResultFailed value="TargetIsOutOfRange"/>
+        <Compare value="LE"/>
+        <Range value="9.75"/>
+        <Value Value="CasterPoint"/>
+    </CValidatorLocationCompareRange>
     <CValidatorCombine id="NHbrNetwork@CasterIsEnergyCapableAndNotScreamer">
         <Type value="And"/>
         <CombineArray value="IsEnergyCapableCaster"/>
         <CombineArray value="NHbrCommon@NotScreamerCaster"/>
     </CValidatorCombine>
-    <CValidatorLocationCompareRange id="NHbrNetwork@ChargedDistance">
-        <Compare value="LE"/>
-        <Range value="8.85"/>
-        <Value Value="CasterPoint"/>
-        <ResultFailed value="TargetIsOutOfRange"/>
-    </CValidatorLocationCompareRange>
-    <CValidatorLocationCompareRange id="NHbrNetwork@NonChargedDistance">
-        <Compare value="LE"/>
-        <Range value="6.7"/>
-        <Value Value="CasterPoint"/>
-        <ResultFailed value="TargetIsOutOfRange"/>
-    </CValidatorLocationCompareRange>
     <CValidatorUnitCompareBehaviorCount id="NHbrNetwork@ConnectedToNetworkCaster">
         <ResultFailed value="Error,Error/RequiresNetworkConnection"/>
         <WhichUnit Value="Caster"/>
@@ -114,41 +181,32 @@
         <Behavior value="NHbrNetwork@PowerUser"/>
     </CValidatorUnitCompareBehaviorCount>
     <CValidatorCombine id="NHbrNetwork@ConnectionCombine">
-        <CombineArray value="NHbrNetworkNEW@TargetHasShortBuff"/>
+        <CombineArray value="NHbrNetwork@TargetHasPowerUserBehavior"/>
         <CombineArray value="NHbrDreadnokPermanentConnection@TargetHasBuff"/>
     </CValidatorCombine>
-    <CValidatorUnitCompareBehaviorCount id="NHbrNetworkNEW@CasterHasShortBuff">
-        <WhichUnit Value="Caster"/>
-        <Compare value="GT"/>
-        <Behavior value="NHbrNetworkNEW@ShortBuff"/>
-    </CValidatorUnitCompareBehaviorCount>
-    <CValidatorUnitCompareBehaviorCount id="NHbrNetwork@NotConnectedToNetwork">
-        <Behavior value="NHbrNetwork@PowerUser"/>
-    </CValidatorUnitCompareBehaviorCount>
-    <CValidatorUnitCompareBehaviorCount id="NHbrNetworkNEW@TargetHasShortBuff">
-        <Compare value="GT"/>
-        <Behavior value="NHbrNetworkNEW@ShortBuff"/>
-    </CValidatorUnitCompareBehaviorCount>
-    <CValidatorLocationEnumArea id="NHbrNetwork@ChargedPowerSourceNearby">
+    <CValidatorLocationEnumArea id="NHbrNetwork@PowerSourceNearbyBig">
         <AreaArray>
             <Compare value="GT"/>
             <Count value="0"/>
-            <Radius value="8"/>
-            <Validator value="NHbrNetwork@PowerSourceIsCharged"/>
+            <Radius value="9"/>
+            <Validator value="NHbrNetwork@TargetHasPowerSourceBehavior"/>
         </AreaArray>
         <LaunchLocation Value="TargetPoint"/>
-        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,Dead,Hidden"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,UnderConstruction,Dead,Hidden"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorUnitCompareBehaviorCount id="NHbrNetwork@NotConnectedToNetwork">
+        <Behavior value="NHbrNetwork@PowerUser"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorLocationEnumArea id="NHbrNetwork@PowerSourceNearbyBig0">
+        <AreaArray Count="0" Radius="9" Validator="NHbrNetwork@TargetHasPowerSourceBehavior"/>
+        <Compare value="Eq"/>
+        <LaunchLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,UnderConstruction,Dead,Hidden"/>
     </CValidatorLocationEnumArea>
     <CValidatorUnitCompareBehaviorCount id="NHbrNetwork@ConnectedToNetwork">
         <Value value="1"/>
         <Behavior value="NHbrNetwork@PowerUser"/>
     </CValidatorUnitCompareBehaviorCount>
-    <CValidatorLocationEnumArea id="NHbrNetwork@ChargedPowerSourceNearby0">
-        <AreaArray Count="0" Radius="8" Validator="NHbrNetwork@PowerSourceIsCharged"/>
-        <Compare value="Eq"/>
-        <LaunchLocation Value="TargetPoint"/>
-        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,Dead,Hidden"/>
-    </CValidatorLocationEnumArea>
     <CValidatorUnitCompareBehaviorCount id="NHbrNetwork@PowerSourceIsChargedCaster">
         <WhichUnit Value="Caster"/>
         <Value value="1"/>
@@ -159,27 +217,6 @@
         <Value value="1"/>
         <Behavior value="NHbrNetworkCharging"/>
     </CValidatorUnitCompareBehaviorCount>
-    <CValidatorLocationEnumArea id="NHbrNetwork@NonChargedPowerSourceNearby0">
-        <AreaArray Count="0" Radius="6" Validator="NHbrNetwork@PowerSourceIsNonCharged"/>
-        <Compare value="Eq"/>
-        <LaunchLocation Value="TargetPoint"/>
-        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,Dead,Hidden"/>
-    </CValidatorLocationEnumArea>
-    <CValidatorLocationEnumArea id="NHbrNetwork@NonChargedPowerSourceNearby">
-        <AreaArray>
-            <Compare value="GT"/>
-            <Count value="0"/>
-            <Radius value="6"/>
-            <Validator value="NHbrNetwork@PowerSourceIsNonCharged"/>
-        </AreaArray>
-        <LaunchLocation Value="TargetPoint"/>
-        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,Dead,Hidden"/>
-    </CValidatorLocationEnumArea>
-    <CValidatorCombine id="NHbrNetwork@PowerSourceNearby">
-        <CombineArray value="NHbrNetwork@ChargedPowerSourceNearby"/>
-        <CombineArray value="NHbrNetwork@NonChargedPowerSourceNearby"/>
-        <ResultFailed value="Error,Error/RequiresPowerSourceNearby"/>
-    </CValidatorCombine>
     <CValidatorUnitCompareBehaviorCount id="NHbrNetwork@PowerSourceIsNonCharged">
         <Value value="1"/>
         <Behavior value="NHbrNetworkCharging"/>
@@ -188,6 +225,11 @@
         <Behavior value="NHbrNetworkCharging@Charged"/>
         <Value value="1"/>
     </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareCooldown id="NHbrNetworkNEW@ConnectedToNetwork">
+        <Compare value="GT"/>
+        <CooldownLink value="NHBRNetworkTimer"/>
+        <Location value="Unit"/>
+    </CValidatorUnitCompareCooldown>
     <CRequirement id="NHbrNetwork@NetworkChargingTimerFull">
         <EditorCategories value="Race:NHbr"/>
         <NodeArray index="Show" Link="CountBehaviorNHbrNetworkCharging@TimerFullCompleteOnlyAtUnit"/>
@@ -211,12 +253,7 @@
     <CButton id="NHbrNetwork">
         <Icon value="Assets\Textures\btn-missing-kaeo.dds"/>
         <EditorCategories value="Race:NHbr"/>
-        <TooltipAppender Text="Button/Tooltip/NHbrNetworkNonCharged"/>
-        <TooltipAppender Validator="NHbrNetwork@CasterIsEnergyCapableAndNotScreamer" Text="Button/Tooltip/NHbrNetworkNonChargedRestoring"/>
-        <TooltipAppender Text="Button/Tooltip/NHbrNetworkCharged"/>
-        <TooltipAppender Validator="NHbrNetwork@CasterIsEnergyCapableAndNotScreamer" Text="Button/Tooltip/NHbrNetworkChargedRestoring"/>
-        <TooltipAppender Validator="NHbrNetwork@CasterIsEnergyCapableAndNotScreamer" Text="Button/Tooltip/NHbrNetworkRestoringTotal"/>
-        <TooltipAppender Text="Button/Tooltip/NHbrNetworkVitalRestoration"/>
+        <TooltipAppender Validator="NHbrNetwork@NetworkUser" Text="Button/Tooltip/NHbrNetworkRestoration"/>
     </CButton>
     <CButton id="NHbrNetwork@FaceCharged">
         <TooltipAppender Validator="IsEnergyCapableCaster" Text="Button/Tooltip/NHbrNetwork@FaceChargedEnergyUser"/>
@@ -256,6 +293,24 @@
         <Flags index="TechTreeCheat" value="0"/>
         <Count Link="NHbrNetworkCharging@Charged" State="CompleteOnlyAtUnit"/>
     </CRequirementCountBehavior>
+    <CActorEventMacroRunnable id="NHbrNetwork@SplatController">
+        <EditorCategories value=""/>
+    </CActorEventMacroRunnable>
+    <CActorSplat id="NHbrNetwork@SplatRange">
+        <!--<Supporter Subject="::Creator"/>
+        <On Terms="SupporterDestruction" Send="Destroy"/>-->
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <!--<On Terms="Behavior.NHbrNetworkNEW@PowerSource.On" Send="Create"/>-->
+        <On Terms="ActorCreation; ValidatePlayer NHbrNetworkVoidNetwork@UpgradeCompleted" Send="SetScale 1.500000"/>
+        <Host Subject="_Selectable"/>
+        <Color value="255,0,255,255"/>
+        <FogVisibility value="Visible"/>
+        <FadeIn value="0.000000"/>
+        <FadeOut value="0.000000"/>
+        <HoldTime value="-1.000000"/>
+        <Layer value="PowerLayer"/>
+        <HostSiteOps Ops="SOpShadow"/>
+    </CActorSplat>
     <CActorModel id="NHbrNetwork@PowerModel" parent="ModelAddition">
         <Filter index="Ally" value="1"/>
         <Filter index="Neutral" value="1"/>
@@ -273,9 +328,8 @@
         <Inherits index="TintColor" value="0"/>
         <Inherits index="Visibility" value="0"/>
         <Inherits index="WarpGroup" value="0"/>
-        <FogVisibility value="Hidden"/>
         <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Stand Stand Death"/>
-        <HostSiteOps Ops="SOpShadow"/>
+        <HostSiteOps Ops="SOpShadow" HoldRotation="1"/>
     </CActorModel>
     <CActorModel id="NHbrNetwork@PowerModelBig" parent="ModelAddition">
         <Filter index="Ally" value="1"/>
@@ -294,22 +348,21 @@
         <Inherits index="TintColor" value="0"/>
         <Inherits index="Visibility" value="0"/>
         <Inherits index="WarpGroup" value="0"/>
-        <FogVisibility value="Hidden"/>
         <On index="0" Terms="ActorCreation" Send="AnimBracketStart BSD Stand Stand Death"/>
-        <HostSiteOps Ops="SOpShadow"/>
+        <HostSiteOps Ops="SOpShadow" HoldRotation="1"/>
         <Model value="NHbrNetwork@PowerModel"/>
     </CActorModel>
-    <!--        <On Terms="UnitBirth; HasAllianceTypeWith Self" Send="Create NHbrNetwork@Blob"/>-->
-    <!--        <On Terms="Behavior.NHbrNetworkCharging.Off; HasAllianceTypeWith Self" Send="Create NHbrNetwork@BlobBig"/>-->
-    <!--        <On Terms="Behavior.NHbrNetworkCharging.Off; HasAllianceTypeWith Self" Target="NHbrNetwork@Blob" Send="Destroy"/>-->
     <CActorEventMacro id="NHbrNetwork@Macro">
         <EditorCategories value=""/>
-        <On Terms="UnitBirth" Send="Create NHbrNetwork@DefaultRange"/>
+        <!--<On Terms="UnitBirth" Send="Create NHbrNetwork@DefaultRange"/>
         <On Terms="Behavior.NHbrNetworkCharging@Charged.On" Target="NHbrNetwork@DefaultRange" Send="Destroy"/>
-        <On Terms="Behavior.NHbrNetworkCharging@Charged.On" Send="Create NHbrNetwork@BigRange"/>
+        <On Terms="Behavior.NHbrNetworkCharging@Charged.On" Send="Create NHbrNetwork@BigRange"/>-->
+        <On Terms="UnitBirth" Send="Create NHbrNetwork@SplatRange"/>
+        <On Terms="Upgrade.NHbrNetworkVoidNetwork.Add" Target="NHbrNetwork@SplatRange" Send="SetScale 1.500000"/>
+        <On Terms="Upgrade.NHbrNetworkVoidNetwork.Remove" Target="NHbrNetwork@SplatRange" Send="SetScale"/>
         <On Terms="StatusOn.*.Placement" Send="Create NHbrNetwork@PowerModel"/>
-        <On Terms="StatusOn.*.Placement; ValidateUnit NHbrNetwork@PowerSourceIsCharged" Target="NHbrNetwork@PowerModel" Send="SetScale 1.330000"/>
-        <On Terms="Behavior.NHbrNetworkCharging@Charged.On; IsStatus Placement 1" Target="NHbrNetwork@PowerModel" Send="SetScale 1.300000"/>
+        <On Terms="StatusOn.*.Placement; ValidatePlayer NHbrNetworkVoidNetwork@UpgradeCompleted" Target="NHbrNetwork@PowerModel" Send="SetScale 1.500000"/>
+        <On Terms="Upgrade.NHbrNetworkVoidNetwork.Add; IsStatus Placement 1" Target="NHbrNetwork@PowerModel" Send="SetScale 1.500000"/>
         <On Terms="StatusOff.*.Placement" Target="NHbrNetwork@PowerModel" Send="Destroy Immediate"/>
         <On Terms="Abil.NHbrIonicCrystalTeleport.TargetOn" Send="StatusIncrement Placement"/>
         <On Terms="Abil.NHbrIonicCrystalTeleport.TargetOff" Send="StatusDecrement Placement"/>
@@ -335,84 +388,65 @@
         <IconTint value="255,0,255,191"/>
         <IconArcLength value="0.025000"/>
     </CActorRange>
+    <CModel id="NHbrNetwork@SplatRangeBig" parent="Splat">
+        <Model value="assets\Splats\Storm_UI_TargetingRadiusReticle\Storm_UI_TargetingRadiusReticle.m3"/>
+        <Lighting value="NHbrNetwork@SplatRange"/>
+        <ScaleMax value="9.750000,9.750000,9.750000"/>
+        <ScaleMin value="9.750000,9.750000,9.750000"/>
+    </CModel>
+    <CModel id="NHbrNetwork@SplatRange" parent="Splat">
+        <Model value="assets\Splats\Storm_UI_TargetingRadiusReticle\Storm_UI_TargetingRadiusReticle.m3"/>
+        <ScaleMax value="6.500000,6.500000,6.500000"/>
+        <ScaleMin value="6.500000,6.500000,6.500000"/>
+    </CModel>
     <CModel id="NHbrNetwork@PowerModel" parent="UI">
         <Model value="Assets\COOP\Zeratul\Effects\WarpPrism_Zeratul_COOP_ShieldRange\WarpPrism_Zeratul_COOP_ShieldRange.m3"/>
         <EditorCategories value="Race:NHbr"/>
         <ScaleMax value="1.100000,1.100000,1.100000"/>
         <ScaleMin value="1.100000,1.100000,1.100000"/>
     </CModel>
-    <CAccumulatorArithmetic id="NHbrNetwork@ArithmeticVitals">
-        <ApplicationRule value="Multiply"/>
-        <Parameters value="1.4">
-            <AccumulatorArray value="NHbrNetworkNEW@PowerSourceChargedMultiply"/>
-        </Parameters>
-        <Parameters value="1.1">
-            <AccumulatorArray value="NHbrNetworkNEW@PowerSourceNonChargedMultiply"/>
-        </Parameters>
-    </CAccumulatorArithmetic>
-    <CAccumulatorSwitch id="NHbrNetwork@NetworkVitalityRegenRestriction">
-        <CaseArray Validator="NHbrIonicCrystalTeleport@TargetIsTeleporting" Accumulator="NHbrNetwork@0Multiply"/>
-        <CaseDefault value="NHbrNetwork@ArithmeticVitals"/>
-    </CAccumulatorSwitch>
-    <CAccumulatorSwitch id="NHbrNetwork@NetworkVitalRegenRestriction">
-        <CaseArray Validator="NHbrIonicCrystalTeleport@TargetIsTeleporting" Accumulator="NHbrNetwork@0Multiply"/>
-    </CAccumulatorSwitch>
-    <CAccumulatorConstant id="NHbrNetworkNEW@PowerSourceNonChargedAdd">
+    <CAccumulatorConstant id="NHbrNetwork@TempleCount">
         <MinAccumulation value="0"/>
-        <MaxAccumulation value="12"/>
     </CAccumulatorConstant>
-    <CAccumulatorConstant id="NHbrNetworkNEW@PowerSourceNonChargedMultiply">
-        <MinAccumulation value="0"/>
-        <MaxAccumulation value="12"/>
+    <CAccumulatorConstant id="NHbrNetwork@TempleCountMultiply" parent="NHbrNetwork@TempleCount">
         <ApplicationRule value="Multiply"/>
+    </CAccumulatorConstant>
+    <CAccumulatorConstant id="NHbrNetwork@1Multiply">
+        <ApplicationRule value="Multiply"/>
+        <Amount value="1"/>
     </CAccumulatorConstant>
     <CAccumulatorSwitch id="NHbrNetwork@NetworkEnergyRegenRestriction">
         <CaseArray Validator="NHbrCommon@DefaultEnergyUser" Accumulator="NHbrNetwork@0Multiply"/>
-        <CaseArray Validator="NHbrTimeScaleBuff@NetworkRegenSupressed" Accumulator="NHbrNetwork@0Multiply"/>
-        <CaseDefault value="NHbrNetwork@Arithmetic"/>
     </CAccumulatorSwitch>
-    <CAccumulatorConstant id="NHbrNetworkNEW@PowerSourceChargedAdd">
-        <MinAccumulation value="0"/>
-        <MaxAccumulation value="12"/>
-    </CAccumulatorConstant>
-    <CAccumulatorConstant id="NHbrNetworkNEW@PowerSourceChargedMultiply">
-        <MinAccumulation value="0"/>
-        <MaxAccumulation value="12"/>
-        <ApplicationRule value="Multiply"/>
-    </CAccumulatorConstant>
-    <CAccumulatorArithmetic id="NHbrNetwork@Arithmetic">
-        <ApplicationRule value="Multiply"/>
-        <Parameters value="1.66">
-            <AccumulatorArray value="NHbrNetworkNEW@PowerSourceChargedMultiply"/>
-        </Parameters>
-        <Parameters value="1.25">
-            <AccumulatorArray value="NHbrNetworkNEW@PowerSourceNonChargedMultiply"/>
-        </Parameters>
-    </CAccumulatorArithmetic>
     <CAccumulatorConstant id="NHbrNetwork@0Multiply">
         <ApplicationRule value="Multiply"/>
     </CAccumulatorConstant>
+    <CAccumulatorVitals id="NHbrNetwork@EnergyPercentMax1">
+        <Ratio value="0.01"/>
+        <VitalType value="Energy"/>
+        <UnitSource Value="Target"/>
+        <ModificationType value="PerUnitMaxVital"/>
+    </CAccumulatorVitals>
+    <CAccumulatorVitals id="NHbrNetwork@EnergyPercentMax1Multiply" parent="NHbrNetwork@EnergyPercentMax1">
+        <ApplicationRule value="Multiply"/>
+    </CAccumulatorVitals>
     <CDataCollection id="NHbrNetworkNEW">
         <EditorCategories value="DataGroup:Mechanic,Race:NHbr"/>
-        <DataRecord Entry="Behavior,NHbrNetworkNEW@PeriodicSearch"/>
-        <DataRecord Entry="Behavior,NHbrNetworkNEW@ShortBuff"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@SearchSwitch"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@Seach"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@SeachCharged"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@ApplyShortBuff"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@ApplyShortBuffCharged"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@PowerSourceCreatedDummySet"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@PowerSourceDestroyedDummySet"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@PowerSourceUpdateAmountDummySet"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@RemoveNetworkDisplay"/>
-        <DataRecord Entry="Effect,NHbrNetworkNEW@RemoveNetworkChargedDisplay"/>
-        <DataRecord Entry="Validator,NHbrNetworkNEW@TargetHasShortBuff"/>
-        <DataRecord Entry="Accumulator,NHbrNetworkNEW@PowerSourceChargedAdd"/>
-        <DataRecord Entry="Accumulator,NHbrNetworkNEW@PowerSourceChargedMultiply"/>
-        <DataRecord Entry="Accumulator,NHbrNetworkNEW@PowerSourceNonChargedAdd"/>
-        <DataRecord Entry="Accumulator,NHbrNetworkNEW@PowerSourceNonChargedMultiply"/>
+        <DataRecord Entry="Behavior,NHbrNetworkNEW@PowerSource"/>
         <DataRecord Entry="Behavior,NHbrNetworkNEW@NetworkController"/>
-        <DataRecord Entry="Validator,NHbrNetworkNEW@CasterHasShortBuff"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@RestoreNetwork"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@PowerSourceCreatedDummySet"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@PowerSourceAddTrackedUnit"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@PowerSourceDestroyedDummySet"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@UpdateTimer"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@UpdateTimerExpanded"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@Seach"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@SeachBig"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@SearchSwitch"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@RemoveNetworkChargedDisplay"/>
+        <DataRecord Entry="Effect,NHbrNetworkNEW@RemoveNetworkDisplay"/>
+        <DataRecord Entry="Validator,NHbrNetworkNEW@NotConnectedToNetwork"/>
+        <DataRecord Entry="Validator,NHbrNetworkNEW@ConnectedToNetwork"/>
     </CDataCollection>
     <CDataCollection id="NHbrNetworkCharging">
         <EditorCategories value="DataGroup:Mechanic,Race:NHbr"/>
@@ -429,66 +463,82 @@
     </CDataCollection>
     <CDataCollection id="NHbrNetwork">
         <EditorCategories value="DataGroup:Mechanic,Race:NHbr"/>
+        <DataRecord Entry="Actor,NHbrNetwork@SplatController"/>
+        <DataRecord Entry="Actor,NHbrNetwork@SplatRange"/>
         <DataRecord Entry="Actor,NHbrNetwork@PowerModel"/>
         <DataRecord Entry="Actor,NHbrNetwork@PowerModelBig"/>
         <DataRecord Entry="Actor,NHbrNetwork@Macro"/>
         <DataRecord Entry="Actor,NHbrNetwork@DefaultRange"/>
         <DataRecord Entry="Actor,NHbrNetwork@BigRange"/>
         <DataRecord Entry="Behavior,NHbrNetwork@PowerUser"/>
+        <DataRecord Entry="Behavior,NHbrNetwork@PowerSourceUnitTracker"/>
         <DataRecord Entry="Button,NHbrNetwork@SourceNetworkCharged"/>
         <DataRecord Entry="Button,NHbrNetwork@SourceNetworkCharging"/>
         <DataRecord Entry="Button,NHbrNetwork"/>
         <DataRecord Entry="Button,NHbrNetwork@FaceCharged"/>
         <DataRecord Entry="Button,NHbrNetwork@UnchargedFace"/>
+        <DataRecord Entry="Effect,NHbrNetwork@ApplyPowerUserBehaviorNormalRange"/>
+        <DataRecord Entry="Model,NHbrNetwork@SplatRange"/>
         <DataRecord Entry="Model,NHbrNetwork@PowerModel"/>
         <DataRecord Entry="Requirement,NHbrNetwork@NetworkChargedShow"/>
         <DataRecord Entry="Requirement,NHbrNetwork@NetworkChargingTimerFull"/>
         <DataRecord Entry="Requirement,NHbrNetwork@NetworkChargingTimerReduced"/>
-        <DataRecord Entry="Validator,NHbrNetwork@NetworkUser"/>
         <DataRecord Entry="Validator,NHbrNetwork@ConnectedToNetwork"/>
-        <DataRecord Entry="Validator,NHbrNetwork@ChargedPowerSourceNearby0"/>
-        <DataRecord Entry="Validator,NHbrNetwork@NonChargedPowerSourceNearby0"/>
+        <DataRecord Entry="Validator,NHbrNetwork@NetworkUser"/>
+        <DataRecord Entry="Validator,NHbrNetwork@PowerSourceNearbyBig0"/>
+        <DataRecord Entry="Validator,NHbrNetwork@PowerSourceNearbyNormal0"/>
         <DataRecord Entry="Validator,NHbrNetwork@PowerSourceNearby"/>
-        <DataRecord Entry="Validator,NHbrNetwork@PowerSourceIsNonChargedCaster"/>
-        <DataRecord Entry="Validator,NHbrNetwork@NonChargedDistance"/>
+        <DataRecord Entry="Validator,NHbrNetwork@CasterHasPowerSourceBehavior"/>
+        <DataRecord Entry="Validator,NHbrNetwork@DistanceNormal"/>
         <DataRecord Entry="Validator,NHbrNetwork@PowerSourceIsChargedCaster"/>
-        <DataRecord Entry="Validator,NHbrNetwork@ChargedDistance"/>
+        <DataRecord Entry="Validator,NHbrNetwork@DistanceBig"/>
         <DataRecord Entry="Validator,NHbrNetwork@ConnectedToNetworkCaster"/>
+        <DataRecord Entry="Validator,NHbrNetwork@NonChargedDistance"/>
+        <DataRecord Entry="Validator,NHbrNetwork@DistanceNormalTargetPointToTargetPoint"/>
+        <DataRecord Entry="Validator,NHbrNetwork@TargetIsPowerSourceAndRangeIsValid"/>
+        <DataRecord Entry="Validator,NHbrNetwork@PowerSourceNearbyNormal"/>
+        <DataRecord Entry="Validator,NHbrNetwork@TargetHasPowerSourceBehavior"/>
+        <DataRecord Entry="Validator,NHbrNetwork@TargetHasPowerUserBehavior"/>
         <DataRecord Entry="Validator,NHbrNetwork@CasterIsEnergyCapableAndNotScreamer"/>
         <DataRecord Entry="Validator,NHbrNetwork@ConnectionCombine"/>
         <DataRecord Entry="Validator,NHbrNetwork@NotConnectedToNetwork"/>
-        <DataRecord Entry="Validator,NHbrNetwork@ChargedPowerSourceNearby"/>
+        <DataRecord Entry="Validator,NHbrNetwork@PowerSourceNearbyBig"/>
         <DataRecord Entry="Validator,NHbrNetwork@PowerSourceIsCharged"/>
+        <DataRecord Entry="Validator,NHbrNetwork@PowerSourceIsNonChargedCaster"/>
+        <DataRecord Entry="Validator,NHbrNetwork@NonChargedPowerSourceNearby0"/>
         <DataRecord Entry="Validator,NHbrNetwork@PowerSourceIsNonCharged"/>
         <DataRecord Entry="Validator,NHbrNetwork@NonChargedPowerSourceNearby"/>
-        <DataRecord Entry="Accumulator,NHbrNetwork@NetworkVitalRegenRestriction"/>
-        <DataRecord Entry="Accumulator,NHbrNetwork@0Multiply"/>
+        <DataRecord Entry="Accumulator,NHbrNetwork@TempleCount"/>
+        <DataRecord Entry="Accumulator,NHbrNetwork@TempleCountMultiply"/>
+        <DataRecord Entry="Accumulator,NHbrNetwork@1Multiply"/>
         <DataRecord Entry="Accumulator,NHbrNetwork@NetworkEnergyRegenRestriction"/>
-        <DataRecord Entry="Accumulator,NHbrNetwork@Arithmetic"/>
+        <DataRecord Entry="Accumulator,NHbrNetwork@0Multiply"/>
+        <DataRecord Entry="Accumulator,NHbrNetwork@EnergyPercentMax1"/>
+        <DataRecord Entry="Accumulator,NHbrNetwork@EnergyPercentMax1Multiply"/>
         <Button value="NHbrNetwork@UnchargedFace"/>
     </CDataCollection>
+    <CBehaviorUnitTracker id="NHbrNetwork@PowerSourceUnitTracker">
+        <EditorCategories value="AbilityorEffectType:Units,Race:NHbr"/>
+        <UnitTrackerFlags index="UseSharedList" value="1"/>
+        <UnitTrackerFlags index="SharedListPersistsForever" value="1"/>
+        <TrackingValidatorArray value="TargetNotDead"/>
+    </CBehaviorUnitTracker>
+    <CBehaviorBuff id="NHbrNetworkNEW@PowerSource">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
+        <BuffFlags index="DisableWhileUnderConstruction" value="1"/>
+        <Period value="0.75"/>
+        <PeriodicEffect value="NHbrNetworkNEW@SearchSwitch"/>
+    </CBehaviorBuff>
     <CBehaviorBuff id="NHbrNetworkNEW@NetworkController">
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
         <DisableValidatorArray value="NHbrNetwork@ConnectedToNetwork"/>
         <BuffFlags index="DisableWhileUnderConstruction" value="1"/>
         <InfoFlags index="Hidden" value="1"/>
     </CBehaviorBuff>
-    <CBehaviorBuff id="NHbrNetworkNEW@PeriodicSearch">
-        <InfoFlags index="Hidden" value="1"/>
-        <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
-        <BuffFlags index="DisableWhileUnderConstruction" value="1"/>
-        <PeriodicEffect value="NHbrNetworkNEW@SearchSwitch"/>
-        <Period value="0.375"/>
-    </CBehaviorBuff>
-    <CBehaviorBuff id="NHbrNetworkNEW@ShortBuff">
-        <InfoFlags index="Hidden" value="1"/>
-        <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
-        <Duration value="0.5"/>
-    </CBehaviorBuff>
     <CBehaviorBuff id="NHbrNetworkCharging@Charged">
         <InfoFlags index="Hidden" value="1"/>
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
-        <InitialEffect value="NHbrNetworkNEW@PowerSourceUpdateAmountDummySet"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="NHbrNetworkCharging@TimerFull">
         <Cost>
@@ -521,21 +571,19 @@
         <ExpireEffect value="NHbrNetworkCharging@ApplyNetworkCharged"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="NHbrNetwork@PowerUser">
-        <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
-        <Modification>
-            <VitalRegenArray index="Life" value="0.2812">
-                <AccumulatorArray value="NHbrNetwork@NetworkVitalityRegenRestriction"/>
-            </VitalRegenArray>
-            <VitalRegenArray index="Shields" value="0.379">
-                <AccumulatorArray value="NHbrNetwork@NetworkVitalityRegenRestriction"/>
-            </VitalRegenArray>
-            <VitalRegenArray index="Energy" value="0.1445">
-                <AccumulatorArray value="NHbrNetwork@NetworkEnergyRegenRestriction"/>
-                <AccumulatorArray value="NHbrNetwork@NetworkVitalRegenRestriction"/>
-            </VitalRegenArray>
-        </Modification>
-        <DisableValidatorArray value="NHbrNetwork@ConnectionCombine"/>
         <Face value="NHbrNetwork"/>
         <InfoIcon value="Assets\Textures\btn-upgrade-artanis-pylonpower.dds"/>
+        <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
+        <Modification ShieldDamageRatioBonus="1">
+            <VitalRegenArray index="Shields" value="0">
+                <AccumulatorArray value="NHbrProtection@ShieldRegenSwitch"/>
+            </VitalRegenArray>
+            <VitalRegenArray index="Energy" value="0.7148">
+                <AccumulatorArray value="NHbrNetwork@TempleCountMultiply"/>
+                <AccumulatorArray value="NHbrNetwork@NetworkEnergyRegenRestriction"/>
+            </VitalRegenArray>
+        </Modification>
+        <Duration value="0.875"/>
+        <DisableValidatorArray value="NHbrNetwork@ConnectionCombine"/>
     </CBehaviorBuff>
 </Catalog>

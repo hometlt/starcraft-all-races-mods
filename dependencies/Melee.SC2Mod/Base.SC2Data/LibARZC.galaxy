@@ -1,0 +1,797 @@
+include "TriggerLibs/NativeLib"
+
+include "LibARZC_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: ZOMBIES
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libARZC_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Variable Initialization
+bool libARZC_InitVariables_completed = false;
+
+void libARZC_InitVariables () {
+    if (libARZC_InitVariables_completed) {
+        return;
+    }
+
+    libARZC_InitVariables_completed = true;
+
+    libARZC_gv_zombieIgnoreChance = 0.9;
+    libARZC_gv_zombieGroup = UnitGroupEmpty();
+}
+
+// Functions
+void libARZC_gf_Zombiecatastrophe (fixed lp_difficulty, fixed lp_bountyMinerals, fixed lp_bountyVespene) {
+    // Automatic Variable Declarations
+    // Implementation
+    libARZC_gf_SetInfestedDifficulty(lp_difficulty);
+    libARZC_gf_SetInfestedBounty(lp_bountyMinerals, lp_bountyVespene);
+    TriggerExecute(libARZC_gt_Zombiecatastrophe, false, false);
+}
+
+void libARZC_gf_SetInfestedDifficulty (fixed lp_difficulty) {
+    // Automatic Variable Declarations
+    // Implementation
+    libARZC_gv_infestedDifficulty = CeilingI(lp_difficulty);
+}
+
+void libARZC_gf_SetEnemyBounty (fixed lp_minerals, fixed lp_vespene) {
+    // Automatic Variable Declarations
+    // Implementation
+    libARZC_gv_enemyBountyMinerals = CeilingI(lp_minerals);
+    libARZC_gv_enemyBountyVespene = CeilingI(lp_vespene);
+}
+
+void libARZC_gf_SetInfestedBounty (fixed lp_minerals, fixed lp_vespene) {
+    // Automatic Variable Declarations
+    // Implementation
+    libARZC_gv_infestedBountyMinerals = CeilingI(lp_minerals);
+    libARZC_gv_inestedBountyVespene = CeilingI(lp_vespene);
+}
+
+bool libARZC_gf_ValidPoint (point lp_vPoint) {
+    // Variable Declarations
+    int lv_plyr;
+    point lv_point;
+    unitgroup lv_buildings;
+
+    // Automatic Variable Declarations
+    playergroup auto54591C72_g;
+
+    // Variable Initialization
+    lv_buildings = UnitGroupEmpty();
+
+    // Implementation
+    if ((PointPathingPassable(lp_vPoint) == false)) {
+        return false;
+    }
+
+    auto54591C72_g = PlayerGroupAll();
+    lv_plyr = -1;
+    while (true) {
+        lv_plyr = PlayerGroupNextPlayer(auto54591C72_g, lv_plyr);
+        if (lv_plyr < 0) { break; }
+        if ((libARZC_gv_stage < 5) && ((UnitGroupCount(UnitGroupSearch("Nexus", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("CommandCenter", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("PlanetaryFortress", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("OrbitalCommand", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("Hatchery", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("Hive", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("Lair", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("ScavengerNest", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("ProcessingCore", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("Citadel", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("CitadelCharged", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("NHbrTemple", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0) || (UnitGroupCount(UnitGroupSearch("OperationHeadquarters", 15, lp_vPoint, 25.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterUnderConstruction - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 1), c_unitCountAlive) > 0))) {
+            return false;
+        }
+
+        lv_buildings = UnitGroupSearch(null, 15, lp_vPoint, 16.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 0);
+        if ((libARZC_gv_stage < 4) && (UnitGroupCount(lv_buildings, c_unitCountAlive) > 0)) {
+            return false;
+        }
+
+    }
+    return true;
+}
+
+bool libARZC_gf_ValidPointScourge (point lp_vPoint) {
+    // Variable Declarations
+    int lv_plyr;
+    unitgroup lv_buildings;
+
+    // Automatic Variable Declarations
+    playergroup auto9B9893E9_g;
+
+    // Variable Initialization
+    lv_buildings = UnitGroupEmpty();
+
+    // Implementation
+    auto9B9893E9_g = PlayerGroupAll();
+    lv_plyr = -1;
+    while (true) {
+        lv_plyr = PlayerGroupNextPlayer(auto9B9893E9_g, lv_plyr);
+        if (lv_plyr < 0) { break; }
+        lv_buildings = UnitGroupSearch(null, 15, lp_vPoint, 16.0, UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterItem) | (1 << c_targetFilterBuried), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 0);
+        if ((UnitGroupCount(lv_buildings, c_unitCountAlive) > 0)) {
+            return false;
+        }
+
+    }
+    return true;
+}
+
+void libARZC_gf_mutate () {
+    // Variable Declarations
+    int lv_x;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    TechTreeUpgradeAddLevel(15, "ZombieArmor", 1);
+    TechTreeUpgradeAddLevel(15, "ZombieDamage", 1);
+}
+
+void libARZC_gf_Spawn (point lp_point, int lp_num, string lp_unit) {
+    // Variable Declarations
+    point lv_spawnLOC;
+    fixed lv_random;
+
+    // Automatic Variable Declarations
+    unitgroup autoA7B38555_g;
+    int autoA7B38555_u;
+    unit autoA7B38555_var;
+    string autoFE3103B8_val;
+
+    // Variable Initialization
+
+    // Implementation
+    if (((UnitGroupCount(libARZC_gv_zombieGroup, c_unitCountAlive) > 350) || (lp_num == 0) || (lp_point == null))) {
+        return ;
+    }
+
+    UnitCreate(lp_num, lp_unit, 0, 15, lp_point, libNtve_gf_RandomAngle());
+    lv_random = RandomFixed(0.0, 1.0);
+    if ((lv_random > 0.8)) {
+        UnitSetPosition(libARZC_gv_caster, lp_point, false);
+        UnitIssueOrder(libARZC_gv_caster, OrderTargetingPoint(AbilityCommand("AmorphousArmorcloud", 0), lp_point), c_orderQueueReplace);
+    }
+
+    autoA7B38555_g = UnitLastCreatedGroup();
+    autoA7B38555_u = UnitGroupCount(autoA7B38555_g, c_unitCountAll);
+    for (;; autoA7B38555_u -= 1) {
+        autoA7B38555_var = UnitGroupUnitFromEnd(autoA7B38555_g, autoA7B38555_u);
+        if (autoA7B38555_var == null) { break; }
+        UnitBehaviorAdd(autoA7B38555_var, "CritterWander", autoA7B38555_var, 1);
+        UnitBehaviorAdd(autoA7B38555_var, "InfestedTerranTimedLife", autoA7B38555_var, 1);
+        lv_random = RandomFixed(-0.25, 0.25);
+        if ((lv_random > 0.23)) {
+            lv_random = RandomFixed(1.5, 2.0);
+            UnitBehaviorAdd(autoA7B38555_var, "Detector13p75", autoA7B38555_var, 1);
+        }
+
+        autoFE3103B8_val = UnitGetType(autoA7B38555_var);
+        if (autoFE3103B8_val == "ScourgeMP") {
+            UnitSetPropertyFixed(autoA7B38555_var, c_unitPropLifeMax, ((12.5 * libARZC_gv_infestedDifficulty) * (1.0 + lv_random)));
+        }
+        else if (autoFE3103B8_val == "Broodling") {
+            UnitSetPropertyFixed(autoA7B38555_var, c_unitPropLifeMax, ((15.0 * libARZC_gv_infestedDifficulty) * (1.0 + lv_random)));
+            UnitSetPropertyFixed(autoA7B38555_var, c_unitPropMovementSpeed, 2.0);
+            UnitWeaponRemove(autoA7B38555_var, "NeedleClaws");
+            UnitWeaponAdd(autoA7B38555_var, "NeedleClaws2", null);
+        }
+        else if (autoFE3103B8_val == "InfestorTerranBurrowed") {
+            Wait(RandomFixed(1.0, 3.0), c_timeGame);
+            UnitIssueOrder(autoA7B38555_var, Order(AbilityCommand("BurrowInfestorTerranUp", 0)), c_orderQueueReplace);
+            UnitSetPropertyFixed(autoA7B38555_var, c_unitPropLifeMax, ((25.0 * libARZC_gv_infestedDifficulty) * (1.0 + lv_random)));
+        }
+        else {
+        }
+        UnitSetPropertyFixed(autoA7B38555_var, c_unitPropLifePercent, 100.0);
+        UnitSetScale(autoA7B38555_var, (100.0 + (30.0 * lv_random)), (100.0 + (30.0 * lv_random)), (100.0 + (30.0 * lv_random)));
+    }
+    UnitGroupAddUnitGroup(libARZC_gv_zombieGroup, UnitLastCreatedGroup());
+}
+
+point libARZC_gf_randomPoint () {
+    // Variable Declarations
+    int lv_try;
+    point lv_theOnePoint;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    do {
+        if ((lv_try > 10)) {
+            return null;
+        }
+
+        lv_theOnePoint = RegionRandomPoint(RegionPlayableMap());
+        lv_try += 1;
+    }while ((!(libARZC_gf_ValidPoint(lv_theOnePoint))));
+    return lv_theOnePoint;
+}
+
+point libARZC_gf_randomMiddlePoint () {
+    // Variable Declarations
+    int lv_try;
+    point lv_theOnePoint;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    do {
+        if ((lv_try > 10)) {
+            return null;
+        }
+
+        lv_theOnePoint = RegionRandomPoint(RegionCircle(RegionGetCenter(RegionPlayableMap()), 30.0));
+        lv_try += 1;
+    }while ((!(libARZC_gf_ValidPoint(lv_theOnePoint))));
+    return lv_theOnePoint;
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zombiecatastrophe
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_Zombiecatastrophe_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    revealer[17] lv_revealers;
+
+    // Automatic Variable Declarations
+    playergroup autoFEF235FF_g;
+    int autoFEF235FF_var;
+    playergroup auto37D55F5B_g;
+    int auto37D55F5B_var;
+    playergroup auto10460334_g;
+    int auto10460334_var;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoFEF235FF_g = PlayerGroupAll();
+    autoFEF235FF_var = -1;
+    while (true) {
+        autoFEF235FF_var = PlayerGroupNextPlayer(autoFEF235FF_g, autoFEF235FF_var);
+        if (autoFEF235FF_var < 0) { break; }
+        PlayerSetAlliance(autoFEF235FF_var, c_allianceIdVision, 15, true);
+    }
+    PlayerSetColorIndex(15, 14, true);
+    UnitCreate(1, "InfestedCaster", 0, 15, Point(0.0, 0.0), libNtve_gf_RandomAngle());
+    libARZC_gv_caster = UnitLastCreated();
+    libNtve_gf_ShowHideUnit(libARZC_gv_caster, false);
+    Wait(8.0, c_timeGame);
+    if (((libARZC_gv_infestedBountyMinerals > 0) || (libARZC_gv_inestedBountyVespene > 0))) {
+        TriggerEnable(libARZC_gt_ZombieKillBounty, true);
+    }
+
+    auto37D55F5B_g = PlayerGroupActive();
+    auto37D55F5B_var = -1;
+    while (true) {
+        auto37D55F5B_var = PlayerGroupNextPlayer(auto37D55F5B_g, auto37D55F5B_var);
+        if (auto37D55F5B_var < 0) { break; }
+        VisRevealerCreate(auto37D55F5B_var, RegionCircle(RegionGetCenter(RegionPlayableMap()), 12.0));
+        lv_revealers[auto37D55F5B_var] = VisRevealerLastCreated();
+    }
+    MinimapPing(PlayerGroupAll(), RegionGetCenter(RegionPlayableMap()), 5.0, Color(100.00, 100.00, 0.00));
+    TriggerExecute(libARZC_gt_InitialZombiesSpawn, true, false);
+    Wait(2.0, c_timeGame);
+    TriggerExecute(libARZC_gt_InitialBroodlingSpawn, true, false);
+    Wait(2.0, c_timeGame);
+    TriggerExecute(libARZC_gt_InitialScourgeSpawn, true, false);
+    libARZC_gv_stage = 1;
+    TriggerEnable(libARZC_gt_BroodlingSpawn, true);
+    TriggerEnable(libARZC_gt_ZombieSpawn, true);
+    TriggerEnable(libARZC_gt_ScourgeSpawn, true);
+    Wait(28.0, c_timeGame);
+    auto10460334_g = PlayerGroupActive();
+    auto10460334_var = -1;
+    while (true) {
+        auto10460334_var = PlayerGroupNextPlayer(auto10460334_g, auto10460334_var);
+        if (auto10460334_var < 0) { break; }
+        VisRevealerDestroy(lv_revealers[auto10460334_var]);
+    }
+    Wait(200.0, c_timeGame);
+    libARZC_gv_stage = 2;
+    TriggerEnable(libARZC_gt_ZombieAttacks, true);
+    TriggerEnable(libARZC_gt_ParasiticBomb, true);
+    TriggerEnable(libARZC_gt_ZombieChanceIncrease, true);
+    Wait(60.0, c_timeGame);
+    TriggerEnable(libARZC_gt_ScourgeSpawn, true);
+    libARZC_gv_stage = 3;
+    TriggerEnable(libARZC_gt_ZombieMutate, true);
+    Wait(600.0, c_timeGame);
+    libARZC_gv_stage = 4;
+    Wait(2000.0, c_timeGame);
+    libARZC_gv_stage = 5;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_Zombiecatastrophe_Init () {
+    libARZC_gt_Zombiecatastrophe = TriggerCreate("libARZC_gt_Zombiecatastrophe_Func");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ZombieSpawn
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_ZombieSpawn_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((libARZC_gv_stage >= 4) && ((RandomInt(0, 1) == 1))) {
+        libARZC_gf_Spawn(libARZC_gf_randomPoint(), RandomInt(0, 15), "InfestorTerranBurrowed");
+    }
+    else {
+        libARZC_gf_Spawn(libARZC_gf_randomMiddlePoint(), RandomInt(0, 15), "InfestorTerranBurrowed");
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_ZombieSpawn_Init () {
+    libARZC_gt_ZombieSpawn = TriggerCreate("libARZC_gt_ZombieSpawn_Func");
+    TriggerEnable(libARZC_gt_ZombieSpawn, false);
+    TriggerAddEventTimePeriodic(libARZC_gt_ZombieSpawn, 5.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: BroodlingSpawn
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_BroodlingSpawn_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_ticker;
+    int lv_mutation;
+    fixed lv_x;
+    fixed lv_y;
+    point lv_tR;
+    point lv_bL;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_tR = RegionGetBoundsMax(RegionPlayableMap());
+    lv_bL = RegionGetBoundsMin(RegionPlayableMap());
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((libARZC_gv_stage >= 4) && ((RandomInt(0, 1) == 1))) {
+        libARZC_gf_Spawn(libARZC_gf_randomPoint(), RandomInt(0, 15), "Broodling");
+    }
+    else {
+        libARZC_gf_Spawn(libARZC_gf_randomMiddlePoint(), RandomInt(0, 15), "Broodling");
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_BroodlingSpawn_Init () {
+    libARZC_gt_BroodlingSpawn = TriggerCreate("libARZC_gt_BroodlingSpawn_Func");
+    TriggerEnable(libARZC_gt_BroodlingSpawn, false);
+    TriggerAddEventTimePeriodic(libARZC_gt_BroodlingSpawn, 5.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ScourgeSpawn
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_ScourgeSpawn_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_ticker;
+    int lv_mutation;
+    fixed lv_x;
+    fixed lv_y;
+    point lv_tR;
+    point lv_bL;
+
+    // Automatic Variable Declarations
+    int auto4516EBC8_val;
+
+    // Variable Initialization
+    lv_tR = RegionGetBoundsMax(RegionPlayableMap());
+    lv_bL = RegionGetBoundsMin(RegionPlayableMap());
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto4516EBC8_val = RandomInt(1, 4);
+    if (auto4516EBC8_val == 1) {
+        lv_x = PointGetX(lv_tR);
+        lv_y = RandomFixed((PointGetY(lv_tR) + 15.0), (PointGetY(lv_bL) - 15.0));
+    }
+    else if (auto4516EBC8_val == 2) {
+        lv_x = PointGetX(lv_bL);
+        lv_y = RandomFixed((PointGetY(lv_tR) + 15.0), (PointGetY(lv_bL) - 15.0));
+    }
+    else if (auto4516EBC8_val == 3) {
+        lv_x = RandomFixed((PointGetX(lv_bL) + 15.0), (PointGetX(lv_tR) - 15.0));
+        lv_y = PointGetY(lv_tR);
+    }
+    else if (auto4516EBC8_val == 4) {
+        lv_x = RandomFixed((PointGetX(lv_bL) + 15.0), (PointGetX(lv_tR) - 15.0));
+        lv_y = PointGetY(lv_bL);
+    }
+    else {
+    }
+    if (libARZC_gf_ValidPointScourge(Point(lv_x, lv_y))) {
+        libARZC_gf_Spawn(Point(lv_x, lv_y), RandomInt(1, 4), "ScourgeMP");
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_ScourgeSpawn_Init () {
+    libARZC_gt_ScourgeSpawn = TriggerCreate("libARZC_gt_ScourgeSpawn_Func");
+    TriggerEnable(libARZC_gt_ScourgeSpawn, false);
+    TriggerAddEventTimePeriodic(libARZC_gt_ScourgeSpawn, 2.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: InitialZombiesSpawn
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_InitialZombiesSpawn_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libARZC_gf_Spawn(RegionGetCenter(RegionPlayableMap()), RandomInt(10, 20), "InfestorTerranBurrowed");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_InitialZombiesSpawn_Init () {
+    libARZC_gt_InitialZombiesSpawn = TriggerCreate("libARZC_gt_InitialZombiesSpawn_Func");
+    TriggerEnable(libARZC_gt_InitialZombiesSpawn, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: InitialBroodlingSpawn
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_InitialBroodlingSpawn_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libARZC_gf_Spawn(RegionGetCenter(RegionPlayableMap()), RandomInt(5, 15), "Broodling");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_InitialBroodlingSpawn_Init () {
+    libARZC_gt_InitialBroodlingSpawn = TriggerCreate("libARZC_gt_InitialBroodlingSpawn_Func");
+    TriggerEnable(libARZC_gt_InitialBroodlingSpawn, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: InitialScourgeSpawn
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_InitialScourgeSpawn_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libARZC_gf_Spawn(RegionGetCenter(RegionPlayableMap()), RandomInt(4, 8), "ScourgeMP");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_InitialScourgeSpawn_Init () {
+    libARZC_gt_InitialScourgeSpawn = TriggerCreate("libARZC_gt_InitialScourgeSpawn_Func");
+    TriggerEnable(libARZC_gt_InitialScourgeSpawn, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ParasiticBomb
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_ParasiticBomb_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_unit = UnitGroupRandomUnit(UnitGroup("ScourgeMP", 15, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((lv_unit != null)) {
+        UnitBehaviorAdd(lv_unit, "ParasiticBomb", lv_unit, 1);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_ParasiticBomb_Init () {
+    libARZC_gt_ParasiticBomb = TriggerCreate("libARZC_gt_ParasiticBomb_Func");
+    TriggerEnable(libARZC_gt_ParasiticBomb, false);
+    TriggerAddEventTimePeriodic(libARZC_gt_ParasiticBomb, 5.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ZombieAttacks
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_ZombieAttacks_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    fixed lv_rand;
+    point lv_point;
+    unitgroup lv_enemy;
+    unitfilter lv_filter;
+    fixed lv_radius;
+    fixed lv_percentage;
+
+    // Automatic Variable Declarations
+    unitgroup autoF74FF721_g;
+    int autoF74FF721_u;
+    unit autoF74FF721_var;
+    string auto8600A028_val;
+
+    // Variable Initialization
+    lv_enemy = UnitGroupEmpty();
+    lv_filter = UnitFilter(0, 0, 0, 0);
+    lv_radius = 25.0;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoF74FF721_g = UnitGroupIdle(15, false);
+    autoF74FF721_u = UnitGroupCount(autoF74FF721_g, c_unitCountAll);
+    for (;; autoF74FF721_u -= 1) {
+        autoF74FF721_var = UnitGroupUnitFromEnd(autoF74FF721_g, autoF74FF721_u);
+        if (autoF74FF721_var == null) { break; }
+        if ((libARZC_gv_stage == 5)) {
+            lv_rand = RandomFixed(30.0, 100.0);
+        }
+        else {
+            lv_rand = RandomFixed(0.0, 100.0);
+        }
+        auto8600A028_val = UnitGetType(autoF74FF721_var);
+        if (auto8600A028_val == "ScourgeMP") {
+            lv_filter = UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterGround) | (1 << c_targetFilterRawResource) | (1 << c_targetFilterMissile) | (1 << c_targetFilterCloaked), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32)) | (1 << (c_targetFilterGroundUnit - 32)));
+            if ((lv_rand > 95.0)) {
+                lv_radius = 25.0;
+            }
+            else if ((lv_rand > 50.0)) {
+                UnitIssueOrder(autoF74FF721_var, OrderTargetingPoint(AbilityCommand("attack", 0), RegionRandomPoint(RegionCircle(UnitGetPosition(autoF74FF721_var), 5.0))), c_orderQueueReplace);
+                continue;
+            }
+            else if ((lv_rand <= 50.0)) {
+                continue;
+            }
+        }
+        else {
+            lv_filter = UnitFilter(0, 0, (1 << c_targetFilterPlayer) | (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterRawResource) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32)));
+            if ((lv_rand > 99.0)) {
+                lv_radius = 1000.0;
+            }
+            else if ((lv_rand > 98.0)) {
+                lv_radius = 60.0;
+            }
+            else if ((lv_rand > 96.0)) {
+                lv_radius = 40.0;
+            }
+            else if ((lv_rand <= 95.0)) {
+                continue;
+            }
+        }
+        if ((libARZC_gv_zombieIgnoreChance > RandomFixed(0.0, 1.0))) {
+        }
+
+        lv_enemy = UnitGroupSearch(null, 15, UnitGetPosition(autoF74FF721_var), lv_radius, lv_filter, 0);
+        if ((UnitGroupCount(lv_enemy, c_unitCountAlive) > 0)) {
+            UnitIssueOrder(autoF74FF721_var, OrderTargetingPoint(AbilityCommand("attack", 0), UnitGetPosition(UnitGroupRandomUnit(lv_enemy, c_unitCountAlive))), c_orderQueueReplace);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_ZombieAttacks_Init () {
+    libARZC_gt_ZombieAttacks = TriggerCreate("libARZC_gt_ZombieAttacks_Func");
+    TriggerEnable(libARZC_gt_ZombieAttacks, false);
+    TriggerAddEventTimePeriodic(libARZC_gt_ZombieAttacks, 2.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ZombieChanceIncrease
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_ZombieChanceIncrease_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((libARZC_gv_zombieIgnoreChance <= 0.0)) {
+        TriggerEnable(TriggerGetCurrent(), false);
+    }
+    else {
+        libARZC_gv_zombieIgnoreChance -= 0.1;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_ZombieChanceIncrease_Init () {
+    libARZC_gt_ZombieChanceIncrease = TriggerCreate("libARZC_gt_ZombieChanceIncrease_Func");
+    TriggerEnable(libARZC_gt_ZombieChanceIncrease, false);
+    TriggerAddEventTimePeriodic(libARZC_gt_ZombieChanceIncrease, 15.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ZombieMutate
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_ZombieMutate_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_ticker;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libARZC_gf_mutate();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_ZombieMutate_Init () {
+    libARZC_gt_ZombieMutate = TriggerCreate("libARZC_gt_ZombieMutate_Func");
+    TriggerEnable(libARZC_gt_ZombieMutate, false);
+    TriggerAddEventTimePeriodic(libARZC_gt_ZombieMutate, 250.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Zombie Kill Bounty
+//--------------------------------------------------------------------------------------------------
+bool libARZC_gt_ZombieKillBounty_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_minerals;
+    int lv_vespene;
+    int lv_killer;
+    playergroup lv_killerGroup;
+
+    // Automatic Variable Declarations
+    string autoF4C0F249_val;
+    playergroup autoF9B851ED_g;
+    int autoF9B851ED_var;
+    playergroup autoF6547D10_g;
+    int autoF6547D10_var;
+
+    // Variable Initialization
+    lv_killer = UnitGetOwner(libNtve_gf_KillingUnit());
+    lv_killerGroup = PlayerGroupEmpty();
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == 15))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitGroupRemove(libARZC_gv_zombieGroup, EventUnit());
+    lv_killerGroup = PlayerGroupAlliance(c_playerGroupAlly, lv_killer);
+    PlayerGroupAdd(lv_killerGroup, lv_killer);
+    autoF4C0F249_val = UnitGetType(EventUnit());
+    if (autoF4C0F249_val == "ScourgeMP") {
+        lv_vespene = 1;
+    }
+    else if (autoF4C0F249_val == "InfestorTerran") {
+        lv_minerals = 2;
+        lv_vespene = 1;
+    }
+    else if (autoF4C0F249_val == "InfestorTerranBurrowed") {
+        lv_minerals = 2;
+        lv_vespene = 1;
+    }
+    else if (autoF4C0F249_val == "Broodling") {
+        lv_minerals = 1;
+    }
+    else {
+    }
+    lv_minerals = (lv_minerals * libARZC_gv_infestedBountyMinerals);
+    lv_vespene = (lv_vespene * libARZC_gv_inestedBountyVespene);
+    if ((UnitHasBehavior2(EventUnit(), "Detector13p75") == true)) {
+        lv_minerals += 1;
+        lv_vespene += 1;
+    }
+
+    if ((lv_vespene > 0)) {
+        TextExpressionSetToken("Param/Expression/lib_ARZC_74A0BA31", "A", IntToText(lv_vespene));
+        TextTagCreate(TextExpressionAssemble("Param/Expression/lib_ARZC_74A0BA31"), 24, UnitGetPosition(EventUnit()), 1.0, true, false, lv_killerGroup);
+        TextTagSetColor(TextTagLastCreated(), c_textTagColorText, Color(0.00, 100.00, 0.00));
+        TextTagSetVelocity(TextTagLastCreated(), 1.0, 90.0);
+        TextTagSetTime(TextTagLastCreated(), c_textTagTimeDuration, 5.0);
+        autoF9B851ED_g = lv_killerGroup;
+        autoF9B851ED_var = -1;
+        while (true) {
+            autoF9B851ED_var = PlayerGroupNextPlayer(autoF9B851ED_g, autoF9B851ED_var);
+            if (autoF9B851ED_var < 0) { break; }
+            PlayerModifyPropertyInt(autoF9B851ED_var, c_playerPropVespene, c_playerPropOperAdd, lv_vespene);
+        }
+    }
+
+    if ((lv_minerals > 0)) {
+        TextExpressionSetToken("Param/Expression/lib_ARZC_DA9D0359", "A", IntToText(lv_minerals));
+        TextTagCreate(TextExpressionAssemble("Param/Expression/lib_ARZC_DA9D0359"), 24, UnitGetPosition(EventUnit()), 1.5, true, false, lv_killerGroup);
+        TextTagSetColor(TextTagLastCreated(), c_textTagColorText, Color(0.00, 100.00, 100.00));
+        TextTagSetVelocity(TextTagLastCreated(), 1.0, 90.0);
+        TextTagSetTime(TextTagLastCreated(), c_textTagTimeDuration, 5.0);
+        autoF6547D10_g = lv_killerGroup;
+        autoF6547D10_var = -1;
+        while (true) {
+            autoF6547D10_var = PlayerGroupNextPlayer(autoF6547D10_g, autoF6547D10_var);
+            if (autoF6547D10_var < 0) { break; }
+            PlayerModifyPropertyInt(autoF6547D10_var, c_playerPropMinerals, c_playerPropOperAdd, lv_minerals);
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libARZC_gt_ZombieKillBounty_Init () {
+    libARZC_gt_ZombieKillBounty = TriggerCreate("libARZC_gt_ZombieKillBounty_Func");
+    TriggerEnable(libARZC_gt_ZombieKillBounty, false);
+    TriggerAddEventUnitDied(libARZC_gt_ZombieKillBounty, null);
+}
+
+void libARZC_InitTriggers () {
+    libARZC_gt_Zombiecatastrophe_Init();
+    libARZC_gt_ZombieSpawn_Init();
+    libARZC_gt_BroodlingSpawn_Init();
+    libARZC_gt_ScourgeSpawn_Init();
+    libARZC_gt_InitialZombiesSpawn_Init();
+    libARZC_gt_InitialBroodlingSpawn_Init();
+    libARZC_gt_InitialScourgeSpawn_Init();
+    libARZC_gt_ParasiticBomb_Init();
+    libARZC_gt_ZombieAttacks_Init();
+    libARZC_gt_ZombieChanceIncrease_Init();
+    libARZC_gt_ZombieMutate_Init();
+    libARZC_gt_ZombieKillBounty_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libARZC_InitLib_completed = false;
+
+void libARZC_InitLib () {
+    if (libARZC_InitLib_completed) {
+        return;
+    }
+
+    libARZC_InitLib_completed = true;
+
+    libARZC_InitLibraries();
+    libARZC_InitVariables();
+    libARZC_InitTriggers();
+}
+

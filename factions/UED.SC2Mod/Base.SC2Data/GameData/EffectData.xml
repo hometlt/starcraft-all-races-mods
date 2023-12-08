@@ -34,6 +34,16 @@
         <Visibility value="Hidden"/>
         <Flags index="Notification" value="0"/>
     </CEffectDamage>
+    <CEffectApplyBehavior id="ApplyAlgoritmAcelerationTrain">
+        <ValidatorArray index="0" value="ApplyAlgoritmHightRegeneraishonHealfTargetFilters"/>
+        <EditorCategories value="Race:UED"/>
+        <Behavior value="UEDAlgoritmConstAccelerationTrain"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ApplyAlgoritmSupresionFieldDelay">
+        <ValidatorArray index="0" removed="1"/>
+        <EditorCategories value="Race:UED"/>
+        <Behavior value="UEDAlgoritmDelayHelpSupresionField"/>
+    </CEffectApplyBehavior>
     <CEffectApplyBehavior id="ApplyAlgoritmOutAttackPenemunde">
         <ValidatorArray index="0" value="UEDValidatorPenemundeSplashAttack"/>
         <EditorCategories value="Race:UED"/>
@@ -45,20 +55,49 @@
         <WhichUnit Value="Caster"/>
         <Behavior value="PenemundeAlgoritmContinueAttack"/>
     </CEffectApplyBehavior>
-    <CEffectCreatePersistent id="EffectPeriodGoliathAttackAir">
+    <CEffectRemoveBehavior id="CancelAlgoritmSupresionFieldDelay">
+        <ValidatorArray index="0" removed="1"/>
+        <EditorCategories value="Race:UED"/>
+        <BehaviorLink value="UEDAlgoritmDelayHelpSupresionField"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="UEDApplyAlgotitmDownRange">
+        <ValidatorArray index="0" value="UEDValidateDownRangeTotal"/>
+        <ValidatorArray value="NotStructureTarget"/>
+        <EditorCategories value="Race:UED"/>
+        <Behavior value="PenemundeAlgoritmDownRange"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="EffectPeriodSpartanAttackAir">
         <EditorCategories value="Race:UED"/>
         <WhichLocation Value="TargetUnit"/>
         <PeriodCount value="2"/>
-        <PeriodicEffectArray value="UEDLaunchMissleGoliath"/>
+        <PeriodicEffectArray value="UEDLaunchMissleSpartan"/>
         <PeriodicPeriodArray value="0"/>
         <PeriodicPeriodArray value="0.1"/>
     </CEffectCreatePersistent>
-    <CEffectCreatePersistent id="EffectPeriodGoliathAttackGround">
+    <CEffectCreatePersistent id="EffectPeriodSpartanAttackGround">
         <EditorCategories value="Race:UED"/>
         <WhichLocation Value="TargetUnit"/>
-        <PeriodCount value="2"/>
-        <PeriodicEffectArray value="UEDDamageGoliathGround"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="UEDDamageSpartanGround"/>
         <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="UEDSetPenemundePeriodDamage">
+        <EditorCategories value="Race:UED"/>
+        <EffectArray value="ApplyAlgotitmMaxDPS"/>
+        <EffectArray value="PenemundeDamageDiscreteMinimum"/>
+        <EffectArray value="UEDApplyAlgotitmDownRange"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="UEDEffektPenemundeAttackRangeSmall">
+        <ValidatorArray value="ValidateUEDPenemundeModAttackAll"/>
+        <EditorCategories value="Race:UED"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="ApplyAlgoritmAttackRangePenemunde"/>
+        <FinalEffect value="UEDEffektDropTargetInPoint"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="UEDEffektDropTargetInPoint">
+        <EditorCategories value="Race:UED"/>
+        <InitialEffect value="SetLauncMissilePenemunde"/>
     </CEffectCreatePersistent>
     <CEffectCreatePersistent id="UEDTyphoonRocketsSmallGroup">
         <EditorCategories value="Race:UED"/>
@@ -67,14 +106,15 @@
         <PeriodicEffectArray value="UEDTyphoonLM"/>
         <PeriodicPeriodArray value="0"/>
     </CEffectCreatePersistent>
-    <CEffectLaunchMissile id="UEDLaunchMissleGoliath">
-        <EditorCategories value="Race:UED"/>
-        <ImpactEffect value="UEDDamageGoliathAir"/>
-        <AmmoUnit value="UEDGoliathWeaponAir"/>
+    <CEffectLaunchMissile id="UEDLaunchMissleSpartan">
         <ValidatorArray index="0" value="RangeCheckLE15"/>
-    </CEffectLaunchMissile>
-    <CEffectDamage id="UEDDamageGoliathGround" parent="DU_WEAP">
         <EditorCategories value="Race:UED"/>
+        <ImpactEffect value="UEDDamageSpartanAir"/>
+        <AmmoUnit value="UEDSpartanWeaponAir"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="UEDDamageSpartanGround" parent="DU_WEAP">
+        <EditorCategories value="Race:UED"/>
+        <AttributeBonus index="Armored" value="2"/>
         <Amount value="6"/>
     </CEffectDamage>
     <CEffectApplyBehavior id="ApplyAlgoritmAttackCitadel">
@@ -180,9 +220,9 @@
     <CEffectDamage id="DamageOnBuildingHurakan" parent="DU_WEAP">
         <ValidatorArray value="IsStructureTarget"/>
         <EditorCategories value="Race:UED"/>
-        <ArmorReduction value="0"/>
         <Kind value="Ranged"/>
-        <Amount value="8"/>
+        <Amount value="4"/>
+        <AttributeBonus index="Light" value="8"/>
     </CEffectDamage>
     <CEffectLaunchMissile id="ATALaserBatteryLM2">
         <ValidatorArray index="0" value="BattlecruiserIsNotYamatoing"/>
@@ -228,6 +268,7 @@
         <AttributeBonus index="Light" value="3"/>
         <Amount value="6"/>
         <Death value="Fire"/>
+        <Kind value="Melee"/>
     </CEffectDamage>
     <CEffectApplyBehavior id="ApplyAlgoritmBeaconBoost">
         <EditorCategories value="Race:UED"/>
@@ -300,7 +341,7 @@
         <PeriodCount value="16"/>
         <PeriodicEffectArray value="SearchAreaBlidingFlash"/>
         <PeriodicPeriodArray value="0.7"/>
-        <RevealRadius value="3"/>
+        <RevealRadius value="5"/>
         <RevealFlags index="Unfog" value="1"/>
     </CEffectCreatePersistent>
     <CEffectCreatePersistent id="EffektPenemundeDamagePeriod">
@@ -364,12 +405,12 @@
         <Kind value="Splash"/>
         <Amount value="12"/>
     </CEffectDamage>
-    <CEffectDamage id="UEDDamageGoliathAir" parent="DU_WEAP">
+    <CEffectDamage id="UEDDamageSpartanAir" parent="DU_WEAP">
         <EditorCategories value="Race:UED"/>
         <AttributeBonus index="Armored" value="3"/>
         <Amount value="15"/>
     </CEffectDamage>
-    <CEffectCreatePersistent id="UEDEffektPenemundeAttackRange">
+    <CEffectCreatePersistent id="UEDEffektPenemundeAttackRangeBig">
         <ValidatorArray value="ValidatePenemundeConditionAttack"/>
         <ValidatorArray value="ValidateUEDPenemundeModAttackAll"/>
         <EditorCategories value="Race:UED"/>
@@ -377,12 +418,6 @@
         <InitialEffect value="ApplyAlgoritmAttackRangePenemunde"/>
         <FinalEffect value="EffectPeriodHelpAnimacionPenemunde"/>
     </CEffectCreatePersistent>
-    <CEffectModifyUnit id="UEDResurrectionLiveBegin">
-        <EditorCategories value="Race:UED"/>
-        <VitalArray index="Life">
-            <ChangeFraction value="1"/>
-        </VitalArray>
-    </CEffectModifyUnit>
     <CEffectDamage id="KillUnitDrakkar">
         <ValidatorArray value="CasterIsDead"/>
         <ValidatorArray value="IsHiddenSelf"/>
@@ -494,7 +529,6 @@
         <EditorCategories value="Race:UED"/>
         <EffectArray value="PeenemundeMRLSLMTarget"/>
         <EffectArray value="PeenemundeMRLSLMPoint"/>
-        <EffectArray value="ApplyAlgoritmOutAttackPenemunde"/>
         <TargetLocationType value="Point"/>
     </CEffectSet>
     <CEffectSet id="SetPenemundeFireDamage">
@@ -515,14 +549,15 @@
     </CEffectSet>
     <CEffectDamage id="PenemundeDamageDiscreteMinimum">
         <EditorCategories value="Race:UED"/>
-        <Amount value="0.2"/>
+        <Amount value="2"/>
         <Death value="Fire"/>
+        <Kind value="Splash"/>
     </CEffectDamage>
     <CEffectCreatePersistent id="EffektFirePenemundePeriod">
         <EditorCategories value="Race:UED"/>
         <WhichLocation Value="TargetOuterPoint"/>
         <InitialEffect value="SearchAreaDamagePenemunde"/>
-        <PeriodCount value="29"/>
+        <PeriodCount value="19"/>
         <PeriodicEffectArray value="SearchAreaDamagePenemunde"/>
         <PeriodicPeriodArray value="0.28"/>
     </CEffectCreatePersistent>
@@ -648,8 +683,7 @@
         <EffectArray value="ApplyAlgoritmResurected"/>
         <EffectArray value="UEDDeleteAlgoritmDie"/>
         <EffectArray value="ApplyUEDShieldsResurrection"/>
-        <EffectArray value="UEDResurrectionLiveBegin"/>
-        <EffectArray value="UEDResurrectionLiveEnd"/>
+        <EffectArray value="UEDResurrectionLive"/>
     </CEffectSet>
     <CEffectSet id="SetTowerPlace">
         <EditorCategories value="Race:UED"/>
@@ -721,7 +755,7 @@
         <EditorCategories value="Race:UED"/>
         <ResponseFlags index="Acquire" value="1"/>
         <ResponseFlags index="Flee" value="1"/>
-        <Amount value="12"/>
+        <Amount value="6"/>
     </CEffectDamage>
     <CEffectCreatePersistent id="BonesTossGrenadeDelay">
         <EditorCategories value="Race:UED"/>
@@ -951,6 +985,8 @@
         <AttributeBonus index="Light" value="8"/>
         <Amount value="4"/>
         <Death value="Fire"/>
+        <ValidatorArray value="NotStructureTarget"/>
+        <KindSplash value="Ranged"/>
     </CEffectDamage>
     <CEffectDamage id="FirebatUFull2" parent="DU_WEAP_SPLASH">
         <ValidatorArray value="noMarkers"/>
@@ -975,6 +1011,7 @@
         <EditorCategories value="Race:UED"/>
         <EffectArray value="FirebatUFullUED"/>
         <EffectArray value="FlameThrowerApplyDoTBehavior"/>
+        <EffectArray value="DamageOnBuildingHurakan"/>
     </CEffectSet>
     <CEffectSet id="FlameThrowerDamageSet2">
         <ValidatorArray value="WeaponInRange"/>
@@ -1066,10 +1103,10 @@
         <MorphFlags index="IgnoreMorphing" value="1"/>
         <MorphUnit value="Garmr"/>
     </CEffectMorph>
-    <CEffectModifyUnit id="UEDResurrectionLiveEnd">
+    <CEffectModifyUnit id="UEDResurrectionLive">
         <EditorCategories value="Race:UED"/>
         <VitalArray index="Life">
-            <ChangeFraction value="-0.5"/>
+            <ChangeFraction value="1"/>
         </VitalArray>
         <VitalArray index="Energy">
             <ChangeFraction value="-1"/>
@@ -1104,7 +1141,7 @@
         <ValidatorArray index="0" value="EMP2TargetFilters"/>
         <EditorCategories value="Race:UED"/>
         <ImpactLocation Value="TargetPoint"/>
-        <ImpactEffect value="EffektPeriodSupressionField"/>
+        <ImpactEffect value="EMPSearch2"/>
         <AmmoUnit value="PsionicSuppressionField"/>
     </CEffectLaunchMissile>
     <CEffectEnumArea id="EMPSearch2">
@@ -1112,7 +1149,7 @@
         <LaunchLocation Value="TargetPoint"/>
         <ImpactLocation Value="TargetPoint"/>
         <SearchFilters value="-;Player,Ally,Structure,Stasis,Hidden,Invulnerable"/>
-        <AreaArray Radius="3" Effect="EMPSet2"/>
+        <AreaArray Radius="2" Effect="EMPSet2"/>
     </CEffectEnumArea>
     <CEffectSet id="EMPSet2">
         <EditorCategories value="Race:UED"/>
@@ -1377,11 +1414,12 @@
         <ResponseFlags index="Acquire" value="1"/>
         <ResponseFlags index="Flee" value="1"/>
         <Kind value="Splash"/>
-        <Amount value="7"/>
+        <Amount value="10"/>
         <Death value="Squish"/>
         <AreaArray Radius="1.25" Fraction="1"/>
         <ExcludeArray Value="Target"/>
         <SearchFilters value="Ground;RawResource,HarvestableResource,Missile,Stasis,Dead,Hidden"/>
+        <KindSplash value="Ranged"/>
     </CEffectDamage>
     <CEffectLaunchMissile id="PeenemundeMRLSLMTarget">
         <ValidatorArray index="0" value="ValidateAnyTargetUED"/>
@@ -1659,6 +1697,7 @@
         <AreaArray Radius="1.5" Fraction="0.75"/>
         <ExcludeArray Value="Target"/>
         <SearchFilters value="Air;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <KindSplash value="Ranged"/>
     </CEffectDamage>
     <CEffectCreatePersistent id="LongboltMissile2">
         <EditorCategories value="Race:UED"/>

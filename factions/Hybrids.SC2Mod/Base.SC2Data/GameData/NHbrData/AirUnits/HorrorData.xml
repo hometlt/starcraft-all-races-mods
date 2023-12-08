@@ -1,23 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
-    <CEffectEnumArea id="NHbrHorrorPlasmaticBlast@Search">
+    <CEffectModifyUnit id="NHbrHorror@WeaponEffectDrainNetwork">
+        <ValidatorArray value="NHbrHorror@WeaponEffectHasValidNetwork"/>
+        <EditorCategories value=""/>
+        <ImpactUnit Value="Caster"/>
+        <VitalArray index="Energy">
+            <Change value="-20"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectUserData id="NHbrHorror@WeaponEffectIncreaseToken">
+        <ValidatorArray value="NHbrHorror@WeaponEffectHasValidNetwork"/>
+        <EditorCategories value=""/>
+    </CEffectUserData>
+    <CEffectSet id="NHbrHorrorPlasmaticBlast@InitialSet">
+        <EditorCategories value=""/>
+        <EffectArray value="NHbrHorror@WeaponEffectIncreaseToken"/>
+        <EffectArray value="NHbrHorror@WeaponEffectDrainNetwork"/>
+        <EffectArray value="NHbrHorrorPlasmaticBlast@LM"/>
+    </CEffectSet>
+    <CEffectSet id="NHbrHorrorPlasmaticCharge@InitialSet">
+        <EditorCategories value=""/>
+        <EffectArray value="NHbrHorror@WeaponEffectIncreaseToken"/>
+        <EffectArray value="NHbrHorror@WeaponEffectDrainNetwork"/>
+        <EffectArray value="NHbrHorrorPlasmaticCharge@LM"/>
+    </CEffectSet>
+    <CEffectSet id="NHbrHorrorPlasmaticBlast@ImpactSet">
+        <EditorCategories value=""/>
+        <EffectArray value="NHbrHorrorPlasmaticBlast@MainTargetDamage"/>
+        <EffectArray value="NHbrHorrorPlasmaticBlast@Search"/>
+    </CEffectSet>
+    <CEffectDamage id="NHbrHorrorPlasmaticBlast@MainTargetDamage" parent="DU_WEAP_MISSILE">
         <EditorCategories value="Race:NHbr"/>
-        <IncludeArray Value="Target"/>
-        <SearchFilters value="Air;Player,Ally,RawResource,HarvestableResource,Missile,Stasis,Dead,Hidden,Invulnerable"/>
-        <AreaArray Radius="2.4" Effect="NHbrHorrorPlasmaticBlast@Damage"/>
-    </CEffectEnumArea>
-    <CEffectDamage id="NHbrHorrorPlasmaticBlast@Damage" parent="DU_WEAP_MISSILE">
-        <EditorCategories value="Race:NHbr"/>
-        <AttributeBonus index="Light" value="2"/>
         <Visibility value="Visible"/>
+        <Amount value="30"/>
+    </CEffectDamage>
+    <CEffectDamage id="NHbrHorrorPlasmaticBlast@AOEDamage" parent="DU_WEAP_SPLASH">
+        <EditorCategories value="Race:NHbr"/>
         <Amount value="12">
             <AccumulatorArray value="NHbrHorrorPlasmaticBlast@DistanceAccumulator"/>
         </Amount>
-        <SearchFilters value="Air;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
     </CEffectDamage>
+    <CEffectEnumArea id="NHbrHorrorPlasmaticBlast@Search">
+        <EditorCategories value="Race:NHbr"/>
+        <SearchFilters value="Air;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2.4" Effect="NHbrHorrorPlasmaticBlast@AOEDamage"/>
+        <ExcludeArray Value="Target"/>
+        <ValidatorArray value="NHbrHorror@WeaponEffectShouldCreate"/>
+    </CEffectEnumArea>
     <CEffectLaunchMissile id="NHbrHorrorPlasmaticBlast@LM">
         <EditorCategories value="Race:NHbr"/>
-        <ImpactEffect value="NHbrHorrorPlasmaticBlast@Search"/>
+        <ImpactEffect value="NHbrHorrorPlasmaticBlast@ImpactSet"/>
         <AmmoUnit value="NHbrHorrorPlasmaticBlast@Weapon"/>
     </CEffectLaunchMissile>
     <CEffectApplyBehavior id="NHbrHorrorPlasmaticCharge@ApplyBehavior">
@@ -29,9 +61,14 @@
         <Visibility value="Visible"/>
         <Amount value="30"/>
     </CEffectDamage>
+    <CEffectSet id="NHbrHorrorPlasmaticCharge@ImpactSet">
+        <EditorCategories value="Race:NHbr"/>
+        <EffectArray value="NHbrHorrorPlasmaticCharge@Damage"/>
+        <EffectArray value="NHbrHorrorPlasmaticCharge@Persistent"/>
+    </CEffectSet>
     <CEffectLaunchMissile id="NHbrHorrorPlasmaticCharge@LM">
         <EditorCategories value="Race:NHbr"/>
-        <ImpactEffect value="NHbrHorrorPlasmaticCharge@Set"/>
+        <ImpactEffect value="NHbrHorrorPlasmaticCharge@ImpactSet"/>
         <AmmoUnit value="NHbrHorrorPlasmaticCharge@Weapon"/>
     </CEffectLaunchMissile>
     <CEffectEnumArea id="NHbrHorrorPlasmaticCharge@SearchDamage">
@@ -43,32 +80,47 @@
     <CEffectCreatePersistent id="NHbrHorrorPlasmaticCharge@Persistent">
         <EditorCategories value="Race:NHbr"/>
         <WhichLocation Value="TargetUnitOrPoint"/>
-        <PeriodCount value="28"/>
+        <PeriodCount value="45"/>
         <PeriodicEffectArray value="NHbrHorrorPlasmaticCharge@SearchSlowdown"/>
         <PeriodicPeriodArray value="0.0625"/>
+        <ValidatorArray value="NHbrHorror@WeaponEffectShouldCreate"/>
     </CEffectCreatePersistent>
     <CEffectEnumArea id="NHbrHorrorPlasmaticCharge@SearchSlowdown">
         <EditorCategories value="Race:NHbr"/>
         <ImpactLocation Value="TargetPoint"/>
-        <SearchFilters value="Ground;Player,Ally,Neutral,Air,Structure,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Air,Structure,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable,Unstoppable"/>
         <AreaArray Radius="2.5" Effect="NHbrHorrorPlasmaticCharge@ApplyBehavior"/>
     </CEffectEnumArea>
-    <CEffectSet id="NHbrHorrorPlasmaticCharge@Set">
+    <CValidatorUnitCompareVital id="NHbrHorror@WeaponEffectHasValidNetwork">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GE"/>
+        <Value value="20"/>
+        <Vital value="Energy"/>
+    </CValidatorUnitCompareVital>
+    <CValidatorEffectTreeUserData id="NHbrHorror@WeaponEffectShouldCreate">
+        <Compare value="GT"/>
+        <Key value="Default"/>
+    </CValidatorEffectTreeUserData>
+    <CButton id="NHbrHorrorPlasmaticBlast">
+        <Icon value="Assets\Textures\btn-upgrade-terran-plasmashot.dds"/>
         <EditorCategories value="Race:NHbr"/>
-        <EffectArray value="NHbrHorrorPlasmaticCharge@Damage"/>
-        <EffectArray value="NHbrHorrorPlasmaticCharge@ValidationSet"/>
-    </CEffectSet>
-    <CEffectSet id="NHbrHorrorPlasmaticCharge@ValidationSet">
-        <ValidatorArray value="TargetIsEnemy"/>
+    </CButton>
+    <CButton id="NHbrHorrorPlasmaticCharge">
+        <Icon value="Assets\Textures\btn-upgrade-artanis-scarabsplashradius.dds"/>
+        <HotkeyAlias value="NHbrHorrorPlasmaticBlast"/>
         <EditorCategories value="Race:NHbr"/>
-        <EffectArray value="NHbrHorrorPlasmaticCharge@Persistent"/>
-    </CEffectSet>
+    </CButton>
     <CButton id="NHbrHorror@NetworksProtection">
         <Icon value="Assets\Textures\btn-upgrade-tychus-armor-level5.dds"/>
         <AlertIcon value="Assets\Textures\btn-upgrade-tychus-armor-level5.dds"/>
         <EditorCategories value="Race:NHbr"/>
     </CButton>
-    <CActorAction id="NHbrHorrorPlasmaticBlast@Attack" parent="GenericAttack" effectImpact="NHbrHorrorPlasmaticBlast@Damage" effectLaunch="NHbrHorrorPlasmaticBlast@LM">
+    <CActorModel id="NHbrHorrorPlasmaticBlast@SplashFX" parent="UCRModelAnimationStyleOneShot">
+        <EditorCategories value=""/>
+        <On Terms="Effect.NHbrHorrorPlasmaticBlast@Search.Start; At Target" Send="Create"/>
+        <HostSiteOps Ops="SOpAttachCenter SOpMoveUpBy1 SOpMoveUpByDot5" HoldPosition="1" HoldRotation="1"/>
+    </CActorModel>
+    <CActorAction id="NHbrHorrorPlasmaticBlast@Attack" parent="GenericAttack" effectImpact="NHbrHorrorPlasmaticBlast@MainTargetDamage" effectLaunch="NHbrHorrorPlasmaticBlast@LM">
         <Missile value="NHbrHorrorPlasmaticBlast@Missile"/>
         <ImpactMap index="None" Model="NHbrHorrorPlasmaticBlast@Impact" Scale="1.500000"/>
         <LaunchSiteOps Ops="SOpAttachWeapon"/>
@@ -109,6 +161,7 @@
     <CActorUnit id="NHbrHorror" parent="GenericUnitStandard" unitName="NHbrHorror">
         <Aliases value="_UnitLarge"/>
         <Aliases value="_ShieldBlack"/>
+        <Scale value="0.400000"/>
         <Baselines index="Stand" BlendIn="1.000000" BlendOut="1.000000"/>
         <Baselines index="Walk" BlendIn="1.000000" BlendOut="1.000000"/>
         <DeathArray index="Normal" ModelLink="NHbrHorror@Death" SoundLink="NHbrHorror@Explode" VoiceLink="NHbrHorror@Death"/>
@@ -154,6 +207,10 @@
         <ShieldArmorIcon value="Assets\Textures\btn-ability-zeratul-warpprism-shieldboosters.dds"/>
         <Macros value="NHbrCommon@DestroyParticles"/>
     </CActorUnit>
+    <CModel id="NHbrHorrorPlasmaticBlast@SplashFX" parent="FX">
+        <Model value="Assets\Effects\Protoss\AmonShard_Blue_Aoe_Missile_Impact\AmonShard_Blue_Aoe_Missile_Impact.m3"/>
+        <EditorCategories value="Race:NHbr"/>
+    </CModel>
     <CModel id="NHbrHorrorPlasmaticBlast@Impact" parent="ImpactFX">
         <Model value="Assets\Effects\Terran\PlasmaBurst_Missile_Impact\PlasmaBurst_Missile_Impact.m3"/>
         <EditorCategories value="Race:NHbr"/>
@@ -170,8 +227,6 @@
     <CModel id="NHbrHorrorPlasmaticCharge@Impact" parent="ImpactFX">
         <Model value="Assets\Effects\Zerg\HybridPlasmaMissileImpact\HybridPlasmaMissileImpact.m3"/>
         <EditorCategories value="Race:NHbr"/>
-        <ScaleMax value="0.300000,0.300000,0.300000"/>
-        <ScaleMin value="0.300000,0.300000,0.300000"/>
     </CModel>
     <CModel id="NHbrHorrorPlasmaticCharge@Puddle" parent="ImpactFX">
         <Model value="Assets\Effects\Terran\PlasmaRifle_Puddle\PlasmaRifle_Puddle.m3"/>
@@ -196,8 +251,8 @@
         <UnitGlossaryCamera value="Star2CameraLow08"/>
         <EditorCategories value="Race:NHbr"/>
         <SelectionRadius value="1.500000"/>
-        <ScaleMax value="0.400000,0.400000,0.400000"/>
-        <ScaleMin value="0.400000,0.400000,0.400000"/>
+        <ScaleMax value="1.100000,1.100000,1.100000"/>
+        <ScaleMin value="1.100000,1.100000,1.100000"/>
         <AttachProps Id="Ref_Center" SquibType="Shield" RadiusShield="1.000000">
             <Keys index="Shield" value="0"/>
         </AttachProps>
@@ -221,20 +276,18 @@
         <DisplayEffect value="NHbrHorrorPlasmaticCharge@Damage"/>
         <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <Range value="7"/>
-        <Period value="1.56"/>
-        <Effect value="NHbrHorrorPlasmaticCharge@LM"/>
-        <AllowedMovement value="Slowing"/>
-        <Backswing value="0"/>
+        <Period value="1.7"/>
+        <Effect value="NHbrHorrorPlasmaticCharge@InitialSet"/>
+        <DamagePoint value="0.34"/>
     </CWeaponLegacy>
     <CWeaponLegacy id="NHbrHorrorPlasmaticBlast">
         <EditorCategories value="Race:NHbr"/>
         <Icon value="Assets\Textures\btn-upgrade-terran-plasmashot.dds"/>
-        <DisplayEffect value="NHbrHorrorPlasmaticBlast@Damage"/>
+        <DisplayEffect value="NHbrHorrorPlasmaticBlast@MainTargetDamage"/>
         <TargetFilters value="Air,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <Range value="7"/>
-        <Period value="1.06"/>
-        <Effect value="NHbrHorrorPlasmaticBlast@LM"/>
-        <AllowedMovement value="Moving"/>
+        <Period value="1.7"/>
+        <Effect value="NHbrHorrorPlasmaticBlast@InitialSet"/>
         <DamagePoint value="0.34"/>
     </CWeaponLegacy>
     <CMoverMissile id="NHbrHorrorPlasmaticCharge@DynamicParabolaArc">
@@ -309,7 +362,7 @@
         <Pitch value="-4.000000,-3.000000"/>
         <Volume value="-2.000000,-2.000000"/>
     </CSound>
-    <CSound id="NHbrHorror@Death" parent="ZergDeath">
+    <CSound id="NHbrHorror@Death" parent="Death">
         <AssetArray File="assets\Sounds\VO\DarkArchon\DarkArchon_Ready_MC00.ogg" FacialGroup=""/>
         <Chance value="3"/>
         <Pitch value="-1.000000,1.000000"/>
@@ -327,7 +380,7 @@
         <Pitch value="-2.000000,-1.000000"/>
         <Volume value="-8.000000,-8.000000"/>
     </CSound>
-    <CSound id="NHbrHorror@Ready" parent="ZergReady">
+    <CSound id="NHbrHorror@Ready" parent="Ready">
         <AssetArray File="assets\Sounds\VO\DarkArchon\DarkArchon_Ready00.ogg" FacialGroup=""/>
         <Pitch value="-3.000000,-3.000000"/>
         <EditorCategories value="Race:NHbr"/>
@@ -364,7 +417,7 @@
         <DataRecord Entry="Effect,NHbrHorrorPlasmaticCharge@ApplyBehavior"/>
         <DataRecord Entry="Effect,NHbrHorrorPlasmaticCharge@Damage"/>
         <DataRecord Entry="Effect,NHbrHorrorPlasmaticCharge@LM"/>
-        <DataRecord Entry="Effect,NHbrHorrorPlasmaticCharge@Set"/>
+        <DataRecord Entry="Effect,NHbrHorrorPlasmaticCharge@ImpactSet"/>
         <DataRecord Entry="Effect,NHbrHorrorPlasmaticCharge@SearchDamage"/>
         <DataRecord Entry="Effect,NHbrHorrorPlasmaticCharge@Persistent"/>
         <DataRecord Entry="Effect,NHbrHorrorPlasmaticCharge@SearchSlowdown"/>
@@ -384,7 +437,7 @@
         <DataRecord Entry="Actor,NHbrHorrorPlasmaticBlast@Attack"/>
         <DataRecord Entry="Actor,NHbrHorrorPlasmaticBlast@Missile"/>
         <DataRecord Entry="Effect,NHbrHorrorPlasmaticBlast@Search"/>
-        <DataRecord Entry="Effect,NHbrHorrorPlasmaticBlast@Damage"/>
+        <DataRecord Entry="Effect,NHbrHorrorPlasmaticBlast@AOEDamage"/>
         <DataRecord Entry="Effect,NHbrHorrorPlasmaticBlast@LM"/>
         <DataRecord Entry="Model,NHbrHorrorPlasmaticBlast@Impact"/>
         <DataRecord Entry="Model,NHbrHorrorPlasmaticBlast@Missile"/>
@@ -424,12 +477,12 @@
         <FlagArray index="UseLineOfSight" value="0"/>
         <Attributes index="Armored" value="1"/>
         <Attributes index="Biological" value="1"/>
-        <LifeStart value="50"/>
-        <LifeMax value="50"/>
+        <LifeStart value="250"/>
+        <LifeMax value="250"/>
         <EnergyMax value="100"/>
         <EnergyDamageRatio value="1"/>
-        <ShieldsStart value="60"/>
-        <ShieldsMax value="60"/>
+        <ShieldsStart value="250"/>
+        <ShieldsMax value="250"/>
         <Speed value="2.6914"/>
         <Acceleration value="2.25"/>
         <StationaryTurningRate value="1699.9804"/>
@@ -444,21 +497,21 @@
         <WeaponArray Link="NHbrHorrorPlasmaticBlast"/>
         <WeaponArray Link="NHbrHorrorPlasmaticCharge"/>
         <CardLayouts index="0">
-            <LayoutButtons Face="NHbrHorror@NetworksProtection" Type="Passive" Row="2" Column="0"/>
+            <LayoutButtons Face="NHbrHorrorPlasmaticBlast" Type="Passive" Row="2" Column="0"/>
             <LayoutButtons Face="NHbrNemesisCatacombEnhancedArmor@Button" Type="Passive" Requirements="NHbrNemesisCatacombEnhancedArmor@Use" Row="1" Column="0"/>
+            <LayoutButtons Face="NHbrHorrorPlasmaticCharge" Type="Passive" Row="2" Column="1"/>
         </CardLayouts>
         <Radius value="0.75"/>
         <SeparationRadius value="1"/>
         <SubgroupPriority value="50"/>
         <MinimapRadius value="1"/>
         <GlossaryPriority value="35"/>
-        <EnergyStart value="100"/>
     </CUnit>
     <CBehaviorBuff id="NHbrHorrorPlasmaticCharge@Behavior">
         <Alignment value="Negative"/>
         <InfoIcon value="Assets\Textures\btn-upgrade-terran-plasmashot.dds"/>
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
-        <Duration value="1.826"/>
+        <Duration value="0.125"/>
         <Modification>
             <AdditiveMoveSpeedFactor value="-0.3"/>
         </Modification>

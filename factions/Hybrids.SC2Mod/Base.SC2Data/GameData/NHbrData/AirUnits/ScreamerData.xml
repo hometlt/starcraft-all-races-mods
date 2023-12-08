@@ -3,7 +3,7 @@
     <CEffectDamage id="NHbrScreamerParasiteGlaive@Damage" parent="DU_WEAP_MISSILE">
         <EditorCategories value="Race:NHbr"/>
         <Visibility value="Visible"/>
-        <Amount value="5"/>
+        <Amount value="7"/>
     </CEffectDamage>
     <CEffectLaunchMissile id="NHbrScreamerParasiteGlaive@LM">
         <EditorCategories value="Race:NHbr"/>
@@ -16,10 +16,10 @@
         <ValidatorArray value="NotHiddenSelf"/>
         <ValidatorArray value="NotHidden"/>
         <ValidatorArray value="NHbrNetwork@NetworkUser"/>
-        <ValidatorArray value="NHbrTimeScaleBuff@NetworkRegenNotSuppresed"/>
+        <ValidatorArray value="NHbrScreamerEnergation@EnergyRegenNotSuppressed"/>
         <EditorCategories value="Race:NHbr"/>
         <DrainVital value="Energy"/>
-        <DrainVitalCostFactor value="0.6"/>
+        <DrainVitalCostFactor value="0.5"/>
         <RechargeVital value="Energy"/>
         <RechargeVitalRate value="11"/>
     </CEffectCreateHealer>
@@ -41,8 +41,8 @@
         <AINotifyFlags index="HurtEnemy" value="1"/>
         <ImpactLocation Value="CasterUnitOrPoint"/>
         <SearchFilters value="-;Neutral,Enemy,Structure,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable"/>
-        <AreaArray Radius="4.5" Effect="NHbrScreamerDesolation@ApplyBehavior"/>
-        <SearchFlags index="CallForHelp" value="1"/>
+        <AreaArray Radius="6.75" Effect="NHbrScreamerDesolation@ApplyBehavior"/>
+        <SearchFlags index="OffsetAreaByAngle" value="0"/>
     </CEffectEnumArea>
     <CAbilEffectTarget id="NHbrScreamerEnergation@Energation">
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
@@ -66,8 +66,8 @@
         <CancelableArray index="Channel" value="1"/>
         <AINotifyEffect value="NHbrScreamerEnergation@Restore"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="NHbrScreamerEnergation">
-<!--            <Flags index="UseDefaultButton" value="1"/>-->
-<!--            <Flags index="CreateDefaultButton" value="1"/>-->
+            <Flags index="UseDefaultButton" value="1"/>
+            <Flags index="CreateDefaultButton" value="1"/>
         </CmdButtonArray>
         <CmdButtonArray index="Cancel" DefaultButtonFace="Stop">
             <Flags index="ToSelection" value="1"/>
@@ -102,6 +102,9 @@
         <Value value="NHbrScreamer"/>
         <Find value="0"/>
     </CValidatorUnitType>
+    <CValidatorUnitState id="NHbrScreamerEnergation@EnergyRegenNotSuppressed">
+        <State value="EnergyRegenSuppressed"/>
+    </CValidatorUnitState>
     <CButton id="NHbrScreamerEnergation">
         <Icon value="Assets\Textures\btn-ability-zeratul-warpprism-transferlink.dds"/>
         <EditorCategories value="Race:NHbr"/>
@@ -164,11 +167,10 @@
         <HostSiteOps Ops="SOpAttachOrigin"/>
         <Scale value="0.450000"/>
     </CActorModel>
-    <CActorRange id="NHbrScreamerDesolation@Range">
+    <CActorRange id="NHbrScreamerDesolation@Range" parent="RangeAbil" abil="NHbrScreamerDesolation">
         <EditorCategories value=""/>
-        <On Terms="SelectionLocalUpdate.NHbrScreamer.Start" Send="Create"/>
-        <On Terms="SelectionLocalUpdate.NHbrScreamer.Stop" Send="Destroy"/>
-        <Range value="4.500000"/>
+        <Abil Link=""/>
+        <Range value="6.250000"/>
     </CActorRange>
     <CActorSound id="NHbrScreamerDesolation@Sound" parent="SoundOneShot">
         <On Terms="Effect.NHbrScreamerDesolation@Persistent.Start; At Caster" Send="Create"/>
@@ -216,6 +218,7 @@
             <Image value="assets\Wireframes\Hybrid\Wireframe-Hybrid-unit-Screamer-shield02.DDS"/>
             <Image value="assets\Wireframes\Hybrid\Wireframe-Hybrid-unit-Screamer-shield03.DDS"/>
         </WireframeShield>
+        <Scale value="0.300000"/>
         <On index="65" Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
         <On index="66" Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
         <On index="67" Terms="Abil.NHbrScreamerDesolation.SourceCastStart" Send="$Spell"/>
@@ -235,6 +238,7 @@
         <UnitFlags index="SuppressDefaultStatusBar" value="1"/>
         <ShieldArmorIcon value="Assets\Textures\btn-ability-zeratul-warpprism-shieldboosters.dds"/>
         <Macros value="NHbrCommon@DestroyParticles"/>
+        <Macros value="NHbrNetwork@Macro"/>
     </CActorUnit>
     <CModel id="NHbrScreamerParasiteGlaive@Impact" parent="ImpactFX">
         <Model value="Assets\Effects\Protoss\Xelnaga_Construct_EntropicBlast_Impact\Xelnaga_Construct_EntropicBlast_Impact.m3"/>
@@ -279,8 +283,6 @@
         <AttachProps Id="Ref_Center" SquibType="Shield" RadiusShield="2.500000">
             <Keys index="Shield" value="0"/>
         </AttachProps>
-        <ScaleMax value="0.300000,0.300000,0.300000"/>
-        <ScaleMin value="0.300000,0.300000,0.300000"/>
     </CModel>
     <CModel id="NHbrScreamer@Death" parent="UnitDeath" Race="Protoss">
         <Model value="Assets\Effects\Zerg\ZergMediumUnitDeath\ZergMediumUnitDeath.m3"/>
@@ -369,7 +371,7 @@
         <PlayDelay value="250,250"/>
         <Volume value="-10.000000,-10.000000"/>
     </CSound>
-    <CSound id="NHbrScreamer@Death" parent="ZergDeath">
+    <CSound id="NHbrScreamer@Death" parent="Death">
         <AssetArray File="Assets\Sounds\Zerg\SharedEffects\Explosions\Zerg_ExplosionMedium0.wav" Pitch="-3.000000,3.000000"/>
         <AssetArray File="Assets\Sounds\Zerg\SharedEffects\Explosions\Zerg_ExplosionMedium1.wav" Pitch="-3.000000,3.000000"/>
         <AssetArray File="Assets\Sounds\Zerg\SharedEffects\Explosions\Zerg_ExplosionMedium2.wav" Pitch="-3.000000,3.000000"/>
@@ -382,7 +384,7 @@
         <Volume value="-5.000000,-5.000000"/>
         <EditorCategories value="Race:NHbr"/>
     </CSound>
-    <CSound id="NHbrScreamer@Ready" parent="ZergReady">
+    <CSound id="NHbrScreamer@Ready" parent="Ready">
         <EditorCategories value="Race:NHbr"/>
         <AssetArray File="Assets\Sounds\Devourer_Ready00.ogg" FacialGroup=""/>
         <Pitch value="2.000000,3.000000"/>
@@ -477,12 +479,12 @@
         <Attributes index="Light" value="1"/>
         <Attributes index="Biological" value="1"/>
         <Attributes index="Psionic" value="1"/>
-        <LifeStart value="120"/>
-        <LifeMax value="120"/>
+        <LifeStart value="200"/>
+        <LifeMax value="200"/>
         <EnergyStart value="100"/>
         <EnergyMax value="100"/>
-        <ShieldsStart value="90"/>
-        <ShieldsMax value="90"/>
+        <ShieldsStart value="200"/>
+        <ShieldsMax value="200"/>
         <Speed value="2.4218"/>
         <Acceleration value="1.875"/>
         <StationaryTurningRate value="539.4726"/>
@@ -497,6 +499,7 @@
         <AbilArray Link="NHbrScreamerDesolation"/>
         <AbilArray Link="NHbrScreamerEnergation@Energation"/>
         <BehaviorArray Link="Detector11"/>
+        <BehaviorArray Link="NHbrNetworkNEW@PowerSource"/>
         <WeaponArray Link="NHbrScreamerParasiteGlaive"/>
         <CardLayouts index="0">
             <LayoutButtons Face="NHbrScreamerDesolation@Desolation" Type="AbilCmd" AbilCmd="NHbrScreamerDesolation,Execute" Row="2" Column="1"/>
@@ -512,7 +515,7 @@
         <GlossaryWeakArray value="MissileTurret"/>
         <GlossaryWeakArray value="VikingFighter"/>
         <GlossaryWeakArray value="Corruptor"/>
-        <EnergyRegenRate value="1.1015"/>
+        <EnergyRegenRate value="0.7148"/>
     </CUnit>
     <CBehaviorBuff id="NHbrScreamerDesolation@Behavior">
         <Alignment value="Positive"/>

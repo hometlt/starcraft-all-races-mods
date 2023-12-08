@@ -1,0 +1,2402 @@
+include "TriggerLibs/NativeLib"
+include "LibARRA_h"
+
+include "LibVSAI_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Utilities - AI
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libVSAI_InitLibraries () {
+    libNtve_InitVariables();
+    libARRA_InitVariables();
+}
+
+// Variable Initialization
+bool libVSAI_InitVariables_completed = false;
+
+void libVSAI_InitVariables () {
+    int init_i;
+    int init_j;
+    int init_k;
+
+    if (libVSAI_InitVariables_completed) {
+        return;
+    }
+
+    libVSAI_InitVariables_completed = true;
+
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        libVSAI_gv_aIStage[init_i] = 1;
+    }
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        libVSAI_gv_aIExpandTimer[init_i] = TimerCreate();
+    }
+    libVSAI_gv_aIDialog = c_invalidDialogId;
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        for (init_j = 0; init_j <= 4; init_j += 1) {
+            for (init_k = 0; init_k <= libVSAI_gv_aIMaxUnits; init_k += 1) {
+                libVSAI_gv_aIButton[init_i][init_j][init_k] = c_invalidDialogControlId;
+            }
+        }
+    }
+}
+
+// Presets
+// Functions
+string libVSAI_gf_unit_to_actorDataName (string lp_unitType) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("tg_unit_to_actor." + (lp_unitType));
+}
+
+void libVSAI_gf_InitUnitTypeToActorData () {
+    // Variable Declarations
+    string lv_u;
+    string lv_a_name;
+    string lv_a;
+
+    // Automatic Variable Declarations
+    int autoB30E818C_catalog;
+    int autoB30E818C_i;
+    int auto52857CF3_catalog;
+    int auto52857CF3_i;
+
+    // Variable Initialization
+    lv_a_name = "";
+
+    // Implementation
+    if ((libVSAI_gv_unitToActorInitDone == true)) {
+        return ;
+    }
+    else {
+        libVSAI_gv_unitToActorInitDone = true;
+    }
+    autoB30E818C_catalog = c_gameCatalogUnit;
+    autoB30E818C_i = 1;
+    for ( ; autoB30E818C_i <= CatalogEntryCount(c_gameCatalogUnit) ; autoB30E818C_i += 1 ) {
+        lv_u = CatalogEntryGet(autoB30E818C_catalog, autoB30E818C_i);
+        if ((CatalogEntryIsValid(c_gameCatalogActor, lv_u) == true) && (CatalogEntryClass(c_gameCatalogActor, lv_u) == c_classIdCActorUnit)) {
+            DataTableSetString(true, libVSAI_gf_unit_to_actorDataName(lv_u), (lv_u));
+        }
+        else {
+            auto52857CF3_catalog = c_gameCatalogActor;
+            auto52857CF3_i = 1;
+            for ( ; auto52857CF3_i <= CatalogEntryCount(c_gameCatalogActor) ; auto52857CF3_i += 1 ) {
+                lv_a = CatalogEntryGet(auto52857CF3_catalog, auto52857CF3_i);
+                if ((CatalogEntryClass(c_gameCatalogActor, lv_a) == c_classIdCActorUnit)) {
+                    lv_a_name = CatalogFieldValueGet(c_gameCatalogActor, lv_a, "HighlightTooltip", c_playerAny);
+                    if ((lv_a_name == ("Unit/Name/" + (lv_u)))) {
+                        DataTableSetString(true, libVSAI_gf_unit_to_actorDataName(lv_u), (lv_a));
+                        break;
+                    }
+
+                }
+
+            }
+        }
+    }
+}
+
+string libVSAI_gf_GetMainActorofUnitType (string lp_unitType) {
+    // Variable Declarations
+    string lv_dataName;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_dataName = libVSAI_gf_unit_to_actorDataName(lp_unitType);
+
+    // Implementation
+    libVSAI_gf_InitUnitTypeToActorData();
+    if ((DataTableValueExists(true, lv_dataName) == true) && (DataTableValueType(true, lv_dataName) == c_dataTypeString)) {
+        return (DataTableGetString(true, lv_dataName));
+    }
+    else {
+        return null;
+    }
+}
+
+string libVSAI_gf_aliasDataCountName (string lp_alias) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("tg_unit_alias_count." + lp_alias);
+}
+
+string libVSAI_gf_aliasDataIndexName (string lp_alias, int lp_index) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("tg_unit_alias." + lp_alias + "." + IntToString(lp_index));
+}
+
+void libVSAI_gf_InitUnitAliasData () {
+    // Variable Declarations
+    string lv_u;
+    string lv_data_name;
+    string lv_alias;
+    int lv_a_cnt;
+    int lv_a_idx;
+
+    // Automatic Variable Declarations
+    int auto08636769_catalog;
+    int auto08636769_i;
+    int autoED0E1D45_catalog;
+    string autoED0E1D45_entry;
+    string autoED0E1D45_fieldPath;
+    int autoED0E1D45_player;
+    int autoED0E1D45_i;
+
+    // Variable Initialization
+    lv_data_name = "";
+    lv_alias = "";
+
+    // Implementation
+    if ((libVSAI_gv_aliasDataInitDone == true)) {
+        return ;
+    }
+    else {
+        libVSAI_gv_aliasDataInitDone = true;
+    }
+    auto08636769_catalog = c_gameCatalogUnit;
+    auto08636769_i = 1;
+    for ( ; auto08636769_i <= CatalogEntryCount(c_gameCatalogUnit) ; auto08636769_i += 1 ) {
+        lv_u = CatalogEntryGet(auto08636769_catalog, auto08636769_i);
+        autoED0E1D45_catalog = c_gameCatalogUnit;
+        autoED0E1D45_entry = lv_u;
+        autoED0E1D45_fieldPath = "TechAliasArray";
+        autoED0E1D45_player = c_playerAny;
+        autoED0E1D45_i = 0;
+        for ( ; autoED0E1D45_i <= CatalogFieldValueCount(c_gameCatalogUnit,autoED0E1D45_entry,autoED0E1D45_fieldPath,autoED0E1D45_player)-1 ; autoED0E1D45_i += 1 ) {
+            lv_alias = CatalogFieldValueGet(c_gameCatalogUnit,autoED0E1D45_entry,autoED0E1D45_fieldPath+"["+IntToString(autoED0E1D45_i)+"]",autoED0E1D45_player);
+            lv_data_name = libVSAI_gf_aliasDataCountName(lv_alias);
+            if ((DataTableValueExists(true, lv_data_name) == true)) {
+                lv_a_idx = DataTableGetInt(true, lv_data_name);
+                lv_a_cnt = (lv_a_idx + 1);
+            }
+            else {
+                lv_a_cnt = 1;
+                lv_a_idx = 0;
+            }
+            DataTableSetInt(true, lv_data_name, lv_a_cnt);
+            DataTableSetString(true, libVSAI_gf_aliasDataIndexName(lv_alias, lv_a_idx), (lv_u));
+        }
+    }
+}
+
+int libVSAI_gf_TechAliasCheck (string lp_aliasUnit, string lp_checkUnit) {
+    // Variable Declarations
+    string lv_alias;
+    int lv_a_cnt;
+    int lv_a_idx;
+
+    // Automatic Variable Declarations
+    int autoE5CEED5F_catalog;
+    string autoE5CEED5F_entry;
+    string autoE5CEED5F_fieldPath;
+    int autoE5CEED5F_player;
+    int autoE5CEED5F_i;
+    int autoF589F4F9_ae;
+    const int autoF589F4F9_ai = 1;
+
+    // Variable Initialization
+    lv_alias = "";
+
+    // Implementation
+    if ((libVSAI_gv_aliasDataInitDone == false)) {
+        libVSAI_gf_InitUnitAliasData();
+    }
+
+    autoE5CEED5F_catalog = c_gameCatalogUnit;
+    autoE5CEED5F_entry = lp_aliasUnit;
+    autoE5CEED5F_fieldPath = "TechAliasArray";
+    autoE5CEED5F_player = c_playerAny;
+    autoE5CEED5F_i = 0;
+    for ( ; autoE5CEED5F_i <= CatalogFieldValueCount(c_gameCatalogUnit,autoE5CEED5F_entry,autoE5CEED5F_fieldPath,autoE5CEED5F_player)-1 ; autoE5CEED5F_i += 1 ) {
+        lv_alias = CatalogFieldValueGet(c_gameCatalogUnit,autoE5CEED5F_entry,autoE5CEED5F_fieldPath+"["+IntToString(autoE5CEED5F_i)+"]",autoE5CEED5F_player);
+        lv_a_cnt = DataTableGetInt(true, libVSAI_gf_aliasDataCountName(lv_alias));
+        autoF589F4F9_ae = (lv_a_cnt - 1);
+        lv_a_idx = 0;
+        for ( ; ( (autoF589F4F9_ai >= 0 && lv_a_idx <= autoF589F4F9_ae) || (autoF589F4F9_ai < 0 && lv_a_idx >= autoF589F4F9_ae) ) ; lv_a_idx += autoF589F4F9_ai ) {
+            if (((DataTableGetString(true, libVSAI_gf_aliasDataIndexName(lv_alias, lv_a_idx))) == lp_checkUnit)) {
+                return 1;
+            }
+
+        }
+    }
+    return 0;
+}
+
+string libVSAI_gf_GetUnitAlias (string lp_unittype, int lp_alias_index) {
+    // Variable Declarations
+    string lv_alias;
+    int lv_count;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_alias = "";
+    lv_count = CatalogFieldValueCount(c_gameCatalogUnit, lp_unittype, "TechAliasArray", c_playerAny);
+
+    // Implementation
+    if ((lv_count == 0)) {
+        return (lp_unittype);
+    }
+    else {
+        return CatalogFieldValueGet(c_gameCatalogUnit, lp_unittype, "TechAliasArray[" + IntToString(MinI((lv_count - 1), lp_alias_index)) + "]", c_playerAny);
+    }
+}
+
+string libVSAI_gf_GetUnitAliasGameLink (string lp_unittype, int lp_alias_index) {
+    // Variable Declarations
+    string lv_alias;
+    int lv_count;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_alias = "";
+    lv_count = CatalogFieldValueCount(c_gameCatalogUnit, lp_unittype, "TechAliasArray", c_playerAny);
+
+    // Implementation
+    if ((lv_count == 0)) {
+        return lp_unittype;
+    }
+    else {
+        return CatalogFieldValueGet(c_gameCatalogUnit, lp_unittype, "TechAliasArray[" + IntToString(MinI((lv_count - 1), lp_alias_index)) + "]", c_playerAny);
+    }
+}
+
+int libVSAI_gf_GetNumberOfUnitsInGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup) {
+    // Variable Declarations
+    int lv_count;
+    unit lv_u;
+
+    // Automatic Variable Declarations
+    unitgroup auto82747DFB_g;
+    int auto82747DFB_u;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libVSAI_gv_aliasDataInitDone == false)) {
+        libVSAI_gf_InitUnitAliasData();
+    }
+
+    auto82747DFB_g = lp_unitgroup;
+    auto82747DFB_u = UnitGroupCount(auto82747DFB_g, c_unitCountAll);
+    for (;; auto82747DFB_u -= 1) {
+        lv_u = UnitGroupUnitFromEnd(auto82747DFB_g, auto82747DFB_u);
+        if (lv_u == null) { break; }
+        if ((UnitGetType(lv_u) == lp_unitType)) {
+            lv_count += 1;
+        }
+        else {
+            lv_count += libVSAI_gf_TechAliasCheck(lp_unitType, UnitGetType(lv_u));
+        }
+    }
+    return lv_count;
+}
+
+unitgroup libVSAI_gf_FilterUnitGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup) {
+    // Variable Declarations
+    unitgroup lv_ret;
+    unit lv_u;
+
+    // Automatic Variable Declarations
+    unitgroup auto56B34833_g;
+    int auto56B34833_u;
+
+    // Variable Initialization
+    lv_ret = UnitGroupEmpty();
+
+    // Implementation
+    if ((libVSAI_gv_aliasDataInitDone == false)) {
+        libVSAI_gf_InitUnitAliasData();
+    }
+
+    auto56B34833_g = lp_unitgroup;
+    auto56B34833_u = UnitGroupCount(auto56B34833_g, c_unitCountAll);
+    for (;; auto56B34833_u -= 1) {
+        lv_u = UnitGroupUnitFromEnd(auto56B34833_g, auto56B34833_u);
+        if (lv_u == null) { break; }
+        if (((UnitGetType(lv_u) == lp_unitType) || (libVSAI_gf_TechAliasCheck(lp_unitType, UnitGetType(lv_u)) == 1))) {
+            UnitGroupAdd(lv_ret, lv_u);
+        }
+
+    }
+    return lv_ret;
+}
+
+bool libVSAI_gf_TechExistsInUnitGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup) {
+    // Variable Declarations
+    unit lv_u;
+
+    // Automatic Variable Declarations
+    unitgroup auto5570A1BE_g;
+    int auto5570A1BE_u;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libVSAI_gv_aliasDataInitDone == false)) {
+        libVSAI_gf_InitUnitAliasData();
+    }
+
+    auto5570A1BE_g = lp_unitgroup;
+    auto5570A1BE_u = UnitGroupCount(auto5570A1BE_g, c_unitCountAll);
+    for (;; auto5570A1BE_u -= 1) {
+        lv_u = UnitGroupUnitFromEnd(auto5570A1BE_g, auto5570A1BE_u);
+        if (lv_u == null) { break; }
+        if (((UnitGetType(lv_u) == lp_unitType) || (libVSAI_gf_TechAliasCheck(lp_unitType, UnitGetType(lv_u)) == 1))) {
+            return true;
+        }
+
+    }
+    return false;
+}
+
+void libVSAI_gf_KillUnitWithCustomDeath (int lp_killingplayer, unit lp_unit, string lp_deathtype) {
+    // Automatic Variable Declarations
+    // Implementation
+    CatalogFieldValueSet(c_gameCatalogEffect, "CustomDeathEffectKill", "Death", lp_killingplayer, (lp_deathtype));
+    PlayerCreateEffectUnit(lp_killingplayer, "CustomDeathEffectKill", lp_unit);
+}
+
+int libVSAI_gf_ConvertBuildFlagsToInteger (int lp_flags) {
+    // Automatic Variable Declarations
+    // Implementation
+    return (lp_flags);
+}
+
+void libVSAI_gf_TrainUnitIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_maxqueue) {
+    // Variable Declarations
+    int lv_progressCount;
+
+    // Automatic Variable Declarations
+    int auto151DF88B_val;
+    int autoEE849BF0_val;
+
+    // Variable Initialization
+
+    // Implementation
+    auto151DF88B_val = lp_includeAlias;
+    if (auto151DF88B_val == libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias) {
+        lv_progressCount = AITechCount(lp_player, lp_unitType, c_techCountQueuedOrBetter);
+    }
+    else if (auto151DF88B_val == libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+        lv_progressCount = AITechCount(lp_player, libVSAI_gf_GetUnitAliasGameLink(lp_unitType, 0), c_techCountQueuedOrBetter);
+    }
+    else {
+        lv_progressCount = AITechCount(lp_player, libVSAI_gf_GetUnitAliasGameLink(lp_unitType, 255), c_techCountQueuedOrBetter);
+    }
+    if ((lp_requiredTech != null)) {
+        autoEE849BF0_val = lp_requiredTechAlias;
+        if (autoEE849BF0_val == libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+            lp_requiredTech = libVSAI_gf_GetUnitAliasGameLink(lp_requiredTech, 0);
+        }
+        else if (autoEE849BF0_val == libVSAI_ge_TgAIIncludeAlias_IncludeLastAlias) {
+            lp_requiredTech = libVSAI_gf_GetUnitAliasGameLink(lp_requiredTech, 255);
+        }
+        else {
+        }
+    }
+
+    if (((lp_requiredTech == null) || (AITechCount(lp_player, lp_requiredTech, c_techCountCompleteOnly) != 0)) && (lv_progressCount < lp_count)) {
+        AITrain(lp_player, 2, lp_town, lp_unitType, MinI((lp_count - lv_progressCount), lp_maxqueue));
+    }
+
+}
+
+void libVSAI_gf_BuildIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_buildFlags, int lp_maxqueue) {
+    // Variable Declarations
+    int lv_progressCount;
+
+    // Automatic Variable Declarations
+    int auto33C392E2_val;
+    int autoFFF20AFC_val;
+
+    // Variable Initialization
+
+    // Implementation
+    auto33C392E2_val = lp_includeAlias;
+    if (auto33C392E2_val == libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias) {
+        lv_progressCount = AITechCount(lp_player, lp_unitType, c_techCountQueuedOrBetter);
+    }
+    else if (auto33C392E2_val == libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+        lv_progressCount = AITechCount(lp_player, libVSAI_gf_GetUnitAliasGameLink(lp_unitType, 0), c_techCountQueuedOrBetter);
+    }
+    else {
+        lv_progressCount = AITechCount(lp_player, libVSAI_gf_GetUnitAliasGameLink(lp_unitType, 255), c_techCountQueuedOrBetter);
+    }
+    if ((lp_requiredTech != null)) {
+        autoFFF20AFC_val = lp_requiredTechAlias;
+        if (autoFFF20AFC_val == libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+            lp_requiredTech = libVSAI_gf_GetUnitAliasGameLink(lp_requiredTech, 0);
+        }
+        else if (autoFFF20AFC_val == libVSAI_ge_TgAIIncludeAlias_IncludeLastAlias) {
+            lp_requiredTech = libVSAI_gf_GetUnitAliasGameLink(lp_requiredTech, 255);
+        }
+        else {
+        }
+    }
+
+    if (((lp_requiredTech == null) || (AITechCount(lp_player, lp_requiredTech, c_techCountCompleteOnly) != 0)) && (lv_progressCount < lp_count)) {
+        AIBuild(lp_player, 2, lp_town, lp_unitType, MinI((lp_count - lv_progressCount), lp_maxqueue), lp_buildFlags);
+    }
+
+}
+
+void libVSAI_gf_TgBuildIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_buildFlags, int lp_maxqueue) {
+    // Variable Declarations
+    int lv_progressCount;
+
+    // Automatic Variable Declarations
+    int auto0EC49736_val;
+    int auto8105CB91_val;
+
+    // Variable Initialization
+
+    // Implementation
+    auto0EC49736_val = lp_includeAlias;
+    if (auto0EC49736_val == libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias) {
+        lv_progressCount = AITechCount(lp_player, lp_unitType, c_techCountQueuedOrBetter);
+    }
+    else if (auto0EC49736_val == libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+        lv_progressCount = AITechCount(lp_player, libVSAI_gf_GetUnitAliasGameLink(lp_unitType, 0), c_techCountQueuedOrBetter);
+    }
+    else {
+        lv_progressCount = AITechCount(lp_player, libVSAI_gf_GetUnitAliasGameLink(lp_unitType, 255), c_techCountQueuedOrBetter);
+    }
+    if ((lp_requiredTech != null)) {
+        auto8105CB91_val = lp_requiredTechAlias;
+        if (auto8105CB91_val == libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+            lp_requiredTech = libVSAI_gf_GetUnitAliasGameLink(lp_requiredTech, 0);
+        }
+        else if (auto8105CB91_val == libVSAI_ge_TgAIIncludeAlias_IncludeLastAlias) {
+            lp_requiredTech = libVSAI_gf_GetUnitAliasGameLink(lp_requiredTech, 255);
+        }
+        else {
+        }
+    }
+
+    if (((lp_requiredTech == null) || (AITechCount(lp_player, lp_requiredTech, c_techCountCompleteOnly) != 0)) && (lv_progressCount < lp_count)) {
+        AIBuild(lp_player, 2, lp_town, lp_unitType, MinI((lp_count - lv_progressCount), lp_maxqueue), lp_buildFlags);
+    }
+
+}
+
+void libVSAI_gf_ResearchIfNotInQueue (int lp_player, string lp_upgrade, int lp_count, string lp_requiredTech, int lp_requiredTechAlias) {
+    // Variable Declarations
+    int lv_progressCount;
+
+    // Automatic Variable Declarations
+    int auto1C33ECF1_val;
+
+    // Variable Initialization
+    lv_progressCount = TechTreeUpgradeCount(lp_player, lp_upgrade, c_techCountQueuedOrBetter);
+
+    // Implementation
+    if ((lp_requiredTech != null)) {
+        auto1C33ECF1_val = lp_requiredTechAlias;
+        if (auto1C33ECF1_val == libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias) {
+            lp_requiredTech = libVSAI_gf_GetUnitAliasGameLink(lp_requiredTech, 0);
+        }
+        else if (auto1C33ECF1_val == libVSAI_ge_TgAIIncludeAlias_IncludeLastAlias) {
+            lp_requiredTech = libVSAI_gf_GetUnitAliasGameLink(lp_requiredTech, 255);
+        }
+        else {
+        }
+    }
+
+    if (((lp_requiredTech == null) || (AITechCount(lp_player, lp_requiredTech, c_techCountCompleteOnly) != 0)) && (lv_progressCount < lp_count)) {
+        AIResearch(lp_player, 0, -1, lp_upgrade);
+    }
+
+}
+
+int libVSAI_gf_GetTownInRegion (int lp_player, region lp_region) {
+    // Variable Declarations
+    int lv_i;
+    int lv_i_free;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_i_free = AIGetNextUnusedTownSlot(lp_player);
+
+    // Implementation
+    while ((libVSAI_gv_townMax > lv_i)) {
+        if ((AIGetTownState(lp_player, lv_i) != 0) && (AIGetTownState(lp_player, lv_i) != -1) && (RegionContainsPoint(lp_region, AIGetTownLocation(lp_player, lv_i)) == true)) {
+            return lv_i;
+        }
+        else {
+            lv_i += 1;
+        }
+    }
+    AIDeclareTown(lp_player, lv_i_free, RegionGetCenter(lp_region));
+    return lv_i_free;
+}
+
+void libVSAI_gf_OrderUnitToAttackMove (unit lp_unit, point lp_target) {
+    // Variable Declarations
+    order lv_ord;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_ord = OrderTargetingPoint(AbilityCommand("attack", 0), lp_target);
+
+    // Implementation
+    if ((UnitOrderIsValid(lp_unit, lv_ord) == true)) {
+        libNtve_gf_AICast(lp_unit, lv_ord);
+        return ;
+    }
+
+    lv_ord = OrderTargetingPoint(AbilityCommand("move", 3), lp_target);
+    if ((UnitOrderIsValid(lp_unit, lv_ord) == true)) {
+        libNtve_gf_AICast(lp_unit, lv_ord);
+        return ;
+    }
+
+    lv_ord = OrderTargetingPoint(AbilityCommand("move", 0), lp_target);
+    if ((UnitOrderIsValid(lp_unit, lv_ord) == true)) {
+        libNtve_gf_AICast(lp_unit, lv_ord);
+        return ;
+    }
+
+}
+
+order libVSAI_gf_CreateOrderforAI (abilcmd lp_abilCmd, int lp_player) {
+    // Variable Declarations
+    order lv_ord;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((lp_abilCmd == null)) {
+        return null;
+    }
+
+    lv_ord = Order(lp_abilCmd);
+    OrderSetPlayer(lv_ord, lp_player);
+    return lv_ord;
+}
+
+void libVSAI_gf_AddAttackWaveUnitType (int lp_count, string lp_unitType) {
+    // Automatic Variable Declarations
+    // Implementation
+    AIAttackWaveAddUnits(-1, lp_count, lp_unitType);
+}
+
+unitgroup libVSAI_gf_CreateUnitsWithDefaultFacing (int lp_count, string lp_type, int lp_style, int lp_player, point lp_p) {
+    // Variable Declarations
+    fixed lv_angle;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((CatalogFieldValueGet(c_gameCatalogUnit, lp_type, "FlagArray", lp_player) == "1")) {
+        lv_angle = libNtve_gf_RandomAngle();
+    }
+    else {
+        lv_angle = StringToFixed(CatalogFieldValueGet(c_gameCatalogUnit, lp_type, "Facing", lp_player));
+        lv_angle -= 90.0;
+    }
+    return UnitCreate(lp_count, lp_type, lp_style, lp_player, lp_p, lv_angle);
+}
+
+unitgroup libVSAI_gf_CreateUnitsAtPoint2 (int lp_count, string lp_type, int lp_flags, int lp_player, point lp_p) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UnitCreate(lp_count, lp_type, lp_flags, lp_player, lp_p, PointGetFacing(lp_p));
+}
+
+unitgroup libVSAI_gf_UnitCreateFacingPoint (int lp_count, string lp_type, int lp_flags, int lp_player, point lp_pos, point lp_facing) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UnitCreate(lp_count, lp_type, lp_flags, lp_player, lp_pos, AngleBetweenPoints(lp_pos, lp_facing));
+}
+
+void libVSAI_gf_TacticalAIFilterSortByLife (aifilter lp_filter, fixed lp_damage, fixed lp_distance) {
+    // Automatic Variable Declarations
+    // Implementation
+    AISetFilterLifeSortReference(lp_filter, lp_damage, lp_distance);
+}
+
+bool libVSAI_gf_AIIsExpandingOrHasExpanded (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    int state;
+    int count = 0;
+    int i = 0;
+    int player = lp_player;
+    while (i < c_townMax) {
+        state = AIGetTownState(player, i);
+        i = i + 1;
+        if (state == c_townStateClaimed || state == c_townStateBuilding) {
+            return true; // already expanding
+        }
+        if (state != c_townStateEstablished) {
+            continue;
+        }
+        if (count == 1) {
+            return true; // found 2nd town
+        }
+        count = 1;
+    }
+    return false;
+}
+
+bool libVSAI_gf_AINeedsDefending (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    int state;
+    int count = 0;
+    int i = 0;
+    int player = lp_player;
+    while (i < c_townMax) {
+        state = AIGetTownState(player, i);
+        i = i + 1;
+        if (state == c_townStateClaimed || state == c_townStateBuilding) {
+            return true; // already expanding
+        }
+        if (state != c_townStateEstablished) {
+            continue;
+        }
+        if (count == 1) {
+            return true; // found 2nd town
+        }
+        count = 1;
+    }
+    return false;
+}
+
+void libVSAI_gf_StockWorkers (int lp_player, int lp_count, string lp_worker) {
+    // Variable Declarations
+    int lv_count;
+    int lv_econMin;
+    int lv_econMax;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_count = lp_count;
+    lv_econMin = AIGetMinPeonCount(lp_player, 32);
+    lv_econMax = AIGetMaxPeonCount(lp_player, 32);
+
+    // Implementation
+    if ((lv_econMin > lp_count)) {
+        lv_count = lv_econMin;
+    }
+
+    if ((lv_econMax > lp_count)) {
+        lv_count = lv_econMax;
+    }
+
+    AISetStockUnitNext(lp_player, lv_count, lp_worker, false);
+}
+
+bool libVSAI_gf_MacroExpand (int lp_player) {
+    // Variable Declarations
+    int lv_AIPlayer;
+    string lv_UnitTownhall;
+    string lv_UnitPeon;
+    int lv_dangerLevel;
+    int lv_townHallMineralCost;
+    int lv_townHallVespeneCost;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_AIPlayer = lp_player;
+    lv_UnitTownhall = (libARRA_gf_ListStringGet(libVSAI_gf_AIMain(lv_AIPlayer), 1));
+    lv_UnitPeon = (libARRA_gf_ListStringGet(libVSAI_gf_AIWorkers(lv_AIPlayer), 1));
+    lv_dangerLevel = AISelfDefenseThreatEval(libVSAI_gv_realSelfThreat, lp_player);
+    lv_townHallMineralCost = CatalogFieldValueGetAsInt(c_gameCatalogUnit, lv_UnitTownhall, "CostResource[" + IntToString(c_resourceTypeMinerals) + "]", lp_player);
+    lv_townHallVespeneCost = CatalogFieldValueGetAsInt(c_gameCatalogUnit, lv_UnitTownhall, "CostResource[" + IntToString(c_resourceTypeVespene) + "]", lp_player);
+
+    // Implementation
+    if (((lv_dangerLevel >= 120) || (AIHasNearbyOpenExpansion(lp_player) == false) || (AITechCount(lp_player, lv_UnitPeon, c_techCountQueuedOrBetter) < 14) || (AITechCount(lp_player, lv_UnitTownhall, c_techCountQueuedOrBetter) >= 2))) {
+        return false;
+    }
+    if ((libVSAI_gf_AIIsExpandingOrHasExpanded(lv_AIPlayer) == false)) {
+        if ((AIHasRes(lv_AIPlayer, (lv_townHallMineralCost / 2), (lv_townHallVespeneCost / 2)) == false)) {
+            AIEnableStock(lv_AIPlayer);
+            return true;
+        }
+        else {
+            AIExpand(lv_AIPlayer, AIGetTownLocation(lv_AIPlayer, AIGetMainTown(lv_AIPlayer)), lv_UnitTownhall);
+        }
+    }
+
+    if ((AIHasRes(lv_AIPlayer, lv_townHallMineralCost, lv_townHallVespeneCost) == false)) {
+        AIEnableStock(lv_AIPlayer);
+        return true;
+    }
+    else {
+        AIExpand(lv_AIPlayer, AIGetTownLocation(lv_AIPlayer, AIGetMainTown(lv_AIPlayer)), lv_UnitTownhall);
+    }
+    return false;
+}
+
+void libVSAI_gf_BasicDefensesStock (int lp_player) {
+    // Variable Declarations
+    int lv_AIPlayer;
+    string lv_aiunitfood;
+    string lv_aiunitworker;
+    string lv_aistructuredefenses;
+    string lv_aistructuremain;
+    string lv_aistructurerefinery;
+    string lv_UnitSupply;
+    string lv_UnitTownhall;
+    string lv_UnitPeon;
+    string lv_UnitRefinery;
+    string lv_unitType;
+
+    // Automatic Variable Declarations
+    int auto72EBDB95_ai;
+    int auto72EBDB95_ae;
+
+    // Variable Initialization
+    lv_AIPlayer = lp_player;
+    lv_aiunitfood = ("^AI" + IntToString(lv_AIPlayer) + "StructureFood");
+    lv_aiunitworker = ("^AI" + IntToString(lv_AIPlayer) + "UnitWorker");
+    lv_aistructuredefenses = ("^AI" + IntToString(lv_AIPlayer) + "StructureDefense");
+    lv_aistructuremain = ("^AI" + IntToString(lv_AIPlayer) + "StructureMain");
+    lv_aistructurerefinery = ("^AI" + IntToString(lv_AIPlayer) + "StructureRefinery");
+    lv_unitType = "";
+
+    // Implementation
+    if ((libVSAI_gf_AINeedsDefending(lv_AIPlayer) == false)) {
+        return ;
+    }
+
+    AISetStockFarms(lv_AIPlayer, lv_UnitSupply, false);
+    auto72EBDB95_ai = 1;
+    auto72EBDB95_ae = libARRA_gf_ListSize(lv_aistructuredefenses);
+    while (auto72EBDB95_ai <= auto72EBDB95_ae) {
+        lv_unitType = libARRA_gf_ListStringGet(lv_aistructuredefenses, auto72EBDB95_ai);
+        auto72EBDB95_ai = auto72EBDB95_ai+1;
+        libVSAI_gf_AddEmergencyStockIfAvailable(lv_AIPlayer, 2, (lv_unitType), true);
+    }
+    AISetStock(lv_AIPlayer, 1, lv_UnitTownhall);
+    AISetStock(lv_AIPlayer, 20, lv_UnitPeon);
+    AISetStock(lv_AIPlayer, 1, lv_UnitRefinery);
+}
+
+bool libVSAI_gf_UnitIsDropOff (int lp_player, string lp_unitType) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((CatalogFieldValueGetAsInt(c_gameCatalogUnit, lp_unitType, "ResourceDropOff[" + IntToString(c_resourceTypeMinerals) + "]", lp_player) == 1)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+point libVSAI_gf_GetExpansionpoint (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return UnitGetPosition(UnitGroupRandomUnit(UnitGroup(null, c_playerAny, RegionEntireMap(), UnitFilter((1 << c_targetFilterHarvestableResource), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), c_unitCountAlive));
+}
+
+void libVSAI_gf_Speak (int lp_player, text lp_text) {
+    // Variable Declarations
+    text lv_prefix;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    TextExpressionSetToken("Param/Expression/lib_VSAI_49D5D322", "B", IntToText(lp_player));
+    TextExpressionSetToken("Param/Expression/lib_VSAI_49D5D322", "A", StringToText((PlayerRace(lp_player))));
+    lv_prefix = TextExpressionAssemble("Param/Expression/lib_VSAI_49D5D322");
+
+}
+
+void libVSAI_gf_SetupAIFlags (int lp_player) {
+    // Variable Declarations
+    int lv_aIPlayer;
+    int lv_diff;
+    point lv_targDPoint;
+    point lv_targOPoint;
+    wavetarget lv_targD;
+    wavetarget lv_targO;
+    int lv_townMain;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_aIPlayer = lp_player;
+
+    // Implementation
+    if ((lv_diff > 4)) {
+    }
+    AISetDifficulty(lv_aIPlayer, c_diffAdvancedRetreatLogic, true);
+    AISetDifficulty(lv_aIPlayer, c_diffPressForward, true);
+    AISetDifficulty(lv_aIPlayer, c_diffAllowBuildInDanger, true);
+    AISetDifficulty(lv_aIPlayer, c_diffAllowKiting, true);
+    AISetDifficulty(lv_aIPlayer, c_diffAllowLongDistanceMining, true);
+    AISetDifficulty(lv_aIPlayer, c_diffAllowResourceReq, true);
+    AISetDifficulty(lv_aIPlayer, c_diffAllowTransportGather, true);
+    AISetDifficulty(lv_aIPlayer, c_diffAutoBuildPrereqs, true);
+    AISetDifficulty(lv_aIPlayer, c_diffAutoTransport, true);
+    AISetDifficulty(lv_aIPlayer, c_diffAutoLoadBunkers, true);
+    AISetDifficulty(lv_aIPlayer, c_diffAvoidMindControlled, true);
+    AISetDifficulty(lv_aIPlayer, c_diffBalancePeonsAcrossBases, true);
+    AISetDifficulty(lv_aIPlayer, c_diffDefendWithPeons, true);
+    AISetDifficulty(lv_aIPlayer, c_diffDelayAdvTargetting, true);
+    AISetDifficulty(lv_aIPlayer, c_diffEarlyDefenseScout, true);
+    AISetDifficulty(lv_aIPlayer, c_diffRepairDamage, true);
+    AISetDifficulty(lv_aIPlayer, c_diffFleeDamage, true);
+    AISetDifficulty(lv_aIPlayer, c_diffEnableDangerMap, true);
+    AISetDifficulty(lv_aIPlayer, c_diffHoldAtIdleChokes, true);
+    AISetDifficulty(lv_aIPlayer, c_diffFleeWorkers, true);
+    AISetDifficulty(lv_aIPlayer, c_diffFleeDanger, true);
+    AISetDifficulty(lv_aIPlayer, c_diffNormalVision, true);
+    AISetDifficulty(lv_aIPlayer, c_diffOptimizeGas, true);
+    AISetDifficulty(lv_aIPlayer, c_diffEarlyGameRepair, true);
+    AISetDifficulty(lv_aIPlayer, c_diffSetRallyPoints, true);
+    AISetDifficulty(lv_aIPlayer, c_diffSplitAttacking, true);
+    AISetDifficulty(lv_aIPlayer, c_diffSpotChangelings, true);
+    AISetDifficulty(lv_aIPlayer, c_diffSupportsBeacons, true);
+    AISetDifficulty(lv_aIPlayer, c_diffTargetSpawners, true);
+    AISetDifficulty(lv_aIPlayer, c_diffLimitAPM, true);
+    AISetDifficulty(lv_aIPlayer, c_diffLimitAPMCombat, true);
+    AISetDifficulty(lv_aIPlayer, c_diffTimeoutMakeRequests, true);
+    AISetDifficulty(lv_aIPlayer, c_diffUseExtraScouts, true);
+    AISetDifficulty(lv_aIPlayer, c_diffNormalTargetPrio, true);
+    AISetDifficulty(lv_aIPlayer, c_diffWaveLeashing, true);
+    AISetDifficulty(lv_aIPlayer, c_diffWaveAvoidDanger, true);
+    AIDeclareTown(lv_aIPlayer, 0, PlayerStartLocation(lv_aIPlayer));
+    AISetMainTown(lv_aIPlayer, 0);
+    AIHarvest(lv_aIPlayer, 0);
+    AISetAllStates(lv_aIPlayer, 1);
+    lv_targDPoint = AIGetGatherDefLocation(lv_aIPlayer, lv_townMain);
+    lv_targOPoint = AIGetGatherLocation(lv_aIPlayer, lv_townMain);
+    AISetNumScouts(lv_aIPlayer, 1);
+    AISetDefenseRadii(lv_aIPlayer, 15.0, 10.0, 12.0);
+    AIScout(lv_aIPlayer);
+}
+
+void libVSAI_gf_AITechInfo (int lp_player) {
+    // Variable Declarations
+    int lv_aIPlayer;
+    string lv_aiunits;
+    string lv_aiunitfood;
+    string lv_aiunitsupport;
+    string lv_aiunitcombat;
+    string lv_aiunitworker;
+    string lv_aiunittransport;
+    string lv_aistructuretech;
+    string lv_aistructureproduction;
+    string lv_aistructuredefenses;
+    string lv_aistructurepower;
+    string lv_aistructuremain;
+    string lv_aistructurerefinery;
+    string lv_aiupgrades;
+    string lv_aistructuredropoff;
+    string lv_aimorph;
+    string lv_aiprojectiles;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_aIPlayer = lp_player;
+    lv_aiunits = ("^AI" + IntToString(lv_aIPlayer) + "Units");
+    lv_aiunitfood = ("^AI" + IntToString(lv_aIPlayer) + "StructureFood");
+    lv_aiunitsupport = ("^AI" + IntToString(lv_aIPlayer) + "UnitSupport");
+    lv_aiunitcombat = ("^AI" + IntToString(lv_aIPlayer) + "UnitCombat");
+    lv_aiunitworker = ("^AI" + IntToString(lv_aIPlayer) + "UnitWorker");
+    lv_aiunittransport = ("^AI" + IntToString(lv_aIPlayer) + "UnitTransport");
+    lv_aistructuretech = ("^AI" + IntToString(lv_aIPlayer) + "StructureTech");
+    lv_aistructureproduction = ("^AI" + IntToString(lv_aIPlayer) + "StructureProduction");
+    lv_aistructuredefenses = ("^AI" + IntToString(lv_aIPlayer) + "StructureDefense");
+    lv_aistructurepower = ("^AI" + IntToString(lv_aIPlayer) + "StructurePower");
+    lv_aistructuremain = ("^AI" + IntToString(lv_aIPlayer) + "StructureMain");
+    lv_aistructurerefinery = ("^AI" + IntToString(lv_aIPlayer) + "StructureRefinery");
+    lv_aiupgrades = ("^AI" + IntToString(lv_aIPlayer) + "Upgrades");
+    lv_aistructuredropoff = ("^AI" + IntToString(lv_aIPlayer) + "StructureDropOff");
+    lv_aimorph = ("^AI" + IntToString(lv_aIPlayer) + "Morphs");
+    lv_aiprojectiles = ("^AI" + IntToString(lv_aIPlayer) + "Projectiles");
+
+    // Implementation
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_E0FEEEFB"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_BF77E86D", "A", StringToText((PlayerRace(lv_aIPlayer))));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_BF77E86D"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_3367DC08", "A", libARRA_gf_ListStringtoText(lv_aimorph));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_3367DC08"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_57A6FFBC", "A", libARRA_gf_ListStringtoText(lv_aiprojectiles));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_57A6FFBC"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_78BE631E", "A", libARRA_gf_ListStringtoText(lv_aiunits));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_78BE631E"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_C6655192", "A", libARRA_gf_ListStringtoText(lv_aiupgrades));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_C6655192"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_16369B72", "A", libARRA_gf_ListStringtoText(lv_aistructuremain));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_16369B72"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_2E5BE931", "A", libARRA_gf_ListStringtoText(lv_aistructuredropoff));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_2E5BE931"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_B6EDDF9B", "A", libARRA_gf_ListStringtoText(lv_aiunitworker));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_B6EDDF9B"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_0DF8E162", "A", libARRA_gf_ListStringtoText(lv_aiunitfood));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_0DF8E162"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_ACEB896C", "A", libARRA_gf_ListStringtoText(lv_aistructurerefinery));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_ACEB896C"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_B69385DF", "A", libARRA_gf_ListStringtoText(lv_aistructureproduction));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_B69385DF"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_FD302351", "A", libARRA_gf_ListStringtoText(lv_aistructuretech));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_FD302351"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_2EB7A16D", "A", libARRA_gf_ListStringtoText(lv_aistructuredefenses));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_2EB7A16D"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_2A1C2DE7", "A", libARRA_gf_ListStringtoText(lv_aiunitcombat));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_2A1C2DE7"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_EBED9FE4", "A", libARRA_gf_ListStringtoText(lv_aiunitsupport));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_EBED9FE4"), true);
+    TextExpressionSetToken("Param/Expression/lib_VSAI_BD4A24F7", "A", libARRA_gf_ListStringtoText(lv_aiunittransport));
+    TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_BD4A24F7"), true);
+}
+
+void libVSAI_gf_Attack (int lp_player) {
+    // Variable Declarations
+    int lv_AIPlayer;
+    string lv_aiunitcombat;
+    fixed lv_nextwavetime;
+    bool lv_wavemerge;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_AIPlayer = lp_player;
+    lv_aiunitcombat = ("^AI" + IntToString(lv_AIPlayer) + "UnitCombat");
+    lv_nextwavetime = 160.0;
+
+    // Implementation
+    if ((AIWaveUnitCount(libVSAI_gv_aIWaves[lv_AIPlayer]) > 0)) {
+        AIAttackWaveSetTargetMerge(lv_AIPlayer, libVSAI_gv_aIWaves[lv_AIPlayer]);
+        lv_wavemerge = true;
+    }
+    else {
+        AIAttackWaveSetTargetMelee(lv_AIPlayer);
+        lv_wavemerge = false;
+    }
+    AIAttackWaveSend(lv_AIPlayer, 20, false);
+    if ((lv_wavemerge == false)) {
+        libVSAI_gv_aIWaves[lv_AIPlayer] = WaveLastCreated();
+    }
+
+}
+
+void libVSAI_gf_AddStockIfAvailable (int lp_player, int lp_count, string lp_what) {
+    // Variable Declarations
+    int lv_want;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_want = lp_count;
+
+    // Implementation
+    if ((AIDefaultGetFirstUnfinishedReq(lp_player, lp_what) != null)) {
+        return ;
+    }
+    else {
+        TextExpressionSetToken("Param/Expression/lib_VSAI_109AFCB3", "B", IntToText(lp_count));
+        TextExpressionSetToken("Param/Expression/lib_VSAI_109AFCB3", "A", StringToText((lp_what)));
+        TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_109AFCB3"), true);
+        if ((UnitTypeTestAttribute(lp_what, c_unitAttributeStructure) == true)) {
+            libVSAI_gf_BuildIfNotInQueue(lp_player, lp_what, libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, lv_want, null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, -1, libVSAI_gv_power, 2);
+        }
+        else {
+            libVSAI_gf_TrainUnitIfNotInQueue(lp_player, lp_what, libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, lv_want, null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, -1, 2);
+        }
+    }
+}
+
+void libVSAI_gf_AddEmergencyStockIfAvailable (int lp_player, int lp_count, string lp_what, bool lp_onlyIfTechInPlace) {
+    // Variable Declarations
+    int lv_want;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    if ((lp_onlyIfTechInPlace == true) && (AIDefaultGetFirstUnfinishedReq(lp_player, lp_what) != null)) {
+        return ;
+    }
+    else {
+        lv_want = MaxI((AITechCount(lp_player, lp_what, c_techCountInProgressOrBetter) + 1), lp_count);
+        TextExpressionSetToken("Param/Expression/lib_VSAI_FD4022B9", "B", IntToText(lp_count));
+        TextExpressionSetToken("Param/Expression/lib_VSAI_FD4022B9", "A", StringToText((lp_what)));
+        TriggerDebugOutput(1, TextExpressionAssemble("Param/Expression/lib_VSAI_FD4022B9"), true);
+        AISetStockEx(lp_player, libVSAI_gv_townMain, lv_want, lp_what, libVSAI_gv_default, 4);
+    }
+}
+
+void libVSAI_gf_BuildBaseIfNotExists (int lp_player) {
+    // Variable Declarations
+    int lv_aIPlayer;
+    string lv_aiunitfood;
+    string lv_aiunitsupport;
+    string lv_aiunitcombat;
+    string lv_aiunitworker;
+    string lv_aiunittransport;
+    string lv_aistructuretech;
+    string lv_aistructureproduction;
+    string lv_aistructuredefenses;
+    string lv_aistructurepower;
+    string lv_aistructuremain;
+    string lv_aistructurerefinery;
+    string lv_aiupgrades;
+    string lv_aistructuredropoff;
+    string lv_unitTownHall;
+    string lv_unitPeon;
+    string lv_unitRefinery;
+    string lv_unitSupply;
+    string lv_unitTransport;
+    string lv_unitType;
+    string lv_UnitTransport2;
+    int lv_towns;
+    int lv_supplyNeeded;
+    fixed lv_supplyFoodAmount;
+    int lv_SupplyNeeded2;
+    int lv_SupplyNeeded3;
+    int lv_SupplyNeeded6;
+    int lv_SupplyNeeded5;
+    int lv_SupplyNeeded4;
+    fixed lv_nextwavetime;
+    string lv_techStructure;
+    string lv_techCombat;
+    string lv_techSupport;
+    string lv_techProduction;
+    string lv_techUpgrade;
+    string lv_availableunits;
+    string lv_availableupgrades;
+    string lv_availablesupport;
+    string lv_availableproduction;
+    string lv_availabletech;
+    int lv_dangerLevel;
+    bool lv_isExpansing;
+    timer lv_aIExpandTimer;
+    timer lv_aIAttackTimer;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_aIPlayer = lp_player;
+    lv_aiunitfood = ("^AI" + IntToString(lv_aIPlayer) + "StructureFood");
+    lv_aiunitsupport = ("^AI" + IntToString(lv_aIPlayer) + "UnitSupport");
+    lv_aiunitcombat = ("^AI" + IntToString(lv_aIPlayer) + "UnitCombat");
+    lv_aiunitworker = ("^AI" + IntToString(lv_aIPlayer) + "UnitWorker");
+    lv_aiunittransport = ("^AI" + IntToString(lv_aIPlayer) + "UnitTransport");
+    lv_aistructuretech = ("^AI" + IntToString(lv_aIPlayer) + "StructureTech");
+    lv_aistructureproduction = ("^AI" + IntToString(lv_aIPlayer) + "StructureProduction");
+    lv_aistructuredefenses = ("^AI" + IntToString(lv_aIPlayer) + "StructureDefense");
+    lv_aistructurepower = ("^AI" + IntToString(lv_aIPlayer) + "StructurePower");
+    lv_aistructuremain = ("^AI" + IntToString(lv_aIPlayer) + "StructureMain");
+    lv_aistructurerefinery = ("^AI" + IntToString(lv_aIPlayer) + "StructureRefinery");
+    lv_aiupgrades = ("^AI" + IntToString(lv_aIPlayer) + "Upgrades");
+    lv_aistructuredropoff = ("^AI" + IntToString(lv_aIPlayer) + "StructureDropOff");
+    lv_UnitTransport2 = "";
+    lv_supplyFoodAmount = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_unitRefinery, "Food", lv_aIPlayer);
+    lv_nextwavetime = 160.0;
+    lv_availableunits = ("^AI" + IntToString(lv_aIPlayer) + "AvailableUnits");
+    lv_availableupgrades = ("^AI" + IntToString(lv_aIPlayer) + "AvailableUpgrades");
+    lv_availablesupport = ("^AI" + IntToString(lv_aIPlayer) + "AvailableSupport");
+    lv_availableproduction = ("^AI" + IntToString(lv_aIPlayer) + "AvailableProduction");
+    lv_availabletech = ("^AI" + IntToString(lv_aIPlayer) + "AvailableTech");
+    lv_dangerLevel = AISelfDefenseThreatEval(libVSAI_gv_realSelfThreat, lv_aIPlayer);
+    lv_aIExpandTimer = TimerCreate();
+    lv_aIAttackTimer = TimerCreate();
+
+    // Implementation
+    if ((UnitGroupCount(libARRA_gf_UnitsInRegionWithSpecifiedTypes(lv_aIPlayer, lv_aistructuredropoff, RegionEntireMap()), c_unitCountAlive) == 0)) {
+        libVSAI_gf_Speak(lv_aIPlayer, StringToText(""));
+
+    }
+
+}
+
+void libVSAI_gf_Update (int lp_player) {
+    // Variable Declarations
+    int lv_aIPlayer;
+    string lv_aiunitfood;
+    string lv_aiunitsupport;
+    string lv_aiunitcombat;
+    string lv_aiunitworker;
+    string lv_aiunittransport;
+    string lv_aistructuretech;
+    string lv_aistructureproduction;
+    string lv_aistructuredefenses;
+    string lv_aistructurepower;
+    string lv_aistructuremain;
+    string lv_aistructurerefinery;
+    string lv_aiupgrades;
+    string lv_aistructuredropoff;
+    string lv_availableunits;
+    string lv_availableupgrades;
+    string lv_availablesupport;
+    string lv_availableproduction;
+    string lv_availabletech;
+    string lv_UnitTransport2;
+    string lv_unit;
+
+    // Automatic Variable Declarations
+    int autoDB5DF7C1_ai;
+    int autoDB5DF7C1_ae;
+    int auto7F1775E7_ai;
+    int auto7F1775E7_ae;
+    int auto3037DAFF_ai;
+    int auto3037DAFF_ae;
+    int auto32F0F187_ai;
+    int auto32F0F187_ae;
+    int auto8B2BD7B2_ai;
+    int auto8B2BD7B2_ae;
+
+    // Variable Initialization
+    lv_aIPlayer = lp_player;
+    lv_aiunitfood = ("^AI" + IntToString(lv_aIPlayer) + "StructureFood");
+    lv_aiunitsupport = ("^AI" + IntToString(lv_aIPlayer) + "UnitSupport");
+    lv_aiunitcombat = ("^AI" + IntToString(lv_aIPlayer) + "UnitCombat");
+    lv_aiunitworker = ("^AI" + IntToString(lv_aIPlayer) + "UnitWorker");
+    lv_aiunittransport = ("^AI" + IntToString(lv_aIPlayer) + "UnitTransport");
+    lv_aistructuretech = ("^AI" + IntToString(lv_aIPlayer) + "StructureTech");
+    lv_aistructureproduction = ("^AI" + IntToString(lv_aIPlayer) + "StructureProduction");
+    lv_aistructuredefenses = ("^AI" + IntToString(lv_aIPlayer) + "StructureDefense");
+    lv_aistructurepower = ("^AI" + IntToString(lv_aIPlayer) + "StructurePower");
+    lv_aistructuremain = ("^AI" + IntToString(lv_aIPlayer) + "StructureMain");
+    lv_aistructurerefinery = ("^AI" + IntToString(lv_aIPlayer) + "StructureRefinery");
+    lv_aiupgrades = ("^AI" + IntToString(lv_aIPlayer) + "Upgrades");
+    lv_aistructuredropoff = ("^AI" + IntToString(lv_aIPlayer) + "StructureDropOff");
+    lv_availableunits = ("^AI" + IntToString(lv_aIPlayer) + "AvailableUnits");
+    lv_availableupgrades = ("^AI" + IntToString(lv_aIPlayer) + "AvailableUpgrades");
+    lv_availablesupport = ("^AI" + IntToString(lv_aIPlayer) + "AvailableSupport");
+    lv_availableproduction = ("^AI" + IntToString(lv_aIPlayer) + "AvailableProduction");
+    lv_availabletech = ("^AI" + IntToString(lv_aIPlayer) + "AvailableTech");
+    lv_UnitTransport2 = "";
+
+    // Implementation
+    AIClearTrainQueue(lv_aIPlayer);
+    AIClearBuildQueue(lv_aIPlayer);
+    AIClearStock(lv_aIPlayer);
+    AIClearResearchQueue(lv_aIPlayer);
+    libARRA_gf_ListClear(lv_availableproduction);
+    libARRA_gf_ListClear(lv_availablesupport);
+    libARRA_gf_ListClear(lv_availabletech);
+    libARRA_gf_ListClear(lv_availableunits);
+    libARRA_gf_ListClear(lv_availableupgrades);
+    autoDB5DF7C1_ai = 1;
+    autoDB5DF7C1_ae = libARRA_gf_ListSize(lv_aiunitcombat);
+    while (autoDB5DF7C1_ai <= autoDB5DF7C1_ae) {
+        lv_UnitTransport2 = libARRA_gf_ListStringGet(lv_aiunitcombat, autoDB5DF7C1_ai);
+        autoDB5DF7C1_ai = autoDB5DF7C1_ai+1;
+        lv_unit = (lv_UnitTransport2);
+        if ((AIDefaultGetFirstUnfinishedReq(lv_aIPlayer, lv_unit) == null) && (AIDefaultGetFirstMissingReq(lv_aIPlayer, lv_unit) == null)) {
+            libARRA_gf_ListStringInclude(lv_availableunits, lv_UnitTransport2);
+        }
+
+    }
+    auto7F1775E7_ai = 1;
+    auto7F1775E7_ae = libARRA_gf_ListSize(lv_aistructureproduction);
+    while (auto7F1775E7_ai <= auto7F1775E7_ae) {
+        lv_UnitTransport2 = libARRA_gf_ListStringGet(lv_aistructureproduction, auto7F1775E7_ai);
+        auto7F1775E7_ai = auto7F1775E7_ai+1;
+        lv_unit = (lv_UnitTransport2);
+        if ((AIDefaultGetFirstUnfinishedReq(lv_aIPlayer, lv_unit) == null) && (AIDefaultGetFirstMissingReq(lv_aIPlayer, lv_unit) == null)) {
+            libARRA_gf_ListStringInclude(lv_availableproduction, lv_UnitTransport2);
+        }
+
+    }
+    auto3037DAFF_ai = 1;
+    auto3037DAFF_ae = libARRA_gf_ListSize(lv_aistructuretech);
+    while (auto3037DAFF_ai <= auto3037DAFF_ae) {
+        lv_UnitTransport2 = libARRA_gf_ListStringGet(lv_aistructuretech, auto3037DAFF_ai);
+        auto3037DAFF_ai = auto3037DAFF_ai+1;
+        lv_unit = (lv_UnitTransport2);
+        if ((AIDefaultGetFirstUnfinishedReq(lv_aIPlayer, lv_unit) == null) && (AIDefaultGetFirstMissingReq(lv_aIPlayer, lv_unit) == null)) {
+            libARRA_gf_ListStringInclude(lv_availabletech, lv_UnitTransport2);
+        }
+
+    }
+    auto32F0F187_ai = 1;
+    auto32F0F187_ae = libARRA_gf_ListSize(lv_aiunitsupport);
+    while (auto32F0F187_ai <= auto32F0F187_ae) {
+        lv_UnitTransport2 = libARRA_gf_ListStringGet(lv_aiunitsupport, auto32F0F187_ai);
+        auto32F0F187_ai = auto32F0F187_ai+1;
+        lv_unit = (lv_UnitTransport2);
+        if ((AIDefaultGetFirstUnfinishedReq(lv_aIPlayer, lv_unit) == null) && (AIDefaultGetFirstMissingReq(lv_aIPlayer, lv_unit) == null)) {
+            libARRA_gf_ListStringInclude(lv_availablesupport, lv_UnitTransport2);
+        }
+
+    }
+    auto8B2BD7B2_ai = 1;
+    auto8B2BD7B2_ae = libARRA_gf_ListSize(lv_aiupgrades);
+    while (auto8B2BD7B2_ai <= auto8B2BD7B2_ae) {
+        lv_UnitTransport2 = libARRA_gf_ListStringGet(lv_aiupgrades, auto8B2BD7B2_ai);
+        auto8B2BD7B2_ai = auto8B2BD7B2_ai+1;
+        if ((AIDefaultGetFirstUnfinishedReq(lv_aIPlayer, (lv_UnitTransport2)) == null) && (AIDefaultGetFirstMissingReq(lv_aIPlayer, (lv_UnitTransport2)) == null)) {
+            libARRA_gf_ListStringInclude(lv_availableupgrades, lv_UnitTransport2);
+        }
+
+    }
+}
+
+void libVSAI_gf_Setup (int lp_player) {
+    // Variable Declarations
+    int lv_ai;
+    string lv_unitProduction;
+    unit lv_unit;
+    int lv_index;
+    int lv_cardlayout;
+    int lv_layoutbutton;
+    string lv_unitName1;
+    string lv_unitName2;
+    string lv_unitName3;
+    string lv_unitType;
+    string lv_unitType2;
+    string lv_abilCmdName;
+    abilcmd lv_abilCmd;
+    int lv_abilCmdIndex;
+    string lv_ability;
+    string lv_ability2;
+    string lv_behavior;
+    string lv_aiunits;
+    string lv_aiupgrades;
+    string lv_aiunitfood;
+    string lv_aiunitsupport;
+    string lv_aiunitcombat;
+    string lv_aiunitworker;
+    string lv_aiunittransport;
+    string lv_aistructuretech;
+    string lv_aistructureproduction;
+    string lv_aistructuredefenses;
+    string lv_aistructurepower;
+    string lv_aistructuredropoff;
+    string lv_aistructuremain;
+    string lv_aistructurerefinery;
+    string lv_aimorph;
+    string lv_aiprojectiles;
+    string lv_airequirements;
+    bool lv_unitfood;
+    bool lv_unitstructure;
+    bool lv_unittech;
+    bool lv_unitproduction;
+    bool lv_unitdetection;
+    bool lv_unitworker;
+    bool lv_unitcombat;
+    bool lv_unittransport;
+    bool lv_unitdropoff;
+    bool lv_unitdropoffmorph;
+    bool lv_unitvespene;
+    bool lv_isPhaseMorphAbility;
+
+    // Automatic Variable Declarations
+    unitgroup autoE43F794C_g;
+    int autoE43F794C_u;
+    int auto434CD587_ae;
+    int auto434CD587_var;
+    int auto6D636E86_ae;
+    int auto6D636E86_var;
+    int auto799DC3D6_ae;
+    int auto799DC3D6_var;
+    int auto6B050B41_ae;
+    int auto6B050B41_var;
+    int autoAF433373_ae;
+    int autoAF433373_var;
+    int autoDDD824FB_ae;
+    int autoDDD824FB_var;
+    int auto7C0CAD06_ae;
+    int auto7C0CAD06_var;
+    int auto6A77ACCE_ae;
+    int auto6A77ACCE_var;
+    int auto09DB0D2A_ae;
+    int auto09DB0D2A_var;
+    int auto6FEF489E_ae;
+    int auto6FEF489E_var;
+    int auto4775DF66_ae;
+    const int auto4775DF66_ai = 1;
+    int auto039B9B04_ae;
+    const int auto039B9B04_ai = 1;
+    int auto38C3EA4B_val;
+    int auto9443E169_ae;
+    int auto9443E169_var;
+    int auto23A19FBE_ae;
+    int auto23A19FBE_var;
+    int autoA940015D_ae;
+    int autoA940015D_var;
+    int auto302B636D_ae;
+    int auto302B636D_var;
+
+    // Variable Initialization
+    lv_unitProduction = "";
+    lv_index = 1;
+    lv_unitName1 = "";
+    lv_unitName2 = "";
+    lv_unitName3 = "";
+    lv_aiunits = ("^AI" + IntToString(lp_player) + "Units");
+    lv_aiupgrades = ("^AI" + IntToString(lp_player) + "Upgrades");
+    lv_aiunitfood = ("^AI" + IntToString(lp_player) + "StructureFood");
+    lv_aiunitsupport = ("^AI" + IntToString(lp_player) + "UnitSupport");
+    lv_aiunitcombat = ("^AI" + IntToString(lp_player) + "UnitCombat");
+    lv_aiunitworker = ("^AI" + IntToString(lp_player) + "UnitWorker");
+    lv_aiunittransport = ("^AI" + IntToString(lp_player) + "UnitTransport");
+    lv_aistructuretech = ("^AI" + IntToString(lp_player) + "StructureTech");
+    lv_aistructureproduction = ("^AI" + IntToString(lp_player) + "StructureProduction");
+    lv_aistructuredefenses = ("^AI" + IntToString(lp_player) + "StructureDefense");
+    lv_aistructurepower = ("^AI" + IntToString(lp_player) + "StructurePower");
+    lv_aistructuredropoff = ("^AI" + IntToString(lp_player) + "StructureDropOff");
+    lv_aistructuremain = ("^AI" + IntToString(lp_player) + "StructureMain");
+    lv_aistructurerefinery = ("^AI" + IntToString(lp_player) + "StructureRefinery");
+    lv_aimorph = ("^AI" + IntToString(lp_player) + "Morphs");
+    lv_aiprojectiles = ("^AI" + IntToString(lp_player) + "Projectiles");
+    lv_airequirements = ("^AI" + IntToString(lp_player) + "Requirements");
+
+    // Implementation
+    autoE43F794C_g = UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoE43F794C_u = UnitGroupCount(autoE43F794C_g, c_unitCountAll);
+    for (;; autoE43F794C_u -= 1) {
+        lv_unit = UnitGroupUnitFromEnd(autoE43F794C_g, autoE43F794C_u);
+        if (lv_unit == null) { break; }
+        lv_unitType = UnitGetType(lv_unit);
+        lv_unitworker = UnitTypeTestFlag(lv_unitType, c_unitFlagWorker);
+        lv_unitdropoff = libVSAI_gf_UnitIsDropOff(lp_player, lv_unitType);
+        if (((lv_unitdropoff == true) || (lv_unitworker == true))) {
+            libARRA_gf_ListStringInclude(lv_aiunits, (lv_unitType));
+        }
+
+    }
+    while ((libARRA_gf_ListStringGet(lv_aiunits, lv_index) != null)) {
+        lv_unitName1 = libARRA_gf_ListStringGet(lv_aiunits, lv_index);
+        lv_unitType = (lv_unitName1);
+        if (((UnitTypeTestFlag(lv_unitType, c_unitFlagUnselectable) == true) || (UnitTypeTestFlag(lv_unitType, c_unitFlagUncommandable) == true) || (UnitTypeTestFlag(lv_unitType, c_unitFlagMissile) == true) || (UnitTypeTestFlag(lv_unitType, c_unitFlagNoDraw) == true))) {
+            lv_index += 1;
+            libARRA_gf_ListStringInclude(lv_aiprojectiles, lv_unitName1);
+            libARRA_gf_ListStringExclude(lv_aiunits, lv_unitName1);
+            continue;
+        }
+
+        lv_unitproduction = false;
+        lv_unittech = false;
+        lv_unittransport = false;
+        lv_unitstructure = UnitTypeTestAttribute(lv_unitType, c_unitAttributeStructure);
+        lv_unitworker = UnitTypeTestFlag(lv_unitType, c_unitFlagWorker);
+        if ((CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "WeaponArray", lp_player) > 0)) {
+            lv_unitcombat = true;
+        }
+        else {
+            lv_unitcombat = false;
+        }
+        lv_unitdetection = libARRA_gf_UnitisDetector(lp_player, lv_unitType);
+        libARRA_gf_ListStringExclude(lv_aimorph, lv_unitName1);
+        auto434CD587_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitName1, "AbilArray", lp_player) - 1);
+        auto434CD587_var = 0;
+        for ( ; auto434CD587_var <= auto434CD587_ae; auto434CD587_var += 1 ) {
+            lv_ability = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitName1, "AbilArray[" + IntToString(auto434CD587_var) + "].Link", lp_player));
+            if ((AbilityClass(lv_ability) == c_classIdCAbilMorph)) {
+                auto6D636E86_ae = (CatalogFieldValueCount(c_gameCatalogAbil, lv_ability, "InfoArray", lp_player) - 1);
+                auto6D636E86_var = 0;
+                for ( ; auto6D636E86_var <= auto6D636E86_ae; auto6D636E86_var += 1 ) {
+                    lv_unitName2 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "InfoArray[" + IntToString(auto6D636E86_var) + "].Unit", lp_player);
+                    lv_unitType2 = (lv_unitName2);
+                    lv_isPhaseMorphAbility = false;
+                    auto799DC3D6_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitName2, "AbilArray", lp_player) - 1);
+                    auto799DC3D6_var = 0;
+                    for ( ; auto799DC3D6_var <= auto799DC3D6_ae; auto799DC3D6_var += 1 ) {
+                        lv_ability2 = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitName2, "AbilArray[" + IntToString(auto799DC3D6_var) + "].Link", lp_player));
+                        if ((AbilityClass(lv_ability2) == c_classIdCAbilMorph)) {
+                            auto6B050B41_ae = (CatalogFieldValueCount(c_gameCatalogAbil, lv_ability2, "InfoArray", lp_player) - 1);
+                            auto6B050B41_var = 0;
+                            for ( ; auto6B050B41_var <= auto6B050B41_ae; auto6B050B41_var += 1 ) {
+                                lv_unitName3 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability2, "InfoArray[" + IntToString(auto6B050B41_var) + "].Unit", lp_player);
+                                if ((lv_unitName3 == lv_unitName1)) {
+                                    lv_isPhaseMorphAbility = true;
+                                }
+
+                            }
+                        }
+
+                        if ((AbilityClass(lv_ability2) == c_classIdCAbilMorphPlacement)) {
+                            autoAF433373_ae = (CatalogFieldValueCount(c_gameCatalogAbil, lv_ability2, "InfoArray", lp_player) - 1);
+                            autoAF433373_var = 0;
+                            for ( ; autoAF433373_var <= autoAF433373_ae; autoAF433373_var += 1 ) {
+                                lv_unitName3 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability2, "InfoArray[" + IntToString(autoAF433373_var) + "].Unit", lp_player);
+                                if ((lv_unitName3 == lv_unitName1)) {
+                                    lv_isPhaseMorphAbility = true;
+                                }
+
+                            }
+                        }
+
+                    }
+                    if ((lv_isPhaseMorphAbility == false)) {
+                        libARRA_gf_ListStringInclude(lv_aiunits, lv_unitName2);
+                        if ((lv_unitdropoff == true)) {
+                            libARRA_gf_ListStringExclude(lv_aistructuremain, lv_unitName2);
+                        }
+
+                    }
+                    else {
+                        libARRA_gf_ListStringInclude(lv_aimorph, lv_unitName2);
+                        if ((CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType2, "WeaponArray", lp_player) > 0)) {
+                            lv_unitcombat = true;
+                        }
+                        if ((libARRA_gf_UnitisDetector(lp_player, lv_unitType2) == true)) {
+                            lv_unitdetection = true;
+                        }
+                    }
+                }
+            }
+
+            if ((AbilityClass(lv_ability) == c_classIdCAbilMorphPlacement)) {
+                autoDDD824FB_ae = (CatalogFieldValueCount(c_gameCatalogAbil, lv_ability, "InfoArray", lp_player) - 1);
+                autoDDD824FB_var = 0;
+                for ( ; autoDDD824FB_var <= autoDDD824FB_ae; autoDDD824FB_var += 1 ) {
+                    lv_unitName2 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "InfoArray[" + IntToString(autoDDD824FB_var) + "].Unit", lp_player);
+                    lv_isPhaseMorphAbility = false;
+                    auto7C0CAD06_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitName2, "AbilArray", lp_player) - 1);
+                    auto7C0CAD06_var = 0;
+                    for ( ; auto7C0CAD06_var <= auto7C0CAD06_ae; auto7C0CAD06_var += 1 ) {
+                        lv_ability2 = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitName2, "AbilArray[" + IntToString(auto7C0CAD06_var) + "].Link", lp_player));
+                        if ((AbilityClass(lv_ability2) == c_classIdCAbilMorph)) {
+                            auto6A77ACCE_ae = (CatalogFieldValueCount(c_gameCatalogAbil, lv_ability2, "InfoArray", lp_player) - 1);
+                            auto6A77ACCE_var = 0;
+                            for ( ; auto6A77ACCE_var <= auto6A77ACCE_ae; auto6A77ACCE_var += 1 ) {
+                                lv_unitName3 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability2, "InfoArray[" + IntToString(auto6A77ACCE_var) + "].Unit", lp_player);
+                                if ((lv_unitName3 == lv_unitName1)) {
+                                    lv_isPhaseMorphAbility = true;
+                                }
+
+                            }
+                        }
+
+                        if ((AbilityClass(lv_ability2) == c_classIdCAbilMorphPlacement)) {
+                            auto09DB0D2A_ae = (CatalogFieldValueCount(c_gameCatalogAbil, lv_ability2, "InfoArray", lp_player) - 1);
+                            auto09DB0D2A_var = 0;
+                            for ( ; auto09DB0D2A_var <= auto09DB0D2A_ae; auto09DB0D2A_var += 1 ) {
+                                lv_unitName3 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability2, "InfoArray[" + IntToString(auto09DB0D2A_var) + "].Unit", lp_player);
+                                if ((lv_unitName3 == lv_unitName1)) {
+                                    lv_isPhaseMorphAbility = true;
+                                }
+
+                            }
+                        }
+
+                    }
+                    if ((lv_isPhaseMorphAbility == false)) {
+                        libARRA_gf_ListStringInclude(lv_aiunits, lv_unitName2);
+                        if ((lv_unitdropoff == true)) {
+                            libARRA_gf_ListStringExclude(lv_aistructuremain, lv_unitName2);
+                        }
+
+                    }
+                    else {
+                        libARRA_gf_ListStringInclude(lv_aimorph, lv_unitName2);
+                        if ((CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType2, "WeaponArray", lp_player) > 0)) {
+                            lv_unitcombat = true;
+                        }
+                        if ((libARRA_gf_UnitisDetector(lp_player, lv_unitType2) == true)) {
+                            lv_unitdetection = true;
+                        }
+                    }
+                }
+            }
+
+        }
+        lv_unitdropoff = libVSAI_gf_UnitIsDropOff(lp_player, lv_unitType);
+        if ((lv_unitdropoff == true)) {
+            libARRA_gf_ListStringInclude(lv_aistructuredropoff, lv_unitName1);
+        }
+
+        if ((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_unitType, "Food", lp_player) > 0)) {
+            lv_unitfood = true;
+        }
+        else {
+            lv_unitfood = false;
+        }
+        lv_unitvespene = false;
+        auto6FEF489E_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitType, "BuiltOn", c_playerAny) - 1);
+        auto6FEF489E_var = 0;
+        for ( ; auto6FEF489E_var <= auto6FEF489E_ae; auto6FEF489E_var += 1 ) {
+            if ((CatalogFieldValueGet(c_gameCatalogUnit, lv_unitType, "BuiltOn[" + IntToString(auto6FEF489E_var) + "]", lp_player) == "VespeneGeyser")) {
+                lv_unitvespene = true;
+            }
+
+        }
+        auto4775DF66_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitName1, "CardLayouts", lp_player) - 1);
+        lv_cardlayout = 0;
+        for ( ; ( (auto4775DF66_ai >= 0 && lv_cardlayout <= auto4775DF66_ae) || (auto4775DF66_ai < 0 && lv_cardlayout >= auto4775DF66_ae) ) ; lv_cardlayout += auto4775DF66_ai ) {
+            auto039B9B04_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitName1, "CardLayouts[" + IntToString(lv_cardlayout) + "].LayoutButtons", lp_player) - 1);
+            lv_layoutbutton = 0;
+            for ( ; ( (auto039B9B04_ai >= 0 && lv_layoutbutton <= auto039B9B04_ae) || (auto039B9B04_ai < 0 && lv_layoutbutton >= auto039B9B04_ae) ) ; lv_layoutbutton += auto039B9B04_ai ) {
+                lv_abilCmdName = CatalogFieldValueGet(c_gameCatalogUnit, lv_unitName1, "CardLayouts[" + IntToString(lv_cardlayout) + "].LayoutButtons[" + IntToString(lv_layoutbutton) + "].AbilCmd", c_playerAny);
+                if ((lv_abilCmdName != null)) {
+                    lv_abilCmd = StringToAbilCmd(lv_abilCmdName);
+                    lv_ability = AbilityCommandGetAbility(lv_abilCmd);
+                    lv_abilCmdIndex = AbilityCommandGetCommand(lv_abilCmd);
+                    if ((TechTreeAbilityIsAllowed(lp_player, lv_abilCmd) == false)) {
+                        continue;
+                    }
+
+                    auto38C3EA4B_val = AbilityClass(lv_ability);
+                    if (auto38C3EA4B_val == c_classIdCAbilTransport) {
+                        if ((lv_unitstructure == false)) {
+                            lv_unittransport = true;
+                        }
+
+                    }
+                    else if (auto38C3EA4B_val == c_classIdCAbilBuild) {
+                        if ((lv_abilCmdIndex < 30)) {
+                            lv_unitName2 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "InfoArray[" + IntToString(lv_abilCmdIndex) + "].Unit", c_playerAny);
+                            if ((lv_unitName2 != null)) {
+                                libARRA_gf_ListStringInclude(lv_aiunits, lv_unitName2);
+                            }
+
+                        }
+
+                    }
+                    else if (auto38C3EA4B_val == c_classIdCAbilTrain) {
+                        lv_unitproduction = true;
+                        if ((lv_abilCmdIndex < 30)) {
+                            auto23A19FBE_ae = (CatalogFieldValueCount(c_gameCatalogAbil, lv_ability, "InfoArray[" + IntToString(lv_abilCmdIndex) + "].Unit", lp_player) - 1);
+                            auto23A19FBE_var = 0;
+                            for ( ; auto23A19FBE_var <= auto23A19FBE_ae; auto23A19FBE_var += 1 ) {
+                                lv_unitName2 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "InfoArray[" + IntToString(lv_abilCmdIndex) + "].Unit[" + IntToString(auto23A19FBE_var) + "]", lp_player);
+                                if ((lv_unitName2 != null)) {
+                                    libARRA_gf_ListStringInclude(lv_aiunits, lv_unitName2);
+                                }
+
+                            }
+                        }
+
+                    }
+                    else if (auto38C3EA4B_val == c_classIdCAbilWarpTrain) {
+                        lv_unitproduction = true;
+                        if ((lv_abilCmdIndex < 30)) {
+                            lv_unitName2 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "InfoArray[" + IntToString(lv_abilCmdIndex) + "].Unit", lp_player);
+                            if ((lv_unitName2 != null)) {
+                                libARRA_gf_ListStringInclude(lv_aiunits, lv_unitName2);
+                            }
+
+                        }
+
+                    }
+                    else if (auto38C3EA4B_val == c_classIdCAbilResearch) {
+                        lv_unittech = true;
+                        if ((lv_abilCmdIndex < 30)) {
+                            lv_unitName2 = CatalogFieldValueGet(c_gameCatalogAbil, lv_ability, "InfoArray[" + IntToString(lv_abilCmdIndex) + "].Upgrade", lp_player);
+                            if ((lv_unitName2 != null)) {
+                                libARRA_gf_ListStringInclude(lv_aiupgrades, lv_unitName2);
+                            }
+
+                        }
+
+                    }
+                    else {
+                        libARRA_gf_ClearCache();
+                        libARRA_gv_sEARCHMODE = libARRA_ge_SearchMode_Units;
+                        if ((libARRA_gf_ByPassAbility(lp_player, lv_ability) == true)) {
+                            auto9443E169_ae = libARRA_gf_ListSize(libARRA_gv_byPassUnits);
+                            auto9443E169_var = 1;
+                            for ( ; auto9443E169_var <= auto9443E169_ae; auto9443E169_var += 1 ) {
+                                libARRA_gf_ListStringInclude(lv_aiunits, libARRA_gf_ListStringGet(libARRA_gv_byPassUnits, auto9443E169_var));
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+        autoA940015D_ae = (CatalogFieldValueCount(c_gameCatalogUnit, lv_unitName1, "BehaviorArray", lp_player) - 1);
+        autoA940015D_var = 0;
+        for ( ; autoA940015D_var <= autoA940015D_ae; autoA940015D_var += 1 ) {
+            lv_behavior = (CatalogFieldValueGet(c_gameCatalogUnit, lv_unitName1, "BehaviorArray[" + IntToString(autoA940015D_var) + "].Link", lp_player));
+            if ((CatalogEntryIsValid(c_gameCatalogBehavior, lv_behavior) == true) && (CatalogEntryClass(c_gameCatalogBehavior, lv_behavior) == libARRA_gv_cBehaviorSpawn)) {
+                lv_unitproduction = true;
+                auto302B636D_ae = (CatalogFieldValueCount(c_gameCatalogBehavior, lv_behavior, "InfoArray", lp_player) - 1);
+                auto302B636D_var = 0;
+                for ( ; auto302B636D_var <= auto302B636D_ae; auto302B636D_var += 1 ) {
+                    lv_unitName2 = CatalogFieldValueGet(c_gameCatalogBehavior, lv_behavior, "InfoArray[" + IntToString(auto302B636D_var) + "].Unit", lp_player);
+                    if ((lv_unitName2 != null)) {
+                        libARRA_gf_ListStringInclude(lv_aiunits, lv_unitName2);
+                    }
+
+                }
+            }
+
+        }
+        if ((lv_unitvespene == true)) {
+            libARRA_gf_ListStringInclude(lv_aistructurerefinery, lv_unitName1);
+        }
+        else if ((lv_unitworker == true)) {
+            libARRA_gf_ListStringInclude(lv_aiunitworker, lv_unitName1);
+        }
+        else if ((lv_unitdropoff == true)) {
+            if ((lv_unitdropoffmorph == false)) {
+                libARRA_gf_ListStringInclude(lv_aistructuremain, lv_unitName1);
+            }
+            else {
+                if ((lv_unitcombat == false)) {
+                    libARRA_gf_ListStringInclude(lv_aistructuredefenses, lv_unitName1);
+                }
+                else {
+                    libARRA_gf_ListStringInclude(lv_aistructuretech, lv_unitName1);
+                }
+            }
+        }
+        else if ((lv_unitcombat == false) && (lv_unitproduction == true)) {
+            libARRA_gf_ListStringInclude(lv_aistructureproduction, lv_unitName1);
+        }
+        else if ((lv_unitstructure == true) && ((lv_unitcombat == true) || (lv_unitdetection == true))) {
+            libARRA_gf_ListStringInclude(lv_aistructuredefenses, lv_unitName1);
+        }
+        else if ((lv_unitstructure == true) && (lv_unittech == true)) {
+            libARRA_gf_ListStringInclude(lv_aistructuretech, lv_unitName1);
+        }
+        else if ((lv_unitfood == true)) {
+            libARRA_gf_ListStringInclude(lv_aiunitfood, lv_unitName1);
+        }
+        else if ((lv_unitstructure == true)) {
+            libARRA_gf_ListStringInclude(lv_aistructuretech, lv_unitName1);
+        }
+        else if (true) {
+            if ((lv_unitcombat == true)) {
+                libARRA_gf_ListStringInclude(lv_aiunitcombat, lv_unitName1);
+            }
+            if ((lv_unittransport == true)) {
+                libARRA_gf_ListStringInclude(lv_aiunittransport, lv_unitName1);
+            }
+            if ((lv_unitdetection == true)) {
+                libARRA_gf_ListStringInclude(lv_aiunitsupport, lv_unitName1);
+            }
+            if ((lv_unitdetection == false) && (lv_unittransport == false) && (lv_unitcombat == false)) {
+                libARRA_gf_ListStringInclude(lv_aiunitsupport, lv_unitName1);
+            }
+        }
+        lv_index += 1;
+    }
+}
+
+string libVSAI_gf_AISupply (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "StructureFood");
+}
+
+string libVSAI_gf_AISupport (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "UnitSupport");
+}
+
+string libVSAI_gf_AICombat (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "UnitCombat");
+}
+
+string libVSAI_gf_AIWorkers (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "UnitWorker");
+}
+
+string libVSAI_gf_AITransport (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "UnitTransport");
+}
+
+string libVSAI_gf_AITech (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "StructureTech");
+}
+
+string libVSAI_gf_AIProduction (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "StructureProduction");
+}
+
+string libVSAI_gf_AIDefenses (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "StructureDefense");
+}
+
+string libVSAI_gf_AIPower (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "StructurePower");
+}
+
+string libVSAI_gf_AIMain (int lp_player) {
+    // Variable Declarations
+    string lv_aiupgrades;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_aiupgrades = ("^AI" + IntToString(lp_player) + "Upgrades");
+
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "StructureMain");
+}
+
+string libVSAI_gf_AIRefinery (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "StructureRefinery");
+}
+
+string libVSAI_gf_AIUpgrades (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "Upgrades");
+}
+
+string libVSAI_gf_AIDropOff (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    return ("^AI" + IntToString(lp_player) + "StructureDropOff");
+}
+
+bool libVSAI_gf_IsCurrentlyExpansing (int lp_player) {
+    // Automatic Variable Declarations
+    int autoF1C77B91_player;
+    int autoF1C77B91_state;
+    int autoF1C77B91_var;
+    int autoF1C77B91_statevar;
+
+    // Implementation
+    autoF1C77B91_player = lp_player;
+    autoF1C77B91_state = 1;
+    autoF1C77B91_var = 0;
+    for ( ; autoF1C77B91_var < c_townMax; autoF1C77B91_var += 1 ) {
+        autoF1C77B91_statevar = AIGetTownState(autoF1C77B91_player,autoF1C77B91_var);
+        if (autoF1C77B91_statevar >= autoF1C77B91_state) {
+            if ((AIGetTownState(lp_player, autoF1C77B91_var) == 1)) {
+                return true;
+            }
+
+        }
+    }
+    return false;
+}
+
+void libVSAI_gf_CreateAIDialog () {
+    // Variable Declarations
+    int lv_offsetX;
+    int lv_offsetY;
+    int lv_category;
+    int lv_y;
+    int lv_p;
+    int lv_image;
+
+    // Automatic Variable Declarations
+    const int autoBF800E1B_ae = 4;
+    const int autoBF800E1B_ai = 1;
+    const int autoF4BB3810_ae = 50;
+    int autoF4BB3810_var;
+    playergroup autoFFDCC42F_g;
+    int autoFFDCC42F_var;
+
+    // Variable Initialization
+    lv_offsetX = 10;
+    lv_offsetY = -60;
+    lv_image = c_invalidDialogControlId;
+
+    // Implementation
+    DialogCreate(2400, 800, c_anchorBottomLeft, 5, 350, true);
+    libVSAI_gv_aIDialog = DialogLastCreated();
+    DialogSetImageVisible(DialogLastCreated(), false);
+    lv_category = 0;
+    for ( ; ( (autoBF800E1B_ai >= 0 && lv_category <= autoBF800E1B_ae) || (autoBF800E1B_ai < 0 && lv_category >= autoBF800E1B_ae) ) ; lv_category += autoBF800E1B_ai ) {
+        autoF4BB3810_var = 0;
+        for ( ; autoF4BB3810_var <= autoF4BB3810_ae; autoF4BB3810_var += 1 ) {
+            DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeButton, "Tester/TesterRaceButton_Blue");
+            DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 32, 32);
+            DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorBottomLeft, (autoF4BB3810_var * 35), ((lv_category * 35) + (lv_p * (5 * 35))));
+            libVSAI_gv_aIButton[lv_p][lv_category][autoF4BB3810_var] = DialogControlLastCreated();
+            lv_image = libARRA_gf_HookUpDialogItemandshowforplayers("FaceImage", c_triggerControlTypeImage, libVSAI_gv_aIButton[lv_p][lv_category][autoF4BB3810_var], PlayerGroupAll());
+            libNtve_gf_SetDialogItemImage(lv_image, (CatalogFieldValueGet(c_gameCatalogActor, (("Marine")), "UnitIcon", 1)), PlayerGroupAll());
+            TextExpressionSetToken("Param/Expression/lib_VSAI_11EE7FA0", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, "Marine", "Name", c_playerAny)));
+            TextExpressionSetToken("Param/Expression/lib_VSAI_11EE7FA0", "min_icon", StringExternal("UI/Icon22_Minerals_Terr"));
+            TextExpressionSetToken("Param/Expression/lib_VSAI_11EE7FA0", "min_val", IntToText(UnitTypeGetCost("Marine", c_unitCostMinerals)));
+            TextExpressionSetToken("Param/Expression/lib_VSAI_11EE7FA0", "gas_icon", StringExternal("UI/Icon22_Vespene_Terr"));
+            TextExpressionSetToken("Param/Expression/lib_VSAI_11EE7FA0", "gas_val", IntToText(UnitTypeGetCost("Marine", c_unitCostVespene)));
+            TextExpressionSetToken("Param/Expression/lib_VSAI_11EE7FA0", "food_icon", StringExternal("UI/Icon22_Supply_Terr"));
+            TextExpressionSetToken("Param/Expression/lib_VSAI_11EE7FA0", "food_val", FixedToTextAdvanced(UnitTypeGetProperty("Marine", c_unitPropSuppliesUsed), c_formatNumberStyleNormal, true, 0, 1));
+            TextExpressionSetToken("Param/Expression/lib_VSAI_11EE7FA0", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, "Marine", "Description", c_playerAny)));
+            libNtve_gf_SetDialogItemTooltip(libVSAI_gv_aIButton[lv_p][lv_category][autoF4BB3810_var], TextExpressionAssemble("Param/Expression/lib_VSAI_11EE7FA0"), PlayerGroupAll());
+            DialogControlSetEnabled(libVSAI_gv_aIButton[lv_p][lv_category][autoF4BB3810_var], PlayerGroupAll(), true);
+            DialogControlSetVisible(libVSAI_gv_aIButton[lv_p][lv_category][autoF4BB3810_var], PlayerGroupAll(), false);
+        }
+    }
+    autoFFDCC42F_g = PlayerGroupAll();
+    autoFFDCC42F_var = -1;
+    while (true) {
+        autoFFDCC42F_var = PlayerGroupNextPlayer(autoFFDCC42F_g, autoFFDCC42F_var);
+        if (autoFFDCC42F_var < 0) { break; }
+        if ((PlayerType(autoFFDCC42F_var) != c_playerTypeComputer)) {
+            continue;
+        }
+
+    }
+    DialogSetVisible(libVSAI_gv_aIDialog, PlayerGroupAll(), true);
+    TriggerEnable(libVSAI_gt_UpdateAIDialog, true);
+}
+
+void libVSAI_gf_UpdateAIDialogForPlayer (int lp_player) {
+    // Variable Declarations
+    int lv_index;
+    int lv_aIPlayer;
+    string lv_aiunitfood;
+    string lv_aiunitsupport;
+    string lv_aiunitcombat;
+    string lv_aiunitworker;
+    string lv_aiunittransport;
+    string lv_aistructuretech;
+    string lv_aistructureproduction;
+    string lv_aistructuredefenses;
+    string lv_aistructurepower;
+    string lv_aistructuremain;
+    string lv_aistructurerefinery;
+    string lv_aiupgrades;
+    string lv_aistructuredropoff;
+    string lv_availableunits;
+    string lv_availableupgrades;
+    string lv_availablesupport;
+    string lv_availableproduction;
+    string lv_availabletech;
+    string lv_unit;
+    string lv_upgrade;
+    int lv_image;
+    int lv_button;
+    int lv_cat;
+    int lv_x;
+
+    // Automatic Variable Declarations
+    const int auto3884F252_ae = 4;
+    const int auto3884F252_ai = 1;
+    const int autoC318C5CD_ae = libVSAI_gv_aIMaxUnits;
+    const int autoC318C5CD_ai = 1;
+
+    // Variable Initialization
+    lv_aIPlayer = lp_player;
+    lv_aiunitfood = ("^AI" + IntToString(lv_aIPlayer) + "StructureFood");
+    lv_aiunitsupport = ("^AI" + IntToString(lv_aIPlayer) + "UnitSupport");
+    lv_aiunitcombat = ("^AI" + IntToString(lv_aIPlayer) + "UnitCombat");
+    lv_aiunitworker = ("^AI" + IntToString(lv_aIPlayer) + "UnitWorker");
+    lv_aiunittransport = ("^AI" + IntToString(lv_aIPlayer) + "UnitTransport");
+    lv_aistructuretech = ("^AI" + IntToString(lv_aIPlayer) + "StructureTech");
+    lv_aistructureproduction = ("^AI" + IntToString(lv_aIPlayer) + "StructureProduction");
+    lv_aistructuredefenses = ("^AI" + IntToString(lv_aIPlayer) + "StructureDefense");
+    lv_aistructurepower = ("^AI" + IntToString(lv_aIPlayer) + "StructurePower");
+    lv_aistructuremain = ("^AI" + IntToString(lv_aIPlayer) + "StructureMain");
+    lv_aistructurerefinery = ("^AI" + IntToString(lv_aIPlayer) + "StructureRefinery");
+    lv_aiupgrades = ("^AI" + IntToString(lv_aIPlayer) + "Upgrades");
+    lv_aistructuredropoff = ("^AI" + IntToString(lv_aIPlayer) + "StructureDropOff");
+    lv_availableunits = ("^AI" + IntToString(lv_aIPlayer) + "AvailableUnits");
+    lv_availableupgrades = ("^AI" + IntToString(lv_aIPlayer) + "AvailableUpgrades");
+    lv_availablesupport = ("^AI" + IntToString(lv_aIPlayer) + "AvailableSupport");
+    lv_availableproduction = ("^AI" + IntToString(lv_aIPlayer) + "AvailableProduction");
+    lv_availabletech = ("^AI" + IntToString(lv_aIPlayer) + "AvailableTech");
+    lv_image = c_invalidDialogControlId;
+    lv_button = c_invalidDialogControlId;
+
+    // Implementation
+    lv_cat = 0;
+    for ( ; ( (auto3884F252_ai >= 0 && lv_cat <= auto3884F252_ae) || (auto3884F252_ai < 0 && lv_cat >= auto3884F252_ae) ) ; lv_cat += auto3884F252_ai ) {
+        lv_x = 0;
+        for ( ; ( (autoC318C5CD_ai >= 0 && lv_x <= autoC318C5CD_ae) || (autoC318C5CD_ai < 0 && lv_x >= autoC318C5CD_ae) ) ; lv_x += autoC318C5CD_ai ) {
+            DialogControlSetVisible(libVSAI_gv_aIButton[0][lv_cat][lv_x], PlayerGroupAll(), false);
+            DialogControlSetEnabled(libVSAI_gv_aIButton[0][lv_cat][lv_x], PlayerGroupAll(), false);
+        }
+    }
+    lv_cat = 0;
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aiunitworker, "", 0, 0, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aiunitcombat, lv_availableunits, 0, 2, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aiunittransport, "", 0, 18, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aiunitsupport, lv_availablesupport, 0, 20, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aistructuremain, "", 1, 0, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aiunitfood, "", 1, 4, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aistructurerefinery, "", 1, 10, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aistructureproduction, lv_availableproduction, 1, 12, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aistructuretech, lv_availabletech, 1, 22, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aistructuredefenses, "", 2, 22, c_gameCatalogUnit);
+    libVSAI_gf_UpdateAIDialogCategoryForPlayer(lv_aIPlayer, lv_aiupgrades, lv_availableupgrades, 2, 0, c_gameCatalogUpgrade);
+}
+
+void libVSAI_gf_UpdateAIDialogCategoryForPlayer (int lp_player, string lp_techList, string lp_avalabilityList, int lp_category, int lp_offset, int lp_catalog) {
+    // Variable Declarations
+    int lv_list2;
+    int lv_index;
+    int lv_aIPlayer;
+    string lv_unit;
+    string lv_upgrade;
+    int lv_dialogImage;
+    int lv_button;
+    int lv_x;
+
+    // Automatic Variable Declarations
+    int autoED63CA85_ae;
+    int autoED63CA85_var;
+    int auto83883BCA_val;
+    int auto5F2ECEE4_val;
+
+    // Variable Initialization
+    lv_aIPlayer = lp_player;
+    lv_dialogImage = c_invalidDialogControlId;
+    lv_button = c_invalidDialogControlId;
+    lv_x = lp_offset;
+
+    // Implementation
+    autoED63CA85_ae = libARRA_gf_ListSize(lp_techList);
+    autoED63CA85_var = 1;
+    for ( ; autoED63CA85_var <= autoED63CA85_ae; autoED63CA85_var += 1 ) {
+        auto83883BCA_val = lp_catalog;
+        if (auto83883BCA_val == c_gameCatalogUnit) {
+            lv_unit = (libARRA_gf_ListStringGet(lp_techList, autoED63CA85_var));
+        }
+        else if (auto83883BCA_val == c_gameCatalogUpgrade) {
+            lv_upgrade = (libARRA_gf_ListStringGet(lp_techList, autoED63CA85_var));
+        }
+        else {
+        }
+        lv_button = libVSAI_gv_aIButton[0][lp_category][lv_x];
+        lv_dialogImage = libARRA_gf_HookUpDialogItemandshowforplayers("FaceImage", c_triggerControlTypeImage, lv_button, PlayerGroupAll());
+        auto5F2ECEE4_val = lp_catalog;
+        if (auto5F2ECEE4_val == c_gameCatalogUnit) {
+            libNtve_gf_SetDialogItemImage(lv_dialogImage, (CatalogFieldValueGet(c_gameCatalogActor, ((lv_unit)), "UnitIcon", 1)), PlayerGroupAll());
+            TextExpressionSetToken("Param/Expression/lib_VSAI_8ACFDD1C", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_unit, "Name", c_playerAny)));
+            TextExpressionSetToken("Param/Expression/lib_VSAI_8ACFDD1C", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, lv_unit, "Description", c_playerAny)));
+            libNtve_gf_SetDialogItemTooltip(lv_button, TextExpressionAssemble("Param/Expression/lib_VSAI_8ACFDD1C"), PlayerGroupAll());
+        }
+        else if (auto5F2ECEE4_val == c_gameCatalogUpgrade) {
+            libNtve_gf_SetDialogItemImage(lv_dialogImage, (CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Icon", 1)), PlayerGroupAll());
+            TextExpressionSetToken("Param/Expression/lib_VSAI_82B402AC", "name", StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Name", c_playerAny)));
+            TextExpressionSetToken("Param/Expression/lib_VSAI_82B402AC", "desc", StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, lv_upgrade, "Name", c_playerAny)));
+            libNtve_gf_SetDialogItemTooltip(lv_button, TextExpressionAssemble("Param/Expression/lib_VSAI_82B402AC"), PlayerGroupAll());
+        }
+        else {
+        }
+        DialogControlSetVisible(lv_button, PlayerGroupAll(), true);
+        if (((lp_avalabilityList == "") || (libARRA_gf_ListStringIncludes(lp_avalabilityList, (lv_unit)) == true))) {
+            DialogControlSetEnabled(lv_button, PlayerGroupAll(), true);
+        }
+        else {
+            DialogControlSetEnabled(lv_button, PlayerGroupAll(), false);
+        }
+        lv_x += 1;
+    }
+}
+
+void libVSAI_gf_RunViscerousAI (int lp_player) {
+    // Variable Declarations
+    int lv_aIPlayer;
+    string lv_aiunitfood;
+    string lv_aiunitsupport;
+    string lv_aiunitcombat;
+    string lv_aiunitworker;
+    string lv_aiunittransport;
+    string lv_aistructuretech;
+    string lv_aistructureproduction;
+    string lv_aistructuredefenses;
+    string lv_aistructurepower;
+    string lv_aistructuremain;
+    string lv_aistructurerefinery;
+    string lv_aiupgrades;
+    string lv_aistructuredropoff;
+
+    // Automatic Variable Declarations
+    int auto9EA3D60F_saved_task;
+    int auto9EA3D60F_saved_parent;
+
+    // Variable Initialization
+    lv_aIPlayer = lp_player;
+    lv_aiunitfood = ("^AI" + IntToString(lv_aIPlayer) + "StructureFood");
+    lv_aiunitsupport = ("^AI" + IntToString(lv_aIPlayer) + "UnitSupport");
+    lv_aiunitcombat = ("^AI" + IntToString(lv_aIPlayer) + "UnitCombat");
+    lv_aiunitworker = ("^AI" + IntToString(lv_aIPlayer) + "UnitWorker");
+    lv_aiunittransport = ("^AI" + IntToString(lv_aIPlayer) + "UnitTransport");
+    lv_aistructuretech = ("^AI" + IntToString(lv_aIPlayer) + "StructureTech");
+    lv_aistructureproduction = ("^AI" + IntToString(lv_aIPlayer) + "StructureProduction");
+    lv_aistructuredefenses = ("^AI" + IntToString(lv_aIPlayer) + "StructureDefense");
+    lv_aistructurepower = ("^AI" + IntToString(lv_aIPlayer) + "StructurePower");
+    lv_aistructuremain = ("^AI" + IntToString(lv_aIPlayer) + "StructureMain");
+    lv_aistructurerefinery = ("^AI" + IntToString(lv_aIPlayer) + "StructureRefinery");
+    lv_aiupgrades = ("^AI" + IntToString(lv_aIPlayer) + "Upgrades");
+    lv_aistructuredropoff = ("^AI" + IntToString(lv_aIPlayer) + "StructureDropOff");
+
+    // Implementation
+    AISetGroupScriptControlled(UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0), false);
+    libVSAI_gf_Setup(lp_player);
+    libVSAI_gf_SetupAIFlags(lp_player);
+    libVSAI_gv_pickedai = lp_player;
+    TriggerExecute(libVSAI_gt_ViscerousAI, true, false);
+    auto9EA3D60F_saved_task   = libARRA_gv_task;
+    auto9EA3D60F_saved_parent = libARRA_gv_parent;
+    libARRA_gv_parent = libARRA_gv_task;
+    libARRA_gf_CreateTask(("AI Controller " + IntToString(lv_aIPlayer)));
+    libARRA_gf_StoreIntegerForTask(libARRA_gv_task, "player", lv_aIPlayer);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "supplies", lv_aiunitfood);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "supports", lv_aiunitsupport);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "transports", lv_aiunittransport);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "fighters", lv_aiunitcombat);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "workers", lv_aiunitworker);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "techs", lv_aistructuretech);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "productions", lv_aistructureproduction);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "defenses", lv_aistructuredefenses);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "powers", lv_aistructurepower);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "townhalls", lv_aistructuremain);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "refineries", lv_aistructurerefinery);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "upgrades", lv_aiupgrades);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "dropoffs", lv_aistructuredropoff);
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "supply", libARRA_gf_ListStringGet(lv_aiunitfood, 1));
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "worker", libARRA_gf_ListStringGet(lv_aiunitworker, 1));
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "townhall", libARRA_gf_ListStringGet(lv_aistructuredropoff, 1));
+    libARRA_gf_StoreStringForTask(libARRA_gv_task, "refinery", libARRA_gf_ListStringGet(lv_aistructurerefinery, 1));
+    libARRA_gv_task   = auto9EA3D60F_saved_task;
+    libARRA_gv_parent = auto9EA3D60F_saved_parent;
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Update AI Dialog
+//--------------------------------------------------------------------------------------------------
+bool libVSAI_gt_UpdateAIDialog_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGroupCount(UnitGroupSelected(12), c_unitCountAlive) == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libVSAI_gf_UpdateAIDialogForPlayer(UnitGetOwner(UnitGroupUnit(UnitGroupSelected(12), 1)));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libVSAI_gt_UpdateAIDialog_Init () {
+    libVSAI_gt_UpdateAIDialog = TriggerCreate("libVSAI_gt_UpdateAIDialog_Func");
+    TriggerEnable(libVSAI_gt_UpdateAIDialog, false);
+    TriggerAddEventTimePeriodic(libVSAI_gt_UpdateAIDialog, 1.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Viscerous AI
+//--------------------------------------------------------------------------------------------------
+bool libVSAI_gt_ViscerousAI_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_aIPlayer;
+    string lv_aiunitfood;
+    string lv_aiunitsupport;
+    string lv_aiunitcombat;
+    string lv_aiunitworker;
+    string lv_aiunittransport;
+    string lv_aistructuretech;
+    string lv_aistructureproduction;
+    string lv_aistructuredefenses;
+    string lv_aistructurepower;
+    string lv_aistructuremain;
+    string lv_aistructurerefinery;
+    string lv_aiupgrades;
+    string lv_aistructuredropoff;
+    string lv_techStructure;
+    string lv_techCombat;
+    string lv_techSupport;
+    string lv_techProduction;
+    string lv_techUpgrade;
+    string lv_UnitTownhall;
+    string lv_UnitPeon;
+    string lv_UnitRefinery;
+    string lv_UnitSupply;
+    string lv_UnitTransport;
+    string lv_unitType;
+    int lv_SupplyNeeded;
+    fixed lv_SupplyFoodAmount;
+    int lv_SupplyNeeded2;
+    int lv_SupplyNeeded3;
+    int lv_SupplyNeeded6;
+    int lv_SupplyNeeded5;
+    int lv_SupplyNeeded4;
+    int lv_SupplyNeeded7;
+    string lv_availableunits;
+    string lv_availableupgrades;
+    string lv_availablesupport;
+    string lv_availableproduction;
+    string lv_availabletech;
+    int lv_dangerLevel;
+    bool lv_isExpansing;
+    timer lv_aIExpandTimer;
+    timer lv_aIAttackTimer;
+    int lv_towns;
+    string lv_randomized;
+    int lv_unitsFoodCount;
+    int lv_count;
+
+    // Automatic Variable Declarations
+    int auto6961754F_player;
+    int auto6961754F_state;
+    int auto6961754F_var;
+    int auto6961754F_statevar;
+    int autoE26DF8BF_player;
+    int autoE26DF8BF_state;
+    int autoE26DF8BF_var;
+    int autoE26DF8BF_statevar;
+    int auto28A12EE0_ai;
+    int auto28A12EE0_ae;
+    int auto56A0E773_ai;
+    int auto56A0E773_ae;
+    int autoA94B9803_ai;
+    int autoA94B9803_ae;
+    int auto8BC4F143_ai;
+    int auto8BC4F143_ae;
+    int autoFF12C591_player;
+    int autoFF12C591_state;
+    int autoFF12C591_var;
+    int autoFF12C591_statevar;
+    int auto8CDECFC2_ai;
+    int auto8CDECFC2_ae;
+    int autoC24FE857_ai;
+    int autoC24FE857_ae;
+    int auto4C9D1A97_ai;
+    int auto4C9D1A97_ae;
+
+    // Variable Initialization
+    lv_aIPlayer = libVSAI_gv_pickedai;
+    lv_aiunitfood = ("^AI" + IntToString(lv_aIPlayer) + "StructureFood");
+    lv_aiunitsupport = ("^AI" + IntToString(lv_aIPlayer) + "UnitSupport");
+    lv_aiunitcombat = ("^AI" + IntToString(lv_aIPlayer) + "UnitCombat");
+    lv_aiunitworker = ("^AI" + IntToString(lv_aIPlayer) + "UnitWorker");
+    lv_aiunittransport = ("^AI" + IntToString(lv_aIPlayer) + "UnitTransport");
+    lv_aistructuretech = ("^AI" + IntToString(lv_aIPlayer) + "StructureTech");
+    lv_aistructureproduction = ("^AI" + IntToString(lv_aIPlayer) + "StructureProduction");
+    lv_aistructuredefenses = ("^AI" + IntToString(lv_aIPlayer) + "StructureDefense");
+    lv_aistructurepower = ("^AI" + IntToString(lv_aIPlayer) + "StructurePower");
+    lv_aistructuremain = ("^AI" + IntToString(lv_aIPlayer) + "StructureMain");
+    lv_aistructurerefinery = ("^AI" + IntToString(lv_aIPlayer) + "StructureRefinery");
+    lv_aiupgrades = ("^AI" + IntToString(lv_aIPlayer) + "Upgrades");
+    lv_aistructuredropoff = ("^AI" + IntToString(lv_aIPlayer) + "StructureDropOff");
+    lv_UnitTownhall = (libARRA_gf_ListStringGet(lv_aistructuremain, 1));
+    lv_UnitPeon = (libARRA_gf_ListStringGet(lv_aiunitworker, 1));
+    lv_UnitRefinery = (libARRA_gf_ListStringGet(lv_aistructurerefinery, 1));
+    lv_UnitSupply = (libARRA_gf_ListStringGet(lv_aiunitfood, 1));
+    lv_UnitTransport = (libARRA_gf_ListStringGet(lv_aiunittransport, 1));
+    lv_unitType = "";
+    lv_SupplyFoodAmount = libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, lv_UnitSupply, "Food", lv_aIPlayer);
+    lv_availableunits = ("^AI" + IntToString(lv_aIPlayer) + "AvailableUnits");
+    lv_availableupgrades = ("^AI" + IntToString(lv_aIPlayer) + "AvailableUpgrades");
+    lv_availablesupport = ("^AI" + IntToString(lv_aIPlayer) + "AvailableSupport");
+    lv_availableproduction = ("^AI" + IntToString(lv_aIPlayer) + "AvailableProduction");
+    lv_availabletech = ("^AI" + IntToString(lv_aIPlayer) + "AvailableTech");
+    lv_dangerLevel = AISelfDefenseThreatEval(libVSAI_gv_realSelfThreat, lv_aIPlayer);
+    lv_aIExpandTimer = TimerCreate();
+    lv_aIAttackTimer = TimerCreate();
+    lv_randomized = "";
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TimerStart(lv_aIAttackTimer, RandomFixed(100.0, 300.0), false, c_timeAI);
+    AIScout(lv_aIPlayer);
+    while ((UnitGroupCount(UnitGroup(null, lv_aIPlayer, RegionEntireMap(), UnitFilter((1 << c_targetFilterPreventDefeat), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 1), c_unitCountAlive) > 0)) {
+        Wait(5.0, c_timeAI);
+        lv_towns = 0;
+        auto6961754F_player = lv_aIPlayer;
+        auto6961754F_state = 2;
+        auto6961754F_var = 0;
+        for ( ; auto6961754F_var < c_townMax; auto6961754F_var += 1 ) {
+            auto6961754F_statevar = AIGetTownState(auto6961754F_player,auto6961754F_var);
+            if (auto6961754F_statevar >= auto6961754F_state) {
+                lv_towns += 1;
+            }
+        }
+        lv_dangerLevel = AISelfDefenseThreatEval(libVSAI_gv_realSelfThreat, lv_aIPlayer);
+        if ((lv_dangerLevel >= 120)) {
+        }
+        if ((TimerGetRemaining(lv_aIAttackTimer) <= 0.0)) {
+            libVSAI_gf_Attack(lv_aIPlayer);
+            TimerStart(lv_aIAttackTimer, RandomFixed(60.0, 160.0), false, c_timeAI);
+        }
+        if ((libVSAI_gf_IsCurrentlyExpansing(lv_aIPlayer) == true)) {
+            continue;
+        }
+
+        libVSAI_gf_Update(lv_aIPlayer);
+        if ((UnitGroupCount(libARRA_gf_UnitsInRegionWithSpecifiedTypes(lv_aIPlayer, lv_aistructuredropoff, RegionEntireMap()), c_unitCountAlive) == 0)) {
+            AIBuild(lv_aIPlayer, 12, -1, lv_UnitTownhall, 1, libVSAI_gv_townHall);
+            continue;
+        }
+
+        lv_unitsFoodCount = UnitGroupCount(libARRA_gf_UnitsInRegionWithSpecifiedTypes(lv_aIPlayer, lv_aiunitfood, RegionEntireMap()), c_unitCountAlive);
+        if (((PlayerGetPropertyInt(lv_aIPlayer, c_playerPropSuppliesMade) - PlayerGetPropertyInt(lv_aIPlayer, c_playerPropSuppliesUsed)) < 6) && (PlayerGetPropertyInt(lv_aIPlayer, c_playerPropSuppliesMade) < PlayerGetPropertyInt(lv_aIPlayer, c_playerPropSuppliesLimit))) {
+            libVSAI_gf_Speak(lv_aIPlayer, StringToText(""));
+            if ((UnitTypeTestAttribute(lv_UnitSupply, c_unitAttributeStructure) == true)) {
+                libVSAI_gf_BuildIfNotInQueue(lv_aIPlayer, lv_UnitSupply, libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, (lv_unitsFoodCount + 1), null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, -1, libVSAI_gv_power, 2);
+            }
+            else {
+                libVSAI_gf_TrainUnitIfNotInQueue(lv_aIPlayer, lv_UnitSupply, libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, (lv_unitsFoodCount + 1), null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, -1, 2);
+            }
+        }
+
+        if ((lv_dangerLevel < 120)) {
+            lv_SupplyNeeded7 = 0;
+            lv_SupplyNeeded5 = 0;
+            autoE26DF8BF_player = lv_aIPlayer;
+            autoE26DF8BF_state = 1;
+            autoE26DF8BF_var = 0;
+            for ( ; autoE26DF8BF_var < c_townMax; autoE26DF8BF_var += 1 ) {
+                autoE26DF8BF_statevar = AIGetTownState(autoE26DF8BF_player,autoE26DF8BF_var);
+                if (autoE26DF8BF_statevar >= autoE26DF8BF_state) {
+                    if ((AIGetTownState(lv_aIPlayer, autoE26DF8BF_var) == 2)) {
+                        lv_SupplyNeeded3 = 10;
+                    }
+                    else {
+                        lv_SupplyNeeded3 = ((AIGetMineralNumSpots(lv_aIPlayer, autoE26DF8BF_var) * 2) + (AIGetBuildingCountInTown(lv_aIPlayer, autoE26DF8BF_var, lv_UnitRefinery, c_techCountQueuedOrBetter) * 3));
+                    }
+                    lv_SupplyNeeded4 = (lv_SupplyNeeded3 - AIGetCurPeonCount(lv_aIPlayer, autoE26DF8BF_var));
+                    lv_SupplyNeeded5 += lv_SupplyNeeded4;
+                    lv_SupplyNeeded6 += lv_SupplyNeeded3;
+                    lv_SupplyNeeded7 += AIGetMaxPeonCount(lv_aIPlayer, autoE26DF8BF_var);
+                    if ((AIGetRawGasNumSpots(lv_aIPlayer, autoE26DF8BF_var) > 0) && (lv_SupplyNeeded4 < 4)) {
+                        AIBuild(lv_aIPlayer, 6, autoE26DF8BF_var, lv_UnitRefinery, 1, libVSAI_gv_collector);
+                    }
+
+                }
+            }
+            libVSAI_gf_TrainUnitIfNotInQueue(lv_aIPlayer, lv_UnitPeon, libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, lv_SupplyNeeded7, null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, 0, lv_towns);
+            if ((lv_SupplyNeeded5 < 3) && (TimerGetRemaining(lv_aIExpandTimer) <= 0.0)) {
+                if ((AIHasRes(lv_aIPlayer, UnitTypeGetCost(lv_UnitTownhall, c_unitCostMinerals), UnitTypeGetCost(lv_UnitTownhall, c_unitCostVespene)) == false)) {
+                    continue;
+                }
+                lv_isExpansing = true;
+                AIExpand(lv_aIPlayer, libVSAI_gf_GetExpansionpoint(lv_aIPlayer), lv_UnitTownhall);
+                TimerStart(lv_aIExpandTimer, 30.0, false, c_timeAI);
+                continue;
+            }
+
+        }
+        auto28A12EE0_ai = 1;
+        auto28A12EE0_ae = libARRA_gf_ListSize(lv_aistructuredropoff);
+        while (auto28A12EE0_ai <= auto28A12EE0_ae) {
+            lv_unitType = libARRA_gf_ListStringGet(lv_aistructuredropoff, auto28A12EE0_ai);
+            auto28A12EE0_ai = auto28A12EE0_ai+1;
+            lv_techProduction = (lv_unitType);
+            lv_count = 1;
+            if ((UnitTypeTestAttribute(lv_techProduction, c_unitAttributeStructure) == true)) {
+                libVSAI_gf_BuildIfNotInQueue(lv_aIPlayer, lv_techProduction, libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, lv_count, null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, 0, libVSAI_gv_techTg, 1);
+            }
+            else {
+                libVSAI_gf_TrainUnitIfNotInQueue(lv_aIPlayer, lv_techProduction, libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, lv_count, null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, 0, 1);
+            }
+        }
+        if ((libARRA_gf_ListSize(lv_availableproduction) > 0)) {
+            lv_randomized = libARRA_gf_ListStringGet(lv_availableproduction, libARRA_gf_ListSize(lv_availableproduction));
+            auto56A0E773_ai = 1;
+            auto56A0E773_ae = libARRA_gf_ListSize(lv_availableproduction);
+            while (auto56A0E773_ai <= auto56A0E773_ae) {
+                lv_unitType = libARRA_gf_ListStringGet(lv_availableproduction, auto56A0E773_ai);
+                auto56A0E773_ai = auto56A0E773_ai+1;
+                lv_techProduction = (lv_unitType);
+                if ((UnitTypeTestAttribute(lv_techProduction, c_unitAttributeStructure) == true)) {
+                    libVSAI_gf_BuildIfNotInQueue(lv_aIPlayer, (lv_unitType), libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, (lv_towns * 1), null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, 0, libVSAI_gv_techTg, 1);
+                }
+                else {
+                    libVSAI_gf_TrainUnitIfNotInQueue(lv_aIPlayer, (lv_unitType), libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, (lv_towns * 1), null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, 0, 1);
+                }
+            }
+        }
+
+        if ((libARRA_gf_ListSize(lv_availabletech) > 0)) {
+            autoA94B9803_ai = 1;
+            autoA94B9803_ae = libARRA_gf_ListSize(lv_availabletech);
+            while (autoA94B9803_ai <= autoA94B9803_ae) {
+                lv_unitType = libARRA_gf_ListStringGet(lv_availabletech, autoA94B9803_ai);
+                autoA94B9803_ai = autoA94B9803_ai+1;
+                if ((UnitTypeTestAttribute(lv_techProduction, c_unitAttributeStructure) == true)) {
+                    libVSAI_gf_BuildIfNotInQueue(lv_aIPlayer, (lv_unitType), libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, 1, null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, 0, libVSAI_gv_techTg, 1);
+                }
+                else {
+                    libVSAI_gf_TrainUnitIfNotInQueue(lv_aIPlayer, (lv_unitType), libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, 1, null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, 0, 1);
+                }
+            }
+        }
+
+        auto8BC4F143_ai = 1;
+        auto8BC4F143_ae = libARRA_gf_ListSize(lv_aistructuredefenses);
+        while (auto8BC4F143_ai <= auto8BC4F143_ae) {
+            lv_unitType = libARRA_gf_ListStringGet(lv_aistructuredefenses, auto8BC4F143_ai);
+            auto8BC4F143_ai = auto8BC4F143_ai+1;
+            lv_techProduction = (lv_unitType);
+            autoFF12C591_player = lv_aIPlayer;
+            autoFF12C591_state = 3;
+            autoFF12C591_var = 0;
+            for ( ; autoFF12C591_var < c_townMax; autoFF12C591_var += 1 ) {
+                autoFF12C591_statevar = AIGetTownState(autoFF12C591_player,autoFF12C591_var);
+                if (autoFF12C591_statevar == autoFF12C591_state) {
+                    libVSAI_gf_BuildIfNotInQueue(lv_aIPlayer, lv_techProduction, libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, 2, null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, autoFF12C591_var, libVSAI_gv_techTg, 1);
+                }
+            }
+        }
+        if ((libARRA_gf_ListSize(lv_availableunits) > 0)) {
+            auto8CDECFC2_ai = 1;
+            auto8CDECFC2_ae = libARRA_gf_ListSize(lv_availableunits);
+            while (auto8CDECFC2_ai <= auto8CDECFC2_ae) {
+                lv_unitType = libARRA_gf_ListStringGet(lv_availableunits, auto8CDECFC2_ai);
+                auto8CDECFC2_ai = auto8CDECFC2_ai+1;
+                libVSAI_gf_TrainUnitIfNotInQueue(lv_aIPlayer, (lv_unitType), libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, (lv_towns * 5), null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, 0, 1);
+            }
+        }
+
+        if ((libARRA_gf_ListSize(lv_availablesupport) > 0)) {
+            autoC24FE857_ai = 1;
+            autoC24FE857_ae = libARRA_gf_ListSize(lv_availablesupport);
+            while (autoC24FE857_ai <= autoC24FE857_ae) {
+                lv_unitType = libARRA_gf_ListStringGet(lv_availablesupport, autoC24FE857_ai);
+                autoC24FE857_ai = autoC24FE857_ai+1;
+                libVSAI_gf_TrainUnitIfNotInQueue(lv_aIPlayer, (lv_unitType), libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias, (lv_towns * 1), null, libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias, 0, 1);
+            }
+        }
+
+        if ((libARRA_gf_ListSize(lv_availableupgrades) > 0)) {
+            lv_randomized = libARRA_gf_ListStringGet(lv_availableupgrades, libARRA_gf_ListSize(lv_availableupgrades));
+            auto4C9D1A97_ai = 1;
+            auto4C9D1A97_ae = libARRA_gf_ListSize(lv_availableupgrades);
+            while (auto4C9D1A97_ai <= auto4C9D1A97_ae) {
+                lv_unitType = libARRA_gf_ListStringGet(lv_availableupgrades, auto4C9D1A97_ai);
+                auto4C9D1A97_ai = auto4C9D1A97_ai+1;
+                libVSAI_gf_ResearchIfNotInQueue(lv_aIPlayer, (lv_unitType), 1, null, libVSAI_ge_TgAIIncludeAlias_IncludeLastAlias);
+            }
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libVSAI_gt_ViscerousAI_Init () {
+    libVSAI_gt_ViscerousAI = TriggerCreate("libVSAI_gt_ViscerousAI_Func");
+}
+
+void libVSAI_InitTriggers () {
+    libVSAI_gt_UpdateAIDialog_Init();
+    libVSAI_gt_ViscerousAI_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libVSAI_InitLib_completed = false;
+
+void libVSAI_InitLib () {
+    if (libVSAI_InitLib_completed) {
+        return;
+    }
+
+    libVSAI_InitLib_completed = true;
+
+    libVSAI_InitLibraries();
+    libVSAI_InitVariables();
+    libVSAI_InitTriggers();
+}
+
+include "LibARRA"
+

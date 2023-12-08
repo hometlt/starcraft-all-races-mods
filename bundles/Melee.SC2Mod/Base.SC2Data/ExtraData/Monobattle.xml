@@ -1,0 +1,401 @@
+<Catalog>
+    <CActorUnit id="MonobattlePlayer" parent="GenericUnitStandardNoAutoSoundLinks" unitName="MonobattlePlayer">
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <Model value="Invisible"/>
+        <EditorModel value="Sphere"/>
+        <WalkAnimMoveSpeed value="0"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+    </CActorUnit>
+    <CActorUnit id="LevelPlaneInto" unitName="LevelPlaneInto">
+        <CopySource value="_Unit"/>
+        <Aliases value="_Unit"/>
+        <Aliases value="_Selectable"/>
+        <Aliases value="_UnitMedium"/>
+        <Macros value="DeadAnimationMacro"/>
+        <Macros value="CarryAnim"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <Macros value="PhysicsDeathsVoidGround"/>
+        <AcceptedTransfers index="AnimProps" value="1"/>
+        <AcceptedTransfers index="Textures" value="1"/>
+        <AcceptedTransfers index="Status" value="1"/>
+        <AcceptedHostedPropTransfers index="BaseModelScale" value="0"/>
+        <On Terms="UnitBirth.LevelPlaneInto" Send="Create SoundEmitter MULE_Ambience"/>
+        <On Terms="UnitBirth.LevelPlaneInto" Send="Create"/>
+        <On Terms="UnitRevive.LevelPlaneInto" Send="Create"/>
+        <On Terms="UnitRevive.LevelPlaneInto" Send="RefSet ::HostTurretBody _Selectable"/>
+        <On Terms="UnitConstruction.LevelPlaneInto.Start" Send="Create"/>
+        <On Terms="UnitConstruction.LevelPlaneInto.Finish" Send="AnimPlay ConstructionDeath Stand,Birth,Death FullMatch"/>
+        <On Terms="AnimDone.*.Missing; AnimName ConstructionDeath" Send="Destroy"/>
+        <On Terms="ActorCreation; ValidateUnit IsFlying; Option Shadow Low; $AllowBlobShadow" Send="Create FlyerShadow"/>
+        <On Terms="ActorCreation; ValidateUnit IsNotFlying; Option Shadow Low; $AllowBlobShadow" Send="Create GroundShadow"/>
+        <On Terms="StatusOn.*.PreTargetingModel" Send="Create ModelPretargetGround"/>
+        <On Terms="StatusOff.*.PreTargetingModel" Target="ModelPretargetGround" Send="Destroy"/>
+        <On Terms="StatusOn.*.PreTargetingModel; ValidateUnit IsFlying" Send="Create GroundPreSelection"/>
+        <On Terms="StatusOff.*.PreTargetingModel" Target="GroundPreSelection" Send="Destroy"/>
+        <On Terms="StatusIncrement.*.PreTargetingModel; IsStatus PreTargetingModel 2" Send="StatusSet PreTargetingModel 1"/>
+        <On Terms="PreTargetingUpdate.*.Start" Send="SetTintColorBlendPair 255,192,192 255,128,128 0.150000 Bounce Pretarget"/>
+        <On Terms="PreTargetingUpdate.*.Stop" Send="ClearTintColor 0.100000 Pretarget"/>
+        <On Terms="StatusOn.*.PreTargetingTint" Send="PreTargetingUpdate Start"/>
+        <On Terms="StatusOff.*.PreTargetingTint" Send="PreTargetingUpdate Stop"/>
+        <On Terms="StatusIncrement.*.PreTargetingTint; IsStatus PreTargetingTint 2" Send="StatusSet PreTargetingTint 1"/>
+        <On Terms="CursorUpdate.*.Start; ValidateUnit IsFlying" Send="StatusIncrement FlyerHelper"/>
+        <On Terms="CursorUpdate.*.Stop; ValidateUnit IsFlying; HasStatus FlyerHelper" Send="StatusDecrement FlyerHelper"/>
+        <On Terms="ActorCreation; ScopeContains GroundLocalSelection" Send="StatusSet Selected 1"/>
+        <On Terms="SelectionLocalUpdate.*.Start" Send="StatusSet Selected 1"/>
+        <On Terms="SelectionLocalUpdate.*.Stop" Send="StatusSet Selected 0"/>
+        <On Terms="StatusOn.*.Selected; ValidateUnit IsFlying" Send="StatusIncrement FlyerHelper"/>
+        <On Terms="StatusOff.*.Selected; ValidateUnit IsFlying; HasStatus FlyerHelper" Send="StatusDecrement FlyerHelper"/>
+        <On Terms="StatusOn.*.FlyerHelper; FlyerHelper All" Send="Create FlyerHelperSplat"/>
+        <On Terms="StatusOn.*.FlyerHelper; FlyerHelper Selected" Send="Create FlyerHelperSplat"/>
+        <On Terms="StatusOff.*.FlyerHelper; FlyerHelper Selected" Target="FlyerHelperSplat" Send="Destroy"/>
+        <On Terms="ActorCreation; FlyerHelper All; ValidateUnit IsFlying" Send="Create FlyerHelperSplat"/>
+        <On Terms="ActorDestruction; FlyerHelper All; !HasStatus FlyerHelper" Target="FlyerHelperSplat" Send="Destroy"/>
+        <On Terms="FlyerHelperChange; FlyerHelper None" Target="FlyerHelperSplat" Send="Destroy"/>
+        <On Terms="FlyerHelperChange; FlyerHelper Selected; HasStatus FlyerHelper; !ScopeContains FlyerHelperSplat" Send="Create FlyerHelperSplat"/>
+        <On Terms="FlyerHelperChange; FlyerHelper Selected; !HasStatus FlyerHelper" Target="FlyerHelperSplat" Send="Destroy"/>
+        <On Terms="FlyerHelperChange; FlyerHelper All; ValidateUnit IsFlying; !ScopeContains FlyerHelperSplat" Send="Create FlyerHelperSplat"/>
+        <On Terms="UnitBirth.*.Normal" Send="$Birth 0 0.000000"/>
+        <On Terms="UnitFidget" Send="AnimPlay Fidget Fidget"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Fidget"/>
+        <On Terms="UnitDetectedByViewer.*.On; ValidateUnit IsHallucination" Target="_HallucinationTinter" Send="Signal HallucinationTintOn"/>
+        <On Terms="UnitDetectedByViewer.*.Off; ValidateUnit IsHallucination" Target="_HallucinationTinter" Send="Signal HallucinationTintOff"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit NotStructure; IsStatus InAir 1" Send="DeathCustomize AntiGravGeneric"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsProtossUnit; IsStatus InAir 1" Send="DeathCustomize AntiGravProtoss"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsTerranUnit; IsStatus InAir 1" Send="DeathCustomize AntiGravTerran"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsZergUnit; IsStatus InAir 1" Send="DeathCustomize AntiGravZerg"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit IsVortexed" Send="DeathCustomize Vortex"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit HasForceLowDeathProtoss" Send="DeathCustomize AntiGravProtoss"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit HasForceLowDeathZerg" Send="DeathCustomize AntiGravZerg"/>
+        <On Terms="UnitDeathCustomize; ValidateUnit HasForceLowDeathTerran" Send="DeathCustomize AntiGravTerran"/>
+        <On Terms="Behavior.PhoenixAntiGrav.On" Send="ModelSuddenMotionStart"/>
+        <On Terms="Behavior.PhoenixAntiGrav.Off" Send="ModelSuddenMotionStop"/>
+        <On Terms="Behavior.ForceLowDeath.On" Send="DeathCustomsEnablePhysics 0"/>
+        <On Terms="UnitTaunt.*.Start; Taunt" Send="AnimPlay Cheer Stand,Victory"/>
+        <On Terms="UnitTaunt.*.Stop; Taunt" Send="AnimClear Cheer"/>
+        <On Terms="UnitTaunt.*.Start; Taunt Dance" Send="AnimPlay Dance Stand,Dance"/>
+        <On Terms="UnitTaunt.*.Stop; Taunt Dance" Send="AnimClear Dance"/>
+        <On Terms="UnitTaunt.*.Start; Taunt Tease" Send="AnimPlay Taunt Taunt"/>
+        <On Terms="UnitTaunt.*.Stop; Taunt Tease" Send="AnimClear Taunt"/>
+        <On Terms="ActorCreation" Send="StatusSet InAir 0"/>
+        <On Terms="UnitHeightUpdate.*.Lift" Send="StatusSet InAir 1"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="StatusSet InAir 0"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+        <On Terms="Abil.MULEGather.Start" Send="AnimBracketStart Work Work,Start Work Work,End"/>
+        <On Terms="Abil.MULEGather.Stop" Send="AnimBracketStop Work"/>
+        <On Terms="Abil.MULERepair.SourceChannelStart" Send="AnimBracketStart Work Work,Start Work Work,End"/>
+        <On Terms="Abil.MULERepair.SourceChannelStop" Send="AnimBracketStop Work"/>
+        <On Terms="Abil.MULERepair.SourceChannelStart" Send="TimerSet 0.000000,0.300000 Repair"/>
+        <On Terms="Abil.MULERepair.SourceChannelStop" Send="TimerKill Repair"/>
+        <On Terms="Abil.MULERepair.SourceChannelStop" Send="AnimClear Repair"/>
+        <On Terms="AnimDone.*.Complete; AnimName Repair" Send="TimerSet 0.000000,0.300000 Repair"/>
+        <On Terms="TimerExpired; TimerName Repair" Send="AnimPlay Repair Work NonLooping"/>
+        <On Terms="TimerExpired; TimerName Repair" Send="Create MULERepairSound"/>
+        <On Terms="Abil.MULEGather.Start" Send="StatusSet CloakSound 1"/>
+        <On Terms="Behavior.CarryHarvestableVespeneGeyserGas.Create" Send="StatusSet CloakSound 1"/>
+        <On Terms="Confirmation.MULE.Start" Send="StatusSet CloakSound 0"/>
+        <On Terms="Behavior.CloakFieldEffect.Create; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOn"/>
+        <On Terms="Behavior.CloakFieldEffect.Destroy; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOff"/>
+        <On Terms="Behavior.Precursor.Off" Send="Create MULEReadySound"/>
+        <On Terms="Behavior.OracleCloakFieldEffect.Create; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOn"/>
+        <On Terms="Behavior.OracleCloakFieldEffect.Destroy; IsStatus CloakSound 0" Send="Create Worker_CloakFieldOff"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Mule_Land"/>
+        <Scale value="1.500000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <ModelFlags index="NeedsVolumeMonitoring" value="1"/>
+        <ModelFlags index="UseSyncSeed" value="1"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <EventDataFootprint Actor="UnitFootprint" Model="MULEFootprint"/>
+        <EventDataSound Actor="UnitSound"/>
+        <Baselines index="Stand" AnimProps="Stand" BlendIn="-1.000000" BlendOut="-1.000000"/>
+        <Baselines index="Walk" AnimProps="Walk" BlendIn="-1.000000" BlendOut="-1.000000"/>
+        <BuildModel value="LevelPlaneInto"/>
+        <DeathArray index="Normal">
+            <AnimProps value="Death"/>
+            <ModelLink value="MULEDeath"/>
+            <SoundLink value="Mule_Explode"/>
+            <VoiceLink value="MULEDeathVoice"/>
+        </DeathArray>
+        <DeathArray index="Eat" AnimProps="Death,Eat"/>
+        <DeathArray index="Eviscerate" AnimProps="Death,Eviscerate"/>
+        <DeathArray index="Fire" AnimProps="Death,Fire"/>
+        <DeathArray index="Silentkill" AnimProps="Death,Silentkill"/>
+        <DeathArray index="Squish" AnimProps="Death,Squish"/>
+        <DeathArray index="UnderConstruction" AnimProps="Death"/>
+        <DeathCustoms ModelLink="ZergSmallUnitDeathLow" Name="AntiGravGeneric"/>
+        <DeathCustoms ModelLink="ProtossSmallUnitDeathLow" Name="AntiGravProtoss"/>
+        <DeathCustoms ModelLink="TerranSmallUnitDeathLow" Name="AntiGravTerran"/>
+        <DeathCustoms ModelLink="ZergSmallUnitDeathLow" Name="AntiGravZerg"/>
+        <DeathCustoms ModelLink="Invisible" Name="Vortex"/>
+        <DeathCustoms ModelLink="MULEDeathRagdoll" Name="RagdollBasic">
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathCustomData Name="RagdollBasic" SyncPassChance="50"/>
+        <DeathCustomData Name="RagdollBasicAndGibNoBlood" Members="RagdollBasicNoBlood;RagdollGibNoBlood" SyncPassChance="50"/>
+        <DeathCustomData Name="RagdollBaneling" Supersedes="RagdollBasic" SyncPassChance="50"/>
+        <DeathCustomData Name="RagdollSiegeTank" Supersedes="RagdollBasic" SyncPassChance="55"/>
+        <DeathCustomData Name="RagdollNuke" Supersedes="RagdollBasic" SyncPassChance="50"/>
+        <DeathCustomData Name="RagdollUltraUnburrow"/>
+        <DeathCustomData Name="RagdollSpineCrawlerHurl" SyncPassChance="25"/>
+        <DeathCustomData Name="RagdollOverkillDPRH" SyncPassChance="50"/>
+        <DeathCustomData Name="RagdollOverkillDOI" SyncPassChance="33"/>
+        <DeathCustomData Name="RagdollFire" Supersedes="RagdollBasic,RagdollOverkillDOI,RagdollOverkillDPRH" SyncPassChance="50"/>
+        <DeathCustomData Name="RagdollAcid" Supersedes="RagdollBasic,RagdollOverkillDOI,RagdollOverkillDPRH" SyncPassChance="50"/>
+        <DeathCustomData Name="RagdollMidair" Supersedes="RagdollBasic,RagdollOverkillDOI,RagdollOverkillDPRH"/>
+        <DeathCustomData Name="RagdollUpgraded" Supersedes="RagdollBasic,RagdollOverkillDOI,RagdollOverkillDPRH" SyncPassChance="50"/>
+        <DeathCustomData Name="RagdollUpgradedMidair" Supersedes="RagdollBasic,RagdollOverkillDOI,RagdollOverkillDPRH,RagdollMidair"/>
+        <DeathCustomData Name="RagdollAoE"/>
+        <DeathActorModel value="UnitDeathModel"/>
+        <DeathActorModelLow value="UnitDeathModelUnscaled"/>
+        <DeathActorSound value="UnitDeathSound"/>
+        <DeathActorVoice value="UnitDeathVoice"/>
+        <OverkillByDamagePastRemainingHealth Value="30" TestType="PercentageOfMaxLifePlusShields"/>
+        <OverkillByDamageOverInterval Value="70" Interval="1" TestType="PercentageOfMaxLifePlusShields"/>
+        <PhysicsMatchKeysOrdered value="Basic"/>
+        <PlacementModel value="LevelPlaneInto"/>
+        <PlacementActorModel value="PlacementModel"/>
+        <PlaceholderActorModel value="PlaceholderModel"/>
+        <PortraitActor value="PortraitActor"/>
+        <PortraitModel value="MULEPortrait"/>
+        <RandomScaleRange value="1.000000,1.000000"/>
+        <VarianceWindowStandIntro value="0.330000"/>
+        <VarianceWindowStand value="1.000000"/>
+        <VarianceWindowWalkIntro value="0.330000"/>
+        <VarianceWindowWalk value="1.000000"/>
+        <VarianceWindowWalkOutro value="0.330000"/>
+        <WalkAnimMoveSpeed value="3.75"/>
+        <BarDistance value="34"/>
+        <BarHeight value="7"/>
+        <BarOffset value="50"/>
+        <BarWidth value="42"/>
+        <GlossaryAnim value="Stand"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-mule.dds"/>
+        </GroupIcon>
+        <GroupSoundArray index="Help" value="Alert_TerranEconomyUnderAttack"/>
+        <GroupSoundArray index="What" value="MULE_GroupWhat"/>
+        <GroupSoundArray index="Yes" value="MULE_GroupYes"/>
+        <GroupSoundArray index="Attack" value="MULE_GroupAttack"/>
+        <GroupSoundArray index="Board" value="MULE_GroupBoard"/>
+        <GroupSoundThreshold value="2"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-mule.dds"/>
+        <HighlightTooltip value="Unit/Name/LevelPlaneInto"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <MinimapIconScale value="1.000000"/>
+        <MinimapIconBackgroundScale value="1.000000"/>
+        <MinimapRenderPriority value="Normal"/>
+        <MinimapFlashWhenAttacked value="1"/>
+        <MinimapUseSelfColor value="1"/>
+        <MinimapUseSelectionColor value="1"/>
+        <NameOffset value="30"/>
+        <ShieldArmorIcon value="Assets\Textures\btn-upgrade-protoss-shieldslevel0.dds"/>
+        <SnapshotActor value="Snapshot"/>
+        <SoundArray index="Birth" value="Mule_Ready"/>
+        <SoundArray index="Ready" value="Mule_Ready"/>
+        <SoundArray index="Help" value="Alert_TerranEconomyUnderAttack"/>
+        <SoundArray index="What" value="Mule_What"/>
+        <SoundArray index="Yes" value="Mule_Yes"/>
+        <SoundArray index="Attack" value="Mule_Yes"/>
+        <SoundArray index="Pissed" value="Mule_Pissed"/>
+        <SoundArray index="Movement" value="SCVMovement"/>
+        <SoundArray index="Turning" value="SCVTurning"/>
+        <SoundArray index="Board" value="SCVBoard"/>
+        <SoundArray index="Click" value="MULE_Click"/>
+        <SoundArray index="ClickError" value="MULE_ClickError"/>
+        <SoundArray index="Highlight" value="MULE_Highlight"/>
+        <StatusBarFlags index="Shields" value="1"/>
+        <StatusBarFlags index="Life" value="1"/>
+        <StatusBarFlags index="Energy" value="1"/>
+        <StatusBarFlags index="Cargo" value="1"/>
+        <StatusBarFlags index="Progress" value="1"/>
+        <StatusBarFlags index="Duration" value="1"/>
+        <StatusBarFlags index="Magazine" value="1"/>
+        <StatusBarFlags index="Workers" value="1"/>
+        <StatusBarFlags index="Custom" value="1"/>
+        <StatusBarGroups index="Owner" value="1"/>
+        <StatusBarGroups index="Allied" value="1"/>
+        <StatusBarGroups index="Enemy" value="1"/>
+        <StatusBarGroups index="All" value="1"/>
+        <StatusColors index="Shields" BackgroundColor="255,0,0,0" EmptyColor="255,80,80,80">
+            <ColorArray value="255,0,0,255"/>
+        </StatusColors>
+        <StatusColors index="Life" BackgroundColor="255,0,0,0" EmptyColor="255,80,80,80">
+            <ColorArray value="255,208,34,0"/>
+            <ColorArray value="255,208,34,0"/>
+            <ColorArray value="255,229,129,0"/>
+            <ColorArray value="255,229,129,0"/>
+            <ColorArray value="255,229,221,0"/>
+            <ColorArray value="255,229,221,0"/>
+            <ColorArray value="255,22,229,0"/>
+            <ColorArray value="255,22,229,0"/>
+        </StatusColors>
+        <StatusColors index="Energy" BackgroundColor="255,0,0,0" EmptyColor="255,80,80,80">
+            <ColorArray value="255,150,40,220"/>
+        </StatusColors>
+        <StatusColors index="Cargo" BackgroundColor="255,0,0,0" EmptyColor="255,77,60,15">
+            <ColorArray value="255,255,255,255"/>
+        </StatusColors>
+        <StatusColors index="Progress" BackgroundColor="255,0,0,0" EmptyColor="255,80,80,80">
+            <ColorArray value="255,0,200,200"/>
+        </StatusColors>
+        <StatusColors index="Duration" BackgroundColor="255,0,0,0" EmptyColor="255,40,40,40">
+            <ColorArray value="255,120,120,120"/>
+        </StatusColors>
+        <StatusColors index="Magazine" BackgroundColor="255,0,0,0" EmptyColor="255,77,60,15">
+            <ColorArray value="255,128,128,64"/>
+        </StatusColors>
+        <StatusTextInfo>
+            <Offset value="0,16"/>
+            <Attachment value="Ref_StatusBar"/>
+            <FontSize value="16"/>
+            <BackgroundColor value="255,255,255,255"/>
+            <BackgroundImage value="Assets\Textures\ui_ingame_workercount_bg.dds"/>
+        </StatusTextInfo>
+        <UnitFlags index="ShowBlobShadow" value="1"/>
+        <UnitFlags index="StandAnimBirthVariation" value="1"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-mule.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-mule.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorSimple id="TriggerPerPlayerActorAgent">
+        <On Terms="Signal.*.Show; FlyerHelper All" Target="_TriggerTarget" Send="SetVisibility 1"/>
+        <On Terms="Signal.*.Hide; FlyerHelper All" Target="_TriggerTarget" Send="SetVisibility"/>
+        <On Terms="Signal.*.Destroy_Immediate; FlyerHelper All" Target="_TriggerTarget" Send="Destroy Immediate"/>
+        <On Terms="Signal.*.Destroy_Normal; FlyerHelper All" Target="_TriggerTarget" Send="Destroy"/>
+    </CActorSimple>
+    <CBehaviorBuff id="Monobattle">
+        <InfoIcon value="Assets\Textures\btn-minimap-ping.dds"/>
+        <Modification>
+            <AbilClassDisableArray index="CAbilAttack" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CModel id="LevelPlaneInto" parent="Unit" Race="Terran">
+        <Model value="Assets\Doodads\InvisibleWalkablePlatform\InvisibleWalkablePlatform.m3"/>
+        <Occlusion value="Show"/>
+        <PlanetPanelCamera value="Star2CameraMid05"/>
+        <SelectionRadius value="0.588100"/>
+        <ShadowRadius value="0.588100"/>
+        <SquibTypeDefault value="Metal"/>
+        <TechPurchaseCamera value="Star2CameraMid05"/>
+        <UnitGlossaryCamera value="Star2CameraMid05"/>
+    </CModel>
+    <CSound id="ClickError">
+        <AssetArray File="Assets\Sounds\UI_SoA_ChargePower_Click05_2ch.wav" Volume="6.000000,6.000000" FacialGroup=""/>
+    </CSound>
+    <CSound id="GameStart">
+        <AssetArray File="Assets\Sounds\UI_Unlock_01A.wav" FacialGroup=""/>
+    </CSound>
+    <CSound id="LimitedTime">
+        <AssetArray File="Assets\Sounds\Uni\UI\UI_CampaignHintNotify.wav" Volume="6.000000,6.000000" FacialGroup=""/>
+        <Volume value="6.000000,6.000000"/>
+    </CSound>
+    <CSound id="NextTurn">
+        <AssetArray File="Assets\Sounds\UI_Points_Counter_2.wav" FacialGroup=""/>
+    </CSound>
+    <CSound id="UnitSelected">
+        <AssetArray File="Assets\Sounds\UI_Select_Hrz_Tier_4.wav" FacialGroup=""/>
+    </CSound>
+    <CSound id="YourTurn">
+        <AssetArray File="Assets\Music\UI_Stinger_AchievementFull01.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Music\UI_Stinger_AchievementFull02.ogg" FacialGroup=""/>
+    </CSound>
+    <CUnit id="LevelPlaneInto">
+        <DeathRevealRadius value="3"/>
+        <ReviveType value="MULE"/>
+        <Race value="Terr"/>
+        <Mob value="Multiplayer"/>
+        <FlagArray index="Worker" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <FlagArray index="IgnoreTerrainZInit" value="1"/>
+        <FlagArray index="AILifetime" value="1"/>
+        <FlagArray index="HideFromHarvestingCount" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <DefaultAcquireLevel value="Defensive"/>
+        <Response value="Flee"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="60"/>
+        <LifeMax value="60"/>
+        <LifeArmorName value="Unit/LifeArmorName/TerranInfantryArmor"/>
+        <Speed value="2.8125"/>
+        <Acceleration value="2.5"/>
+        <LateralAcceleration value="46"/>
+        <StationaryTurningRate value="999.8437"/>
+        <TurningRate value="999.8437"/>
+        <Sight value="8"/>
+        <Height value="12"/>
+        <CostResource index="Minerals" value="50"/>
+        <RepairTime value="16.667"/>
+        <AttackTargetPriority value="20"/>
+        <AIOverideTargetPriority value="10"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="10"/>
+        <Radius value="0.375"/>
+        <SeparationRadius value="0.375"/>
+        <InnerRadius value="0.375"/>
+        <SubgroupPriority value="56"/>
+        <MinimapRadius value="0.375"/>
+        <EditorCategories value="ObjectType:Other"/>
+        <TacticalAI value="MULE"/>
+        <LeaderAlias value="MULE"/>
+        <HotkeyAlias value="MULE"/>
+        <SelectAlias value="MULE"/>
+        <SubgroupAlias value="MULE"/>
+        <GlossaryCategory value="Unit/Category/TerranUnits"/>
+        <GlossaryPriority value="20"/>
+        <HotkeyCategory value="Unit/Category/TerranUnits"/>
+        <AIEvaluateAlias value="MULE"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="33"/>
+            <ChanceArray index="Idle" value="33"/>
+            <ChanceArray index="Turn" value="33"/>
+        </Fidget>
+        <ReviveInfoBase>
+            <Charge Link="MULE/Revive"/>
+            <Cooldown Link="MULE/Revive"/>
+        </ReviveInfoBase>
+    </CUnit>
+    <CUnit id="ShapeApple">
+        <FlagArray index="IgnoreTerrainZInit" value="1"/>
+        <EditorCategories value="ObjectType:Other"/>
+    </CUnit>
+    <CUnit id="MonobattlePlayer">
+        <FlagArray index="PreventReveal" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <EditorCategories value="ObjectType:Other"/>
+    </CUnit>
+</Catalog>

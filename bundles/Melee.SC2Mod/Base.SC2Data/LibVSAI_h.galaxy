@@ -1,0 +1,116 @@
+include "TriggerLibs/natives"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Utilities - AI
+//--------------------------------------------------------------------------------------------------
+// Preset Declarations
+const int libVSAI_ge_TgAIIncludeAlias_DontIncludeAlias = 0;
+const int libVSAI_ge_TgAIIncludeAlias_IncludeFirstAlias = 1;
+const int libVSAI_ge_TgAIIncludeAlias_IncludeLastAlias = 2;
+
+// Constants
+const fixed libVSAI_gv_tacticalDistanceFromDamage = 0.2;
+const int libVSAI_gv_townInvalid = -2;
+const int libVSAI_gv_townMain = -1;
+const int libVSAI_gv_townMax = 32;
+const int libVSAI_gv_realSelfThreat = 1;
+const int libVSAI_gv_realThreat = 1 | 2;
+const int libVSAI_gv_anySelfThreat = 1 | 4 | 8;
+const int libVSAI_gv_anyThreat = 1 | 2 | 4 | 8;
+const int libVSAI_gv_standard = 0;
+const int libVSAI_gv_townHall = 0x00040000;
+const int libVSAI_gv_creep = 0x00000001 | 0x00000010 | 0x00200000;
+const int libVSAI_gv_power = 0x00000001 | 0x00000010 | 0x00008000 | 0x00200000;
+const int libVSAI_gv_expandPower = 0x00000001 | 0x00000800 | 0x00008000 | 0x00040000;
+const int libVSAI_gv_darkPower = 0x00000800 | 0x00008000 | 0x00040000;
+const int libVSAI_gv_collector = 0x00000800 | 0x00008000 | 0x10000000;
+const int libVSAI_gv_defense = 0x00000004 | 0x00001000 | 0x00002000 | 0x00008000 | 0x00040000 | 0x00080000;
+const int libVSAI_gv_resourceDefense = 0x00000004 | 0x00040000;
+const int libVSAI_gv_lowerableSupplyDepot = 0x08000000;
+const int libVSAI_gv_wall = 0x00080000 | 0x0c000000;
+const int libVSAI_gv_default = -1;
+const int libVSAI_gv_techTg = 0x00000002 | 0x00000008 | 0x00000020 | 0x00000080 | 0x00010000 | 0x00020000;
+const int libVSAI_gv_productionTg = 0x00000002 | 0x00000008 | 0x00010000 | 0x00020000 | 0x00100000;
+const int libVSAI_gv_aIMaxUnits = 100;
+
+// Variable Declarations
+bool libVSAI_gv_unitToActorInitDone;
+bool libVSAI_gv_aliasDataInitDone;
+int[16] libVSAI_gv_aIStage;
+fixed[16] libVSAI_gv_nextAttackWave;
+timer[16] libVSAI_gv_aIExpandTimer;
+int libVSAI_gv_pickedai;
+wave[16] libVSAI_gv_aIWaves;
+int libVSAI_gv_aIDialog;
+int libVSAI_gv_totalFactions;
+int[16][5][libVSAI_gv_aIMaxUnits + 1] libVSAI_gv_aIButton;
+
+// Function Declarations
+string libVSAI_gf_unit_to_actorDataName (string lp_unitType);
+void libVSAI_gf_InitUnitTypeToActorData ();
+string libVSAI_gf_GetMainActorofUnitType (string lp_unitType);
+string libVSAI_gf_aliasDataCountName (string lp_alias);
+string libVSAI_gf_aliasDataIndexName (string lp_alias, int lp_index);
+void libVSAI_gf_InitUnitAliasData ();
+int libVSAI_gf_TechAliasCheck (string lp_aliasUnit, string lp_checkUnit);
+string libVSAI_gf_GetUnitAlias (string lp_unittype, int lp_alias_index);
+string libVSAI_gf_GetUnitAliasGameLink (string lp_unittype, int lp_alias_index);
+int libVSAI_gf_GetNumberOfUnitsInGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup);
+unitgroup libVSAI_gf_FilterUnitGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup);
+bool libVSAI_gf_TechExistsInUnitGroupIncludeAlias (string lp_unitType, unitgroup lp_unitgroup);
+void libVSAI_gf_KillUnitWithCustomDeath (int lp_killingplayer, unit lp_unit, string lp_deathtype);
+int libVSAI_gf_ConvertBuildFlagsToInteger (int lp_flags);
+void libVSAI_gf_TrainUnitIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_maxqueue);
+void libVSAI_gf_BuildIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_buildFlags, int lp_maxqueue);
+void libVSAI_gf_TgBuildIfNotInQueue (int lp_player, string lp_unitType, int lp_includeAlias, int lp_count, string lp_requiredTech, int lp_requiredTechAlias, int lp_town, int lp_buildFlags, int lp_maxqueue);
+void libVSAI_gf_ResearchIfNotInQueue (int lp_player, string lp_upgrade, int lp_count, string lp_requiredTech, int lp_requiredTechAlias);
+int libVSAI_gf_GetTownInRegion (int lp_player, region lp_region);
+void libVSAI_gf_OrderUnitToAttackMove (unit lp_unit, point lp_target);
+order libVSAI_gf_CreateOrderforAI (abilcmd lp_abilCmd, int lp_player);
+void libVSAI_gf_AddAttackWaveUnitType (int lp_count, string lp_unitType);
+unitgroup libVSAI_gf_CreateUnitsWithDefaultFacing (int lp_count, string lp_type, int lp_style, int lp_player, point lp_p);
+unitgroup libVSAI_gf_CreateUnitsAtPoint2 (int lp_count, string lp_type, int lp_flags, int lp_player, point lp_p);
+unitgroup libVSAI_gf_UnitCreateFacingPoint (int lp_count, string lp_type, int lp_flags, int lp_player, point lp_pos, point lp_facing);
+void libVSAI_gf_TacticalAIFilterSortByLife (aifilter lp_filter, fixed lp_damage, fixed lp_distance);
+bool libVSAI_gf_AIIsExpandingOrHasExpanded (int lp_player);
+bool libVSAI_gf_AINeedsDefending (int lp_player);
+void libVSAI_gf_StockWorkers (int lp_player, int lp_count, string lp_worker);
+bool libVSAI_gf_MacroExpand (int lp_player);
+void libVSAI_gf_BasicDefensesStock (int lp_player);
+bool libVSAI_gf_UnitIsDropOff (int lp_player, string lp_unitType);
+point libVSAI_gf_GetExpansionpoint (int lp_player);
+void libVSAI_gf_Speak (int lp_player, text lp_text);
+void libVSAI_gf_SetupAIFlags (int lp_player);
+void libVSAI_gf_AITechInfo (int lp_player);
+void libVSAI_gf_Attack (int lp_player);
+void libVSAI_gf_AddStockIfAvailable (int lp_player, int lp_count, string lp_what);
+void libVSAI_gf_AddEmergencyStockIfAvailable (int lp_player, int lp_count, string lp_what, bool lp_onlyIfTechInPlace);
+void libVSAI_gf_BuildBaseIfNotExists (int lp_player);
+void libVSAI_gf_Update (int lp_player);
+void libVSAI_gf_Setup (int lp_player);
+string libVSAI_gf_AISupply (int lp_player);
+string libVSAI_gf_AISupport (int lp_player);
+string libVSAI_gf_AICombat (int lp_player);
+string libVSAI_gf_AIWorkers (int lp_player);
+string libVSAI_gf_AITransport (int lp_player);
+string libVSAI_gf_AITech (int lp_player);
+string libVSAI_gf_AIProduction (int lp_player);
+string libVSAI_gf_AIDefenses (int lp_player);
+string libVSAI_gf_AIPower (int lp_player);
+string libVSAI_gf_AIMain (int lp_player);
+string libVSAI_gf_AIRefinery (int lp_player);
+string libVSAI_gf_AIUpgrades (int lp_player);
+string libVSAI_gf_AIDropOff (int lp_player);
+bool libVSAI_gf_IsCurrentlyExpansing (int lp_player);
+void libVSAI_gf_CreateAIDialog ();
+void libVSAI_gf_UpdateAIDialogForPlayer (int lp_player);
+void libVSAI_gf_UpdateAIDialogCategoryForPlayer (int lp_player, string lp_techList, string lp_avalabilityList, int lp_category, int lp_offset, int lp_catalog);
+void libVSAI_gf_RunViscerousAI (int lp_player);
+
+// Trigger Declarations
+trigger libVSAI_gt_UpdateAIDialog;
+trigger libVSAI_gt_ViscerousAI;
+
+// Library Initialization
+void libVSAI_InitVariables ();
+

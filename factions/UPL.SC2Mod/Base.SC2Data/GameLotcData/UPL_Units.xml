@@ -295,9 +295,10 @@
         <EditorCategories value="Race:UPL"/>
     </CEffectApplyBehavior>
     <CEffectDamage id="InfantryFlamethrowerDamage" parent="DU_WEAP">
-        <Amount value="7"/>
         <Death value="Fire"/>
         <EditorCategories value="Race:UPL"/>
+        <Amount value="4"/>
+        <AttributeBonus index="Light" value="4"/>
     </CEffectDamage>
     <CEffectDamage id="InfantryFlamethrowerBurningDamage" parent="DU_SPELL">
         <ImpactLocation Value="SourceUnit"/>
@@ -309,7 +310,8 @@
     <CEffectDamage id="InfantryFlamethrowerDamagedirect" parent="DU_WEAP">
         <Marker Link="Effect/InfantryFlamethrowerDamage"/>
         <ImpactLocation Effect="InfantryFlamethrowerInitSet" Value="TargetUnit"/>
-        <Amount value="10"/>
+        <Amount value="4"/>
+        <AttributeBonus index="Light" value="4"/>
         <Death value="Fire"/>
         <EditorCategories value="Race:UPL"/>
     </CEffectDamage>
@@ -564,6 +566,84 @@
             <Change value="25"/>
         </VitalArray>
     </CEffectModifyUnit>
+    <CEffectRemoveBehavior id="UPLCancelSprint">
+        <ValidatorArray index="0" removed="1"/>
+        <EditorCategories value="Race:UPL"/>
+        <WhichUnit Value="Source"/>
+        <BehaviorLink value="Sprint"/>
+    </CEffectRemoveBehavior>
+    <CAbilBuild default="1" id="UPLBuildBase">
+        <AbilityCategories index="CanBeDisabled" value="1"/>
+        <AbilityCategories index="CanBeIllusionDisabled" value="1"/>
+        <FlagArray index="IgnoreUnitBuildTime" value="0"/>
+        <FlagArray index="PeonHide" value="1"/>
+        <FlagArray index="PeonDisableCollision" value="1"/>
+        <FlagArray index="PeonKillFinish" value="1"/>
+        <FlagArray index="AutoHarvest" value="1"/>
+        <EffectArray index="Start" value="UPL_WorkerBuildSet"/>
+        <EffectArray index="Finish" value="UPL_WorkerBuildEndSet"/>
+        <EffectArray index="Cancel" value="UPL_WorkerBuildEndSet"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+    </CAbilBuild>
+    <CAbilEffectTarget id="HazmatRepair">
+        <Flags index="AbortOnAllianceChange" value="0"/>
+        <TargetFilters value="Ground,Visible;Self,Heroic,Missile,Stasis,Hidden,Invulnerable"/>
+        <Range value="0"/>
+        <CancelableArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Finish" value="1"/>
+        <DefaultError value="RequiresRepairTarget"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="HazmatRepair"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <EditorCategories value="Race:UPL,AbilityorEffectType:Units"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="LotC_EP01M03_SnipeShot">
+        <EditorCategories value="Race:UPL,AbilityorEffectType:Units"/>
+        <Effect index="0" value="LotC_EP01M03_SnipeShotCreatePersistent"/>
+        <Flags index="BestUnit" value="0"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Range value="500"/>
+        <CastIntroTime value="2"/>
+        <FinishTime value="0"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Finish" value="1"/>
+        <CursorEffect value="LotC_EP01M03_SnipeShotSearch"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="LotC_EP01M03_SnipeShot"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="WillliamGravesArtilleryStrike">
+        <OrderArray index="0">
+            <DisplayType value="Confirm"/>
+            <Color value="255,0,255,0"/>
+            <Model value="Assets\UI\Cursors\WayPointConfirm_Void\WayPointConfirm_Void.m3"/>
+            <LineTexture value="Assets\Textures\WayPointLine.dds"/>
+        </OrderArray>
+        <EditorCategories value="Race:UPL,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="WillliamGravesArtilleryStrike"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Effect index="0" value="WillliamGravesArtilleryStrike@Channel"/>
+        <CursorEffect value="WillliamGravesArtilleryStrike@Search"/>
+        <Range value="10"/>
+        <Cost>
+            <Cooldown TimeUse="240"/>
+        </Cost>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="UPLNuclearStrike">
+        <TechPlayer value="Owner"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Effect index="0" value="UPLNukePersistent"/>
+        <Range value="600"/>
+        <FinishTime value="2.5"/>
+        <CancelableArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <ValidatedArray index="Channel" value="0"/>
+        <AlertArray index="Cast" value="CalldownLaunch"/>
+        <CursorEffect value="UPLNukeDamage"/>
+        <AINotifyEffect value="Nuke"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="UPLNukeCalldown"/>
+        <CmdButtonArray index="Cancel" DefaultButtonFace="Cancel"/>
+        <Flags index="RequireTargetVision" value="0"/>
+    </CAbilEffectTarget>
     <CAbilBuild id="UPLBuild" parent="UPLBuildBase">
         <InfoArray index="Build1" Unit="UPLHeadquarters" Time="100">
             <Button DefaultButtonFace="UPLHeadquarters"/>
@@ -1011,7 +1091,7 @@
         <AlertIcon value="Assets\Textures\btn-unit-upl-InfantryHeavy.dds"/>
         <EditorCategories value="Race:UPL"/>
     </CButton>
-    <CButton id="InfantryFlamethrower">
+    <CButton id="UPLTrainInfantryFlamethrower">
         <Icon value="Assets\Textures\btn-unit-upl-infantryflamethrower.dds"/>
         <AlertIcon value="Assets\Textures\btn-unit-upl-infantryflamethrower.dds"/>
         <EditorCategories value="Race:UPL"/>
@@ -1019,6 +1099,11 @@
     <CButton id="UPLTrainInfantryRifle">
         <Icon value="Assets\Textures\btn-unit-upl-InfantryRifle.dds"/>
         <AlertIcon value="Assets\Textures\btn-unit-upl-InfantryRifle.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CButton id="UPLTrainInfantrySniper">
+        <Icon value="Assets\Textures\btn-unit-upl-sniper-infantry.dds"/>
+        <AlertIcon value="Assets\Textures\btn-unit-upl-sniper-infantry.dds"/>
         <EditorCategories value="Race:UPL"/>
     </CButton>
     <CButton id="ResearchInfantryMortarRangeUpgrade" parent="ResearchButton" originButton="InfantryMortarRangeUpgrade">
@@ -1456,29 +1541,6 @@
         <Icon value="Assets\Textures\RadarIcon2.dds"/>
         <IconArcLength value="3.250000"/>
     </CActorRange>
-    <CActorUnit id="InfantryHeavy" parent="InfantryBase" unitName="InfantryHeavy">
-        <Aliases index="2" value="_UnitMedium"/>
-        <Macros value="LOTC_ReadyAnimationMacroNoEndAnim"/>
-        <Macros value="LOTC_ReadyAnimationRemoveDefaultTime"/>
-        <Macros value="LOTC_ReadyAnimationShortTime"/>
-        <StandAnimTurnTime value="1.8"/>
-        <WalkAnimMoveSpeed value="1.8007"/>
-        <BarWidth value="40"/>
-        <GroupSoundThreshold value="40"/>
-        <HeroIcon value="Assets\Textures\btn-unit-upl-infantryheavy.dds"/>
-        <UnitIcon value="Assets\Textures\btn-unit-upl-infantryheavy.dds"/>
-        <UnitKillRank index="0" Text="UnitKillRank/InfantryHeavy"/>
-        <Wireframe>
-            <Image index="0" value="Assets\Textures\wireframe-upl-infantryheavy.dds"/>
-        </Wireframe>
-        <On Terms="UnitDeathCustomize.InfantryHeavy; !Option Physics Low; Death Normal; PassChance 50.000000" Send="DeathCustomize Variation0"/>
-        <On Terms="UnitDeath.InfantryHeavy; Option Physics Low; Death Fire" Target="_DeathModel" Send="AnimPlay Custom Custom PlayForever 0.000000"/>
-        <On Terms="UnitDeath.InfantryHeavy; Option Physics Low; Death Disintegrate" Target="_DeathModel" Send="AnimPlay Custom Custom PlayForever 0.000000"/>
-        <On Terms="UnitDeath.InfantryHeavy; IsStatus Ready 1" Target="_DeathModel" Send="AnimGroupApply Ready"/>
-        <DeathCustoms AnimProps="Death" ModelLink="InfantryHeavyDeathAlternate" Name="Variation0"/>
-        <DeathArray index="Blast" ModelLink=""/>
-        <DeathArray index="Eviscerate" ModelLink=""/>
-    </CActorUnit>
     <CActorUnit id="InfantryMortar" parent="InfantryBase" unitName="InfantryMortar">
         <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
         <On Terms="Effect.InfantryMortarDelay.Start; At Caster" Send="AnimPlay Attack Attack"/>
@@ -1686,7 +1748,7 @@
         <On Terms="UnitDeath.InfantryRifle; IsStatus Ready 1" Target="_DeathModel" Send="AnimGroupApply Ready"/>
         <DeathCustoms AnimProps="Death" ModelLink="InfantryRifleDeathAlternate" Name="Variation0"/>
     </CActorUnit>
-    <CActorUnit id="InfantryRifleM3Sniper" parent="InfantryBase" unitName="InfantryRifleM3Sniper">
+    <CActorUnit id="InfantryRifleM3Sniper" parent="InfantryBase" unitName="InfantrySniper">
         <DeathArray index="Normal" ModelLink="InfantryRifleDeath" VoiceLink="InfantryRifle_Death"/>
         <DeathArray index="Blast" ModelLink="" VoiceLink="InfantryRifle_DeathFoley"/>
         <DeathArray index="Disintegrate" ModelLink="InfantryRifleDeathAcid" VoiceLink="InfantryRifle_Death"/>
@@ -1697,8 +1759,8 @@
         <StandAnimTurnTime value="1.9"/>
         <UnitKillRank index="0" Text="UnitKillRank/InfantryRifle"/>
         <WalkAnimMoveSpeed value="2.0507"/>
-        <On Terms="UnitDeathCustomize.InfantryRifleM3Sniper; Death Normal; PassChance 45.000000" Send="DeathCustomize Variation0"/>
-        <On Terms="UnitDeath.InfantryRifleM3Sniper; IsStatus Ready 1" Target="_DeathModel" Send="AnimGroupApply Ready"/>
+        <On Terms="UnitDeathCustomize.InfantrySniper; Death Normal; PassChance 45.000000" Send="DeathCustomize Variation0"/>
+        <On Terms="UnitDeath.InfantrySniper; IsStatus Ready 1" Target="_DeathModel" Send="AnimGroupApply Ready"/>
         <On Terms="ActorCreation; IsActorLocalPlayer" Send="Create InfantryRifleM3SniperLookAtTarget"/>
         <DeathCustoms index="5" ActorModel="UnitDeathRagdollWithTeamColor" ModelLink="InfantryRifleDeathRagdoll" Name="RagdollBasic"/>
         <DeathCustoms index="12" ActorModel="SpineCrawlerHurlDeathRagdollWithTeamColorBloodPrevent" ModelLink="InfantryRifleDeathRagdoll" Name="RagdollSpineCrawlerHurl"/>
@@ -1707,9 +1769,9 @@
         <GroupIcon>
             <Image index="0" value="Assets\Textures\wireframe-upl-InfantryRifle.dds"/>
         </GroupIcon>
-        <HeroIcon value="Assets\Textures\btn-unit-UPL-InfantryRifle.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-upl-sniper-infantry.dds"/>
         <HighlightTooltip value="Unit/Name/InfantryRifle"/>
-        <UnitIcon value="Assets\Textures\btn-unit-UPL-InfantryRifle.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-upl-sniper-infantry.dds"/>
         <Wireframe>
             <Image index="0" value="Assets\Textures\wireframe-upl-InfantryRifle.dds"/>
         </Wireframe>
@@ -1726,6 +1788,9 @@
         <SoundArray index="Click" value="InfantryRifle_Click"/>
         <SoundArray index="ClickError" value="InfantryRifle_ClickError"/>
         <SoundArray index="Highlight" value="InfantryRifle_Highlight"/>
+        <Model value="InfantryRifleM3Sniper"/>
+        <BuildModel value="InfantryRifleM3Sniper"/>
+        <PlacementModel value="InfantryRifleM3Sniper"/>
     </CActorUnit>
     <CActorUnit id="InfantryOfficer" parent="InfantryBase" unitName="InfantryOfficer">
         <WalkAnimMoveSpeed value="3.5"/>
@@ -2020,6 +2085,14 @@
     </CActorModel>
     <CModel default="1" id="InfantryDeathBase" parent="LOTC_UPLDeathBase"/>
     <CModel default="1" id="InfantryDeathRagdollBase" parent="LOTC_UPLDeathRagdollBase"/>
+    <CModel id="InfantryLaunchLightSmaller" parent="GenericLaunchLight">
+        <ScaleMax value="0.450000,0.450000,0.450000"/>
+        <ScaleMin value="0.500000,0.500000,0.500000"/>
+    </CModel>
+    <CModel id="InfantryLaunchSpotlight" parent="GenericLaunchLight">
+        <ScaleMax value="0.850000,0.850000,0.850000"/>
+        <ScaleMin value="0.900000,0.900000,0.900000"/>
+    </CModel>
     <CModel id="InfantryHeavyDeathAlternate" parent="InfantryDeathBase">
         <Model value="Assets\Units\UPL\InfantryHeavyDeath\InfantryHeavyDeathAlternate.m3"/>
     </CModel>
@@ -2033,7 +2106,7 @@
     </CModel>
     <CModel id="LotC_EP01M08_QueenAura" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Zerg\KerriganFury\KerriganFury.m3"/>
-        <EditorCategories value="Race:Protoss"/>
+        <EditorCategories value="Race:UPL"/>
         <Events>
             <Anim value="Birth,00"/>
             <Name value="SoundStart"/>
@@ -2055,7 +2128,7 @@
     </CModel>
     <CModel id="LotC_EP01M08_QueenAura@Buff" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Zerg\WildMutationBuff\WildMutationBuff.m3"/>
-        <EditorCategories value="Race:Protoss"/>
+        <EditorCategories value="Race:UPL"/>
         <Events>
             <Anim value="Birth,00"/>
             <Name value="SoundStart"/>
@@ -2079,10 +2152,11 @@
         <Model value="Assets\Effects\Terran\NanoRepairBeamImpact\NanoRepairBeamImpact.m3"/>
         <ScaleMax value="1.300000,1.300000,1.300000"/>
         <ScaleMin value="1.300000,1.300000,1.300000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryFlamethrowerDetonateImpact" parent="ImpactFX">
         <Model value="Assets\Effects\Terran\WidowMineImpact\WidowMineImpact.m3"/>
-        <EditorCategories value="Race:Zerg"/>
+        <EditorCategories value="Race:UPL"/>
         <Events>
             <Anim value="Death"/>
             <Type value="Sound"/>
@@ -2094,30 +2168,34 @@
     </CModel>
     <CModel id="MiningDroneBuild" parent="OneShotSpellFX">
         <Model value="Assets\Effects\UPL\MiningDroneBuild\MiningDroneBuild.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="MiningDroneSwitchModeGlaze" parent="Glaze">
         <Model value="Assets\Effects\Glaze\Glaze_StasisWard\Glaze_StasisWard.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="MiningDroneAttackImpact" parent="ImpactFX">
         <Model value="Assets\Effects\Terran\BansheeMissileImpact\BansheeMissileImpact.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="MiningDroneWeapon" parent="MissileFX">
         <Model value="Assets\Effects\Terran\Nova_PulseGrenade_Missile\Nova_PulseGrenade_Missile.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="MiningDroneSwitchMode" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Glaze\Glaze_Nova_Buff_Damage\Glaze_Nova_Buff_Damage.m3"/>
-        <EditorCategories value="Race:Zerg"/>
+        <EditorCategories value="Race:UPL"/>
         <Radius value="1.000000"/>
         <ScaleMax value="0.500000,0.500000,0.500000"/>
         <ScaleMin value="0.500000,0.500000,0.500000"/>
     </CModel>
     <CModel id="InfantryRocketAttackImpact" parent="ImpactFX">
         <Model value="Assets\Effects\Terran\GoliathAirMissileImpact\GoliathAirMissileImpact.m3"/>
-        <EditorCategories value="Race:Terran"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryOfficerChargeBuff" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Zerg\BanelingEggNestBuffDamage\BanelingEggNestBuffDamage.m3"/>
-        <EditorCategories value="Race:Protoss"/>
+        <EditorCategories value="Race:UPL"/>
         <Events>
             <Anim value="Birth,00"/>
             <Name value="SoundStart"/>
@@ -2141,7 +2219,7 @@
     </CModel>
     <CModel id="InfantryOfficerInspired" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Zerg\BanelingEggNestBuffDamage\BanelingEggNestBuffDamage.m3"/>
-        <EditorCategories value="Race:Protoss"/>
+        <EditorCategories value="Race:UPL"/>
         <Events>
             <Anim value="Birth,00"/>
             <Name value="SoundStart"/>
@@ -2165,13 +2243,15 @@
     </CModel>
     <CModel id="InfantryOfficerImpact" parent="ImpactFX">
         <Model value="Assets\Effects\Terran\ReaperWeaponImpact\ReaperWeaponImpact.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryOfficerLaunch" parent="LaunchFX">
         <Model value="Assets\Effects\Terran\ReaperWeaponLaunch\ReaperWeaponLaunch.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryOfficerCharge" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Zerg\WildMutationBuff\WildMutationBuff.m3"/>
-        <EditorCategories value="Race:Protoss"/>
+        <EditorCategories value="Race:UPL"/>
         <Events>
             <Anim value="Birth,00"/>
             <Name value="SoundStart"/>
@@ -2198,59 +2278,62 @@
         <Model value="Assets\Effects\Terran\VikingAssaultWeaponImpact\VikingAssaultWeaponImpact.m3"/>
         <ScaleMax value="0.800000,0.800000,0.800000"/>
         <ScaleMin value="0.800000,0.800000,0.800000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryHeavyLaunch" parent="LaunchFX">
         <Model value="Assets\Effects\Terran\VikingAssaultWeaponLaunch\VikingAssaultWeaponLaunch.m3"/>
         <AnimSpeed value="8.000000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryLaunchLight" parent="OneShotSpellFX">
         <Model value="Assets\Doodads\ActorLightOmni\ActorLightOmni.m3"/>
         <ScaleMax value="0.750000,0.750000,0.750000"/>
         <ScaleMin value="0.850000,0.850000,0.850000"/>
-    </CModel>
-    <CModel id="InfantryLaunchSpotlight" parent="GenericLaunchLight">
-        <ScaleMax value="0.850000,0.850000,0.850000"/>
-        <ScaleMin value="0.900000,0.900000,0.900000"/>
-    </CModel>
-    <CModel id="InfantryLaunchLightSmaller" parent="GenericLaunchLight">
-        <ScaleMax value="0.450000,0.450000,0.450000"/>
-        <ScaleMin value="0.500000,0.500000,0.500000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryRocketLaunchBack" parent="LaunchFX">
         <Model value="Assets\Effects\Terran\SiegeTankWeaponLaunch\SiegeTankWeaponLaunch.m3"/>
         <AnimSpeed value="1.200000"/>
         <ScaleMax value="0.900000,0.900000,0.900000"/>
         <ScaleMin value="0.900000,0.900000,0.900000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryFlamethrowerAttackLaunch" parent="LaunchFX" Race="UPL">
         <Model value="Assets\Effects\UPL\InfantryFlamethrowerAttackLaunch\InfantryFlamethrowerAttackLaunch.m3"/>
         <AnimSpeed value="0.600000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryFlamethrowerAttackImpact" parent="ImpactFX" Race="UPL">
         <Model value="Assets\Effects\UPL\InfantryFlamethrowerAttackImpact\InfantryFlameThrowerAttackImpact.m3"/>
         <AnimSpeed value="0.600000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryFlamethrowerBurning" parent="ImpactFX">
         <Model value="Assets\Effects\Terran\FireImpact\FireImpact.m3"/>
         <ScaleMax value="2.000000,2.000000,2.000000"/>
         <ScaleMin value="2.200000,2.200000,2.200000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryRocketMissile" parent="MissileFX">
         <Model value="Assets\Effects\Terran\MissileTurretMissile\MissileTurretMissile.m3"/>
         <Lighting value="AARocket"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryRifleAttackLaunch" parent="LaunchFX">
         <Model value="Assets\Effects\Terran\MarineWeaponLaunch\MarineWeaponLaunch.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryRifleAttackImpact" parent="ImpactFX">
         <Model value="Assets\Effects\Terran\MarineWeaponImpact\MarineWeaponImpact.m3"/>
         <ScaleMax value="1.200000,1.200000,1.200000"/>
         <ScaleMin value="1.200000,1.200000,1.200000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryMortarSiegeBuff" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Terran\ArcadePowerupHomingMissiles\ArcadePowerupHomingMissiles.m3"/>
         <ScaleMax value="0.700000,0.700000,0.700000"/>
         <ScaleMin value="0.700000,0.700000,0.700000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryMortarLaunch" parent="LaunchFX">
         <Model value="Assets\Effects\Terran\SiegeTankWeaponLaunch\SiegeTankWeaponLaunch.m3"/>
@@ -2258,6 +2341,7 @@
         <Lighting value="MengskSiegeTankSiegedAttackLaunch"/>
         <ScaleMax value="0.500000,0.500000,0.500000"/>
         <ScaleMin value="0.500000,0.500000,0.500000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryMortarImpact" parent="ImpactFX">
         <Model value="Assets\Effects\Terran\TankWeaponImpact\TankWeaponImpact.m3"/>
@@ -2266,11 +2350,13 @@
         <Lighting value="SiegeTankAttackImpact"/>
         <ScaleMax value="0.900000,0.900000,0.900000"/>
         <ScaleMin value="0.900000,0.900000,0.900000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryMortarMissile" parent="MissileFX">
         <Model value="Assets\Effects\Terran\MagneticMineMissile\MagneticMineMissile.m3"/>
         <ScaleMax value="1.100000,1.100000,1.100000"/>
         <ScaleMin value="1.100000,1.100000,1.100000"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="MiningDroneAttackMode" parent="Unit" Race="UPL">
         <Occlusion value="Show"/>
@@ -2306,7 +2392,6 @@
         <ScaleMin value="0.850000,0.850000,0.850000"/>
     </CModel>
     <CModel id="InfantryRocketPortrait" parent="Portrait" Race="UPL">
-        <EditorCategories value="Race:Terran"/>
         <FacialController value="LocalizedData\Facial\InfantryRocketPortrait.fxa"/>
         <Flags index="Facial" value="1"/>
         <PausedParticleSystemBehavior value="Automatic"/>
@@ -2344,15 +2429,12 @@
     </CModel>
     <CModel id="InfantryRocket" parent="LOTC_GenericUnitBase" Race="UPL">
         <PlanetPanelCamera value="Star2CameraMid03"/>
-        <ScaleMax value="1.200000,1.200000,1.200000"/>
-        <ScaleMin value="1.200000,1.200000,1.200000"/>
         <TechPurchaseCamera value="TechPurchaseInfantry"/>
         <TextureDeclares Prefix="INF_">
             <Adaptions TriggerOnSubstring="Grey2" Slot="main.diffuse"/>
         </TextureDeclares>
     </CModel>
     <CModel id="InfantryFlamethrowerPortrait" parent="Portrait" Race="UPL">
-        <EditorCategories value="Race:Terran"/>
         <FacialController value="LocalizedData\Facial\InfantryFlamethrowerPortrait.fxa"/>
         <Flags index="Facial" value="1"/>
         <PausedParticleSystemBehavior value="Automatic"/>
@@ -2365,9 +2447,9 @@
         <AnimBlendTime value="0.000000"/>
     </CModel>
     <CModel id="InfantryFlamethrower" parent="LOTC_GenericUnitBase" Race="UPL">
+        <ScaleMax value="0.950000,0.950000,0.950000"/>
+        <ScaleMin value="0.950000,0.950000,0.950000"/>
         <PlanetPanelCamera value="Star2CameraMid03"/>
-        <ScaleMax value="1.200000,1.200000,1.200000"/>
-        <ScaleMin value="1.200000,1.200000,1.200000"/>
         <TechPurchaseCamera value="TechPurchaseInfantry"/>
     </CModel>
     <CModel id="InfantryOfficerPortrait" parent="Portrait" Race="UPL"/>
@@ -2381,15 +2463,12 @@
     <CModel id="InfantryOfficer" parent="LOTC_GenericUnitBase" Race="UPL">
         <PlanetPanelCamera value="Star2CameraMid03"/>
         <TechPurchaseCamera value="TechPurchaseInfantry"/>
-        <ScaleMax value="1.150000,1.150000,1.150000"/>
-        <ScaleMin value="1.150000,1.150000,1.150000"/>
         <SelectionRadius value="0.350000"/>
         <SquibTypeDefault value="Metal"/>
         <AnimAliases Anim="Stand,Ready,End" Alias="Stand,Ready,End,Superior"/>
         <AnimAliases Anim="Stand,Ready,End" Alias="Stand,Ready,End,Inferior"/>
     </CModel>
     <CModel id="InfantryRiflePortrait" parent="Portrait" Race="UPL">
-        <EditorCategories value="Race:Terran"/>
         <FacialController value="LocalizedData\Facial\InfantryRiflePortrait.fxa"/>
         <Flags index="Facial" value="1"/>
         <PausedParticleSystemBehavior value="Automatic"/>
@@ -2434,8 +2513,6 @@
     <CModel id="InfantryRifle" parent="LOTC_GenericUnitBase" Race="UPL">
         <PlanetPanelCamera value="Star2CameraMid03"/>
         <TechPurchaseCamera value="TechPurchaseInfantry"/>
-        <ScaleMax value="1.030000,1.030000,1.030000"/>
-        <ScaleMin value="1.030000,1.030000,1.030000"/>
         <SelectionRadius value="0.380000"/>
         <RequiredAnims value="Assets\Units\UPL\InfantryRifle\InfantryRifle_AttackAnims.m3a"/>
         <RequiredAnims value="Assets\Units\UPL\InfantryRifle\InfantryRifle_ReadyAnims.m3a"/>
@@ -2450,7 +2527,6 @@
         <Model value="Assets\Units\UPL\InfantryRifle\InfantryRifle_M3Sniper.m3"/>
     </CModel>
     <CModel id="InfantryMortarPortrait" parent="Portrait" Race="UPL">
-        <EditorCategories value="Race:Terran"/>
         <FacialController value="LocalizedData\Facial\InfantryMortarPortrait.fxa"/>
         <Flags index="Facial" value="1"/>
         <PausedParticleSystemBehavior value="Automatic"/>
@@ -2488,8 +2564,6 @@
     </CModel>
     <CModel id="InfantryMortar" parent="LOTC_GenericUnitBase" Race="UPL">
         <PlanetPanelCamera value="Star2CameraMid03"/>
-        <ScaleMax value="1.200000,1.200000,1.200000"/>
-        <ScaleMin value="1.200000,1.200000,1.200000"/>
         <TechPurchaseCamera value="TechPurchaseInfantry"/>
         <TextureDeclares Prefix="INF_">
             <Adaptions TriggerOnSubstring="Grey2" Slot="main.diffuse"/>
@@ -2497,7 +2571,6 @@
     </CModel>
     <CModel id="InfantryHeavyPortrait" parent="Portrait" Race="UPL">
         <Model value="Assets\Portraits\UPL\InfantryHeavyPortrait\Caev_HeavyGunner_Portrait.m3"/>
-        <EditorCategories value="Race:Terran"/>
         <FacialController value="LocalizedData\Facial\InfantryHeavyPortrait.fxa"/>
         <Flags index="Facial" value="1"/>
         <PausedParticleSystemBehavior value="Automatic"/>
@@ -2516,35 +2589,42 @@
     <CModel id="InfantryHeavy" parent="LOTC_GenericUnitBase" Race="UPL">
         <PlanetPanelCamera value="Star2CameraMid03"/>
         <TechPurchaseCamera value="TechPurchaseInfantry"/>
-        <ScaleMax value="1.200000,1.200000,1.200000"/>
-        <ScaleMin value="1.200000,1.200000,1.200000"/>
     </CModel>
     <CModel id="InfantryMedkit@Glaze" parent="Glaze">
         <Model value="Assets\Effects\Glaze\Glaze_ShieldBattery_StructureBarrier\Glaze_ShieldBattery_StructureBarrier.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="MningDroneAttackLaunch" parent="RaceImpactFX" Race="Terran">
         <Model value="Assets\Effects\Other\PhysicsImpactSparksLight\PhysicsImpactSparksLight.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="APCSmokeGrenadeCloud" parent="ImpactFX">
         <Model value="Assets\Effects\UPL\APCSmokeGrenadeCloud\APCSmokeGrenadeCloud.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="APCSmokeGrenadeImpact" parent="ImpactFX">
         <Model value="Assets\Effects\Zerg\DiseaseMissileImpact\DiseaseMissileImpact.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="APCSmokeGrenadeMissile" parent="MissileFX">
         <Model value="Assets\Effects\Terran\AutoTurretPodMissile\AutoTurretPodMissile.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="OfficerDetectionGlow3" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Neutral\LotC_Hero_Circle\LotC_Hero_Circle.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="OfficerDetectionGlow5" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Neutral\LotC_Hero_Circle\LotC_Hero_Circle.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="OfficerDetectionGlow10" parent="PersistentSpellFX">
         <Model value="Assets\Effects\Neutral\LotC_Hero_Circle\LotC_Hero_Circle.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CModel id="InfantryOfficerInspiredSplat" parent="Splat">
         <Model value="Assets\COOP\Zeratul\Effects\Construct_Essence_Zeratul_COOP_Evolution\Construct_Essence_Zeratul_COOP_Evolution.m3"/>
+        <EditorCategories value="Race:UPL"/>
     </CModel>
     <CWeaponLegacy id="MiningDrone">
         <Icon value="Assets\Textures\btn-upgrades-upl-vehicleweapons-lvl0.dds"/>
@@ -2562,7 +2642,7 @@
         <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <Range value="6"/>
         <Arc value="29.9926"/>
-        <Period value="1.2"/>
+        <Period value="1.5"/>
         <DamagePoint value="0.08"/>
         <Effect value="InfantryHeavyPersistent"/>
         <Icon value="Assets\Textures\btn-upgrades-upl-infantryweapons-lvl0.dds"/>
@@ -2592,7 +2672,7 @@
         <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
         <MinScanRange value="6"/>
         <Range value="7"/>
-        <Period value="1.5"/>
+        <Period value="1.75"/>
         <Effect value="InfantryRocketLaunch"/>
         <Icon value="Assets\Textures\btn-upgrades-upl-infantryweapons-lvl0.dds"/>
     </CWeaponLegacy>
@@ -2601,7 +2681,7 @@
         <DisplayEffect value="InfantryFlamethrowerDamage"/>
         <TargetFilters value="Ground,Visible;Missile,Dead,Hidden,Invulnerable"/>
         <Range value="2.5"/>
-        <Period value="1.75"/>
+        <Period value="1.25"/>
         <Effect value="InfantryFlamethrowerInitSet"/>
         <Icon value="Assets\Textures\btn-upgrades-upl-infantryweapons-lvl0.dds"/>
     </CWeaponLegacy>
@@ -3379,7 +3459,9 @@
     </CDataCollectionUnit>
     <CDataCollectionUnit id="InfantryFlamethrower" parent="LotC_Unit">
         <EditorCategories value="DataGroup:Unit,DataFamily:Campaign,Race:Terran,ObjectType:Unit"/>
+        <DataRecord index="1" Entry="Button,UPLTrainInfantryFlamethrower"/>
         <DataRecord index="21" Entry="Sound,InfantryFlamethrower_Explode"/>
+        <Button value="UPLTrainInfantryFlamethrower"/>
     </CDataCollectionUnit>
     <CDataCollectionUnit id="InfantryRocket" parent="LotC_Unit">
         <EditorCategories value="DataGroup:Unit,DataFamily:Campaign,Race:Terran,ObjectType:Unit"/>
@@ -3463,6 +3545,14 @@
         <AlliedPushPriority value="20"/>
         <EditorCategories value="ObjectType:Other,ObjectFamily:Campaign"/>
     </CUnit>
+    <CUnit id="MiningDroneWeapon" parent="MISSILE_INVULNERABLE">
+        <Race value="UPL"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+    <CUnit id="UPLSpecOpsAttackMissile" parent="MISSILE_HALFLIFE">
+        <Race value="UPL"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
     <CUnit id="InfantryMortarMissile" parent="MISSILE_INVULNERABLE">
         <Race value="UPL"/>
         <Mover value="InfantryMortarMissileMover"/>
@@ -3475,10 +3565,14 @@
         <CostResource index="Minerals" value="175"/>
         <CostResource index="Vespene" value="75"/>
         <AbilArray Link="InfantryOfficerCharge"/>
+        <AbilArray Link="ClaymoreMineDummy"/>
+        <AbilArray Link="ClaymoreMineExecute"/>
+        <AbilArray Link="ClaymoreMinePlace"/>
         <BehaviorArray Link="InfantryMedkit"/>
         <BehaviorArray Link="InfantryMedkit@Handler"/>
         <BehaviorArray Link="InfantryOfficerAura"/>
         <BehaviorArray Link="Detector10"/>
+        <BehaviorArray Link="ClaymoreMineHaveCharges"/>
         <WeaponArray Link="InfantryOfficer"/>
         <CardLayouts index="0">
             <LayoutButtons Face="InfantryMedkit" Type="Passive" Requirements="InfantryMedkit@ChargeAvailable" Row="2" Column="2"/>
@@ -3495,9 +3589,10 @@
                 <Type value="Passive"/>
                 <AbilCmd value="InfantryOfficerCharge,Execute"/>
                 <Behavior value="InfantryOfficerAura"/>
-                <Row value="2"/>
-                <Column value="0"/>
+                <Row value="1"/>
+                <Column value="1"/>
             </LayoutButtons>
+            <LayoutButtons Face="ClaymoreMinePlace" Type="AbilCmd" AbilCmd="ClaymoreMineDummy,Execute" Row="2" Column="0"/>
             <LayoutButtons Face="InfantryOfficerNanoweaveBodyArmor" Type="Passive" Row="1" Column="0"/>
         </CardLayouts>
         <SubgroupPriority value="23"/>
@@ -3508,10 +3603,10 @@
     <CUnit id="InfantryRifle" parent="UPLInfantryBase">
         <Food value="-1"/>
         <CostResource index="Minerals" value="50"/>
+        <AbilArray Link="Sprint"/>
         <BehaviorArray Link="InfantryMedkit"/>
         <BehaviorArray Link="InfantryMedkit@Handler"/>
         <WeaponArray Link="InfantryRifle"/>
-        <AbilArray Link="Sprint"/>
         <CardLayouts index="0">
             <LayoutButtons Face="InfantryMedkit" Type="Passive" Requirements="InfantryMedkit@ChargeAvailable" Row="2" Column="2"/>
             <LayoutButtons>
@@ -3534,37 +3629,34 @@
             <LayoutButtons Face="Sprint" Type="AbilCmd" AbilCmd="Sprint,Execute" Row="2" Column="0"/>
         </CardLayouts>
         <SubgroupPriority value="12"/>
-        <GlossaryPriority value="21"/>
-        <AlliedPushPriority value="5"/>
-        <GlossaryAlias value="InfantryFlamethrower"/>
         <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
+        <GlossaryPriority value="21"/>
+        <GlossaryAlias value="InfantryFlamethrower"/>
+        <AlliedPushPriority value="5"/>
     </CUnit>
-    <CUnit id="InfantryRifleM3Sniper" parent="InfantryRifle">
-        <HotkeyAlias value=""/>
-        <GlossaryCategory value=""/>
-        <AlliedPushPriority value="0"/>
-        <BehaviorArray index="0" removed="1"/>
-        <BehaviorArray index="1" removed="1"/>
+    <CUnit id="InfantrySniper" parent="UPLInfantryBase">
+        <Food value="-1"/>
+        <CostResource index="Minerals" value="50"/>
+        <AbilArray Link="Sprint"/>
+        <WeaponArray Link="UPLScout"/>
         <CardLayouts index="0">
-            <LayoutButtons index="6">
+            <LayoutButtons Face="InfantryMedkit" Type="Passive" Requirements="InfantryMedkit@ChargeAvailable" Row="2" Column="2"/>
+            <LayoutButtons>
                 <Face value="InfantryMedkit"/>
                 <Type value="Passive"/>
                 <Behavior value="InfantryMedkit@Supressed"/>
                 <Requirements value="InfantryMedkit@Have"/>
-                <ShowInGlossary value="1"/>
                 <Row value="2"/>
                 <Column value="2"/>
             </LayoutButtons>
-            <LayoutButtons index="7">
-                <Face value="InfantryRifleRangeUpgrade"/>
-                <Type value="Passive"/>
-                <Requirements value="HaveInfantryRifleRangeUpgrade"/>
-                <ShowInGlossary value="1"/>
-                <Row value="1"/>
-                <Column value="0"/>
-            </LayoutButtons>
+            <LayoutButtons Face="InfantryRifleRangeUpgrade" Type="Passive" Requirements="HaveInfantryRifleRangeUpgrade" Row="1" Column="0"/>
+            <LayoutButtons Face="Sprint" Type="AbilCmd" AbilCmd="Sprint,Execute" Row="2" Column="0"/>
         </CardLayouts>
-        <GlossaryAlias value=""/>
+        <SubgroupPriority value="12"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+        <HotkeyAlias value=""/>
+        <GlossaryCategory value=""/>
+        <GlossaryPriority value="21"/>
     </CUnit>
     <CUnit id="MiningDrone">
         <DeathRevealRadius value="3"/>
@@ -3685,22 +3777,20 @@
         <GlossaryWeakArray value="Zergling"/>
         <GlossaryWeakArray value="Hydralisk"/>
         <AlliedPushPriority value="5"/>
-        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
     </CUnit>
     <CUnit id="InfantryFlamethrower" parent="UPLInfantryBase">
-        <LifeStart value="65"/>
-        <LifeMax value="65"/>
-        <LifeArmor value="1"/>
         <Food value="-1"/>
         <CostResource index="Minerals" value="50"/>
         <CostResource index="Vespene" value="25"/>
         <AbilArray Link="InfantryFlamethrowerDetonate"/>
+        <BehaviorArray Link="InfantryMedkit"/>
+        <BehaviorArray Link="InfantryMedkit@Handler"/>
         <WeaponArray Link="InfantryFlamethrower"/>
         <CardLayouts index="0">
             <LayoutButtons Face="InfantryFlamethrowerDetonate" Type="AbilCmd" AbilCmd="InfantryFlamethrowerDetonate,Execute" Row="2" Column="0"/>
-            <LayoutButtons Face="InfantryFlamethrowerNanoweaveBodyArmor" Type="Passive" Row="1" Column="0"/>
-            <LayoutButtons Face="InfantryFlamethrowerIncendiary" Type="Passive" Row="1" Column="1"/>
-            <LayoutButtons Face="InfantryFlamethrowerBurningUpgraded" Type="Passive" Requirements="InfantryFlamethrowerBurningUpgraded" Row="1" Column="2"/>
+            <LayoutButtons Face="InfantryFlamethrowerIncendiary" Type="Passive" Row="1" Column="0"/>
+            <LayoutButtons Face="InfantryFlamethrowerBurningUpgraded" Type="Passive" Requirements="InfantryFlamethrowerBurningUpgraded" Row="1" Column="1"/>
             <LayoutButtons Face="InfantryMedkit" Type="Passive" Requirements="InfantryMedkit@ChargeAvailable" Row="2" Column="2"/>
             <LayoutButtons>
                 <Face value="InfantryMedkit"/>
@@ -3712,24 +3802,27 @@
             </LayoutButtons>
         </CardLayouts>
         <SubgroupPriority value="25"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
         <GlossaryPriority value="23"/>
         <GlossaryStrongArray value="Zergling"/>
         <GlossaryStrongArray value="Hydralisk"/>
         <GlossaryWeakArray value="Roach"/>
         <GlossaryWeakArray value="Ultralisk"/>
-        <AlliedPushPriority value="6"/>
-        <BehaviorArray Link="InfantryMedkit"/>
-        <BehaviorArray Link="InfantryMedkit@Handler"/>
         <GlossaryAlias value="InfantryFlamethrower"/>
-        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
+        <AlliedPushPriority value="6"/>
     </CUnit>
     <CUnit id="InfantryMortar" parent="UPLInfantryBase">
+        <FlagArray index="AlwaysThreatens" value="1"/>
+        <StationaryTurningRate value="225"/>
         <Food value="-1"/>
         <CostResource index="Minerals" value="50"/>
         <CostResource index="Vespene" value="50"/>
         <AbilArray Link="InfantryMortarModeSiege"/>
         <AbilArray Link="InfantryMortarUnsiege"/>
         <AbilArray Link="InfantryMortarTurn"/>
+        <BehaviorArray Link="InfantryMedkit"/>
+        <BehaviorArray Link="InfantryMedkit@Handler"/>
+        <BehaviorArray Link="InfantryMortarAttackTarget"/>
         <WeaponArray Link="InfantryMortar"/>
         <CardLayouts index="0">
             <LayoutButtons index="0">
@@ -3763,51 +3856,28 @@
             </LayoutButtons>
         </CardLayouts>
         <SubgroupPriority value="24"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
         <GlossaryPriority value="24"/>
         <GlossaryStrongArray value="Roach"/>
         <GlossaryStrongArray value="LurkerMP"/>
         <GlossaryWeakArray value="Zergling"/>
         <GlossaryWeakArray value="Hydralisk"/>
-        <FlagArray index="AlwaysThreatens" value="1"/>
-        <StationaryTurningRate value="225"/>
-        <BehaviorArray Link="InfantryMedkit"/>
-        <BehaviorArray Link="InfantryMedkit@Handler"/>
-        <BehaviorArray Link="InfantryMortarAttackTarget"/>
         <AlliedPushPriority value="5"/>
-        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
-    </CUnit>
-    <CUnit id="InfantryHeavy" parent="UPLInfantryBase">
-        <LifeStart value="65"/>
-        <LifeMax value="65"/>
-        <LifeArmor value="1"/>
-        <Food value="-1"/>
-        <CostResource index="Minerals" value="65"/>
-        <WeaponArray Link="InfantryHeavy"/>
-        <BehaviorArray Link="InfantryMedkit"/>
-        <BehaviorArray Link="InfantryMedkit@Handler"/>
-        <CardLayouts index="0">
-            <LayoutButtons Face="InfantryRifleRangeUpgrade" Type="Passive" Requirements="HaveInfantryRifleRangeUpgrade" Row="1" Column="1"/>
-            <LayoutButtons Face="InfantryHeavyNanoweaveBodyArmor" Type="Passive" Row="1" Column="0"/>
-            <LayoutButtons Face="InfantryMedkit" Type="Passive" Requirements="InfantryMedkit@ChargeAvailable" Row="2" Column="2"/>
-            <LayoutButtons>
-                <Face value="InfantryMedkit"/>
-                <Type value="Passive"/>
-                <Behavior value="InfantryMedkit@Supressed"/>
-                <Requirements value="InfantryMedkit@Have"/>
-                <Row value="2"/>
-                <Column value="2"/>
-            </LayoutButtons>
-        </CardLayouts>
-        <SubgroupPriority value="12"/>
-        <GlossaryPriority value="22"/>
-        <AlliedPushPriority value="5"/>
-        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
     </CUnit>
     <CUnit id="InfantryRocketMissile" parent="MISSILE_INVULNERABLE">
         <Race value="UPL"/>
         <Mover value="InfantryRocketMissilemover"/>
         <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
     </CUnit>
+    <CBehaviorBuff id="InfantryHeavySieged">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-unit-heavygunner-sieged.dds"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Modification AttackSpeedMultiplier="1.5" WeaponRange="1">
+            <StateFlags index="SuppressPassenger" value="1"/>
+        </Modification>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
     <CBehaviorBuff id="InfantryMedkit@Handler">
         <DisableValidatorArray value="InfantryMedkit"/>
         <DisableValidatorArray value="InfantryMedkit@HaveBaseBehavior"/>
@@ -3972,6 +4042,7 @@
         <Modification>
             <ModifyFlags index="SuppressMoving" value="1"/>
             <StateFlags index="SuppressFidgeting" value="1"/>
+            <StateFlags index="SuppressPassenger" value="1"/>
             <AbilClassDisableArray index="CAbilMove" value="1"/>
             <WeaponEnableArray value="InfantryMortar"/>
         </Modification>
@@ -3994,7 +4065,10 @@
         <DisplayDuration index="Ally" value="1"/>
         <RemoveValidatorArray value="NotHaveScramblerMissileBehavior"/>
         <Duration value="8"/>
-        <Modification MoveSpeedMultiplier="1.7" AccelerationBonus="500" DecelerationBonus="500"/>
+        <Modification MoveSpeedMultiplier="1.4" AccelerationBonus="500" DecelerationBonus="500"/>
+        <DamageResponse Handled="UPLCancelSprint" Location="Attacker">
+            <Chance value="1"/>
+        </DamageResponse>
     </CBehaviorBuff>
     <CUpgrade id="InfantryMedkit">
         <AffectedUnitArray value="InfantryRifle"/>

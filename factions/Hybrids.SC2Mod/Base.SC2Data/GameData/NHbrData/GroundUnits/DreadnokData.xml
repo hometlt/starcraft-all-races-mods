@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+    <CEffectSet id="NHbrDreadnokPermanentConnection@ImpactSet">
+        <ValidatorArray value="NHbrDreadnokPermanentConnection@TargetHasNoBuff"/>
+        <ValidatorArray value="RequiresNHbr"/>
+        <EditorCategories value="Race:NHbr"/>
+        <EffectArray value="NHbrDreadnokPermanentConnection@ApplyBuff"/>
+        <EffectArray value="NHbrDreadnokPermanentConnection@ApplyPowerUserBehavior"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="NHbrDreadnokPermanentConnection@ApplyPowerUserBehavior">
+        <EditorCategories value="Race:NHbr"/>
+        <Behavior value="NHbrNetwork@PowerUser"/>
+        <Flags index="UseDuration" value="1"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="NHbrDreadnokPermanentConnection@SearchArea">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="1.95" Effect="NHbrDreadnokPermanentConnection@ImpactSet"/>
+    </CEffectEnumArea>
     <CEffectApplyBehavior id="NHbrDreadnokPermanentConnection@ApplyBuff">
-        <ValidatorArray index="0" value="NHbrDreadnokPermanentConnection@TargetHasNoBuff"/>
-        <ValidatorArray value="NHbrNetwork@NetworkUser"/>
         <EditorCategories value="Race:NHbr"/>
         <Behavior value="NHbrDreadnokPermanentConnection"/>
     </CEffectApplyBehavior>
@@ -24,15 +40,14 @@
         <PeriodCount value="135"/>
         <PeriodicEffectArray value="NHbrDreadnokParalyzingTornado@Search"/>
         <PeriodicPeriodArray value="0.0625"/>
+        <RevealRadius value="2"/>
+        <RevealFlags index="Unfog" value="1"/>
     </CEffectCreatePersistent>
     <CEffectEnumArea id="NHbrDreadnokParalyzingTornado@Search">
         <EditorCategories value="Race:NHbr"/>
         <ImpactLocation Value="TargetPoint"/>
         <SearchFilters value="-;Self,Player,Ally,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
         <AreaArray Radius="1.95" Effect="NHbrDreadnokParalyzingTornado@SearchSet"/>
-        <RevealerParams Duration="0.75" ShapeExpansion="0.5">
-            <RevealFlags index="Unfog" value="1"/>
-        </RevealerParams>
     </CEffectEnumArea>
     <CEffectSet id="NHbrDreadnokWeaponRanged@Set">
         <EditorCategories value="Race:NHbr"/>
@@ -82,13 +97,14 @@
     <CAbilEffectTarget id="NHbrDreadnokPermanentConnection">
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="NHbrDreadnokPermanentConnection"/>
-        <Effect index="0" value="NHbrDreadnokPermanentConnection@ApplyBuff"/>
+        <Effect index="0" value="NHbrDreadnokPermanentConnection@SearchArea"/>
         <Cost>
-            <Vital index="Energy" value="100"/>
-            <Cooldown TimeUse="84"/>
+            <Cooldown TimeUse="42"/>
         </Cost>
-        <TargetFilters value="-;Ally,Neutral,Enemy,Missile,Dead,Hidden"/>
+        <TargetFilters value="-;Ally,Neutral,Enemy,Missile,Stasis,UnderConstruction,Dead,Hidden"/>
         <Range value="9"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <CursorEffect value="NHbrDreadnokPermanentConnection@SearchArea"/>
     </CAbilEffectTarget>
     <CAbilEffectTarget id="NHbrDreadnokParalyzingTornado">
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
@@ -96,14 +112,15 @@
         <Flags index="CancelResetAutoCast" value="0"/>
         <Flags index="ChannelingMinimum" value="0"/>
         <Flags index="ReExecutable" value="1"/>
+        <Flags index="RequireTargetVision" value="0"/>
         <Cost>
             <Vital index="Energy" value="100"/>
         </Cost>
         <Range value="9"/>
         <Arc value="90"/>
         <CmdButtonArray index="Execute" DefaultButtonFace="NHbrDreadnokParalyzingTornado">
-<!--            <Flags index="UseDefaultButton" value="1"/>-->
-<!--            <Flags index="CreateDefaultButton" value="1"/>-->
+            <Flags index="UseDefaultButton" value="1"/>
+            <Flags index="CreateDefaultButton" value="1"/>
         </CmdButtonArray>
         <CmdButtonArray index="Cancel" DefaultButtonFace="Stop">
             <Flags index="ToSelection" value="1"/>
@@ -146,8 +163,8 @@
     </CButton>
     <CButton id="NHbrDreadnokPermanentConnection">
         <Icon value="Assets\Textures\btn-ability-spearofadun-warpharmonization.dds"/>
-        <EditorCategories value="Race:NHbr"/>
         <AlertIcon value="Assets\Textures\btn-ability-spearofadun-warpharmonization.dds"/>
+        <EditorCategories value="Race:NHbr"/>
     </CButton>
     <CButton id="NHbrDreadnokWeaponRanged@DevastatingStrike">
         <Icon value="Assets\Textures\btn-ability-protoss-mindblast.dds"/>
@@ -162,6 +179,19 @@
     <CRequirementCountUpgrade id="CountUpgradeNHbrDreadnokSlowingEjectionCompleteOnly2556882433TechTreeCheat">
         <Count Link="NHbrDreadnokSlowingEjection" State="CompleteOnly"/>
     </CRequirementCountUpgrade>
+    <CActorSplat id="NHbrDreadnokPermanentConnection@CursorSplat" parent="ProtossCursorSplat" abil="NHbrDreadnokPermanentConnection">
+        <Model value="PsiStormCursorSplat"/>
+        <Scale value="1.700000"/>
+    </CActorSplat>
+    <CActorModel id="NHbrDreadnokParalyzingTornado@TargetImpactModel" parent="UCRModelAnimationStyleOneShot">
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="Behavior.NHbrDreadnokParalyzingTornado.On" Send="Create"/>
+        <On Terms="Behavior.NHbrDreadnokParalyzingTornado.Off" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin"/>
+        <Model value="NHbrDreadnokParalyzingTornado@TargetImpact"/>
+        <Scale value="0.500000"/>
+    </CActorModel>
     <CActorRange id="NHbrDreadnokPermanentConnection@Range" parent="RangeAbil" abil="NHbrDreadnokPermanentConnection">
         <Icon value="Assets\Textures\RadarIcon2.dds"/>
         <IconArcLength value="3.250000"/>
@@ -226,15 +256,6 @@
         <ModelFlags index="AllowHitTest" value="0"/>
         <ModelFlags index="AutomateGlobalLoops" value="1"/>
     </CActorModel>
-    <CActorModel id="NHbrDreadnokParalyzingTornado@TargetImpactModel" parent="ModelAnimationStyleOneShot">
-        <Inherits index="Visibility" value="1"/>
-        <On Terms="Behavior.NHbrDreadnokParalyzingTornado.On" Send="Create"/>
-        <On Terms="Behavior.NHbrDreadnokParalyzingTornado.Off" Send="Destroy"/>
-        <Host Subject="_Selectable"/>
-        <HostSiteOps Ops="SOpAttachOrigin"/>
-        <Model value="NHbrDreadnokParalyzingTornado@TargetImpact"/>
-        <Scale value="0.500000"/>
-    </CActorModel>
     <CActorAction id="NHbrDreadnokWeaponRanged@Attack" parent="GenericAttack" effectImpact="NHbrDreadnokWeaponRanged@Damage" effectLaunch="NHbrDreadnokWeaponRanged@LM">
         <LaunchAttachQuery Methods="AMFilterWeapon"/>
         <ImpactMap index="None" Model="NHbrDreadnokWeaponRanged@Impact" Scale="0.500000" AnimProps="Death"/>
@@ -256,8 +277,6 @@
     <CActorUnit id="NHbrDreadnok" parent="GenericUnitStandard" unitName="NHbrDreadnok">
         <Aliases value="_UnitLarge"/>
         <Aliases value="_ShieldBlack"/>
-        <On index="65" Terms="WeaponStart.NHbrDreadnokWeaponMelee.AttackStart" Send="AnimBracketStart Attack Attack"/>
-        <On index="67" Terms="WeaponStop.NHbrDreadnokWeaponMelee.AttackStop" Send="AnimBracketStop Attack"/>
         <On Terms="UnitBirth.NHbrDreadnok" Send="AttachModel {} NHbrDreadnok@HitTestSphere {Origin 0} SOpMoveUpBy1"/>
         <On Terms="WeaponStart.NHbrDreadnokWeaponRanged.AttackStart" Send="AnimBracketStart Attack Spell"/>
         <On Terms="WeaponStop.NHbrDreadnokWeaponRanged.AttackStop" Send="AnimBracketStop Attack"/>
@@ -268,11 +287,11 @@
         <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Spell"/>
         <On Terms="AnimClear; AnimPlayingProps Custom,01" Send="TimerKill Spell"/>
         <On Terms="Abil.NHbrDreadnokPermanentConnection.SourceCastStart" Send="$Spell"/>
-        <Model value="NHbrDreadnok@Model"/>
+        <Model value="NHbrDreadnok@Dreadnoks"/>
         <Scale value="1.100000"/>
-        <BuildModel value="NHbrDreadnok@Model"/>
+        <BuildModel value="NHbrDreadnok@Dreadnoks"/>
         <DeathArray index="Normal" ModelLink="NHbrDreadnok@Death" SoundLink="NHbrDreadnok@Explosion" VoiceLink=""/>
-        <PlacementModel value="NHbrDreadnok@Model"/>
+        <PlacementModel value="NHbrDreadnok@Dreadnoks"/>
         <PortraitModel value="NHbrDreadnok@Portrait"/>
         <WalkAnimMoveSpeed value="1.75"/>
         <BarOffset value="80"/>
@@ -320,6 +339,8 @@
         <ShieldArmorIcon value="Assets\Textures\btn-ability-zeratul-warpprism-shieldboosters.dds"/>
         <PortraitActor value="NHbrDreadnok@Portrait"/>
         <Macros value="NHbrCommon@DestroyParticles"/>
+        <Remove Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <Remove Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
     </CActorUnit>
     <CActorAction id="NHbrDreadnokWeaponMelee@Attack" parent="GenericAttack" effectAttack="NHbrDreadnokWeaponMelee@Damage">
         <ImpactAttachQuery Methods="AMFilterTargetVolumes"/>
@@ -434,7 +455,7 @@
         <Model value="Assets\Effects\Protoss\DarkTemplarWeaponImpact\DarkTemplarWeaponImpact.m3"/>
         <EditorCategories value="Race:NHbr"/>
     </CModel>
-    <CModel id="NHbrDreadnok@Model" parent="Unit">
+    <CModel id="NHbrDreadnok@Dreadnoks" parent="Unit">
         <Model value="assets\Units\Hybrid\Hybrid_Dreadnoks\Hybrid_Dreadnok.m3"/>
         <RequiredAnims value="Assets\Units\Zerg\PrimalZerg_RequiredAnims\PrimalZerg_RequiredAnims.m3a"/>
         <EditorCategories value="Race:NHbr"/>
@@ -505,15 +526,15 @@
     </CMoverMissile>
     <CSound id="NHbrDreadnokPermanentConnection@Start" parent="Spell">
         <EditorCategories value="Race:NHbr"/>
-        <AssetArray File="assets\Sounds\Kerrigan_BeamCast_01.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\Kerrigan_BeamCast_02.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\Kerrigan_BeamCast_03.ogg" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Kerrigan_BeamCast_01.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Kerrigan_BeamCast_02.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Kerrigan_BeamCast_03.wav" FacialGroup=""/>
     </CSound>
     <CSound id="NHbrDreadnokPermanentConnection@Impact" parent="Spell">
         <EditorCategories value="Race:NHbr"/>
-        <AssetArray File="assets\Sounds\Kerrigan_BeamMissile_01.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\Kerrigan_BeamMissile_02.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\Kerrigan_BeamMissile_03.ogg" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Kerrigan_BeamMissile_01.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Kerrigan_BeamMissile_02.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Kerrigan_BeamMissile_03.wav" FacialGroup=""/>
         <PlayDelay value="400,400"/>
     </CSound>
     <CSound id="NHbrDreadnokParalyzingTornado@End" parent="Spell">
@@ -532,9 +553,9 @@
     </CSound>
     <CSound id="NHbrDreadnokWeaponRanged@AttackImpact" parent="Combat">
         <EditorCategories value="Race:NHbr"/>
-        <AssetArray File="assets\Sounds\Malash_AttackImpact01_1ch.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\Malash_AttackImpact02_1ch.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\Malash_AttackImpact03_1ch.ogg" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Malash_AttackImpact01_1ch.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Malash_AttackImpact02_1ch.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Malash_AttackImpact03_1ch.wav" FacialGroup=""/>
         <DupeMaximumMethod value="Replace"/>
         <DupeMuteCount value="2"/>
         <DupePrioritization value="Oldest"/>
@@ -542,12 +563,12 @@
     </CSound>
     <CSound id="NHbrDreadnokWeaponRanged@AttackLaunch" parent="Combat">
         <EditorCategories value="Race:NHbr"/>
-        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch02.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch03.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch04.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch05.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch06.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch07.ogg" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch02.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch03.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch04.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch05.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch06.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\ShadowFuryStrikeLaunch07.wav" FacialGroup=""/>
         <DupeMaximumMethod value="Replace"/>
         <DupeMuteCount value="3"/>
         <DupePrioritization value="Oldest"/>
@@ -578,16 +599,9 @@
         <AssetArray File="assets\Sounds\Base_Tassadar\Tassadar_BlackHole_Launch_02a.ogg" FacialGroup=""/>
         <Volume value="-8.000000,-8.000000"/>
     </CSound>
-    <CSound id="NHbrDreadnok@Attack"  parent="HoS_Voice">
+    <CSound id="NHbrDreadnok@Attack" parent="Voice">
         <EditorCategories value="Race:NHbr"/>
-        <AssetArray index="0">
-            <File value="Assets\Sounds\Aberration_Attack_00.ogg"/>
-            <FacialAnim value=""/>
-            <FacialGroup value=""/>
-            <FacialFile value=""/>
-            <Speaker value=""/>
-            <Subtitle value=""/>
-        </AssetArray>
+        <AssetArray File="Assets\Sounds\Aberration_Attack_00.ogg" FacialGroup=""/>
         <AssetArray File="Assets\Sounds\Aberration_Attack_01.ogg" FacialGroup=""/>
         <AssetArray File="Assets\Sounds\Aberration_Attack_02.ogg" FacialGroup=""/>
         <AssetArray File="Assets\Sounds\Aberration_Attack_03.ogg" FacialGroup=""/>
@@ -596,10 +610,16 @@
         <AssetArray File="Assets\Sounds\Aberration_Attack_06.ogg" FacialGroup=""/>
         <AssetArray File="Assets\Sounds\Aberration_Attack_07.ogg" FacialGroup=""/>
         <AssetArray File="Assets\Sounds\Aberration_Attack_08.ogg" FacialGroup=""/>
+        <Flags index="AutoUnload" value="1"/>
+        <Flags index="Wait" value="1"/>
         <Pitch value="-1.000000,1.000000"/>
+        <SpeakerMix index="BackLeft" value="0.500000"/>
+        <SpeakerMix index="BackRight" value="0.500000"/>
+        <SpeakerMix index="SideLeft" value="0.500000"/>
+        <SpeakerMix index="SideRight" value="0.500000"/>
         <Volume value="-3.000000,-3.000000"/>
     </CSound>
-    <CSound id="NHbrDreadnok@Ready"  parent="HoS_Voice">
+    <CSound id="NHbrDreadnok@Ready" parent="HoS_Voice">
         <EditorCategories value="Race:NHbr"/>
         <AssetArray index="0">
             <File value="Assets\Sounds\Aberration_Ready_00.ogg"/>
@@ -649,15 +669,8 @@
         <DupeMuteCount value="6"/>
         <Volume value="-6.000000,-4.000000"/>
     </CSound>
-    <CSound id="NHbrDreadnok@What"  parent="HoS_Voice">
-        <AssetArray index="0">
-            <File value="Assets\Sounds\Aberration_What_00.ogg"/>
-            <FacialAnim value=""/>
-            <FacialGroup value=""/>
-            <FacialFile value=""/>
-            <Speaker value=""/>
-            <Subtitle value=""/>
-        </AssetArray>
+    <CSound id="NHbrDreadnok@What" parent="Voice">
+        <AssetArray File="Assets\Sounds\Aberration_What_00.ogg" FacialGroup=""/>
         <AssetArray File="Assets\Sounds\Aberration_What_01.ogg" FacialGroup=""/>
         <AssetArray File="Assets\Sounds\Aberration_What_02.ogg" FacialGroup=""/>
         <AssetArray File="Assets\Sounds\Aberration_What_03.ogg" FacialGroup=""/>
@@ -667,7 +680,7 @@
         <Volume value="-3.000000,-3.000000"/>
         <EditorCategories value="Race:NHbr"/>
     </CSound>
-    <CSound id="NHbrDreadnok@Yes"  parent="HoS_Voice">
+    <CSound id="NHbrDreadnok@Yes" parent="HoS_Voice">
         <AssetArray index="0">
             <File value="Assets\Sounds\Aberration_Yes_00.ogg"/>
             <FacialAnim value=""/>
@@ -719,7 +732,7 @@
         <DataRecord Entry="Actor,NHbrDreadnok@PortraitAddition"/>
         <DataRecord Entry="Actor,NHbrDreadnok@Portrait"/>
         <DataRecord Entry="Model,NHbrDreadnok@HitTestSphere"/>
-        <DataRecord Entry="Model,NHbrDreadnok@Model"/>
+        <DataRecord Entry="Model,NHbrDreadnok@Dreadnoks"/>
         <DataRecord Entry="Model,NHbrDreadnok@Death"/>
         <DataRecord Entry="Model,NHbrDreadnok@PortraitAddition"/>
         <DataRecord Entry="Model,NHbrDreadnok@Portrait"/>
@@ -797,21 +810,19 @@
         <Attributes index="Armored" value="1"/>
         <Attributes index="Biological" value="1"/>
         <Attributes index="Psionic" value="1"/>
-        <LifeStart value="200"/>
-        <LifeMax value="200"/>
+        <LifeStart value="600"/>
+        <LifeMax value="600"/>
         <LifeArmor value="2"/>
-        <EnergyStart value="50"/>
         <EnergyMax value="100"/>
-        <ShieldsStart value="100"/>
-        <ShieldsMax value="100"/>
+        <ShieldsStart value="600"/>
+        <ShieldsMax value="600"/>
         <Speed value="2.5"/>
         <StationaryTurningRate value="494.4726"/>
         <TurningRate value="494.4726"/>
         <Sight value="9"/>
-        <Food value="-4"/>
+        <Food value="-5"/>
         <AbilArray Link="NHbrDreadnokParalyzingTornado"/>
         <AbilArray Link="NHbrDreadnokPermanentConnection"/>
-        <WeaponArray Link="NHbrDreadnokWeaponMelee"/>
         <WeaponArray Link="NHbrDreadnokWeaponRanged"/>
         <CardLayouts index="0">
             <LayoutButtons Face="NHbrDreadnokParalyzingTornado" Type="AbilCmd" AbilCmd="NHbrDreadnokParalyzingTornado,Execute" Row="2" Column="0"/>
@@ -823,7 +834,7 @@
         <SubgroupPriority value="60"/>
         <GlossaryPriority value="22"/>
         <CostResource index="Minerals" value="150"/>
-        <CostResource index="Vespene" value="150"/>
+        <CostResource index="Vespene" value="100"/>
         <CargoSize value="4"/>
         <SeparationRadius value="0.8125"/>
         <MinimapRadius value="0.8125"/>
@@ -835,13 +846,12 @@
     </CUnit>
     <CBehaviorBuff id="NHbrDreadnokPermanentConnection">
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
-        <RemoveValidatorArray value="CasterNotDead"/>
         <InfoFlags index="Hidden" value="1"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="NHbrDreadnokParalyzingTornado@EnergyRegenerationSuppression">
         <Alignment value="Negative"/>
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
-        <Duration value="1.4"/>
+        <Duration value="8.4375"/>
         <Modification>
             <StateFlags index="SuppressCloak" value="1"/>
             <StateFlags index="SuppressEnergyRegen" value="1"/>
@@ -852,15 +862,13 @@
         <InfoIcon value="Assets\Textures\btn-ability-terran-slow.dds"/>
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
         <Duration value="2.12"/>
-        <Modification>
-            <AdditiveMoveSpeedFactor value="-0.45"/>
-        </Modification>
+        <Modification MoveSpeedMultiplier="0.5"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="NHbrDreadnokParalyzingTornado">
         <Alignment value="Negative"/>
         <InfoIcon value="Assets\Textures\btn-ability-protoss-energize.dds"/>
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
-        <Duration value="1.4"/>
+        <Duration value="8.4375"/>
         <Modification>
             <StateFlags index="SuppressCloak" value="1"/>
             <AbilClassDisableArray index="CAbilAugment" value="1"/>

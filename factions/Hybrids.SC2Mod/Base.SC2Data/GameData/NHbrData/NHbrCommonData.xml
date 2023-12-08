@@ -300,6 +300,7 @@
         <Aliases value="_ShieldBlack"/>
         <Macros value="BuildingFlattenTerrainMacro"/>
         <Macros value="SnowVisualBuildingMacroMP"/>
+        <Macros value="NHbrCommon@DestroyParticles"/>
         <EventDataSound Name="BuildingWarpIn" Actor="UnitSound" Sound="Protoss_BuildingWarpIn"/>
         <BuildModel value="##unitName##Birth"/>
         <DeathArray index="Normal" ModelLink="##unitName##Death" SoundLink="##unitName##_Explode"/>
@@ -330,8 +331,8 @@
         <WireframeShieldColor value="255,192,192,192"/>
     </CActorUnit>
     <CActorEventMacro id="NHbrCommon@DestroyParticles">
-        <On Terms="ActorCreation" Send="TimerSet 0.012500 Particles"/>
-        <On Terms="TimerExpired; TimerName Particles" Send="TimerSet 0.012500 Particles"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.006250 Particles"/>
+        <On Terms="TimerExpired; TimerName Particles" Send="TimerSet 0.006250 Particles"/>
         <On Terms="TimerExpired; TimerName Particles" Send="DestroyParticles"/>
         <On Terms="TimerExpired; TimerName Particles" Send="DestroyRibbons"/>
     </CActorEventMacro>
@@ -530,21 +531,20 @@
         <Race value="NHbr"/>
         <ConsoleSkin value="ConsoleProtoss_Ihanrii"/>
     </CCommander>
-    <CSound id="NHbrCommon@UnderConstructionWhat">
+    <CSound id="NHbrCommon@UnderConstructionWhat" parent="Voice">
         <EditorCategories value="Race:NHbr"/>
         <AssetArray File="assets\Sounds\Havoc_What01.ogg" FacialGroup=""/>
         <AssetArray File="assets\Sounds\Havoc_What02.ogg" FacialGroup=""/>
         <AssetArray File="assets\Sounds\Havoc_What03.ogg" FacialGroup=""/>
         <AssetArray File="assets\Sounds\Havoc_What04.ogg" FacialGroup=""/>
-        <Mode value="3DWorld"/>
         <Pitch value="-12.030000,-12.030000"/>
         <Volume value="-3.000000,-3.000000"/>
     </CSound>
     <CSound id="NHbrCommon@PlacementSound">
         <EditorCategories value="Race:NHbr"/>
-        <AssetArray File="assets\Sounds\Reaver_ScarabImpact00.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\Reaver_ScarabImpact01.ogg" FacialGroup=""/>
-        <AssetArray File="assets\Sounds\Reaver_ScarabImpact02.ogg" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Reaver_ScarabImpact00.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Reaver_ScarabImpact01.wav" FacialGroup=""/>
+        <AssetArray File="assets\Sounds\Reaver_ScarabImpact02.wav" FacialGroup=""/>
         <Volume value="-13.500000,-13.500000"/>
     </CSound>
     <CSound id="NHbrCommon@Death" parent="Protoss_ExplosionMedium">
@@ -677,9 +677,8 @@
         <SubgroupPriority value="2"/>
         <EditorCategories value="ObjectType:Structure,ObjectFamily:Melee"/>
         <DataCollection value="##id##"/>
-        <BehaviorArray Link="NHbrProtection@SpellArmor"/>
         <BehaviorArray Link="NHbrCommon@BuildersTracker"/>
-        <BehaviorArray Link="NHbrNetwork@PowerUser"/>
+        <BehaviorArray Link="NHbrTimeScaleBuff@TimeScaleController"/>
         <AbilArray Link="BuildInProgress"/>
         <LifeArmor value="1"/>
         <ShieldArmor value="1"/>
@@ -693,8 +692,7 @@
         <Mob value="Multiplayer"/>
         <Sight value="9"/>
         <ShieldArmorTip value="Unit/ShieldArmorTooltip/NHbrShields"/>
-        <LifeRegenDelay value="10"/>
-        <ShieldRegenDelay value="10"/>
+        <ShieldDamageRatio value="0"/>
     </CUnit>
     <CUnit default="1" id="DefaultSettingsNHbrGroundUnit">
         <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
@@ -715,8 +713,6 @@
         <AbilArray Link="stop"/>
         <AbilArray Link="attack"/>
         <AbilArray Link="move"/>
-        <BehaviorArray Link="NHbrProtection@SpellArmor"/>
-        <BehaviorArray Link="NHbrNetwork@PowerUser"/>
         <LifeArmor value="1"/>
         <ShieldArmor value="1"/>
         <CardLayouts>
@@ -746,8 +742,7 @@
         <RankDisplay value="Always"/>
         <ScoreResult value="BuildOrder"/>
         <ShieldArmorTip value="Unit/ShieldArmorTooltip/NHbrShields"/>
-        <LifeRegenDelay value="10"/>
-        <ShieldRegenDelay value="10"/>
+        <ShieldDamageRatio value="0"/>
     </CUnit>
     <CUnit default="1" id="DefaultSettingsNHbrAirUnit">
         <DeathRevealRadius value="3"/>
@@ -771,8 +766,6 @@
         <AbilArray Link="stop"/>
         <AbilArray Link="attack"/>
         <AbilArray Link="move"/>
-        <BehaviorArray Link="NHbrProtection@SpellArmor"/>
-        <BehaviorArray Link="NHbrNetwork@PowerUser"/>
         <LifeArmor value="1"/>
         <ShieldArmor value="1"/>
         <CardLayouts>
@@ -791,9 +784,13 @@
         <DataCollection value="##id##"/>
         <Sight value="9"/>
         <ShieldArmorTip value="Unit/ShieldArmorTooltip/NHbrShields"/>
-        <LifeRegenDelay value="10"/>
-        <ShieldRegenDelay value="10"/>
+        <ShieldDamageRatio value="0"/>
     </CUnit>
+    <CBehaviorUnitTracker id="NHbrHybridUnitTracker">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <UnitTrackerFlags index="UseSharedList" value="1"/>
+        <UnitTrackerFlags index="SharedListPersistsForever" value="1"/>
+    </CBehaviorUnitTracker>
     <CBehaviorBuff id="NHbrCommon@RequiresCrystallicShrine">
         <InfoFlags index="Hidden" value="1"/>
         <EditorCategories value="Race:NHbr,AbilityorEffectType:Units"/>
@@ -821,17 +818,17 @@
         <ScoreValue value="ArmorTechnologyCount"/>
         <ScoreResult value="BuildOrder"/>
         <EffectArray Reference="Unit,NHbrPollinator,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrPollinator,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrPollinator,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrNavigator,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrNavigator,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrNavigator,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrScreamer,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrScreamer,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrScreamer,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrHorror,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrHorror,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrHorror,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrNemesis,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrNemesis,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrNemesis,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrSpirit,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrSpirit,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrSpirit,LifeArmorLevel" Value="1"/>
         <EditorCategories value="Race:NHbr,UpgradeType:ArmorBonus"/>
         <AffectedUnitArray value="NHbrPollinator"/>
         <AffectedUnitArray value="NHbrNavigator"/>
@@ -848,29 +845,29 @@
         <ScoreValue value="ArmorTechnologyValue"/>
         <ScoreResult value="BuildOrder"/>
         <EffectArray Reference="Unit,NHbrMinion,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrMinion,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrMinion,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrChimera,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrChimera,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrChimera,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrWarrior,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrWarrior,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrWarrior,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrFlayer,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrFlayer,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrFlayer,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrWarbringer,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrWarbringer,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrWarbringer,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrSentinel,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrSentinel,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrSentinel,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrDreadnok,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrDreadnok,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrDreadnok,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrSilent,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrSilent,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrSilent,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrReaver,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrReaver,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrReaver,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrReaverAdvanced,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrReaverAdvanced,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrReaverAdvanced,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrDominator,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrDominator,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrDominator,LifeArmorLevel" Value="1"/>
         <EffectArray Reference="Unit,NHbrDominatorAdvanced,LifeArmor" Value="1"/>
-        <EffectArray Reference="Unit,NHbrDominatorAdvanced,LifeArmorsLevel" Value="1"/>
+        <EffectArray Reference="Unit,NHbrDominatorAdvanced,LifeArmorLevel" Value="1"/>
         <EditorCategories value="Race:NHbr,UpgradeType:ArmorBonus"/>
         <AffectedUnitArray value="NHbrMinion"/>
         <AffectedUnitArray value="NHbrChimera"/>
@@ -893,10 +890,9 @@
         <ScoreCount value="WeaponTechnologyCount"/>
         <ScoreValue value="WeaponTechnologyValue"/>
         <ScoreResult value="BuildOrder"/>
-        <EffectArray Reference="Effect,NHbrHorrorPlasmaticBlast@Damage,Amount" Value="2"/>
+        <EffectArray Reference="Effect,NHbrHorrorPlasmaticBlast@MainTargetDamage,Amount" Value="2"/>
         <EffectArray Reference="Effect,NHbrHorrorPlasmaticCharge@Damage,Amount" Value="1"/>
         <EffectArray Reference="Effect,NHbrPollinatorVoidToxicity@Damage,Amount" Value="1"/>
-        <EffectArray Reference="Effect,NHbrPollinatorVoidToxicity@ToxicityDamage,Amount" Value="0.25"/>
         <EffectArray Reference="Effect,NHbrScreamerParasiteGlaive@Damage,Amount" Value="1"/>
         <EffectArray Reference="Effect,NHbrNemesisWeapon@Damage,Amount" Value="1"/>
         <EffectArray Reference="Weapon,NHbrPollinatorVoidToxicity,Level" Value="1"/>
@@ -963,7 +959,7 @@
     </CUpgrade>
     <CRace id="NHbr">
         <AttributeId value="NHbr"/>
-        <Icon value="Assets\Textures\icon-1v1-hybrid.dds"/>
+        <Icon value="Assets\Textures\tip_Hybridbehemoth.dds"/>
         <GameMusic value="Music_ProtLow"/>
         <Flags index="Selectable" value="1"/>
         <Flags index="TrialAllowed" value="1"/>

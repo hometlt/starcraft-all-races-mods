@@ -209,36 +209,6 @@
     </CActorSiteOpLocalOffset>
     <CActorRange id="BrimstoneDemolisherScorchingBlazeRange" parent="RangeAbil" abil="BrimstoneDemolisherScorchingBlaze"/>
     <CActorSite id="AuroraConduitAttack1ImpactSite" parent="GenericAttackImpactSite"/>
-    <CActorUnit id="ChangelingFlamespitter" parent="GenericUnitMorph" unitName="ChangelingFlamespitter">
-        <Macros value="TerrainSquibAnimations"/>
-        <AcceptedHostedPropTransfers index="Scale" value="0"/>
-        <On Terms="ActorCreation" Send="SetLocalTintColor 255,128,255"/>
-        <Baselines index="Walk" AnimProps="Walk,00"/>
-        <DeathArray index="Normal" ModelLink="ChangelingDeath" SoundLink="Changling_Explode"/>
-        <PortraitModel value="FlamespitterPortrait"/>
-        <TerrainSquibs>
-            <GroupName value="RippleStandard"/>
-            <MovementDistance value="0.150000,0.150000"/>
-            <IdlePeriod value="0.100000,0.250000"/>
-            <RangeUp value="1.000000"/>
-            <RangeDown value="1.000000"/>
-            <AttachQuery Methods="AMFilterCenter"/>
-            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLarge"/>
-        </TerrainSquibs>
-        <WalkAnimMoveSpeed value="5"/>
-        <BarOffset value="32"/>
-        <BarWidth value="32"/>
-        <GroupIcon>
-            <Image value="Assets\Textures\wireframe-zerg-primalzergmelee.dds"/>
-        </GroupIcon>
-        <HeroIcon value="Assets\Textures\btn-unit-zerg-primalzergling.dds"/>
-        <HighlightTooltip value="Unit/Name/Flamespitter"/>
-        <LifeArmorIcon value="Assets\Textures\btn-upgrade-zerg-flyercarapace-level0.dds"/>
-        <UnitIcon value="Assets\Textures\btn-unit-zerg-primalzergling.dds"/>
-        <Wireframe>
-            <Image value="Assets\Textures\wireframe-zerg-primalzergmelee.dds"/>
-        </Wireframe>
-    </CActorUnit>
     <CActorUnit id="CoagulaterRich" parent="DragonBuilding" unitName="CoagulaterRich">
         <Macros value="DragonSpawn15"/>
         <On Terms="UnitConstruction.CoagulaterRich.Start" Send="AnimPlay Birth Build,A,Stand PlayForever"/>
@@ -323,6 +293,7 @@
     <CActorSiteOpLocalOffset id="AuroraConduitAttackOffset">
         <LocalOffset value="0.000000,0.000000,-0.300000"/>
     </CActorSiteOpLocalOffset>
+    <CActorSound id="DragonTrainImpactSound" parent="SoundOneShot"/>
     <CActorSound id="FlamespitterAscend" parent="SoundOneShot"/>
     <CActorSound id="FleshrenderAscend" parent="SoundOneShot"/>
     <CActorAction id="FleshrenderInfernalAscend" parent="GenericAttack" effectImpact="FleshrenderInfernalEffigyDamage" effectLaunch="FleshrenderInfernalAscendLaunchMissile1">
@@ -340,7 +311,9 @@
     <CActorSound id="GrimGliderAscend" parent="SoundOneShot"/>
     <CActorSound id="HandofPowerAscend" parent="SoundOneShot"/>
     <CActorSound id="HornedMagusAscend" parent="SoundOneShot"/>
-    <CActorSound id="HunterAscend" parent="SoundOneShot"/>
+    <CActorSound id="DragonHunterAscend" parent="SoundOneShot">
+        <Sound value="HunterAscend"/>
+    </CActorSound>
     <CActorSound id="PlodderAscend" parent="SoundOneShot"/>
     <CActorSound id="BerserkerAscend" parent="SoundOneShot"/>
     <CActorSound id="SkyrazerAscend" parent="SoundOneShot"/>
@@ -610,7 +583,7 @@
     <CActorSimple id="HornedMagusFireShieldTint">
         <Aliases value="_AngryTinter"/>
         <On Terms="Behavior.HornedMagusFireShield.On" Send="Create"/>
-        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 255,50,50 0.500000 OneShot FireShieldTarget"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor {255,51,51 2.000000} 0.500000 OneShot FireShieldTarget"/>
         <On Terms="Behavior.HornedMagusFireShield.Off" Target="_Unit" Send="ClearTintColor 0.500000 FireShieldTarget"/>
         <On Terms="Behavior.HornedMagusFireShield.Off" Send="Destroy"/>
     </CActorSimple>
@@ -1162,10 +1135,6 @@
     <CActorBeamSimple id="AuroraConduitAttack4Beam" parent="AuroraConduitAttack1Beam">
         <Scale value="0.421875"/>
     </CActorBeamSimple>
-    <CActorSiteOpLocalOffset id="DragonTrainOffset">
-        <Inherits index="Scale" value="1"/>
-        <LocalOffset value="0.000000,0.000000,-0.750000"/>
-    </CActorSiteOpLocalOffset>
     <CActorUnit id="Arkwyrm" parent="DragonUnitAirArmored" unitName="Arkwyrm">
         <On Terms="Abil.ArkwyrmUnload.SourcePrepStart" Send="AnimPlay Work Spell"/>
         <On Terms="Abil.ArkwyrmUnload.SourceCastStop" Send="AnimClear Work 0.500000"/>
@@ -1479,16 +1448,15 @@
         <On Terms="ActorCreation; ValidateEffect TargetRadius1" Send="SetScale"/>
         <On Terms="ActorCreation" Target="_Unit" Send="SetScale 0.500000 0.000000 Birth"/>
         <On Terms="ActorCreation" Target="_Unit" Send="ClearScale 0.375000 Birth"/>
-        <HostSiteOps Ops="DragonTrainOffset"/>
+        <On Terms="ActorCreation" Send="Create DragonTrainImpactSound"/>
     </CActorModel>
     <CActorMissile id="DragonTrainMissile" parent="GenericAttackMissile" unitName="DragonTrainMissile">
         <On Terms="ActorCreation" Send="SetScale 0.062500"/>
-        <On Terms="ActorCreation; ValidateEffect TargetRadius0375" Send="SetScale 0.375000 0.125000"/>
-        <On Terms="ActorCreation; ValidateEffect TargetRadius05" Send="SetScale 0.500000 0.125000"/>
-        <On Terms="ActorCreation; ValidateEffect TargetRadius0625" Send="SetScale 0.625000 0.125000"/>
-        <On Terms="ActorCreation; ValidateEffect TargetRadius0875" Send="SetScale 0.875000 0.125000"/>
-        <On Terms="ActorCreation; ValidateEffect TargetRadius1" Send="SetScale 1.000000 0.125000"/>
-        <HostSiteOps Ops="DragonTrainOffset"/>
+        <On Terms="ActorCreation; ValidateEffect TargetRadius0375" Send="SetScale 0.375000 0.250000"/>
+        <On Terms="ActorCreation; ValidateEffect TargetRadius05" Send="SetScale 0.500000 0.250000"/>
+        <On Terms="ActorCreation; ValidateEffect TargetRadius0625" Send="SetScale 0.625000 0.250000"/>
+        <On Terms="ActorCreation; ValidateEffect TargetRadius0875" Send="SetScale 0.875000 0.250000"/>
+        <On Terms="ActorCreation; ValidateEffect TargetRadius1" Send="SetScale 1.000000 0.250000"/>
     </CActorMissile>
     <CActorModel id="HandofPowerPortalEntranceModel" parent="ModelAnimationStyleContinuousUNIT">
         <On Terms="Behavior.HandofPowerPortalTarget1.On" Send="Create"/>
@@ -1628,7 +1596,7 @@
         <Terms value="Cap 1"/>
         <On Terms="Behavior.HornedMagusFireShield.Off; ValidateUnit HornedMagusFireShield" Send="Destroy"/>
         <On Terms="ActorCreation" Send="AnimSetTimeScaleGlobal 0.500000 BSD"/>
-        <On Terms="ActorCreation" Send="SetOpacity 0.500000"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.250000"/>
         <On Terms="ActorCreation" Send="SetScale 0.062500 0.000000 Birth"/>
         <On Terms="ActorCreation" Send="ClearScale 0.500000 Birth"/>
         <On Terms="Effect.HornedMagusFireShieldApplyBehavior1.Start" Send="SetScale 0.062500 0.000000 Birth"/>
