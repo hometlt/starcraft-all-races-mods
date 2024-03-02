@@ -1,0 +1,3312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectModifyUnit id="CommanderPrestigeStukovBansheesDeployUnload">
+        <EditorCategories value=""/>
+        <ImpactUnit Effect="CommanderPrestigeStukovBansheesDeployCU"/>
+        <ModifyFlags index="DropFromContainerPassenger" value="1"/>
+    </CEffectModifyUnit>
+    <CEffectCreatePersistent id="CommanderPrestigeStukovBansheesDeploy">
+        <ValidatorArray value="CasterHasCargo"/>
+        <ValidatorArray value="Pathable"/>
+        <EditorCategories value=""/>
+        <Flags index="Channeled" value="1"/>
+        <InitialEffect value="CommanderPrestigeStukovBansheesDeployIterateCargo"/>
+        <PeriodicEffectArray value="CommanderPrestigeStukovBansheesDeployIterateCargo"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <PeriodCount value="8"/>
+        <PeriodicValidator value="CasterHasCargo"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="CommanderPrestigeStukovBansheesDeployDamage">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <Amount value="20"/>
+        <AreaArray Radius="1.25" Fraction="1"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,RawResource,HarvestableResource,Missile,Item,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectEnumTransport id="CommanderPrestigeStukovBansheesDeployIterateCargo">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <MaxCount value="2"/>
+        <Effect value="CommanderPrestigeStukovBansheesDeployCU"/>
+    </CEffectEnumTransport>
+    <CEffectModifyUnit id="SILiberatorSwarmFormPermanentDummyImpact">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactUnit Value="Source"/>
+    </CEffectModifyUnit>
+    <CEffectSwitch id="SIStukovInfestStructureBroodlingsSwitch">
+        <CaseArray Validator="IsFlying" Effect="SIStukovInfestStructureBroodlingsFlyingCU"/>
+        <CaseDefault value="SIStukovInfestStructureBroodlingsCU"/>
+    </CEffectSwitch>
+    <CEffectIssueOrder id="SIBroodlingFlyingAttack">
+        <EditorCategories value="Race:Zerg"/>
+        <Abil value="attack"/>
+        <Target Effect="SIBroodlingFlying" Value="TargetUnitOrPoint"/>
+    </CEffectIssueOrder>
+    <CEffectSwitch id="SIBroodlingFlying">
+        <EditorCategories value="Race:Zerg"/>
+        <CaseArray Validator="IsStructure" Effect="SIBroodlingFlyingStructure"/>
+        <CaseDefault value="SIBroodlingFlyingUnitSet"/>
+    </CEffectSwitch>
+    <CEffectCreateUnit id="SIBroodlingFlyingCU">
+        <EditorCategories value="Race:Zerg"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <SpawnEffect value="SIBroodlingFlyingLaunch"/>
+        <SpawnUnit value="StukovInfestBroodling"/>
+        <SpawnRange value="5"/>
+    </CEffectCreateUnit>
+    <CEffectDamage id="SIBroodlingFlyingDamage" parent="DU_WEAP_MISSILE">
+        <ValidatorArray value="SIBroodlingFlyingFilters"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Effect="SIBroodlingFlying" Value="TargetUnit"/>
+        <Visibility value="Visible"/>
+        <Amount value="4"/>
+    </CEffectDamage>
+    <CEffectDamage id="SIBroodlingFlyingDamageUnit" parent="DU_WEAP_MISSILE">
+        <ValidatorArray value="SIBroodlingFlyingFilters"/>
+        <EditorCategories value="Race:Zerg"/>
+        <Visibility value="Visible"/>
+        <Amount value="4"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="SIBroodlingFlyingFallbackMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetUnitOrPoint"/>
+        <FinishEffect value="SIBroodlingFlyingDamage"/>
+        <Flags index="ValidateWeapon" value="0"/>
+        <Movers Link="BroodLordWeaponRight" IfRangeLTE="500"/>
+        <Movers Link="BroodLordWeaponLeft" IfRangeLTE="500"/>
+        <MoverRollingJump value="1"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="SIBroodlingFlyingImpact">
+        <EditorCategories value="Race:Zerg"/>
+        <Marker Link="Effect/BroodlingEscortImpact"/>
+        <EffectArray value="RemovePrecursor"/>
+        <EffectArray value="SIBroodlingFlyingAttack"/>
+        <EffectArray value="SuicideRemove"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="SIBroodlingFlyingImpactA">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <SpawnEffect value="SIBroodlingFlyingLaunchB"/>
+        <SpawnUnit value="StukovInfestBroodling"/>
+        <SpawnRange value="5"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="SIBroodlingFlyingImpactB">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="RemovePrecursor"/>
+        <EffectArray value="SIBroodlingFlyingAttack"/>
+        <EffectArray value="SuicideRemove"/>
+    </CEffectSet>
+    <CEffectTransferBehavior id="SIBroodlingFlyingTimedLifeTransfer">
+        <LaunchUnit Value="Caster"/>
+        <ImpactUnit Value="Target"/>
+        <Behavior value="BroodlingTimedLifeCreatedByAlly"/>
+        <Count value="1"/>
+        <Copy value="1"/>
+    </CEffectTransferBehavior>
+    <CEffectSet id="SIBroodlingFlyingLaunch">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="SIBroodlingFlyingTimedLifeTransfer"/>
+        <EffectArray value="BroodlingTimedLife"/>
+        <EffectArray value="SIBroodlingFlyingMissile"/>
+        <EffectArray value="MakePrecursor"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="SIBroodlingFlyingLaunchA">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="SIBroodlingFlyingDamageUnit"/>
+        <FinishEffect value="SIBroodlingFlyingImpactA"/>
+        <Flags index="ValidateWeapon" value="0"/>
+        <Movers Link="BroodLordWeaponRight" IfRangeLTE="500"/>
+        <Movers Link="BroodLordWeaponLeft" IfRangeLTE="500"/>
+        <MoverRollingJump value="1"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="SIBroodlingFlyingLaunchB">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="SIBroodlingFlyingTimedLifeTransfer"/>
+        <EffectArray value="BroodlingTimedLife"/>
+        <EffectArray value="SIBroodlingFlyingMissileB"/>
+        <EffectArray value="MakePrecursor"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="SIBroodlingFlyingMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetUnitOrPoint"/>
+        <ImpactEffect value="SIBroodlingFlyingDamage"/>
+        <FinishEffect value="SIBroodlingFlyingImpact"/>
+        <Flags index="ValidateWeapon" value="0"/>
+        <Movers Link="BroodLordWeaponRight" IfRangeLTE="500"/>
+        <Movers Link="BroodLordWeaponLeft" IfRangeLTE="500"/>
+        <MoverRollingJump value="1"/>
+        <DeathType value="Unknown"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="SIBroodlingFlyingMissileB">
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <FinishEffect value="SIBroodlingFlyingImpactB"/>
+        <AmmoUnit value="BroodLordBWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectSwitch id="SIBroodlingFlyingStructure">
+        <EditorCategories value="Race:Zerg"/>
+        <CaseArray Effect="SIBroodlingFlyingCU" FallThrough="1"/>
+        <CaseDefault value="SIBroodlingFlyingFallbackMissile"/>
+    </CEffectSwitch>
+    <CEffectSet id="SIBroodlingFlyingUnitSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="SIBroodlingFlyingLaunchA"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="ChronoBoostTargetRB">
+        <EditorCategories value=""/>
+        <BehaviorLink value="ChronoBoostTarget"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="KaraxMapwideChronoBehaviorSwap">
+        <EditorCategories value=""/>
+        <ValidatorArray value="HasKaraxSOAChronoPassive"/>
+        <EffectArray value="SOAMapWideChronoPassiveTarget"/>
+        <EffectArray value="ChronoBoostTargetRB"/>
+    </CEffectSet>
+    <CEffectSet id="SILiberatorSwarmFormPermanentDamagePrimarySet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentDamagePrimary"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentTrackerAB"/>
+    </CEffectSet>
+    <CEffectSet id="SILiberatorSwarmFormPermanentDamageSplashSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentDamageSplash"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentTrackerAB"/>
+    </CEffectSet>
+    <CEffectSet id="SILiberatorSwarmFormPermanentImpactSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentDummyImpact"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentTrackerAB"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentDamageSearchAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SILiberatorSwarmFormPermanentTrackerAB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="SILiberatorSwarmFormPermanentTracker"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyKinetic id="SILiberatorSwarmFormPermanentFollowTargetAK">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactUnit Value="Caster"/>
+        <Kinetic value="KineticSILiberatorSwarmFormPermanentFollowTarget"/>
+    </CEffectApplyKinetic>
+    <CEffectDamage id="SILiberatorSwarmFormPermanentDamagePrimary" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <Visibility value="Visible"/>
+        <Amount value="20"/>
+    </CEffectDamage>
+    <CEffectRemoveBehavior id="SILiberatorSwarmFormPermanentDamageResistantRB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="SILiberatorSwarmFormPermanentDamageResistant"/>
+    </CEffectRemoveBehavior>
+    <CEffectSwitch id="SILiberatorSwarmFormPermanentDamageSwitch">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <CaseArray Validator="HaveSILiberatorAoeAttackandCasterisAttackingTarget" Effect="SILiberatorSwarmFormPermanentDamagePrimarySet"/>
+        <CaseDefault value="SILiberatorSwarmFormPermanentDamageSplashSet"/>
+        <ValidatorArray value="TargetIsEnemyorBeingAttackedByCaster"/>
+    </CEffectSwitch>
+    <CEffectDamage id="SILiberatorSwarmFormPermanentDamageSplash" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <Visibility value="Visible"/>
+        <Amount value="10"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="SILiberatorSwarmFormPermanentCloseDistanceLM">
+        <ValidatorArray index="0" value="SILiberatorSwarmFormPermanentGreaterThanMinDistance"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <Movers Link="SILiberatorSwarmFormPermanentCloseDistanceLM"/>
+        <DeathType value="Unknown"/>
+        <Flags index="2D" value="1"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="SILiberatorSwarmFormPermanentDummySet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentAttackSet"/>
+    </CEffectSet>
+    <CEffectEnumArea id="SILiberatorSwarmFormPermanentSplashSearch">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <SearchFilters value="Air;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="SILiberatorSwarmFormPermanentDamageSwitch"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="SILiberatorSwarmFormPermanentDamageSearchAB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="SILiberatorSwarmFormPermanentDamageSearch"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="QueenStukovSpawnBroodlingsLaunch">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactEffect value="QueenStukovSpawnBroodlingsImpactSet"/>
+        <AmmoUnit value="QueenMPSpawnBroodlingsMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="QueenStukovSpawnBroodlingsAB">
+        <EditorCategories value=""/>
+        <Behavior value="QueenStukovSpawnBroodling"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="QueenStukovSpawnBroodlingsDamage">
+        <ValidatorArray value="QueenStukovSpawnBroodlingsDamageTargetFilters"/>
+        <EditorCategories value=""/>
+        <Amount value="300"/>
+    </CEffectDamage>
+    <CEffectSet id="QueenStukovSpawnBroodlingsImpactSet">
+        <EditorCategories value=""/>
+        <EffectArray value="QueenStukovSpawnBroodlingsAB"/>
+        <EffectArray value="QueenStukovSpawnBroodlingsDamage"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="SILiberatorSwarmFormPermanentLM">
+        <ValidatorArray index="0" value="SILiberatorSwarmFormPermanentMaxDistance"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <LaunchEffect value="SILiberatorSwarmFormPermanentDamageResistantAB"/>
+        <ImpactEffect value="SILiberatorSwarmFormPermanentImpactSet"/>
+        <InterruptEffect value="SILiberatorSwarmFormPermanentDamageResistantRB"/>
+        <Flags index="2D" value="1"/>
+        <Movers Link="SILiberatorLM"/>
+        <DeathType value="Unknown"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="SILiberatorSwarmFormPermanentDamageResistantAB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="SILiberatorSwarmFormPermanentDamageResistant"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SILiberatorSwarmFormPermanentAttackSet">
+        <ValidatorArray value="CasterNotHoldingPosition"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentCloseDistanceLM"/>
+        <EffectArray value="SILiberatorSwarmFormPermanentFollowTargetAK"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="CommanderPrestigeStukovBansheesDeployCU">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Effect="CommanderPrestigeStukovBansheesDeploy" Value="TargetPoint"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="CommanderPrestigeStukovBansheesDeploySet"/>
+        <SpawnUnit value="InfestedCivilianPlaceholder"/>
+        <SpawnRange value="5"/>
+    </CEffectCreateUnit>
+    <CEffectLaunchMissile id="CommanderPrestigeStukovBansheesDeployLM">
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Effect="CommanderPrestigeStukovBansheesDeployCU" Value="TargetUnit"/>
+        <ImpactEffect value="CommanderPrestigeStukovBansheesDeployDamage"/>
+        <FinishEffect value="CommanderPrestigeStukovBansheesDeployRemove"/>
+        <Movers Link="CommanderPrestigeStukovBansheesDeploy"/>
+        <DeathType value="Unknown"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="CommanderPrestigeStukovBansheesDeployRemove">
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Death value="Remove"/>
+    </CEffectDamage>
+    <CEffectSet id="CommanderPrestigeStukovBansheesDeploySet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="CommanderPrestigeStukovBansheesDeployUnload"/>
+        <EffectArray value="CommanderPrestigeStukovBansheesDeployLM"/>
+        <EffectArray value="MakePrecursor"/>
+        <EffectArray value="CommanderPrestigeStukovBansheesDeployTimeout"/>
+    </CEffectSet>
+    <CEffectSwitch id="CommanderPrestigeStukovBansheesDeploySwitch">
+        <EditorCategories value="Race:Zerg"/>
+        <CaseArray Validator="TargetIsPathable" Effect="CommanderPrestigeStukovBansheesDeployLM"/>
+        <CaseDefault value="CommanderPrestigeStukovBansheesDeployRemove"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="CommanderPrestigeStukovBansheesDeployTimeout">
+        <Behavior value="StukovInfestedInfestedCivilianLeapTempTimeout"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SICommandCenterCreateSet">
+        <EffectArray value="SprayZergInitialUpgrade"/>
+    </CEffectSet>
+    <CEffectSet id="SICommandCenterBirthSet">
+        <EffectArray value="SprayZergInitialUpgrade"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="QueenBroodlingEscortMissileA">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <LaunchLocation Effect="QueenMPSpawnBroodlingsSet" Value="TargetUnit"/>
+        <FinishEffect value="QueenSpawnBroodlingGroundImapct"/>
+        <Flags index="ValidateAbil" value="0"/>
+        <Flags index="ValidateBenign" value="0"/>
+        <Flags index="ValidateTeleport" value="0"/>
+        <Flags index="ValidateWeapon" value="0"/>
+        <AmmoUnit value="BroodLordWeapon"/>
+        <Movers Link="RaptorJumpDown" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="QueenBroodlingEscortMissileB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <LaunchLocation Effect="QueenMPSpawnBroodlingsSet" Value="TargetUnit"/>
+        <FinishEffect value="QueenSpawnBroodlingGroundImapct"/>
+        <Flags index="ValidateAbil" value="0"/>
+        <Flags index="ValidateBenign" value="0"/>
+        <Flags index="ValidateTeleport" value="0"/>
+        <Flags index="ValidateWeapon" value="0"/>
+        <AmmoUnit value="BroodLordWeapon"/>
+        <Movers Link="RaptorJumpDown" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectCreateUnit id="QueenSpawnBroodlingA">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <SpawnEffect value="QueenMPSpawnBroodlingsASpawnSet"/>
+        <SpawnUnit value="Broodling"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="QueenSpawnBroodlingB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <SpawnEffect value="QueenMPSpawnBroodlingsBSpawnSet"/>
+        <SpawnUnit value="Broodling"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="QueenMPSpawnBroodlingsASpawnSet">
+        <EffectArray value="BroodlingTimedLife"/>
+        <EffectArray value="MakePrecursor"/>
+        <EffectArray value="QueenBroodlingEscortMissileA"/>
+    </CEffectSet>
+    <CEffectSet id="QueenMPSpawnBroodlingsBSpawnSet">
+        <EffectArray value="BroodlingTimedLife"/>
+        <EffectArray value="MakePrecursor"/>
+        <EffectArray value="QueenBroodlingEscortMissileB"/>
+    </CEffectSet>
+    <CEffectDamage id="FungalGrowthDamage">
+        <Amount value="1.875"/>
+    </CEffectDamage>
+    <CEffectSet id="QueenMPSpawnBroodlingsSet">
+        <EffectArray index="1" value="QueenSpawnBroodlingA"/>
+        <EffectArray value="QueenSpawnBroodlingB"/>
+        <ValidatorArray value="MutatorPolarityTargetCasterCheck"/>
+    </CEffectSet>
+    <CEffectSet id="SIInfestedBunkerCreation">
+        <EditorCategories value="Race:InfestedTerran"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="SIQueenFungalGrowthLM">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="SIQueenFungalGrowthInitialSet"/>
+        <AmmoUnit value="FungalGrowthMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="SIQueenFungalGrowthInitialSet">
+        <EditorCategories value="Race:Zerg"/>
+        <TargetLocationType value="Point"/>
+        <EffectArray value="SIQueenFungalGrowthSearch"/>
+        <EffectArray value="SIQueenFungalGrowthSearchDummy"/>
+    </CEffectSet>
+    <CEffectEnumArea id="SIQueenFungalGrowthSearch">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="SIQueenFungalGrowthSet"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="SIQueenFungalGrowthSearchDummy">
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectSet id="SIQueenFungalGrowthSet">
+        <ValidatorArray value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="SIQueenFungalGrowthApplyBehavior"/>
+        <EffectArray value="SIQueenFungalGrowthApplyMovementBehavior"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SIQueenFungalGrowthApplyBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="SIQueenFungalGrowth"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="SIQueenFungalGrowthApplyMovementBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="SIQueenFungalGrowthMovement"/>
+        <ValidatorArray index="0" value="TargetIsNotUnstoppable"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="SIQueenFungalGrowthDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <Amount value="4"/>
+        <Flags index="Notification" value="1"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="ApocaliskBurrowChargeCasterApplyBehavior">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="ApocaliskBurrowCharging"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="ApocaliskBurrowChargeCreatePHLM">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <LaunchLocation Effect="ApocaliskBurrowChargeMPForcePersistent" Value="TargetUnit"/>
+        <ImpactEffect value="ApocaliskBurrowChargeImpactLandSet"/>
+        <Flags index="2D" value="1"/>
+        <Movers Link="BurrowChargeImpactMover"/>
+        <DeathType value="Unknown"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="ApocaliskBurrowChargeCreatePHSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="ApocaliskBurrowChargeImpactAB"/>
+        <EffectArray value="ApocaliskBurrowChargeMPKnockback"/>
+        <EffectArray value="ApocaliskBurrowChargeCreatePHLM"/>
+        <EffectArray value="ApocaliskApplyBurrowChargeStun"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="ApocaliskBurrowChargeImpactAB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <Behavior value="ApocaliskPrecursorBurrowChargeImpact"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="ApocaliskBurrowChargeImpactLandSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="ApocaliskBurrowChargeMPKnockbackRB"/>
+    </CEffectSet>
+    <CEffectSet id="ApocaliskBurrowChargeImpactSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="ApocaliskBurrowChargeTargetSearch"/>
+        <EffectArray value="ApocaliskBurrowChargeTargetSearchAlly"/>
+        <EffectArray value="ApocaliskBurrowChargeRemoveCasterBehavior"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="ApocaliskBurrowChargeIssueOrder">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="move"/>
+        <CmdFlags index="Preempt" value="1"/>
+        <Target Effect="ApocaliskBurrowChargePoint" Value="TargetPoint"/>
+    </CEffectIssueOrder>
+    <CEffectCreateUnit id="ApocaliskBurrowChargeMPForcePersistent">
+        <ValidatorArray value="NotHeroic"/>
+        <ValidatorArray value="NoPreventKnockback"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="ApocaliskBurrowChargeCreatePHSet"/>
+        <SpawnRange value="3"/>
+        <SpawnOffset value="0,1"/>
+        <TypeFallbackUnit Value="Target"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="ApocaliskBurrowChargeMPKnockback">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Effect="ApocaliskBurrowChargeMPForcePersistent"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="ApocaliskBurrowChargeMPKnockbackRB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Effect="ApocaliskBurrowChargeMPForcePersistent"/>
+        <BehaviorLink value="ApocaliskBurrowChargeMPKnockback"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreatePersistent id="ApocaliskBurrowChargePoint">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichLocation Value="CasterUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <InitialEffect value="ApocaliskBurrowChargeIssueOrder"/>
+        <FinalEffect value="ApocaliskBurrowChargeImpactSet"/>
+        <FinalOffset value="0,-1,0"/>
+        <PeriodCount value="5"/>
+        <PeriodicValidator value="ApocaliskBurrowChargeValidators"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="ApocaliskBurrowChargePointFirst">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <InitialEffect value="ApocaliskBurrowChargePoint"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="ApocaliskBurrowChargePointSet">
+        <ValidatorArray value="TargetIsPathable"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="ApocaliskBurrowChargeCasterApplyBehavior"/>
+        <EffectArray value="ApocaliskBurrowChargePointFirst"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="ApocaliskBurrowChargeRemoveCasterBehavior">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="ApocaliskBurrowCharging"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreatePersistent id="ApocaliskBurrowChargeStructure">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichLocation Value="CasterUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <InitialEffect value="ApocaliskBurrowChargeStructureIssueOrder"/>
+        <FinalEffect value="ApocaliskBurrowChargeStructureImpactSet"/>
+        <PeriodCount value="5"/>
+        <PeriodicValidator value="ApocaliskBurrowChargeStructureValidators"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="ApocaliskBurrowChargeStructureImpactSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="ApocaliskBurrowChargeStructureTargetSearch"/>
+        <EffectArray value="ApocaliskBurrowChargeStructureTargetSearchAlly"/>
+        <EffectArray value="ApocaliskBurrowChargeRemoveCasterBehavior"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="ApocaliskBurrowChargeStructureIssueOrder">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="move"/>
+        <CmdFlags index="Preempt" value="1"/>
+        <Target Effect="ApocaliskBurrowChargeStructure" Value="TargetUnit"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="ApocaliskBurrowChargeStructureSet">
+        <ValidatorArray value="TargetIsPathable"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="ApocaliskBurrowChargeCasterApplyBehavior"/>
+        <EffectArray value="ApocaliskBurrowChargeStructure"/>
+    </CEffectSet>
+    <CEffectEnumArea id="ApocaliskBurrowChargeStructureTargetSearch">
+        <ValidatorArray value="CasterNotDead"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactLocation Value="CasterPoint"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="ApocaliskBurrowChargeTargetSet"/>
+        <SearchFlags index="SameCliff" value="1"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="ApocaliskBurrowChargeStructureTargetSearchAlly">
+        <ValidatorArray value="CasterNotDead"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactLocation Value="CasterPoint"/>
+        <SearchFilters value="Ground,Visible;Self,Enemy,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.25" Effect="ApocaliskBurrowChargeTargetSet"/>
+        <SearchFlags index="SameCliff" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="ApocaliskBurrowChargeSwitch">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <CaseArray Validator="IsStructure" Effect="ApocaliskBurrowChargeStructureSet"/>
+        <CaseDefault value="ApocaliskBurrowChargePointSet"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSwitch>
+    <CEffectEnumArea id="ApocaliskBurrowChargeTargetSearch">
+        <ValidatorArray value="CasterNotDead"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="ApocaliskBurrowChargeTargetSet"/>
+        <SearchFlags index="SameCliff" value="1"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="ApocaliskBurrowChargeTargetSearchAlly">
+        <ValidatorArray value="CasterNotDead"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground,Visible;Self,Enemy,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.25" Effect="ApocaliskBurrowChargeTargetSet"/>
+        <SearchFlags index="SameCliff" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="ApocaliskBurrowChargeTargetSet">
+        <ValidatorArray value="CasterIsNotHidden"/>
+        <ValidatorArray value="NotBurrowCharging"/>
+        <ValidatorArray value="NotBurrowChargingRevD"/>
+        <ValidatorArray value="NotBurrowChargingApocalisk"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="ApocaliskBurrowChargeMPForcePersistent"/>
+        <EffectArray value="ApocaliskBurrowChargeTargetDamage"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="InfestedCivDisableJump"/>
+    <CEffectSet id="InfestedCivilianVolatileSpawn">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <Chance value="0"/>
+        <EffectArray value="SIVolatileInfested"/>
+        <EffectArray value="SuicideRemove"/>
+    </CEffectSet>
+    <CEffectSet id="SIVolatileInfestedDeathPreExplodeSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SIVolatileInfestedApplyDeathBehavior"/>
+        <EffectArray value="SIVolatileInfestedRemoveDeathPreExplodeBehavior"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SIVolatileInfestedApplyDeathBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="SIVolatileInfestedDeathExplode"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="SIVolatileInfestedRemoveDeathPreExplodeBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="SIVolatileInfestedDeathPreExplode"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="SIVolatileInfestedDeathExplodeSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SIVolatileInfestedRemoveDeathPreExplodeBehavior"/>
+        <EffectArray value="SIVolatileInfestedDeathExplodeDamage"/>
+        <EffectArray value="SIVolatileInfestedDeathExplodeDamageStructure"/>
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectDamage id="SIVolatileInfestedDeathExplodeDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="40"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2.2" Fraction="1"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Death value="Disintegrate"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+    </CEffectDamage>
+    <CEffectDamage id="SIVolatileInfestedDeathExplodeDamageStructure" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="80"/>
+        <SearchFilters value="Ground,Structure;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2.2" Fraction="1"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Death value="Disintegrate"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+    </CEffectDamage>
+    <CEffectSet id="SIVolatileInfestedExplodeSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SIVolatileInfestedRemoveDeathPreExplodeBehavior"/>
+        <EffectArray value="SIVolatileInfestedExplodeDamageStructureDirect"/>
+        <EffectArray value="SIVolatileInfestedExplodeDamageDirect"/>
+        <EffectArray value="SIVolatileInfestedExplodeDamageStructure"/>
+        <EffectArray value="SIVolatileInfestedExplodeDamage"/>
+    </CEffectSet>
+    <CEffectDamage id="SIVolatileInfestedExplodeDamageStructureDirect" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="80"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Death value="Disintegrate"/>
+        <ValidatorArray value="IsStructure"/>
+    </CEffectDamage>
+    <CEffectDamage id="SIVolatileInfestedExplodeDamageDirect" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="40"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Death value="Disintegrate"/>
+        <ValidatorArray value="NotStructure"/>
+    </CEffectDamage>
+    <CEffectDamage id="SIVolatileInfestedExplodeDamageStructure" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="80"/>
+        <SearchFilters value="Ground,Structure;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2.2" Fraction="1"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Death value="Disintegrate"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ExcludeArray Effect="SIVolatileInfestedExplodeSwitch" Value="Target"/>
+    </CEffectDamage>
+    <CEffectDamage id="SIVolatileInfestedExplodeDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="40"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2.2" Fraction="1"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <Death value="Disintegrate"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ExcludeArray Effect="SIVolatileInfestedExplodeSwitch" Value="Target"/>
+    </CEffectDamage>
+    <CEffectDamage id="SIVolatileInfestedExplodeDummyLinks" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="40"/>
+        <Kind value="Splash"/>
+        <KindSplash value="Splash"/>
+        <AttributeBonus index="Structure" value="40"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="SIVolatileInfested">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="CasterUnit"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <CreateFlags index="NormalizeSpawnOffset" value="0"/>
+        <SpawnEffect value="SIBarracksTrainTimedLifeABInfestedExploder"/>
+        <SpawnUnit value="SIVolatileInfested"/>
+        <SelectUnit Value="Caster"/>
+    </CEffectCreateUnit>
+
+    <CEffectApplyBehavior id="SIBarracksTrainTimedLifeABInfestedExploder">
+        <ValidatorArray index="0" value="HaveInfestedStukovInfestedTerranTimedLife"/>
+        <Marker Link="Effect/SIBarracksTrainTimedLifeAB"/>
+        <Behavior value="SIBarracksTrainTimedLife"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="SIClusterRockets">
+        <EditorCategories value="Race:Terran"/>
+        <TimeScaleSource Value="Caster"/>
+        <InitialEffect value="SIClusterRocketsBurstPersistentDamageDelayCP"/>
+        <PeriodCount value="10"/>
+        <PeriodicEffectArray value="SIClusterRocketsBurstPersistent"/>
+        <PeriodicOffsetArray value="-0.8,-0.8,0"/>
+        <PeriodicOffsetArray value="-0.8,0.8,0"/>
+        <PeriodicOffsetArray value="0.8,0.8,0"/>
+        <PeriodicOffsetArray value="0.8,-0.8,0"/>
+        <PeriodicPeriodArray value="0.1"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="SIClusterRocketsBurstPersistent">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="5"/>
+        <PeriodicEffectArray value="SIClusterRocketsALM"/>
+        <PeriodicEffectArray value="SIClusterRocketsBLM"/>
+        <PeriodicEffectArray value="SIClusterRocketsCLM"/>
+        <PeriodicEffectArray value="SIClusterRocketsDLM"/>
+        <PeriodicEffectArray value="SIClusterRocketsELM"/>
+        <PeriodicPeriodArray value="0.3125"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodicValidator value="CasterNotDead"/>
+        <ValidatorArray value="TargetIsNotNonCommanderAlly"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="SIClusterRocketsDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="20"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="SIClusterRocketsALM">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="SIClusterRocketsDamage"/>
+        <AmmoUnit value="SIClusterRocketsMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="SIClusterRocketsBLM">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="SIClusterRocketsDamage"/>
+        <AmmoUnit value="SIClusterRocketsMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="SIClusterRocketsCLM">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="SIClusterRocketsDamage"/>
+        <AmmoUnit value="SIClusterRocketsMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="SIClusterRocketsDLM">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="SIClusterRocketsDamage"/>
+        <AmmoUnit value="SIClusterRocketsMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="SIClusterRocketsELM">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="SIClusterRocketsDamage"/>
+        <AmmoUnit value="SIClusterRocketsMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="MutatorInfestedTurkeyTerrifyingGobbleSE">
+        <EditorCategories value=""/>
+        <AreaArray Radius="11" Effect="MutatorInfestedTurkeyTerrifyingGobbleAB"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinCount value="4"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="MutatorInfestedTurkeyTerrifyingGobbleAB">
+        <EditorCategories value=""/>
+        <Behavior value="MutatorInfestedTurkeyTerrifyingGobble"/>
+    </CEffectApplyBehavior>
+
+    <CEffectRemoveBehavior id="StukovInfestedBunkerMarinesRB">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="StukovInfestedBunkerMarines"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="StukovInfestedBunkerMarinesAB">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="StukovInfestedBunkerMarines"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovInfestedBunkerMeleeDisableAB">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="StukovInfestedBunkerMeleeDisable"/>
+        <WhichUnit Value="Caster"/>
+        <ValidatorArray index="0" value="InfestedBunkerMeleeDisableAttack"/>
+    </CEffectApplyBehavior>
+    <CEffectSwitch id="SIInfestedBunkerUprootedSwitch">
+        <CaseArray Validator="AirUnitFilter" Effect="SIInfestedBunkerUprootedRangeSet"/>
+        <CaseArray Validator="RangeCheckG5" Effect="SIInfestedBunkerUprootedGroundFarSet"/>
+        <CaseArray Validator="RangeCheckLE5andRangeCheckG1Dot5" Effect="SIInfestedBunkerUprootedGroundFarMoveSet"/>
+        <CaseArray Validator="RangeCheckLE1Dot5andGround" Effect="SIInfestedBunkerUprootedGroundSet"/>
+    </CEffectSwitch>
+    <CEffectSet id="SIInfestedBunkerUprootedRangeSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SIInfestedBunkerUprootedRangeDamageSwitch"/>
+        <EffectArray value="SIInfestedBunkerUprootedRangeGroundScanCP"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="SIInfestedBunkerUprootedRangeGroundScanCP">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="SourceUnit"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="SIInfestedBunkerUprootedRangeGroundScan"/>
+        <PeriodicOffsetArray value="0,-4,0"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="SIInfestedBunkerUprootedRangeGroundScan">
+        <AreaArray RectangleWidth="2" RectangleHeight="7" Effect="SIInfestedBunkerUprootedRangeMoveOrAttack"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Missile,Destructible,Uncommandable,Dead,Invulnerable"/>
+        <TargetSorts>
+            <SortArray value="TSDistance"/>
+        </TargetSorts>
+        <MaxCount value="1"/>
+        <ExcludeArray Value="Target"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="SIInfestedBunkerUprootedRangeMoveOrAttack">
+        <CaseArray Validator="RangeCheckG1Dot5" Effect="SIInfestedBunkerUprootedRangedFarForcePushAB"/>
+        <CaseArray Validator="RangeCheckLE1Dot5andGround" Effect="SIInfestedBunkerUprootedGroundSet"/>
+    </CEffectSwitch>
+    <CEffectApplyBehavior id="SIInfestedBunkerUprootedRangedFarForcePushAB">
+        <Behavior value="SIInfestedBunkerUprootedRangedFarForcePush"/>
+        <WhichUnit Value="Caster"/>
+        <Duration value="1.5"/>
+    </CEffectApplyBehavior>
+    <CEffectSwitch id="SIInfestedBunkerUprootedRangeDamageSwitch">
+        <CaseArray Validator="SIInfestedBunkerCargoHasCargoGTE1" Effect="SIInfestedMarinePlaguedMunitionsSet" FallThrough="1"/>
+        <CaseArray Validator="SIInfestedBunkerCargoHasCargoGTE2" Effect="SIInfestedMarine" FallThrough="1"/>
+        <CaseArray Validator="SIInfestedBunkerCargoHasCargoGTE3" Effect="SIInfestedMarine" FallThrough="1"/>
+        <CaseArray Validator="SIInfestedBunkerCargoHasCargoGTE4" Effect="SIInfestedMarine" FallThrough="1"/>
+        <CaseArray Validator="SIInfestedBunkerCargoHasCargoGTE5" Effect="SIInfestedMarine" FallThrough="1"/>
+        <CaseArray Validator="SIInfestedBunkerCargoHasCargoGTE6" Effect="SIInfestedMarine" FallThrough="1"/>
+    </CEffectSwitch>
+    <CEffectSet id="SIInfestedBunkerUprootedGroundFarMoveSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SIInfestedBunkerUprootedRangeDamageSwitch"/>
+        <EffectArray value="SIInfestedBunkerUprootedRangedFarForcePushAB"/>
+    </CEffectSet>
+    <CEffectSet id="SIInfestedBunkerUprootedGroundFarSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SIInfestedBunkerUprootedRangeDamageSwitch"/>
+    </CEffectSet>
+    <CEffectDamage id="SIInfestedBunkerUprootedMeleeDamage" parent="DU_WEAP">
+        <Death value="Eviscerate"/>
+        <Amount value="20"/>
+        <ValidatorArray value="InfestedBunkerMeleeDisableAttack"/>
+    </CEffectDamage>
+    <CEffectSet id="SIInfestedBunkerUprootedGroundSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SIInfestedBunkerUprootedRangeDamageSwitch"/>
+        <EffectArray value="SIInfestedBunkerUprootedMeleeDamage"/>
+        <EffectArray value="StukovInfestedBunkerMeleeDisableAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SIInfestedBunkerUprootedGroundFarForcePushAB">
+        <Behavior value="SIInfestedBunkerUprootedGroundFarForcePush"/>
+        <WhichUnit Effect="SIInfestedBunkerUprootedGroundFarForcePushAB" Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyForce id="SIInfestedBunkerUprootedRangedFarForcePush">
+        <Amount value="-1"/>
+        <WhichLocation Effect="SIInfestedBunkerUprootedRangedFarForcePushAB" Value="TargetUnit"/>
+        <ValidatorArray value="SIInfestedBunkerUprootedRangedFarForcePushRangeCheckLE1Dot5"/>
+    </CEffectApplyForce>
+    <CEffectApplyForce id="SIInfestedBunkerUprootedGroundFarForcePush">
+        <Amount value="-1"/>
+        <WhichLocation Effect="SIInfestedBunkerUprootedGroundFarMoveSet" Value="TargetUnit"/>
+        <WhichUnit Value="Caster"/>
+        <ValidatorArray value="RangeCheckLE1Dot5"/>
+    </CEffectApplyForce>
+    <CEffectSet id="SIInfestedBunkerBunkerLoadSet">
+        <EditorCategories value="Race:Terran"/>
+        <!--EffectArray value="SIInfestedBunkerBunkerRangeDummyAB"/-->
+        <EffectArray value="SIInfestedBunkerTimedLifeDisablerAB"/>
+        <EffectArray value="StukovInfestedBunkerMarinesAB"/>
+    </CEffectSet>
+    <CEffectSet id="SIInfestedBunkerBunkerUnloadSet">
+        <EditorCategories value="Race:Terran"/>
+        <!--EffectArray value="SIInfestedBunkerBunkerRangeDummyRB"/-->
+        <EffectArray value="SIInfestedBunkerTimedLifeDisablerRB"/>
+        <EffectArray value="SIBarracksTrainTimedLifeAB"/>
+        <EffectArray value="StukovInfestedBunkerMarinesRB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SIInfestedBunkerBunkerRangeDummyAB">
+        <Behavior value="SIInfestedBunkerWeaponRangeBonus"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="SIInfestedBunkerBunkerRangeDummyRB">
+        <BehaviorLink value="SIInfestedBunkerWeaponRangeBonus"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="SIInfestedBunkerTimedLifeDisablerAB">
+        <Behavior value="SIInfestedBunkerTimedLifeDisabler"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="SIInfestedBunkerTimedLifeDisablerRB">
+        <BehaviorLink value="SIInfestedBunkerTimedLifeDisabler"/>
+    </CEffectRemoveBehavior>
+    <CEffectModifyUnit id="SIInfestedBunkerAutoSpawnerDummyMU">
+        <ImpactUnit Value="Caster"/>
+    </CEffectModifyUnit>
+    <CEffectCreatePersistent id="SICivilianStructureSpawnCivilianGlobalTimerDummyCP">
+        <WhichLocation Value="SourceUnit"/>
+        <InitialDelay value="30"/>
+        <InitialEffect value="SICivilianStructureSpawnCivilianGlobalTimerAB"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="SIBarracksTrainInfestedCivilianInitialSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SIBarracksTrainInfestedMarineRB"/>
+        <EffectArray value="SIBarracksTrainAberrationRB"/>
+    </CEffectSet>
+    <CEffectSet id="SIBarracksTrainInfestedMarineInitialSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SIBarracksTrainInfestedCivilianRB"/>
+        <EffectArray value="SIBarracksTrainAberrationRB"/>
+    </CEffectSet>
+    <CEffectSet id="SIBarracksTrainAberrationInitialSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SIBarracksTrainInfestedCivilianRB"/>
+        <EffectArray value="SIBarracksTrainInfestedMarineRB"/>
+    </CEffectSet>
+    <CEffectSet id="SIBarracksTrainInfestedFirstSpawnSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SIBarracksTrainInfestedCivilianFirstSpawnCU"/>
+        <EffectArray value="SIBarracksTrainInfestedMarineFirstSpawnCU"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="SIBarracksTrainInfestedCivilianFirstSpawnCU">
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="CocoonCreateSetFirstSpawn"/>
+        <SpawnUnit value="SICocoonInfestedCivilian"/>
+        <SpawnCount value="4"/>
+        <SpawnRange value="10"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="SIBarracksTrainInfestedMarineFirstSpawnCU">
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="CocoonCreateSet"/>
+        <SpawnUnit value="SICocoonInfestedMarine"/>
+        <SpawnCount value="2"/>
+        <SpawnRange value="10"/>
+    </CEffectCreateUnit>
+    <!--CEffectSet id="SIBarracksTrainInfestedSpawnSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SIBarracksTrainInfestedCivilianSpawnCU"/>
+    </CEffectSet-->
+    <CEffectCreatePersistent id="SIBarracksTrainInfestedSpawnSet">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="8"/>
+        <PeriodicEffectArray value="SIBarracksTrainInfestedCivilianSpawnCU"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <WhichLocation Value="CasterUnit"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="SIBarracksTrainInfestedCivilianSpawnCU">
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="CocoonCreateSetFirstSpawn"/>
+        <SpawnUnit value="SICocoonInfestedCivilian"/>
+        <SpawnRange value="10"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="SIBarracksTrainInfestedMarineSpawnCU">
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="CocoonCreateSet"/>
+        <SpawnUnit value="SICocoonInfestedMarine"/>
+        <SpawnCount value="2"/>
+        <SpawnRange value="10"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="SIBarracksTrainAberrationCU">
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="CocoonCreateSet"/>
+        <SpawnUnit value="SICocoonInfestedAberration"/>
+        <SpawnRange value="10"/>
+    </CEffectCreateUnit>
+    <CEffectRemoveBehavior id="SIBarracksTrainInfestedCivilianRB">
+        <EditorCategories value="Race:Terran"/>
+        <BehaviorLink value="SIBarracksTrainInfestedCivilian"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="SIBarracksTrainInfestedMarineRB">
+        <EditorCategories value="Race:Terran"/>
+        <BehaviorLink value="SIBarracksTrainInfestedMarine"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="SIBarracksTrainAberrationRB">
+        <EditorCategories value="Race:Terran"/>
+        <BehaviorLink value="SIBarracksTrainAberration"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="SIBarracksTrainTimedLifeAB">
+        <Behavior value="SIBarracksTrainTimedLife"/>
+        <ValidatorArray index="0" value="HaveInfestedStukovInfestedTerranTimedLife"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="SIBarracksTrainTimedLifeHasBeenAppliedAB">
+        <Behavior value="SIBarracksTrainTimedLifeHasBeenApplied"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SIBarracksTrainTimedLifeExpireSet">
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="SILiberatorCloud">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichLocation Value="SourcePoint"/>
+        <SpawnEffect value="SILiberatorSwarmAttackCopyBehavior"/>
+        <SpawnUnit value="SILiberatorCloud"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="SILiberatorSwarmFormDamageResistant">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="SILiberatorSwarmFormDamageResistantRB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="SILiberatorSwarmFormDamageResistant"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyKinetic id="SILiberatorSwarmFormFollowTarget">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactUnit Value="Caster"/>
+        <Kinetic value="KineticSILiberatorFollowTarget"/>
+    </CEffectApplyKinetic>
+    <CEffectTransferBehavior id="SILiberatorSwarmAttackCopyBehavior">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <LaunchUnit Effect="SILiberatorSwarmAttackAB"/>
+        <ImpactUnit Value="Target"/>
+        <Copy value="1"/>
+    </CEffectTransferBehavior>
+    <CEffectSet id="SILiberatorSwarmFormInitialSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SILiberatorSwarmFormFollowTarget"/>
+        <EffectArray value="SILiberatorSwarmFormDamageDirectAB"/>
+    </CEffectSet>
+    <CEffectRemoveKinetic id="SILiberatorSwarmFormStopFollow">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactUnit Value="Caster"/>
+        <KineticLink value="KineticSILiberatorFollowTarget"/>
+    </CEffectRemoveKinetic>
+    <CEffectApplyBehavior id="SIStukovInfestStructureEnemyDisable">
+        <ValidatorArray value="EnemyTarget"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="SIStukovPlaceHordeRallyCP"/>
+    <CEffectLaunchMissile id="SnareLaunchTargetToAPathableLocationLM">
+        <LaunchLocation Effect="SnareLaunchTargetToAPathableLocationPrecursor" Value="TargetUnit"/>
+        <Movers Link="LaunchTargetToAPathableLocationSlow"/>
+        <DeathType value="Unknown"/>
+        <FinishEffect value="SnareLaunchTargetToAPathableLocationRU"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="SnareLaunchTargetToAPathableLocationRU">
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <Death value="Remove"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="SnareLaunchTargetToAPathableLocationPrecursor">
+        <Origin Value="TargetUnit"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <SpawnEffect value="SnareLaunchTargetToAPathableLocationLM"/>
+        <SpawnUnit value="SNARE_PLACEHOLDER"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="StukovInfestedDiamondBackReheightSourceCreatePlaceholder">
+        <WhichLocation Value="SourceUnit"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovInfestedDiamondBackReheightSourceStartSet"/>
+        <TypeFallbackUnit Value="Source"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="StukovInfestedDiamondBackReheightSourceStartSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovInfestedDiamondBackReheightSourceLaunchMissile"/>
+        <EffectArray value="StukovInfestedDiamondBackMakePrecursorReheightSource"/>
+        <EffectArray value="DelayedRemove"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovInfestedDiamondBackMakePrecursorReheightSource">
+        <Behavior value="StukovInfestedDiamondBackPrecursorReheight"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="StukovInfestedDiamondBackReheightSourceLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Effect="StukovInfestedDiamondbackSnareLM" Value="TargetUnit"/>
+        <Movers Link="StukovInfestedDiamondBackEnsnareAirLaunchMover"/>
+        <ImpactEffect value="StukovInfestedDiamondBackReheightSourceImpactDummy"/>
+        <FinishEffect value="StukovInfestedDiamondBackReheightSourceImpactSet"/>
+        <DeathType value="Unknown"/>
+        <ValidatorArray value="StukovInfestedDiamondBackReheightSourceLaunchMissileCasterNotDead"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="StukovInfestedDiamondBackReheightSourceImpactSet"/>
+    <CEffectSet id="StukovInfestedDiamondBackReheightSourceImpactDummy"/>
+    <CEffectLaunchMissile id="SIWraithSnareLM">
+        <ImpactEffect value="SIWraithSnare"/>
+        <AmmoUnit value="InfestedWraithSnareAttackMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="HotSHunterTimedLife">
+        <EditorCategories value="Race:Zerg"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="InfestedSiegeTankImpalerTentacleSet">
+        <EffectArray value="InfestedSiegeTankImpalerTentacleLM"/>
+        <EffectArray value="InfestedSiegeTankPauseSecondaryAB"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="InfestedSiegeTankImpalerTentacleLM">
+        <ValidatorArray index="0" value="SpineCrawlerLMTargetFilters"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="InfestedSiegeTankImpalerTentacleU"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="InfestedSiegeTankImpalerTentacle"/>
+        <ReturnDelay value="0.175"/>
+        <ReturnMovers Link="SpineCrawlerTentacleRetractShort" IfRangeLTE="3"/>
+        <ReturnMovers Link="SpineCrawlerTentacleRetractLong" IfRangeLTE="7"/>
+        <Movers Link="SpineCrawlerTentacleExtendShort" IfRangeLTE="3"/>
+        <Movers Link="SpineCrawlerTentacleExtendLong" IfRangeLTE="7"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="InfestedSiegeTankImpalerTentacleU" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Zerg"/>
+        <AttributeBonus index="Armored" value="5"/>
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="InfestedSiegeTankSecondaryTentacleSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Ground,Visible;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="7" Effect="InfestedSiegeTankSecondaryTentacleSet"/>
+        <MaxCount value="1"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="InfestedSiegeTankSecondaryTentacleSet">
+        <EffectArray value="InfestedSiegeTankImpalerTentacleLM"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="InfestedSiegeTankPauseSecondaryAB">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="InfestedSiegeTankPauseSecondary"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="InfestedSiegeTankHunterVolatileBurstIssueOrder">
+        <EditorCategories value="Race:Zerg"/>
+        <Abil value="attack"/>
+        <Target Effect="InfestedSiegeTankHunterVolatileBurstCU" Value="TargetUnit"/>
+    </CEffectIssueOrder>
+    <CEffectApplyBehavior id="HunterLaunchDisableTarget">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="HunterLaunchDisable"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="InfestedSiegeTankHunterVolatileBurstCU">
+        <EditorCategories value="Race:Zerg"/>
+        <SpawnUnit value="SIVolatileInfested"/>
+        <!--SpawnUnit value="HotSHunter"/-->
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="InfestedSiegeTankHunterVolatileBurstCreationSet"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="InfestedSiegeTankHunterVolatileBurstCreationSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="MakePrecursor"/>
+        <EffectArray value="HunterLaunchDisableTarget"/>
+        <EffectArray value="InfestedSiegeTankHunterVolatileBurstLaunchMissile"/>
+    </CEffectSet>
+    <CEffectSet id="InfestedSiegeTankHunterVolatileBurstLand">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="RemovePrecursor"/>
+        <EffectArray value="HotSHunterTimedLife"/>
+        <EffectArray value="InfestedSiegeTankHunterVolatileBurstIssueOrder"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="InfestedSiegeTankHunterVolatileBurstLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <AmmoUnit value="HotSHunterMissile"/>
+        <Movers Link="HotSHunterMissile"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetUnitOrPoint"/>
+        <FinishEffect value="InfestedSiegeTankHunterVolatileBurstLand"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="SIWraithSnare">
+        <EditorCategories value="Race:Zerg"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="StukovAleksanderInfestedDropPodLaunchMissileDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactLocation Effect="StukovAleksanderInfestedDropPod"/>
+        <Amount value="20"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectSet id="StukovInfestedSiegeTankAmmoRestockLMSet">
+        <ValidatorArray value="TargetIsGround"/>
+        <ValidatorArray value="IsSIInfestedTrooperCombineOrIsSIInfestedCivilianCombine"/>
+        <ValidatorArray value="StukovInfestedSiegeTankAmmoCombine"/>
+        <ValidatorArray value="NoInfestedCivDisableJump"/>
+        <ValidatorArray value="NoYoink"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="StukovInfestedSiegeTankAmmoRestock"/>
+        <EffectArray value="KillMissile"/>
+        <EffectArray value="YoinkMarker"/>
+    </CEffectSet>
+    <CEffectDamage id="ApocaliskSuicideRemove">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactLocation Value="SourceUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Death value="Remove"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="ApocaliskApplyBurrowChargeStun">
+        <ValidatorArray value="ApocaliskBurrowChargeEnemyTarget"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Effect="ApocaliskBurrowChargeMPForcePersistent"/>
+        <Behavior value="ApocaliskBurrowChargeStun"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SILiberatorSwarmFormFinalSet">
+        <ValidatorArray value="SILiberatorSwarmFormFinalSetTargetFilters"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="SILiberatorSwarmFormStopFollow"/>
+        <EffectArray value="SILiberatorSwarmFormReturnSetFacing"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="VolatileBurstBuildingOn">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <Abil value="VolatileBurstBuilding"/>
+    </CEffectIssueOrder>
+    <CEffectApplyBehavior id="YoinkMarker">
+        <EditorCategories value="Race:InfestedTerran"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="ApocaliskBurrowChargeTargetDamage">
+        <ValidatorArray value="TargetIsEnemy"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+        <DamageModifierSource Value="Caster"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Amount value="50"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <Death value="Squish"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="WildMutation">
+        <ValidatorArray value="NotOverlord"/>
+        <ValidatorArray value="NotOverseer"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovInfestedWildMutationAB">
+        <WhichUnit Value="Caster"/>
+        <Behavior value="StukovInfestedWildMutationAbsorb"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="WildMutationSearch">
+        <SearchFilters value="Ground,Biological;Enemy,Structure,Heroic,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectEnumArea>
+    <CEffectSet id="WildMutationSetMapWide">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="KerriganAbilityEfficiency"/>
+        <EffectArray value="WildMutationSearchMapWide"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="QueenStukovSpawnBroodlingsCreateUnit">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Effect="QueenStukovSpawnBroodlingsAB" Value="TargetPoint"/>
+        <CreateFlags index="Placement" value="0"/>
+        <SpawnOwner Value="Caster"/>
+        <SpawnEffect value="BroodlingTimedLife"/>
+        <SpawnUnit value="Broodling"/>
+        <SpawnCount value="2"/>
+    </CEffectCreateUnit>
+    <CEffectDamage id="SIInfestedCivilianDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ArmorReduction value="1"/>
+        <Kind value="Melee"/>
+        <Amount value="8"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="OffsetByUnitRadius" value="1"/>
+    </CEffectDamage>
+    <CEffectSet id="SIInfestedMarinePlaguedMunitionsSet">
+        <EffectArray value="SIInfestedMarine"/>
+        <EffectArray value="SIInfestedTrooperMarinePlaguedMunitions"/>
+    </CEffectSet>
+    <CEffectDamage id="SIInfestedMarine" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="6"/>
+    </CEffectDamage>
+    <CEffectSet id="SIInfestedTrooperPlaguedMunitionsSet">
+        <EffectArray value="SIInfestedTrooper"/>
+        <EffectArray value="SIInfestedTrooperMarinePlaguedMunitions"/>
+    </CEffectSet>
+    <CEffectDamage id="SIInfestedTrooper" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="6"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="SIInfestedTrooperMarinePlaguedMunitions">
+        <EditorCategories value="Race:Zerg"/>
+        <ValidatorArray index="0" value="HavePlaguedMunitions"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="SIInfestedTrooperMarinePlaguedMunitionsDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="1"/>
+        <Kind value="Spell"/>
+        <Death value="Disintegrate"/>
+        <ArmorReduction value="0"/>
+        <ValidatorArray value="NotStasis"/>
+        <ValidatorArray value="NotInvulnerable"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="InfestedStukovCoopDevastatingShot">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="InfestedStukovCoopDevastatingShotSet"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="InfestedStukovCoopDevastatingShotSet">
+        <EffectArray value="InfestedStukovCoopDevastatingShotDamage"/>
+        <EffectArray value="InfestedStukovCoopDevastatingShotAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="InfestedStukovCoopDevastatingShotAB">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="InfestedStukovCoopDevastatingShotExtraDamage"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="InfestedStukovCoopDevastatingShotDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Kind value="Ranged"/>
+        <Amount value="200"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="InfestedStukovCoopSpeedAuraSearch">
+        <SearchFilters value="-;Neutral,Enemy,Structure,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="18" Effect="InfestedStukovCoopSpeedAuraTarget"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFlags index="SameCliff" value="1"/>
+        <ImpactLocation Value="TargetUnit"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="InfestedStukovCoopSpeedAuraTarget">
+        <EditorCategories value="Race:Zerg"/>
+        <ValidatorArray value="IsSIInfestedCivilianOrSIInfestedMarine"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="InfestedStukovCoopRegenAuraSearch">
+        <SearchFilters value="-;Neutral,Enemy,Structure,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="7" Effect="InfestedStukovCoopRegenAuraTarget"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <SearchFlags index="SameCliff" value="1"/>
+        <ImpactLocation Value="TargetUnit"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="InfestedStukovCoopRegenAuraTarget">
+        <EditorCategories value="Race:Zerg"/>
+        <ValidatorArray value="LifeNotFull"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="InfestedStukovCoopInfestedTerrans">
+        <EditorCategories value="Race:Zerg"/>
+        <PeriodCount value="4"/>
+        <PeriodicEffectArray value="InfestedStukovCoopInfestedTerransLayEgg"/>
+        <ValidatorArray value="CliffLevelGE1"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="InfestedStukovCoopInfestedTerransLayEgg">
+        <EditorCategories value="Race:Zerg"/>
+        <SpawnEffect value="InfestedStukovCoopInfestedTerransInitialSet"/>
+        <SpawnUnit value="SIInfestedMarine"/>
+        <ValidatorArray value="CliffLevelGE1"/>
+        <SpawnRange value="5"/>
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="InfestedStukovCoopInfestedTerransInitialSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="KillsToCaster"/>
+        <EffectArray value="InfestedStukovInfestedTerranTimedLife"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="InfestedStukovInfestedTerranTimedLife">
+        <EditorCategories value="Race:Zerg"/>
+        <ValidatorArray index="0" value="HaveInfestedStukovInfestedTerranTimedLife"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="MasteryStukovAleksanderCDRDisplayDummy"/>
+    <CEffectDamage id="MasteryStukovApocaliskCDRDisplayDummy"/>
+    <CEffectDamage id="MasteryStukovInfestStructureCDRDisplayDummy"/>
+    <CEffectDamage id="MasteryStukovTimedLifeDisplayDummy"/>
+    <CEffectDamage id="MasteryStukovUnitMoveSpeedDisplayDummy"/>
+    <CEffectDamage id="MasteryStukovUnitRegenSpeedDisplayDummy"/>
+    <CEffectDamage id="MasteryStukovVolatileChanceDisplayDummy"/>
+    <CEffectDamage id="MasteryStukovMechAttackSpeedDisplayDummy"/>
+    <CEffectCreatePersistent id="StukovCoopVolatileTerransCP">
+        <ValidatorArray value="CliffLevelGE1"/>
+        <EditorCategories value="Race:Zerg"/>
+        <PeriodCount value="4"/>
+        <PeriodicEffectArray value="StukovCoopVolatileTerransCU"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="StukovCoopVolatileTerransCU">
+        <ValidatorArray value="CliffLevelGE1"/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <!--SpawnEffect value="InfestedStukovCoopInfestedTerransInitialSet"/-->
+        <SpawnUnit value="SIVolatileInfested"/>
+        <SpawnRange value="5"/>
+        <SpawnEffect value="KillsToCaster"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="ApocaliskBlades">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="ApocaliskBladesSearch"/>
+        <EffectArray value="ApocaliskBladesDamage"/>
+    </CEffectSet>
+    <CEffectDamage id="ApocaliskBladesDamage" parent="DU_WEAP">
+        <Amount value="80"/>
+        <Death value="Eviscerate"/>
+        <KindSplash value="Melee"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="ApocaliskBladesSearch">
+        <EditorCategories value="Race:Zerg"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Arc="180" Radius="3" Effect="ApocaliskBladesDamageSecondary"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <ExcludeArray Effect="ApocaliskBlades" Value="Target"/>
+        <SearchFlags index="OffsetByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="ApocaliskBladesDamageSecondary" parent="DU_WEAP">
+        <Amount value="20"/>
+        <Death value="Eviscerate"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="ApocaliskAirAttackLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="ApocaliskAirAttackDamage"/>
+        <AmmoUnit value="MengskGoliathAWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="ApocaliskAirAttackCP">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="4"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodicEffectArray value="ApocaliskAirAttackLM"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <PeriodicPeriodArray value="0.125"/>
+        <ValidatorArray value="CasterIsNotHidden"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="ApocaliskAirAttackDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="6"/>
+        <AttributeBonus index="Light" value="6"/>
+        <AreaArray Radius="0.8" Fraction="1"/>
+        <ExcludeArray Value="Target"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="StukovSummonApocaliskCU">
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="SelectControlGroups" value="1"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovSummonApocaliskSet"/>
+        <SpawnUnit value="StukovApocalisk"/>
+        <WhichLocation Value="TargetPoint"/>
+        <ValidatorArray value="HasVision"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="StukovSummonApocaliskSet">
+        <EffectArray value="StukovSummonApocaliskBirthingAB"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovSummonApocaliskBirthingAB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <Behavior value="StukovSummonApocaliskBirthing"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovSummonApocaliskTimedLifeAB">
+        <Behavior value="StukovSummonApocaliskTimedLife"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="StukovSummonApocaliskTimedLifeExpireSet">
+        <EffectArray value="TimedLifeFate"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="StukovSummonApocaliskExpireCU">
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnUnit value="Pygalisk"/>
+        <SpawnCount value="8"/>
+        <SpawnEffect value="StukovSummonApocaliskPygaliskTimedLifeAB"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="StukovSummonApocaliskPygaliskTimedLifeAB">
+        <Behavior value="StukovSummonApocaliskPygaliskTimedLife"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="StukovSummonApocaliskBirthSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="StukovSummonApocaliskTimedLifeAB"/>
+        <EffectArray value="ApocaliskBurrowChargeImpactSet"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="StukovSummonAleksanderCU">
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="SelectControlGroups" value="1"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovSummonAleksanderSet"/>
+        <SpawnUnit value="StukovAleksander"/>
+        <WhichLocation Value="TargetPoint"/>
+        <ValidatorArray value="HasVision"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="StukovSummonAleksanderSet">
+        <EffectArray value="StukovSummonAleksanderTimedLifeAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovSummonAleksanderTimedLifeAB">
+        <Behavior value="StukovSummonAleksanderTimedLife"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SIStukovExplodeInfestedMainImpactSet">
+        <EffectArray value="SIStukovExplodeInfestedSearch"/>
+        <EffectArray value="KillTargetNoCreditDeathBlast"/>
+        <ValidatorArray value="IsSIInfestedCivilianOrSIInfestedMarine"/>
+    </CEffectSet>
+    <CEffectEnumArea id="SIStukovExplodeInfestedTargetSearch">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1" Effect="SIStukovExplodeInfestedMainImpactSet"/>
+        <MinCount value="1"/>
+        <TargetSorts>
+            <SortArray value="TSDistance"/>
+        </TargetSorts>
+        <MinCountError value="CantFindEnoughTargets,Error/NoInfestedTarget"/>
+        <MaxCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="SIStukovExplodeInfestedSwitch">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <CaseArray Validator="NotSIInfestedCivilianOrSIInfestedMarine" Effect="SIStukovExplodeInfestedTargetSearch"/>
+        <CaseDefault value="SIStukovExplodeInfestedMainImpactSet"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSwitch>
+    <CEffectEnumArea id="SIStukovExplodeInfestedSearch">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <SearchFilters value="-;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="3" Effect="SIStukovExplodeInfestedDamage"/>
+        <ValidatorArray value="IsSIInfestedCivilianOrSIInfestedMarine"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="SIStukovExplodeInfestedDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Kind value="Spell"/>
+        <Amount value="150"/>
+        <AttributeBonus index="Structure" value="150"/>
+    </CEffectDamage>
+    <CEffectSet id="SIStukovMassNeuralParasiteInitialSet">
+        <EffectArray value="SIStukovMassNeuralParasiteSearch"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectEnumArea id="SIStukovMassNeuralParasiteSearch">
+        <SearchFilters value="-;Player,Ally,Heroic,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="SIStukovMassNeuralParasiteDebuffAB"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <MinCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="SIStukovMassNeuralParasiteDebuffAB">
+        <Behavior value="SIStukovMassNeuralParasiteDebuff"/>
+        <ValidatorArray value="NotHaveSIStukovMassNeuralParasite"/>
+        <ValidatorArray value="TargetIsNotNonCommanderAlly"/>
+        <ValidatorArray value="NoDarkArchonMindControlPrevention"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SIStukovMassNeuralParasiteTargetSet">
+        <EffectArray value="SIStukovMassNeuralParasiteTargetAB"/>
+        <EffectArray value="FullHealSource"/>
+        <EffectArray value="StopMovingIssueStopOrder"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SIStukovMassNeuralParasiteTargetAB">
+        <Behavior value="SIStukovMassNeuralParasiteTarget"/>
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SIStukovMassNeuralParasiteTargetExpireSet">
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectEnumArea id="SIStukovManaAuraSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Structure,Worker,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="18" Effect="SIStukovManaAuraSwitch"/>
+        <MaxCount value="1"/>
+        <ImpactLocation Value="TargetUnit"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="SIStukovManaAuraSwitch">
+        <CaseArray Validator="SourceIsSIInfestedCivilianCombine" Effect="SIStukovManaAuraReturnHalfMU"/>
+        <CaseDefault value="SIStukovManaAuraReturnMU"/>
+        <ValidatorArray value="IsStukovHeroCombine"/>
+    </CEffectSwitch>
+    <CEffectModifyUnit id="SIStukovManaAuraReturnMU">
+        <VitalArray index="Energy">
+            <Change value="5"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="SIStukovManaAuraReturnHalfMU">
+        <VitalArray index="Energy">
+            <Change value="2.5"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectSet id="SIStukovInfestStructureInitialSet">
+        <EffectArray value="SIStukovInfestStructureEnemyTarget"/>
+        <EffectArray value="SIStukovInfestStructureFriendlyTarget"/>
+        <ValidatorArray value="NotHaveStukovInfestStructureAny"/>
+        <ValidatorArray value="NotCreepTumor"/>
+        <ValidatorArray value="NotCreepTumorBurrowed"/>
+        <ValidatorArray value="NotCreepTumorUsed"/>
+        <ValidatorArray value="NotToxicNest"/>
+        <ValidatorArray value="NotToxicNestBurrowed"/>
+        <ValidatorArray value="TargetIsNotNonCommanderAlly"/>
+        <ValidatorArray value="NotUnrepairable"/>
+        <ValidatorArray value="NoStukovInfestStructure"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SIStukovInfestStructureEnemyTarget">
+        <ValidatorArray value="EnemyTarget"/>
+        <EditorCategories value="Race:InfestedTerran"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="SIStukovInfestStructureFriendlyTarget">
+        <ValidatorArray value="TargetIsNotEnemy"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="CreateByAlly">
+        <ValidatorArray index="0" value="SIStukovInfestStructureFriendlyTarget"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SIStukovInfestStructureSpawnSet">
+        <EffectArray value="SIStukovInfestStructureBroodlingsSwitch"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="SIStukovInfestStructureBroodlingsCU">
+        <SpawnCount value="3"/>
+        <SpawnUnit value="StukovInfestBroodling"/>
+        <SpawnEffect value="BroodlingTimedLifeCreatedByAlly"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="SIStukovInfestStructureBroodlingsFlyingCU">
+        <SpawnCount value="3"/>
+        <SpawnUnit value="SIBroodlingFlying"/>
+        <SpawnEffect value="BroodlingTimedLifeCreatedByAlly"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="SISiegeTankSiegedTentacleDisable">
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="SIInfestedSiegeTankAmmoSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <SearchFilters value="-;Ally,Neutral,Enemy,Structure,Worker,RawResource,HarvestableResource,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="7" Effect="SIInfestedSiegeTankAmmoInitialSet"/>
+        <MaxCount value="1"/>
+        <ImpactLocation Value="TargetUnit"/>
+    </CEffectEnumArea>
+    <CEffectSet id="SIInfestedSiegeTankAmmoInitialSet">
+        <EffectArray value="SIInfestedSiegeTankAmmoMU"/>
+        <EffectArray value="KillTargetDeathNormal"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="SIInfestedSiegeTankAmmoMU">
+        <ImpactUnit Value="Caster"/>
+        <Cost>
+            <Fraction Charge="1"/>
+        </Cost>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="EradicatorLockOnResetCooldown">
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="EradicatorLockOn,Execute" CooldownOperation="Set" CooldownTimeUse="6"/>
+    </CEffectModifyUnit>
+    <CEffectSet id="StukovInfestedCivilianFightOnSet">
+        <EffectArray value="FullHealCaster"/>
+        <EffectArray value="StukovInfestedCivilianFightOnBR"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="StukovInfestedCivilianFightOnBR">
+        <WhichUnit Value="Source"/>
+        <BehaviorLink value="StukovInfestedCivilianFightOn"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="SICivilianStructureSpawnCivilianGlobalTimerAB">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="SICivilianStructureSpawnCivilianGlobalTimer"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="TentacleAttackApplyBehaviors">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAttackRemoveTentacleEnRouteBehavior"/>
+        <EffectArray value="TentacleAttackApplyCasterBehavior"/>
+        <EffectArray value="TentacleAttackApplyChokeBehavior"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TentacleAttackApplyCasterBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="TentaclesActive"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TentacleAttackApplyChokeBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="Choked"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ChokePreventApplyBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="ChokePrevent"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TentacleAttackApplyInitialCasterBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="InitialTentacleChannel"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="TentacleAttackApplyTentacleEnRouteBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="TentacleEnRoute"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="TentacleAttackChannelPersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <InitialEffect value="TentacleAttackSearchSwitch"/>
+        <PeriodicValidator value="HasInitialTentacleBehaviorOrTentaclesActive"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <WhichLocation Value="TargetUnit"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="TentacleAttackInitialSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAttackApplyInitialCasterBehavior"/>
+        <EffectArray value="TentacleAttackChannelPersistent"/>
+    </CEffectSet>
+    <CEffectSet id="TentacleAttackLaunchTentacleSet">
+        <ValidatorArray value="TargetHasNoTentacleEnRoute"/>
+        <ValidatorArray value="TargetNotBeingChoked"/>
+        <ValidatorArray value="TargetNotSpiderMine"/>
+        <ValidatorArray value="TargetNotSpiderMineBurrowed"/>
+        <ValidatorArray value="NotHaveChokePrevent"/>
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAttackApplyTentacleEnRouteBehavior"/>
+        <EffectArray value="TentacleAttackLaunchTentacle"/>
+    </CEffectSet>
+    <CEffectSet id="TentacleAttackRemoveBehaviors">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAttackRemoveCasterBehavior"/>
+        <EffectArray value="TentacleAttackRemoveChokeBehavior"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="TentacleAttackRemoveCasterBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="TentaclesActive"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="TentacleAttackRemoveTentacleEnRouteBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <BehaviorLink value="TentacleEnRoute"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreatePersistent id="TentacleAttackTentaclePersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <InitialEffect value="TentacleAttackApplyBehaviors"/>
+        <FinalEffect value="TentacleAttackRemoveBehaviors"/>
+        <PeriodicValidator value="ChokerValidators"/>
+        <PeriodicEffectArray value="TentacleAttackForce"/>
+        <PeriodicPeriodArray value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="TentacleAttackDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Melee"/>
+        <Amount value="4"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectApplyForce id="TentacleAttackForce">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="CasterUnit"/>
+        <Amount value="-1"/>
+        <TimeScaleSource Value="Target"/>
+        <ValidatorArray value="TargetIsGround"/>
+        <ValidatorArray value="NotFrenzied"/>
+    </CEffectApplyForce>
+    <CEffectLaunchMissile id="TentacleAttackLaunchTentacle">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="TentacleAttackLaunchTentacleGroundAirSet"/>
+        <AmmoUnit value="TentacleMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TentacleAttackLaunchTentacleGroundAirSet">
+        <EffectArray value="TentacleAttackTentaclePersistent"/>
+        <EffectArray value="TentacleAttackAirSnare"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TentacleAttackAirSnare">
+        <ValidatorArray index="0" value="AirUnitFilter"/>
+        <ValidatorArray value="CasterNotDead"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="TentacleAirAttackLaunchTargetToAPathableLocationPrecursor">
+        <Origin Value="TargetUnit"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <SpawnEffect value="TentacleAirAttackLaunchTargetToAPathableLocationLM"/>
+        <SpawnUnit value="SNARE_PLACEHOLDER"/>
+    </CEffectCreateUnit>
+    <CEffectLaunchMissile id="TentacleAirAttackLaunchTargetToAPathableLocationLM">
+        <LaunchLocation Effect="TentacleAirAttackLaunchTargetToAPathableLocationPrecursor" Value="TargetUnit"/>
+        <Movers Link="LaunchTargetToAPathableLocationSlow"/>
+        <DeathType value="Unknown"/>
+        <FinishEffect value="TentacleAirAttackLaunchTargetToAPathableLocationSet"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="TentacleAirAttackLaunchTargetToAPathableLocationSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAirAttackLaunchTargetToAPathableLocationRU"/>
+        <EffectArray value="TentacleAttackAirSnareReheightBehavior"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="TentacleAttackAirSnareReheightBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Effect="TentacleAttackLaunchTentacleGroundAirSet"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="TentacleAirAttackLaunchTargetToAPathableLocationRU">
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <Death value="Remove"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="TentacleAirAttackReheightSourceCreatePlaceholder">
+        <WhichLocation Value="SourceUnit"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="TentacleAirAttackReheightSourceStartSet"/>
+        <TypeFallbackUnit Value="Source"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="TentacleAirAttackReheightSourceStartSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="TentacleAirAttackReheightSourceLaunchMissile"/>
+        <EffectArray value="TentacleAirAttackPrecursorReheightSource"/>
+        <EffectArray value="DelayedRemove"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="TentacleAirAttackReheightSourceLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Effect="TentacleAttackLaunchTentacle" Value="TargetUnit"/>
+        <Movers Link="StukovInfestedDiamondBackEnsnareAirLaunchMover"/>
+        <DeathType value="Unknown"/>
+        <ValidatorArray value="TentacleAttackReheightSourceLaunchMissileCasterNotDead"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="TentacleAirAttackPrecursorReheightSource"/>
+    <CEffectRemoveBehavior id="TentacleAttackRemoveChokeBehavior">
+        <EditorCategories value="Race:Zerg"/>
+        <BehaviorLink value="Choked"/>
+    </CEffectRemoveBehavior>
+    <CEffectEnumArea id="TentacleAttackSearchAreaHeroic">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Heroic;Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="2" Effect="TentacleAttackLaunchTentacleSet"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSwitch id="TentacleAttackSearchSwitch">
+        <EditorCategories value="Race:Terran"/>
+        <CaseArray Validator="IsHeroic" Effect="TentacleAttackSearchAreaHeroic"/>
+        <CaseDefault value="TentacleAttackSearchArea"/>
+    </CEffectSwitch>
+    <CEffectEnumArea id="TentacleAttackSearchArea">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Structure,Heroic,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="2" Radius="2" Effect="TentacleAttackLaunchTentacleSet"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectEnumArea>
+    <!-- used by triggers -->
+    <CEffectModifyUnit id="CreepTumorStukovSpreadCC"/>
+    <CEffectModifyUnit id="CreepTumorStukovSpread"/>
+    <CEffectApplyBehavior id="StukovAleksanderTentacleAttackApplyNewScan">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="StukovAleksanderTentacleMissileTargetCheckInverted"/>
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="StukovAleksanderTentacleAttackL2AnimDelay">
+        <EditorCategories value="Race:Zerg"/>
+        <InitialDelay value="2"/>
+        <InitialEffect value="StukovAleksanderTentacleAttackL2CreateTarget"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="StukovAleksanderTentacleAttackL2CreateTarget">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="StukovAleksanderTentacleAttackL2LaunchMissile"/>
+        <SpawnUnit value="StukovAleksanderTentacleTarget"/>
+        <SpawnRange value="0"/>
+    </CEffectCreateUnit>
+    <CEffectLaunchMissile id="StukovAleksanderTentacleAttackL2LaunchMissile">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovAleksanderTentacleAttackMissileImpactSet"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovAleksanderTentacleL2Missile"/>
+        <ReturnDelay value="2"/>
+        <ReturnMovers Link="StukovAleksanderTentacleMissileRetract" IfRangeLTE="500"/>
+        <Movers Link="StukovAleksanderTentacleMissileExtend" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="StukovAleksanderTentacleAttackMissileImpactSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderTentacleAttackTargetDeathDelay"/>
+        <EffectArray value="StukovAleksanderTentacleAttackMissileScanSwapDelay"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovAleksanderTentacleAttackMissileScanSwapDelay">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Source"/>
+        <Behavior value="StukovAleksanderTentacleMissileScanSwapDelay"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="StukovAleksanderTentacleAttackR1AnimDelay">
+        <EditorCategories value="Race:Zerg"/>
+        <InitialDelay value="2"/>
+        <InitialEffect value="StukovAleksanderTentacleAttackR1CreateTarget"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="StukovAleksanderTentacleAttackR2AnimDelay">
+        <EditorCategories value="Race:Zerg"/>
+        <InitialDelay value="2"/>
+        <InitialEffect value="StukovAleksanderTentacleAttackR2CreateTarget"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="StukovAleksanderTentacleAttackR1CreateTarget">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="StukovAleksanderTentacleAttackR1LaunchMissile"/>
+        <SpawnUnit value="StukovAleksanderTentacleTarget"/>
+        <SpawnRange value="0"/>
+    </CEffectCreateUnit>
+    <CEffectCreatePersistent id="StukovAleksanderTentacleAttackL1AnimDelay">
+        <EditorCategories value="Race:Zerg"/>
+        <InitialDelay value="2"/>
+        <InitialEffect value="StukovAleksanderTentacleAttackL1CreateTarget"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="StukovAleksanderTentacleAttackR2CreateTarget">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="StukovAleksanderTentacleAttackR2LaunchMissile"/>
+        <SpawnUnit value="StukovAleksanderTentacleTarget"/>
+        <SpawnRange value="0"/>
+    </CEffectCreateUnit>
+    <CEffectLaunchMissile id="StukovAleksanderTentacleAttackR1LaunchMissile">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovAleksanderTentacleAttackMissileImpactSet"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovAleksanderTentacleR1Missile"/>
+        <ReturnDelay value="2"/>
+        <ReturnMovers Link="StukovAleksanderTentacleMissileRetract" IfRangeLTE="500"/>
+        <Movers Link="StukovAleksanderTentacleMissileExtend" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectCreateUnit id="StukovAleksanderTentacleAttackL1CreateTarget">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="StukovAleksanderTentacleAttackL1LaunchMissile"/>
+        <SpawnUnit value="StukovAleksanderTentacleTarget"/>
+        <SpawnRange value="0"/>
+    </CEffectCreateUnit>
+    <CEffectLaunchMissile id="StukovAleksanderTentacleAttackR2LaunchMissile">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovAleksanderTentacleAttackMissileImpactSet"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovAleksanderTentacleR2Missile"/>
+        <ReturnDelay value="2"/>
+        <ReturnMovers Link="StukovAleksanderTentacleMissileRetract" IfRangeLTE="500"/>
+        <Movers Link="StukovAleksanderTentacleMissileExtend" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="StukovAleksanderTentacleAttackL1LaunchMissile">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovAleksanderTentacleAttackMissileImpactSet"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovAleksanderTentacleL1Missile"/>
+        <ReturnDelay value="2"/>
+        <ReturnMovers Link="StukovAleksanderTentacleMissileRetract" IfRangeLTE="500"/>
+        <Movers Link="StukovAleksanderTentacleMissileExtend" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectRemoveBehavior id="StukovAleksanderTentacleAttackRemoveOldScan">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <BehaviorLink value="StukovAleksanderTentacleMissileTargetCheck"/>
+        <WhichUnit Value="Source"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderTentacleAttackTargetDeathDelay">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="StukovAleksanderTentacleTargetDeathDelay"/>
+    </CEffectApplyBehavior>
+    <CEffectCreatePersistent id="StukovAleksanderTentacleMissileTargetCheckPersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <PeriodCount value="30"/>
+        <PeriodicEffectArray value="StukovAleksanderTentacleMissileTargetCheckCircle"/>
+        <PeriodicOffsetArray value="0,-0.75,0"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="0,0.75,0"/>
+        <PeriodicOffsetArray value="0,1.5,0"/>
+        <PeriodicOffsetArray value="0,2.25,0"/>
+        <PeriodicOffsetArray value="0,3,0"/>
+        <PeriodicOffsetArray value="0,3.75,0"/>
+        <PeriodicOffsetArray value="0,4.5,0"/>
+        <PeriodicOffsetArray value="0,5.25,0"/>
+        <PeriodicOffsetArray value="0,6,0"/>
+        <PeriodicOffsetArray value="0,6.75,0"/>
+        <PeriodicOffsetArray value="0,7.5,0"/>
+        <PeriodicOffsetArray value="0,8.25,0"/>
+        <PeriodicOffsetArray value="0,9,0"/>
+        <PeriodicOffsetArray value="0,9.75,0"/>
+        <PeriodicOffsetArray value="0,10.5,0"/>
+        <PeriodicOffsetArray value="0,11.25,0"/>
+        <PeriodicOffsetArray value="0,12,0"/>
+        <PeriodicOffsetArray value="0,12.75,0"/>
+        <PeriodicOffsetArray value="0,13.5,0"/>
+        <PeriodicOffsetArray value="0,14.25,0"/>
+        <PeriodicOffsetArray value="0,15,0"/>
+        <PeriodicOffsetArray value="0,15.75,0"/>
+        <PeriodicOffsetArray value="0,16.5,0"/>
+        <PeriodicOffsetArray value="0,17.25,0"/>
+        <PeriodicOffsetArray value="0,18,0"/>
+        <PeriodicOffsetArray value="0,18.75,0"/>
+        <PeriodicOffsetArray value="0,19.5,0"/>
+        <PeriodicOffsetArray value="0,20.25,0"/>
+        <PeriodicOffsetArray value="0,21,0"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="StukovAleksanderTentacleMissileTargetCheckCircle">
+        <EditorCategories value="Race:Zerg"/>
+        <SearchFilters value="-;Player,Ally,Neutral,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.375" Effect="StukovAleksanderAirAttackMissileSet"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="StukovAleksanderTentacleMissileTargetCheckPersistentInverted">
+        <EditorCategories value="Race:Zerg"/>
+        <PeriodCount value="30"/>
+        <PeriodicEffectArray value="StukovAleksanderTentacleMissileTargetCheckCircle"/>
+        <PeriodicOffsetArray value="0,0.75,0"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="0,-0.75,0"/>
+        <PeriodicOffsetArray value="0,-1.5,0"/>
+        <PeriodicOffsetArray value="0,-2.25,0"/>
+        <PeriodicOffsetArray value="0,-3,0"/>
+        <PeriodicOffsetArray value="0,-3.75,0"/>
+        <PeriodicOffsetArray value="0,-4.5,0"/>
+        <PeriodicOffsetArray value="0,-5.25,0"/>
+        <PeriodicOffsetArray value="0,-6,0"/>
+        <PeriodicOffsetArray value="0,-6.75,0"/>
+        <PeriodicOffsetArray value="0,-7.5,0"/>
+        <PeriodicOffsetArray value="0,-8.25,0"/>
+        <PeriodicOffsetArray value="0,-9,0"/>
+        <PeriodicOffsetArray value="0,-9.75,0"/>
+        <PeriodicOffsetArray value="0,-10.5,0"/>
+        <PeriodicOffsetArray value="0,-11.25,0"/>
+        <PeriodicOffsetArray value="0,-12,0"/>
+        <PeriodicOffsetArray value="0,-12.75,0"/>
+        <PeriodicOffsetArray value="0,-13.5,0"/>
+        <PeriodicOffsetArray value="0,-14.25,0"/>
+        <PeriodicOffsetArray value="0,-15,0"/>
+        <PeriodicOffsetArray value="0,-15.75,0"/>
+        <PeriodicOffsetArray value="0,-16.5,0"/>
+        <PeriodicOffsetArray value="0,-17.25,0"/>
+        <PeriodicOffsetArray value="0,-18,0"/>
+        <PeriodicOffsetArray value="0,-18.75,0"/>
+        <PeriodicOffsetArray value="0,-19.5,0"/>
+        <PeriodicOffsetArray value="0,-20.25,0"/>
+        <PeriodicOffsetArray value="0,-21,0"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="StukovAleksanderAirAttackMissileDamage">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="1"/>
+        <ValidatorArray value="noMarkers"/>
+        <Marker>
+            <MatchFlags index="Id" value="1"/>
+        </Marker>
+    </CEffectDamage>
+    <CEffectSet id="StukovAleksanderAirAttackApplyBehaviorsA">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyUnderAttackBehavior"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyBusyBehaviorA"/>
+    </CEffectSet>
+    <CEffectSet id="StukovAleksanderAirAttackApplyBehaviorsB">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyUnderAttackBehavior"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyBusyBehaviorB"/>
+    </CEffectSet>
+    <CEffectSet id="StukovAleksanderAirAttackApplyBehaviorsC">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyUnderAttackBehavior"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyBusyBehaviorC"/>
+    </CEffectSet>
+    <CEffectSet id="StukovAleksanderAirAttackApplyBehaviorsD">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyUnderAttackBehavior"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyBusyBehaviorD"/>
+    </CEffectSet>
+    <CEffectSet id="StukovAleksanderAirAttackApplyBehaviorsE">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyUnderAttackBehavior"/>
+        <EffectArray value="StukovAleksanderAirAttackApplyBusyBehaviorE"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovAleksanderAirAttackApplyBusyBehaviorA">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="StukovAleksanderTentacleABusy"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderAirAttackApplyBusyBehaviorB">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="StukovAleksanderTentacleBBusy"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderAirAttackApplyBusyBehaviorC">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="StukovAleksanderTentacleCBusy"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderAirAttackApplyBusyBehaviorD">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="StukovAleksanderTentacleDBusy"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderAirAttackApplyBusyBehaviorE">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="StukovAleksanderTentacleEBusy"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderAirAttackApplyUnderAttackBehavior">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="StukovAleksanderBeingAttackedByTentacle"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="StukovAleksanderAirAttackMissileSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderAirAttackDamage"/>
+        <EffectArray value="StukovAleksanderAirAttackStunAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovAleksanderAirAttackStunAB">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="StukovAleksanderAirAttackStun"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="StukovAleksanderAirAttackDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <Kind value="Ranged"/>
+        <Amount value="20"/>
+        <Death value="Eviscerate"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ArmorReduction value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="StukovAleksanderAirAttackLaunchMissileA">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovAleksanderAirAttackMissileSet"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovAleksanderTentacleAMissile"/>
+        <ReturnDelay value="0.25"/>
+        <ReturnMovers Link="SpineCrawlerTentacleRetractLong" IfRangeLTE="500"/>
+        <Movers Link="SpineCrawlerTentacleExtendLong" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="StukovAleksanderAirAttackLaunchMissileB">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovAleksanderAirAttackMissileSet"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovAleksanderTentacleBMissile"/>
+        <ReturnDelay value="0.25"/>
+        <ReturnMovers Link="SpineCrawlerTentacleRetractLong" IfRangeLTE="500"/>
+        <Movers Link="SpineCrawlerTentacleExtendLong" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="StukovAleksanderAirAttackLaunchMissileC">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovAleksanderAirAttackMissileSet"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovAleksanderTentacleCMissile"/>
+        <ReturnDelay value="0.25"/>
+        <ReturnMovers Link="SpineCrawlerTentacleRetractLong" IfRangeLTE="500"/>
+        <Movers Link="SpineCrawlerTentacleExtendLong" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="StukovAleksanderAirAttackLaunchMissileD">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovAleksanderAirAttackMissileSet"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovAleksanderTentacleDMissile"/>
+        <ReturnDelay value="0.25"/>
+        <ReturnMovers Link="SpineCrawlerTentacleRetractLong" IfRangeLTE="500"/>
+        <Movers Link="SpineCrawlerTentacleExtendLong" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="StukovAleksanderAirAttackLaunchMissileE">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovAleksanderAirAttackMissileSet"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovAleksanderTentacleEMissile"/>
+        <ReturnDelay value="0.25"/>
+        <ReturnMovers Link="SpineCrawlerTentacleRetractLong" IfRangeLTE="500"/>
+        <Movers Link="SpineCrawlerTentacleExtendLong" IfRangeLTE="500"/>
+    </CEffectLaunchMissile>
+    <CEffectRemoveBehavior id="StukovAleksanderAirAttackRemoveBusyBehaviorA">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <BehaviorLink value="StukovAleksanderTentacleABusy"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="StukovAleksanderAirAttackRemoveBusyBehaviorB">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="StukovAleksanderTentacleBBusy"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="StukovAleksanderAirAttackRemoveBusyBehaviorC">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="StukovAleksanderTentacleCBusy"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="StukovAleksanderAirAttackRemoveBusyBehaviorD">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="StukovAleksanderTentacleDBusy"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="StukovAleksanderAirAttackRemoveBusyBehaviorE">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="StukovAleksanderTentacleEBusy"/>
+    </CEffectRemoveBehavior>
+    <CEffectCreatePersistent id="StukovAleksanderAirAttackScanPersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="CasterUnit"/>
+        <PeriodCount value="5"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackSearchAreaA"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackSearchAreaB"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackSearchAreaC"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackSearchAreaD"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackSearchAreaE"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="StukovAleksanderAirAttackSearchAreaA">
+        <ValidatorArray value="StukovAleksanderTentacleANotBusy"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="10" Effect="StukovAleksanderAirAttackTargetPersistentA"/>
+        <TargetSorts>
+            <SortArray value="TSLifeLargestFirst"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="StukovAleksanderAirAttackSearchAreaB">
+        <ValidatorArray value="StukovAleksanderTentacleBNotBusy"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="10" Effect="StukovAleksanderAirAttackTargetPersistentB"/>
+        <TargetSorts>
+            <SortArray value="TSLifeLargestFirst"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="StukovAleksanderAirAttackSearchAreaC">
+        <ValidatorArray value="StukovAleksanderTentacleCNotBusy"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="10" Effect="StukovAleksanderAirAttackTargetPersistentC"/>
+        <TargetSorts>
+            <SortArray value="TSLifeLargestFirst"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="StukovAleksanderAirAttackSearchAreaD">
+        <ValidatorArray value="StukovAleksanderTentacleDNotBusy"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="10" Effect="StukovAleksanderAirAttackTargetPersistentD"/>
+        <TargetSorts>
+            <SortArray value="TSLifeLargestFirst"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="StukovAleksanderAirAttackSearchAreaE">
+        <ValidatorArray value="StukovAleksanderTentacleENotBusy"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="10" Effect="StukovAleksanderAirAttackTargetPersistentE"/>
+        <TargetSorts>
+            <SortArray value="TSLifeLargestFirst"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="StukovAleksanderAirAttackTargetPersistentA">
+        <ValidatorArray value="StukovAleksanderNotBeingAttackedByTentacle"/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="StukovAleksanderAirAttackApplyBehaviorsA"/>
+        <FinalEffect value="StukovAleksanderAirAttackRemoveBusyBehaviorA"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicValidator value="StukovAleksanderPeriodicAttackValidator"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackLaunchMissileA"/>
+        <PeriodicPeriodArray value="2.21"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="StukovAleksanderAirAttackTargetPersistentB">
+        <ValidatorArray value="StukovAleksanderNotBeingAttackedByTentacle"/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="StukovAleksanderAirAttackApplyBehaviorsB"/>
+        <FinalEffect value="StukovAleksanderAirAttackRemoveBusyBehaviorB"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicValidator value="StukovAleksanderPeriodicAttackValidator"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackLaunchMissileB"/>
+        <PeriodicPeriodArray value="2.21"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="StukovAleksanderAirAttackTargetPersistentC">
+        <ValidatorArray value="StukovAleksanderNotBeingAttackedByTentacle"/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="StukovAleksanderAirAttackApplyBehaviorsC"/>
+        <FinalEffect value="StukovAleksanderAirAttackRemoveBusyBehaviorC"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicValidator value="StukovAleksanderPeriodicAttackValidator"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackLaunchMissileC"/>
+        <PeriodicPeriodArray value="2.21"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="StukovAleksanderAirAttackTargetPersistentD">
+        <ValidatorArray value="StukovAleksanderNotBeingAttackedByTentacle"/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="StukovAleksanderAirAttackApplyBehaviorsD"/>
+        <FinalEffect value="StukovAleksanderAirAttackRemoveBusyBehaviorD"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicValidator value="StukovAleksanderPeriodicAttackValidator"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackLaunchMissileD"/>
+        <PeriodicPeriodArray value="2.21"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="StukovAleksanderAirAttackTargetPersistentE">
+        <ValidatorArray value="StukovAleksanderNotBeingAttackedByTentacle"/>
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <InitialEffect value="StukovAleksanderAirAttackApplyBehaviorsE"/>
+        <FinalEffect value="StukovAleksanderAirAttackRemoveBusyBehaviorE"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicValidator value="StukovAleksanderPeriodicAttackValidator"/>
+        <PeriodicEffectArray value="StukovAleksanderAirAttackLaunchMissileE"/>
+        <PeriodicPeriodArray value="2.21"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="StukovAleksanderInfestedCannonDirect" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="20"/>
+        <Kind value="Splash"/>
+        <Death value="Disintegrate"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="StukovAleksanderInfestedDropPodTimedLife">
+        <EditorCategories value="Race:Zerg"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderInfestedDropPodLaunchDisableTarget">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="StukovAleksanderInfestedDropPodLaunchDisable"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="StukovAleksanderInfestedDropPodCreationSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="MakePrecursor"/>
+        <EffectArray value="StukovAleksanderInfestedDropPodLaunchDisableTarget"/>
+        <EffectArray value="StukovAleksanderInfestedDropPodLaunchMissile"/>
+    </CEffectSet>
+    <CEffectSet id="StukovAleksanderInfestedDropPodCreationSetMelee">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="MakePrecursor"/>
+        <EffectArray value="StukovAleksanderInfestedDropPodLaunchDisableTarget"/>
+        <EffectArray value="StukovAleksanderInfestedDropPodLaunchMissileMelee"/>
+    </CEffectSet>
+    <CEffectSet id="StukovAleksanderInfestedDropPod">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderInfestedDropPodInitialCP"/>
+        <EffectArray value="StukovAleksanderInfestedDropPodInitialCPMelee"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="StukovAleksanderInfestedDropPodInitialCP">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="3"/>
+        <PeriodicEffectArray value="StukovAleksanderInfestedDropPodInfestedTrooper"/>
+        <PeriodicEffectArray value="StukovAleksanderInfestedDropPodInfestedCivilianCU"/>
+        <PeriodicEffectArray value="StukovAleksanderInfestedDropPodInfestedCivilianCU"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <ValidatorArray value="InAleksanderDropArea"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="StukovAleksanderInfestedDropPodInitialCPMelee">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodCount value="3"/>
+        <PeriodicEffectArray value="StukovAleksanderInfestedDropPodInfestedTrooperMelee"/>
+        <PeriodicEffectArray value="StukovAleksanderInfestedDropPodInfestedCivilianCUMelee"/>
+        <PeriodicEffectArray value="StukovAleksanderInfestedDropPodInfestedCivilianCUMelee"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <ValidatorArray value="NotInAleksanderDropArea"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="StukovAleksanderInfestedDropPodInfestedExploderCU">
+        <EditorCategories value="Race:Zerg"/>
+        <SpawnUnit value="SIVolatileInfested"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovAleksanderInfestedDropPodCreationSet"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="StukovAleksanderInfestedDropPodInfestedExploderCUMelee">
+        <EditorCategories value="Race:Zerg"/>
+        <SpawnUnit value="SIVolatileInfested"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovAleksanderInfestedDropPodCreationSetMelee"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="StukovAleksanderInfestedDropPodInfestedTrooperMelee">
+        <EditorCategories value="Race:Zerg"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovAleksanderInfestedDropPodCreationSetMelee"/>
+        <SpawnUnit value="SIInfestedTrooper"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="StukovAleksanderInfestedDropPodInfestedTrooper">
+        <EditorCategories value="Race:Zerg"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovAleksanderInfestedDropPodCreationSet"/>
+        <SpawnUnit value="SIInfestedTrooper"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="StukovAleksanderInfestedDropPodInfestedCivilianCU">
+        <EditorCategories value="Race:Zerg"/>
+        <SpawnUnit value="SIInfestedCivilian"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovAleksanderInfestedDropPodCreationSet"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="StukovAleksanderInfestedDropPodInfestedCivilianCUMelee">
+        <EditorCategories value="Race:Zerg"/>
+        <SpawnUnit value="SIInfestedCivilian"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovAleksanderInfestedDropPodCreationSetMelee"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="StukovAleksanderInfestedDropPodLand">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="RemovePrecursor"/>
+        <EffectArray value="StukovAleksanderInfestedDropPodTimedLife"/>
+        <EffectArray value="StukovAleksanderInfestedDropPodIssueOrder"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="StukovAleksanderInfestedDropPodLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <AmmoUnit value="StukovAleksanderInfestedDropPodMissile"/>
+        <Movers Link="StukovAleksanderInfestedDropPodMissile"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetUnitOrPoint"/>
+        <FinishEffect value="StukovAleksanderInfestedDropPodLand"/>
+        <ImpactEffect value="StukovAleksanderInfestedDropPodLaunchMissileDamage"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="StukovAleksanderInfestedDropPodLaunchMissileMelee">
+        <EditorCategories value="Race:Zerg"/>
+        <AmmoUnit value="StukovAleksanderInfestedDropPodMissile"/>
+        <Movers Link="StukovAleksanderInfestedDropPodMissile"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetUnitOrPoint"/>
+        <FinishEffect value="StukovAleksanderInfestedDropPodLand"/>
+        <ImpactEffect value="StukovAleksanderInfestedDropPodLaunchMissileDamage"/>
+    </CEffectLaunchMissile>
+    <CEffectIssueOrder id="StukovAleksanderInfestedDropPodIssueOrder">
+        <EditorCategories value="Race:Zerg"/>
+        <Abil value="attack"/>
+        <Target Effect="StukovAleksanderInfestedDropPod" Value="TargetUnit"/>
+    </CEffectIssueOrder>
+    <CEffectDamage id="StukovAleksanderYamatoCannonDamage">
+        <EditorCategories value="Race:Terran"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <!--ImpactLocation Value="TargetPoint"/-->
+        <Visibility value="Visible"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="600"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="1.5" Fraction="1"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="StukovAleksanderYamatoCannonLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="StukovAleksanderYamatoCannonDamage"/>
+        <AmmoUnit value="StukovAleksanderYamatoCannonAttackWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="StukovAleksanderTentacleStunSearch">
+        <ValidatorArray value="StukovAleksanderAirStunAndMCLessThan5"/>
+        <EditorCategories value="Race:Zerg"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,Missile,Stasis,Dead,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="8" Effect="StukovAleksanderTentacleStunSearchLM"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <MinCount value="1"/>
+        <MaxCount value="1"/>
+        <TargetSorts RequestCount="1">
+            <SortArray value="TSLifeLargestFirst"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectLaunchMissile id="StukovAleksanderTentacleStunSearchLM">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactEffect value="StukovAleksanderTentacleStunSearchApplySet"/>
+        <AmmoUnit value="StukovAleksanderTentacleStunWeapon"/>
+        <ValidatorArray value="NoStukovAleksanderAirDamage"/>
+        <ValidatorArray value="NoStukovAleksanderAirMindControlDamage"/>
+        <ValidatorArray value="MutatorPolarityTargetCasterCheck"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="StukovAleksanderTentacleStunSearchApplySet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderAirStunAB"/>
+        <EffectArray value="StukovAleksanderAirDamageAB"/>
+        <EffectArray value=""/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovAleksanderAirStunAB">
+        <Behavior value="StukovAleksanderAirStun"/>
+        <ValidatorArray value="NotHeroic"/>
+        <ValidatorArray value="TargetIsNotUnstoppable"/>
+        <ValidatorArray value="NotStructure"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderAirDamageAB">
+        <Behavior value="StukovAleksanderAirDamage"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="StukovAleksanderTentacleMindControlSearchApplySet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderAirMindControlAB"/>
+        <EffectArray value="StukovAleksanderAirDamageAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovAleksanderAirMindControlAB">
+        <Behavior value="StukovAleksanderAirMindControl"/>
+        <ValidatorArray value="NotHeroic"/>
+        <ValidatorArray value="TargetIsNotUnstoppable"/>
+        <ValidatorArray value="NotStructure"/>
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <ValidatorArray value="HasNoCargo"/>
+        <ValidatorArray value="NotPointDefenseDrone"/>
+        <ValidatorArray value="IsNotEgg"/>
+        <ValidatorArray value="NotLarva"/>
+        <ValidatorArray value="NotInfestedSpire"/>
+        <ValidatorArray value="NoDarkArchonMindControlPrevention"/>
+        <ValidatorArray value="NoTerrazineShadow"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderAirMindControlDamageAB">
+        <Behavior value="StukovAleksanderAirMindControlDamage"/>
+    </CEffectApplyBehavior>
+    <!--CEffectSet id="StukovAleksanderAirStunSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderAirStunPush"/>
+        <EffectArray value="StukovAleksanderAirStunDamage"/>
+    </CEffectSet-->
+    <CEffectDamage id="StukovAleksanderAirStunDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="2.5"/>
+        <ArmorReduction value="0"/>
+    </CEffectDamage>
+    <CEffectDamage id="StukovAleksanderAirStunDamageVisual" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg"/>
+        <Amount value="20"/>
+        <ArmorReduction value="0"/>
+    </CEffectDamage>
+    <CEffectApplyForce id="StukovAleksanderAirStunPush">
+        <Amount value="-0.5"/>
+        <WhichLocation Value="CasterUnit"/>
+        <ValidatorArray value="StukovAleksanderAirStunPushDistance"/>
+    </CEffectApplyForce>
+    <CEffectApplyForce id="StukovAleksanderAirMindControlPush">
+        <Amount value="-0.5"/>
+        <WhichLocation Value="CasterUnit"/>
+        <ValidatorArray value="StukovAleksanderAirMindControlPushDistance"/>
+    </CEffectApplyForce>
+    <CEffectEnumArea id="StukovAleksanderInfestedSwarmSearch">
+        <EditorCategories value="Race:Zerg"/>
+        <SearchFilters value="Visible;Neutral,Enemy,Structure,Missile,Stasis,Dead,Invulnerable"/>
+        <AreaArray Radius="8" Effect="StukovAleksanderInfestedSwarmApplySet"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="StukovAleksanderInfestedSwarmApplySet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovAleksanderInfestedSwarmTargetAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovAleksanderInfestedSwarmTargetAB">
+        <Behavior value="StukovAleksanderInfestedSwarmTarget"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="StukovInfestedSiegeTankImpalerTentacleSet">
+        <EffectArray value="StukovInfestedSiegeTankImpalerTentacleLM"/>
+        <EffectArray value="StukovInfestedSiegeTankPauseSecondaryAB"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="StukovInfestedSiegeTankImpalerTentacleLM">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="StukovInfestedSiegeTankImpalerTentacleDamage"/>
+        <Flags index="Return" value="1"/>
+        <AmmoUnit value="StukovInfestedSiegeTankImpalerTentacle"/>
+        <ReturnDelay value="0.175"/>
+        <ReturnMovers Link="SpineCrawlerTentacleRetractShort" IfRangeLTE="3"/>
+        <ReturnMovers Link="SpineCrawlerTentacleRetractLong" IfRangeLTE="7"/>
+        <Movers Link="SpineCrawlerTentacleExtendShort" IfRangeLTE="3"/>
+        <Movers Link="SpineCrawlerTentacleExtendLong" IfRangeLTE="7"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="StukovInfestedSiegeTankImpalerTentacleDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Zerg"/>
+        <AttributeBonus index="Armored" value="5"/>
+        <Amount value="25"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="StukovInfestedSiegeTankHunterVolatileBurstCU">
+        <EditorCategories value="Race:Zerg"/>
+        <SpawnUnit value="SIVolatileInfested"/>
+        <!--SpawnUnit value="HotSHunter"/-->
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="SetFacing" value="1"/>
+        <CreateFlags index="TechComplete" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovInfestedSiegeTankHunterVolatileBurstCreationSet"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <ValidatorArray value="StukovInfestedSiegeTankAmmoGT0"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="StukovInfestedSiegeTankHunterVolatileBurstCreationSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="MakePrecursor"/>
+        <EffectArray value="HunterLaunchDisableTarget"/>
+        <EffectArray value="StukovInfestedSiegeTankHunterVolatileBurstLaunchMissile"/>
+        <EffectArray value="StukovInfestedSiegeTankUseAmmo"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="StukovInfestedSiegeTankUseAmmo">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="StukovInfestedSiegeTankAmmo"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="StukovInfestedSiegeTankHunterLaunchDisableTarget">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="HunterLaunchDisable"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="StukovInfestedSiegeTankHunterVolatileBurstLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <AmmoUnit value="StukovInfestedSiegeTankWeapon"/>
+        <Movers Link="HotSHunterMissile"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="TargetUnitOrPoint"/>
+        <FinishEffect value="StukovInfestedSiegeTankHunterVolatileBurstLand"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="StukovInfestedSiegeTankHunterVolatileBurstLand">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="RemovePrecursor"/>
+        <EffectArray value="HotSHunterTimedLife"/>
+        <EffectArray value="StukovInfestedSiegeTankHunterVolatileBurstIssueOrder"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="StukovInfestedSiegeTankHunterVolatileBurstIssueOrder">
+        <EditorCategories value="Race:Zerg"/>
+        <Abil value="attack"/>
+        <Target Effect="StukovInfestedSiegeTankHunterVolatileBurstCU" Value="TargetUnit"/>
+    </CEffectIssueOrder>
+    <CEffectEnumArea id="StukovInfestedSiegeTankAmmoRestockSearch">
+        <ValidatorArray value="StukovInfestedSiegeTankAmmoCombine"/>
+        <SearchFilters value="Ground,Biological,Visible;Self,Enemy,Structure,Missile,UnderConstruction,Dead,Hidden,Invulnerable"/>
+        <AreaArray MaxCount="1" Radius="5" Effect="StukovInfestedSiegeTankAmmoRestockLMSet"/>
+        <MaxCount value="1"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+        <TargetSorts>
+            <SortArray value="TSLife"/>
+        </TargetSorts>
+    </CEffectEnumArea>
+    <CEffectLaunchMissile id="StukovInfestedSiegeTankAmmoRestock">
+        <EditorCategories value="Race:Protoss"/>
+        <ValidatorArray value="IsSIInfestedTrooperCombineOrIsSIInfestedCivilianCombine"/>
+        <ValidatorArray value="StukovInfestedSiegeTankAmmoCombine"/>
+        <ValidatorArray value="NoYoink"/>
+        <FinishEffect value="StukovInfestedSiegeTankAmmoRestockImpact"/>
+        <Flags index="ValidateAbil" value="0"/>
+        <Flags index="ValidateBenign" value="0"/>
+        <Flags index="ValidateTeleport" value="0"/>
+        <Flags index="ValidateWeapon" value="0"/>
+        <PeriodicValidator value="SICivRestockVaildator"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="StukovInfestedSiegeTankAmmoRestockImpact">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="KillMissile"/>
+        <EffectArray value="StukovInfestedSiegeTankAmmoRestockImpactAB"/>
+        <EffectArray value="StukovInfestedSiegeTankAmmoRestockReturnTarget"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="StukovInfestedSiegeTankAmmoRestockImpactAB">
+        <EditorCategories value="Race:Terran"/>
+        <Behavior value="StukovInfestedSiegeTankAmmoRestockImpactInvul"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="StukovInfestedSiegeTankAmmoRestockReturnTarget">
+        <EditorCategories value="Race:Protoss"/>
+        <LaunchLocation Value="TargetUnit"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <ImpactEffect value="StukovInfestedSiegeTankAmmoRestockSet"/>
+        <ValidatorArray value="CasterAndTargetNotDead"/>
+        <Movers Link="MissileDefault"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="StukovInfestedSiegeTankAmmoRestockSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="StukovInfestedSiegeTankAmmoRemoveBroodlingSpawnBR"/>
+        <EffectArray value="StukovInfestedSiegeTankAmmoRestockKillTarget"/>
+        <EffectArray value="StukovInfestedSiegeTankRestoreAmmo"/>
+        <EffectArray value="StukovInfestedSiegeTankRestoreAmmoHeal"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="StukovInfestedSiegeTankAmmoRemoveBroodlingSpawnBR">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <BehaviorLink value="StukovInfestedCivilianSpawnBroodlingOnDeath"/>
+        <Count value="1"/>
+        <WhichUnit Effect="StukovInfestedSiegeTankAmmoRestockImpact"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="StukovInfestedSiegeTankRestoreAmmo">
+        <EditorCategories value="Race:Terran"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="StukovInfestedSiegeTankAmmo"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateHealer id="StukovInfestedSiegeTankRestoreAmmoHeal">
+        <ValidatorArray value="LifeNotFull"/>
+        <EditorCategories value=""/>
+        <Flags index="Channeled" value="0"/>
+        <PeriodCount value="1"/>
+        <PeriodicPeriod value="1"/>
+        <RechargeVitalRate value="20"/>
+    </CEffectCreateHealer>
+    <CEffectDamage id="StukovInfestedSiegeTankAmmoRestockKillTarget">
+        <ImpactLocation Value="SourceUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+    </CEffectDamage>
+    <CEffectDamage id="StukovInfestedDiamondBackBeam" parent="DU_WEAP">
+        <EditorCategories value="Race:Terran"/>
+        <Kind value="Ranged"/>
+        <Amount value="20"/>
+        <Death value="Blast"/>
+        <AttributeBonus index="Armored" value="20"/>
+    </CEffectDamage>
+    <CEffectSet id="StukovInfestedDiamondBack">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="StukovInfestedDiamondBackBeam"/>
+        <ValidatorArray value="CasterIsNotHidden"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="StukovInfestedDiamondBackBileStreamSprayInitialCP">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnit"/>
+        <ValidatorArray value="CasterIsNotHidden"/>
+        <Flags index="Channeled" value="1"/>
+        <InitialEffect value="StukovInfestedDiamondBackBileStreamSprayLaunchMissileAReal"/>
+        <ExpireDelay value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="StukovInfestedDiamondBackBileStreamSprayLaunchMissileAReal">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="StukovInfestedDiamondBackBileStreamDamage"/>
+        <Flags index="Channeled" value="1"/>
+        <AmmoUnit value="StukovInfestedDiamondBackBileStreamSprayMissile"/>
+        <Movers Link="MissileDefault" IfRangeLTE="3"/>
+        <Movers Link="StukovInfestedDiamondBackBileStreamSprayMissileClose" IfRangeLTE="5"/>
+        <Movers Link="StukovInfestedDiamondBackBileStreamSprayMissile" IfRangeLTE="-1"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="StukovInfestedDiamondBackBileStreamSprayLaunchMissileAFake">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="StukovInfestedDiamondBackBileStreamDamageFake"/>
+        <Flags index="Channeled" value="1"/>
+        <AmmoUnit value="StukovInfestedDiamondBackBileStreamSprayMissile"/>
+        <Movers Link="MissileDefault" IfRangeLTE="3"/>
+        <Movers Link="StukovInfestedDiamondBackBileStreamSprayMissileClose" IfRangeLTE="5"/>
+        <Movers Link="StukovInfestedDiamondBackBileStreamSprayMissile" IfRangeLTE="-1"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="StukovInfestedDiamondBackBileStreamSprayLaunchMissileBFake">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="StukovInfestedDiamondBackBileStreamDamageFake"/>
+        <Flags index="Channeled" value="1"/>
+        <AmmoUnit value="StukovInfestedDiamondBackBileStreamSprayMissile"/>
+        <Movers Link="MissileDefault" IfRangeLTE="3"/>
+        <Movers Link="StukovInfestedDiamondBackBileStreamSprayMissileClose" IfRangeLTE="5"/>
+        <Movers Link="StukovInfestedDiamondBackBileStreamSprayMissile" IfRangeLTE="-1"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="StukovInfestedDiamondBackBileStreamDamage">
+        <Amount value="20"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <AttributeBonus index="Armored" value="10"/>
+        <ArmorReduction value="1"/>
+        <Kind value="Ranged"/>
+    </CEffectDamage>
+    <CEffectDamage id="StukovInfestedDiamondBackBileStreamDamageFake">
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="StukovInfestedDiamondSlimePuddle">
+        <EditorCategories value="Race:Terran"/>
+        <SpawnUnit value="StukovInfestedDiamondSlimePuddle"/>
+        <WhichLocation Value="SourceUnit"/>
+        <CreateFlags index="DropOff" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="StukovInfestedDiamondSlimePuddleCPSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="StukovInfestedDiamondSlimePuddleCPDestroyer"/>
+        <EffectArray value="StukovInfestedDiamondSlimePuddleCP"/>
+    </CEffectSet>
+    <CEffectDestroyPersistent id="StukovInfestedDiamondSlimePuddleCPDestroyer">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichLocation Value="TargetPoint"/>
+        <Effect value="StukovInfestedDiamondSlimePuddleCP"/>
+        <Radius value="0.625"/>
+    </CEffectDestroyPersistent>
+    <CEffectCreatePersistent id="StukovInfestedDiamondSlimePuddleCP">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="8"/>
+        <WhichLocation Value="CasterPoint"/>
+        <PeriodicEffectArray value="StukovInfestedDiamondSlimePuddleSearch"/>
+        <PeriodicEffectArray value="StukovInfestedDiamondSlimePuddleSearch"/>
+        <PeriodicEffectArray value="StukovInfestedDiamondSlimePuddleSearch"/>
+        <PeriodicEffectArray value="StukovInfestedDiamondSlimePuddleSearch"/>
+        <PeriodicEffectArray value="StukovInfestedDiamondSlimePuddleSearch"/>
+        <PeriodicEffectArray value="StukovInfestedDiamondSlimePuddleSearch"/>
+        <PeriodicEffectArray value="StukovInfestedDiamondSlimePuddleSearch"/>
+        <PeriodicEffectArray value="StukovInfestedDiamondSlimePuddleSearch"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="StukovInfestedDiamondSlimePuddleDamage">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="10"/>
+        <Death value="Disintegrate"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="StukovInfestedDiamondSlimePuddleDamageDebuff">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovInfestedDiamondSlimePuddleDamageDebuffSlow">
+        <ValidatorArray value="NotHeroic"/>
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovInfestedDiamondSlimePuddleDamageDebuffSlowHeroic">
+        <EditorCategories value="Race:Terran"/>
+        <ValidatorArray value="IsHeroic"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="StukovInfestedDiamondSlimePuddleDamageDebuffSlowSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="StukovInfestedDiamondSlimePuddleDamageDebuffSlowHeroic"/>
+        <EffectArray value="StukovInfestedDiamondSlimePuddleDamageDebuffSlow"/>
+    </CEffectSet>
+    <CEffectSet id="StukovInfestedDiamondSlimePuddleSearchSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="StukovInfestedDiamondSlimePuddleSearch"/>
+        <EffectArray value="StukovInfestedDiamondSlimePuddleCreatorDisablerABSearch"/>
+    </CEffectSet>
+    <CEffectEnumArea id="StukovInfestedDiamondSlimePuddleCreatorDisablerABSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground;Self,Ally,Neutral,Enemy,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1" Effect="StukovInfestedDiamondSlimePuddleCreatorDisablerAB"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="StukovInfestedDiamondSlimePuddleCreatorDisablerAB">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="StukovInfestedDiamondSlimePuddleCreatorDisabler"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="StukovInfestedDiamondSlimePuddleSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="StukovInfestedDiamondSlimePuddleDamageDebuffSet"/>
+    </CEffectEnumArea>
+    <CEffectSet id="StukovInfestedDiamondSlimePuddleDamageDebuffSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="StukovInfestedDiamondSlimePuddleDamageDebuff"/>
+        <EffectArray value="StukovInfestedDiamondSlimePuddleDamageDebuffSlowSet"/>
+    </CEffectSet>
+    <CEffectEnumArea id="StukovInfestedDiamondbackSnareSearch">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Neutral,Ground,Structure,Heroic,Missile,Stasis,Dead,Invulnerable,Unstoppable"/>
+        <AreaArray MaxCount="1" Radius="4.5" Effect="StukovInfestedDiamondbackSnareIssueOrder"/>
+        <MaxCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectIssueOrder id="StukovInfestedDiamondbackSnareIssueOrder">
+        <EditorCategories value="Race:Zerg"/>
+        <Abil value="StukovInfestedDiamondbackSnare"/>
+        <Target Value="TargetUnit"/>
+        <WhichUnit Value="Caster"/>
+        <CmdFlags index="Preempt" value="1"/>
+        <ValidatorArray value="NoDiamondBackSnareTargeted"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <ValidatorArray value="TargetIsNotNonCommanderAlly"/>
+    </CEffectIssueOrder>
+    <CEffectApplyBehavior id="StukovInfestedDiamondbackSnare">
+        <EditorCategories value="Race:Zerg"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="StukovInfestedDiamondbackSnareLM">
+        <ImpactEffect value="StukovInfestedDiamondbackSnare"/>
+        <AmmoUnit value="StukovInfestedDiamondbackSnareAttackMissile"/>
+        <LaunchEffect value="DiamondBackSnareTargeted"/>
+        <ValidatorArray index="0" value="IsNotInterceptor"/>
+        <ValidatorArray value="TargetIsNotNonCommanderAlly"/>
+        <ValidatorArray value="NotFrenzied"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="DiamondBackSnareTargeted">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Effect="StukovInfestedDiamondbackSnareLM"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="StukovInfestedDiamondbackSnareLaunchTargetToAPathableLocationLM">
+        <LaunchLocation Effect="StukovInfestedDiamondbackSnareLaunchTargetToAPathableLocationPrecursor" Value="TargetUnit"/>
+        <Movers Link="StukovInfestedDiamondbackLaunchTargetToAPathableLocationSlow"/>
+        <DeathType value="Unknown"/>
+        <FinishEffect value="StukovInfestedDiamondbackSnareLaunchTargetToAPathableLocationRU"/>
+    </CEffectLaunchMissile>
+    <CEffectCreateUnit id="StukovInfestedDiamondbackSnareLaunchTargetToAPathableLocationPrecursor">
+        <Origin Value="TargetUnit"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Precursor" value="1"/>
+        <SpawnEffect value="StukovInfestedDiamondbackSnareLaunchTargetToAPathableLocationLM"/>
+        <SpawnUnit value="StukovInfestedDiamondbackSNARE_PLACEHOLDER"/>
+    </CEffectCreateUnit>
+    <CEffectDamage id="StukovInfestedDiamondbackSnareLaunchTargetToAPathableLocationRU">
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <Death value="Remove"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="StukovInfestedBacklashRockets">
+        <EditorCategories value="Race:Terran"/>
+        <ExpireDelay value="0.8"/>
+        <PeriodCount value="2"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodicEffectArray value="StukovInfestedBacklashRocketsLM"/>
+        <PeriodicPeriodArray value="0.15"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="StukovInfestedBacklashRocketsLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="StukovInfestedBacklashRocketsDamage"/>
+        <Movers Link="BacklashRocketsLMWeapon"/>
+        <ValidatorArray index="0" value="RangeCheckLE15"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="StukovInfestedBacklashRocketsDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="12"/>
+    </CEffectDamage>
+    <CEffectSet id="SILiberatorSet">
+        <EditorCategories value="Race:Terran"/>
+        <EffectArray value="SILiberatorLM"/>
+        <EffectArray value="SILiberatorSwarmFormAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SILiberatorSwarmTargetAB">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="SILiberatorSwarmTarget"/>
+    </CEffectApplyBehavior>
+    <CEffectLaunchMissile id="SILiberatorLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="SILiberatorPersistent"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <Movers Link="SILiberatorLM"/>
+        <DeathType value="Unknown"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <LaunchEffect value="SILiberatorSwarmFormDamageResistant"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="SILiberatorSwarmFormAB">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="SILiberatorSwarmForm"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="SILiberatorSwarmFormReturnAB">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="SILiberatorSwarmFormReturn"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="SILiberatorSwarmFormDamageDirectAB">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Effect="SILiberatorLM"/>
+        <Behavior value="SILiberatorSwarmFormDamageDirect"/>
+    </CEffectApplyBehavior>
+    <CEffectModifyUnit id="SILiberatorSwarmFormReturnSetFacing">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <ImpactUnit Value="Caster"/>
+        <FacingAdjustment value="180"/>
+    </CEffectModifyUnit>
+    <CEffectDestroyPersistent id="SILiberatorSwarmFormDestroyPersistent">
+        <EditorCategories value="Race:Protoss"/>
+        <Effect value="SILiberatorPersistent"/>
+        <Count value="1"/>
+    </CEffectDestroyPersistent>
+    <CEffectCreatePersistent id="SILiberatorLaunchPersistent">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="CasterPoint"/>
+        <PeriodCount value="6"/>
+        <PeriodicPeriodArray value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="SILiberatorPersistent">
+        <EditorCategories value="Race:Terran"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <PeriodCount value="6"/>
+        <InitialEffect value="SILiberatorSwarmFormDamageSearchAB"/>
+        <FinalEffect value="SILiberatorReturnLM"/>
+        <OffsetVectorEndLocation Value="CasterUnit"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectApplyBehavior id="SILiberatorSwarmFormDamageSearchAB">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="SILiberatorSwarmFormDamageSearch"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="SILiberatorDamageSet">
+        <EffectArray value="SILiberatorDamageDirect"/>
+        <EffectArray value="SILiberatorSplashSearch"/>
+    </CEffectSet>
+    <CEffectEnumArea id="SILiberatorSplashSearch">
+        <AreaArray Radius="1.5" Effect="SILiberatorDamageSplash"/>
+        <SearchFilters value="Air;Player,Ally,Neutral,Missile,Destructible,Dead,Invulnerable"/>
+        <ExcludeArray Effect="SILiberatorSwarmAttackAB" Value="Target"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="SILiberatorDamageDirect" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="10"/>
+        <ValidatorArray value="NotInvulnerable"/>
+    </CEffectDamage>
+    <CEffectDamage id="SILiberatorDamageSplash" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="10"/>
+    </CEffectDamage>
+    <CEffectSet id="SILiberatorDamageSetSwarmForm">
+        <!--EffectArray value="SILiberatorDamageDirectSwarmForm"/-->
+        <EffectArray value="SILiberatorSplashSearchSwarmForm"/>
+    </CEffectSet>
+    <CEffectDamage id="SILiberatorDamageDirectSwarmForm" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="10"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="SILiberatorSplashSearchSwarmForm">
+        <AreaArray Radius="1.5" Effect="SILiberatorDamageSplashSwarmForm"/>
+        <SearchFilters value="Air;Player,Ally,Neutral,Missile,Destructible,Dead,Invulnerable"/>
+        <ExcludeArray Effect="SILiberatorSwarmAttackAB" Value="Target"/>
+        <ExcludeArray Effect="SILiberatorLM" Value="Target"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="SILiberatorDamageSplashSwarmForm" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="10"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="SILiberatorReturnLM">
+        <EditorCategories value="Race:Terran"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="OriginPoint"/>
+        <Movers Link="SILiberatorReturnLM"/>
+        <DeathType value="Unknown"/>
+        <FinishEffect value="SILiberatorSwarmFormDamageResistantRB"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyForce id="SILiberatorSwarmFormPush">
+        <Amount value="-1"/>
+        <WhichLocation Effect="SILiberatorLM" Value="TargetUnit"/>
+        <WhichUnit Value="Caster"/>
+        <ValidatorArray value="SILiberatorSwarmFormPush"/>
+    </CEffectApplyForce>
+    <CEffectLaunchMissile id="SILiberatorBaseLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="SILiberatorSwarmAttackAB"/>
+        <Movers Link="SILiberatorLM"/>
+        <DeathType value="Normal"/>
+        <AmmoUnit value="SILiberatorWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectApplyBehavior id="SILiberatorSwarmAttackAB">
+        <EditorCategories value="Race:Zerg"/>
+        <Behavior value="SILiberatorSwarmAttack"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="SILiberatorSwarmAttackDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Visibility value="Visible"/>
+        <Amount value="10"/>
+        <AreaArray Radius="1" Fraction="0.5"/>
+        <ExcludeArray Effect="SILiberatorLM"/>
+        <SearchFilters value="Air;Self,Player,Ally,Neutral,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectSet id="SIInfestedStimSet">
+        <EffectArray value="SIInfestedStimAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="SIInfestedStimAB">
+        <Behavior value="SIInfestedStim"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovInfestedPopStun">
+        <EditorCategories value="Race:Zerg"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="DehakaEggPopStun">
+        <EditorCategories value="Race:Zerg"/>
+    </CEffectApplyBehavior>
+    <CEffectCreateUnit id="StukovInfestedCivilianSpawnBroodlingOnDeath">
+        <EditorCategories value=""/>
+        <SpawnEffect value="BroodlingTimedLife"/>
+        <SpawnUnit value="Broodling"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="StukovInfestedInfestedCivilianLeapCU">
+        <ValidatorArray value="StukovInfestedInfestedCivilianLeapMinTriggerDistance"/>
+        <ValidatorArray value="StukovInfestedInfestedCivilianLeapHasVision"/>
+        <ValidatorArray value="StukovInfestedInfestedCivilianLeapMaxDistance"/>
+        <EditorCategories value="Race:Zerg"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovInfestedInfestedCivilianLeapSet"/>
+        <SpawnUnit value="InfestedCivilianPlaceholder"/>
+        <SpawnRange value="1"/>
+        <SpawnOffset value="0,1"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="StukovInfestedInfestedCivilianLeapSet">
+        <EffectArray value="StukovInfestedInfestedCivilianLeapSwitch"/>
+        <EffectArray value="MakePrecursor"/>
+        <EffectArray value="StukovInfestedInfestedCivilianLeapTempTimeout"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CEffectSet>
+    <CEffectSwitch id="StukovInfestedInfestedCivilianLeapSwitch">
+        <EditorCategories value="Race:Zerg"/>
+        <CaseArray Validator="TargetIsPathable" Effect="StukovInfestedInfestedCivilianLeapLM"/>
+        <CaseDefault value="StukovInfestedInfestedCivilianLeapRemove"/>
+        <TargetLocationType value="UnitOrPoint"/>
+    </CEffectSwitch>
+    <CEffectLaunchMissile id="StukovInfestedInfestedCivilianLeapLM">
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <FinishEffect value="StukovInfestedInfestedCivilianLeapRemove"/>
+        <Movers Link="StukovInfestedInfestedCivilianLeapMover"/>
+        <DeathType value="Unknown"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="StukovInfestedInfestedCivilianLeapRemove">
+        <ImpactLocation Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Death value="Remove"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="StukovInfestedInfestedCivilianLeapTempTimeout"/>
+    <CEffectModifyUnit id="MutatorHouseHuntersDummy">
+        <ImpactUnit Value="Source"/>
+    </CEffectModifyUnit>
+    <CEffectCreatePersistent id="SILongboltMissile">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="2"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <PeriodicEffectArray value="SILongboltMissileLM"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.1"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="SILongboltMissileLM">
+        <EditorCategories value="Race:Terran"/>
+        <ImpactEffect value="SILongboltMissileU"/>
+        <AmmoUnit value="SILongboltMissileWeapon"/>
+        <ValidatorArray index="0" value="RangeCheckLE15"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="SILongboltMissileU" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran"/>
+        <Amount value="12"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="StukovAleksanderCrashedToAPathableLocationPrecursor">
+        <Origin Value="TargetUnit"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="StukovAleksanderCrashedToAPathableLocationSet"/>
+        <SpawnUnit value="ALEKSANDERCRASH_PLACEHOLDER"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="StukovAleksanderCrashedToAPathableLocationSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="StukovAleksanderRemoveTimedLife"/>
+        <EffectArray value="StukovAleksanderCrashedApplyTimedLife"/>
+        <EffectArray value="StukovAleksanderRemoveSwarm"/>
+        <EffectArray value="StukovAleksanderCrashedToAPathableLocationLM"/>
+        <EffectArray value="StukovAleksanderCrashedOrder"/>
+        <EffectArray value="StukovAleksanderRemoveRepairBeam"/>
+        <EffectArray value="StukovAleksanderCrashedInstantOrderRetestRemove"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="StukovAleksanderCrashedInstantOrderRetestRemove">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <BehaviorLink value="StukovAleksanderCrashedInstantOrderRetest"/>
+        <WhichUnit Value="Caster"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="StukovAleksanderRemoveRepairBeam">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <BehaviorLink value="SOARepairBeam"/>
+        <WhichUnit Value="Caster"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectLaunchMissile id="StukovAleksanderCrashedToAPathableLocationLM">
+        <LaunchLocation Effect="StukovAleksanderCrashedToAPathableLocationPrecursor" Value="CasterUnit"/>
+        <Movers Link="AleksanderCrashToAPathableLocation"/>
+        <DeathType value="Unknown"/>
+    </CEffectLaunchMissile>
+    <CEffectIssueOrder id="StukovAleksanderCrashedOrder">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Caster"/>
+        <Abil value="StukovAleksanderCrashed"/>
+    </CEffectIssueOrder>
+    <CEffectRemoveBehavior id="StukovAleksanderRemoveTimedLife">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <BehaviorLink value="StukovSummonAleksanderTimedLife"/>
+        <WhichUnit Value="Caster"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="StukovAleksanderRemoveSwarm">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <BehaviorLink value="StukovAleksanderInfestedSwarm"/>
+        <WhichUnit Value="Caster"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderCrashedApplyTimedLife">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <Behavior value="StukovSummonAleksanderCrashedTimedLife"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="StukovAleksanderCrashedInstantOrderSet">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <EffectArray value="StukovAleksanderCrashedApplyInvul"/>
+        <EffectArray value="StukovAleksanderCrashedInstantOrderRetest"/>
+        <EffectArray value="StukovAleksanderCrashedInstantOrder"/>
+        <EffectArray value="StukovAleksanderRemoveChokerStun"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="StukovAleksanderRemoveChokerStun">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <BehaviorLink value="Choked"/>
+        <WhichUnit Value="Source"/>
+        <Count value="1"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderCrashedApplyInvul">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <Behavior value="StukovAleksanderCrashing"/>
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="StukovAleksanderCrashedInstantOrderRetest">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Source"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="StukovAleksanderCrashedInstantOrder">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <WhichUnit Value="Source"/>
+        <Abil value="StukovAleksanderCrashedInstant"/>
+    </CEffectIssueOrder>
+    <CEffectEnumArea id="StukovAleksanderCrashedDamageSearch">
+        <EditorCategories value="Race:InfestedTerran"/>
+        <SearchFilters value="Ground;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="5" Effect="StukovAleksanderCrashedDamage"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="StukovAleksanderCrashedDamage">
+        <Amount value="300"/>
+    </CEffectDamage>
+    <CEffectSet id="BroodlingTimedLifeCreatedByAlly">
+        <EffectArray value="BroodlingTimedLife"/>
+        <EffectArray value="CreateByAlly"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="SIQueenLaunchMissile">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="SIQueenDamage"/>
+        <AmmoUnit value="SIQueenWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="SIQueenDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Zerg"/>
+        <Visibility value="Visible"/>
+        <AttributeBonus index="Armored" value="5"/>
+        <Amount value="10"/>
+    </CEffectDamage>
+    <CEffectCreateUnit id="StukovInfestedSiegeTankDeepTunnelCU">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="StukovInfestedSiegeTankDeepTunnelTeleportSet"/>
+        <SpawnUnit value="StukovInfestedSiegeTankDeepTunnelPlacementUnit"/>
+        <SpawnRange value="15"/>
+        <ValidatorArray value="TargetPointIsCreep"/>
+    </CEffectCreateUnit>
+    <CEffectTeleport id="StukovInfestedSiegeTankDeepTunnelTeleport">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichUnit Effect="StukovInfestedSiegeTankDeepTunnelCU" Value="Caster"/>
+        <ClearQueuedOrders value="0"/>
+        <TargetLocation Effect="StukovInfestedSiegeTankDeepTunnelTeleportSet" Value="TargetPoint"/>
+        <TeleportFlags index="TestFog" value="0"/>
+    </CEffectTeleport>
+    <CEffectSet id="StukovInfestedSiegeTankDeepTunnelTeleportSet">
+        <EffectArray value="StukovInfestedSiegeTankDeepTunnelTeleport"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+</Catalog>

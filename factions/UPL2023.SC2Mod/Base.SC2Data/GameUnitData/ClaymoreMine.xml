@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CUser id="LotC_Targetable">
+        <Fields>
+            <Id value="ActivateAbility"/>
+            <Type value="GameLink"/>
+            <GameLinkType value="Abil"/>
+            <EditorText value="Name"/>
+        </Fields>
+        <Fields Id="ExecuteCommand" Type="AbilCmd"/>
+        <Fields Id="Cooldown" Type="String" EditorText="Name"/>
+        <Fields Id="Behavior" Type="GameLink" GameLinkType="Behavior"/>
+        <Fields Id="Model" Type="GameLink" GameLinkType="Actor"/>
+        <Fields Id="Order" Type="AbilCmd"/>
+        <Fields Id="UnitType" Type="GameLink" GameLinkType="Unit"/>
+        <Fields Id="ChargesTotal" Type="Int"/>
+        <Fields Id="InstructionsPrimary" Type="Text"/>
+        <Fields Id="InstructionsSecondary" Type="Text"/>
+        <Instances Id="[Default]"/>
+        <Instances Id="Test_HornerAirFleet">
+            <AbilCmd Abil="Test_HornerAirFleetExecute">
+                <Field Id="ExecuteCommand"/>
+            </AbilCmd>
+            <AbilCmd Abil="Test_HornerAirFleetTargetingDummy">
+                <Field Id="Order"/>
+            </AbilCmd>
+            <GameLink GameLink="Test_HornerAirFleetActivate">
+                <Field Id="ActivateAbility"/>
+            </GameLink>
+            <GameLink GameLink="Test_HornerAirFleetActivate">
+                <Field Id="Behavior"/>
+            </GameLink>
+            <GameLink GameLink="Test_HornerAirFleetTargetingModel">
+                <Field Id="Model"/>
+            </GameLink>
+            <GameLink GameLink="Test_HornerAirFleetTargeter">
+                <Field Id="UnitType"/>
+            </GameLink>
+            <Int Int="1">
+                <Field Id="ChargesTotal"/>
+            </Int>
+            <String String="&quot;Abil/Test_HornerAirFleetActivate&quot;">
+                <Field Id="Cooldown"/>
+            </String>
+            <Text Text="UserData/LotC_Targetable/Test_HornerAirFleet_InstructionsPrimary">
+                <Field Id="InstructionsPrimary"/>
+            </Text>
+            <Text Text="UserData/LotC_Targetable/Test_HornerAirFleet_InstructionsSecondary">
+                <Field Id="InstructionsSecondary"/>
+            </Text>
+        </Instances>
+    </CUser>
+    <CEffectModifyUnit id="ClaymoreMineReplenish">
+        <Cost Abil="ClaymoreMinePlace,Execute" ChargeCountUse="-3"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectModifyUnit>
+    <CEffectSet id="ClaymoreMinePlaceTargetingDummy">
+        <EditorCategories value="Race:UPL"/>
+        <TargetLocationType value="Point"/>
+        <ValidatorArray value="HasVisionOfTarget"/>
+    </CEffectSet>
+    <CEffectCancelOrder id="ClaymoreMineCancelChannelOrder">
+        <AbilCmd value="ClaymoreMineExecute,Execute"/>
+        <Flags index="Queued" value="1"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectCancelOrder>
+    <CEffectSet id="ClaymoreMineInit">
+        <ValidatorArray value="ClaymoreMineCharges"/>
+        <TargetLocationType value="Point"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="ClaymoreMineTrackerCasterRB">
+        <ValidatorArray index="0" value="ClaymoreMineTrackerEmpty"/>
+        <BehaviorLink value="ClaymoreMineTracker"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectRemoveBehavior>
+    <CEffectRemoveBehavior id="ClaymoreMineCasterRB">
+        <BehaviorLink value="ClaymoreMineCaster"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectRemoveBehavior>
+    <CEffectModifyUnit id="ClaymoreMineCopyFacing">
+        <ValidatorArray value="ClaymoreMineReadyFacing"/>
+        <LaunchUnit Effect="ClaymoreMineSpawn" Value="Target"/>
+        <FacingLocation Effect="ClaymoreMineSpawn" Value="TargetUnit"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectModifyUnit>
+    <CEffectSwitch id="ClaymoreMineCopyFacingSwitch">
+        <CaseArray Validator="ClaymoreMineReadyFacing" Effect="ClaymoreMineCopyFacing"/>
+        <CaseDefault value="CopyCasterFacing"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSwitch>
+    <CEffectCreatePersistent id="ClaymoreMineExecuteCP">
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="EffectSuccess" value="1"/>
+        <PeriodCount value="240"/>
+        <PeriodicValidator value="ClaymoreMineCharges"/>
+        <PeriodicEffectArray value="ClaymoreMineExecuteDummy"/>
+        <PeriodicPeriodArray value="0.0625"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="ClaymoreMineExecuteDummy">
+        <ValidatorArray value="ClaymoreMineReady"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="ClaymoreMineReadyIssueOrder">
+        <Abil value="ClaymoreMinePlace"/>
+        <CmdFlags index="Queued" value="1"/>
+        <Target Value="CasterUnit"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="ClaymoreMineIssueOrderSet">
+        <EffectArray value="ClaymoreMineIssueOrder"/>
+        <EffectArray value="ClaymoreMineCaster"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSet>
+    <CEffectIssueOrder id="ClaymoreMineIssueOrderQue">
+        <WhichUnit Effect="ClaymoreMineMakeDummy" Value="Caster"/>
+        <Abil value="ClaymoreMineExecute"/>
+        <CmdFlags index="Queued" value="1"/>
+        <Player Effect="ClaymoreMineMakeDummy" Value="Caster"/>
+        <Target Value="TargetUnit"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectIssueOrder>
+    <CEffectSwitch id="ClaymoreMineIssueOrderSwitch">
+        <CaseArray Validator="ClaymoreMineCasterOrderQueued" Effect="ClaymoreMineIssueOrderQue"/>
+        <CaseDefault value="ClaymoreMineIssueOrderSet"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSwitch>
+    <CEffectIssueOrder id="ClaymoreMineReadyIssueOrderQue">
+        <Abil value="ClaymoreMinePlace"/>
+        <CmdFlags index="Queued" value="1"/>
+        <Target Value="CasterUnit"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectIssueOrder>
+    <CEffectSet id="ClaymoreMineTrackerEnumStage1">
+        <ValidatorArray value="ClaymoreMineNotReadySource"/>
+        <ValidatorArray value="ClaymoreMineTrackerEnumStage1"/>
+        <EffectArray value="ClaymoreMineTrackerCheckCasterKillPH"/>
+        <EffectArray value="ClaymoreMineCasterRB"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSet>
+    <CEffectSet id="ClaymoreMineTrackerEnumStage2">
+        <ValidatorArray value="ClaymoreMineTrackerEnumStage2"/>
+        <EffectArray value="ClaymoreMineTrackerCheckCasterKillPH"/>
+        <EffectArray value="ClaymoreMineCasterRB"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSet>
+    <CEffectSwitch id="ClaymoreMineTrackerEnumSwitch">
+        <CaseArray Validator="ClaymoreMineReadySource" Effect="ClaymoreMineTrackerEnumStage2"/>
+        <CaseDefault value="ClaymoreMineTrackerEnumStage1"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSwitch>
+    <CEffectSet id="ClaymoreMineTrackerSet">
+        <EditorCategories value="Race:UPL"/>
+        <EffectArray value="ClaymoreMineTrackerCaster"/>
+        <EffectArray value="ClaymoreMineTrackerTarget"/>
+        <EffectArray value="ClaymoreMineTrackedUnitAddCaster"/>
+        <EffectArray value="ClaymoreMineTrackedUnitAddTarget"/>
+    </CEffectSet>
+    <CEffectDamage id="ClaymoreMineTrackerCheckCasterKillPH">
+        <ImpactLocation Value="SourceUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectDamage>
+    <CEffectSet id="ClaymoreMineSignalReady">
+        <EffectArray value="ClaymoreMineReady"/>
+        <EffectArray value="ClaymoreMineReadyIssueOrder"/>
+        <EffectArray value="ClaymoreMineTrackerRemove"/>
+        <EffectArray value="ClaymoreMineTrackerCasterRB"/>
+        <EffectArray value="ClaymoreMineCasterRB"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="ClaymoreMineQueued">
+        <WhichUnit Value="Caster"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="ClaymoreMineReady">
+        <WhichUnit Value="Caster"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ClaymoreMineCaster">
+        <WhichUnit Value="Caster"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="ClaymoreMineKillPH">
+        <ImpactLocation Effect="ClaymoreMineSpawn" Value="TargetUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectDamage>
+    <CEffectEnumTrackedUnits id="ClaymoreMineTrackerEnum">
+        <BehaviorLink value="ClaymoreMineTracker"/>
+        <TrackerUnit Value="Source"/>
+        <Effect value="ClaymoreMineTrackerEnumSwitch"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectEnumTrackedUnits>
+    <CEffectRemoveTrackedUnit id="ClaymoreMineTrackerRemove">
+        <BehaviorLink value="ClaymoreMineTracker"/>
+        <TrackerUnit Value="Target"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectRemoveTrackedUnit>
+    <CEffectAddTrackedUnit id="ClaymoreMineTrackedUnitAddTarget">
+        <BehaviorLink value="ClaymoreMineTracker"/>
+        <TrackedUnit Value="Target"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectAddTrackedUnit>
+    <CEffectApplyBehavior id="ClaymoreMineTrackerCaster">
+        <WhichUnit Value="Caster"/>
+        <Behavior value="ClaymoreMineTracker"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="ClaymoreMineDummySpawn">
+        <EffectArray value="CopyCasterFacing"/>
+        <EffectArray value="ClaymoreMineCancelOrder"/>
+        <EffectArray value="ClaymoreMineIssueOrderSwitch"/>
+        <EffectArray value="ClaymoreMineQueued"/>
+        <EffectArray value="ClaymoreMineTrackerSet"/>
+        <EffectArray value="ClaymoreMineDummy"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="ClaymoreMineDummy">
+        <EditorCategories value="Race:UPL"/>
+    </CEffectApplyBehavior>
+    <CEffectIssueOrder id="ClaymoreMineIssueOrder">
+        <WhichUnit Effect="ClaymoreMineMakeDummy" Value="Caster"/>
+        <Abil value="ClaymoreMineExecute"/>
+        <Player Effect="ClaymoreMineMakeDummy" Value="Caster"/>
+        <Target Value="TargetUnit"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectIssueOrder>
+    <CEffectCreateUnit id="ClaymoreMineMakeDummy">
+        <WhichLocation Value="TargetPoint"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="OffsetByRadius" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <CreateFlags index="PlacementIgnoreBlockers" value="1"/>
+        <CreateFlags index="PlacementIgnoreCliffTest" value="1"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <SpawnOwner Value="Caster"/>
+        <SpawnEffect value="ClaymoreMineDummySpawn"/>
+        <SpawnUnit value="ClaymoreMineDummy"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="ClaymoreMineTrackerTarget">
+        <Behavior value="ClaymoreMineTracker"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectApplyBehavior>
+    <CEffectAddTrackedUnit id="ClaymoreMineTrackedUnitAddCaster">
+        <BehaviorLink value="ClaymoreMineTracker"/>
+        <TrackerUnit Value="Target"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectAddTrackedUnit>
+    <CEffectSet id="ClaymoreMineLookAtPointSet">
+        <EditorCategories value="Race:UPL"/>
+        <EffectArray value="ClaymoreMineLookAtPoint"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSet>
+    <CEffectSet id="ClaymoreMineSpawnSet">
+        <EditorCategories value="Race:UPL"/>
+        <EffectArray value="KillsToCaster"/>
+        <EffectArray value="ClaymoreMineCopyFacingSwitch"/>
+        <EffectArray value="ClaymoreMineKillPH"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="ClaymoreMineSearchAB">
+        <EditorCategories value="Race:UPL"/>
+        <Behavior value="ClaymoreMineSearch"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="ClaymoreMineSearchRB">
+        <EditorCategories value="Race:UPL"/>
+        <BehaviorLink value="ClaymoreMineSearch"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="ClaymoreMineDamageInitialSet">
+        <EditorCategories value="Race:UPL"/>
+        <EffectArray value="ClaymoreMineDelayDamage"/>
+        <EffectArray value="ClaymoreMineSearchRB"/>
+    </CEffectSet>
+    <CEffectSet id="ClaymoreMineDamageFinalSet">
+        <EditorCategories value="Race:UPL"/>
+        <EffectArray value="ClaymoreMineFinalSearch"/>
+        <EffectArray value="Suicide"/>
+    </CEffectSet>
+    <CEffectDamage id="ClaymoreMineDamage" parent="DU_SPELL">
+        <Amount value="70"/>
+    </CEffectDamage>
+    <CEffectModifyUnit id="ClaymoreMineLookAtPoint">
+        <ImpactUnit Value="Caster"/>
+        <FacingLocation Value="TargetPoint"/>
+        <FacingType value="LookAt"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectModifyUnit>
+    <CEffectCreateUnit id="ClaymoreMineSpawn">
+        <EditorCategories value="Race:UPL"/>
+        <WhichLocation Value="TargetUnitOrPoint"/>
+        <CreateFlags index="ProvideFood" value="0"/>
+        <CreateFlags index="UseFood" value="0"/>
+        <SpawnEffect value="ClaymoreMineSpawnSet"/>
+        <SpawnUnit value="ClaymoreMine"/>
+    </CEffectCreateUnit>
+    <CEffectSet id="ClaymoreMineSet">
+        <EditorCategories value="Race:UPL"/>
+        <EffectArray value="ClaymoreMineSpawn"/>
+    </CEffectSet>
+    <CEffectEnumArea id="ClaymoreMinePlaceSearch">
+        <DebugTrace value="1"/>
+        <SearchFilters value="Ground;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1" Effect="ClaymoreMineDamageInitialSet"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="ClaymoreMineSearch">
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Arc="69.994" Radius="7" Effect="ClaymoreMineDamageInitialSet"/>
+        <SearchFlags index="SameCliff" value="1"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="ClaymoreMineFinalSearch">
+        <LaunchLocation Value="CasterUnit"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="Ground,Visible;Self,Player,Ally,Neutral,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Arc="69.994" Radius="7" Effect="ClaymoreMineDamage"/>
+        <SearchFlags index="SameCliff" value="1"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectEnumArea>
+    <CEffectCancelOrder id="ClaymoreMineCancelOrder">
+        <WhichUnit Value="Caster"/>
+        <AbilCmd value="ClaymoreMineDummy,Execute"/>
+        <Flags index="Queued" value="1"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectCancelOrder>
+    <CEffectCreatePersistent id="ClaymoreMineDelayDamage">
+        <EditorCategories value="Race:UPL"/>
+        <ExpireDelay value="1"/>
+        <FinalEffect value="ClaymoreMineDamageFinalSet"/>
+        <WhichLocation Value="TargetUnit"/>
+    </CEffectCreatePersistent>
+    <CAbilEffectTarget id="ClaymoreMineDummy">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Effect index="0" value="ClaymoreMineInit"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Charge>
+                <CountMax value="1"/>
+                <CountStart value="1"/>
+                <Link value="Abil/ClaymoreMinePlace"/>
+                <Location value="Unit"/>
+            </Charge>
+            <Cooldown Link="Abil/ClaymoreMinePlace"/>
+        </Cost>
+        <Range value="500"/>
+        <AINotifyEffect value="ClaymoreMineInit"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ClaymoreMinePlace" Requirements="ClaymoreMineHaveCharges"/>
+        <PlaceUnit value="ClaymoreMine"/>
+        <Placeholder value="ClaymoreMine"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ClaymoreMineExecute">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Effect index="0" value="ClaymoreMineExecuteCP"/>
+        <Flags index="BestUnit" value="0"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Range value="500"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ClaymoreMineExecute"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ClaymoreMineSetDirection">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Effect index="0" value="ClaymoreMineLookAtPointSet"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ClaymoreMinePlaceDirection">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ClaymoreMinePlace">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Effect index="0" value="ClaymoreMineSet"/>
+        <Flags index="RangeUsePathing" value="1"/>
+        <Cost>
+            <Charge>
+                <CountMax value="3"/>
+                <CountStart value="3"/>
+                <CountUse value="1"/>
+                <Location value="Unit"/>
+            </Charge>
+        </Cost>
+        <Range value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ClaymoreMine"/>
+    </CAbilEffectTarget>
+    <CValidatorUnitCompareBehaviorCount id="ClaymoreMineCasterOrderQueued">
+        <WhichUnit Value="Caster"/>
+        <Compare value="GT"/>
+        <Behavior value="ClaymoreMineQueued"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareChargeUsed id="ClaymoreMineCharges">
+        <Compare value="LT"/>
+        <ChargeLink value="Abil/ClaymoreMinePlace"/>
+        <Location value="Unit"/>
+        <Ability value="ClaymoreMinePlace"/>
+        <Value value="3"/>
+        <ResultFailed value="NotEnoughCharges"/>
+    </CValidatorUnitCompareChargeUsed>
+    <CValidatorUnitCompareBehaviorCount id="ClaymoreMineCaster">
+        <WhichUnit Value="Source"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="ClaymoreMineNotReady">
+        <CombineArray value="ClaymoreMineReady"/>
+        <Negate value="1"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareBehaviorCount id="ClaymoreMineReadySource">
+        <WhichUnit Value="Source"/>
+        <Compare value="GT"/>
+        <Behavior value="ClaymoreMineReady"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCombine id="ClaymoreMineNotReadySource">
+        <CombineArray value="ClaymoreMineReadySource"/>
+        <Negate value="1"/>
+    </CValidatorCombine>
+    <CValidatorUnitCompareChargeUsed id="ClaymoreMineTrackerCheckCasterCharges" parent="ClaymoreMineCharges">
+        <WhichUnit Value="Target"/>
+        <Compare value="GE"/>
+        <ResultFailed value="Error"/>
+    </CValidatorUnitCompareChargeUsed>
+    <CValidatorUnitCompareBehaviorCount id="ClaymoreMineReadyFacing">
+        <WhichUnit Effect="ClaymoreMineSpawn"/>
+        <Compare value="GT"/>
+        <Behavior value="ClaymoreMineReady"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorCompareTrackedUnitsCount id="ClaymoreMineTrackerEmpty">
+        <BehaviorLink value="ClaymoreMineTracker"/>
+        <TrackerUnit Value="Target"/>
+    </CValidatorCompareTrackedUnitsCount>
+    <CValidatorCombine id="ClaymoreMineTrackerEnumStage1">
+        <CombineArray value="ClaymoreMineTrackerCheckCasterCharges"/>
+        <CombineArray value="ClaymoreMineTrackerEnumStage1Order"/>
+    </CValidatorCombine>
+    <CValidatorCombine id="ClaymoreMineTrackerEnumStage1Order">
+        <Type value="And"/>
+        <CombineArray value="ClaymoreMineTrackerEnumStage1OrderCurr"/>
+        <CombineArray value="ClaymoreMineTrackerEnumStage1OrderQue"/>
+        <Negate value="1"/>
+    </CValidatorCombine>
+    <CValidatorCombine id="ClaymoreMineTrackerEnumStage2Order">
+        <Type value="And"/>
+        <CombineArray value="ClaymoreMineTrackerEnumStage2OrderCurr"/>
+        <CombineArray value="ClaymoreMineTrackerEnumStage2OrderQue"/>
+        <Negate value="1"/>
+    </CValidatorCombine>
+    <CValidatorUnitOrderQueue id="ClaymoreMineTrackerEnumStage1OrderCurr">
+        <WhichUnit Value="Target"/>
+        <AbilLink value="ClaymoreMineExecute"/>
+        <Target Value="SourceUnit"/>
+    </CValidatorUnitOrderQueue>
+    <CValidatorUnitOrderQueue id="ClaymoreMineTrackerEnumStage2OrderCurr">
+        <WhichUnit Value="Target"/>
+        <AbilLink value="ClaymoreMinePlace"/>
+        <Target Value="SourceUnit"/>
+    </CValidatorUnitOrderQueue>
+    <CValidatorUnitOrderQueue id="ClaymoreMineTrackerEnumStage1OrderQue">
+        <WhichUnit Value="Target"/>
+        <AbilLink value="ClaymoreMineExecute"/>
+        <Queued value="1"/>
+        <Target Value="SourceUnit"/>
+    </CValidatorUnitOrderQueue>
+    <CValidatorUnitCompareBehaviorCount id="ClaymoreMineReady">
+        <Compare value="GT"/>
+        <Behavior value="ClaymoreMineReady"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitOrderQueue id="ClaymoreMineTrackerEnumStage2OrderQue">
+        <WhichUnit Value="Target"/>
+        <AbilLink value="ClaymoreMinePlace"/>
+        <Queued value="1"/>
+        <Target Value="SourceUnit"/>
+    </CValidatorUnitOrderQueue>
+    <CValidatorCombine id="ClaymoreMineTrackerEnumStage2">
+        <CombineArray value="ClaymoreMineTrackerCheckCasterCharges"/>
+        <CombineArray value="ClaymoreMineTrackerEnumStage2Order"/>
+    </CValidatorCombine>
+    <CValidatorLocationPathable id="ClaymoreMinePlaceable">
+        <ResultFailed value="MustTargetWalkableLocation"/>
+    </CValidatorLocationPathable>
+    <CRequirement id="ClaymoreMineHaveCharges">
+        <EditorCategories value="Race:UPL,TechType:Ability"/>
+        <NodeArray index="Use" Link="CountBehaviorClaymoreMineHaveChargesCompleteOnlyAtUnit919307533"/>
+    </CRequirement>
+    <!--    <Instances Id="ClaymoreMinePlace">-->
+    <!--        <AbilCmd Abil="ClaymoreMinePlaceExecute">-->
+    <!--            <Field Id="ExecuteCommand"/>-->
+    <!--        </AbilCmd>-->
+    <!--        <AbilCmd Abil="ClaymoreMinePlaceTargetingDummy">-->
+    <!--            <Field Id="Order"/>-->
+    <!--        </AbilCmd>-->
+    <!--        <GameLink GameLink="ClaymoreMinePlaceActivate">-->
+    <!--            <Field Id="ActivateAbility"/>-->
+    <!--        </GameLink>-->
+    <!--        <GameLink GameLink="ClaymoreMinePlaceActivate">-->
+    <!--            <Field Id="Behavior"/>-->
+    <!--        </GameLink>-->
+    <!--        <GameLink GameLink="ClaymoreMinePlaceTargetingModel">-->
+    <!--            <Field Id="Model"/>-->
+    <!--        </GameLink>-->
+    <!--        <GameLink GameLink="ClaymoreMinePlaceTargeter">-->
+    <!--            <Field Id="UnitType"/>-->
+    <!--        </GameLink>-->
+    <!--        <Int Int="1">-->
+    <!--            <Field Id="ChargesTotal"/>-->
+    <!--        </Int>-->
+    <!--        <String String="&quot;Abil/ClaymoreMinePlaceActivate&quot;">-->
+    <!--            <Field Id="Cooldown"/>-->
+    <!--        </String>-->
+    <!--        <Text Text="UserData/LotC_Targetable/ClaymoreMinePlace_InstructionsPrimary">-->
+    <!--            <Field Id="InstructionsPrimary"/>-->
+    <!--        </Text>-->
+    <!--        <Text Text="UserData/LotC_Targetable/ClaymoreMinePlace_InstructionsSecondary">-->
+    <!--            <Field Id="InstructionsSecondary"/>-->
+    <!--        </Text>-->
+    <!--    </Instances>-->
+    <CButton id="ClaymoreMinePlaceDirection">
+        <Icon value="Assets\Textures\btn-ability-zeratul-topbar-directlegions.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-zeratul-topbar-directlegions.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CButton id="ClaymoreMinePlace">
+        <Icon value="Assets\Textures\btn-ability-UPL-Claymore.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-UPL-Claymore.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CButton id="ClaymoreMine">
+        <Icon value="Assets\Textures\btn-ability-UPL-Claymore.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-UPL-Claymore.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CButton id="ClaymoreMineExecute">
+        <Icon value="Assets\Textures\btn-ability-UPL-Claymore.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CRequirementCountBehavior id="CountBehaviorClaymoreMineHaveChargesCompleteOnlyAtUnit919307533">
+        <Flags index="TechTreeCheat" value="0"/>
+        <Count Link="ClaymoreMineHaveCharges" State="CompleteOnlyAtUnit"/>
+    </CRequirementCountBehavior>
+    <CActorSplat id="ClaymoreMinePlaceTargetingCursorSplat" parent="TerranCursorSplat" abil="ClaymoreMinePlaceTargetingDummy"/>
+    <CActorModel id="ClaymoreMinePlaceTargetingModel">
+        <On Terms="ActorCreation" Send="$Stand PlayForever"/>
+        <On Terms="Signal.*.Destroy" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Model value="Invisible"/>
+    </CActorModel>
+    <CActorSound id="ClaymoreMine_Place" parent="SoundOneShot">
+        <On Terms="Effect.ClaymoreMineSpawn.Start; At Effect" Send="Create"/>
+    </CActorSound>
+    <CActorModel id="ClaymoreMineGuidePlacement" parent="ModelAnimationStyleContinuous">
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <FogVisibility value="Visible"/>
+        <Host Subject="_Unit" Actor="Find"/>
+        <HostSiteOps Ops="SOpForwardClaymorePlacementGuide SOpShadow SOp2DRotation"/>
+        <Model value="ClaymoreMineGuide"/>
+        <Scale value="1.130000"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <Filter index="Ally" value="1"/>
+        <Filter index="Neutral" value="1"/>
+        <Filter index="Enemy" value="1"/>
+    </CActorModel>
+    <CActorSiteOpForward id="SOpForwardClaymorePlacementGuide">
+        <HostForward Subject="::scope.CursorDummy" Actor="Find"/>
+    </CActorSiteOpForward>
+    <CActorModel id="ClaymoreMineCursorDummy">
+        <Flags index="AddToExternalFinder" value="1"/>
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <FogVisibility value="Visible"/>
+        <On Terms="Abil.ClaymoreMineSetDirection.Guide" Send="Create"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="Signal.*.LinkCaster" Send="RefSetFromMsg ::actor.Caster ::Sender"/>
+        <On Terms="Signal.*.LinkCaster" Target="::actor.Caster" Send="Signal CursorLink"/>
+        <HostSiteOps Ops="SOpBasicScopeFollow"/>
+        <Model value="Invisible"/>
+    </CActorModel>
+    <CActorUnit id="ClaymoreMineDummy" parent="GenericUnitMinimal" unitName="ClaymoreMineDummy">
+        <On Terms="Abil.ClaymoreMineSetDirection.TargetOn" Send="StatusSet CursorFind 1"/>
+        <On Terms="Abil.ClaymoreMineSetDirection.TargetOn" Send="TimerSet 0.031250 CursorFind"/>
+        <On Terms="TimerExpired; TimerName CursorFind; IsStatus CursorFind 1" Target="::Cursor" Send="Signal LinkCaster"/>
+        <On Terms="Abil.ClaymoreMineSetDirection.TargetOff" Send="StatusSet CursorFind 0"/>
+        <On Terms="Signal.*.CursorLink" Send="RefSetFromMsg ::scope.CursorDummy ::Sender"/>
+        <On Terms="Signal.*.CursorLink" Send="Create ClaymoreMineGuidePlacement"/>
+        <On Terms="Abil.ClaymoreMineSetDirection.TargetOff" Target="ClaymoreMineGuidePlacement" Send="Destroy"/>
+        <Model value="ClaymoreMinePlacement"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <HighlightTooltip value=""/>
+    </CActorUnit>
+    <CActorModel id="ClaymoreMineGuide" parent="ModelAnimationStyleContinuous">
+        <Filter index="Neutral" value="1"/>
+        <Filter index="Enemy" value="1"/>
+        <On Terms="Behavior.ClaymoreMineSearch.On" Send="Create"/>
+        <On Terms="Behavior.ClaymoreMineSearch.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.ClaymoreMineReady.On" Send="Create"/>
+        <On Terms="Behavior.ClaymoreMineReady.Off" Send="AnimBracketStop BSD"/>
+        <Host Subject="_Selectable"/>
+        <!--<HostSiteOps Ops="SOpAttachCenter SOpShadow SOpLookAtCursor SOp2DRotation LookAtTarget"/>-->
+        <HostSiteOps Ops="SOpAttachCenter SOpShadow"/>
+        <Scale value="1.130000"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorAction id="ClaymoreMineAttack" parent="GenericAttack" effectAttack="ClaymoreMineDamage">
+        <LaunchAttachQuery Methods="AMFilterWeaponSetA0"/>
+        <LaunchAssets Sound="ClaymoreMine_AttackLaunch"/>
+        <ImpactMap index="None" Sound="ClaymoreMine_AttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <ImpactPhysics Name="Explode" MatchKeys="Basic" Physics="MarineAttackDeathForce"/>
+    </CActorAction>
+    <CActorUnit id="ClaymoreMine" parent="GenericUnitStandard" unitName="ClaymoreMine">
+        <Aliases value="_UnitSmall"/>
+        <On Terms="ActorCreation" Send="AnimPlay Burrow Burrow PlayForever,NonLooping"/>
+        <On Terms="Abil.attack.ReadyStart" Send="Create VultureSpiderMineSeekSound"/>
+        <DeathArray index="Normal" ModelLink="ClaymoreMineDeath" SoundLink="Terran_ExplosionSmall"/>
+        <PlacementModel value="ClaymoreMinePlacement"/>
+        <PortraitModel value="ClaymoreMinePortrait"/>
+        <BarOffset value="10"/>
+        <BarWidth value="36"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-terran-spidermine.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-upgrade-terran-spidermineex3.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrades-upl-vehicleplating-lvl0.dds"/>
+        <NameOffset value="10"/>
+        <UnitIcon value="Assets\Textures\btn-upgrade-terran-spidermineex3.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-terran-spidermine.dds"/>
+        </Wireframe>
+        <SoundArray index="Birth" value="ClaymoreMine_Place"/>
+    </CActorUnit>
+    <CModel id="ClaymoreMine" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\Terran\SpiderMine\SpiderMine.m3"/>
+        <Occlusion value="Show"/>
+        <PlanetPanelCamera value="Star2CameraLow02"/>
+        <Radius value="0.200000"/>
+        <SelectionLayer value="3"/>
+        <SelectionRadius value="0.200000"/>
+        <ShadowRadius value="0.200000"/>
+        <TechPurchaseCamera value="Star2CameraLow02"/>
+        <UnitGlossaryCamera value="Star2CameraLow02"/>
+        <ScaleMax value="1.300000,1.300000,1.300000"/>
+        <ScaleMin value="1.300000,1.300000,1.300000"/>
+        <EditorCategories value="Race:UPL"/>
+    </CModel>
+    <CModel id="ClaymoreMinePlacement" parent="Placement" Race="Terran">
+        <Model value="Assets\Effects\Terran\SpiderMinePlacement\SpiderMinePlacement.m3"/>
+        <SelectionRadius value="0.250000"/>
+        <ShadowRadius value="0.250000"/>
+        <EditorCategories value="Race:UPL"/>
+    </CModel>
+    <CModel id="ClaymoreMineGuide" parent="Splat">
+        <Model value="Assets\Splats\Nova_ShotGunCone\Nova_ShotGunCone.m3"/>
+        <EditorCategories value="Race:UPL"/>
+    </CModel>
+    <CModel id="ClaymoreMineDeath" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Terran\TerranSmallUnitDeath\TerranSmallUnitDeath.m3"/>
+        <Occlusion value="Show"/>
+        <EditorCategories value="Race:UPL"/>
+        <ScaleMax value="0.250000,0.250000,0.250000"/>
+        <ScaleMin value="0.250000,0.250000,0.250000"/>
+        <SelectionRadius value="2.000000"/>
+        <ShadowRadius value="2.000000"/>
+    </CModel>
+    <CModel id="ClaymoreMineDeathLow" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Terran\SpiderMineExplosion\SpiderMineExplosion_Low.m3"/>
+        <Occlusion value="Show"/>
+        <EditorCategories value="Race:UPL"/>
+        <ScaleMax value="0.250000,0.250000,0.250000"/>
+        <ScaleMin value="0.250000,0.250000,0.250000"/>
+        <SelectionRadius value="2.000000"/>
+        <ShadowRadius value="2.000000"/>
+    </CModel>
+    <CModel id="ClaymoreMineAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\VikingAssaultWeaponImpact\VikingAssaultWeaponImpact.m3"/>
+        <EditorCategories value="Race:UPL"/>
+    </CModel>
+    <CModel id="ClaymoreMineAttackLaunch" parent="LaunchFX">
+        <Model value="Assets\Effects\UPL\ClaymoreMineAttackLaunch\ClaymoreMineAttackLaunch.m3"/>
+        <EditorCategories value="Race:UPL"/>
+        <ScaleMax value="3.000000,3.000000,3.000000"/>
+        <ScaleMin value="3.000000,3.000000,3.000000"/>
+    </CModel>
+    <CModel id="ClaymoreMinePortrait" parent="Portrait" Race="Terran">
+        <Model value="Assets\Portraits\UPL\UPLBuildingPortraitBase\UPLBuildingPortraitBase.m3"/>
+        <Flags index="Facial" value="1"/>
+        <Image value="Assets\Textures\uplportrait_static.dds"/>
+        <Lighting value="UPLHeadquartersPortrait"/>
+        <PausedParticleSystemBehavior value="Automatic"/>
+        <EditorCategories value="Race:UPL"/>
+    </CModel>
+    <CSound id="ClaymoreMine_Place" parent="Combat">
+        <EditorCategories value="Race:Terran"/>
+        <AssetArray File="Assets\Sounds\Terran\Vulture\Vulture_SpiderMinePlace0.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Terran\Vulture\Vulture_SpiderMinePlace1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Terran\Vulture\Vulture_SpiderMinePlace2.wav" FacialGroup=""/>
+    </CSound>
+    <CSound id="ClaymoreMine_AttackLaunch" parent="Combat">
+        <EditorCategories value="Race:Terran"/>
+        <AssetArray File="Assets\Sounds\UPL\RichardGideon\RichardGideon_ClaymoreExploding00.ogg"/>
+        <DupeDestroyCount value="8"/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="2.000000,2.000000"/>
+    </CSound>
+    <CSound id="ClaymoreMine_AttackImpact" parent="Combat">
+        <EditorCategories value="Race:Terran"/>
+        <AssetArray File="Assets\Sounds\Terran\SiegeTank\SiegeTank_SiegeAttackImpact0.wav"/>
+        <Pitch value="-1.500000,1.500000"/>
+        <Volume value="1.000000,1.000000"/>
+    </CSound>
+    <CDataCollectionAbil id="ClaymoreMinePlace">
+        <EditorCategories value="DataGroup:Ability,Race:Terran,ObjectType:Unit"/>
+        <DataRecord Entry="Abil,ClaymoreMinePlaceActivate"/>
+        <DataRecord Entry="Abil,ClaymoreMinePlaceExecute"/>
+        <DataRecord Entry="Abil,ClaymoreMinePlaceTargetingDummy"/>
+        <DataRecord Entry="Actor,ClaymoreMinePlaceTargetingModel"/>
+        <DataRecord Entry="Actor,ClaymoreMinePlaceExecuteGuide"/>
+        <DataRecord Entry="Actor,ClaymoreMinePlaceTargetingCursorSplat"/>
+        <DataRecord Entry="Actor,ClaymoreMinePlaceTargeter"/>
+        <DataRecord Entry="Behavior,ClaymoreMinePlaceActivate"/>
+        <DataRecord Entry="Button,ClaymoreMinePlace"/>
+        <DataRecord Entry="Effect,ClaymoreMinePlaceTargetingDummy"/>
+        <DataRecord Entry="Unit,ClaymoreMinePlaceTargeter"/>
+    </CDataCollectionAbil>
+    <CUnit id="ClaymoreMineDummy">
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="Uncursorable" value="1"/>
+        <FlagArray index="Undetectable" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <FlagArray index="NoDeathEvent" value="1"/>
+        <FlagArray index="Unstoppable" value="1"/>
+        <FlagArray index="PlayerRevivable" value="0"/>
+        <Mover value=""/>
+        <AbilArray Link="ClaymoreMineSetDirection"/>
+        <CardLayouts>
+            <LayoutButtons Face="ClaymoreMinePlaceDirection" Type="AbilCmd" AbilCmd="ClaymoreMineSetDirection,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <Radius value="0"/>
+        <SeparationRadius value="0"/>
+        <MinimapRadius value="0"/>
+        <Race value="UPL"/>
+        <EditorCategories value="ObjectType:Other,ObjectFamily:Melee"/>
+    </CUnit>
+    <CUnit id="ClaymoreMine">
+        <DeathRevealRadius value="0.5"/>
+        <Race value="UPL"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="Cloaked" value="1"/>
+        <FlagArray index="Buried" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="25"/>
+        <LifeMax value="25"/>
+        <Acceleration value="1000"/>
+        <StationaryTurningRate value="2292.8906"/>
+        <Sight value="4"/>
+        <CostResource index="Minerals" value="25"/>
+        <RepairTime value="10"/>
+        <AttackTargetPriority value="19"/>
+        <BehaviorArray Link="ClaymoreMineSearch"/>
+        <Radius value="0.125"/>
+        <SeparationRadius value="0"/>
+        <SubgroupPriority value="15"/>
+        <MinimapRadius value="0.25"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CBehaviorBuff id="ClaymoreMineDummy">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Period value="0.0625"/>
+        <PeriodicEffect value="ClaymoreMineTrackerEnum"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ClaymoreMineCaster">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <MaxStackCount value="64"/>
+        <MaxStackCountPerCaster value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <FinalEffect value="ClaymoreMineTrackerCasterRB"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ClaymoreMineHaveCharges">
+        <BehaviorFlags index="Permanent" value="1"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <DisableValidatorArray value="ClaymoreMineCharges"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ClaymoreMineReady">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ClaymoreMineQueued">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorUnitTracker id="ClaymoreMineTracker">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <TrackingValidatorArray value="ClaymoreMineNotReady"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorUnitTracker>
+    <CBehaviorBuff id="ClaymoreMineSearch">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Period value="0.25"/>
+        <PeriodicEffect value="ClaymoreMineSearch"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+</Catalog>

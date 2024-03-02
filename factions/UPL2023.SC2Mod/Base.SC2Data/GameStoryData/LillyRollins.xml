@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectDamage id="LillyRollinsDamage" parent="DU_WEAP_RANGED">
+        <Amount value="28"/>
+    </CEffectDamage>
+    <CEffectSet id="LillyRollinsHeal">
+        <EditorCategories value="Race:UPL"/>
+        <EffectArray value="LillyRollinsHealBig"/>
+        <EffectArray value="LillyRollinsHealBigAB"/>
+        <EffectArray value="LillyRollinsHealSearch"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="LillyRollinsHealBig">
+        <ValidatorArray value="LifeNotFull"/>
+        <EditorCategories value="Race:UPL"/>
+        <VitalArray index="Life">
+            <Change value="100"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="LillyRollinsHealBigAB">
+        <EditorCategories value="Race:UPL"/>
+        <WhichUnit Value="Caster"/>
+        <Behavior value="LillyRollinsHealBig"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="LillyRollinsHealSearch">
+        <EditorCategories value="Race:UPL"/>
+        <ImpactLocation Value="TargetUnit"/>
+        <ExcludeArray Effect="DehakaHeal" Value="Target"/>
+        <SearchFilters value="Biological;Enemy,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="4" Effect="LillyRollinsHealSmallSet"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectModifyUnit id="LillyRollinsHealSmall">
+        <ValidatorArray value="LifeNotFull"/>
+        <EditorCategories value="Race:UPL"/>
+        <VitalArray index="Life">
+            <Change value="25"/>
+        </VitalArray>
+    </CEffectModifyUnit>
+    <CEffectApplyBehavior id="LillyRollinsHealSmallAB">
+        <EditorCategories value="Race:UPL"/>
+        <Behavior value="LillyRollinsHealSmall"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="LillyRollinsHealSmallSet">
+        <EditorCategories value="Race:UPL"/>
+        <EffectArray value="LillyRollinsHealSmall"/>
+        <EffectArray value="LillyRollinsHealSmallAB"/>
+    </CEffectSet>
+    <CAbilEffectInstant id="LillyRollinsHeal">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Cooldown Link="LillyRollinsHeal" Location="Unit" TimeUse="10"/>
+        </Cost>
+        <CmdButtonArray index="Execute" DefaultButtonFace="LillyRollinsHeal">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectInstant>
+    <CButton id="LillyRollinsHeal">
+        <Icon value="Assets\Textures\btn-ability-UPL-FirstAid.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-UPL-FirstAid.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CButton id="LillyRollinsHealAlt" parent="LillyRollinsHeal">
+        <Hotkey value="Button/Hotkey/LillyRollinsHealAlt"/>
+        <HotkeyAlias value="LillyRollinsHealAlt"/>
+    </CButton>
+    <CButton id="LillyRollins">
+        <Icon value="Assets\Textures\ui-heroicon-rollins.dds"/>
+        <AlertIcon value="Assets\Textures\ui-heroicon-rollins.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CLight id="LillyRollinsPortrait" parent="default">
+        <ToDInfoArray index="0" Id="Agria" AmbientColor="0.341176,0.113725,0.000000" Colorize="1">
+            <Param index="HDRExposure" value="1.500000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="11.210000"/>
+            <Param index="TerrainHDRSpecular" value="3.750000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationContrast" value="1.066000"/>
+            <Param index="ColorizationHue" value="0.001000"/>
+            <Param index="ColorizationBlend" value="0.300000"/>
+            <Param index="ShadowPenumbraSize" value="0.041000"/>
+            <DirectionalLight index="Key" ColorMultiplier="3.890000" SpecColorMultiplier="6.095000" Direction="0.506337,-0.187099,-0.841794"/>
+            <DirectionalLight index="Fill" Color="1.000000,1.000000,0.427451" ColorMultiplier="2.512000" Direction="-0.618979,-0.085340,0.780758"/>
+            <DirectionalLight index="Back" Color="1.000000,1.000000,0.423529" ColorMultiplier="2.917000" Direction="-0.697713,-0.711736,0.081417"/>
+        </ToDInfoArray>
+        <EditorCategories value="LightGroup:PortraitsUnitsTerran"/>
+    </CLight>
+    <CActorSound id="LillyRollinsAttackLaunchSound" parent="GenericAttackLaunchSound">
+        <On Terms="ActorCreation" Send="TimerSet 1.200000 Kill"/>
+        <On Terms="TimerExpired; TimerName Kill" Send="Destroy"/>
+    </CActorSound>
+    <CActorAction id="LillyRollinsAttack" parent="GenericAttack" effectAttack="LillyRollinsDamage">
+        <LaunchSiteOps Ops="SOpAttachWeapon"/>
+        <LaunchAssets Sound="LillyRollins_Launch"/>
+        <LaunchSound value="LillyRollinsAttackLaunchSound"/>
+        <ImpactPhysics Name="BulletImpact" MatchKeys="Basic" Physics="InfantryRifleAttackDeathForce"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+    </CActorAction>
+    <CActorModel id="LillyRollinsLaunchLight" parent="LaunchLightBase">
+        <On Terms="Effect.LillyRollinsDamage; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.700000 a"/>
+        <On Terms="TimerExpired; TimerName a" Send="Destroy"/>
+        <Model value="LillyRollinsLaunchLightSmaller"/>
+    </CActorModel>
+    <CActorModel id="LillyRollinsHealBuffImpactModel" parent="ModelAnimationStyleOneShot">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="ActorCreation" Send="$Birth PlayForever"/>
+        <On Terms="Behavior.LillyRollinsHealSmall.On" Send="Create"/>
+        <On Terms="Behavior.LillyRollinsHealBig.On" Send="Create"/>
+        <On Terms="Behavior.SelfRepair2.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter SOpForwardNorth" HoldRotation="1"/>
+        <Model value="LillyRollinsHealBuff"/>
+    </CActorModel>
+    <CActorModel id="LillyRollinsHealBuffModel" parent="ModelAnimationStyleContinuous">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="ActorCreation" Send="$Birth PlayForever"/>
+        <On Terms="Behavior.LillyRollinsHealSmall.On" Send="Create"/>
+        <On Terms="Behavior.LillyRollinsHealBig.On" Send="Create"/>
+        <On Terms="Behavior.LillyRollinsHealSmall.Off" Send="Destroy"/>
+        <On Terms="Behavior.LillyRollinsHealBig.Off" Send="Destroy"/>
+        <On Terms="Behavior.SelfRepair2.Off" Send="Destroy"/>
+        <On Terms="Behavior.SelfRepair2.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter SOpForwardNorth" HoldRotation="1"/>
+        <Model value="LillyRollinsHealBuff"/>
+    </CActorModel>
+    <CActorSound id="LillyRollins_HealLaunch" parent="SoundOneShot">
+        <On Terms="Effect.LillyRollinsHealSearch.Start" Send="Create"/>
+        <Host Subject="_Selectable"/>
+    </CActorSound>
+    <CActorModel id="LillyRollinsHealImpactModel" parent="ModelAnimationStyleContinuous">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="Effect.LillyRollinsHealSearch.Start" Send="Create"/>
+        <On Terms="Effect.SelfRepairApplyBehavior2.Impact" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOrigin" HoldRotation="1"/>
+    </CActorModel>
+    <CActorUnit id="LillyRollins" parent="LOTC_UPLHeroBase" unitName="LillyRollins">
+        <Aliases value="_UnitMedium"/>
+        <Macros value="LOTC_ReadyAnimationMacro"/>
+        <On Terms="UnitMovementUpdate.*.WalkStart" Target="LillyRollinsAttackLaunchSound" Send="Destroy"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-upl-lillyrollins.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\ui-heroicon-rollins.dds"/>
+        <UnitIcon value="Assets\Textures\ui-heroicon-rollins.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-upl-lillyrollins.dds"/>
+        </Wireframe>
+        <StandAnimTurnTime value="1.9"/>
+        <UnitKillRank Text="UnitKillRank/LillyRollins"/>
+    </CActorUnit>
+    <CCharacter id="LillyRollins">
+        <Image value="Assets\Textures\LillyRollinsPortrait_Static.dds"/>
+        <Unit value="LillyRollins"/>
+        <Variations Model="LillyRollinsPortrait" Actor="PortraitActor">
+            <DefaultCategories value="Default"/>
+        </Variations>
+    </CCharacter>
+    <CModel id="LillyRollinsLaunchLightSmaller" parent="GenericLaunchLight">
+        <ScaleMax value="0.450000,0.450000,0.450000"/>
+        <ScaleMin value="0.500000,0.500000,0.500000"/>
+        <Lighting value="##id##"/>
+    </CModel>
+    <CModel id="LillyRollinsAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\MarineWeaponImpact\MarineWeaponImpact.m3"/>
+        <ScaleMax value="1.200000,1.200000,1.200000"/>
+        <ScaleMin value="1.200000,1.200000,1.200000"/>
+    </CModel>
+    <CModel id="LillyRollinsAttackLaunch" parent="LaunchFX">
+        <Model value="Assets\Effects\Terran\MarineWeaponLaunch\MarineWeaponLaunch.m3"/>
+    </CModel>
+    <CModel id="LillyRollinsHealImpactModel" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Zerg\MendImpact\MendImpact.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="LillyRollinsHealBuff" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Zerg\MendBuff\MendBuff.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CModel id="LillyRollinsPortrait" parent="Portrait" Race="UPL"/>
+    <CModel id="LillyRollins" parent="LOTC_GenericUnitBase" Race="UPL">
+        <PlanetPanelCamera value="Star2CameraMid03"/>
+        <ScaleMax value="1.100000,1.100000,1.100000"/>
+        <ScaleMin value="1.100000,1.100000,1.100000"/>
+        <TechPurchaseCamera value="TechPurchaseInfantry"/>
+        <RequiredAnims value="Assets\Units\UPL\InfantryRifle\InfantryRifle_AttackAnims.m3a"/>
+        <RequiredAnims value="Assets\Units\UPL\InfantryRifle\InfantryRifle_ReadyAnims.m3a"/>
+        <RequiredAnims value="Assets\Units\Neutral\LOTC_CaevRig\LOTC_CaevRig_TalkAnims.m3a"/>
+        <AnimAliases Anim="Stand,C,Talk" Alias="Stand,Talk"/>
+        <AnimAliases Anim="Stand,C,Talk,01" Alias="Stand,Talk,01"/>
+    </CModel>
+    <CModel id="LillyRollinsDeath" parent="LOTC_UPLDeathBase"/>
+    <CModel id="LillyRollinsDeathAcid" parent="LOTC_UPLDeathBase"/>
+    <CModel id="LillyRollinsDeathFire" parent="LOTC_UPLDeathBase"/>
+    <CModel id="LillyRollinsDeathRagdoll" parent="LOTC_UPLDeathRagdollBase"/>
+    <CWeaponLegacy id="LillyRollins">
+        <EditorCategories value="Race:UPL"/>
+        <Icon value="Assets\Textures\btn-upgrades-upl-infantryweapons-lvl0.dds"/>
+        <DisplayEffect value="LillyRollinsDamage"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="6"/>
+        <Period value="0.8608"/>
+        <DamagePoint value="0.05"/>
+        <Backswing value="0.75"/>
+        <Effect value="LillyRollinsDamage"/>
+    </CWeaponLegacy>
+    <CSound id="LillyRollins_DeathFire" parent="UPLHeroDeath" Unit="LillyRollins">
+        <AssetArray TemplateParam="LillyRollins_DeathAcid00"/>
+        <AssetArray TemplateParam="LillyRollins_DeathAcid01"/>
+    </CSound>
+    <CSound id="LillyRollins_HealLaunch" parent="Spell">
+        <AssetArray File="Assets\sounds\UPL\LillyRollins\LillyRollins_HealingAbility00.ogg"/>
+    </CSound>
+    <CSound id="LillyRollins_Launch" parent="Combat">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\sounds\UPL\LillyRollins\LillyRollins_AttackLaunch00.ogg"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Volume value="-14.000000,-12.000000"/>
+        <DupeDestroyCount value="10"/>
+        <DupeMuteCount value="8"/>
+    </CSound>
+    <CSound id="LillyRollins_Attack" parent="UPLHeroAck" Unit="LillyRollins">
+        <AssetArray TemplateParam="LillyRollins_Attack00"/>
+        <AssetArray TemplateParam="LillyRollins_Attack01"/>
+        <AssetArray TemplateParam="LillyRollins_Attack02"/>
+        <AssetArray TemplateParam="LillyRollins_Attack03"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="LillyRollins_Death" parent="UPLHeroDeath" Unit="LillyRollins">
+        <AssetArray TemplateParam="LillyRollins_Death00"/>
+        <AssetArray TemplateParam="LillyRollins_Death01"/>
+        <AssetArray TemplateParam="LillyRollins_Death02"/>
+    </CSound>
+    <CSound id="LillyRollins_DeathAcid" parent="UPLHeroDeath" Unit="LillyRollins">
+        <AssetArray TemplateParam="LillyRollins_DeathAcid00"/>
+        <AssetArray TemplateParam="LillyRollins_DeathAcid01"/>
+    </CSound>
+    <CSound id="LillyRollins_Pissed" parent="UPLHeroPissed" Unit="LillyRollins">
+        <AssetArray TemplateParam="LillyRollins_Pissed00"/>
+        <AssetArray TemplateParam="LillyRollins_Pissed01"/>
+        <AssetArray TemplateParam="LillyRollins_Pissed02"/>
+        <AssetArray TemplateParam="LillyRollins_Pissed03"/>
+        <AssetArray TemplateParam="LillyRollins_Pissed04"/>
+        <AssetArray TemplateParam="LillyRollins_Pissed05"/>
+        <AssetArray TemplateParam="LillyRollins_Pissed06"/>
+        <AssetArray TemplateParam="LillyRollins_Pissed07"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="LillyRollins_Ready" parent="UPLUnitReady" Unit="InfantryRifle">
+        <AssetArray TemplateParam="InfantryRifle_Ready00"/>
+        <Volume value="-3.000000,-3.000000"/>
+    </CSound>
+    <CSound id="LillyRollins_Help" parent="UPLHeroHelp" Unit="LillyRollins">
+        <AssetArray TemplateParam="LillyRollins_Help00"/>
+        <AssetArray TemplateParam="LillyRollins_Help01"/>
+    </CSound>
+    <CSound id="LillyRollins_What" parent="UPLHeroAck" Unit="LillyRollins">
+        <AssetArray TemplateParam="LillyRollins_What00"/>
+        <AssetArray TemplateParam="LillyRollins_What01"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="LillyRollins_Yes" parent="UPLHeroAck" Unit="LillyRollins">
+        <AssetArray TemplateParam="LillyRollins_Yes00"/>
+        <AssetArray TemplateParam="LillyRollins_Yes01"/>
+        <AssetArray TemplateParam="LillyRollins_Yes02"/>
+        <AssetArray TemplateParam="LillyRollins_Yes03"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CDataCollectionUnit id="LillyRollins">
+        <EditorCategories value="ObjectType:Hero,DataGroup:Unit,DataFamily:Campaign,Race:Terran"/>
+        <DataRecord Entry="Actor,LillyRollins"/>
+        <DataRecord Entry="Button,LillyRollins"/>
+        <DataRecord Entry="Model,LillyRollins"/>
+        <DataRecord Entry="Unit,LillyRollins"/>
+        <DataRecord Entry="Model,LillyRollinsDeath"/>
+        <DataRecord Entry="Model,TrevorRandDeathLow"/>
+        <DataRecord Entry="Model,LillyRollinsPortrait"/>
+        <DataRecord Entry="Light,LillyRollinsPortrait"/>
+        <DataRecord Entry="Sound,LillyRollins_Birth"/>
+        <DataRecord Entry="Sound,LillyRollins_Ready"/>
+        <DataRecord Entry="Sound,TrevorRand_Help"/>
+        <DataRecord Entry="Sound,LillyRollins_What"/>
+        <DataRecord Entry="Sound,LillyRollins_Yes"/>
+        <DataRecord Entry="Sound,LillyRollins_Attack"/>
+        <DataRecord Entry="Sound,LillyRollins_Pissed"/>
+        <DataRecord Entry="Sound,LillyRollins_Movement"/>
+        <DataRecord Entry="Sound,LillyRollins_Turning"/>
+        <DataRecord Entry="Sound,LillyRollins_Board"/>
+        <DataRecord Entry="Sound,LillyRollins_Click"/>
+        <DataRecord Entry="Sound,LillyRollins_ClickError"/>
+        <DataRecord Entry="Sound,LillyRollins_Highlight"/>
+        <DataRecord Entry="Sound,LillyRollins_Death"/>
+        <DataRecord Entry="Sound,TrevorRand_Explode"/>
+        <DataRecord Entry="Model,LillyRollinsDeathAcid"/>
+        <DataRecord Entry="Effect,TrevorRand"/>
+        <DataRecord Entry="Model,LillyRollinsDeathFire"/>
+        <DataRecord Entry="Model,TrevorRandDeathBlast"/>
+        <DataRecord Entry="Model,LillyRollinsDeathSilent"/>
+        <DataRecord Entry="Weapon,LillyRollins"/>
+        <DataRecord Entry="Effect,LillyRollins"/>
+        <DataRecord Entry="Character,LillyRollins"/>
+        <Pattern value="LotC_Unit"/>
+    </CDataCollectionUnit>
+    <CUnit id="LillyRollins" parent="UPLHeroBase">
+        <Subtitle value="Unit/Subtitle/LillyRollins"/>
+        <Gender value="Female"/>
+        <LifeStart value="150"/>
+        <LifeMax value="150"/>
+        <LifeArmor value="2"/>
+        <Food value="0"/>
+        <AbilArray Link="LillyRollinsHeal"/>
+        <WeaponArray Link="LillyRollins"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="LillyRollinsHeal" Type="AbilCmd" AbilCmd="LillyRollinsHeal,Execute" Row="2" Column="1"/>
+        </CardLayouts>
+        <SubgroupPriority value="93"/>
+        <EditorCategories value="ObjectType:Hero,ObjectFamily:Campaign"/>
+        <GlossaryPriority value="6"/>
+        <HotkeyCategory value="Unit/Category/UPLStory"/>
+        <UserTag value="Unit/ShortName/LillyRollins"/>
+    </CUnit>
+    <CBehaviorBuff id="LillyRollinsHealBig">
+        <InfoIcon value="Assets\Textures\btn-ability-terran-heal-color.dds"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Duration value="15"/>
+        <Modification>
+            <VitalRegenArray index="Life" value="5"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="LillyRollinsHealSmall">
+        <InfoIcon value="Assets\Textures\btn-ability-terran-heal-color.dds"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Duration value="15"/>
+        <Modification>
+            <VitalRegenArray index="Life" value="1.668"/>
+        </Modification>
+    </CBehaviorBuff>
+</Catalog>

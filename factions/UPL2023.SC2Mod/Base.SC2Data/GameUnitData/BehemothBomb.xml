@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectLaunchMissile id="BehemothBombLM">
+        <EditorCategories value="Race:UPL"/>
+        <LaunchLocation Value="SourcePoint"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <LaunchOffset value="0,0,-2"/>
+        <FinishEffect value="BehemothBombLocationSearch"/>
+        <AmmoUnit value="BehemothBomb"/>
+        <Movers Link="BehemothBomb"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="BehemothBombDamage">
+        <EditorCategories value="Race:UPL"/>
+        <AINotifyFlags index="HurtFriend" value="1"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <AINotifyFlags index="MajorDanger" value="1"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <AttributeBonus index="Massive" value="75"/>
+        <AttributeBonus index="Structure" value="75"/>
+        <Visibility value="Visible"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="75"/>
+        <ExcludeArray Value="Target"/>
+        <ExcludeArray Value="Target"/>
+        <!--AreaArray Radius="1" Fraction="1"/>
+        <AreaArray Radius="1.5" Fraction="0.5"/>
+        <AreaArray Radius="2" Fraction="0.25"/-->
+        <SearchFilters value="Ground;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="BehemothBombLocationSearch">
+        <EditorCategories value="Race:UPL"/>
+        <LaunchLocation Value="OriginPoint"/>
+        <ImpactLocation Value="SourcePoint"/>
+        <!--Self,-->
+        <SearchFilters value="-;Air,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="BehemothBombDamage"/>
+        <RevealerParams Duration="1" ShapeExpansion="0.5">
+            <RevealFlags index="Unfog" value="1"/>
+        </RevealerParams>
+    </CEffectEnumArea>
+    <CAbilEffectTarget id="UPLBehemothBomb">
+        <Range value="1"/>
+        <Arc value="360"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="BestUnit" value="0"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Effect value="BehemothBombLM"/>
+        <Cost>
+            <Cooldown Link="UPLBehemothBomb" TimeUse="1"/>
+        </Cost>
+        <CmdButtonArray index="Execute" DefaultButtonFace="UPLBehemothBomb">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <TargetFilters value="-;Missile,Dead,Hidden,Invulnerable"/>
+        <AutoCastRange value="6"/>
+        <AcquireAttackers value="1"/>
+        <AutoCastValidatorArray value="NotWarpingIn"/>
+        <AutoCastFilters value="Visible;Neutral,Enemy,Missile,Stasis,Dead,Invulnerable"/>
+    </CAbilEffectTarget>
+    <CButton id="UPLBehemothBomb">
+        <Icon value="assets\textures\btn-top-hornerhan-bombers.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-terran-unloadall.dds"/>
+        <EditorCategories value="Race:UPL"/>
+        <TintRacially value="1"/>
+    </CButton>
+    <CActorMissile id="BehemothBomb" unitName="BehemothBomb">
+        <Aliases value="_Unit"/>
+        <Aliases value="_Missile"/>
+        <On Terms="UnitBirth.BehemothBomb" Send="Create"/>
+        <On Terms="UnitDeath" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="Create BehemothBombDummyMissileAttachment"/>
+        <Model value="Invisible"/>
+        <PreHost value="_ActorAction"/>
+        <Scale value="0.750000"/>
+    </CActorMissile>
+    <CActorModel id="BehemothBombDummyMissileAttachment">
+        <Model value="BehemothBomb"/>
+        <Host Subject="_Unit"/>
+        <On Terms="ActorCreation" Send="$Birth"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.100000 DelayRotation"/>
+        <On Terms="AnimDone; AnimName Birth" Send="HostSiteOpsSet ::Host {SOpAttachCenter SOp2DRotation NovaGriffinBombingRunBombRandomRotation}"/>
+        <On Terms="AnimDone; AnimName Birth" Send="AnimPlay ParachuteDeploy Stand,Work,Start"/>
+        <On Terms="AnimDone; AnimName ParachuteDeploy" Send="AnimPlay Parachute Stand,Work 0 -1.000000 -1.000000 1.800000 AsDuration"/>
+        <On Terms="AnimDone; AnimName Parachute" Send="AnimPlay ParachuteEnd Stand,Work,End"/>
+        <On Terms="AnimDone; AnimName Parachute" Send="Create BehemothBombAttackImpact"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachCenter SOp2DRotation SOpForwardGriffin SOpForwardGriffinRotation" HoldRotation="1"/>
+    </CActorModel>
+    <CActorModel id="BehemothBombAttackImpact" parent="ModelAnimationStyleOneShot">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <HostSiteOps HoldPosition="1" HoldRotation="1"/>
+        <Scale value="2.000000"/>
+    </CActorModel>
+    <CActorAction id="BehemothBombAttack" parent="GenericAttack" effectImpact="BehemothBombLocationSearch" effectLaunch="BehemothBombLM">
+        <Missile value="BehemothBomb"/>
+        <LaunchAttachQuery Methods="AMRandomUniform"/>
+        <LaunchAssets Model="NovaGriffinBombingRunStraferAttackLaunch2"/>
+        <ImpactPointSiteOps Ops="SOpTargetPointStationary SOpShadow"/>
+        <ImpactPhysics Name="Explosion" MatchKeys="Basic" Physics="SiegeTankSiegedForce"/>
+    </CActorAction>
+    <CActorModel id="BehemothBombExplosion" parent="ModelAnimationStyleOneShot">
+        <Model value="ACPirateCapitalShipBombingRunExplosion"/>
+        <HostSiteOps Ops="SOpAttachCenter SOpShadow SOpRandomPointInSphereDot5"/>
+        <Scale value="2.000000"/>
+    </CActorModel>
+    <CActorSound id="HH_AssaultGalleon_AscendSound" parent="SoundOneShot">
+        <Sound value="HH_AssaultGalleon_Ascend"/>
+        <Layers>
+            <Sound value="HH_AssaultGalleon_Ascend2"/>
+            <PitchSource value="Sound"/>
+            <PlayDelaySource value="Sound"/>
+            <VolumeSource value="Sound"/>
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+    </CActorSound>
+    <CActorSiteOpForward id="SOpForwardGriffin">
+        <HostForward Subject="NovaGriffinBombingRunStrafer"/>
+    </CActorSiteOpForward>
+    <CActorSiteOpRotationExplicit id="SOpForwardGriffinRotation">
+        <Forward value="1.000000,0.000000,0.000000"/>
+        <IsLocal value="1"/>
+    </CActorSiteOpRotationExplicit>
+    <CActorSiteOpRotationRandom id="NovaGriffinBombingRunBombRandomRotation">
+        <YawHalfAngle value="180.000000"/>
+    </CActorSiteOpRotationRandom>
+    <CModel id="BehemothBombAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\Griffin_BombRun_Impact_COOP\Griffin_BombRun_Impact_COOP.m3"/>
+        <EditorCategories value="Race:UPL"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Griffin_BombRun_Impact"/>
+            <Type value="Sound"/>
+            <Time value="0.015000"/>
+            <Payload value="Griffin_BombRun_Impact"/>
+        </Events>
+        <Events>
+            <Anim value="Death,01"/>
+            <Name value="Griffin_CarpetBombStraf_Impacts"/>
+            <Type value="Sound"/>
+            <Time value="0.032000"/>
+            <Payload value="Griffin_CarpetBombStraf_Impacts"/>
+        </Events>
+        <Events>
+            <Anim value="Death,02"/>
+            <Name value="Griffin_BombRun_Impact"/>
+            <Type value="Sound"/>
+            <Time value="0.008000"/>
+            <Payload value="Griffin_BombRun_Impact"/>
+        </Events>
+        <Events>
+            <Anim value="Death,03"/>
+            <Name value="Griffin_BombRun_Impact"/>
+            <Type value="Sound"/>
+            <Time value="0.060000"/>
+            <Payload value="Griffin_BombRun_Impact"/>
+        </Events>
+    </CModel>
+    <CModel id="BehemothBomb" parent="OneShotSpellFX">
+        <Model value="Assets\Units\Terran\Griffin_BombRun_COOP\Griffin_BombRun_COOP.m3"/>
+        <EditorCategories value="Race:UPL"/>
+        <Events>
+            <Anim value="Stand,Work,Start,00"/>
+            <Name value="Griffin_BombParachute"/>
+            <Type value="Sound"/>
+            <Time value="0.006000"/>
+            <Payload value="Griffin_BombParachute"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Work,02"/>
+            <Name value="Griffin_Bombing_Whistle"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Griffin_Bombing_Whistle"/>
+        </Events>
+    </CModel>
+    <CModel id="NovaGriffinBombingRunStrafer" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\Terran\Griffin_CalldownAnims_COOP\Griffin_CalldownAnims_COOP.m3"/>
+        <AttachProps Id="Ref_Weapon 05">
+            <Keys index="SetA" value="0"/>
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 06">
+            <Keys index="SetA" value="0"/>
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 07">
+            <Keys index="SetA" value="0"/>
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 08">
+            <Keys index="SetB" value="0"/>
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 09">
+            <Keys index="SetB" value="0"/>
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 10">
+            <Keys index="SetB" value="0"/>
+        </AttachProps>
+        <Events>
+            <Anim value="Stand,Work,Start,00"/>
+            <Name value="Griffin_Bombing_Straf_01"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Griffin_Bombing_Straf_01"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Work,End,00"/>
+            <Name value="Griffin_Bombing_Straf_02"/>
+            <Type value="Sound"/>
+            <Time value="0.013000"/>
+            <Payload value="Griffin_Bombing_Straf_02"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Work,Start,B,00"/>
+            <Name value="Griffin_Bombing_Straf_01"/>
+            <Type value="Sound"/>
+            <Time value="0.007000"/>
+            <Payload value="Griffin_Bombing_Straf_01"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Work,End,B,00"/>
+            <Name value="Griffin_Bombing_Straf_02"/>
+            <Type value="Sound"/>
+            <Time value="0.009000"/>
+            <Payload value="Griffin_Bombing_Straf_02"/>
+        </Events>
+        <EditorCategories value="Race:UPL"/>
+    </CModel>
+    <CWeaponLegacy id="BehemothBombs">
+        <EditorCategories value="Race:UPL"/>
+        <Icon value="Assets\Textures\btn-upgrade-terran-shipweaponslevel0.dds"/>
+        <DisplayEffect value="BehemothBombDamage"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="2"/>
+        <DisplayAttackCount value="1"/>
+        <Period value="1.5"/>
+        <Effect value="BehemothBombLM"/>
+        <Range value="2"/>
+        <AllowedMovement value="Moving"/>
+        <Options index="OnlyFireWhileInAttackOrder" value="0"/>
+        <Options index="OnlyFireAtAttackOrderTarget" value="0"/>
+        <Options index="LinkedCooldown" value="0"/>
+        <DamagePoint value="0"/>
+        <Backswing value="0"/>
+        <LegacyOptions index="NoDeceleration" value="1"/>
+        <RandomDelayMin value="0"/>
+        <RandomDelayMax value="0"/>
+    </CWeaponLegacy>
+    <CMoverMissile id="BehemothBomb">
+        <PathMode value="Flying"/>
+        <MotionPhases>
+            <Driver value="Throw"/>
+            <Speed value="1"/>
+            <MinSpeed value="1"/>
+            <MaxSpeed value="1"/>
+            <Gravity value="0.5"/>
+            <Clearance value="0"/>
+            <ClearanceAcceleration value="0"/>
+            <ClearanceIgnoresTargetProximity value="1"/>
+            <ArrivalTestType value="3D"/>
+            <BlendType value="Exponential"/>
+            <Outro value="1.1,1.55"/>
+            <Timeout value="10"/>
+            <ThrowRotationType value="ThrowForward"/>
+            <ThrowVector value="0,0,-0.5"/>
+            <ThrowBandYaw value="-360,-360,-360,-360"/>
+            <ThrowBandPitch value="-360,-360,-360,-360"/>
+            <ThrowForward value="0,0,1"/>
+            <YawPitchRoll value="506.25"/>
+            <FlightTime value="0.1,3"/>
+        </MotionPhases>
+        <MotionPhases>
+            <Driver value="Ballistic"/>
+            <MaxSpeed value="5"/>
+            <Gravity value="0.5"/>
+            <ArrivalTestType value="3D"/>
+            <RotationActorType value="Upright"/>
+            <Timeout value="10"/>
+            <ThrowBandYaw value="-360,-360,-360,-360"/>
+            <ThrowBandPitch value="-360,-360,-360,-360"/>
+            <YawPitchRoll value="5568.75"/>
+            <FlightTime value="0.8,-1"/>
+        </MotionPhases>
+    </CMoverMissile>
+    <CUnit id="BehemothBomb" parent="MISSILE">
+        <Race value="UPL"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+</Catalog>

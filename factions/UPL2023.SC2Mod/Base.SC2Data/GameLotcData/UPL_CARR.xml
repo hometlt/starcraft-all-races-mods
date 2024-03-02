@@ -1,0 +1,977 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectCreatePersistent id="CARRIlluminationCreatePersistent">
+        <EditorCategories value="Race:UPL"/>
+        <ExpireDelay value="25"/>
+        <RevealRadius value="13"/>
+        <RevealFlags index="Unfog" value="1"/>
+        <RevealFlags index="LoS" value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="CARRIlluminationLaunchMissile">
+        <!--<ValidatorArray index="0" removed="1"/>-->
+        <EditorCategories value="Race:UPL"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="CARRIlluminationCreatePersistent"/>
+        <AmmoUnit value="CARRIlluminationMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="CARRGroundDamage" parent="DU_WEAP_RANGED">
+        <AttributeBonus index="Biological" value="10"/>
+        <Amount value="20"/>
+    </CEffectDamage>
+    <CEffectDamage id="CARRAirDamage" parent="DU_WEAP_RANGED">
+        <Amount value="24"/>
+    </CEffectDamage>
+    <CEffectDamage id="CARRGrenadeLauncherDamage" parent="DU_SPELL">
+        <AttributeBonus index="Armored" value="30"/>
+        <Amount value="30"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="CARRAirSearch">
+        <EditorCategories value="Race:UPL"/>
+        <SearchFilters value="Air,Visible;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="CARRAirDamage"/>
+        <IncludeArray Value="Target"/>
+    </CEffectEnumArea>
+    <CEffectLaunchMissile id="CARRGrenadeLauncherLaunch">
+        <ValidatorArray index="0" value="AARocketLaunchTargetFilters"/>
+        <EditorCategories value="Race:UPL"/>
+        <Marker Link="Effect/AARocketLaunch"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactOffset value="0,0,0.1"/>
+        <ImpactEffect value="CARRGrenadeLauncherSearch"/>
+        <AmmoUnit value="CARRGrenadeLauncherMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="CARRAirLaunch">
+        <ImpactEffect value="CARRAirSearch"/>
+        <AmmoUnit value="CARRRocketMissile"/>
+        <EditorCategories value="Race:UPL"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="CARRGrenadeLauncherSearch">
+        <EditorCategories value="Race:UPL"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="CARRGrenadeLauncherDamage"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="CARRGrenadeLauncherBoss@Delay">
+        <EditorCategories value="Race:UPL"/>
+        <Marker Link="CARRGrenadeLauncherBoss"/>
+        <Flags index="Channeled" value="1"/>
+        <ExpireDelay value="3"/>
+        <FinalEffect value="CARRGrenadeLauncherBoss@Launch"/>
+        <PeriodicEffectArray value="CARRGrenadeLauncherBoss@SearchDummy"/>
+        <PeriodicPeriodArray value="0.125"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="CARRGrenadeLauncherBoss@SearchDummy">
+        <EditorCategories value="Race:UPL"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2"/>
+        <DebugTrace value="1"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="CARRGrenadeLauncherBoss@Damage" parent="DU_SPELL">
+        <Amount value="20"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="CARRGrenadeLauncherBoss@Launch">
+        <ValidatorArray index="0" value="AARocketLaunchTargetFilters"/>
+        <EditorCategories value="Race:UPL"/>
+        <Marker Link="Effect/AARocketLaunch"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactOffset value="0,0,0.1"/>
+        <ImpactEffect value="CARRGrenadeLauncherBoss@Search"/>
+        <AmmoUnit value="CARRGrenadeLauncherBoss@Missile"/>
+    </CEffectLaunchMissile>
+    <CEffectEnumArea id="CARRGrenadeLauncherBoss@Search">
+        <EditorCategories value="Race:UPL"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="2" Effect="CARRGrenadeLauncherBoss@Damage"/>
+    </CEffectEnumArea>
+    <CAbilEffectTarget id="CARRIllumination">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Effect index="0" value="CARRIlluminationLaunchMissile"/>
+        <Cost>
+            <Charge>
+                <CountMax value="1"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <TimeUse value="12"/>
+            </Charge>
+        </Cost>
+        <Range value="10.5"/>
+        <PrepTime value="0.01"/>
+        <FinishTime value="0.33"/>
+        <UninterruptibleArray index="Prep" value="1"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="CARRIllumination">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+        <Flags index="RangeUsePathing" value="1"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <CastIntroTime value="0.3725"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="CARRGrenadeLauncherCheck">
+        <EditorCategories value="Race:UPL,AbilityorEffectType:Units"/>
+        <Effect index="0" value="PsiStormPersistent"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Cost>
+            <Vital index="Energy" value="75"/>
+            <Charge Link="Abil/PsiStorm"/>
+            <Cooldown Link="Abil/PsiStorm" TimeUse="2.5"/>
+        </Cost>
+        <InterruptCost>
+            <Charge Link="Abil/PsiStorm"/>
+            <Cooldown Link="Abil/PsiStorm"/>
+        </InterruptCost>
+        <Range value="9"/>
+        <CastOutroTime value="0.5"/>
+        <Marker Link="Abil/PsiStorm"/>
+        <CursorEffect value="PsiStormSearch"/>
+        <AINotifyEffect value="PsiStorm"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="PsiStorm" Requirements="UsePsiStorm"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="CARRGrenadeLauncher">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Effect index="0" value="CARRGrenadeLauncherLaunch"/>
+        <Cost>
+            <Cooldown TimeUse="15"/>
+        </Cost>
+        <Range value="7"/>
+        <CursorEffect value="CARRGrenadeLauncherSearch"/>
+        <AINotifyEffect value="CARRGrenadeLauncherSearch"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="CARRGrenadeLauncher">
+            <Flags index="ToSelection" value="1"/>
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="CARRGrenadeLauncherBoss">
+        <EditorCategories value="AbilityorEffectType:Units,Race:UPL"/>
+        <Effect index="0" value="CARRGrenadeLauncherBoss@Delay"/>
+        <Cost>
+            <Cooldown TimeUse="5"/>
+        </Cost>
+        <Range value="8"/>
+        <CursorEffect value="CARRGrenadeLauncherBoss@Search"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="CARRGrenadeLauncherBoss"/>
+        <FinishTime value="0.25"/>
+        <UninterruptibleArray index="Cast" value="1"/>
+        <UninterruptibleArray index="Channel" value="1"/>
+        <UninterruptibleArray index="Finish" value="1"/>
+    </CAbilEffectTarget>
+    <CButton id="CARRTracker">
+        <Icon value="Assets\Textures\btn-ability-UPL-Detection.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-UPL-Detection.dds"/>
+        <EditorCategories value="Race:UPL"/>
+        <TintRacially value="1"/>
+    </CButton>
+    <CButton id="CARRIllumination">
+        <Icon value="Assets\Textures\btn-ability-UPL-Flare.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-UPL-Flare.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CButton id="CARRIlluminationAlt" parent="CARRIllumination">
+        <Hotkey value="Button/Hotkey/CARRIlluminationAlt"/>
+        <HotkeyAlias value="CARRIlluminationAlt"/>
+    </CButton>
+    <CButton id="CARR">
+        <Icon value="Assets\Textures\btn-unit-upl-carr.dds"/>
+        <AlertIcon value="Assets\Textures\btn-unit-upl-carr.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CButton id="CARRGrenadeLauncher">
+        <Icon value="Assets\Textures\btn-ability-UPL-GrenadeLauncher.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-UPL-GrenadeLauncher.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CButton id="CARRGrenadeLauncherAlt" parent="CARRGrenadeLauncher">
+        <Hotkey value="Button/Hotkey/CARRGrenadeLauncherAlt"/>
+        <HotkeyAlias value="CARRGrenadeLauncherAlt"/>
+    </CButton>
+    <CButton id="CARRGrenadeLauncherBoss">
+        <Icon value="Assets\Textures\btn-ability-hornerhan-hellion-slowbomb.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-hornerhan-hellion-slowbomb.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CButton id="RaptorCloak">
+        <Icon value="Assets\Textures\btn-ability-UPL-Metamateria-Suit.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-UPL-Metamateria-Suit.dds"/>
+        <EditorCategories value="Race:UPL"/>
+    </CButton>
+    <CLight id="CARR1661Portrait" parent="default">
+        <ToDInfoArray index="0" Id="Agria" AmbientColor="0.027451,0.101961,0.486275" Colorize="1">
+            <Param index="HDRExposure" value="1.500000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="11.210000"/>
+            <Param index="TerrainHDRSpecular" value="3.750000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationContrast" value="1.066000"/>
+            <Param index="ColorizationHue" value="0.001000"/>
+            <Param index="ColorizationBlend" value="0.300000"/>
+            <DirectionalLight index="Key">
+                <Color value="0.278431,1.000000,0.541176"/>
+                <ColorMultiplier value="1.718000"/>
+                <SpecularColor value="0.725490,1.000000,0.847059"/>
+                <SpecColorMultiplier value="1.148000"/>
+                <Direction value="-0.604700,0.286486,-0.743145"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" Color="1.000000,1.000000,1.000000" ColorMultiplier="9.772000" Direction="-0.544194,-0.837665,-0.046584"/>
+            <DirectionalLight index="Back" Color="1.000000,0.431373,0.000000" ColorMultiplier="7.413000" Direction="-0.583723,0.222902,0.780758"/>
+        </ToDInfoArray>
+        <EditorCategories value="LightGroup:PortraitsUnitsTerran"/>
+    </CLight>
+    <CLight id="CARRPortrait" parent="default">
+        <ToDInfoArray index="0" Id="Agria" AmbientColor="0.027451,0.101961,0.486275" Colorize="1">
+            <Param index="HDRExposure" value="1.500000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="11.210000"/>
+            <Param index="TerrainHDRSpecular" value="3.750000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationContrast" value="1.066000"/>
+            <Param index="ColorizationHue" value="0.001000"/>
+            <Param index="ColorizationBlend" value="0.300000"/>
+            <DirectionalLight index="Key">
+                <Color value="0.584314,0.796079,1.000000"/>
+                <ColorMultiplier value="0.603000"/>
+                <SpecularColor value="0.796079,0.976471,0.992157"/>
+                <SpecColorMultiplier value="1.288000"/>
+                <Direction value="0.120582,0.890669,-0.438371"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" Color="1.000000,0.047059,0.054902" ColorMultiplier="0.881000" Direction="0.998151,0.059651,0.011693"/>
+            <DirectionalLight index="Back" Color="1.000000,0.031373,0.000000" ColorMultiplier="8.710000" Direction="-0.502543,-0.087437,0.860119"/>
+        </ToDInfoArray>
+        <EditorCategories value="LightGroup:PortraitsUnitsTerran"/>
+    </CLight>
+    <CActorModelMaterial id="CARRBossInvulnerabilityGlaze" parent="GlazeParent">
+        <On Terms="Behavior.CARRBossInvulnerabilityGlaze.On" Send="Create"/>
+        <On Terms="ActorCreation" Send="ModelMaterialApplyTo ::Main"/>
+        <On Terms="Behavior.CARRBossInvulnerabilityGlaze.Off" Send="ModelMaterialRemoveFrom ::Main"/>
+        <On Terms="Behavior.CARRBossInvulnerabilityGlaze.Off" Send="Destroy"/>
+        <Model value="GlazeStasis"/>
+    </CActorModelMaterial>
+    <CActorRange id="CARRGrenadeLauncherRange" parent="RangeAbil" abil="CARRGrenadeLauncher">
+        <IconArcLength value="2.400000"/>
+    </CActorRange>
+    <CActorSound id="CARR_Idle" parent="SoundContinuous">
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+    </CActorSound>
+    <CActorAction id="CARRIlluminationAttack" parent="GenericAttack" effectImpact="CARRIlluminationCreatePersistent" effectLaunch="CARRIlluminationLaunchMissile">
+        <Remove Terms="Effect.CARRIlluminationCreatePersistent.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics"/>
+        <LaunchAttachQuery Methods="PatternAARocket"/>
+        <LaunchAssets Model="" Sound="Civilian_AttackLaunch"/>
+    </CActorAction>
+    <CActorMissile id="CARRIlluminationAttackMissile" parent="GenericAttackMissile" unitName="CARRIlluminationMissile">
+        <Model value="TR17StarburstMissile"/>
+    </CActorMissile>
+    <CActorRange id="CARRTrackerRadarRange">
+        <Inherits index="Visibility" value="0"/>
+        <FogVisibility value="Visible"/>
+        <On Terms="UnitBirth.CARR.EditorPlaced" Send="Create"/>
+        <On Terms="Behavior.CARRTracker.Off" Send="Destroy"/>
+        <On Terms="SelectionLocalUpdate.CARR.Start; ValidateUnit HasCARRTracker" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.CARR.Stop" Send="Destroy"/>
+        <On Terms="Behavior.CARRTracker.Disable" Send="SetVisibility"/>
+        <On Terms="Behavior.CARRTracker.Enable" Send="SetVisibility 1"/>
+        <On Terms="Abil.CARRGrenadeLauncher.TargetOn" Send="SetVisibility"/>
+        <On Terms="Abil.CARRGrenadeLauncher.TargetOff" Send="SetVisibility 1"/>
+        <Range value="12.000000"/>
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
+        <VisibleTo index="Neutral" value="1"/>
+        <VisibleTo index="Enemy" value="1"/>
+        <IconTint value="255,212,212,212"/>
+    </CActorRange>
+    <CActorRange id="CARRTrackerRadarRangeMinimap">
+        <VisibleTo index="Neutral" value="1"/>
+        <VisibleTo index="Enemy" value="1"/>
+        <Inherits index="Visibility" value="0"/>
+        <FogVisibility value="Visible"/>
+        <!--On Terms="Behavior.CARRTracker.On" Send="Create"/>
+        <On Terms="Behavior.CARRTracker.Off" Send="Destroy"/>
+        <On Terms="Behavior.CARRTracker.Disable" Send="SetVisibility"/>
+        <On Terms="Behavior.CARRTracker.Enable" Send="SetVisibility 1"/-->
+        <Range value="12.000000"/>
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
+        <RangeFlags index="GameWorld" value="0"/>
+        <RangeFlags index="Minimap" value="1"/>
+    </CActorRange>
+    <CActorSplat id="CARRIlluminationCursorSplat" parent="CursorSplat" abil="CARRIllumination">
+        <Model value="ScannerSweepCursorSplat"/>
+    </CActorSplat>
+    <CActorModel id="CARRIlluminationImpactModelUnnamed" parent="ModelAnimationStyleContinuous">
+        <On Terms="Effect.CARRIlluminationCreatePersistent.Start" Send="Create"/>
+        <On Terms="Effect.CARRIlluminationCreatePersistent.Stop" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorDestruction" Target="ScannerSweepVisual" Send="Destroy"/>
+        <Model value="CARRIlluminationImpactModel"/>
+    </CActorModel>
+    <CActorSound id="CARRIlluminationImpactSound" parent="SoundContinuous">
+        <On Terms="Effect.CARRIlluminationCreatePersistent.Start" Send="Create"/>
+        <On Terms="Effect.CARRIlluminationCreatePersistent.Stop" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Sound value="CARRIlluminationImpact"/>
+        <PlayMode value="Random"/>
+        <LoopCount value="-1"/>
+    </CActorSound>
+    <CActorRange id="CARRIlluminationRange" parent="RangeAbil" abil="CARRIllumination">
+        <IconArcLength value="2.800000"/>
+    </CActorRange>
+    <CActorMissile id="CARRRocketMissile" parent="GenericAttackMissile" unitName="CARRRocketMissile"/>
+    <CActorSplat id="CARRGrenadeLauncherCursorSplat" parent="CursorSplat" abil="CARRGrenadeLauncher">
+        <Macros value="GlobalLoopMacro"/>
+        <Model value="TerranAOECursorSplat"/>
+    </CActorSplat>
+    <CActorAction id="CARRGroundAttack" parent="GenericAttack" effectAttack="CARRGroundDamage">
+        <EditorCategories value=""/>
+        <LaunchSiteOps Ops="SOpAttachHarness SOpAttachCenter2"/>
+        <LaunchAssets Model="CARRGroundLaunch" Sound="CARRGround_Launch"/>
+        <ImpactMap index="None" Model="CARRGroundImpact"/>
+        <ImpactPhysics Name="GatlingCannonImpact" MatchKeys="Basic" Physics="VikingAssaultAttackForce"/>
+    </CActorAction>
+    <CActorModel id="CARRGroundLaunchLight" parent="LaunchLightBase">
+        <On Terms="Effect.CARRGroundDamage.Start; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.700000 a"/>
+        <On Terms="TimerExpired; TimerName a" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachCenter2"/>
+        <Model value="CARRLaunchLight"/>
+    </CActorModel>
+    <CActorModel id="CARRGrenadeLaunchlight" parent="LaunchLightBase">
+        <On Terms="Effect.CARRGrenadeLauncherLaunch.Start; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.200000 a"/>
+        <On Terms="TimerExpired; TimerName a" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachCenter2"/>
+        <Model value="CARRLaunchLight"/>
+    </CActorModel>
+    <CActorModel id="CARRRocketSmoke" parent="SmokeAdditionBase">
+        <On Terms="UnitBirth.CARRRocketMissile" Send="Create"/>
+        <HostSiteOps Ops="SOpMissile InfantryRocketbackSmokeRotate"/>
+        <Model value="InfantryRocketLaunchBack"/>
+    </CActorModel>
+    <CActorUnit id="CARR" parent="GenericUnitStandard" unitName="CARR">
+        <Aliases value="_UnitLarge"/>
+        <On index="65" Terms="WeaponStart.CARRAir.AttackStart" Send="AnimBracketStart Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="Abil.CARRGrenadeLauncher.TargetCastStart" Send="AnimGroupApply Ready"/>
+        <On Terms="Abil.CARRIllumination.SourceCastStart" Send="AnimBracketStart Spell Attack,Superior {} {} ContentPlayOnce 1.200000 AsDuration"/>
+        <On Terms="UnitMovementUpdate.*.Walk" Send="AnimBracketStop Spell"/>
+        <On Terms="ActorCreation" Send="Create CARR_Idle"/>
+        <On Terms="Abil.CARRGrenadeLauncherBoss.SourceChannelStart" Send="AnimPlay Spell Attack 0 -1.000000 -1.000000 5.500000 AsDuration"/>
+        <On Terms="Abil.CARRGrenadeLauncherBoss.SourceChannelStop" Send="AnimClear Spell 0.400000"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <DeathArray index="Normal" ModelLink="CARRDeath"/>
+        <PortraitModel value="CARRPortrait"/>
+        <WalkAnimMoveSpeed value="1.3007"/>
+        <BarOffset value="45"/>
+        <BarWidth value="42"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-upl-carr.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\ui-heroicon-carr.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrades-upl-vehicleplating-lvl0.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-upl-carr.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-upl-carr.dds"/>
+        </Wireframe>
+        <UnitKillRank Text="UnitKillRank/CARR"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+    </CActorUnit>
+    <CActorAction id="CARRAirAttack" parent="GenericAttack" effectImpact="CARRAirDamage" effectLaunch="CARRAirLaunch">
+        <LaunchAttachQuery Methods="PatternAARocket"/>
+        <LaunchAssets Sound="CARR_RocketLaunch"/>
+        <Missile value="CARRRocketMissile"/>
+        <ImpactAttachQuery Methods="AMFilterTarget AMRandomUniform"/>
+        <ImpactMap index="None" Model="MissileTurretAttackImpact" Sound="MissileTurret_AttackImpact" ModelReaction="MissileTurretAttackImpactReaction"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <ImpactMap index="Shield" Sound="MissileTurretAttackImpactShield" ModelReaction="MissileTurretAttackImpactReactionShield"/>
+        <ImpactPhysics Name="90mmCannonImpact" MatchKeys="Basic" Physics="SiegeTankAttackForce"/>
+    </CActorAction>
+    <CActorModel id="CARRGrenadeLauncherChannel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Effect.CARRGrenadeLauncherBoss@Delay.Start; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="SetScale 2.200000 4.500000"/>
+        <On Terms="Effect.CARRGrenadeLauncherBoss@Delay.Stop" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorCreation" Send="SetTintColor {255,198,198 1.300000}"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter2"/>
+        <Scale value="0.400000"/>
+    </CActorModel>
+    <CActorSound id="CARRGrenadeLauncherChannelSound" parent="SoundOneShot">
+        <On Terms="Effect.CARRGrenadeLauncherBoss@Delay.Start; At Caster" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter2"/>
+        <Sound value="CARRGrenadeLauncherBoss@Channel"/>
+    </CActorSound>
+    <CActorAction id="CARRGrenadeLauncherBoss@Attack" parent="GenericAttack" effectImpact="CARRGrenadeLauncherBoss@Search" effectLaunch="CARRGrenadeLauncherBoss@Launch">
+        <LaunchSiteOps Ops="SOpAttachHarness SOpAttachCenter2"/>
+        <LaunchAttachQuery Methods="PatternAARocket"/>
+        <LaunchAssets Sound="CARRGrenadeLauncherBoss@Launch"/>
+        <Missile value="CARRGrenadeLauncherBoss@Missile"/>
+        <ImpactAttachQuery Methods="AMFilterTarget AMRandomUniform"/>
+        <ImpactMap index="None" Model="CARRGrenadeLauncherBoss@Impact" Sound="CARRGrenadeLauncherBoss@Impact" ModelReaction="MissileTurretAttackImpactReaction"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <ImpactMap index="Shield" Sound="MissileTurretAttackImpactShield" ModelReaction="MissileTurretAttackImpactReactionShield"/>
+    </CActorAction>
+    <CActorMissile id="CARRGrenadeLauncherBoss@Missile" parent="GenericAttackMissile" unitName="CARRGrenadeLauncherBoss@Missile"/>
+    <CActorSplat id="CARRGrenadeLauncherBoss@CursorSplat" parent="CursorSplat" abil="CARRGrenadeLauncherBoss">
+        <Macros value="GlobalLoopMacro"/>
+        <Model value="TerranAOECursorSplat"/>
+    </CActorSplat>
+    <CActorSplat id="CARRGrenadeLauncherBoss@CursorSplatDummy" parent="CursorSplat" abil="">
+        <On index="0" Terms="Abil.Cursor" Send="Create"/>
+        <On Terms="Effect.CARRGrenadeLauncherBoss@Delay.Start" Send="Create"/>
+        <On Terms="Effect.CARRGrenadeLauncherBoss@Delay.Stop" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="SetScale 2.000000"/>
+        <Macros value="GlobalLoopMacro"/>
+        <Model value="TerranAOECursorSplat"/>
+        <VisibleTo index="All" value="1"/>
+        <HostSiteOps Ops="SOpTargetPoint SOpShadow"/>
+        <Remove Terms="ActorCreation" Send="Create CursorRegion"/>
+    </CActorSplat>
+    <CActorModel id="CARRGrenadeLauncherBoss@LaunchLight" parent="ModelAnimationStyleOneShot">
+        <EditorCategories value=""/>
+        <On Terms="Effect.CARRGrenadeLauncherBoss@Launch.Start; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.200000 a"/>
+        <On Terms="TimerExpired; TimerName a" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter2"/>
+    </CActorModel>
+    <CCharacter id="CARR">
+        <Race value="Terran"/>
+        <Image value="Assets\Textures\CARRPortrait_Static.dds"/>
+        <Variations Name="Character/Name/CARR/Var1" Model="CARRPortrait" Actor="PortraitActor">
+            <DefaultCategories value="Default"/>
+        </Variations>
+        <Unit value="CARR"/>
+    </CCharacter>
+    <CModel id="CARR1661Portrait" parent="Portrait" Race="UPL">
+        <Image value="Assets\Textures\CARR1661_Portrait_Static.tga"/>
+    </CModel>
+    <CModel id="CARRIlluminationImpactModel" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\UPL\CARRFLare\CARRFLare.m3"/>
+    </CModel>
+    <CModel id="CARRRocketMissile" parent="MissileFX">
+        <Model value="Assets\Effects\Terran\MissileTurretMissile\MissileTurretMissile.m3"/>
+    </CModel>
+    <CModel id="CARRGroundImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\VikingAssaultWeaponImpact\VikingAssaultWeaponImpact.m3"/>
+        <Lighting value="ThorHandGunAttackImpact"/>
+    </CModel>
+    <CModel id="CARRGroundLaunch" parent="LaunchFX">
+        <Model value="Assets\Effects\UPL\CARRGroundLaunch\CARRGroundLaunch.m3"/>
+        <Lighting value="MarineAttackLaunch"/>
+    </CModel>
+    <CModel id="CARRLaunchLight" parent="OneShotSpellFX">
+        <Model value="Assets\Doodads\LightOmniORange\LightOmniORange.m3"/>
+        <Lighting value="InfantryLaunchlight"/>
+        <ScaleMax value="0.700000,0.700000,0.700000"/>
+        <ScaleMin value="0.800000,0.800000,0.800000"/>
+    </CModel>
+    <CModel id="CARRMissileLaunchback" parent="LaunchFX">
+        <Model value="Assets\Effects\Terran\SiegeTankWeaponLaunch\SiegeTankWeaponLaunch.m3"/>
+        <AnimSpeed value="1.200000"/>
+        <Lighting value="MengskSiegeTankSiegedAttackLaunch"/>
+        <ScaleMax value="0.700000,0.700000,0.700000"/>
+        <ScaleMin value="0.700000,0.700000,0.700000"/>
+    </CModel>
+    <CModel id="CARRPortrait" parent="Portrait" Race="UPL"/>
+    <CModel id="CARRDeath" parent="UnitDeath" Race="UPL">
+        <Occlusion value="Show"/>
+        <SelectionRadius value="0.555400"/>
+        <ShadowRadius value="0.555400"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="CARRDeathGroundImpact"/>
+            <Type value="Sound"/>
+            <Time value="1.570000"/>
+            <Payload value="CARRDeathGroundImpact"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="CARRDeathGroundImpact"/>
+            <Type value="Sound"/>
+            <Time value="3.000000"/>
+            <Payload value="CARRDeathGroundImpact"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="CARRDeathFinal"/>
+            <Type value="Sound"/>
+            <Time value="3.500000"/>
+            <Payload value="CARRDeathFinal"/>
+        </Events>
+        <Events>
+            <Anim value="Death,01"/>
+            <Name value="CARRDeathFinal"/>
+            <Type value="Sound"/>
+            <Time value="2.820000"/>
+            <Payload value="CARRDeathFinal"/>
+        </Events>
+        <Events>
+            <Anim value="Death,01"/>
+            <Name value="CARRDeathGroundImpact"/>
+            <Type value="Sound"/>
+            <Time value="2.210000"/>
+            <Payload value="CARRDeathGroundImpact"/>
+        </Events>
+    </CModel>
+    <CModel id="CARR" parent="Unit" Race="UPL">
+        <PlanetPanelCamera value="Star2CameraHigh08"/>
+        <TechPurchaseCamera value="Star2CameraHigh08"/>
+        <UnitGlossaryCamera value="Star2CameraHigh05"/>
+        <SelectionRadius value="0.600000"/>
+        <SquibTypeDefault value="Metal"/>
+        <Events>
+            <Anim value="Walk"/>
+            <Name value="CARR_Footstep"/>
+            <Type value="Sound"/>
+            <Time value="0.120000"/>
+            <Payload value="CARR_Footstep"/>
+        </Events>
+        <Events>
+            <Anim value="Walk"/>
+            <Name value="CARR_Footstep"/>
+            <Type value="Sound"/>
+            <Time value="0.780000"/>
+            <Payload value="CARR_Footstep"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,00"/>
+            <Name value="CARR_Fidget00"/>
+            <Type value="Sound"/>
+            <Time value="3.160000"/>
+            <Payload value="CARR_Fidget00"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,00"/>
+            <Name value="CARR_Fidget00"/>
+            <Type value="Sound"/>
+            <Time value="5.550000"/>
+            <Payload value="CARR_Fidget00"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="CARR_Footstep"/>
+            <Type value="Sound"/>
+            <Time value="2.150000"/>
+            <Payload value="CARR_Footstep"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="CARR_Footstep"/>
+            <Type value="Sound"/>
+            <Time value="2.560000"/>
+            <Payload value="CARR_Footstep"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="CARR_Footstep"/>
+            <Type value="Sound"/>
+            <Time value="4.090000"/>
+            <Payload value="CARR_Footstep"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="CARR_Footstep"/>
+            <Type value="Sound"/>
+            <Time value="4.500000"/>
+            <Payload value="CARR_Footstep"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="CARR_Fidget03"/>
+            <Type value="Sound"/>
+            <Time value="1.560000"/>
+            <Payload value="CARR_Fidget03"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="CARR_Fidget02"/>
+            <Type value="Sound"/>
+            <Time value="3.200000"/>
+            <Payload value="CARR_Fidget02"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="CARR_Fidget01"/>
+            <Type value="Sound"/>
+            <Time value="4.000000"/>
+            <Payload value="CARR_Fidget01"/>
+        </Events>
+    </CModel>
+    <CModel id="CARRGrenadeLauncherChannel" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Terran\DiamondbackWeaponChargedLaunch\DiamondbackWeaponChargedLaunch.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CModel id="CARRGrenadeLauncherBoss@Impact" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\ThorShoulderMissileImpact\ThorShoulderMissileImpact.m3"/>
+        <Lighting value="ThorHandGunAttackImpact"/>
+    </CModel>
+    <CModel id="CARRGrenadeLauncherBoss@Missile" parent="MissileFX">
+        <Model value="Assets\Effects\Terran\MagneticMineMissile\MagneticMineMissile.m3"/>
+        <Lighting value="AARocket"/>
+        <ScaleMax value="1.500000,1.500000,1.500000"/>
+        <ScaleMin value="1.500000,1.500000,1.500000"/>
+    </CModel>
+    <CModel id="CARRGrenadeLauncherBoss@LaunchLight" parent="OneShotSpellFX">
+        <Model value="Assets\Doodads\LightOmniORange\LightOmniORange.m3"/>
+        <Lighting value="InfantryLaunchlight"/>
+        <ScaleMax value="0.700000,0.700000,0.700000"/>
+        <ScaleMin value="0.800000,0.800000,0.800000"/>
+    </CModel>
+    <CWeaponLegacy id="CARRGround">
+        <EditorCategories value="Race:UPL"/>
+        <Icon value="Assets\Textures\btn-upgrades-upl-vehicleweapons-lvl0.dds"/>
+        <DisplayEffect value="CARRGroundDamage"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <MinScanRange value="6"/>
+        <Period value="1.2"/>
+        <DamagePoint value="0.05"/>
+        <Backswing value="0.75"/>
+        <Effect value="CARRGroundDamage"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="CARRAir">
+        <EditorCategories value="Race:UPL"/>
+        <Icon value="Assets\Textures\btn-techupgrade-terran-missilepods.dds"/>
+        <TargetFilters value="Air,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <DisplayEffect value="CARRAirDamage"/>
+        <Effect value="CARRAirLaunch"/>
+        <Period value="1.2"/>
+    </CWeaponLegacy>
+    <CMoverMissile id="CARRGrenadeLauncherBoss@MissileMover">
+        <MotionPhases>
+            <Driver value="Ballistic"/>
+            <Speed value="40"/>
+            <MaxSpeed value="10"/>
+            <Gravity value="5"/>
+            <ThrowBandYaw value="-360,-360,-360,-360"/>
+            <ThrowBandPitch value="-360,-360,-360,-360"/>
+            <YawPitchRoll value="5759.6484"/>
+        </MotionPhases>
+        <MotionPhases YawPitchRoll="MAX"/>
+    </CMoverMissile>
+    <CSound id="CARR_Idle" parent="Ambience_Object">
+        <AssetArray File="Assets\sounds\UPL\CARR\CARR_Idle00.ogg" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Pitch value="-2.000000,-2.000000"/>
+        <Volume value="-15.000000,-15.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="13.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CARR_Fidget01" parent="Foley">
+        <AssetArray index="0" File="Assets\sounds\UPL\CARR\CARR_Fidget01.ogg"/>
+        <Chance value="33"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="-20.000000,-18.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="17.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CARR_Fidget02" parent="Foley">
+        <AssetArray index="0" File="Assets\sounds\UPL\CARR\CARR_Fidget02.ogg"/>
+        <Chance value="33"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="-20.000000,-18.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="17.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CARR_Fidget03" parent="Foley">
+        <AssetArray index="0" File="Assets\sounds\UPL\CARR\CARR_Fidget03.ogg" FacialGroup=""/>
+        <Chance value="33"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="-20.000000,-18.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="17.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CARR_Footstep" parent="Movement">
+        <AssetArray File="Assets\sounds\UPL\CARR\CARR_Footstep00.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\sounds\UPL\CARR\CARR_Footstep01.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\sounds\UPL\CARR\CARR_Footstep02.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\sounds\UPL\CARR\CARR_Footstep03.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\sounds\UPL\CARR\CARR_Footstep04.ogg" FacialGroup=""/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Volume value="-25.000000,-24.000000"/>
+        <PanLevel value="0.500000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="20.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CARR_Fidget00" parent="Foley">
+        <AssetArray index="0" File="Assets\sounds\UPL\CARR\CARR_Fidget00.ogg" FacialGroup=""/>
+        <Chance value="33"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="-22.000000,-19.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="17.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CARRDeathGroundImpact" parent="PhysicsImpact">
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy00.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy01.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy02.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy03.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy04.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy05.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy06.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy07.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy08.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy09.ogg" FacialGroup=""/>
+        <DupeDestroyCount value="5"/>
+        <DupeHistoryCount value="8"/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="5"/>
+        <DupeRepeatCount value="5"/>
+        <Pitch value="3.000000,3.000000"/>
+        <ResourcePriority value="16"/>
+        <Volume value="-5.000000,-4.000000"/>
+    </CSound>
+    <CSound id="CARRIlluminationImpact" parent="Spell">
+        <EditorCategories value="Race:Terran"/>
+        <AssetArray File="Assets\Sounds\Korhal_Fire_FlareUp_01.wav"/>
+        <AssetArray File="Assets\Sounds\Korhal_Fire_FlareUp_02.wav"/>
+        <AssetArray File="Assets\Sounds\Korhal_Fire_FlareUp_03.wav"/>
+        <AssetArray File="Assets\Sounds\Korhal_Fire_FlareUp_04.wav"/>
+        <Mode value="2D"/>
+        <Volume value="-8.000000,-8.000000"/>
+    </CSound>
+    <CSound id="CARRGround_Launch" parent="Combat">
+        <EditorCategories value="Race:Terran"/>
+        <AssetArray File="Assets\Sounds\UPL\CARR\CARR_AttackLaunch00.ogg"/>
+        <DupeDestroyCount value="8"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-1.500000,0.000000"/>
+        <Volume value="-9.500000,-8.800000"/>
+    </CSound>
+    <CSound id="CARRDeath" parent="UPLUnitDeath">
+        <AssetArray File="Assets\Sounds\UPL\CARR\CARR_Death00.ogg"/>
+        <Pitch value="-0.500000,0.500000"/>
+        <Volume value="-8.000000,-7.000000"/>
+    </CSound>
+    <CSound id="CARRDeathFinal" parent="Combat">
+        <AssetArray File="Assets\Sounds\UPL\CARR\CARR_DeathExplodeFinal00.ogg"/>
+        <Pitch value="-0.500000,0.500000"/>
+        <Volume value="-8.000000,-7.000000"/>
+    </CSound>
+    <CSound id="CARR_GrenadeLaunch" parent="Combat">
+        <AssetArray File="Assets\sounds\UPL\CARR\CARR_GrenadeLaunch.ogg"/>
+        <DupeDestroyCount value="8"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-3.000000,-2.000000"/>
+        <Volume value="3.000000,3.000000"/>
+        <Flags index="UseDoppler" value="1"/>
+        <DopplerLevel value="3.000000"/>
+    </CSound>
+    <CSound id="CARR_GrenadeImpact" parent="Combat">
+        <AssetArray File="Assets\Sounds\UPL\CARR\CARR_GrenadeImpact00.ogg"/>
+        <AssetArray File="Assets\Sounds\UPL\CARR\CARR_GrenadeImpact01.ogg"/>
+        <AssetArray File="Assets\Sounds\UPL\CARR\CARR_GrenadeImpact02.ogg"/>
+        <DupeDestroyCount value="8"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="-9.610000,-9.610000"/>
+    </CSound>
+    <CSound id="CARR_RocketLaunch" parent="Combat">
+        <AssetArray File="Assets\Sounds\UPL\CARR\CARR_RocketLauncher00.ogg"/>
+        <DupeDestroyCount value="8"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="-9.500000,-8.500000"/>
+    </CSound>
+    <CSound id="CARR_Help" parent="UPLUnitHelp" Unit="CARR">
+        <AssetArray TemplateParam="CARR_Help00"/>
+    </CSound>
+    <CSound id="CARR_Ready" parent="UPLUnitReady" Unit="CARR">
+        <AssetArray TemplateParam="CARR_Ready00"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="CARR_Pissed" parent="UPLUnitAck" Unit="CARR">
+        <AssetArray TemplateParam="CARR_Pissed00"/>
+        <AssetArray TemplateParam="CARR_Pissed01"/>
+        <AssetArray TemplateParam="CARR_Pissed02"/>
+        <AssetArray TemplateParam="CARR_Pissed03"/>
+        <AssetArray TemplateParam="CARR_Pissed04"/>
+        <AssetArray TemplateParam="CARR_Pissed05"/>
+        <Volume value="-2.000000,-2.000000"/>
+    </CSound>
+    <CSound id="CARR_What" parent="UPLUnitAck" Unit="CARR">
+        <AssetArray TemplateParam="CARR_What00"/>
+        <AssetArray TemplateParam="CARR_What01"/>
+        <AssetArray TemplateParam="CARR_What02"/>
+        <AssetArray TemplateParam="CARR_What03"/>
+        <Volume value="-3.000000,-3.000000"/>
+    </CSound>
+    <CSound id="CARR_Yes" parent="UPLUnitAck" Unit="CARR">
+        <AssetArray TemplateParam="CARR_Yes00"/>
+        <AssetArray TemplateParam="CARR_Yes01"/>
+        <AssetArray TemplateParam="CARR_Yes02"/>
+        <AssetArray TemplateParam="CARR_Yes03"/>
+        <AssetArray TemplateParam="CARR_Yes04"/>
+        <Volume value="-3.000000,-3.000000"/>
+    </CSound>
+    <CSound id="CARR_Attack" parent="UPLUnitAck" Unit="CARR">
+        <AssetArray TemplateParam="CARR_Attack00"/>
+        <AssetArray TemplateParam="CARR_Attack01"/>
+        <AssetArray TemplateParam="CARR_Attack02"/>
+        <AssetArray TemplateParam="CARR_Attack03"/>
+        <AssetArray TemplateParam="CARR_Attack04"/>
+        <Volume value="-3.500000,-3.500000"/>
+    </CSound>
+    <CSound id="CARRGrenadeLauncherBoss@Channel" parent="Spell">
+        <EditorCategories value="Race:Terran"/>
+        <AssetArray File="Assets\Sounds\SM_CS\SoA_K01_BC_MissleCharge.wav" FacialGroup=""/>
+        <Category value="Combat"/>
+        <DupeDestroyCount value="8"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="6.000000,6.000000"/>
+        <Volume value="-11.000000,-11.000000"/>
+    </CSound>
+    <CSound id="CARRGrenadeLauncherBoss@Impact" parent="Combat">
+        <EditorCategories value="Race:Terran"/>
+        <AssetArray File="Assets\Sounds\Explosion - Grenade 2.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Explosion - Grenade 3.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Explosion - Grenade.ogg" FacialGroup=""/>
+        <DupeDestroyCount value="8"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="-9.610000,-9.610000"/>
+    </CSound>
+    <CSound id="CARRGrenadeLauncherBoss@Launch" parent="Combat">
+        <EditorCategories value="Race:Terran"/>
+        <AssetArray File="Assets\Sounds\Unit-CARR Grenade Launcher.ogg" FacialGroup=""/>
+        <DupeDestroyCount value="8"/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Volume value="-9.610000,-9.610000"/>
+    </CSound>
+    <CDataCollectionUnit id="CARR">
+        <EditorCategories value="DataGroup:Unit,Race:Terran,ObjectType:Hero,DataFamily:Campaign"/>
+        <DataRecord Entry="Actor,CARR"/>
+        <DataRecord Entry="Button,CARR"/>
+        <DataRecord Entry="Model,CARR"/>
+        <DataRecord Entry="Unit,CARR"/>
+        <DataRecord Entry="Model,CARRDeath"/>
+        <DataRecord Entry="Model,CARRDeathLow"/>
+        <DataRecord Entry="Model,CARRPortrait"/>
+        <DataRecord Entry="Light,CARRPortrait"/>
+        <DataRecord Entry="Sound,CARR_Birth"/>
+        <DataRecord Entry="Sound,CARR_Ready"/>
+        <DataRecord Entry="Sound,CARR_Help"/>
+        <DataRecord Entry="Sound,CARR_What"/>
+        <DataRecord Entry="Sound,CARR_Yes"/>
+        <DataRecord Entry="Sound,CARR_Attack"/>
+        <DataRecord Entry="Sound,CARR_Pissed"/>
+        <DataRecord Entry="Sound,CARR_Movement"/>
+        <DataRecord Entry="Sound,CARR_Turning"/>
+        <DataRecord Entry="Sound,CARR_Board"/>
+        <DataRecord Entry="Sound,CARR_Click"/>
+        <DataRecord Entry="Sound,CARR_ClickError"/>
+        <DataRecord Entry="Sound,CARR_Highlight"/>
+        <DataRecord Entry="Sound,CARR_Death"/>
+        <DataRecord Entry="Sound,CARR_Explode"/>
+        <DataRecord Entry="Model,CARRDeathAcid"/>
+        <DataRecord Entry="Model,CARRDeathBlast"/>
+        <DataRecord Entry="Model,CARRDeathFire"/>
+        <DataRecord Entry="Model,CARRDeathRagdoll"/>
+        <DataRecord Entry="Model,CARRDeathSilent"/>
+        <DataRecord Entry="Weapon,CARR"/>
+        <DataRecord Entry="Effect,CARR"/>
+        <DataRecord Entry="Character,CARR"/>
+        <Pattern value="LotC_Unit"/>
+    </CDataCollectionUnit>
+    <CDataCollectionAbil id="CARRGrenadeLauncherBoss">
+        <EditorCategories value=""/>
+        <DataRecord Entry="Abil,CARRGrenadeLauncherBoss"/>
+        <DataRecord Entry="Actor,CARRGrenadeLauncherBoss@CursorSplat"/>
+        <DataRecord Entry="Actor,CARRGrenadeLauncherBoss@LaunchLight"/>
+        <DataRecord Entry="Actor,CARRGrenadeLauncherBoss@Attack"/>
+        <DataRecord Entry="Actor,CARRGrenadeLauncherBoss@Missile"/>
+        <DataRecord Entry="Button,CARRGrenadeLauncherBoss"/>
+        <DataRecord Entry="Effect,CARRGrenadeLauncherBoss@Damage"/>
+        <DataRecord Entry="Effect,CARRGrenadeLauncherBoss@Launch"/>
+        <DataRecord Entry="Effect,CARRGrenadeLauncherBoss@Search"/>
+        <DataRecord Entry="Model,CARRGrenadeLauncherBoss@LaunchLight"/>
+        <DataRecord Entry="Model,CARRGrenadeLauncherBoss@Impact"/>
+        <DataRecord Entry="Model,CARRGrenadeLauncherBoss@Missile"/>
+        <DataRecord Entry="Mover,CARRGrenadeLauncherBoss@MissileMover"/>
+        <DataRecord Entry="Sound,CARRGrenadeLauncherBoss@Impact"/>
+        <DataRecord Entry="Sound,CARRGrenadeLauncherBoss@Launch"/>
+        <DataRecord Entry="Unit,CARRGrenadeLauncherBoss@Missile"/>
+        <DataRecord Entry="Actor,CARRGrenadeLauncherBoss@CursorSplatDummy"/>
+        <DataRecord Entry="Effect,CARRGrenadeLauncherBoss@Delay"/>
+        <DataRecord Entry="Effect,CARRGrenadeLauncherBoss@SearchDummy"/>
+    </CDataCollectionAbil>
+    <CUnit id="CARRGrenadeLauncherMissile" parent="MISSILE_INVULNERABLE">
+        <Race value="UPL"/>
+        <Mover value="GrenadeLauncherMissilemover"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+    <CUnit id="CARRRocketMissile" parent="MISSILE_INVULNERABLE">
+        <Race value="UPL"/>
+        <Mover value="CARRAARocketMissileMover"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+    <CUnit id="CARRIlluminationMissile" parent="MISSILE_INVULNERABLE">
+        <Race value="UPL"/>
+        <Mover value="TR17StarburstMissileMover"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+    <CUnit id="CARR" parent="UPLHeroBase">
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="275"/>
+        <LifeMax value="275"/>
+        <LifeArmor value="3"/>
+        <LifeRegenRate value="0.668"/>
+        <LifeArmorName value="Unit/LifeArmorName/UPLVehiclePlating"/>
+        <LateralAcceleration value="46.0625"/>
+        <Sight value="9"/>
+        <CostResource index="Minerals" value="350"/>
+        <CostResource index="Vespene" value="150"/>
+        <KillXP value="20"/>
+        <AbilArray Link="CARRGrenadeLauncher"/>
+        <AbilArray Link="CARRIllumination"/>
+        <BehaviorArray Link="CARRTracker"/>
+        <WeaponArray Link="CARRGround"/>
+        <WeaponArray Link="CARRAir"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="CARRGrenadeLauncher" Type="AbilCmd" AbilCmd="CARRGrenadeLauncher,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="CARRIllumination" Type="AbilCmd" AbilCmd="CARRIllumination,Execute" Row="2" Column="1"/>
+            <LayoutButtons>
+                <Face value="CARRTracker"/>
+                <Type value="Passive"/>
+                <Behavior value="CARRTracker"/>
+                <Requirements value="HaveCARRTracker"/>
+                <Row value="1"/>
+                <Column value="1"/>
+            </LayoutButtons>
+            <LayoutButtons Face="CARRNaniteRegeneration" Type="Passive" Row="1" Column="0"/>
+        </CardLayouts>
+        <InnerRadius value="0.5"/>
+        <CargoSize value="2"/>
+        <ScoreMake value="100"/>
+        <ScoreKill value="100"/>
+        <SubgroupPriority value="91"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Melee"/>
+        <GlossaryPriority value="52"/>
+        <HotkeyCategory value="Unit/Category/UPLStory"/>
+        <Fidget>
+            <ChanceArray index="Anim" value="20"/>
+            <ChanceArray index="Idle" value="70"/>
+            <ChanceArray index="Turn" value="10"/>
+        </Fidget>
+    </CUnit>
+    <CUnit id="CARRGrenadeLauncherBoss@Missile" parent="MISSILE_INVULNERABLE">
+        <Race value="UPL"/>
+        <Mover value="CARRGrenadeLauncherBoss@MissileMover"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+    <CBehaviorBuff id="CARRBossInvulnerabilityGlaze">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:UPL,AbilityorEffectType:Units"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="CARRTracker">
+        <Alignment value="Positive"/>
+        <Cost>
+            <Charge Link="Behavior/SensorTowerRadar"/>
+            <Cooldown Link="Behavior/SensorTowerRadar"/>
+        </Cost>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\btn-status-radar.dds"/>
+        <EditorCategories value="Race:UPL,AbilityorEffectType:Structures"/>
+        <BuffFlags index="DisableWhileUnderConstruction" value="1"/>
+        <Modification Radar="12" RadarFilters="-;Neutral,RawResource,HarvestableResource,Missile,Destructible,Buried,Cloaked"/>
+    </CBehaviorBuff>
+</Catalog>

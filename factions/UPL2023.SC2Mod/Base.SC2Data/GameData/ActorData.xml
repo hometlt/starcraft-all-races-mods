@@ -1,0 +1,972 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CActorModel default="1" id="BehaviorSpellFX" parent="ModelAnimationStyleContinuous">
+        <?token id="buff" type="CBehaviorLink"?>
+        <On Terms="Behavior.##buff##.On" Send="Create"/>
+        <On Terms="Behavior.##buff##.Off" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorUnit default="1" id="LotC_GenericCasterBase" parent="GenericUnitStandardNoAutoSoundLinks">
+        <EditorModel value="Sphere"/>
+        <Model value="Invisible"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <Macros value="RemoveFlyerHelperMacro"/>
+        <HeroIcon value="Assets\Textures\btn-building-protoss-zeratulbeacon.dds"/>
+        <UnitIcon value="Assets\Textures\btn-building-protoss-zeratulbeacon.dds"/>
+    </CActorUnit>
+    <CActorUnit default="1" id="LOTC_GenericUnitBase" parent="GenericUnitBase">
+        <PortraitModel value="##id##Portrait"/>
+        <BarOffset value="45"/>
+        <BarWidth value="40"/>
+        <Macros value="UnloadDropAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="PhysicsDeathsSwarmGround"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+    </CActorUnit>
+    <CActorUnit default="1" id="LOTC_UPLHeroBase" parent="LOTC_GenericUnitBase">
+        <On Terms="ActorCreation" Send="Create LotCHeroGlow"/>
+        <DeathArray index="Normal" ModelLink="##id##Death" SoundLink="Marine_DeathFXBloodSpray" VoiceLink="##id##_Death"/>
+        <DeathArray index="Blast" ModelLink="##id##DeathBlast" VoiceLink="##id##_DeathFoley"/>
+        <DeathArray index="Disintegrate" ModelLink="##id##DeathAcid" SoundLink="Uni_DeathFXAcid" VoiceLink="##id##_DeathAcid"/>
+        <DeathArray index="Eviscerate" ModelLink="##id##DeathEviscerate" SoundLink="Uni_DeathFXEviscerate" VoiceLink="##id##_DeathFoley"/>
+        <DeathArray index="Fire" ModelLink="##id##DeathFire" SoundLink="Uni_DeathFXFire" VoiceLink="##id##_DeathFire"/>
+        <DeathCustoms ActorModel="UnitDeathRagdollWithTeamColor" ModelLink="##id##DeathRagdoll" Name="RagdollBasic"/>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollWithTeamColorBloodPrevent" ModelLink="##id##DeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.800000"/>
+            <RangeDown value="0.800000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleSmall"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="1.9492"/>
+        <UnitBorderNormalColor value="150,150,150"/>
+        <UnitBorderSubgroupColor value="255,255,255"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrades-upl-infantryarmor-lvl0.dds"/>
+    </CActorUnit>
+    <CActorUnit default="1" id="LOTC_CaevRigUnitBase" parent="LOTC_GenericUnitBase">
+        <On index="51" Terms="UnitTaunt.*.Start; Taunt" Send="AnimPlay Cheer Stand,Superior NoMismatchQueryProps"/>
+        <On Terms="ActorCreation" Send="StatusSet Weapon 0"/>
+        <On Terms="UnitHeightUpdate.*.Land; ValidateUnit NotHidden" Send="Create Marine_Land"/>
+        <On Terms="UnitDeath.##id##; IsStatus Weapon 1" Target="_DeathModel" Send="AnimPlay GLdeath GLdeath,B PlayForever 0.000000"/>
+        <On Terms="UnitDeath.##id##; IsStatus Weapon 2" Target="_DeathModel" Send="AnimPlay GLdeath GLdeath,C PlayForever 0.000000"/>
+        <On Terms="UnitDeath.##id##; IsStatus Weapon 3" Target="_DeathModel" Send="AnimPlay GLdeath GLdeath,D PlayForever 0.000000"/>
+        <On Terms="UnitDeath.##id##; IsStatus Weapon 4" Target="_DeathModel" Send="AnimPlay GLdeath GLdeath,E PlayForever 0.000000"/>
+        <On Terms="UnitDeath.##id##; IsStatus Weapon 5" Target="_DeathModel" Send="AnimPlay GLdeath GLdeath,F PlayForever 0.000000"/>
+        <!-- AnimGroup Removals -->
+        <On Terms="Behavior.UPLRiotOfficerRifle.Off" Send="AnimGroupRemove C"/>
+        <On Terms="Behavior.UPLRiotOfficerShotgun.Off" Send="AnimGroupRemove D"/>
+        <On Terms="Behavior.UPLPoliceOfficerPistol.Off" Send="AnimGroupRemove B"/>
+        <On Terms="Behavior.UPLPoliceOfficerRifle.Off" Send="AnimGroupRemove C"/>
+        <On Terms="Behavior.UPLPoliceOfficerShotgun.Off" Send="AnimGroupRemove D"/>
+        <On Terms="Behavior.UPLPoliceOfficerShield.Off" Send="AnimGroupRemove E"/>
+        <On Terms="Behavior.UPLPoliceOfficerShield.Off" Send="AnimGroupRemove Cover"/>
+        <On Terms="Behavior.MyraDavisRifle.Off" Send="AnimGroupRemove C"/>
+        <On Terms="Behavior.MyraDavisPistol.Off" Send="AnimGroupRemove B"/>
+        <On Terms="Behavior.MyraDavisShotgun.Off" Send="AnimGroupRemove D"/>
+        <On Terms="Behavior.DarrenRodgersShield.Off" Send="AnimGroupRemove E"/>
+        <On Terms="Behavior.DarrenRodgersShield.Off" Send="AnimGroupRemove Cover"/>
+        <!-- AnimGroup Additions -->
+        <On Terms="Behavior.UPLRiotOfficerRifle.On" Send="AnimGroupApply C"/>
+        <On Terms="Behavior.UPLRiotOfficerShotgun.On" Send="AnimGroupApply D"/>
+        <On Terms="Behavior.UPLPoliceOfficerPistol.On" Send="AnimGroupApply B"/>
+        <On Terms="Behavior.UPLPoliceOfficerRifle.On" Send="AnimGroupApply C"/>
+        <On Terms="Behavior.UPLPoliceOfficerShotgun.On" Send="AnimGroupApply D"/>
+        <On Terms="Behavior.UPLPoliceOfficerShield.On" Send="AnimGroupApply E"/>
+        <On Terms="Behavior.UPLPoliceOfficerShield.On" Send="AnimGroupApply Cover"/>
+        <On Terms="Behavior.DarrenRodgersShield.On" Send="AnimGroupApply E"/>
+        <On Terms="Behavior.DarrenRodgersShield.On" Send="AnimGroupApply Cover"/>
+        <On Terms="Behavior.MyraDavisRifle.On" Send="AnimGroupApply C"/>
+        <On Terms="Behavior.MyraDavisPistol.On" Send="AnimGroupApply B"/>
+        <On Terms="Behavior.MyraDavisShotgun.On" Send="AnimGroupApply D"/>
+        <On Terms="Behavior.WalkSlow.On" Send="AnimGroupApply Slow"/>
+        <On Terms="Behavior.WalkSlow.Off" Send="AnimGroupRemove Slow"/>
+        <On Terms="Behavior.UPLScared.On" Send="AnimGroupApply Scared"/>
+        <On Terms="Behavior.UPLScared.Off" Send="AnimGroupRemove Scared"/>
+        <On Terms="AnimGroupApply" Send="TimerSet 0.001000 AnimGroupCheck"/>
+        <On Terms="AnimGroupRemove" Send="TimerSet 0.001000 AnimGroupCheck"/>
+        <On Terms="TimerExpired; TimerName AnimGroupCheck" Send="Signal AnimGroupCheck"/>
+        <On Terms="Signal.*.AnimGroupCheck; HasStatus Weapon" Send="StatusSet Weapon 0"/>
+        <On Terms="Signal.*.AnimGroupCheck; AnimPlayingProps B" Send="StatusSet Weapon 1"/>
+        <On Terms="Signal.*.AnimGroupCheck; AnimPlayingProps C" Send="StatusSet Weapon 2"/>
+        <On Terms="Signal.*.AnimGroupCheck; AnimPlayingProps D" Send="StatusSet Weapon 3"/>
+        <On Terms="Signal.*.AnimGroupCheck; AnimPlayingProps E" Send="StatusSet Weapon 4"/>
+        <On Terms="Signal.*.AnimGroupCheck; AnimPlayingProps F" Send="StatusSet Weapon 5"/>
+        <On Terms="Signal.*.AnimGroupCheck; AnimPlayingProps Slow" Send="StatusSet Walking 1"/>
+        <On Terms="Signal.*.AnimGroupCheck; HasStatus Walking; !AnimPlayingProps Slow" Send="StatusSet Walking 0"/>
+        <On Terms="StatusSet.*.Walking; IsStatus Walking 1" Send="SetWalkAnimMoveSpeed 1.6992"/>
+        <On Terms="StatusSet.*.Walking; IsStatus Walking 0" Send="SetWalkAnimMoveSpeed 2.1953"/>
+        <On Terms="Signal.*.AnimGroupCheck; AnimPlayingProps Scared" Send="StatusSet Scared 1"/>
+        <On Terms="Signal.*.AnimGroupCheck; HasStatus Scared; !AnimPlayingProps Scared" Send="StatusSet Scared 0"/>
+        <On Terms="Signal.*.Throw" Send="AnimClear Spell"/>
+        <On Terms="Signal.*.Throw" Send="$Spell NonLooping -1.000000 -1.000000 0.900000 AsDuration"/>
+        <!-- -->
+        <On Terms="Behavior.DefilerLotCParalyzingCloud.On" Send="AnimSetPausedAll"/>
+        <On Terms="Behavior.DefilerLotCParalyzingCloud.Off" Send="AnimSetPausedAll 0"/>
+        <Macros value="LOTC_ReadyAnimationMacro"/>
+        <DeathArray index="Normal" ModelLink="##id##Death" SoundLink="Marine_DeathFXBloodSpray" VoiceLink="##id##_Death"/>
+        <DeathArray index="Blast" ModelLink="##id##DeathBlast" VoiceLink="##id##_DeathFoley"/>
+        <DeathArray index="Disintegrate" ModelLink="##id##DeathAcid" SoundLink="Uni_DeathFXAcid" VoiceLink="##id##_DeathAcid"/>
+        <DeathArray index="Fire" ModelLink="##id##DeathFire" SoundLink="Uni_DeathFXFire" VoiceLink="##id##_DeathFire"/>
+        <DeathCustoms ActorModel="UnitDeathRagdollWithTeamColor" ModelLink="##id##DeathRagdoll" Name="RagdollBasic"/>
+        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms ActorModel="SpineCrawlerHurlDeathRagdollWithTeamColorBloodPrevent" ModelLink="##id##DeathRagdoll" Name="RagdollSpineCrawlerHurl">
+            <BodySquibs Name="None"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.100000,0.250000"/>
+            <RangeUp value="0.800000"/>
+            <RangeDown value="0.800000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleSmall"/>
+        </TerrainSquibs>
+        <WalkAnimMoveSpeed value="2.1992"/>
+        <StandAnimTurnTime value="1.9"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-upl-##id##.dds"/>
+        </GroupIcon>
+        <UnitIcon value="Assets\Textures\btn-unit-upl-##id##.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-upl-##id##.dds"/>
+        </Wireframe>
+        <DeathActorModel value="LOTC_CaevRigDeathModel"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrades-upl-infantryarmor-lvl0.dds"/>
+    </CActorUnit>
+    <CActorUnit default="1" id="LOTC_CivilianBase" parent="LOTC_CaevRigUnitBase">
+        <StatusBarFlags index="Workers" value="0"/>
+        <BarWidth value="30"/>
+    </CActorUnit>
+    <CActorUnit default="1" id="LOTC_OfficerBase" parent="LOTC_CaevRigUnitBase"/>
+    <CActorModel default="1" id="UPLBuildingBuild" parent="TerranModelConstruction">
+        <Aliases value="_UPLBuildModel"/>
+        <On Terms="ActorCreation" Send="Create UPLConstructionAttached"/>
+        <HostSiteOps Ops="SOpShadow TerranBuildingFacing"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <ModelFlags index="OutlineOccluder" value="1"/>
+        <CreepHeightClass value="Default"/>
+        <Inherits index="Opacity" value="0"/>
+        <Inherits index="Visibility" value="0"/>
+    </CActorModel>
+    <CActorUnit default="1" id="UPLBuildingBase" parent="GenericUnitStandard">
+        <Aliases value="_CreepEngulfable"/>
+        <Aliases value="_UnitHuge"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="BuildAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <On Terms="UnitConstruction.##unitName##.Start" Send="Create ##unitName##Build"/>
+        <On Terms="UnitConstruction.##unitName##.Start" Send="Create BuildingTerrainFlatten"/>
+        <On Terms="UnitConstruction.##unitName##.Cancel" Target="_BuildingTerrainFlatten" Send="Destroy"/>
+        <On Terms="UnitConstruction.##unitName##.Finish" Target="_BuildingTerrainFlatten" Send="Destroy"/>
+        <On Terms="UnitConstruction.##unitName##.Start" Send="QueryRadius 1.750000 BuildingCrushQueryResponse"/>
+        <On Terms="UnitBirth.##unitName##.Normal" Send="Create BuildingTerrainFlatten"/>
+        <On Terms="UnitBirth.##unitName##.Suppressed" Send="Create BuildingTerrainFlattenInstant"/>
+        <On Terms="UnitBirth.##unitName##.EditorPlaced" Send="Create BuildingTerrainFlattenEditor"/>
+        <On Terms="UnitDeath.##unitName##" Target="_BuildingTerrainFlatten" Send="Destroy"/>
+        <On Terms="UnitDeathCustomize; CreepEngulfs" Send="CreepEngulfmentStopTransition"/>
+        <On Terms="ActorCreation; CreepIntersects" Send="CreepEngulfmentStartTransition"/>
+        <On Terms="ActorCreation; ValidateUnit HasNewsHelicopterSpotlight" Send="Create OfficerDetectionGlow10"/>
+        <On Terms="Behavior.NewsHelicopterSpotlight.On" Send="Create OfficerDetectionGlow10"/>
+        <!--TBDeleted
+        <On Terms="UnitConstruction.##unitName##.Start" Send="SetOpacity"/>
+        <On Terms="UnitConstruction.##unitName##.Finish" Target="::Self" Send="SetOpacity 1.000000"/>
+        TBDeleted-->
+        <!--HostSiteOps Ops="SOpBankerUnitBuilding"/-->
+        <ModelFlags index="OutlineOccluder" value="1"/>
+        <CreepHeightClass value="Default"/>
+        <CreepRateGrow value="Grow"/>
+        <CreepRateShrink value="Shrink"/>
+        <DeathArray index="Normal" ModelLink="##unitName##Death" SoundLink=""/>
+        <PlacementModel value="##unitName##Placement"/>
+        <PlacementSound value="Terran_BuildingPlacement"/>
+        <PortraitModel value="##unitName##Portrait"/>
+        <DeathActorModel value="UPLBuildingDeathModel"/>
+        <SoundArray index="Construction" value="UPL_ConstructionWhat"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.250000,0.500000"/>
+            <RangeDown value="5.000000"/>
+            <RangeDownFade value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMassive3"/>
+        </TerrainSquibs>
+        <HeroIcon value="Assets\Textures\btn-building-upl-##unitName##.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-upl-buildingarmor.dds"/>
+        <UnitIcon value="Assets\Textures\btn-building-upl-##unitName##.dds"/>
+    </CActorUnit>
+    <CActorForceSphere id="GrenadeGroundUpForce">
+        <Host Subject="::Creator"/>
+        <Field value="Directional"/>
+        <Duration value="0.150000"/>
+        <Magnitude value="12.000000,1.000000"/>
+        <Radius value="3.000000,0.200000"/>
+    </CActorForceSphere>
+    <CActorForceSphere id="GrenadeGroundForce">
+        <On Terms="Effect.CARRGrenadeLauncherBoss@Search.Start; At Effect" Send="Create"/>
+        <On Terms="Effect.CARRGrenadeLauncherSearch.Start; At Effect" Send="Create"/>
+        <On Terms="Effect.TrevorRandGrenadeSearch.Start; At Effect" Send="Create"/>
+        <On Terms="Effect.UPLScoutGrenadeSearch.Start; At Effect" Send="Create"/>
+        <On Terms="ActorCreation" Send="Create GrenadeGroundUpForce"/>
+        <Duration value="0.150000"/>
+        <Magnitude value="30.000000,3.000000"/>
+        <Radius value="3.000000,0.200000"/>
+    </CActorForceSphere>
+    <CActorForceSphere id="FlameGrenadeUpForce">
+        <Host Subject="::Creator"/>
+        <Field value="Directional"/>
+        <Duration value="0.150000"/>
+        <Magnitude value="8.000000,0.500000"/>
+        <Radius value="3.000000,0.200000"/>
+    </CActorForceSphere>
+    <CActorForceSphere id="FlameGrenadeGroundForce">
+        <On Terms="Effect.MyraDavisFlameGrenadeSearch.Start; At Effect" Send="Create"/>
+        <On Terms="Effect.UPLScoutFlameGrenadeSearch.Start; At Effect" Send="Create"/>
+        <On Terms="ActorCreation" Send="Create FlameGrenadeUpForce"/>
+        <Duration value="0.150000"/>
+        <Magnitude value="8.000000,2.000000"/>
+        <Radius value="3.000000,0.200000"/>
+    </CActorForceSphere>
+    <CActorForceSphere id="InfantryHeavyAttackDeathForce" parent="RangedAttackDeathForce">
+        <HostSiteOps Ops="SOpIncomingDirect SOpPointUp1ByDot25 InfantryRifleForceDirectionRandomizer"/>
+        <Magnitude value="12.000000,8.000000"/>
+        <Radius value="0.800000,0.150000"/>
+    </CActorForceSphere>
+    <CActorAction id="ShotgunBlastPhysicsAttack" parent="GenericAttack" effectAttack="UPLPoliceOfficerShotgunAoEDamage">
+        <On Terms="Effect.UPLRiotOfficerShotgunAoEDamage.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.UPLRiotOfficerShotgunAoEDamage.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics"/>
+        <On Terms="Effect.MyraDavisShotgunAoEDamage.Start; At Caster" Send="Create"/>
+        <On Terms="Effect.MyraDavisShotgunAoEDamage.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics"/>
+        <ImpactPhysics Name="ShotgunBlast" MatchKeys="Basic" Physics="ShotgunAttackDeathForce"/>
+    </CActorAction>
+    <CActorSiteOpRotationRandom id="ShotgunForceDirectionRandomizer">
+        <YawHalfAngle value="15.000000"/>
+        <PitchHalfAngle value="15.000000"/>
+    </CActorSiteOpRotationRandom>
+    <CActorForceSphere id="ShotgunAttackDeathForce" parent="RangedAttackDeathForce">
+        <HostSiteOps Ops="SOpIncomingDirect SOpPointUp1ByDot25 ShotgunForceDirectionRandomizer"/>
+        <Magnitude value="15.000000,10.000000"/>
+        <Radius value="1.000000,0.200000"/>
+    </CActorForceSphere>
+    <CActorSiteOpRotationRandom id="InfantryRifleForceDirectionRandomizer">
+        <YawHalfAngle value="25.000000"/>
+        <PitchHalfAngle value="8.000000"/>
+    </CActorSiteOpRotationRandom>
+    <CActorSiteOpRotationRandom id="InfantryHeavyForceDirectionRandomizer">
+        <YawHalfAngle value="10.000000"/>
+        <PitchHalfAngle value="5.000000"/>
+    </CActorSiteOpRotationRandom>
+    <CActorForceSphere id="InfantryRifleAttackDeathForce" parent="RangedAttackDeathForce">
+        <HostSiteOps Ops="SOpIncomingDirect SOpPointUp1ByDot25 InfantryRifleForceDirectionRandomizer"/>
+        <Magnitude value="10.000000,5.000000"/>
+        <Radius value="0.500000,0.150000"/>
+    </CActorForceSphere>
+    <CActorEventMacro id="LOTC_InfantryCamoSkinMacro">
+        <On Terms="Upgrade.LotC_InfantryCamoSkin.Add" Send="TextureSelectById InfantryCamo"/>
+        <On Terms="UnitBirth.InfantryRifle; ValidateUnit HasInfantryCamoUpgrade" Send="TextureSelectById InfantryCamo"/>
+        <On Terms="UnitBirth.InfantryRocket; ValidateUnit HasInfantryCamoUpgrade" Send="TextureSelectById InfantryCamo"/>
+        <On Terms="UnitBirth.InfantryMortar; ValidateUnit HasInfantryCamoUpgrade" Send="TextureSelectById InfantryCamo"/>
+        <On Terms="UnitDeath.InfantryRifle; ValidateUnit HasInfantryCamoUpgrade" Target="_DeathModel" Send="TextureSelectById InfantryCamo"/>
+        <On Terms="UnitDeath.InfantryRocket; ValidateUnit HasInfantryCamoUpgrade" Target="_DeathModel" Send="TextureSelectById InfantryCamo"/>
+        <On Terms="UnitDeath.InfantryMortar; ValidateUnit HasInfantryCamoUpgrade" Target="_DeathModel" Send="TextureSelectById InfantryCamo"/>
+    </CActorEventMacro>
+    <CActorPortrait id="MyraDavisPortrait" parent="PortraitActor">
+        <On Terms="ActorCreation" Send="AnimBlendTimeApply 0.700000"/>
+    </CActorPortrait>
+    <CActorAction id="DamagePhysicsAttack" parent="GenericAttack" effectAttack="DamagePhysics">
+        <ImpactPhysics Name="PhysicsForce" MatchKeys="Basic" Physics="DamagePhysicsForce"/>
+    </CActorAction>
+    <CActorForceSphere id="DamagePhysicsForce" parent="DeathRagdollDetonationForce">
+        <On Terms="Effect.DamagePhysics.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpTargetPoint" HoldPosition="0"/>
+        <Magnitude value="5.000000,2.000000"/>
+        <Radius value="1.000000,0.200000"/>
+    </CActorForceSphere>
+    <CActorModel id="LaunchLightBase" parent="ModelAnimationStyleOneShot">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Opacity" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <Inherits index="TimeScale" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachWeapon"/>
+    </CActorModel>
+    <CActorSiteOpAttach id="SOpAttachBackSoft">
+        <AttachQuery Methods="Back"/>
+        <ForceSoftAttach value="1"/>
+    </CActorSiteOpAttach>
+    <CActorSiteOpAttach id="SOpAttachWaistLeft">
+        <AttachQuery Methods="AMFilterWaistLeft"/>
+    </CActorSiteOpAttach>
+    <CActorSiteOpAttach id="SOpAttachWaistRight">
+        <AttachQuery Methods="AMFilterWaistRight"/>
+    </CActorSiteOpAttach>
+    <CActorSiteOpAttach id="SOpAttachWaistBack">
+        <AttachQuery Methods="AMFilterWaistBack"/>
+    </CActorSiteOpAttach>
+    <CActorSiteOpAttach id="SOpAttachShoulderLeft">
+        <AttachQuery Methods="AMFilterShoulderLeft"/>
+    </CActorSiteOpAttach>
+    <CActorSiteOpAttach id="SOpAttachShoulderRight">
+        <AttachQuery Methods="AMFilterShoulderRight"/>
+    </CActorSiteOpAttach>
+    <CActorSiteOpAttach id="SOpAttachFootLeft">
+        <AttachQuery Methods="AMFilterFootRight"/>
+    </CActorSiteOpAttach>
+    <CActorRegionCircle id="LotC_EP01M03_SnipeShotCreateCircle">
+        <On Terms="ActorCreation" Send="QueryRegion ::Self LotC_EP01M03_SnipeShotSelectedCreateQuery AgainstCenter"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.062500 DelayDestroy"/>
+        <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy"/>
+        <Radius value="250.000000"/>
+    </CActorRegionCircle>
+    <CActorRegionCircle id="LotC_EP01M03_SnipeShotDestroyCircle">
+        <On Terms="ActorCreation" Send="QueryRegion ::Self LotC_EP01M03_SnipeShotSelectedDestroyQuery AgainstCenter"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.062500 DelayDestroy"/>
+        <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy"/>
+        <Radius value="250.000000"/>
+    </CActorRegionCircle>
+    <CActorQueryResponse id="LotC_EP01M03_SnipeShotSelectedCreateQuery">
+        <Subject Filters="Unit" Terms="ScopeContains GroundLocalSelection"/>
+        <OnResponse Target="_Unit" Send="Signal LotC_EP01M03_SnipeShotGuideCreate"/>
+    </CActorQueryResponse>
+    <CActorQueryResponse id="LotC_EP01M03_SnipeShotSelectedDestroyQuery">
+        <Subject Filters="Unit" Terms="ScopeContains LotC_EP01M03_SnipeShotVisualQuad"/>
+        <OnResponse Target="_Unit" Send="Signal LotC_EP01M03_SnipeShotGuideDestroy"/>
+    </CActorQueryResponse>
+    <CActorQuad id="LotC_EP01M03_SnipeShotVisualQuad">
+        <Aliases value="_GuideVisual"/>
+        <Aliases value="_Scalable"/>
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <On Terms="ActorDestruction" Target="_GuideRegion" Send="Destroy"/>
+        <On Terms="ActorDestruction" Target="_GuideQuadSegment" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpForwardLotC_EP01M03_SnipeShotGuide SOp2DRotation"/>
+        <LaunchActor value="ZergGuideVisualQuadLaunch"/>
+        <CenterActor value="ZergGuideVisualQuadCenter"/>
+        <ImpactActor value="ZergGuideVisualQuadImpact"/>
+        <Quad value="-0.500000,-1.000000,0.500000,0.000000"/>
+        <Height value="10.000000"/>
+        <Width value="0.300000"/>
+    </CActorQuad>
+    <CActorSiteOpForward id="SOpForwardLotC_EP01M03_SnipeShotGuide">
+        <HostForward Subject="::Cursor" Actor="Find"/>
+    </CActorSiteOpForward>
+    <CActorSiteOpLocalOffset id="SOpLotC_EP01M03_SnipeShotOffset">
+        <LocalOffset value="0.000000,-9.000000,0.000000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorBeamSimple id="LotC_EP01M03_SnipeShotBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <On Terms="Effect.LotC_EP01M03_SnipeShotCreatePersistent.Start" Send="Create"/>
+        <HostLaunch Subject="_Selectable"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon" HoldPosition="1" HoldRotation="1"/>
+        <HostImpact Subject="_Selectable"/>
+        <HostImpactSiteOps Ops="SOpAttachWeapon SOpLotC_EP01M03_SnipeShotOffset" HoldPosition="1" HoldRotation="1"/>
+    </CActorBeamSimple>
+    <CActorModel id="LotC_EP01M03_SnipeShotCursorSplat">
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <On Terms="Abil.LotC_EP01M03_SnipeShot.Cursor" Send="Create"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="Create LotC_EP01M03_SnipeShotCreateCircle"/>
+        <On Terms="ActorDestruction" Send="Create LotC_EP01M03_SnipeShotDestroyCircle"/>
+        <HostSiteOps Ops="SOpBasicScopeFollow"/>
+    </CActorModel>
+    <CActorSound id="LotC_EP01M03_SnipeShotImpact" parent="SoundOneShot">
+        <On Terms="Effect.LotC_EP01M03_SnipeShotDamage.Start" Send="Create"/>
+        <Sound value="LotC_EP01M03_SnipeShot_Impact"/>
+    </CActorSound>
+    <CActorQuad id="LotC_EP01M03_SnipeShotIndicator" parent="ZergGuideVisualQuadDownScaled">
+        <Filter index="Enemy" value="1"/>
+        <On index="0" Terms="Abil.Guide" Send="Create"/>
+        <On Terms="Abil.LotC_EP01M03_SnipeShot.SourcePrepStart" Send="Create"/>
+        <On Terms="Abil.LotC_EP01M03_SnipeShot.SourceCastStop" Send="Destroy"/>
+        <Height value="10.000000"/>
+        <Width value="0.300000"/>
+    </CActorQuad>
+    <CActorModel id="LotC_EP01M03_SnipeShotLaunchSquib" parent="ModelAnimationStyleOneShot">
+        <Flags index="SuppressCreationErrors" value="1"/>
+        <On Terms="Abil.LotC_EP01M03_SnipeShot.SourceFinishStart" Send="Create"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachWeapon"/>
+    </CActorModel>
+    <CActorRange id="LotC_EP01M03_SnipeShotRange" parent="RangeAbil" abil="LotC_EP01M03_SnipeShot">
+        <Range value="10.000000"/>
+    </CActorRange>
+    <CActorSound id="LotC_EP01M03_SnipeShotSound" parent="SoundOneShot">
+        <On Terms="Effect.LotC_EP01M03_SnipeShotCreatePersistent.Start" Send="Create"/>
+        <Sound value="LotC_EP01M03_SnipeShot_Launch"/>
+    </CActorSound>
+    <CActorTurret id="A6Turret">
+        <On Terms="TurretEnable.A6Turret" Send="Create"/>
+        <On Terms="UnitDeath.A6" Send="Destroy"/>
+    </CActorTurret>
+    <CActorModel id="UnitDeathModelAcceptTextures" parent="UnitDeathModel">
+        <AcceptedTransfers index="Textures" value="1"/>
+    </CActorModel>
+    <CActorSiteOpAttach id="SOpAttachRandomTargetSoft">
+        <AttachQuery Methods="AMVolumesTargets AMVolumesWeightedPick"/>
+        <ForceSoftAttach value="1"/>
+    </CActorSiteOpAttach>
+    <CActorModel id="SmokeAdditionBase" parent="ModelAnimationStyleOneShot">
+        <Host Subject="_Selectable"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Opacity" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <Inherits index="TimeScale" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+    </CActorModel>
+    <CActorProgress id="UPLConstructionAttached">
+        <Supporter Subject="_UPLBuildModel"/>
+        <On Terms="ProgressLevel.UPLConstructionAttached.Start; Level 0" Send="SetTransferOverrideAnim Build,A,Stand"/>
+        <On Terms="ProgressLevel.UPLConstructionAttached.Stop; Level 0" Send="SetTransferOverrideAnim"/>
+        <StageArray AnimProps="Build,A,Start" BlendTime="0.000000"/>
+        <StageArray AnimProps="Build,A,Stand"/>
+        <StageArray AnimProps="Build,B,Start"/>
+        <StageArray AnimProps="Build,B,Stand"/>
+        <StageArray AnimProps="Build,C,Start"/>
+        <StageArray AnimProps="Build,C,Stand"/>
+        <StageArray AnimProps="Build,D,Start"/>
+    </CActorProgress>
+    <CActorRange id="SensorTowerRadar">
+        <On Terms="Behavior.SensorTowerRadar.Disable" Send="SetVisibility"/>
+        <On Terms="Behavior.SensorTowerRadar.Enable" Send="SetVisibility 1"/>
+        <VisibleTo index="Neutral" value="1"/>
+        <VisibleTo index="Enemy" value="1"/>
+    </CActorRange>
+    <CActorSiteOpForward id="SOpForwardCursor">
+        <HostForward Subject="::Cursor" Actor="Find"/>
+    </CActorSiteOpForward>
+    <CActorSiteOpLocalOffset id="SOpMoveForwardBy12">
+        <LocalOffset value="0.000000,-12.000000,0.000000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorEventMacro id="LOTC_NormalAttackMacro">
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimPlay Attack Attack"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimPlay Attack Attack,Superior"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimPlay Attack Attack,Inferior"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="AnimClear Attack"/>
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+    </CActorEventMacro>
+    <CActorEventMacro id="LOTC_NormalAttackMacroRemove">
+        <Remove Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <Remove Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <Remove Terms="WeaponStart.*.AttackStart" Send="AnimPlay Attack Attack"/>
+        <Remove Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="AnimPlay Attack Attack,Superior"/>
+        <Remove Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="AnimPlay Attack Attack,Inferior"/>
+        <Remove Terms="WeaponStop.*.AttackStop" Send="AnimClear Attack"/>
+        <Remove Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
+    </CActorEventMacro>
+    <CActorEventMacro id="LOTC_ReadyAnimationMacro">
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="Abil.attack.ReadyStart" Send="StatusSet Ready 1"/>
+        <On Terms="Abil.attack.ReadyStart" Send="Signal ReadyStart"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimClear Ready"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimClear ReadyTransient"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimPlay ReadyTransient Stand,Ready PlayForever"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Ready"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimClear ReadyTransient"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimPlay ReadyTransient Stand,Ready PlayForever"/>
+        <On Terms="Abil.attack.ReadyStart" Send="StatusSet AttackReady 1"/>
+        <On Terms="Abil.attack.ReadyStart" Send="TimerKill StandReadyOutroDuration"/>
+        <On Terms="Abil.attack.ReadyStop" Send="StatusSet AttackReady 0"/>
+        <On Terms="Abil.attack.ReadyStop" Send="TimerSet 2.350000,2.500000 StandReadyOutroDuration"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="AnimGroupRemove Ready"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady; !UnitWalking; IsStatus WeaponTargetHeight 0" Send="AnimPlay Ready Stand,Ready,End 0 0.000000 0.000000"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady; !UnitWalking; IsStatus WeaponTargetHeight 1" Send="AnimPlay Ready Stand,Ready,Inferior,End 0 0.000000 0.000000"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady; !UnitWalking; IsStatus WeaponTargetHeight 2" Send="AnimPlay Ready Stand,Ready,Superior,End 0 0.000000 0.000000"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="StatusSet Ready 0"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="AnimClear ReadyTransient"/>
+        <On Terms="AnimDone; AnimName Ready; AnimPlayingProps Stand,Ready,End" Send="Signal ClearReadyState"/>
+        <On Terms="ActorCreation" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="WeaponStart.*.AttackStart; !IsStatus WeaponTargetHeight 0" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="StatusSet WeaponTargetHeight 1"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="StatusSet WeaponTargetHeight 2"/>
+        <On Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 0" Send="AnimGroupRemove Superior"/>
+        <On Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 0" Send="AnimGroupRemove Inferior"/>
+        <On Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 1" Send="AnimGroupApply Inferior"/>
+        <On Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 2" Send="AnimGroupApply Superior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="Signal AttackStartSignal"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="Signal AttackStopSignal"/>
+        <On Terms="UnitMovementUpdate.*.Walk; !IsStatus WeaponTargetHeight 0" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="UnitMovementUpdate.*.Walk; !HasStatus AttackReady" Send="Signal ClearReadyState"/>
+        <On Terms="UnitMovementUpdate.*.Walk; AnimPlaying Ready Stand,Ready,End" Send="AnimClear Ready"/>
+        <On Terms="AnimPlay; AnimName Talk" Send="Signal ClearReadyState"/>
+        <On Terms="AnimBracketStop; AnimName WorkSpell" Send="Signal ApplyReady"/>
+        <On Terms="Signal.*.ApplyReady" Send="AnimGroupApply Ready"/>
+        <On Terms="Signal.*.ApplyReady" Send="AnimClear ReadyTransient"/>
+        <On Terms="Signal.*.ApplyReady" Send="AnimClear Ready"/>
+        <On Terms="Signal.*.ApplyReady" Send="AnimPlay ReadyTransient Stand,Ready PlayForever"/>
+        <On Terms="Signal.*.ApplyReady" Send="StatusSet Ready 1"/>
+        <On Terms="Signal.*.ApplyReady" Send="Signal ReadyStart"/>
+        <On Terms="Signal.*.ApplyReady" Send="TimerKill StandReadyOutroDuration"/>
+        <On Terms="Signal.*.ApplyReady" Send="TimerSet 2.350000,2.500000 StandReadyOutroDuration"/>
+        <On Terms="Signal.*.ClearReadyState" Send="AnimGroupRemove Ready"/>
+        <On Terms="Signal.*.ClearReadyState" Send="AnimClear ReadyTransient"/>
+        <On Terms="Signal.*.ClearReadyState" Send="AnimClear Ready"/>
+        <On Terms="Signal.*.ClearReadyState" Send="TimerKill StandReadyOutroDuration"/>
+        <On Terms="Signal.*.ClearReadyState" Send="StatusSet Ready 0"/>
+        <On Terms="Signal.*.ClearReadyState" Send="StatusSet AttackReady 0"/>
+        <On Terms="Signal.*.ClearReadyState" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="Signal.*.ClearReadyState" Send="Signal ReadyEnd"/>
+        <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <On Terms="UnitMovementUpdate.*.Walk; AnimPlayingName Attack" Send="AnimClear Attack"/>
+        <On Terms="AnimPlay; AnimName Spell; AnimPlayingName Attack" Send="AnimClear Attack"/>
+        <On Terms="Signal.*.AttackStartSignal" Send="AnimPlay Attack Attack"/>
+        <On Terms="Signal.*.AttackStopSignal" Send="AnimClear Attack"/>
+    </CActorEventMacro>
+    <CActorEventMacro id="LOTC_ReadyAnimationMacroRemove">
+        <Remove Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <Remove Terms="Abil.attack.ReadyStart" Send="StatusSet Ready 1"/>
+        <Remove Terms="Abil.attack.ReadyStart" Send="Signal ReadyStart"/>
+        <Remove Terms="Abil.attack.ReadyStart" Send="AnimClear Ready"/>
+        <Remove Terms="Abil.attack.ReadyStart" Send="AnimClear ReadyTransient"/>
+        <Remove Terms="Abil.attack.ReadyStart" Send="AnimPlay ReadyTransient Stand,Ready PlayForever"/>
+        <Remove Terms="WeaponStart.*.AttackStart" Send="AnimGroupApply Ready"/>
+        <Remove Terms="WeaponStart.*.AttackStart" Send="AnimClear Ready"/>
+        <Remove Terms="WeaponStart.*.AttackStart" Send="AnimClear ReadyTransient"/>
+        <Remove Terms="WeaponStart.*.AttackStart" Send="AnimPlay ReadyTransient Stand,Ready PlayForever"/>
+        <Remove Terms="Abil.attack.ReadyStart" Send="StatusSet AttackReady 1"/>
+        <Remove Terms="Abil.attack.ReadyStart" Send="TimerKill StandReadyOutroDuration"/>
+        <Remove Terms="Abil.attack.ReadyStop" Send="StatusSet AttackReady 0"/>
+        <Remove Terms="Abil.attack.ReadyStop" Send="TimerSet 2.350000,2.500000 StandReadyOutroDuration"/>
+        <Remove Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="AnimGroupRemove Ready"/>
+        <Remove Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady; !UnitWalking; IsStatus WeaponTargetHeight 0" Send="AnimPlay Ready Stand,Ready,End 0 0.000000 0.000000"/>
+        <Remove Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady; !UnitWalking; IsStatus WeaponTargetHeight 1" Send="AnimPlay Ready Stand,Ready,Inferior,End 0 0.000000 0.000000"/>
+        <Remove Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady; !UnitWalking; IsStatus WeaponTargetHeight 2" Send="AnimPlay Ready Stand,Ready,Superior,End 0 0.000000 0.000000"/>
+        <Remove Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="StatusSet WeaponTargetHeight 0"/>
+        <Remove Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="StatusSet Ready 0"/>
+        <Remove Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="AnimClear ReadyTransient"/>
+        <Remove Terms="AnimDone; AnimName Ready; AnimPlayingProps Stand,Ready,End" Send="Signal ClearReadyState"/>
+        <Remove Terms="ActorCreation" Send="StatusSet WeaponTargetHeight 0"/>
+        <Remove Terms="WeaponStart.*.AttackStart; !IsStatus WeaponTargetHeight 0" Send="StatusSet WeaponTargetHeight 0"/>
+        <Remove Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="StatusSet WeaponTargetHeight 1"/>
+        <Remove Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="StatusSet WeaponTargetHeight 2"/>
+        <Remove Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 0" Send="AnimGroupRemove Superior"/>
+        <Remove Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 0" Send="AnimGroupRemove Inferior"/>
+        <Remove Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 1" Send="AnimGroupApply Inferior"/>
+        <Remove Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 2" Send="AnimGroupApply Superior"/>
+        <Remove Terms="WeaponStart.*.AttackStart" Send="Signal AttackStartSignal"/>
+        <Remove Terms="WeaponStop.*.AttackStop" Send="Signal AttackStopSignal"/>
+        <Remove Terms="UnitMovementUpdate.*.Walk; !IsStatus WeaponTargetHeight 0" Send="StatusSet WeaponTargetHeight 0"/>
+        <Remove Terms="UnitMovementUpdate.*.Walk; !HasStatus AttackReady" Send="Signal ClearReadyState"/>
+        <Remove Terms="UnitMovementUpdate.*.Walk; AnimPlaying Ready Stand,Ready,End" Send="AnimClear Ready"/>
+        <Remove Terms="AnimPlay; AnimName Talk" Send="Signal ClearReadyState"/>
+        <Remove Terms="AnimBracketStop; AnimName WorkSpell" Send="Signal ApplyReady"/>
+        <Remove Terms="Signal.*.ApplyReady" Send="AnimGroupApply Ready"/>
+        <Remove Terms="Signal.*.ApplyReady" Send="AnimClear ReadyTransient"/>
+        <Remove Terms="Signal.*.ApplyReady" Send="AnimClear Ready"/>
+        <Remove Terms="Signal.*.ApplyReady" Send="AnimPlay ReadyTransient Stand,Ready PlayForever"/>
+        <Remove Terms="Signal.*.ApplyReady" Send="StatusSet Ready 1"/>
+        <Remove Terms="Signal.*.ApplyReady" Send="Signal ReadyStart"/>
+        <Remove Terms="Signal.*.ApplyReady" Send="TimerKill StandReadyOutroDuration"/>
+        <Remove Terms="Signal.*.ApplyReady" Send="TimerSet 2.350000,2.500000 StandReadyOutroDuration"/>
+        <Remove Terms="Signal.*.ClearReadyState" Send="AnimGroupRemove Ready"/>
+        <Remove Terms="Signal.*.ClearReadyState" Send="AnimClear ReadyTransient"/>
+        <Remove Terms="Signal.*.ClearReadyState" Send="AnimClear Ready"/>
+        <Remove Terms="Signal.*.ClearReadyState" Send="TimerKill StandReadyOutroDuration"/>
+        <Remove Terms="Signal.*.ClearReadyState" Send="StatusSet Ready 0"/>
+        <Remove Terms="Signal.*.ClearReadyState" Send="StatusSet AttackReady 0"/>
+        <Remove Terms="Signal.*.ClearReadyState" Send="StatusSet WeaponTargetHeight 0"/>
+        <Remove Terms="Signal.*.ClearReadyState" Send="Signal ReadyEnd"/>
+        <Remove Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <Remove Terms="UnitMovementUpdate.*.Walk; AnimPlayingName Attack" Send="AnimClear Attack"/>
+        <Remove Terms="AnimPlay; AnimName Spell; AnimPlayingName Attack" Send="AnimClear Attack"/>
+        <Remove Terms="Signal.*.AttackStartSignal" Send="AnimPlay Attack Attack"/>
+        <Remove Terms="Signal.*.AttackStopSignal" Send="AnimClear Attack"/>
+    </CActorEventMacro>
+    <CActorEventMacro id="LOTC_ReadyAnimationMacroNoEndAnim">
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
+        <On Terms="Abil.attack.ReadyStart" Send="StatusSet Ready 1"/>
+        <On Terms="Abil.attack.ReadyStart" Send="Signal ReadyStart"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimClear Ready"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimClear ReadyTransient"/>
+        <On Terms="Abil.attack.ReadyStart" Send="AnimPlay ReadyTransient Stand,Ready PlayForever"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimGroupApply Ready"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimClear Ready"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimClear ReadyTransient"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimPlay ReadyTransient Stand,Ready PlayForever"/>
+        <On Terms="Abil.attack.ReadyStart" Send="StatusSet AttackReady 1"/>
+        <On Terms="Abil.attack.ReadyStart" Send="TimerKill StandReadyOutroDuration"/>
+        <On Terms="Abil.attack.ReadyStop" Send="StatusSet AttackReady 0"/>
+        <On Terms="Abil.attack.ReadyStop" Send="TimerSet 2.350000,2.500000 StandReadyOutroDuration"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="Signal ClearReadyState"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="TimerExpired; TimerName StandReadyOutroDuration; !HasStatus AttackReady" Send="StatusSet Ready 0"/>
+        <On Terms="ActorCreation" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="WeaponStart.*.AttackStart; !IsStatus WeaponTargetHeight 0" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation LE -20.000000" Send="StatusSet WeaponTargetHeight 1"/>
+        <On Terms="WeaponStart.*.AttackStart; WeaponTargetElevation GE 20.000000" Send="StatusSet WeaponTargetHeight 2"/>
+        <On Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 0" Send="AnimGroupRemove Superior"/>
+        <On Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 0" Send="AnimGroupRemove Inferior"/>
+        <On Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 1" Send="AnimGroupApply Inferior"/>
+        <On Terms="StatusSet.*.WeaponTargetHeight; IsStatus WeaponTargetHeight 2" Send="AnimGroupApply Superior"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="Signal AttackStartSignal"/>
+        <On Terms="WeaponStop.*.AttackStop" Send="Signal AttackStopSignal"/>
+        <On Terms="UnitMovementUpdate.*.Walk; !IsStatus WeaponTargetHeight 0" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="UnitMovementUpdate.*.Walk; !HasStatus AttackReady" Send="Signal ClearReadyState"/>
+        <On Terms="AnimPlay; AnimName Talk" Send="Signal ClearReadyState"/>
+        <On Terms="AnimBracketStop; AnimName WorkSpell" Send="Signal ApplyReady"/>
+        <On Terms="Signal.*.ApplyReady" Send="AnimGroupApply Ready"/>
+        <On Terms="Signal.*.ApplyReady" Send="AnimClear ReadyTransient"/>
+        <On Terms="Signal.*.ApplyReady" Send="AnimClear Ready"/>
+        <On Terms="Signal.*.ApplyReady" Send="AnimPlay ReadyTransient Stand,Ready PlayForever"/>
+        <On Terms="Signal.*.ApplyReady" Send="StatusSet Ready 1"/>
+        <On Terms="Signal.*.ApplyReady" Send="Signal ReadyStart"/>
+        <On Terms="Signal.*.ApplyReady" Send="TimerKill StandReadyOutroDuration"/>
+        <On Terms="Signal.*.ApplyReady" Send="TimerSet 2.350000,2.500000 StandReadyOutroDuration"/>
+        <On Terms="Signal.*.ClearReadyState" Send="AnimClear Ready"/>
+        <On Terms="Signal.*.ClearReadyState" Send="AnimClear ReadyTransient"/>
+        <On Terms="Signal.*.ClearReadyState" Send="AnimGroupRemove Ready"/>
+        <On Terms="Signal.*.ClearReadyState" Send="TimerKill StandReadyOutroDuration"/>
+        <On Terms="Signal.*.ClearReadyState" Send="StatusSet Ready 0"/>
+        <On Terms="Signal.*.ClearReadyState" Send="StatusSet AttackReady 0"/>
+        <On Terms="Signal.*.ClearReadyState" Send="StatusSet WeaponTargetHeight 0"/>
+        <On Terms="Signal.*.ClearReadyState" Send="Signal ReadyEnd"/>
+        <On Terms="WeaponStart.*.AttackStart; AnimPlaying Birth" Send="AnimClear Birth"/>
+        <On Terms="UnitMovementUpdate.*.Walk; AnimPlayingName Attack" Send="AnimClear Attack"/>
+        <On Terms="AnimPlay; AnimName Spell; AnimPlayingName Attack" Send="AnimClear Attack"/>
+        <On Terms="Signal.*.AttackStartSignal" Send="AnimPlay Attack Attack"/>
+        <On Terms="Signal.*.AttackStopSignal" Send="AnimClear Attack"/>
+    </CActorEventMacro>
+    <CActorEventMacro id="LOTC_ReadyAnimationRemoveDefaultTime">
+        <Remove Terms="Abil.attack.ReadyStop" Send="TimerSet 2.350000,2.500000 StandReadyOutroDuration"/>
+        <Remove Terms="Signal.*.ApplyReady" Send="TimerSet 2.350000,2.500000 StandReadyOutroDuration"/>
+    </CActorEventMacro>
+    <CActorEventMacro id="LOTC_ReadyAnimationShortTime">
+        <On Terms="Abil.attack.ReadyStop" Send="TimerSet 0.750000,1.000000 StandReadyOutroDuration"/>
+        <On Terms="Signal.*.ApplyReady" Send="TimerSet 0.750000,1.000000 StandReadyOutroDuration"/>
+    </CActorEventMacro>
+    <CActorEventMacro id="LOTC_PhysEnabledTracker">
+        <On Terms="ActorCreation; Option Physics Extreme" Send="StatusSet PhysEnabled 1"/>
+        <On Terms="ActorCreation; Option Physics Ultra" Send="StatusSet PhysEnabled 1"/>
+        <On Terms="ActorCreation; Option Physics High" Send="StatusSet PhysEnabled 1"/>
+        <On Terms="ActorCreation; Option Physics Medium" Send="StatusSet PhysEnabled 0"/>
+        <On Terms="ActorCreation; Option Physics Low" Send="StatusSet PhysEnabled 0"/>
+        <On Terms="OptionsChange; Option Physics Extreme" Send="StatusSet PhysEnabled 1"/>
+        <On Terms="OptionsChange; Option Physics Ultra" Send="StatusSet PhysEnabled 1"/>
+        <On Terms="OptionsChange; Option Physics High" Send="StatusSet PhysEnabled 1"/>
+        <On Terms="OptionsChange; Option Physics Medium" Send="StatusSet PhysEnabled 0"/>
+        <On Terms="OptionsChange; Option Physics Low" Send="StatusSet PhysEnabled 0"/>
+    </CActorEventMacro>
+    <CActorModel id="GenericStun" parent="ModelAddition">
+        <On Terms="Behavior.Z2JumpJetStun.On" Send="Create"/>
+        <On Terms="Behavior.Z2JumpJetStun.Off" Send="AnimBracketStop BSD"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <AutoScaleFactor value="0.800000"/>
+    </CActorModel>
+    <CActorEventMacro id="UPLTurretCargoPortraitHandler">
+        <On Terms="ActorCreation" Send="StatusSet Cargo 0"/>
+        <On Terms="Effect.UPLTurretCargoTransportUnloadDummy.Start; At Caster" Send="StatusSet Cargo 0"/>
+        <On Terms="Effect.UPLTurretCargoTransportUnloadDummy.Start; At Caster" Send="StatusSet HadCargo 1"/>
+        <On Terms="Effect.UPLTurretCargoTransportUnloadDummy.Start; At Caster" Send="TimerSet 0.100000 HadCargo"/>
+        <On Terms="TimerExpired; TimerName HadCargo" Send="StatusSet HadCargo 0"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsInfantryRifle" Send="StatusSet Cargo 1"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsInfantryFlamethrower" Send="StatusSet Cargo 2"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsInfantryMortar" Send="StatusSet Cargo 3"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsInfantryHeavy" Send="StatusSet Cargo 4"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsInfantryOfficer" Send="StatusSet Cargo 5"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsInfantryRocket" Send="StatusSet Cargo 6"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsUPLScout" Send="StatusSet Cargo 7"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsUPLSpecOps" Send="StatusSet Cargo 8"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsUPLRiotOfficer" Send="StatusSet Cargo 9"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsMyraDavisOfficer" Send="StatusSet Cargo 10"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsMyraDavisRiotOfficer" Send="StatusSet Cargo 11"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsWilliamGraves" Send="StatusSet Cargo 12"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsTrevorRand" Send="StatusSet Cargo 13"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsAltonPeters" Send="StatusSet Cargo 14"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsKatherineHalsey" Send="StatusSet Cargo 15"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsLillyRollins" Send="StatusSet Cargo 16"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsRichardGideon" Send="StatusSet Cargo 17"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsKatherineHalseyPistol" Send="StatusSet Cargo 18"/>
+        <On Terms="Effect.UPLTurretCargoLoadDummy.Start; At Caster; ValidateEffect IsDeniseAllisterRiotOfficer" Send="StatusSet Cargo 19"/>
+        <On Terms="UnitPortrait.*.Customize; !HasStatus Cargo; ValidateUnitType IsUPLNightjar" Send="PortraitCustomize UPLNightjarPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; !HasStatus Cargo; ValidateUnitType IsUPLSolitaire" Send="PortraitCustomize UPLSolitairePortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 1" Send="PortraitCustomize InfantryRiflePortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 2" Send="PortraitCustomize InfantryFlamethrowerPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 3" Send="PortraitCustomize InfantryMortarPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 4" Send="PortraitCustomize InfantryHeavyPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 5" Send="PortraitCustomize InfantryOfficerPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 6" Send="PortraitCustomize InfantryRocketPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 7" Send="PortraitCustomize UPLScoutPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 8" Send="PortraitCustomize UPLSpecOpsPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 9" Send="PortraitCustomize UPLRiotOfficerPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 10" Send="PortraitCustomize MyraDavisOfficerPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 11" Send="PortraitCustomize MyraDavisRiotOfficerPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 12" Send="PortraitCustomize WilliamGravesPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 13" Send="PortraitCustomize TrevorRandPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 14" Send="PortraitCustomize AltonPetersPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 15" Send="PortraitCustomize KatherineHalseyPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 16" Send="PortraitCustomize LillyRollinsPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 17" Send="PortraitCustomize RichardGideonPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 18" Send="PortraitCustomize KatherineHalseyPortrait"/>
+        <On Terms="UnitPortrait.*.Customize; IsStatus Cargo 19" Send="PortraitCustomize DeniseAllisterRiotOfficerPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; !HasStatus Cargo; ValidateUnitType IsUPLNightjar" Target="::PortraitGameSelf" Send="ModelSwap UPLNightjarPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; !HasStatus Cargo; ValidateUnitType IsUPLSolitaire" Target="::PortraitGameSelf" Send="ModelSwap UPLSolitairePortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 1" Target="::PortraitGameSelf" Send="ModelSwap InfantryRiflePortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 2" Target="::PortraitGameSelf" Send="ModelSwap InfantryFlamethrowerPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 3" Target="::PortraitGameSelf" Send="ModelSwap InfantryMortarPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 4" Target="::PortraitGameSelf" Send="ModelSwap InfantryHeavyPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 5" Target="::PortraitGameSelf" Send="ModelSwap InfantryOfficerPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 6" Target="::PortraitGameSelf" Send="ModelSwap InfantryRocketPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 7" Target="::PortraitGameSelf" Send="ModelSwap UPLScoutPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 8" Target="::PortraitGameSelf" Send="ModelSwap UPLSpecOpsPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 9" Target="::PortraitGameSelf" Send="ModelSwap UPLRiotOfficerPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 10" Target="::PortraitGameSelf" Send="ModelSwap MyraDavisOfficerPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 11" Target="::PortraitGameSelf" Send="ModelSwap MyraDavisRiotOfficerPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 12" Target="::PortraitGameSelf" Send="ModelSwap WilliamGravesPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 13" Target="::PortraitGameSelf" Send="ModelSwap TrevorRandPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 14" Target="::PortraitGameSelf" Send="ModelSwap AltonPetersPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 15" Target="::PortraitGameSelf" Send="ModelSwap KatherineHalseyPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 16" Target="::PortraitGameSelf" Send="ModelSwap LillyRollinsPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 17" Target="::PortraitGameSelf" Send="ModelSwap RichardGideonPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 18" Target="::PortraitGameSelf" Send="ModelSwap KatherineHalseyPortrait"/>
+        <On Terms="StatusSet.*.Cargo; Selected; IsStatus Cargo 19" Target="::PortraitGameSelf" Send="ModelSwap DeniseAllisterRiotOfficerPortrait"/>
+    </CActorEventMacro>
+    <CActorSimple id="UPL_WorkerBuildHide">
+        <On Terms="Behavior.UPL_WorkerBuildHide.On" Send="Create"/>
+        <On Terms="Behavior.UPL_WorkerBuildHide.Off" Send="Destroy"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetVisibility"/>
+        <On Terms="ActorDestruction" Target="_Unit" Send="SetVisibility 1"/>
+    </CActorSimple>
+    <CActorUnit id="NewsHelicopter" parent="GenericUnitStandardNoAutoSoundLinks" unitName="NewsHelicopter">
+        <On Terms="Behavior.NewsHelicopterSpotlight.On" Send="AnimBracketStart Cover Cover {} {} OpeningPlayForever"/>
+        <On Terms="Behavior.NewsHelicopterSpotlight.Off" Send="AnimBracketStop Cover"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Banshee_Land"/>
+        <HostSiteOps Ops="SOpBankerBanshee"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <Baselines index="Walk" BlendIn="0.250000" BlendOut="0.500000"/>
+        <PhysicsMatchKeysOrdered value="BasicAir,Basic"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.250000,0.500000"/>
+            <RangeDown value="5.000000"/>
+            <RangeDownFade value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMassive15"/>
+        </TerrainSquibs>
+        <BarOffset value="60"/>
+        <BarWidth value="90"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrades-upl-vehicleplating-lvl0.dds"/>
+        <NameOffset value="60"/>
+        <Wireframe>
+            <Image value="assets\textures\wireframe-uplnewshelicopter.dds"/>
+        </Wireframe>
+        <HeroIcon value="assets\textures\btn-unit-UPL-newshelicopter.dds"/>
+        <UnitIcon value="assets\textures\btn-unit-UPL-newshelicopter.dds"/>
+    </CActorUnit>
+    <CActorModel id="LotCHeroGlow" parent="ModelAddition">
+        <AutoScaleFactor value="1.000000"/>
+        <Inherits index="TintColor" value="0"/>
+        <AcceptedHostedPropTransfers index="TintColor" value="0"/>
+        <HostSiteOps Ops="SOpShadow SOpForwardNorth"/>
+        <On Terms="Behavior.CinematicUnitSettings.On" Send="AnimClear Birth"/>
+        <On Terms="Behavior.CinematicUnitSettings.On" Send="$Death PlayForever,NonLooping"/>
+        <On Terms="Behavior.CinematicUnitSettings.Off" Send="AnimClear Death"/>
+        <On Terms="Behavior.CinematicUnitSettings.Off" Send="$Birth"/>
+    </CActorModel>
+    <CActorSiteOpAttach id="SOpAttachHardPointLeft">
+        <AttachQuery Methods="AMFilterHardpointLeft"/>
+    </CActorSiteOpAttach>
+    <CActorSiteOpAttach id="SOpAttachHardPointRight">
+        <AttachQuery Methods="AMFilterHardpointRight"/>
+    </CActorSiteOpAttach>
+    <CActorSiteOpAttach id="SOpAttachOriginHoldRotation">
+        <HoldRotation value="1"/>
+        <AttachQuery Methods="Origin"/>
+    </CActorSiteOpAttach>
+    <CActorEventMacro id="PhysicsDeathsSwarmGround">
+        <On Terms="UnitDeathCustomize; KilledByEffect InfantryFlamethrowerDetonateDamage" Send="DeathCustomize RagdollFire"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect InfantryMortarDamage" Send="DeathCustomize RagdollSiegeTank"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect RaptorGroundDamage" Send="DeathCustomize RagdollSiegeTank"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect DamagePhysics" Send="DeathCustomize RagdollSiegeTank"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect RichardGideon" Send="DeathCustomize RagdollSiegeTank"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect UPLNukeDetonate" Send="DeathCustomize RagdollNuke"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect UPLExhumerExplosionDamage" Send="DeathCustomize RagdollNuke"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect Z1BadgerBombImpact" Send="DeathCustomize RagdollFire"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect WillliamGravesArtilleryStrike@Damage" Send="DeathCustomize RagdollSiegeTank"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect ClaymoreMineDamage" Send="DeathCustomize RagdollBasic"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect PrimalSunkenColonyDamage" Send="DeathCustomize RagdollBasic"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect {CARRGrenadeLauncherBoss@Damage CARRGrenadeLauncherDamage TrevorRandGrenadeDamage UPLScoutGrenadeDamage}" Send="DeathCustomize RagdollBasic"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect {MyraDavisFlameGrenadeDamage UPLScoutFlameGrenadeDamage}" Send="DeathCustomize RagdollFire"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect {MyraDavisShotgunAoEDamage UPLPoliceOfficerShotgunAoEDamage UPLRiotOfficerShotgunAoEDamage}" Send="DeathCustomize RagdollBasic"/>
+    </CActorEventMacro>
+    <CActorEventMacro id="PhysicsDeathsSwarmAir">
+        <On Terms="UnitDeathCustomize; KilledByEffect DamagePhysics" Send="DeathCustomize RagdollBasic"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect A6WeaponDamage" Send="DeathCustomize RagdollBasic"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect UPLExhumerExplosionDamage" Send="DeathCustomize RagdollNuke"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect RichardGideon" Send="DeathCustomize RagdollBasic"/>
+        <On Terms="UnitDeathCustomize; KilledByEffect WillliamGravesArtilleryStrike@Damage" Send="DeathCustomize RagdollMidair"/>
+    </CActorEventMacro>
+    <CActorGlobalConfig id="SYSTEM_ActorConfig">
+        <DeathCustomPriorityList value="Death2"/>
+        <DeathCustomPriorityList value="DeathJumpy"/>
+        <DeathCustomPriorityList value="DeathSieged"/>
+        <DeathCustomPriorityList value="OspreyDeathRare"/>
+        <DeathCustomPriorityList value="DeathBlow"/>
+        <DeathCustomPriorityList value="DeathBlowA6"/>
+        <DeathCustomPriorityList value="CondorDeathGround"/>
+        <DeathCustomPriorityList value="UnitDeathRagdollWithTeamColor"/>
+<!--        <DeathCustomPriorityList value="SpineCrawlerHurlDeathRagdollWithTeamColorBloodPrevent"/>-->
+        <!--        <DeathCustomPriorityList value="RagdollNuke"/>-->
+        <!--        <DeathCustomPriorityList value="RagdollFire"/>-->
+        <!--        <DeathCustomPriorityList value="RagdollSpineCrawlerHurl"/>-->
+    </CActorGlobalConfig>
+    <CActorForceSphere id="SmallerUpForce">
+        <Host Subject="::Creator"/>
+        <HostSiteOps Ops="SOpForwardLaunchGuide SOp2DRotation SOp180 SOpRotVariancerUp35 SOpPointDown1ByDot25 SOpRotationRandomPitch30"/>
+        <Field value="Directional"/>
+        <Duration value="0.150000"/>
+        <Magnitude value="27.000000,8.000000"/>
+        <Radius value="1.200000,0.200000"/>
+    </CActorForceSphere>
+    <CActorForceSphere id="SmallerImpactForce">
+        <On Terms="ActorCreation" Send="Create SmallerUpForce"/>
+        <HostSiteOps Ops="SOpTargetPoint SOpForwardLaunchGuide SOp2DRotation SOpRandomPointInCircleDot35"/>
+        <Duration value="0.150000"/>
+        <Magnitude value="27.000000,9.000000"/>
+        <Radius value="1.000000,0.100000"/>
+    </CActorForceSphere>
+    <CActorAction id="GrenadeLauncherAttack" parent="GenericAttack" effectImpact="CARRGrenadeLauncherSearch" effectLaunch="CARRGrenadeLauncherLaunch">
+        <LaunchSiteOps Ops="SOpAttachHarness SOpAttachCenter2"/>
+        <LaunchAttachQuery Methods="PatternAARocket"/>
+        <LaunchAssets Sound="CARR_GrenadeLaunch"/>
+        <Missile value="GrenadeLauncherMissile"/>
+        <ImpactAttachQuery Methods="AMFilterTarget AMRandomUniform"/>
+        <ImpactMap index="None" Model="GrenadeLauncherImpact" Sound="CARR_GrenadeImpact" ModelReaction="MissileTurretAttackImpactReaction"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <ImpactMap index="Shield" Sound="MissileTurretAttackImpactShield" ModelReaction="MissileTurretAttackImpactReactionShield"/>
+    </CActorAction>
+    <CActorMissile id="GrenadeLauncherMissile" parent="GenericAttackMissile" unitName="CARRGrenadeLauncherMissile">
+        <Model value="GrenadeLauncherMissile"/>
+    </CActorMissile>
+    <CActorSiteOpAttach id="SOpAttachCenter2">
+        <AttachQuery Methods="Xil 0"/>
+    </CActorSiteOpAttach>
+    <CActorSiteOpRotator id="PetersArmorDecayRotator">
+        <EditorCategories value=""/>
+        <LocalAxis value="0.000000,0.000000,2.000000"/>
+        <Rate value="120.000000"/>
+    </CActorSiteOpRotator>
+    <CActorAction id="SpectreHeroBaseAttack" parent="GenericAttack" effectAttack="SpectreHeroBase">
+        <LaunchAssets Sound="SpectreHeroBase_AttackLaunch"/>
+        <ContainerAssets Sound="SpectreHeroBase_AttackLaunch"/>
+        <ImpactMap index="None" Sound="SpectreHeroBase_AttackImpact"/>
+    </CActorAction>
+    <CActorSplat id="BarrageAttackGuideSplat" parent="CursorSplat" abil="attack">
+        <On index="0" Terms="Abil.attack.Guide; AbilCmd attack,Barrage" Send="Create"/>
+        <On Terms="ActorCreation; ValidatePlayer PlayerIsProtoss" Send="ModelSwap ProtossAOECursorSplat"/>
+        <On Terms="ActorCreation; ValidatePlayer PlayerIsZerg" Send="ModelSwap ZergAOECursorSplat"/>
+        <Model value="TerranAOECursorSplat"/>
+    </CActorSplat>
+    <CActorModel id="LOTC_CaevRigDeathModel" parent="UnitDeathModel">
+        <Macros value="PhysicsImpactBloodPrevent"/>
+    </CActorModel>
+    <CActorModel id="LOTC_CaevRigDeathRagdoll" parent="UnitDeathRagdollWithTeamColor"/>
+    <CActorModel id="SpeedRibbonMinor" parent="ModelAddition">
+        <Aliases value="_SpeedRibbonActor"/>
+        <On Terms="ActorCreation; !ValidateUnit TargetIsStationary" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="ActorCreation; ValidateUnit TargetIsStationary" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorModel id="SpeedRibbonGreater" parent="ModelAddition">
+        <Aliases value="_SpeedRibbonActor"/>
+        <On Terms="ActorCreation; !ValidateUnit TargetIsStationary" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="ActorCreation; ValidateUnit TargetIsStationary" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+    </CActorModel>
+    <CActorEventMacro id="SpeedRibbonMacro">
+        <On Terms="Signal.*.SpeedRibbonCheck; ValidateUnit TargetMoveSpeedLE2Dot8; IsStatus SpeedRibbonState 1" Target="SpeedRibbonMinor" Send="AnimBracketStop BSD"/>
+        <On Terms="Signal.*.SpeedRibbonCheck; ValidateUnit TargetMoveSpeedLE2Dot8; IsStatus SpeedRibbonState 2" Target="SpeedRibbonGreater" Send="AnimBracketStop BSD"/>
+        <On Terms="Signal.*.SpeedRibbonCheck; ValidateUnit TargetMoveSpeedBetween2Dot8And3Dot0AndHasBuffMovementSpeed; !IsStatus SpeedRibbonState 1" Send="Create SpeedRibbonMinor"/>
+        <On Terms="Signal.*.SpeedRibbonCheck; ValidateUnit TargetMoveSpeedBetween2Dot8And3Dot0AndHasBuffMovementSpeed; IsStatus SpeedRibbonState 2" Target="SpeedRibbonGreater" Send="AnimBracketStop BSD"/>
+        <On Terms="Signal.*.SpeedRibbonCheck; ValidateUnit TargetMoveSpeedGT3Dot0AndHasBuffMovementSpeed; !IsStatus SpeedRibbonState 2" Send="Create SpeedRibbonGreater"/>
+        <On Terms="Signal.*.SpeedRibbonCheck; ValidateUnit TargetMoveSpeedGT3Dot0AndHasBuffMovementSpeed; IsStatus SpeedRibbonState 1" Target="SpeedRibbonMinor" Send="AnimBracketStop BSD"/>
+        <On Terms="Signal.*.SpeedRibbonCheck; ValidateUnit TargetMoveSpeedLE2Dot8" Send="StatusSet SpeedRibbonState 0"/>
+        <On Terms="Signal.*.SpeedRibbonCheck; ValidateUnit TargetMoveSpeedBetween2Dot8And3Dot0AndHasBuffMovementSpeed" Send="StatusSet SpeedRibbonState 1"/>
+        <On Terms="Signal.*.SpeedRibbonCheck; ValidateUnit TargetMoveSpeedGT3Dot0AndHasBuffMovementSpeed" Send="StatusSet SpeedRibbonState 2"/>
+        <On Terms="Signal.*.SpeedRibbonCheck; !HasStatus SpeedRibbonState" Target="_SpeedRibbonActor" Send="AnimBracketStop BSD"/>
+        <On Terms="Signal.*.SpeedRibbonCheckStart" Send="Signal SpeedRibbonCheck"/>
+        <On Terms="Signal.*.SpeedRibbonCheckStart" Send="TimerSet 0.200000 MoveSpeedRibbonLoop"/>
+        <On Terms="TimerExpired; TimerName MoveSpeedRibbonLoop; !ValidateUnit TargetHasBehaviorCategoryBuffMovementSpeed" Send="StatusSet SpeedRibbonState 0"/>
+        <On Terms="TimerExpired; TimerName MoveSpeedRibbonLoop" Send="Signal SpeedRibbonCheck"/>
+        <On Terms="TimerExpired; TimerName MoveSpeedRibbonLoop; ValidateUnit TargetHasBehaviorCategoryBuffMovementSpeed" Send="TimerSet 0.200000 MoveSpeedRibbonLoop"/>
+        <On Terms="UnitDeath" Target="_SpeedRibbonActor" Send="AnimBracketStop BSD"/>
+        <On Terms="UnitMovementUpdate.*.Walk; HasStatus SpeedRibbonState; !ValidateUnit TargetHasBehaviorCategoryBuffMovementSpeed" Send="StatusSet SpeedRibbonState 0"/>
+        <On Terms="UnitMovementUpdate.*.Walk; IsStatus SpeedRibbonState 1" Send="Create SpeedRibbonMinor"/>
+        <On Terms="UnitMovementUpdate.*.Walk; IsStatus SpeedRibbonState 2" Send="Create SpeedRibbonGreater"/>
+        <On Terms="UnitMovementUpdate.*.Stand; IsStatus SpeedRibbonState 1" Target="SpeedRibbonMinor" Send="AnimBracketStop BSD"/>
+        <On Terms="UnitMovementUpdate.*.Stand; IsStatus SpeedRibbonState 2" Target="SpeedRibbonGreater" Send="AnimBracketStop BSD"/>
+        <On Terms="UnitMovementUpdate.*.Walk; !HasStatus SpeedRibbonState" Target="_SpeedRibbonActor" Send="AnimBracketStop BSD"/>
+        <On Terms="UnitMovementUpdate.*.Stand; !HasStatus SpeedRibbonState" Target="_SpeedRibbonActor" Send="AnimBracketStop BSD"/>
+    </CActorEventMacro>
+    <CActorProgress id="UPLConstruction">
+        <On Terms="Abil.UPLBuild.BuiltStart" Send="Create"/>
+        <On Terms="ProgressLevel.UPLConstruction.Start; Level 0" Send="SetTransferOverrideAnim Build,A,Stand"/>
+        <On Terms="ProgressLevel.UPLConstruction.Start" Target="::Host" Send="SetOpacity"/>
+        <On Terms="ProgressLevel.UPLConstruction.Stop" Target="::Host" Send="SetOpacity 1.000000"/>
+        <On Terms="ProgressLevel.UPLConstruction.Stop; Level 0" Send="SetTransferOverrideAnim"/>
+        <StageArray AnimProps="Build,A,Start" BlendTime="0.000000"/>
+        <StageArray AnimProps="Build,A,Stand"/>
+        <StageArray AnimProps="Build,B,Start"/>
+        <StageArray AnimProps="Build,B,Stand"/>
+        <StageArray AnimProps="Build,C,Start"/>
+        <StageArray AnimProps="Build,C,Stand"/>
+        <StageArray AnimProps="Build,D"/>
+    </CActorProgress>
+    <CActorAction id="RifleDummyAttack" parent="GenericAttack" effectAttack="RifleDamageDummy">
+        <ImpactMap index="None" Model="RifleAttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact" ScaleReaction="0.800000"/>
+        <AccuracyHalfArc value="5.000000"/>
+    </CActorAction>
+    <CActorModel id="RifleLaunchLight" parent="LaunchLightBase">
+        <On Terms="Effect.RifleDamageDummy; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.200000 a"/>
+        <On Terms="TimerExpired; TimerName a" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachWeapon01"/>
+        <Model value="UPLPoliceOfficerRifleLaunchLightSmaller"/>
+    </CActorModel>
+</Catalog>

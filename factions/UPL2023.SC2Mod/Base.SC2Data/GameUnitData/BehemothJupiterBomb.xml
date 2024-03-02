@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectModifyUnit id="JupiterRevenantBombChannelInit">
+        <EditorCategories value="Race:Genetron"/>
+        <ImpactUnit Value="Caster"/>
+        <Cost Abil="RevenantBomb,Execute" CooldownOperation="Set" CooldownTimeUse="0.0625"/>
+        <ModifyFlags index="InterpolateFacing" value="1"/>
+        <FacingLocation Value="TargetPoint"/>
+        <FacingType value="LookAt"/>
+    </CEffectModifyUnit>
+    <CEffectCreatePersistent id="JupiterRevenantBombFinalForceOptional">
+        <WhichLocation Value="CasterUnit"/>
+        <OffsetVectorStartLocation Value="CasterUnit"/>
+        <OffsetVectorEndLocation Value="CasterUnit"/>
+        <PeriodCount value="50"/>
+        <PeriodicValidator value="CasterHasNoOrders"/>
+        <PeriodicEffectArray value="JupiterRevenantBombForce"/>
+        <PeriodicOffsetArray value="0,1,0"/>
+        <PeriodicPeriodArray value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="JupiterRevenantBombFinalForceMandatory">
+        <WhichLocation Value="CasterUnit"/>
+        <OffsetVectorStartLocation Value="CasterUnit"/>
+        <OffsetVectorEndLocation Value="CasterUnit"/>
+        <FinalEffect value="JupiterRevenantBombFinalForceOptional"/>
+        <PeriodCount value="10"/>
+        <PeriodicEffectArray value="JupiterRevenantBombForce"/>
+        <PeriodicOffsetArray value="0,1,0"/>
+        <PeriodicPeriodArray value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="JupiterRevenantBombImpact">
+        <PeriodCount value="3"/>
+        <PeriodicEffectArray value="JupiterShellShockedSearch"/>
+        <PeriodicEffectArray value="JupiterNapalmCreatePersistent"/>
+        <PeriodicEffectArray value="JupiterRevenantBombDamage"/>
+        <AINotifyEffect value="JupiterRevenantBombDamage"/>
+    </CEffectCreatePersistent>
+    <CEffectModifyUnit id="JupiterRevenantBombCooldownFinal">
+        <ImpactUnit Value="Source"/>
+        <Cost Abil="RevenantBomb,Execute" CooldownOperation="Set" CooldownTimeUse="10"/>
+    </CEffectModifyUnit>
+    <CEffectSwitch id="RevenantBomb">
+        <CaseArray Validator="RevenantLaunchTargetSlow" Effect="JupiterRevenantBombLaunchMissile"/>
+        <CaseDefault value="JupiterRevenantBombChannel"/>
+        <TargetLocationType value="Point"/>
+    </CEffectSwitch>
+    <CEffectApplyForce id="JupiterRevenantBombForce">
+        <WhichLocation Value="TargetPoint"/>
+        <WhichUnit Value="Caster"/>
+        <Amount value="1"/>
+    </CEffectApplyForce>
+    <CEffectDamage id="JupiterRevenantBombDamage">
+        <Flags index="Notification" value="1"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <ExcludeArray Value="Target"/>
+        <AttributeBonus index="Armored" value="25"/>
+        <Amount value="25"/>
+        <Death value="Blast"/>
+        <AreaArray Fraction="2"/>
+        <AreaArray Radius="1.5" Fraction="1"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <AINotifyFlags index="MinorDanger" value="1"/>
+    </CEffectDamage>
+    <CEffectDestroyPersistent id="JupiterRevenantBombDestroyChannel">
+        <WhichLocation Value="TargetPoint"/>
+        <Effect value="JupiterRevenantBombChannel"/>
+        <Count value="1"/>
+    </CEffectDestroyPersistent>
+    <CEffectLaunchMissile id="JupiterRevenantBombLaunchMissile">
+        <!--        <ImpactEffect value="JupiterRevenantBombLaunchMissileImpact"/>-->
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="JupiterRevenantBombImpact"/>
+        <AmmoUnit value="RevenantBombLMWeapon"/>
+        <AmmoOwner Value="Caster"/>
+        <FinishEffect value="BehemothBombLocationSearch"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <AINotifyFlags index="MinorDanger" value="1"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="JupiterRevenantBombForceOffset">
+        <WhichLocation Value="CasterUnit"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="JupiterRevenantBombForce"/>
+        <PeriodicOffsetArray value="0,1,0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="JupiterRevenantBombChannel">
+        <InitialEffect value="JupiterRevenantBombChannelInit"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <InitialDelay value="0.0625"/>
+        <PeriodicEffectArray value="JupiterRevenantBombLaunchQuerySet"/>
+        <PeriodicEffectArray value="JupiterRevenantBombForceOffset"/>
+        <PeriodicEffectArray value="JupiterSpeed"/>
+        <PeriodicEffectArray value="JupiterStealth"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="0.0625"/>
+    </CEffectCreatePersistent>
+    <CAbilEffectTarget id="RevenantBomb">
+        <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
+        <Range value="71.25"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="RevenantBomb"/>
+        <Flags index="AllowMovement" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Cost>
+            <Cooldown TimeUse="10"/>
+        </Cost>
+        <CursorEffect value="JupiterRevenantBombDamage"/>
+        <PostEffectBehavior Behavior="RevenantBombAbilityChannel"/>
+        <Arc value="360"/>
+    </CAbilEffectTarget>
+    <CValidatorLocationArc id="JupiterFacingTargetWithin01">
+        <WhichLocation Value="SourceUnit"/>
+        <Find value="1"/>
+        <Arc value="0.9997"/>
+        <Value Effect="JupiterRevenantBombChannel" Value="TargetUnitOrPoint"/>
+    </CValidatorLocationArc>
+    <CValidatorCombine id="JupiterChannelForce">
+        <CombineArray value="JupiterHasBombingOrder"/>
+        <CombineArray value="CasterHasNoOrders"/>
+    </CValidatorCombine>
+    <CTacticalOrder id="Jupiter">
+        <Abil value="RevenantBomb"/>
+        <Retreat value="1"/>
+        <TargetFind value="RevenantBomb"/>
+    </CTacticalOrder>
+    <CButton id="RevenantBomb">
+        <AlertIcon value="Assets\Textures\btn-top-hornerhan-bombers.dds"/>
+        <EditorCategories value="Race:UPL"/>
+        <Icon value="Assets\Textures\btn-top-hornerhan-bombers.dds"/>
+        <HidesForSimpleText value="0"/>
+        <TooltipFlags index="ShowLevel" value="0"/>
+    </CButton>
+    <!--    <CActorSound id="JupiterBombRunStart" parent="SoundOneShot">-->
+    <!--        <On Terms="Behavior.JupiterSpeed.Off" Send="Destroy"/>-->
+    <!--        <On Terms="Behavior.JupiterSpeed.On" Send="Create"/>-->
+    <!--    </CActorSound>-->
+    <CActorRange id="JupiterRevenantBombRange" parent="RangeAbil" abil="RevenantBomb">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.250000"/>
+    </CActorRange>
+    <CActorSound id="JupiterBombImpactAdd" parent="SoundOneShot">
+        <Sound value="JupiterAttackImpactAdd"/>
+        <FogVisibility value="Visible"/>
+        <On Terms="Effect.JupiterRevenantBombImpact.Start" Send="Create"/>
+    </CActorSound>
+    <!--    <CActorSound id="JupiterBombRun" parent="SoundOneShot">-->
+    <!--        <FogVisibility value="Visible"/>-->
+    <!--        <On Terms="ActorOrphan" Send="Destroy"/>-->
+    <!--        <On Terms="Behavior.JupiterSpeed.On" Send="Create"/>-->
+    <!--        <On Terms="Behavior.JupiterSpeed.Off" Send="Destroy"/>-->
+    <!--        <On Terms="ActorCreation" Send="SoundSetPaused 1 0"/>-->
+    <!--        <On Terms="BehaviorStackItem.JupiterSpeed.Add; ValidateUnit CasterIsMovingGTE8; IsStatus JupiterSound 0" Send="SoundSetPaused"/>-->
+    <!--        <On Terms="BehaviorStackItem.JupiterSpeed.Add; ValidateUnit CasterIsMovingGTE8; IsStatus JupiterSound 0" Send="StatusSet JupiterSound 1"/>-->
+    <!--        <On Terms="BehaviorStackItem.JupiterSpeed.Remove; ValidateUnit CasterIsMovingLT8; IsStatus JupiterSound 1" Send="Destroy"/>-->
+    <!--    </CActorSound>-->
+    <CActorAction id="JupiterAttack" parent="GenericAttack" effectImpact="JupiterShellShockedSearch" effectLaunch="JupiterRevenantBombLaunchMissile">
+        <!--        <LaunchAttachQuery Methods="AMFilterWeapon"/>-->
+        <!--        <ImpactPhysics Name="Explosion" MatchKeys="Basic" Physics="SiegeTankSiegedForce"/>-->
+        <Missile value="BehemothBomb"/>
+        <LaunchAttachQuery Methods="AMRandomUniform"/>
+        <LaunchAssets Model="NovaGriffinBombingRunStraferAttackLaunch2"/>
+        <ImpactPointSiteOps Ops="SOpTargetPointStationary SOpShadow"/>
+        <ImpactPhysics Name="Explosion" MatchKeys="Basic" Physics="SiegeTankSiegedForce"/>
+    </CActorAction>
+    <CActorMissile id="JupiterAttackMissile" parent="GenericAttackMissile" unitName="RevenantBombLMWeapon">
+        <Model value="JupiterAttackMissile"/>
+    </CActorMissile>
+    <CTargetFindSet id="RevenantBomb">
+        <Type value="Sequential"/>
+        <Array value="RevenantBombSearch"/>
+        <Array value="RevenantBombBestPoint"/>
+    </CTargetFindSet>
+    <CTargetFindEffect id="RevenantBombSearch">
+        <Effect value="JupiterShellShockedSearch"/>
+    </CTargetFindEffect>
+    <CModel id="JupiterAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\MiraHorner_NapalmBomb_Coop_Explosion\MiraHorner_NapalmBomb_Coop_Explosion.m3"/>
+        <Flags index="Wait" value="1"/>
+        <Priority value="32"/>
+        <ScaleMax value="1.100000,1.100000,0.750000"/>
+        <ScaleMin value="1.100000,1.100000,0.750000"/>
+        <EditorCategories value="Race:UPL"/>
+    </CModel>
+    <CModel id="JupiterAttackSplat" parent="Splat">
+        <Model value="Assets\UI\Cursors\TerranAOECursor\TerranAOECursor.m3"/>
+        <ScaleMax value="3.000000,3.000000,3.000000"/>
+        <ScaleMin value="3.000000,3.000000,3.000000"/>
+        <EditorCategories value="Race:UPL"/>
+    </CModel>
+    <CModel id="JupiterAttackMissile" parent="MissileFX">
+        <Model value="Assets\Units\Terran\Griffin_BombRun_COOP\Griffin_BombRun_COOP.m3"/>
+        <EditorCategories value="Race:UPL"/>
+        <Events>
+            <Anim value="Stand,Work,Start,00"/>
+            <Name value="Griffin_BombParachute"/>
+            <Type value="Sound"/>
+            <Time value="0.006000"/>
+            <Payload value="Griffin_BombParachute"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Work,02"/>
+            <Name value="Griffin_Bombing_Whistle"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Griffin_Bombing_Whistle"/>
+        </Events>
+        <!--Model value="Assets\Effects\Terran\MiraHorner_Carrier_Coop_Missile\MiraHorner_Carrier_Coop_Missile.m3"/>
+        <Flags index="Wait" value="1"/>
+        <Priority value="32"/>
+        <AnimSpeed value="0.500000"/>
+        <ScaleMax value="1.250000,0.750000,1.250000"/>
+        <ScaleMin value="1.250000,0.750000,1.250000"/-->
+    </CModel>
+    <CModel id="JupiterNapalmImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\MiraHorner_NapalmBomb_Coop_Fire\MiraHorner_NapalmBomb_Coop_Fire.m3"/>
+        <Flags index="Wait" value="1"/>
+        <Priority value="32"/>
+        <EditorCategories value="Race:UPL"/>
+    </CModel>
+    <CWeaponLegacy id="RevenantBomb">
+        <Icon value="Assets\Textures\btn-upgrade-genetron-rocketweapons-level0.dds"/>
+        <Range value="3"/>
+        <Period value="8"/>
+        <Effect value="RevenantBombTSet"/>
+        <LegacyOptions index="NoDeceleration" value="1"/>
+        <DisplayEffect value="JupiterRevenantBombDamage"/>
+    </CWeaponLegacy>
+    <CMoverMissile id="RevenantBombLMWeapon">
+        <MotionPhases>
+            <Driver value="Guidance"/>
+            <Acceleration value="8"/>
+            <Speed value="0"/>
+            <MinSpeed value="1"/>
+            <MaxSpeed value="10"/>
+            <ActorTracking value="Actual"/>
+            <RotationLaunchActorType value="LaunchToTarget"/>
+            <ThrowBandYaw value="-360,-360,-360,-360"/>
+            <ThrowBandPitch value="-360,-360,-360,-360"/>
+            <YawPitchRoll value="5759.6484"/>
+        </MotionPhases>
+    </CMoverMissile>
+    <CSound id="JupiterBombRunStart" parent="Spell">
+        <AssetArray File="Assets\Sounds\Griffin_PkUp_Hit_FlyOut.wav" FacialGroup=""/>
+        <Pitch value="2.000000,2.000000"/>
+    </CSound>
+    <CSound id="JupiterBombRun" parent="Spell">
+        <AssetArray File="Assets\Sounds\Griffin_ScreamBy_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Griffin_ScreamBy_03.wav" FacialGroup=""/>
+        <MuteFadeOut/>
+        <MuteFadeOut Time="1500" Volume="-96.000000"/>
+        <Pitch value="-7.000000,-7.000000"/>
+        <SustainFade index="1" Time="1500"/>
+        <Volume value="-8.000000,-8.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="50.000000" Volume="-96.000000"/>
+    </CSound>
+    <CUnit id="RevenantBombLMWeapon" parent="MISSILE_INVULNERABLE">
+        <Race value="UPL"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Melee"/>
+    </CUnit>
+    <CBehaviorBuff id="RevenantBombAbilityChannel">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Genetron,AbilityorEffectType:Units"/>
+        <BuffFlags index="Channeling" value="1"/>
+        <Modification>
+            <StateFlags index="SuppressEnergyRegen" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+</Catalog>

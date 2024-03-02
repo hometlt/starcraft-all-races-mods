@@ -1,30 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Catalog>
-
-    <CUnit id="HansonScienceVessel" parent="ScienceVessel">
-        <Name value="Unit/Name/HansonScienceVessel"/>
-        <Description value="Button/Tooltip/HansonScienceVessel"/>
-        <EnergyStart value="75"/>
-        <AbilArray index="3" Link="attack"/>
-        <AbilArray index="4" removed="1"/>
-        <AbilArray index="5" removed="1"/>
-        <AbilArray index="6" removed="1"/>
-        <AbilArray index="7" removed="1"/>
-        <BehaviorArray Link="HHMercenarySpaceStationTimedLife52"/>
-        <WeaponArray Link="LaserDrillTripodLaserBeamCoop2" Turret="ScienceVesselRotate"/>
-        <CardLayouts index="0">
-            <LayoutButtons index="6" Face="Detector" Type="Passive" Row="2" Column="2"/>
-            <LayoutButtons index="7" Face="Irradiate" Type="AbilCmd" AbilCmd="Irradiate,Execute" Row="2" Column="0"/>
-            <LayoutButtons index="8" Face="SIStukovMassNeuralParasite2" Type="Passive" AbilCmd="" Row="2" Column="1"/>
-            <LayoutButtons index="9" removed="1"/>
-            <LayoutButtons index="10" removed="1"/>
-            <LayoutButtons index="11" removed="1"/>
-            <LayoutButtons index="12" removed="1"/>
-            <LayoutButtons index="13" removed="1"/>
-            <LayoutButtons index="14" removed="1"/>
-            <LayoutButtons index="15" removed="1"/>
-        </CardLayouts>
-        <Race value="Hanson"/>
-    </CUnit>
+    <CEffectApplyBehavior id="DevourerMPWeaponApply22">
+        <EditorCategories value="Race:Hanson"/>
+        <Behavior value="DevourerMPAcidSpores22"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="DevourerMPWeaponSearch22">
+        <EditorCategories value="Race:Hanson"/>
+        <ImpactLocation Value="SourcePoint"/>
+        <SearchFilters value="-;Enemy,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="8" Effect="DevourerMPWeaponApply22"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="HHMercenarySpaceStationNukeDamage52">
+        <EditorCategories value="Race:Hanson"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <AINotifyFlags index="MajorDanger" value="1"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ImpactLocation Value="SourcePoint"/>
+        <Death value="Blast"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="SameCliff" value="0"/>
+    </CEffectDamage>
+    <CEffectSet id="HHMercenarySpaceStationSuicideNukeSet52">
+        <EffectArray value="HHMercenarySpaceStationNukeDamage52"/>
+        <EffectArray value="DevourerMPWeaponSearch22"/>
+        <EditorCategories value="Race:Hanson"/>
+    </CEffectSet>
+    <CEffectRemoveBehavior id="HHMercenarySpaceStationSuicideRB52">
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="HHMercenarySpaceStationSuicide"/>
+        <EditorCategories value="Race:Hanson"/>
+    </CEffectRemoveBehavior>
+    <CEffectSet id="HHMercenarySpaceStationSuicideSet52">
+        <EffectArray value="HHMercenarySpaceStationSuicideRB52"/>
+        <EffectArray value="HHMercenarySpaceStationSuicideNukeSet52"/>
+        <EffectArray value="SuicideDelay82"/>
+        <EditorCategories value="Race:Hanson"/>
+    </CEffectSet>
+    <CEffectDamage id="Suicide212">
+        <ImpactLocation Value="SourceUnit"/>
+        <Flags index="Kill" value="1"/>
+        <Flags index="NoKillCredit" value="1"/>
+        <EditorCategories value="Race:Hanson"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="SuicideDelay82">
+        <EditorCategories value="Race:Hanson"/>
+        <ExpireDelay value="0.0625"/>
+        <FinalEffect value="Suicide212"/>
+    </CEffectCreatePersistent>
+    <CButton id="SIStukovMassNeuralParasite2">
+        <Icon value="Assets\Textures\BTN-Ability-Zerg-NeuralParasite-color.dds"/>
+        <AlertIcon value="Assets\Textures\BTN-Ability-Zerg-NeuralParasite-color.dds"/>
+        <EditorCategories value="Race:Hanson"/>
+    </CButton>
     <CActorModel id="DevourerMPAcidSporesImpact22" parent="ModelAnimationStyleContinuous">
         <EditorCategories value=""/>
         <On Terms="Behavior.DevourerMPAcidSpores22.On" Send="Create"/>
@@ -55,10 +84,54 @@
     <CActorSound id="ScienceVessel_IrradiateImpact">
         <On Terms="Behavior.MutatorFear33.On" Send="Create"/>
     </CActorSound>
+    <CModel id="DevourerMPAcidSporesImpact22" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Zerg\DiseaseCloud\DiseaseCloud.m3"/>
+        <EditorCategories value="Race:Hanson"/>
+    </CModel>
+    <CModel id="HHMercenarySpaceStationNukeExplode62" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Zerg\ConstrictingSlimeLaunch\ConstrictingSlimeLaunch.m3"/>
+        <EditorCategories value="Race:Hanson"/>
+    </CModel>
+    <CWeaponLegacy id="LaserDrillTripodLaserBeamCoop2">
+        <EditorCategories value="Race:Hanson"/>
+        <Icon value="Assets\Textures\BTN-Ability-Zerg-NeuralParasite-color.dds"/>
+        <TargetFilters value="Visible;Player,Ally,Structure,Missile,Stasis,Dead,Hidden,Invulnerable,MapBoss"/>
+        <MinScanRange value="10.5"/>
+        <Range value="10"/>
+        <Arc value="360"/>
+        <Period value="5"/>
+        <Effect value="StukovAleksanderAirAttackScanPersistent"/>
+        <Options index="DisplayCooldown" value="1"/>
+    </CWeaponLegacy>
+    <CUnit id="HansonScienceVessel" parent="ScienceVessel">
+        <Name value="Unit/Name/HansonScienceVessel"/>
+        <Description value="Button/Tooltip/HansonScienceVessel"/>
+        <EnergyStart value="75"/>
+        <AbilArray index="3" Link="attack"/>
+        <AbilArray index="4" removed="1"/>
+        <AbilArray index="5" removed="1"/>
+        <AbilArray index="6" removed="1"/>
+        <AbilArray index="7" removed="1"/>
+        <BehaviorArray Link="HHMercenarySpaceStationTimedLife52"/>
+        <WeaponArray Link="LaserDrillTripodLaserBeamCoop2" Turret="ScienceVesselRotate"/>
+        <CardLayouts index="0">
+            <LayoutButtons index="6" Face="Detector" Type="Passive" Row="2" Column="2"/>
+            <LayoutButtons index="7" Face="Irradiate" Type="AbilCmd" AbilCmd="Irradiate,Execute" Row="2" Column="0"/>
+            <LayoutButtons index="8" Face="SIStukovMassNeuralParasite2" Type="Passive" AbilCmd="" Row="2" Column="1"/>
+            <LayoutButtons index="9" removed="1"/>
+            <LayoutButtons index="10" removed="1"/>
+            <LayoutButtons index="11" removed="1"/>
+            <LayoutButtons index="12" removed="1"/>
+            <LayoutButtons index="13" removed="1"/>
+            <LayoutButtons index="14" removed="1"/>
+            <LayoutButtons index="15" removed="1"/>
+        </CardLayouts>
+        <Race value="Hanson"/>
+    </CUnit>
     <CBehaviorBuff id="DevourerMPAcidSpores22">
         <Tooltip value="Behavior/Tooltip/DevourerMPAcidSpores222"/>
         <InfoIcon value="Assets\Textures\btn-ability-dehaka-explosiveshot.dds"/>
-        <EditorCategories value="AbilityorEffectType:Units"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Hanson"/>
         <BuffFlags index="RefreshStack" value="1"/>
         <MaxStackCount value="5"/>
         <Duration value="15"/>
@@ -79,6 +152,7 @@
     </CBehaviorBuff>
     <CBehaviorBuff id="Irradiate">
         <RemoveValidatorArray value="KarassDebuffforAlliesClear"/>
+        <EditorCategories value="AbilityorEffectType:Units,Race:Hanson"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="StukovAleksanderAirAttackStun">
         <Modification>
@@ -86,17 +160,29 @@
             <AbilLinkEnableArray value="SiegeTankWreckage"/>
             <AbilLinkEnableArray value="ThorWreckageSwann"/>
         </Modification>
+        <EditorCategories value="Race:Hanson,AbilityorEffectType:Units"/>
     </CBehaviorBuff>
-    <CBehaviorBuff id="StukovAleksanderBeingAttackedByTentacle"/>
-    <CBehaviorBuff id="StukovAleksanderTentacleABusy"/>
-    <CBehaviorBuff id="StukovAleksanderTentacleBBusy"/>
-    <CBehaviorBuff id="StukovAleksanderTentacleCBusy"/>
-    <CBehaviorBuff id="StukovAleksanderTentacleDBusy"/>
-    <CBehaviorBuff id="StukovAleksanderTentacleEBusy"/>
-
+    <CBehaviorBuff id="StukovAleksanderBeingAttackedByTentacle">
+        <EditorCategories value="Race:Hanson,AbilityorEffectType:Units"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="StukovAleksanderTentacleABusy">
+        <EditorCategories value="Race:Hanson,AbilityorEffectType:Units"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="StukovAleksanderTentacleBBusy">
+        <EditorCategories value="Race:Hanson,AbilityorEffectType:Units"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="StukovAleksanderTentacleCBusy">
+        <EditorCategories value="Race:Hanson,AbilityorEffectType:Units"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="StukovAleksanderTentacleDBusy">
+        <EditorCategories value="Race:Hanson,AbilityorEffectType:Units"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="StukovAleksanderTentacleEBusy">
+        <EditorCategories value="Race:Hanson,AbilityorEffectType:Units"/>
+    </CBehaviorBuff>
     <CBehaviorBuff id="HHMercenarySpaceStationTimedLife52">
         <InfoFlags index="Hidden" value="1"/>
-        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <EditorCategories value="Race:Hanson,AbilityorEffectType:Units"/>
         <DisplayDuration index="Self" value="1"/>
         <DisplayDuration index="Ally" value="1"/>
         <DisplayDuration index="Enemy" value="1"/>
@@ -104,73 +190,4 @@
             <DeathResponse Chance="1" Effect="HHMercenarySpaceStationSuicideSet52"/>
         </Modification>
     </CBehaviorBuff>
-    <CButton id="SIStukovMassNeuralParasite2">
-        <Icon value="Assets\Textures\BTN-Ability-Zerg-NeuralParasite-color.dds"/>
-        <AlertIcon value="Assets\Textures\BTN-Ability-Zerg-NeuralParasite-color.dds"/>
-        <EditorCategories value="Race:Zerg"/>
-    </CButton>
-    <CEffectApplyBehavior id="DevourerMPWeaponApply22">
-        <EditorCategories value="Race:Zerg"/>
-        <Behavior value="DevourerMPAcidSpores22"/>
-    </CEffectApplyBehavior>
-    <CEffectEnumArea id="DevourerMPWeaponSearch22">
-        <EditorCategories value="Race:Zerg"/>
-        <ImpactLocation Value="SourcePoint"/>
-        <SearchFilters value="-;Enemy,Missile,Stasis,Dead,Hidden,Invulnerable"/>
-        <AreaArray Radius="8" Effect="DevourerMPWeaponApply22"/>
-    </CEffectEnumArea>
-    <CEffectDamage id="HHMercenarySpaceStationNukeDamage52">
-        <EditorCategories value="Race:Terran"/>
-        <AINotifyFlags index="HurtEnemy" value="1"/>
-        <AINotifyFlags index="MajorDanger" value="1"/>
-        <ResponseFlags index="Acquire" value="1"/>
-        <ResponseFlags index="Flee" value="1"/>
-        <ImpactLocation Value="SourcePoint"/>
-        <Death value="Blast"/>
-        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
-        <SearchFlags index="CallForHelp" value="1"/>
-        <SearchFlags index="SameCliff" value="0"/>
-    </CEffectDamage>
-    <CEffectSet id="HHMercenarySpaceStationSuicideNukeSet52">
-        <EffectArray value="HHMercenarySpaceStationNukeDamage52"/>
-        <EffectArray value="DevourerMPWeaponSearch22"/>
-    </CEffectSet>
-    <CEffectRemoveBehavior id="HHMercenarySpaceStationSuicideRB52">
-        <WhichUnit Value="Caster"/>
-        <BehaviorLink value="HHMercenarySpaceStationSuicide"/>
-    </CEffectRemoveBehavior>
-    <CEffectSet id="HHMercenarySpaceStationSuicideSet52">
-        <EffectArray value="HHMercenarySpaceStationSuicideRB52"/>
-        <EffectArray value="HHMercenarySpaceStationSuicideNukeSet52"/>
-        <EffectArray value="SuicideDelay82"/>
-    </CEffectSet>
-    <CEffectDamage id="Suicide212">
-        <ImpactLocation Value="SourceUnit"/>
-        <Flags index="Kill" value="1"/>
-        <Flags index="NoKillCredit" value="1"/>
-    </CEffectDamage>
-    <CEffectCreatePersistent id="SuicideDelay82">
-        <EditorCategories value="Race:Zerg"/>
-        <ExpireDelay value="0.0625"/>
-        <FinalEffect value="Suicide212"/>
-    </CEffectCreatePersistent>
-    <CModel id="DevourerMPAcidSporesImpact22" parent="PersistentSpellFX">
-        <Model value="Assets\Effects\Zerg\DiseaseCloud\DiseaseCloud.m3"/>
-    </CModel>
-    <CModel id="HHMercenarySpaceStationNukeExplode62" parent="OneShotSpellFX">
-        <Model value="Assets\Effects\Zerg\ConstrictingSlimeLaunch\ConstrictingSlimeLaunch.m3"/>
-        <EditorCategories value="Race:Terran"/>
-    </CModel>
-    <CWeaponLegacy id="LaserDrillTripodLaserBeamCoop2">
-        <EditorCategories value="Race:Terran"/>
-        <Icon value="Assets\Textures\BTN-Ability-Zerg-NeuralParasite-color.dds"/>
-        <TargetFilters value="Visible;Player,Ally,Structure,Missile,Stasis,Dead,Hidden,Invulnerable,MapBoss"/>
-        <MinScanRange value="10.5"/>
-        <Range value="10"/>
-        <Arc value="360"/>
-        <Period value="5"/>
-        <Effect value="StukovAleksanderAirAttackScanPersistent"/>
-        <Options index="DisplayCooldown" value="1"/>
-    </CWeaponLegacy>
-
 </Catalog>

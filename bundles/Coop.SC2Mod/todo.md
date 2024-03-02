@@ -1,0 +1,3 @@
+BehaviorArray Link="VorazunCloakedShieldRegenPermanent"/> removed
+
+        

@@ -1,0 +1,811 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CAbilEffectTarget id="ArbiterMPStasisField">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <Effect index="0" value="ArbiterMPStasisFieldSearch"/>
+        <Cost>
+            <Vital index="Energy" value="50"/>
+        </Cost>
+        <Range value="9"/>
+        <CursorEffect value="ArbiterMPStasisFieldSearch"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ArbiterMPStasisField"/>
+        <Flags index="AllowMovement" value="1"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ArbiterMPRecall">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Effect index="0" value="ArbiterMPRecallSearch"/>
+        <Cost>
+            <Vital index="Energy" value="100"/>
+            <Charge Link=""/>
+            <Cooldown Link=""/>
+        </Cost>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CursorEffect value="ArbiterMPRecallSearch"/>
+        <AINotifyEffect value=""/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ArbiterMPRecall"/>
+    </CAbilEffectTarget>
+    <CActorUnit id="ArbiterMP" parent="GenericUnitStandard" unitName="ArbiterMP">
+        <PortraitModel value="ArbiterMPPortrait"/>
+        <BuildModel value="ArbiterEX2WarpIn"/>
+        <DeathArray index="Normal" ModelLink="ArbiterMPDeath" SoundLink="ArbiterMP_DeathExplosion"/>
+        <On Terms="Behavior.WarpInEffect.On" Send="ModelSwap ArbiterWarpInStargate"/>
+        <On Terms="Behavior.WarpInEffect.On" Send="$Spell"/>
+        <On Terms="Behavior.WarpInEffect.Off" Send="ModelSwap Arbiter"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create ArbiterMP_LandSoundSweetener"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create VoidRay_Land"/>
+        <On Terms="Behavior.WarpInEffect.On" Send="ModelSwap ArbiterMPWarpInStargate"/>
+        <On Terms="Behavior.WarpInEffect.On" Send="$Spell"/>
+        <On Terms="AnimDone; AnimName Spell" Send="ModelSwap ArbiterMP"/>
+        <On Terms="AnimDone; AnimName Spell" Send="AnimBracketStart GL_BSD GLbirth GLstand GLdeath"/>
+        <On Terms="AnimDone; AnimName Spell" Send="AnimClear Spell"/>
+        <BarWidth value="66"/>
+        <BarOffset value="40"/>
+        <NameOffset value="40"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-arbiter.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-arbiter.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-protoss-arbiter-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-arbiter-shield02.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-arbiter-shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-protoss-arbiter.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-arbiter.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <SoundArray index="Movement" value="ArbiterMP_MoveStart"/>
+        <SoundArray index="Ready" value="Arbiter_Ready"/>
+        <SoundArray index="Help" value="Arbiter_Help"/>
+        <SoundArray index="What" value="Arbiter_What"/>
+        <SoundArray index="Yes" value="Arbiter_Yes"/>
+        <SoundArray index="Attack" value="Arbiter_Attack"/>
+        <Aliases value="_UnitHuge"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <AbilSoundArray AbilCmd="ArbiterMPStasisField,Execute" Sound="Arbiter_StasisFieldVO"/>
+        <AbilSoundArray AbilCmd="ArbiterMPRecall,Execute" Sound="Arbiter_RecallVO"/>
+        <PlacementModel value="ArbiterEX2Placement"/>
+    </CActorUnit>
+    <CActorSound id="ArbiterMP_LandSoundSweetener" parent="SoundOneShot">
+        <Sound value="ArbiterMP_LandSweetener"/>
+    </CActorSound>
+    <CActorSound id="ArbiterMP_AttackLaunchSound" parent="SoundOneShot">
+        <Sound value="ArbiterMP_AttackLaunch"/>
+    </CActorSound>
+    <CActorMissile id="ArbiterMPWeaponMissile" parent="GenericAttackMissile" unitName="ArbiterMPWeaponMissile">
+        <On Terms="ActorCreation" Send="Create ArbiterMP_AttackLaunchSound"/>
+    </CActorMissile>
+    <CActorAction id="ArbiterMPWeaponAttack" parent="GenericAttack" effectImpact="ArbiterMPWeaponDamage" effectLaunch="ArbiterMPWeaponLaunch">
+        <ImpactMap index="None" Model="ArbiterMPWeaponImpact" Sound="ArbiterMP_AttackImpact"/>
+        <Missile value="ArbiterMPWeaponMissile"/>
+    </CActorAction>
+    <CActorSplat id="ArbiterMPRecallCursorSplat" parent="ProtossCursorSplat" abil="ArbiterMPRecall">
+        <Model value="FenixDragoonAirBombCursor"/>
+    </CActorSplat>
+    <CActorSimple id="ArbiterMPRecallOpacity">
+        <On Terms="Behavior.ArbiterMPRecalling.On" Send="Create"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetOpacity 0.400000 0.250000 MassRecallOpacity"/>
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 100,100,255 0.250000 OneShot MassRecallTint"/>
+        <On Terms="Behavior.ArbiterMPRecalled.Off" Send="TimerSet 0.150000 ClearRecallOpacity"/>
+        <On Terms="Behavior.Yoink.On" Target="_Unit" Send="ClearOpacity 0.250000 MassRecallOpacity"/>
+        <On Terms="Behavior.Yoink.On" Target="_Unit" Send="ClearTintColor 0.250000 MassRecallTint"/>
+        <On Terms="Behavior.Yoink.On" Send="Destroy"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity; ValidateUnit NoRecallingBehaviors" Target="_Unit" Send="ClearOpacity 0.250000 MassRecallOpacity"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity; ValidateUnit NoRecallingBehaviors" Target="_Unit" Send="ClearTintColor 0.250000 MassRecallTint"/>
+        <On Terms="TimerExpired; TimerName ClearRecallOpacity; ValidateUnit NoRecallingBehaviors" Send="Destroy"/>
+    </CActorSimple>
+    <CActorModel id="ArbiterMPStasisFieldImpact" parent="ModelAnimationStyleContinuous">
+        <EditorCategories value=""/>
+        <On Terms="Behavior.ArbiterMPStasisField.On" Send="Create"/>
+        <On Terms="ActorCreation; ValidateUnit IsColossus" Send="SetScale 1.200000,1.200000,2.500000"/>
+        <On Terms="Behavior.ArbiterMPStasisField.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="Behavior.ArbiterMPStasisField.On" Target="_Unit" Send="AnimSetPausedAll"/>
+        <On Terms="Behavior.ArbiterMPStasisField.Off" Target="_Unit" Send="AnimSetPausedAll 0"/>
+        <On Terms="ActorCreation; ValidateUnit IsBrutalisk" Send="SetScale 2.000000"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="0.9"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+    </CActorModel>
+    <CActorModel id="ArbiterMPCastModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.ArbiterMPStasisFieldSearch.Start" Send="Create"/>
+    </CActorModel>
+    <CActorSound id="ArbiterMP_StasisFieldShockwave" parent="SoundOneShot">
+        <On Terms="Effect.ArbiterMPStasisFieldSearch.Start" Send="Create"/>
+    </CActorSound>
+    <CActorSplat id="ArbiterMPStasisFieldCursorSplat" parent="ProtossCursorSplat" abil="ArbiterMPStasisField"/>
+    <CActorSound id="ArbiterMP_CloakFieldOff" parent="SoundOneShot">
+        <Terms value="ValidateUnit NotWorkerAndNotCloakedAndNotDead"/>
+        <On Terms="Behavior.ArbiterMPCloakFieldEffect.Off" Send="Create"/>
+        <On Terms="Behavior.FenixArbiterCloakingFieldTarget.Off" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="ArbiterMP_CloakFieldOn" parent="SoundOneShot">
+        <Terms value="ValidateUnit NotWorkerAndNotCloaked"/>
+        <On Terms="Behavior.ArbiterMPCloakFieldEffect.On" Send="Create"/>
+        <On Terms="Behavior.FenixArbiterCloakingFieldTarget.On" Send="Create"/>
+    </CActorSound>
+    <CActorModel id="ArbiterMPRecalledImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Behavior.ArbiterMPRecalled.On" Send="Create"/>
+        <Terms value="Cap 1"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <AutoScaleFactor value="0.45"/>
+    </CActorModel>
+    <CActorSound id="ArbiterMPRecalledImpactSound" parent="SoundOneShot">
+        <On Terms="Behavior.ArbiterMPRecalled.On" Send="Create"/>
+        <Terms value="Cap 1"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="ArbiterMP_RecallEnd"/>
+    </CActorSound>
+    <CActorModel id="ArbiterMPRecallingImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Behavior.ArbiterMPRecalling.On" Send="Create"/>
+        <Terms value="Cap 1"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <AutoScaleFactor value="0.45"/>
+    </CActorModel>
+    <CActorSound id="ArbiterMPRecallingImpactSound" parent="SoundOneShot">
+        <On Terms="Behavior.ArbiterMPRecalling.On" Send="Create"/>
+        <Terms value="Cap 1"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="ArbiterMP_RecallStart"/>
+    </CActorSound>
+    <CActorSound id="ArbiterMPStasisFieldImpactSound" parent="SoundOneShot">
+        <On Terms="Behavior.ArbiterMPStasisField.On" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="ArbiterMP_StasisFieldOn"/>
+    </CActorSound>
+    <CActorSound id="ArbiterMPStasisFieldOffSound" parent="SoundOneShot">
+        <On Terms="Behavior.ArbiterMPStasisField.Off" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <Sound value="ArbiterMP_StasisFieldOff"/>
+    </CActorSound>
+    <CActorRange id="ArbiterMPStasisFieldRange" parent="RangeAbil" abil="ArbiterMPStasisField">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.25"/>
+    </CActorRange>
+    <CActorRange id="ArbiterMPRecallRange" parent="RangeAbil" abil="ArbiterMPRecall">
+        <Icon value="Assets\Textures\RadarIcon2.dds"/>
+        <IconArcLength value="3.25"/>
+    </CActorRange>
+    <CActorRange id="ArbiterMPCloakingFieldRange">
+        <On Terms="SelectionLocalUpdate.ArbiterMP.Start" Send="Create"/>
+        <On Terms="SelectionLocalUpdate.ArbiterMP.Stop" Send="Destroy"/>
+        <Range value="5"/>
+    </CActorRange>
+    <CActorModel id="ArbiterMPWarpInStargate" parent="ModelAddition">
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="UnitDeathCustomize" Send="Destroy"/>
+        <On Terms="ActorCreation; ValidateUnit IsChronoSurged" Send="AnimSetTimeScale BSD 0.200000"/>
+        <On Terms="Behavior.SOASuperChrono.On" Send="AnimSetTimeScale BSD 0.200000"/>
+        <On Terms="Behavior.SOASuperChrono.Off" Send="AnimSetTimeScale BSD 1.000000"/>
+    </CActorModel>
+    <CBehaviorBuff id="ArbiterMPStasisField">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <Duration value="15"/>
+        <Modification>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="Stasis" value="1"/>
+            <StateFlags index="Stun" value="1"/>
+            <AbilClassDisableArray index="CAbilAttack" value="1"/>
+            <BehaviorLinkDisableArray value="Detector7"/>
+            <BehaviorLinkDisableArray value="Detector8"/>
+            <BehaviorLinkDisableArray value="Detector9"/>
+            <BehaviorLinkDisableArray value="Detector10"/>
+            <BehaviorLinkDisableArray value="Detector11"/>
+            <BehaviorLinkDisableArray value="Detector12"/>
+        </Modification>
+        <InfoIcon value="Assets\Textures\btn-ability-protoss-forcefield-color.dds"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ArbiterMPStasisFieldTimedLife">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <DisplayDuration index="Enemy" value="1"/>
+        <Duration value="15"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ArbiterMPCloakField">
+        <Alignment value="Positive"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <InfoIcon value="Assets\Textures\BTN-Ability-Protoss-CloakField.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <BuffFlags index="DisableWhileUnderConstruction" value="1"/>
+        <Period value="0.2"/>
+        <PeriodicEffect value="ArbiterMPCloakingFieldSearch"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ArbiterMPCloakFieldEffect">
+        <Alignment value="Positive"/>
+        <InfoIcon value="Assets\Textures\btn-ability-protoss-cloakfield.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <DisableValidatorArray value="NotMothership"/>
+        <TimeScaleSource Value="Global"/>
+        <Duration value="0.5"/>
+        <Modification>
+            <StateFlags index="Cloak" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ArbiterMPRecalled" parent="Recalled">
+        <Name value="Behavior/Name/ArbiterMPRecalled"/>
+        <Tooltip value="Behavior/Tooltip/ArbiterMPRecalled"/>
+        <Modification>
+            <AbilLinkEnableArray value="CarrierRepairDroneHanger"/>
+            <AbilLinkEnableArray value="BroodLordHangar"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ArbiterMPRecalling" parent="Recalling">
+        <Name value="Behavior/Name/ArbiterMPRecalling"/>
+        <Tooltip value="Behavior/Tooltip/ArbiterMPRecalling"/>
+        <ExpireEffect value="ArbiterMPRecallSet"/>
+        <Modification>
+            <AbilLinkEnableArray value="CarrierRepairDroneHanger"/>
+            <AbilLinkEnableArray value="BroodLordHangar"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CButton id="ArbiterMPStasisField">
+        <Icon value="Assets\Textures\btn-ability-protoss-stasisfield.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-protoss-stasisfield.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CButton id="ArbiterMPRecall">
+        <Icon value="Assets\Textures\btn-ability-protoss-recall.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-protoss-recall.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CButton id="ArbiterMPCloakField">
+        <Icon value="Assets\Textures\btn-ability-protoss-cloakfield-color.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-protoss-cloakfield-color.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CEffectApplyBehavior id="ArbiterMPStasisFieldTimerApply">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="ArbiterMPStasisFieldTimedLife"/>
+        <ValidatorArray value="NotFrenzied"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="ArbiterMPStasisFieldSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="ArbiterMPStasisFieldApply"/>
+        <EffectArray value="ArbiterMPStasisFieldTimerApply"/>
+        <ValidatorArray value="NotMapBoss"/>
+        <ValidatorArray value="NotFrenzied"/>
+        <ValidatorArray value="NoTimeStopImmune"/>
+        <ValidatorArray value="TargetIsNotNonCommanderAlly"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="ArbiterMPWeaponLaunch">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactEffect value="ArbiterMPWeaponDamage"/>
+        <AmmoUnit value="ArbiterMPWeaponMissile"/>
+        <Movers Link="MissileDefault" IfRangeLTE="1"/>
+        <Movers Link="ArbiterMPWeaponMissile" IfRangeLTE="4"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="ArbiterMPWeaponDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Kind value="Ranged"/>
+        <Amount value="10"/>
+        <Visibility value="Visible"/>
+    </CEffectDamage>
+    <CEffectApplyBehavior id="ArbiterMPStasisFieldApply">
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="ArbiterMPStasisField"/>
+        <ValidatorArray value="NotFrenzied"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="ArbiterMPStasisFieldSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <SearchFilters value="-;Self,Player,Ally,Neutral,Structure,Missile,Item,Dead,Hidden"/>
+        <AreaArray Radius="5" Effect="ArbiterMPStasisFieldSet"/>
+        <ImpactLocation Value="TargetPoint"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="ArbiterMPCloakingFieldApply">
+        <ValidatorArray index="0" value="NotMothership"/>
+        <ValidatorArray value="NotMothershipCore"/>
+        <ValidatorArray value="NotArbiterMP"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="ArbiterMPCloakFieldEffect"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="ArbiterMPCloakingFieldSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactLocation Value="CasterUnit"/>
+        <SearchFilters value="-;Self,Neutral,Enemy,Structure,Missile,Dead,Hidden"/>
+        <AreaArray Radius="5" Effect="ArbiterMPCloakSet"/>
+        <SearchFlags index="ExtendByUnitRadius" value="1"/>
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="ArbiterMPRecallApplyPreRecallBehavior">
+        <ValidatorArray index="0" value="NotLarvaEgg"/>
+        <ValidatorArray value="NotLarva"/>
+        <ValidatorArray value="NotAbducted"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="ArbiterMPRecalling"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ArbiterMPRecallApplyPostRecallBehavior">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Protoss"/>
+        <Behavior value="ArbiterMPRecalled"/>
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="ArbiterMPRecallSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <SearchFilters value="-;Self,Ally,Neutral,Enemy,Structure,User1,Worker,Missile,Item,Uncommandable,Dead,Hidden"/>
+        <AreaArray Radius="8" Effect="ArbiterMPRecallInitialSet"/>
+        <MinCount value="1"/>
+    </CEffectEnumArea>
+    <CEffectSet id="ArbiterMPRecallSet">
+        <ValidatorArray value="NotLarvaEgg"/>
+        <ValidatorArray value="NotLarva"/>
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="ArbiterMPRecallTeleport"/>
+        <EffectArray value="ArbiterMPRecallApplyPostRecallBehavior"/>
+    </CEffectSet>
+    <CEffectTeleport id="ArbiterMPRecallTeleport">
+        <EditorCategories value="Race:Protoss"/>
+        <PlacementArc value="360"/>
+        <PlacementAround Effect="ArbiterMPRecallSearch" Value="SourcePoint"/>
+        <PlacementRange value="15"/>
+        <SourceLocation Effect="ArbiterMPRecallSearch" Value="TargetPoint"/>
+        <TargetLocation Effect="ArbiterMPRecallSearch" Value="SourcePoint"/>
+        <TeleportFlags index="TestCliff" value="1"/>
+        <TeleportFlags index="TestFog" value="0"/>
+    </CEffectTeleport>
+    <CEffectSet id="ArbiterMPRecallInitialSet">
+        <ValidatorArray value="NotLarvaEgg"/>
+        <ValidatorArray value="NotLarva"/>
+        <ValidatorArray value="TargetIsNotNonCommanderAlly"/>
+        <ValidatorArray value="NotSlaynElementalCocooned"/>
+        <ValidatorArray value="NotLarvaStetmann"/>
+        <ValidatorArray value="NotLarvaEggStetmann"/>
+        <EffectArray value="ArbiterMPRecallApplyPreRecallBehavior"/>
+        <EffectArray value="ArbiterMPRecallMagazineIterate"/>
+    </CEffectSet>
+    <CEffectEnumMagazine id="ArbiterMPRecallMagazineIterate">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectExternal value="ArbiterMPRecallApplyPreRecallBehavior"/>
+    </CEffectEnumMagazine>
+    <CEffectSet id="ArbiterMPCloakSet">
+        <ValidatorArray value="CoopUnitCloakingValidators"/>
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="ArbiterMPCloakingFieldApply"/>
+        <EffectArray value="CloakedReduceDamageApplyBehavior"/>
+    </CEffectSet>
+    <CModel id="ArbiterMPWarpInStargate" parent="PersistentSpellFX">
+        <Model value="Assets\Units\Protoss\Arbiter_WarpIn_StarGate\Arbiter_WarpIn_StarGate.m3"/>
+        <Occlusion value="Show"/>
+        <LowQualityModel value="ProtossUnitBirth"/>
+        <SelectionRadius value="0.6665"/>
+        <ShadowRadius value="0.6665"/>
+        <SquibTypeDefault value="Metal"/>
+        <Radius value="0.75"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CModel>
+    <CModel id="ArbiterMP" parent="Unit" Race="Protoss">
+        <Occlusion value="Show"/>
+        <SelectionRadius value="1"/>
+        <Radius value="1"/>
+        <TechPurchaseCamera value="Star2CameraLow05"/>
+        <UnitGlossaryCamera value="Star2CameraLow05"/>
+        <PlanetPanelCamera value="Star2CameraLow05"/>
+        <ShadowRadius value="1"/>
+        <Model value="Assets\Units\Protoss\Arbiter_EX2\Arbiter_EX2.m3"/>
+        <SelectionOffset value="0.000000,0.000000,-0.750000"/>
+    </CModel>
+    <CModel id="ArbiterMPWarpIn" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Protoss\ProtossUnitWarpIn\ProtossUnitWarpIn.m3"/>
+        <Occlusion value="Show"/>
+        <ScaleMax value="0.850000,0.850000,0.850000"/>
+        <ScaleMin value="0.850000,0.850000,0.850000"/>
+        <EditorCategories value="Race:Protoss"/>
+        <LowQualityModel value="ProtossUnitBirth"/>
+        <SelectionOffset value="0.000000,0.000000,-0.750000"/>
+        <SelectionRadius value="0.75"/>
+        <ShadowRadius value="0.75"/>
+    </CModel>
+    <CModel id="ArbiterMPDeath" parent="UnitDeath" Race="Protoss">
+        <Occlusion value="Show"/>
+        <SelectionRadius value="0.75"/>
+        <Radius value="0.75"/>
+        <ShadowRadius value="0.75"/>
+        <LowQualityModel value="ProtossMediumUnitDeathLow"/>
+        <Model value="Assets\Units\Protoss\ArbiterEX2_Death\ArbiterEX2_Death.m3"/>
+    </CModel>
+    <CModel id="ArbiterMPWeaponImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Protoss\PhotonCannonMissileImpact\PhotonCannonMissileImpact.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CModel>
+    <CModel id="ArbiterMPWeaponLaunch" parent="LaunchFX">
+        <Model value="Assets\Effects\Protoss\Arbiter_Purifier_Coop_Missile_Launch\Arbiter_Purifier_Coop_Missile_Launch.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CModel>
+    <CModel id="ArbiterMPWeaponMissile" parent="MissileFX">
+        <Model value="Assets\Effects\Protoss\PhotonMissile\PhotonMissile.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ScaleMax value="1.500000,1.500000,1.500000"/>
+        <ScaleMin value="1.500000,1.500000,1.500000"/>
+    </CModel>
+    <CModel id="ArbiterMPPortrait" parent="Portrait" Race="Protoss">
+        <Model value="Assets\Portraits\Protoss\ArbiterEx2Portrait\ArbiterEx2Portrait.m3"/>
+        <Image value="Assets\Textures\arbiterportrait_static.dds"/>
+        <Lighting value="PortraitArbiter"/>
+    </CModel>
+    <CModel id="ArbiterMPRecalledImpact" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Protoss\RecallImpactIn\RecallImpactIn.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ScaleMax value="0.750000,0.750000,0.750000"/>
+        <ScaleMin value="0.750000,0.750000,0.750000"/>
+    </CModel>
+    <CModel id="ArbiterMPRecallingImpact" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Protoss\RecallImpactOut\RecallImpactOut.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ScaleMax value="0.750000,0.750000,0.750000"/>
+        <ScaleMin value="0.750000,0.750000,0.750000"/>
+    </CModel>
+    <CModel id="ArbiterMPStasisFieldImpact" parent="RaceImpactFX" Race="Protoss">
+        <Model value="Assets\Effects\Protoss\Arbiter_StasisField_Impact\Arbiter_StasisField_Impact.m3"/>
+    </CModel>
+    <CModel id="ArbiterMPCastModel" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Protoss\Arbiter_StasisField_Shockwave\Arbiter_StasisField_Shockwave.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Radius value="5"/>
+        <RadiusLoose value="5"/>
+    </CModel>
+    <CMoverMissile id="ArbiterMPWeaponMissile">
+        <MotionPhases Driver="Guidance" Acceleration="3200" MaxSpeed="20" YawPitchRoll="MAX"/>
+    </CMoverMissile>
+    <CSound id="ArbiterMP_DeathExplosion" parent="Death">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_DeathExplosion00.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-1.000000,1.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_MoveStart" parent="Movement">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_MoveStart00.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_MoveStart01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_MoveStart02.wav" FacialGroup=""/>
+        <DupeMuteCount value="3"/>
+        <Pitch value="-0.500000,0.500000"/>
+        <Volume value="-3.000000,-3.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_Explode" parent="Protoss_ExplosionMedium"/>
+    <CSound id="ArbiterMP_AttackLaunch" parent="Combat">
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackLaunch00.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackLaunch01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackLaunch02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackLaunch03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackLaunch04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackLaunch05.wav" FacialGroup=""/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Volume value="-2.000000,-2.000000"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CSound>
+    <CSound id="ArbiterMP_AttackImpact" parent="Combat">
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackImpact00.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackImpact01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackImpact02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_AttackImpact03.wav" FacialGroup=""/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Volume value="-9.000000,-7.000000"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CSound>
+    <CSound id="ArbiterMP_Attack" parent="ProtossAck">
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Attack00.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Attack01.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Attack02.ogg"/>
+        <Volume value="0.000000,0.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_Help" parent="ProtossHelp">
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Help00.ogg"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_Death" parent="ProtossDeath">
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Death00.wav"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Death01.wav"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Death02.wav"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Death03.wav"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Death04.wav"/>
+    </CSound>
+    <CSound id="ArbiterMP_Ready" parent="ProtossReady">
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Ready00.ogg"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_What" parent="ProtossAck">
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_What00.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_What01.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_What02.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_What03.ogg"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_Yes" parent="ProtossAck">
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Yes00.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Yes01.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Yes02.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Arbiter\Arbiter_Yes03.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Scout\Scout_Yes04.ogg"/>
+        <AssetArray File="LocalizedData\Sounds\ProtossVO\CampaignUnits\Scout\Scout_Yes05.ogg"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_CloakFieldOff" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\Protoss\Mothership\Mothership_CloakOff0.wav"/>
+        <AssetArray File="Assets\Sounds\Protoss\Mothership\Mothership_CloakOff1.wav"/>
+        <DupeDestroyCount value="1"/>
+        <Volume value="-16.000000,-16.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_CloakFieldOn" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\Protoss\Mothership\Mothership_CloakON0.wav"/>
+        <AssetArray File="Assets\Sounds\Protoss\Mothership\Mothership_CloakON1.wav"/>
+        <DupeDestroyCount value="1"/>
+        <Volume value="-16.000000,-16.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_RecallEnd" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\Protoss\Mothership\Mothership_WormholeTransitEnd0.wav"/>
+        <Volume value="-3.000000,-3.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_RecallStart" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\Protoss\Mothership\Mothership_WormholeTransitStart0.wav"/>
+        <Volume value="-3.000000,-3.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_StasisFieldOn" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_StasisLaunch00.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_StasisLaunch1.wav" FacialGroup=""/>
+        <Pitch value="-1.000000,1.000000"/>
+        <DupeMuteCount value="3"/>
+    </CSound>
+    <CSound id="ArbiterMP_StasisFieldOff" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_StasisEnd00.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_StasisEnd01.wav" FacialGroup=""/>
+        <DupeDestroyCount value="3"/>
+        <Volume value="-6.000000,-6.000000"/>
+        <Pitch value="-6.000000,-4.000000"/>
+    </CSound>
+    <CSound id="ArbiterMP_StasisFieldShockwave" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\Spell_Entomb_Impact_00.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Spell_Entomb_Impact_01.wav" FacialGroup=""/>
+        <DupeDestroyCount value="8"/>
+        <DupeMuteCount value="3"/>
+        <Pitch value="-1.000000,1.000000"/>
+        <Spread value="10"/>
+    </CSound>
+    <CSound id="ArbiterMP_LandSweetener" parent="Land">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\ArbiterMP_LandSweetener00.wav" FacialGroup=""/>
+        <Pitch value="-1.000000,1.000000"/>
+    </CSound>
+    <CUnit id="ArbiterMP">
+        <DeathRevealRadius value="3"/>
+        <Race value="Prot"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <LifeStart value="150"/>
+        <LifeMax value="150"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossPlating"/>
+        <EnergyStart value="50"/>
+        <EnergyMax value="200"/>
+        <EnergyRegenRate value="0.5625"/>
+        <ShieldsStart value="250"/>
+        <ShieldsMax value="250"/>
+        <ShieldRegenDelay value="10"/>
+        <ShieldRegenRate value="2"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+        <Mover value="Fly"/>
+        <Speed value="2.25"/>
+        <Acceleration value="1.875"/>
+        <StationaryTurningRate value="539.4726"/>
+        <TurningRate value="539.4726"/>
+        <Sight value="9"/>
+        <Height value="3.75"/>
+        <VisionHeight value="4"/>
+        <Food value="-4"/>
+        <CostCategory value="Army"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="300"/>
+        <AttackTargetPriority value="20"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="Warpable"/>
+        <AbilArray Link="ArbiterMPRecall"/>
+        <AbilArray Link="ArbiterMPStasisField"/>
+        <AbilArray Link="ProgressRally"/>
+        <BehaviorArray Link="ArbiterMPCloakField"/>
+        <BehaviorArray/>
+        <WeaponArray Link="ArbiterMPWeapon"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="ArbiterMPStasisField" Type="AbilCmd" AbilCmd="ArbiterMPStasisField,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="ArbiterMPRecall" Type="AbilCmd" AbilCmd="ArbiterMPRecall,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="ArbiterMPCloakField" Type="Passive" Row="2" Column="2"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="ProgressRally,Rally1" Row="2" Column="4"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="1"/>
+        <SubgroupPriority value="30"/>
+        <MinimapRadius value="0.75"/>
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Coop"/>
+        <GlossaryStrongArray value="SiegeTank"/>
+        <GlossaryStrongArray value="Carrier"/>
+        <GlossaryStrongArray value="BroodLord"/>
+        <GlossaryWeakArray value="Battlecruiser"/>
+        <GlossaryWeakArray value="VikingFighter"/>
+        <GlossaryWeakArray value="Corruptor"/>
+        <Description value="Button/Tooltip/Arbiter"/>
+        <GlossaryCategory value="Unit/Category/ProtossUnits"/>
+        <GlossaryPriority value="160"/>
+        <HotkeyCategory value="Unit/Category/ProtossUnits"/>
+        <RepairTime value="22.5"/>
+    </CUnit>
+    <CUnit id="ArbiterMPWeaponMissile" parent="MISSILE">
+        <Race value="Prot"/>
+        <EditorCategories value="ObjectType:Projectile,ObjectFamily:Campaign"/>
+    </CUnit>
+    <CWeaponLegacy id="ArbiterMPWeapon">
+        <EditorCategories value="Race:Protoss"/>
+        <Icon value="Assets\Textures\btn-upgrade-protoss-airweaponslevel0.dds"/>
+        <DisplayEffect value="ArbiterMPWeaponDamage"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Period value="1.5"/>
+        <AllowedMovement value="Slowing"/>
+        <Effect value="ArbiterMPWeaponLaunch"/>
+        <Range value="6"/>
+        <MinScanRange value="6.5"/>
+    </CWeaponLegacy>
+
+    <CCharacter id="Arbiter">
+        <Variations Model="ArbiterMPPortrait">
+            <DefaultCategories value="Default"/>
+        </Variations>
+    </CCharacter>
+    <CActorModel id="ArbiterWarpInStargate" parent="ModelAddition">
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="UnitDeathCustomize" Send="Destroy"/>
+        <On Terms="ActorCreation; ValidateUnit IsChronoSurged" Send="AnimSetTimeScale BSD 0.200000"/>
+        <On Terms="Behavior.SOASuperChrono.On" Send="AnimSetTimeScale BSD 0.200000"/>
+        <On Terms="Behavior.SOASuperChrono.Off" Send="AnimSetTimeScale BSD 1.000000"/>
+    </CActorModel>
+    <CActorModel id="ArbiterPurifierStasisFieldShockwave" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.FenixArbiterStasisFieldSearch.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpTargetPoint"/>
+    </CActorModel>
+    <CButton id="Arbiter">
+        <Icon value="Assets\Textures\btn-unit-protoss-arbiter.dds"/>
+        <AlertIcon value="Assets\Textures\btn-unit-protoss-arbiter.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CModel id="ArbiterEX2Placement" parent="Placement" Race="Protoss">
+        <Model value="Assets\Units\Protoss\ArbiterEX2_Placement\ArbiterEX2_Placement.m3"/>
+        <Radius value="-1"/>
+        <Occlusion value="Show"/>
+        <ScaleMax value="0.850000,0.850000,0.850000"/>
+        <ScaleMin value="0.850000,0.850000,0.850000"/>
+        <SelectionRadius value="0.5881"/>
+        <ShadowRadius value="0.5881"/>
+    </CModel>
+    <CModel id="ArbiterEX2WarpIn" parent="OneShotSpellFX">
+        <Model value="Assets\Units\Protoss\ArbiterEX2_WarpIn\ArbiterEX2_WarpIn.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Occlusion value="Show"/>
+        <LowQualityModel value="ProtossUnitBirth"/>
+        <SelectionRadius value="0.6665"/>
+        <ShadowRadius value="0.6665"/>
+    </CModel>
+
+    <CSound id="Arbiter_Attack" parent="ProtossAck_Void">
+        <AssetArray TemplateParam="Arbiter_Attack00"/>
+        <AssetArray TemplateParam="Arbiter_Attack01"/>
+        <AssetArray TemplateParam="Arbiter_Attack02"/>
+        <AssetArray TemplateParam="Arbiter_Attack03"/>
+        <AssetArray TemplateParam="Arbiter_Attack04"/>
+        <AssetArray TemplateParam="Arbiter_Attack05"/>
+        <AssetArray TemplateParam="Arbiter_Attack06"/>
+    </CSound>
+    <CSound id="Arbiter_Help" parent="ProtossHelp">
+        <AssetArray TemplateParam="Arbiter_Help00"/>
+        <Volume value="-2.000000,-2.000000"/>
+    </CSound>
+    <CSound id="Arbiter_Ready" parent="ProtossReady">
+        <AssetArray TemplateParam="Arbiter_Ready00"/>
+    </CSound>
+    <CSound id="Arbiter_What" parent="ProtossAck_Void">
+        <AssetArray TemplateParam="Arbiter_What00"/>
+        <AssetArray TemplateParam="Arbiter_What01"/>
+        <AssetArray TemplateParam="Arbiter_What02"/>
+        <AssetArray TemplateParam="Arbiter_What03"/>
+        <AssetArray TemplateParam="Arbiter_What04"/>
+        <AssetArray TemplateParam="Arbiter_What05"/>
+        <AssetArray TemplateParam="Arbiter_What06"/>
+        <AssetArray TemplateParam="Arbiter_What07"/>
+    </CSound>
+    <CSound id="Arbiter_Yes" parent="ProtossAck_Void">
+        <AssetArray TemplateParam="Arbiter_Yes00"/>
+        <AssetArray TemplateParam="Arbiter_Yes01"/>
+        <AssetArray TemplateParam="Arbiter_Yes02"/>
+        <AssetArray TemplateParam="Arbiter_Yes03"/>
+        <AssetArray TemplateParam="Arbiter_Yes04"/>
+        <AssetArray TemplateParam="Arbiter_Yes05"/>
+        <AssetArray TemplateParam="Arbiter_Yes06"/>
+    </CSound>
+    <CSound id="Arbiter_RecallVO" parent="ProtossAck_Void">
+        <AssetArray TemplateParam="Arbiter_Yes00"/>
+        <AssetArray TemplateParam="Arbiter_Yes01"/>
+        <AssetArray TemplateParam="Arbiter_Yes02"/>
+        <AssetArray TemplateParam="Arbiter_Yes03"/>
+        <AssetArray TemplateParam="Arbiter_Yes04"/>
+        <AssetArray TemplateParam="Arbiter_Yes05"/>
+        <AssetArray TemplateParam="Arbiter_Yes06"/>
+        <Chance value="0"/>
+    </CSound>
+    <CSound id="Arbiter_StasisFieldVO" parent="ProtossAck_Void">
+        <AssetArray TemplateParam="Arbiter_Yes00"/>
+        <AssetArray TemplateParam="Arbiter_Yes01"/>
+        <AssetArray TemplateParam="Arbiter_Yes02"/>
+        <AssetArray TemplateParam="Arbiter_Yes03"/>
+        <AssetArray TemplateParam="Arbiter_Yes04"/>
+        <AssetArray TemplateParam="Arbiter_Yes05"/>
+        <AssetArray TemplateParam="Arbiter_Yes06"/>
+        <Chance value="25"/>
+    </CSound>
+    <CVoiceOver id="Arbiter" parent="pProtossUnit">
+        <Character value="Arbiter"/>
+        <Lines Group="Ready" FacialBlend="100"/>
+        <Lines Group="What" FacialBlend="100"/>
+        <Lines Group="What" SoundIndex="1" Comment="Pronunciation: do-rahss" FacialBlend="100"/>
+        <Lines Group="What" SoundIndex="2" Comment="Pronunciation: dun-ad-oon" FacialBlend="100"/>
+        <Lines Group="What" SoundIndex="3" FacialBlend="100"/>
+        <Lines Group="What" SoundIndex="4" FacialBlend="100"/>
+        <Lines Group="What" SoundIndex="5" FacialBlend="100"/>
+        <Lines Group="What" SoundIndex="6" FacialBlend="100"/>
+        <Lines Group="What" SoundIndex="7" FacialBlend="100"/>
+        <Lines Group="Yes" Comment="Pronuncation: je-tah-kuh-zol" FacialBlend="100"/>
+        <Lines Group="Yes" SoundIndex="1" FacialBlend="100"/>
+        <Lines Group="Yes" SoundIndex="2" Comment="Pronunciation: dau-ron" FacialBlend="100"/>
+        <Lines Group="Yes" SoundIndex="3" FacialBlend="100"/>
+        <Lines Group="Yes" SoundIndex="4" FacialBlend="100"/>
+        <Lines Group="Yes" SoundIndex="5" FacialBlend="100"/>
+        <Lines Group="Yes" SoundIndex="6" FacialBlend="100"/>
+        <Lines Group="Attack" FacialBlend="100"/>
+        <Lines Group="Attack" SoundIndex="1" FacialBlend="100"/>
+        <Lines Group="Attack" SoundIndex="2" FacialBlend="100"/>
+        <Lines Group="Attack" SoundIndex="3" FacialBlend="100"/>
+        <Lines Group="Attack" SoundIndex="4" FacialBlend="100"/>
+        <Lines Group="Attack" SoundIndex="5" FacialBlend="100"/>
+        <Lines Group="Attack" SoundIndex="6" FacialBlend="100"/>
+        <Lines Group="Help" FacialBlend="100"/>
+        <Lines Group="Pissed" FacialBlend="100"/>
+        <Lines Group="Pissed" SoundIndex="1" FacialBlend="100"/>
+        <Lines Group="Pissed" SoundIndex="2" FacialBlend="100"/>
+        <Lines Group="Pissed" SoundIndex="3" FacialBlend="100"/>
+        <Lines Group="Pissed" SoundIndex="4" FacialBlend="100"/>
+        <Lines Group="Pissed" SoundIndex="5" FacialBlend="100"/>
+        <Lines Group="Pissed" SoundIndex="6" FacialBlend="100"/>
+    </CVoiceOver>
+
+
+    <CUpgrade id="KhaydarinCore">
+        <Flags index="TechTreeCheat" value="1"/>
+        <Icon value="Assets\Textures\btn-ability-spearofadun-timestop.dds"/>
+        <Alert value="UpgradeComplete_Prot"/>
+        <Race value="Prot"/>
+        <ScoreAmount value="300"/>
+        <ScoreResult value="BuildOrder"/>
+        <EffectArray Reference="Unit,ArbiterMP,EnergyMax" Value="50"/>
+        <EffectArray Reference="Unit,ArbiterMP,EnergyStart" Value="12.5"/>
+        <EditorCategories value="Race:Protoss,UpgradeType:Talents"/>
+        <AffectedUnitArray value="ArbiterMP"/>
+    </CUpgrade>
+
+</Catalog>
