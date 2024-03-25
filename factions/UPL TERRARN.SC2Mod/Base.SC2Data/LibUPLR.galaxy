@@ -1,0 +1,961 @@
+include "TriggerLibs/NativeLib"
+
+include "LibUPLR_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Factions - UPL
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libUPLR_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Variable Initialization
+bool libUPLR_InitVariables_completed = false;
+
+void libUPLR_InitVariables () {
+    if (libUPLR_InitVariables_completed) {
+        return;
+    }
+
+    libUPLR_InitVariables_completed = true;
+
+}
+
+// Custom Script
+//--------------------------------------------------------------------------------------------------
+// Custom Script: RangeValueToRange
+//--------------------------------------------------------------------------------------------------
+fixed data_RangeValueToRange (fixed value, fixed newMin, fixed newMax, fixed oldMin, fixed oldMax) {
+    return ((((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Custom Script: Artillery Strike Visual Handler
+//--------------------------------------------------------------------------------------------------
+static const string effect = "WillliamGravesArtilleryStrike@SearchDamage";
+trigger LotC_ArtilleryStrikeVisual;
+bool LotC_ArtilleryStrikeVisual_Func(bool a, bool b){
+    int player = EventPlayer();
+    point effectpoint = EventPlayerEffectUsedPoint(c_effectLocationTargetPoint);
+    point camerapoint = CameraGetTarget(player);
+    if(RegionContainsPoint(RegionCircle(effectpoint, 10.0), camerapoint)){
+        CameraShake(player, "Medium", "Tremor", 0.0, 1.0, 1.0);
+    }
+    return true;
+}
+void LotC_ArtilleryStrikeVisualHandler_Init(){
+    LotC_ArtilleryStrikeVisual = TriggerCreate("LotC_ArtilleryStrikeVisual_Func");
+    TriggerAddEventPlayerEffectUsed(
+        LotC_ArtilleryStrikeVisual,
+        c_playerAny,
+        effect
+    );
+}
+
+//--------------------------------------------------------------------------------------------------
+// Custom Script: Color Handler
+//--------------------------------------------------------------------------------------------------
+fixed HueToRGB(fixed t1, fixed t2, int hue){
+    if (hue < 0){ hue += 6;}
+    if (hue >= 6){ hue -= 6;}
+    if (hue < 1){ return (t2 - t1) * hue + t1;}
+    else if(hue < 3){ return t2;}
+    else if(hue < 4){ return (t2 - t1) * (4 - hue) + t1;}
+    else {return t1;}
+}
+const int c_minHue = 0;
+const int c_maxHue = 360;
+color HSLToColor(int hue, fixed sat, fixed light) {
+    fixed t1;
+    fixed t2;
+    fixed r;
+    fixed g;
+    fixed b;
+    hue = hue / 60;
+    if ( light <= 0.5 ) {
+      t2 = light * (sat + 1);
+    } else {
+      t2 = light + sat - (light * sat);
+    }
+    t1 = light * 2 - t2;
+    r = HueToRGB(t1, t2, hue + 2) * 255;
+    g = HueToRGB(t1, t2, hue) * 255;
+    b = HueToRGB(t1, t2, hue - 2) * 255;
+    return Color(r,g,b);
+  }
+  void SetUnitRandomTC(unit u){
+    int hue = RandomInt(0,360); 
+    fixed sat = RandomFixed(0.0,1.0); 
+    fixed light = RandomFixed(0.0,1.0); 
+    color c = HSLToColor(hue, sat, light);
+    string teamcolor = libNtve_gf_SetTeamColor(c,c);
+  }
+
+//--------------------------------------------------------------------------------------------------
+// Custom Script: TargetingHandler
+//--------------------------------------------------------------------------------------------------
+//static trigger LOTC_Targeting_gt_ForceOff;
+//static trigger LOTC_Targeting_gt_Deactivated;
+//static trigger LOTC_Targeting_gt_PointChosen;
+//static trigger LOTC_Targeting_gt_DirectionChosen;
+//static trigger LOTC_Targeting_gt_EffectFired;
+//static trigger LOTC_Targeting_gt_Cancel;
+//static trigger LOTC_Targeting_gt_CancelFromUI;
+//static trigger LOTC_Targeting_gt_CameraShake;
+//static int[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingChargesSpent;
+//static int[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingChargesTotal;
+//static unit[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoACasterUnit;
+//static unitgroup[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoACasterGroup;
+//
+//
+//static const int libCOMI_gv_cMC_SOATARGETCOUNTMAX = 5;
+//static string[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingBehavior;
+//static string[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingActivateAbility;
+//static abilcmd[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingExecuteCommand;
+//static text[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingInstructionsPrimary;
+//static text[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingInstructionsSecondary;
+//static string[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingCooldown;
+//static order[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingOrder;
+//static string[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingModel;
+//static string[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingUnitType;
+//static unit[libCOMI_gv_cMC_SOATARGETCOUNTMAX + 1][libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingUnit;
+//static actor[libCOMI_gv_cMC_SOATARGETCOUNTMAX + 1][libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingActors;
+//
+//static bool[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingTransitioning;
+//static bool[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingUnrefundableStageEntered;
+//static bool[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingAlreadyCanceled;
+//static string[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingModel;
+//static string[libCOOC_gv_cCC_MAXPLAYERS + 1] libCOMI_gv_cM_SoATargetingUnitType;
+trigger LOTC_Targeting_gt_Activated;
+trigger LOTC_Targeting_gt_ForceOff;
+trigger LOTC_Targeting_gt_Deactivated;
+trigger LOTC_Targeting_gt_PointChosen;
+trigger LOTC_Targeting_gt_DirectionChosen;
+trigger LOTC_Targeting_gt_EffectFired;
+trigger LOTC_Targeting_gt_Cancel;
+trigger LOTC_Targeting_gt_CancelFromUI;
+trigger LOTC_Targeting_gt_CameraShake;
+const int c_TargetingPhaseType_None = 0;
+const int c_TargetingPhaseType_Location = 1;
+const int c_TargetingPhaseType_Direction = 2;
+static const int c_TARGETCOUNTMAX = 5;
+struct LOTC_TargetingStruct{
+	int lv_ChargesSpent;
+	int lv_ChargesTotal;
+	int lv_UsageCount;
+	int lv_Phase;
+	bool lv_Transitioning;
+	bool lv_UnrefundableStageEntered;
+	bool lv_AlreadyCanceled;
+	string lv_Model;
+	string lv_UnitType;
+	unit[c_TARGETCOUNTMAX + 1] lv_Unit;
+	actor[c_TARGETCOUNTMAX + 1] lv_Actors;
+	string lv_Behavior;
+	string lv_ActivateAbility;
+	abilcmd lv_ExecuteCommand;
+	text lv_InstructionsPrimary;
+	text lv_InstructionsSecondary;
+	string lv_Cooldown;
+	order lv_Order;
+	unitgroup lv_DirectionGroup;
+	bool lv_Cycling;
+	bool lv_ExitInstantly;
+	unit lv_CasterUnit;
+	unitgroup lv_CasterGroup;
+};
+typedef structref<LOTC_TargetingStruct> LOTC_TargetingStructRef;
+LOTC_TargetingStruct[c_maxPlayers] LOTC_TargetingGlobal;
+void LOTC_Targeting_ModeEnter (int lp_player) {
+	int lv_count;
+	LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lp_player];
+	Targeting.lv_UnrefundableStageEntered = false;
+	Targeting.lv_AlreadyCanceled = false;
+	Targeting.lv_Transitioning = false;
+	while (!((Targeting.lv_Transitioning == false))) {
+		Wait(0.0625, c_timeGame);
+	}
+	//if ((libCOMI_gf_PlayerInCinematicModeCampaign() == true)) {
+	//	return ;
+	//}
+	TriggerEnable(LOTC_Targeting_gt_Cancel, true);
+	Targeting.lv_ExitInstantly = false;
+	Targeting.lv_UsageCount += 1;
+	Targeting.lv_ChargesSpent = 0;
+	////libCOUI_gf_CU_TargetingSetCharges(Targeting.lv_ChargesTotal, Targeting.lv_ChargesTotal, lp_player);
+	if ((Targeting.lv_Order != null)) {
+		TriggerEnable(LOTC_Targeting_gt_PointChosen, true);
+		TriggerEnable(LOTC_Targeting_gt_DirectionChosen, true);
+		UISetTargetingOrder(PlayerGroupSingle(lp_player), Targeting.lv_CasterGroup, Targeting.lv_Order, false);
+		Targeting.lv_Phase = c_TargetingPhaseType_Location;
+	}
+	else {
+		Targeting.lv_Phase = c_TargetingPhaseType_None;
+	}
+	Targeting.lv_Transitioning = true;
+	//libCOUI_gf_PU_TargetingUI_EnterTargetingMode(true, false, lp_player);
+	//libCOUI_gf_CU_TargetingSetInstructionText(Targeting.lv_InstructionsPrimary, lp_player);
+	//libCOMI_gf_CM_SetFogAlphaOverTime(100.0, 0.5, lp_player);
+	CameraSetValue(lp_player, c_cameraValueDistance, 50.0, 1.0, -1, 10.0);
+	CameraSetValue(lp_player, c_cameraValuePitch, 70.0, 1.0, -1, 10.0);
+	CameraSetData(PlayerGroupSingle(lp_player), "SOATargetingModeCamera");
+	Targeting.lv_Transitioning = false;
+	Targeting.lv_Cycling = false;
+}
+void LOTC_Targeting_ModeExit (int lp_player) {
+	LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lp_player];
+	Targeting.lv_Phase = c_TargetingPhaseType_None;
+	while (!((Targeting.lv_Transitioning == false))) {
+		Wait(0.0625, c_timeGame);
+	}
+	Targeting.lv_Transitioning = true;
+	if ((Targeting.lv_ExitInstantly == true)) {
+		CameraSetValue(lp_player, c_cameraValueDistance, 34.0, 0.0, -1, 10.0);
+		CameraSetValue(lp_player, c_cameraValuePitch, 56.0, 0.0, -1, 10.0);
+	}
+	else {
+		CameraSetValue(lp_player, c_cameraValueDistance, 34.0, 0.5, -1, 10.0);
+		CameraSetValue(lp_player, c_cameraValuePitch, 56.0, 0.5, -1, 10.0);
+	}
+	CameraSetData(PlayerGroupSingle(lp_player), "Dflt");
+	if ((Targeting.lv_ExitInstantly == true)) {
+		VisResetFoWAlpha(lp_player);
+		//libCOUI_gf_PU_TargetingUI_EnterTargetingMode(false, true, lp_player);
+	}
+	else {
+		//libCOMI_gf_CM_ResetFogAlphaOverTime(0.5, lp_player);
+		//libCOUI_gf_PU_TargetingUI_EnterTargetingMode(false, false, lp_player);
+	}
+	libNtve_gf_RestoreUnitSelection(lp_player);
+	Targeting.lv_ActivateAbility = null;
+	Targeting.lv_Transitioning = false;
+	Targeting.lv_UsageCount -= 1;
+	if ((Targeting.lv_UsageCount == 0)) {
+		TriggerEnable(LOTC_Targeting_gt_Cancel, false);
+		TriggerEnable(LOTC_Targeting_gt_PointChosen, false);
+		TriggerEnable(LOTC_Targeting_gt_DirectionChosen, false);
+	}
+}
+void LOTC_Targeting_CleanupActorsAndUnits (int lp_player) {
+	int lv_i;
+	const int lv_count = c_TARGETCOUNTMAX;
+	LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lp_player];
+	for (lv_i = 1; (lv_i <= lv_count); lv_i += 1 ) {
+		if ((Targeting.lv_Actors[lv_i] != null)) {
+			ActorSend(Targeting.lv_Actors[lv_i], "Signal Destroy");
+			Targeting.lv_Actors[lv_i] = null;
+		}
+		if ((Targeting.lv_Unit[lv_i] != null)) {
+			UnitRemove(Targeting.lv_Unit[lv_i]);
+			Targeting.lv_Unit[lv_i] = null;
+		}
+	}
+}
+void LOTC_Targeting_Cancel (int lp_player) {
+	string lv_cost;
+	string lv_costField;
+	LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lp_player];
+	lv_cost = "";
+	lv_costField = "";
+	// Implementation
+	UnitIssueOrder(Targeting.lv_CasterUnit, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
+	Targeting.lv_AlreadyCanceled = true;
+	LOTC_Targeting_CleanupActorsAndUnits(lp_player);
+	if ((Targeting.lv_UnitType != null) && (Targeting.lv_Phase == c_TargetingPhaseType_Direction)) {
+		Targeting.lv_ChargesSpent -= 1;
+	}
+	if ((Targeting.lv_ChargesSpent == 0) && (Targeting.lv_UnrefundableStageEntered == false)) {
+		libNtve_gf_UnitAbilityRemoveCooldown(Targeting.lv_CasterUnit, Targeting.lv_ActivateAbility, Targeting.lv_Cooldown);
+		lv_costField = ("Cost[0].Vital[" + "Energy" + "]");
+		lv_cost = CatalogFieldValueGet(c_gameCatalogAbil, Targeting.lv_ActivateAbility, (lv_costField), lp_player);
+		UnitSetPropertyFixed(Targeting.lv_CasterUnit, c_unitPropEnergy, (UnitGetPropertyFixed(Targeting.lv_CasterUnit, c_unitPropEnergy, c_unitPropCurrent) + StringToFixed(lv_cost)));
+	}
+	UnitBehaviorRemove(Targeting.lv_CasterUnit, Targeting.lv_Behavior, 1);
+	Targeting.lv_UnrefundableStageEntered = true;
+}
+//--------------------------------------------------------------------------------------------------
+// Trigger: LOTC_Targeting_EffectFired
+//--------------------------------------------------------------------------------------------------
+bool LOTC_Targeting_EffectFired_Func (bool testConds, bool runActions) {
+	// Automatic Variable Declarations
+	// Actions
+	if (!runActions) {
+		return true;
+	}
+	LOTC_Targeting_CleanupActorsAndUnits(EventPlayer());
+	return true;
+}
+//--------------------------------------------------------------------------------------------------
+// Trigger: LOTC_Targeting_Deactivated
+//--------------------------------------------------------------------------------------------------
+bool LOTC_Targeting_Deactivated_Func (bool testConds, bool runActions) {
+	int lv_casterPlayer = UnitGetOwner(EventUnit());
+	LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+	if (!runActions) {
+		return true;
+	}
+	UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), Targeting.lv_CasterGroup, null, false);
+	Targeting.lv_ChargesSpent = 0;
+	LOTC_Targeting_ModeExit(lv_casterPlayer);
+	return true;
+}
+//--------------------------------------------------------------------------------------------------
+// Trigger: LOTC_Targeting_TargetingForceOff
+//--------------------------------------------------------------------------------------------------
+bool LOTC_Targeting_TargetingForceOff_Func (bool testConds, bool runActions) {
+	// Variable Declarations
+	int lv_indexPlayer = 0;
+	LOTC_TargetingStructRef Targeting;// = LOTC_TargetingGlobal[lv_indexPlayer];
+	// Automatic Variable Declarations
+	playergroup pg;
+	// Variable Initialization
+	// Actions
+	if (!runActions) {
+		return true;
+	}
+	TriggerEnable(LOTC_Targeting_gt_Cancel, false);
+	TriggerEnable(LOTC_Targeting_gt_PointChosen, false);
+	TriggerEnable(LOTC_Targeting_gt_DirectionChosen, false);
+	pg = PlayerGroupActive();//libCOOC_gf_CommanderPlayers();
+	lv_indexPlayer = -1;
+	while (true) {
+		lv_indexPlayer = PlayerGroupNextPlayer(pg, lv_indexPlayer);
+		if (lv_indexPlayer < 0) { break; }
+		Targeting = LOTC_TargetingGlobal[lv_indexPlayer];
+		Targeting.lv_ExitInstantly = true;
+		if ((Targeting.lv_Phase != c_TargetingPhaseType_None)) {
+			Targeting.lv_Transitioning = false;
+			UISetTargetingOrder(PlayerGroupSingle(lv_indexPlayer), Targeting.lv_CasterGroup, null, false);
+			LOTC_Targeting_Cancel(lv_indexPlayer);
+		}
+	}
+	Targeting.lv_UsageCount = 0;
+	return true;
+}
+//--------------------------------------------------------------------------------------------------
+// Trigger: LOTC_Targeting_TargetingPointChosen
+//--------------------------------------------------------------------------------------------------
+bool LOTC_Targeting_TargetingPointChosen_Func (bool testConds, bool runActions) {
+	int lv_casterPlayer = EventPlayer();
+	point lv_targetPoint= OrderGetTargetPoint(EventUnitOrder());
+	LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+	if (testConds) {
+		if (!(Targeting.lv_Phase == c_TargetingPhaseType_Location)) {
+			return false;
+		}
+		if (!(Targeting.lv_ChargesSpent < Targeting.lv_ChargesTotal)) {
+			return false;
+		}
+	}
+	// Actions
+	if (!runActions) {
+		return true;
+	}
+	lv_targetPoint = OrderGetTargetPoint(EventUnitOrder());
+	lv_casterPlayer = EventPlayer();
+	if ((VisIsVisibleForPlayer(lv_casterPlayer, lv_targetPoint) == false)) {
+		return true;
+	}
+	Targeting.lv_Cycling = true;
+	Targeting.lv_ChargesSpent += 1;
+	libNtve_gf_CreateActorAtPoint(Targeting.lv_Model, lv_targetPoint);
+	Targeting.lv_Actors[Targeting.lv_ChargesSpent] = libNtve_gf_ActorLastCreated();
+	libNtve_gf_CreateActorAtPoint("SOATargetingModeConfirmationSound", lv_targetPoint);
+	if ((Targeting.lv_UnitType == null)) {
+		UnitIssueOrder(Targeting.lv_CasterUnit, OrderTargetingPoint(Targeting.lv_ExecuteCommand, lv_targetPoint), c_orderQueueAddToEnd);
+		////libCOUI_gf_CU_TargetingSetCharges((Targeting.lv_ChargesTotal-Targeting.lv_ChargesSpent), Targeting.lv_ChargesTotal, lv_casterPlayer);
+		if ((Targeting.lv_ChargesSpent == Targeting.lv_ChargesTotal)) {
+			Wait(0.125, c_timeGame);
+			UnitBehaviorRemove(Targeting.lv_CasterUnit, Targeting.lv_Behavior, 1);
+		}
+		else {
+			Wait(0.1, c_timeGame);
+			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), Targeting.lv_CasterGroup, Targeting.lv_Order, false);
+		}
+	}
+	else {
+		libNtve_gf_CreateUnitsWithDefaultFacing(1, Targeting.lv_UnitType, 0, lv_casterPlayer, lv_targetPoint);
+		Targeting.lv_Unit[Targeting.lv_ChargesSpent] = UnitLastCreated();
+		UnitSetState(Targeting.lv_Unit[Targeting.lv_ChargesSpent], c_unitStateTooltipable, false);
+		Targeting.lv_DirectionGroup = libNtve_gf_ConvertUnitToUnitGroup(Targeting.lv_Unit[Targeting.lv_ChargesSpent]);
+		Wait(0.1, c_timeGame);
+		if ((UnitIsValid(Targeting.lv_Unit[Targeting.lv_ChargesSpent]) == true)) {
+			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), Targeting.lv_DirectionGroup, OrderTargetingPoint(Targeting.lv_ExecuteCommand, UnitGetPosition(Targeting.lv_Unit[Targeting.lv_ChargesSpent])), false);
+			//libCOUI_gf_CU_TargetingSetInstructionText(Targeting.lv_InstructionsSecondary, lv_casterPlayer);
+			Targeting.lv_Phase = c_TargetingPhaseType_Direction;
+		}
+	}
+	Targeting.lv_Cycling = false;
+	return true;
+}
+//--------------------------------------------------------------------------------------------------
+// Trigger: LOTC_Targeting_DirectionChosen
+//--------------------------------------------------------------------------------------------------
+bool LOTC_Targeting_DirectionChosen_Func (bool testConds, bool runActions) {
+	int lv_casterPlayer = EventPlayer();
+	point lv_targetPoint= OrderGetTargetPoint(EventUnitOrder());
+	LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+	if (testConds) {
+		if (!((Targeting.lv_Phase == c_TargetingPhaseType_Direction))) {
+			return false;
+		}
+	}
+	Targeting.lv_Cycling = true;
+	Targeting.lv_UnrefundableStageEntered = true;
+	libNtve_gf_CreateActorAtPoint("SOATargetingModeConfirmationSound", lv_targetPoint);
+	ActorSend(Targeting.lv_Actors[Targeting.lv_ChargesSpent], "Signal Destroy");
+	if ((UnitIsValid(Targeting.lv_Unit[Targeting.lv_ChargesSpent]) == false)) {
+		return true;
+	}
+	libNtve_gf_MakeUnitFacePoint(Targeting.lv_Unit[Targeting.lv_ChargesSpent], lv_targetPoint, 0.0);
+	////libCOUI_gf_CU_TargetingSetCharges((Targeting.lv_ChargesTotal-Targeting.lv_ChargesSpent), Targeting.lv_ChargesTotal, lv_casterPlayer);
+	if ((Targeting.lv_ChargesSpent == Targeting.lv_ChargesTotal)) {
+		UnitBehaviorRemove(Targeting.lv_CasterUnit, Targeting.lv_Behavior, 1);
+		Wait(0.1, c_timeGame);
+	}
+	else {
+		//libCOUI_gf_CU_TargetingSetInstructionText(Targeting.lv_InstructionsPrimary, lv_casterPlayer);
+		Wait(0.1, c_timeGame);
+		if ((Targeting.lv_AlreadyCanceled == false)) {
+			UISetTargetingOrder(PlayerGroupSingle(lv_casterPlayer), Targeting.lv_CasterGroup, Targeting.lv_Order, false);
+		}
+		Targeting.lv_Phase = c_TargetingPhaseType_Location;
+	}
+	Targeting.lv_Cycling = false;
+	return true;
+}
+bool LOTC_Targeting_Activated_Func (bool testConds, bool runActions) {
+	unit lv_caster = EventUnit();
+	int lv_casterPlayer = 1;//UnitGetOwner(lv_caster);
+	string UDType = "LotC_Targetable";
+	string UDInstance = "Test_HornerAirFleet";
+	string BehaviorActivated = EventUnitBehavior();
+	int lv_HornerAirFleet_Cost;
+	LOTC_TargetingStructRef Targeting = LOTC_TargetingGlobal[lv_casterPlayer];
+	Targeting.lv_CasterUnit = EventUnit();
+	Targeting.lv_CasterGroup = libNtve_gf_ConvertUnitToUnitGroup(Targeting.lv_CasterUnit);
+	Targeting.lv_ActivateAbility = UserDataGetGameLink(UDType,UDInstance,"ActivateAbility",1); //"HornerAirFleetActivate";
+	Targeting.lv_ExecuteCommand = UserDataGetAbilCmd(UDType,UDInstance,"ExecuteCommand",1);//AbilityCommand("HornerAirFleetExecute", 0);
+	Targeting.lv_Cooldown = UserDataGetString(UDType,UDInstance,"Cooldown",1);//"Abil/HornerAirFleetActivate";
+	Targeting.lv_Behavior = UserDataGetGameLink(UDType,UDInstance,"Behavior",1);//"HornerAirFleetActivate";
+	Targeting.lv_Model = UserDataGetGameLink(UDType,UDInstance,"Model",1);//"HornerAirFleetTargetingModel";
+	Targeting.lv_Order = OrderTargetingPoint(UserDataGetAbilCmd(UDType,UDInstance,"Order",1), UnitGetPosition(Targeting.lv_CasterUnit));//"HornerAirFleetTargetingDummy"
+	Targeting.lv_UnitType = UserDataGetGameLink(UDType,UDInstance,"UnitType",1);//"HornerAirFleetTargeter";
+	Targeting.lv_ChargesTotal = UserDataGetInt(UDType,UDInstance,"ChargesTotal",1);//1;
+	Targeting.lv_InstructionsPrimary = UserDataGetText(UDType,UDInstance,"InstructionsPrimary",1);//StringExternal("Param/Value/lib_COMI_BE46DBD9");//Fleet Starting Location
+	Targeting.lv_InstructionsSecondary = UserDataGetText(UDType,UDInstance,"InstructionsSecondary",1);//StringExternal("Param/Value/lib_COMI_A3DA54C0");//Choose Fleet Direction
+	lv_HornerAirFleet_Cost = CatalogFieldValueGetAsInt(c_gameCatalogAbil, Targeting.lv_ActivateAbility, "Cost[0].Resource[0]", lv_casterPlayer);
+	//Targeting.lv_ActivateAbility = "SOAOrbitalStrikeActivate";
+	//Targeting.lv_ExecuteCommand = AbilityCommand("SOAOrbitalStrikeExecute", 0);
+	//Targeting.lv_Cooldown = "Abil/SOAOrbitalStrikeActivate";
+	//Targeting.lv_Behavior = "SOAOrbitalStrikeActivate";
+	//Targeting.lv_Model = "SOAOrbitalStrikeTargetModel";
+	//Targeting.lv_Order = OrderTargetingPoint(AbilityCommand("SOAOrbitalStrikeTargetingDummy", 0), UnitGetPosition(Targeting.lv_CasterUnit));
+	//Targeting.lv_UnitType = null;
+	//Targeting.lv_ChargesTotal = 5;
+	//Targeting.lv_InstructionsPrimary = StringExternal("Param/Value/lib_COMI_84BC1D9B");
+	//Targeting.lv_InstructionsSecondary = null;
+	LOTC_Targeting_ModeEnter(lv_casterPlayer);
+	return true;
+}
+void LOTC_Targeting_Init(){
+	trigger t;
+	string ActivateBehavior = "Test_HornerAirFleetActivate";
+	//LOTC_Targeting_gt_Cancel;
+	//LOTC_Targeting_gt_CancelFromUI;
+	//LOTC_Targeting_gt_CameraShake;
+	LOTC_Targeting_gt_Activated = TriggerCreate("LOTC_Targeting_Activated_Func");
+	TriggerAddEventUnitBehaviorChange(LOTC_Targeting_gt_Activated, null, ActivateBehavior, c_unitBehaviorChangeActivate);
+	LOTC_Targeting_gt_Deactivated = TriggerCreate("LOTC_Targeting_Deactivated_Func");
+	TriggerAddEventUnitBehaviorChange(LOTC_Targeting_gt_Deactivated, null, ActivateBehavior, c_unitBehaviorChangeDeactivate);
+	LOTC_Targeting_gt_PointChosen = TriggerCreate("LOTC_Targeting_TargetingPointChosen_Func");
+	TriggerEnable(LOTC_Targeting_gt_PointChosen, false);
+	TriggerAddEventUnitOrder(LOTC_Targeting_gt_PointChosen, null, AbilityCommand("Test_HornerAirFleetTargetingDummy", 0));
+	LOTC_Targeting_gt_DirectionChosen = TriggerCreate("LOTC_Targeting_DirectionChosen_Func");
+	TriggerEnable(LOTC_Targeting_gt_DirectionChosen, false);
+	TriggerAddEventUnitOrder(LOTC_Targeting_gt_DirectionChosen, null, AbilityCommand("Test_HornerAirFleetExecute", 0));
+	LOTC_Targeting_gt_ForceOff = TriggerCreate("LOTC_Targeting_TargetingForceOff_Func");
+	TriggerAddEventGeneric(LOTC_Targeting_gt_ForceOff, "CinematicModeOn");
+	LOTC_Targeting_gt_EffectFired = TriggerCreate("LOTC_Targeting_EffectFired_Func");
+	//TriggerAddEventPlayerEffectUsed(LOTC_Targeting_gt_EffectFired, c_playerAny, "SOAOrbitalStrikeCP");
+	//TriggerAddEventPlayerEffectUsed(LOTC_Targeting_gt_EffectFired, c_playerAny, "SOAGravitonBombLM");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Custom Script: MiningWorkerHandler
+//--------------------------------------------------------------------------------------------------
+trigger LotC_MiningWorkerConstructionDeath;
+trigger LotC_MiningWorkerConstructionComplete;
+bool LotC_MiningWorkerConstructionDeathHandler(bool a, bool b){
+    bool trigRan = true;
+    unit building = EventUnit();
+    int buildingTag = UnitGetTag(building);
+    unit worker;
+    if(DataTableValueExists(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker")){
+        worker= DataTableGetUnit(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker");
+        DataTableValueRemove(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker");
+        UnitKill(worker);
+    }
+    else{trigRan=false;}
+    return trigRan;
+}
+bool LotC_MiningWorkerClearBuilder(bool a, bool b){
+    bool trigRan = true;
+    unit worker = EventUnit();
+    unit building = EventUnitProgressUnit();
+    int buildingTag = UnitGetTag(building);
+    if(DataTableValueExists(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker")){
+        DataTableValueRemove(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker");
+    }
+    else{trigRan=false;}    
+    return trigRan;
+}
+bool LotC_MiningWorkerTrackBuilder(bool a, bool b){
+    bool trigRan = true;
+    unit worker = EventUnit();
+    unit building = EventUnitProgressUnit();
+    int buildingTag = UnitGetTag(building);
+    if(UnitGetType(worker)=="MiningDrone"){
+        DataTableSetUnit(true,"LotC_MiningWorkerTrackBuilder.Building."+IntToString(buildingTag)+".Worker",worker);
+        TriggerAddEventUnitDied(LotC_MiningWorkerConstructionDeath, UnitRefFromUnit(building));
+        TriggerAddEventUnitConstructProgress(LotC_MiningWorkerConstructionComplete, UnitRefFromUnit(worker), c_unitProgressStageComplete);
+        TriggerAddEventUnitConstructProgress(LotC_MiningWorkerConstructionComplete, UnitRefFromUnit(worker), c_unitProgressStageCancel);
+    }
+    else{trigRan=false;}
+    return trigRan;
+}
+void LotC_MiningWorker_Init(){
+    trigger t;
+    t= TriggerCreate("LotC_MiningWorkerTrackBuilder");
+    TriggerAddEventUnitConstructProgress(t, null, c_unitProgressStageStart);
+    LotC_MiningWorkerConstructionDeath = TriggerCreate("LotC_MiningWorkerConstructionDeathHandler");
+    LotC_MiningWorkerConstructionComplete = TriggerCreate("LotC_MiningWorkerClearBuilder");
+    //TriggerAddEventUnitDied(t, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Custom Script: Speed Ribbon
+//--------------------------------------------------------------------------------------------------
+trigger LotC_SpeedRibbonController; 
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hero Generic - Speed Ribbon Controller
+//--------------------------------------------------------------------------------------------------
+bool LotC_SpeedRibbonController_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_unit = EventUnit();
+    // Conditions
+    if (testConds) {
+        if (!((UnitTypeTestAttribute(UnitGetType(lv_unit), c_unitAttributeHeroic) == true))) {
+            return false;
+        }
+        if (!((EventUnitBehaviorChange() != c_unitBehaviorChangeCreate))) {
+            return false;
+        }
+        if (!((EventUnitBehaviorChange() != c_unitBehaviorChangeDestroy))) {
+            return false;
+        }
+    }
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+    libNtve_gf_SendActorMessageToUnit(lv_unit, "Signal SpeedRibbonCheckStart");
+    return true;
+}
+//--------------------------------------------------------------------------------------------------
+void LotC_SpeedRibbonController_Init () {
+    LotC_SpeedRibbonController = TriggerCreate("LotC_SpeedRibbonController_Func");
+    TriggerAddEventUnitBehaviorChangeFromCategory(LotC_SpeedRibbonController, null, c_behaviorCategoryFast, c_unitBehaviorChangeAny);
+    TriggerAddEventUnitBehaviorChangeFromCategory(LotC_SpeedRibbonController, null, c_behaviorCategorySlow, c_unitBehaviorChangeAny);
+}
+
+void libUPLR_InitCustomScript () {
+    LotC_ArtilleryStrikeVisualHandler_Init();
+    LOTC_Targeting_Init();
+    LotC_MiningWorker_Init();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize UPL Race
+//--------------------------------------------------------------------------------------------------
+bool libUPLR_gt_InitializeUPLRace_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto8A7C6E27_g;
+    int auto8A7C6E27_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto8A7C6E27_g = PlayerGroupAll();
+    auto8A7C6E27_var = -1;
+    while (true) {
+        auto8A7C6E27_var = PlayerGroupNextPlayer(auto8A7C6E27_g, auto8A7C6E27_var);
+        if (auto8A7C6E27_var < 0) { break; }
+        if ((PlayerRace(auto8A7C6E27_var) == "UPL")) {
+            PlayerApplySkin(auto8A7C6E27_var, "UPLAnnouncer", true);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUPLR_gt_InitializeUPLRace_Init () {
+    libUPLR_gt_InitializeUPLRace = TriggerCreate("libUPLR_gt_InitializeUPLRace_Func");
+    TriggerAddEventGeneric(libUPLR_gt_InitializeUPLRace, "GAME START");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Nova Siege Mode Progressive Range Increase Apply
+//--------------------------------------------------------------------------------------------------
+bool libUPLR_gt_CM_NovaSiegeModeProgressiveRangeIncreaseApply_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unitgroup lv_siegeTankUnitGroup;
+
+    // Automatic Variable Declarations
+    unitgroup autoC29714E1_g;
+    int autoC29714E1_u;
+    unit autoC29714E1_var;
+
+    // Variable Initialization
+    lv_siegeTankUnitGroup = UnitGroupEmpty();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_siegeTankUnitGroup = libNtve_gf_UnitsInRegionWithAllianceToPlayerMatchingCondition("SiegeTankSieged_BlackOps", "", "", UnitGetOwner(EventUnit()), -1, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterAlly) | (1 << c_targetFilterNeutral) | (1 << c_targetFilterEnemy) | (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoC29714E1_g = lv_siegeTankUnitGroup;
+    autoC29714E1_u = UnitGroupCount(autoC29714E1_g, c_unitCountAll);
+    for (;; autoC29714E1_u -= 1) {
+        autoC29714E1_var = UnitGroupUnitFromEnd(autoC29714E1_g, autoC29714E1_u);
+        if (autoC29714E1_var == null) { break; }
+        UnitBehaviorAdd(autoC29714E1_var, "SiegeTankSiegeModeProgressiveRangeIncease", EventUnit(), 1);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUPLR_gt_CM_NovaSiegeModeProgressiveRangeIncreaseApply_Init () {
+    libUPLR_gt_CM_NovaSiegeModeProgressiveRangeIncreaseApply = TriggerCreate("libUPLR_gt_CM_NovaSiegeModeProgressiveRangeIncreaseApply_Func");
+    TriggerAddEventUnitAbility(libUPLR_gt_CM_NovaSiegeModeProgressiveRangeIncreaseApply, null, AbilityCommand("FactoryTechLabResearch", 18), c_unitAbilStageComplete, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: CM_Nova Psi Strike
+//--------------------------------------------------------------------------------------------------
+bool libUPLR_gt_CM_NovaPsiStrike_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    point lv_k;
+    point lv_t;
+    point lv_finalT;
+    fixed lv_facing;
+    fixed lv_distance;
+    bool lv_goodPositionFound;
+    int lv_i;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    const int auto79412B90_ae = 14;
+    const int auto79412B90_ai = 1;
+
+    // Variable Initialization
+    lv_k = UnitGetPosition(EventUnit());
+    lv_t = EventUnitTargetPoint();
+    lv_facing = AngleBetweenPoints(UnitGetPosition(EventUnit()), EventUnitTargetPoint());
+    lv_distance = 8.0;
+    lv_player = UnitGetOwner(EventUnit());
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_t = libNtve_gf_PointOffsetTowardsPoint(lv_k, 8.0, lv_t);
+    lv_finalT = lv_t;
+    while ((lv_distance >= 0.6) && (lv_goodPositionFound == false)) {
+        lv_t = libNtve_gf_PointOffsetTowardsPoint(lv_k, lv_distance, lv_t);
+        if ((PointPathingCost(lv_k, lv_t) <= FixedToInt((lv_distance * 1.5))) && (WorldHeight(c_heightMapGround, lv_k) < (WorldHeight(c_heightMapGround, lv_t) + 1.0)) && (WorldHeight(c_heightMapGround, lv_k) > (WorldHeight(c_heightMapGround, lv_t) - 1.0))) {
+            lv_goodPositionFound = true;
+        }
+
+        lv_distance -= 0.5;
+    }
+    Wait(0.0625, c_timeGame);
+    if ((lv_goodPositionFound == true)) {
+        UnitIssueOrder(EventUnit(), OrderTargetingPoint(AbilityCommand("move", 0), lv_t), c_orderQueueReplace);
+        UnitIssueOrder(EventUnit(), OrderTargetingPoint(AbilityCommand("move", 0), lv_finalT), c_orderQueueAddToEnd);
+    }
+    else {
+        UnitIssueOrder(EventUnit(), OrderTargetingPoint(AbilityCommand("move", 0), lv_finalT), c_orderQueueReplace);
+    }
+    Wait(0.1875, c_timeGame);
+    lv_i = 1;
+    for ( ; ( (auto79412B90_ai >= 0 && lv_i <= auto79412B90_ae) || (auto79412B90_ai < 0 && lv_i >= auto79412B90_ae) ) ; lv_i += auto79412B90_ai ) {
+        libUPLR_gv_NovaPsiStrikeFacing[lv_player] = UnitGetFacing(EventUnit());
+        if ((lv_facing > 90.0)) {
+            if (((libUPLR_gv_NovaPsiStrikeFacing[lv_player] < (lv_facing - 90.0)) && (libUPLR_gv_NovaPsiStrikeFacing[lv_player] > (lv_facing - 270.0)))) {
+                UnitBehaviorRemove(EventUnit(), "NovaPsiStrikeWalkSpeed", 1);
+                break;
+            }
+
+        }
+        else {
+            if ((lv_facing < -90.0)) {
+                if (((libUPLR_gv_NovaPsiStrikeFacing[lv_player] > (lv_facing + 90.0)) && (libUPLR_gv_NovaPsiStrikeFacing[lv_player] < (lv_facing + 270.0)))) {
+                    UnitBehaviorRemove(EventUnit(), "NovaPsiStrikeWalkSpeed", 1);
+                    break;
+                }
+
+            }
+            else {
+                if (((libUPLR_gv_NovaPsiStrikeFacing[lv_player] > (lv_facing + 90.0)) || (libUPLR_gv_NovaPsiStrikeFacing[lv_player] < (lv_facing - 90.0)))) {
+                    UnitBehaviorRemove(EventUnit(), "NovaPsiStrikeWalkSpeed", 1);
+                    break;
+                }
+
+            }
+        }
+        Wait(0.0625, c_timeGame);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUPLR_gt_CM_NovaPsiStrike_Init () {
+    libUPLR_gt_CM_NovaPsiStrike = TriggerCreate("libUPLR_gt_CM_NovaPsiStrike_Func");
+    TriggerAddEventUnitAbility(libUPLR_gt_CM_NovaPsiStrike, null, AbilityCommand("NovaPsiStrike", 0), c_abilEffectStageCast, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Infantry Mortar Launch
+//--------------------------------------------------------------------------------------------------
+bool libUPLR_gt_InfantryMortarLaunch_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_caster;
+    unit lv_target;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_caster = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsValid(lv_caster) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_target = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+    if ((UnitIsValid(lv_target) == true)) {
+        UnitCreateEffectUnit(lv_caster, "InfantryMortarLaunchSwitch", lv_target);
+    }
+    else {
+        UnitCreateEffectPoint(lv_caster, "InfantryMortarLaunch", EventPlayerEffectUsedPoint(c_effectLocationTargetPoint));
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUPLR_gt_InfantryMortarLaunch_Init () {
+    libUPLR_gt_InfantryMortarLaunch = TriggerCreate("libUPLR_gt_InfantryMortarLaunch_Func");
+    TriggerAddEventPlayerEffectUsed(libUPLR_gt_InfantryMortarLaunch, c_playerAny, "InfantryMortarLaunchDummy");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ClaymoreMinePlaceDummy
+//--------------------------------------------------------------------------------------------------
+bool libUPLR_gt_ClaymoreMinePlaceDummy_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    bool lv_queued;
+    unitgroup lv_ug;
+    unit lv_caster;
+    unit lv_claymorePH;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_queued = OrderGetFlag(EventUnitOrder(), c_cmdQueued);
+    lv_ug = UnitGroupEmpty();
+    lv_caster = EventUnit();
+    lv_player = 1;
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitIsValid(lv_caster) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((lv_queued == true)) {
+        UnitBehaviorAdd(lv_caster, "ClaymoreMineQueued", lv_caster, 1);
+    }
+
+    libNtve_gf_MakeUnitUncommandable(EventUnit(), true);
+    UnitCreateEffectPoint(lv_caster, "ClaymoreMineMakeDummy", OrderGetTargetPosition(EventUnitOrder()));
+    libNtve_gf_MakeUnitUncommandable(EventUnit(), false);
+    if ((OrderGetFlag(EventUnitOrder(), c_cmdUser) == true)) {
+        lv_ug = UnitGetTrackedUnitGroup(lv_caster, "ClaymoreMineTracker");
+        if ((UnitGroupCount(lv_ug, c_unitCountAlive) > 0)) {
+            lv_claymorePH = UnitGroupUnit(lv_ug, UnitGroupCount(lv_ug, c_unitCountAlive));
+            if ((lv_queued == true)) {
+                UnitBehaviorAdd(lv_claymorePH, "ClaymoreMineQueued", lv_caster, 1);
+            }
+
+            lv_ug = libNtve_gf_ConvertUnitToUnitGroup(lv_claymorePH);
+            if ((UnitIsValid(lv_caster) == true) && (UnitIsValid(lv_claymorePH) == true)) {
+                UISetTargetingOrder(PlayerGroupSingle(lv_player), lv_ug, OrderTargetingPoint(AbilityCommand("ClaymoreMineSetDirection", 0), UnitGetPosition(lv_claymorePH)), false);
+                while ((UnitIsValid(lv_caster) == true) && (UnitIsValid(lv_claymorePH) == true)) {
+                    Wait(0.0625, c_timeGame);
+                }
+            }
+
+        }
+        else {
+            TriggerDebugOutput(1, StringExternal("Param/Value/lib_UPLR_1F1EC273"), false);
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUPLR_gt_ClaymoreMinePlaceDummy_Init () {
+    libUPLR_gt_ClaymoreMinePlaceDummy = TriggerCreate("libUPLR_gt_ClaymoreMinePlaceDummy_Func");
+    TriggerAddEventUnitOrder(libUPLR_gt_ClaymoreMinePlaceDummy, null, AbilityCommand("ClaymoreMineDummy", 0));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ClaymoreMineSetDirection
+//--------------------------------------------------------------------------------------------------
+bool libUPLR_gt_ClaymoreMineSetDirection_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_caster;
+    unitgroup lv_ug;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_ug = UnitGroupEmpty();
+    lv_player = EventPlayer();
+
+    // Conditions
+    if (testConds) {
+        if (!((OrderGetFlag(EventUnitOrder(), c_cmdUser) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_ug = UnitGetTrackedUnitGroup(EventUnit(), "ClaymoreMineTracker");
+    if ((UnitGroupCount(lv_ug, c_unitCountAlive) > 0)) {
+        lv_caster = UnitGroupUnit(lv_ug, 1);
+        if ((UnitIsValid(lv_caster) == true)) {
+            UnitCreateEffectUnit(EventUnit(), "ClaymoreMineSignalReady", lv_caster);
+            if ((UnitHasBehavior2(EventUnit(), "ClaymoreMineQueued") == true)) {
+                lv_ug = UnitGroupSelected(lv_player);
+                UISetTargetingOrder(PlayerGroupSingle(lv_player), lv_ug, OrderTargetingPoint(AbilityCommand("ClaymoreMineDummy", 0), UnitGetPosition(lv_caster)), false);
+                Wait(30.0, c_timeReal);
+                return true;
+            }
+
+        }
+
+    }
+
+    UISetTargetingOrder(PlayerGroupSingle(lv_player), libNtve_gf_ConvertUnitToUnitGroup(EventUnit()), null, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUPLR_gt_ClaymoreMineSetDirection_Init () {
+    libUPLR_gt_ClaymoreMineSetDirection = TriggerCreate("libUPLR_gt_ClaymoreMineSetDirection_Func");
+    TriggerAddEventUnitOrder(libUPLR_gt_ClaymoreMineSetDirection, null, AbilityCommand("ClaymoreMineSetDirection", 0));
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: ClaymoreMineSetDirectionCancel
+//--------------------------------------------------------------------------------------------------
+bool libUPLR_gt_ClaymoreMineSetDirectionCancel_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+
+    // Automatic Variable Declarations
+    unitgroup auto1DED529D_g;
+    int auto1DED529D_u;
+    unit auto1DED529D_var;
+
+    // Variable Initialization
+    lv_player = EventPlayer();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto1DED529D_g = UnitGroupSelected(lv_player);
+    auto1DED529D_u = UnitGroupCount(auto1DED529D_g, c_unitCountAll);
+    for (;; auto1DED529D_u -= 1) {
+        auto1DED529D_var = UnitGroupUnitFromEnd(auto1DED529D_g, auto1DED529D_u);
+        if (auto1DED529D_var == null) { break; }
+        PlayerCreateEffectUnit(lv_player, "ClaymoreMineCancelChannelOrder", auto1DED529D_var);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libUPLR_gt_ClaymoreMineSetDirectionCancel_Init () {
+    libUPLR_gt_ClaymoreMineSetDirectionCancel = TriggerCreate("libUPLR_gt_ClaymoreMineSetDirectionCancel_Func");
+    TriggerAddEventTargetModeUpdate(libUPLR_gt_ClaymoreMineSetDirectionCancel, c_playerAny, AbilityCommand("ClaymoreMineSetDirection", 0), c_targetModeStateOff);
+}
+
+void libUPLR_InitTriggers () {
+    libUPLR_gt_InitializeUPLRace_Init();
+    libUPLR_gt_CM_NovaSiegeModeProgressiveRangeIncreaseApply_Init();
+    libUPLR_gt_CM_NovaPsiStrike_Init();
+    libUPLR_gt_InfantryMortarLaunch_Init();
+    libUPLR_gt_ClaymoreMinePlaceDummy_Init();
+    libUPLR_gt_ClaymoreMineSetDirection_Init();
+    libUPLR_gt_ClaymoreMineSetDirectionCancel_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libUPLR_InitLib_completed = false;
+
+void libUPLR_InitLib () {
+    if (libUPLR_InitLib_completed) {
+        return;
+    }
+
+    libUPLR_InitLib_completed = true;
+
+    libUPLR_InitLibraries();
+    libUPLR_InitVariables();
+    libUPLR_InitCustomScript();
+    libUPLR_InitTriggers();
+}
+

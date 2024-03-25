@@ -1,0 +1,3546 @@
+<Catalog>
+
+    <CUnit id="PurifierGuardianEscort">
+        <DeathRevealRadius value="3"/>
+        <Race value="ProtCamp"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <PushPriority value="11"/>
+        <Response value="Nothing"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Massive" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="2000"/>
+        <LifeMax value="2000"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossArmor"/>
+        <ShieldsStart value="2000"/>
+        <ShieldsMax value="2000"/>
+        <ShieldRegenDelay value="10"/>
+        <ShieldRegenRate value="10"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+        <Speed value="1"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46"/>
+        <Sight value="10"/>
+        <Height value="0.01"/>
+        <VisionHeight value="4"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="MegalithCutterDock"/>
+        <AbilArray Link="MegalithCutterDockInstant"/>
+        <BehaviorArray Link="SuppressCloak"/>
+        <CardLayouts>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="MegalithCutterDock" Type="AbilCmd" AbilCmd="MegalithCutterDock,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="MegalithCutterDock" Type="AbilCmd" AbilCmd="MegalithCutterDockInstant,Execute" Row="2" Column="3"/>
+        </CardLayouts>
+        <Radius value="1.5"/>
+        <InnerRadius value="1"/>
+        <SubgroupPriority value="49"/>
+        <EditorCategories value="ObjectType:Unit"/>
+    </CUnit>
+    <CAbilEffectTarget id="MegalithCutterDock">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <Range value="6"/>
+        <CastIntroTime value="0.5"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="MegalithCutterDock"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="MegalithCutterDockInstant">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <Range value="6"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="MegalithCutterDock"/>
+    </CAbilEffectTarget>
+    <CAbilBehavior id="MegalithCutterBeam">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="On" DefaultButtonFace="MegalithCutterBeam"/>
+        <CmdButtonArray index="Off" DefaultButtonFace="Cancel"/>
+        <Flags index="Toggle" value="1"/>
+        <BehaviorArray value="MegalithCutterBeam"/>
+    </CAbilBehavior>
+    <CActorSound id="MegalithAttackImpactSound" parent="SoundOneShot">
+        <Host Subject="::Creator"/>
+        <Sound value="Colossus_AttackImpact"/>
+    </CActorSound>
+    <CActorSound id="MegalithAttackLaunchSound" parent="SoundOneShot">
+        <Host Subject="MegalithCutter"/>
+        <Sound value="Colossus_AttackLaunch"/>
+    </CActorSound>
+    <CActorModel id="MegalithAttackBeamImpact">
+        <Supporter Subject="::Creator"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="ActorCreation" Send="Create MegalithAttackImpactSound"/>
+        <On Terms="SupporterDestruction" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <Host Subject="MegalithAttackImpactSite"/>
+        <Model value="ColossusAttackBeamImpact"/>
+    </CActorModel>
+    <CActorSite id="MegalithAttackLaunchSite" parent="SiteUNIT">
+        <Aliases value="_LaunchGuide"/>
+        <HostSiteOps Ops="SOpAttachWeapon"/>
+    </CActorSite>
+    <CActorBeamSimple id="MegalithAttackBeam">
+        <Terms value="Cap 1"/>
+        <On Terms="ActorCreation" Send="Create MegalithAttackBeamImpact"/>
+        <On Terms="ActorCreation" Send="Create MegalithAttackLaunchSound"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="Signal.*.Arrival" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterOpening; AnimName BSD" Target="MegalithAttackImpactSite" Send="MoverMove"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <On Terms="Effect.MegalithWeaponSearch.Impact" Send="Create"/>
+        <HostLaunch Subject="MegalithAttackLaunchSite" Scope="Caster" Actor="Create"/>
+        <HostImpact Subject="MegalithAttackImpactSite"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorBeamSimple>
+    <CActorSiteMover id="MegalithAttackImpactSite">
+        <Terms value="Cap 1"/>
+        <Sharing value="PerEffectTree"/>
+        <On Terms="Effect.MegalithWeaponSearch.Impact" Send="Create"/>
+        <On Terms="Effect.MegalithWeaponSearch.Impact; At Effect" Send="MoverSetDestination2D"/>
+        <On Terms="MoverArrived" Target="MegalithAttackBeam" Send="Signal Arrival"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Acceleration value="40.000000"/>
+        <Deceleration value="40.000000"/>
+        <Speed value="2.000000"/>
+        <SpeedMax value="4.100000"/>
+    </CActorSiteMover>
+    <CActorMissile id="MegalithCutterDockStartAttackMissile" parent="GenericAttackMissile" unitName="MegalithCutterWeapon">
+        <Model value="Invisible"/>
+        <Remove Terms="UnitBirth" Send="AnimBracketStart Lifetime Birth Stand"/>
+        <On Terms="UnitBirth" Send="AnimPlay Channel Stand,Channel PlayForever 0.000000"/>
+        <On Terms="ActorCreation" Target="::global.MegalithCutterActor" Send="RefSet ::Host ::Self"/>
+        <HostSiteOps Ops="SOpForwardCybrosLock SOp2DRotation"/>
+    </CActorMissile>
+    <CActorAction id="MegalithCutterDockStartAttack" parent="GenericAttack" effectImpact="MegalithCutterDockImpactCP" effectLaunch="MegalithCutterDockStartLM">
+        <ImpactSiteOps Ops="SOpAttachHardPoint"/>
+        <ShieldFlashType value="None"/>
+        <LaunchAttachQuery Methods="Origin" Fallback="Origin"/>
+    </CActorAction>
+    <CActorMissile id="MegalithCutterDockReturnAttackMissile" parent="GenericAttackMissile" unitName="MegalithCutterReturnWeapon">
+        <Model value="Invisible"/>
+        <Remove Terms="UnitBirth" Send="AnimBracketStart Lifetime Birth Stand"/>
+        <On Terms="UnitBirth" Send="AnimPlay Channel Stand,Channel PlayForever 0.000000"/>
+        <On Terms="ActorCreation" Target="::global.MegalithCutterActor" Send="RefSet ::Host ::Self"/>
+        <HostSiteOps Ops="SOpForwardCybrosLock SOp2DRotation"/>
+    </CActorMissile>
+    <CActorAction id="MegalithCutterDockReturnAttack" parent="GenericAttack" effectImpact="MegalithCutterDockReturnImpactDummy" effectLaunch="MegalithCutterDockReturnLM">
+        <ImpactPointSiteOps Ops="SOpOriginPoint"/>
+        <ShieldFlashType value="None"/>
+        <LaunchAttachQuery Methods="Hardpoint" Fallback="Hardpoint"/>
+        <ForceCommencementFrom value="MegalithCutterDockReturnLM"/>
+    </CActorAction>
+    <CActorMissile id="MegalithCutterDockReturnInstantAttackMissile" parent="GenericAttackMissile" unitName="MegalithCutterInstantReturnWeapon">
+        <Model value="Invisible"/>
+        <Remove Terms="UnitBirth" Send="AnimBracketStart Lifetime Birth Stand"/>
+        <On Terms="UnitBirth" Send="AnimPlay Channel Stand,Channel PlayForever 0.000000"/>
+        <On Terms="ActorCreation" Target="::global.MegalithCutterActor" Send="RefSet ::Host ::Self"/>
+        <HostSiteOps Ops="SOpForwardCybrosLock SOp2DRotation"/>
+    </CActorMissile>
+    <CActorAction id="MegalithCutterDockReturnInstantAttack" parent="GenericAttack" effectImpact="MegalithCutterDockReturnInstantImpactDummy" effectLaunch="MegalithCutterDockInstantReturnLM">
+        <ImpactPointSiteOps Ops="SOpOriginPoint"/>
+        <ShieldFlashType value="None"/>
+        <LaunchAttachQuery Methods="Hardpoint" Fallback="Hardpoint"/>
+        <ForceCommencementFrom value="MegalithCutterDockInstantReturnLM"/>
+    </CActorAction>
+    <CActorModel id="MegalithCutterDockAttachment">
+        <Model value="Invisible"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="ActorCreation" Target="::global.MegalithCutterActor" Send="RefSet ::Host ::Self"/>
+        <HostSiteOps Ops="SOpAttachHardPoint"/>
+        <Host Subject="_Unit"/>
+    </CActorModel>
+    <CActorUnit id="MegalithCutter" parent="GenericUnitBase" unitName="MegalithCutter">
+        <On Terms="ActorCreation" Send="RefSet ::global.MegalithCutterActor ::Self"/>
+        <On Terms="Behavior.MegalithCutterDockHide.Off" Send="RefSet ::Host Implicit"/>
+        <On Terms="Behavior.MegalithCutterDockHide.Off" Send="HostSiteOpsSet ::Host"/>
+        <On Terms="Effect.MegalithCutterDockImpactCP.Start" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="Effect.MegalithCutterDockReturnCP.Start" Send="AnimBracketStop Work"/>
+        <On Terms="Effect.MegalithCutterDockInstantImpactCP.Start" Send="AnimBracketStart Work {} Stand,Work Stand,Work,End"/>
+        <On Terms="Effect.MegalithCutterDockInstantReturnCP.Start" Send="AnimBracketStop Work"/>
+        <Macros value="RemoveFlyerHelperMacro"/>
+        <DeathArray index="Normal" ModelLink="Purifier_Guardian_Death" SoundLink="Purifier_Guardian_Explode"/>
+        <DeathCustoms ModelLink="ProtossLargeUnitDeathLow" Name="AntiGravProtoss"/>
+        <WalkAnimMoveSpeed value="2.1445"/>
+        <BarWidth value="140"/>
+        <BarOffset value="250"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-colossus.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-colossus.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-protoss-purifiermegalith-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-purifiermegalith-shield02.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-purifiermegalith-shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-protoss-purifiermegalith.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-purifiermegalith.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <Aliases value="_UnitHuge"/>
+        <Model value="Purifier_Guardian"/>
+        <BuildModel value="Purifier_Guardian"/>
+        <PlacementModel value="Purifier_Guardian"/>
+        <PortraitModel value="Purifier_Guardian_Portrait"/>
+        <SoundArray index="What" value="Swarm_Silent"/>
+        <SoundArray index="Yes" value="Swarm_Silent"/>
+    </CActorUnit>
+    <CActorTurret id="MegalithCutterTurret">
+        <On Terms="TurretEnable.MegalithCutter" Send="Create"/>
+    </CActorTurret>
+    <CActorSiteOpLocalOffset id="MegalithCutterBeamStartOffset">
+        <LocalOffset value="0.000000,-1.200000,1.700000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorSiteOpLocalOffset id="MegalithCutterBeamEndOffset">
+        <LocalOffset value="0.000000,-2.200000,0.000000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorBeamSimple id="MegalithCutterBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <Model value="LaserDrillTripodBiggerAttackBeam"/>
+        <On Terms="Behavior.MegalithCutterBeam.On" Send="Create"/>
+        <On Terms="Behavior.MegalithCutterBeam.Off" Send="Destroy"/>
+        <HostLaunch Subject="_Unit"/>
+        <HostLaunchSiteOps Ops="SOpAttachCenter MegalithCutterBeamStartOffset"/>
+        <HostImpact Subject="_Unit"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter MegalithCutterBeamEndOffset SOpShadow"/>
+    </CActorBeamSimple>
+    <CActorSound id="MegalithCutterBeamSound" parent="SoundContinuous">
+        <Sound value="LaserDrillTripodBiggerSound"/>
+        <On Terms="Behavior.MegalithCutterBeam.On" Send="Create"/>
+        <On Terms="Behavior.MegalithCutterBeam.Off" Send="Destroy"/>
+    </CActorSound>
+    <CActorSiteOpForward id="SOpForwardCybrosLock">
+        <HostForward Subject="CybrosLock" Actor="Find"/>
+    </CActorSiteOpForward>
+
+    <CActorUnit id="PowerCoreHousing" parent="GenericUnitStandardNoAutoSoundLinks" unitName="PowerCoreHousing">
+        <DeathArray index="Normal" ModelLink="PowerCoreHousingDeath" SoundLink="Forge_Explode"/>
+        <DeathArray index="UnderConstruction" ModelLink="ProtossWarpInDeath" SoundLink="Forge_Explode"/>
+        <On Terms="ActorCreation" Send="Create SoundEmitter PPurifier02_PowerCoreHousing_Loop"/>
+        <SoundArray index="Ready" value="ForgeWhat"/>
+        <SoundArray index="What" value="ForgeWhat"/>
+        <SoundArray index="Construction" value="Protoss_ConstructionWhat"/>
+        <BuildModel value="ForgeBirth"/>
+        <PortraitModel value="ExecutorPortrait"/>
+        <PlacementModel value="ForgePlacement"/>
+        <PlacementSound value="Protoss_BuildingPlacement"/>
+        <Macros value="BuildingFlattenTerrainMacro"/>
+        <EventDataSound Name="BuildingWarpIn" Actor="UnitSound" Sound="Protoss_BuildingWarpIn"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <BarWidth value="135"/>
+        <NameOffset value="110"/>
+        <UnitIcon value="Assets\Textures\Wireframe-Protoss-ProtossSanctum.dds"/>
+        <HeroIcon value="Assets\Textures\Wireframe-Protoss-ProtossSanctum.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-ProtossSanctum-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-ProtossSanctum-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-ProtossSanctum-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-ProtossSanctum.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-ProtossSanctum.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-protoss-buildingplating.dds"/>
+        <DeathActorModelLow value="UnitDeathModel"/>
+    </CActorUnit>
+    <CActorModel id="PurifierDisruptorCoreHologram" parent="ModelAnimationStyleContinuous">
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Host Subject="_Unit"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <On Terms="ActorCreation" Send="Create Purifier_DisruptorCore_Hologram_ActiveLoopSound"/>
+    </CActorModel>
+    <CActorSound id="Purifier_DisruptorCore_Hologram_ActiveLoopSound" parent="SoundContinuous">
+        <Sound value="Purifier_DisruptorCore_Hologram_ActiveLoop2"/>
+    </CActorSound>
+    <CActorUnit id="CybrosLock" parent="GenericUnitStandardNoAutoSoundLinks" unitName="CybrosLock">
+        <On Terms="Effect.MegalithCutterDockInstantImpactCP.Start" Send="Create MegalithCutterDockAttachment"/>
+        <On Terms="Effect.MegalithCutterDockInstantImpactCP.Start" Send="AnimBracketStart Work {} Work Work,End"/>
+        <On Terms="Effect.MegalithCutterDockInstantImpactCP.Start" Target="MegalithCutterDockAttachment" Send="AnimBracketStart Work {} Work Work,End"/>
+        <On Terms="Effect.MegalithCutterDockInstantReturnCP.Start" Send="AnimBracketStop Work"/>
+        <On Terms="Effect.MegalithCutterDockInstantReturnCP.Start" Target="MegalithCutterDockAttachment" Send="AnimBracketStop Work"/>
+        <On Terms="Effect.MegalithCutterDockInstantReturnCP.Stop" Target="MegalithCutterDockAttachment" Send="Destroy"/>
+        <On Terms="Effect.MegalithCutterDockImpactCP.Start" Send="Create MegalithCutterDockAttachment"/>
+        <On Terms="Effect.MegalithCutterDockImpactCP.Start" Send="AnimBracketStart Work Work,Start Work Work,End"/>
+        <On Terms="Effect.MegalithCutterDockImpactCP.Start" Target="MegalithCutterDockAttachment" Send="AnimBracketStart Work Work,Start Work Work,End"/>
+        <On Terms="Effect.MegalithCutterDockImpactCP.Start" Send="TimerSet 10.000000 Hologram"/>
+        <On Terms="Effect.MegalithCutterDockImpactCP.Start" Send="AnimClear Birth"/>
+        <On Terms="TimerExpired; TimerName Hologram" Send="Create PurifierDisruptorCoreHologram"/>
+        <On Terms="Effect.MegalithCutterDockReturnCP.Start" Send="AnimBracketStop Work"/>
+        <On Terms="Effect.MegalithCutterDockReturnCP.Start" Target="MegalithCutterDockAttachment" Send="AnimBracketStop Work"/>
+        <On Terms="Effect.MegalithCutterDockReturnCP.Start" Target="PurifierDisruptorCoreHologram" Send="AnimBracketStop BSD"/>
+        <On Terms="Effect.MegalithCutterDockReturnCP.Start" Send="TimerKill Hologram"/>
+        <On Terms="Effect.MegalithCutterDockReturnCP.Stop" Target="MegalithCutterDockAttachment" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="AnimGroupApply Angry"/>
+        <On Terms="Signal.*.Ready" Send="AnimGroupRemove Angry"/>
+        <On Terms="Signal.*.Ready" Send="$Birth PlayForever"/>
+        <On Terms="ActorCreation" Send="AnimGroupApply Angry"/>
+        <On Terms="Signal.*.Ready" Send="AnimGroupRemove Angry"/>
+        <On Terms="Signal.*.Ready" Send="$Birth PlayForever"/>
+        <DeathArray index="Normal" ModelLink="CybrosLockDeath" SoundLink="PPurifier02_StasisLock_CybrosLock_Destroyed_Loop"/>
+        <SoundArray index="Ready" value="PhotonCannon_What"/>
+        <SoundArray index="Construction" value="Protoss_ConstructionWhat"/>
+        <PortraitModel value="ExecutorPortrait"/>
+        <PlacementSound value="Protoss_BuildingPlacementSmall"/>
+        <Macros value="BuildingFlattenTerrainMacro"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <BarWidth value="75"/>
+        <BarOffset value="60"/>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-protoss-buildingplating.dds"/>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+        <UnitIcon value="Assets\Textures\Wireframe-Protoss-DockingBay.dds"/>
+        <HeroIcon value="Assets\Textures\Wireframe-Protoss-DockingBay.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-DockingBay-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DockingBay-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-DockingBay-Shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-DockingBay.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-DockingBay.dds"/>
+        </Wireframe>
+        <Model value="Purifier_CybrosLock"/>
+        <BuildModel value="Purifier_CybrosLock"/>
+        <PlacementModel value="Purifier_CybrosLock"/>
+    </CActorUnit>
+    <CActorUnit id="PurifierGuardianEscort" parent="GenericUnitBase" unitName="PurifierGuardianEscort">
+        <On Terms="ActorCreation" Send="RefSet ::global.MegalithCutterActor ::Self"/>
+        <On Terms="Behavior.MegalithCutterDockHide.Off" Send="RefSet ::Host Implicit"/>
+        <On Terms="Behavior.MegalithCutterDockHide.Off" Send="HostSiteOpsSet ::Host"/>
+        <On Terms="Effect.MegalithCutterDockImpactCP.Start" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="Effect.MegalithCutterDockReturnCP.Start" Send="AnimBracketStop Work"/>
+        <On Terms="Effect.MegalithCutterDockInstantImpactCP.Start" Send="AnimBracketStart Work {} Stand,Work Stand,Work,End"/>
+        <On Terms="Effect.MegalithCutterDockInstantReturnCP.Start" Send="AnimBracketStop Work"/>
+        <Macros value="RemoveFlyerHelperMacro"/>
+        <DeathArray index="Normal" ModelLink="RoguePurifierDeath" SoundLink="Purifier_Guardian_Explode"/>
+        <Model value="RoguePurifier"/>
+        <WalkAnimMoveSpeed value="2.1445"/>
+        <BarWidth value="140"/>
+        <BarOffset value="250"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-colossus.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-colossus.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai-shield02.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai-shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <HostSiteOps Ops="SOpBasicScopeFollow"/>
+        <PortraitModel value="RoguePurifierPortrait"/>
+        <PortraitActor value="RoguePurifierPortrait"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+        <Aliases value="_UnitHuge"/>
+    </CActorUnit>
+    <CActorSiteOpLocalOffset id="CybrosEscortTowerOffset">
+        <LocalOffset value="0.000000,0.000000,-4.000000"/>
+    </CActorSiteOpLocalOffset>
+    <CActorModel id="Purifier_Defense_Tower_DeathModel" parent="UnitDeathModel">
+        <Macros index="0" removed="1"/>
+        <On Terms="ActorCreation" Send="AnimCopy ::Creator"/>
+        <On Terms="ActorCreation" Send="AnimSetTimeScaleGlobal 1.000000"/>
+        <On Terms="ActorCreation" Send="Create CybrosEscortTower_Death_AS"/>
+        <On Terms="ModelEvent; ModelEventName StandDone" Send="ModelSwap Purifier_Defense_Tower_Death"/>
+        <On Terms="ModelSwapped; ModelSwapTo Purifier_Defense_Tower_Death" Send="AnimBracketStart Death Death Dead"/>
+        <On Terms="TimerExpired; TimerName Explode" Send="Create ExplosionEveryWhere"/>
+        <On Terms="ActorCreation" Send="Create ExplosionEveryWhere"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.000000,0.300000 Explode"/>
+        <On Terms="ModelSwapped; ModelSwapTo Purifier_Defense_Tower_Death" Send="TimerKill Explode"/>
+        <On Terms="TimerExpired; TimerName Explode" Send="TimerSet 0.000000,0.300000 Explode"/>
+    </CActorModel>
+    <CActorSound id="CybrosEscortTower_Death_AS" parent="SoundOneShot">
+        <EditorCategories value=""/>
+        <Sound value="CybrosEscortTower_Death"/>
+        <Layers Sound="CybrosEscortTower_Death_Layer">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+    </CActorSound>
+    <CActorUnit id="CybrosEscortTowerDown" parent="GenericUnitStandard" unitName="CybrosEscortTowerUp">
+        <On Terms="UnitBirth.CybrosEscortTowerDown" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphTo CybrosEscortTowerUp" Send="AnimGroupApply Work Work,Start Work,End"/>
+        <On Terms="AbilMorph.*.Start; MorphTo CybrosEscortTowerDown" Send="AnimGroupRemove Work"/>
+        <On Terms="UnitBirth.CybrosEscortTowerUp" Send="AnimGroupApply Work Work,Start Work,End Instant"/>
+        <On Terms="ActorDestruction" Target="CybrosEscortTower_PwrLoop_AS" Send="Destroy"/>
+        <Model value="Purifier_Defense_Tower"/>
+        <BuildModel value="Purifier_Defense_Tower"/>
+        <DeathArray index="Normal" AnimProps="IGNORE" ModelLink="Purifier_Defense_Tower_DeathModel"/>
+        <DeathActorModel value="Purifier_Defense_Tower_DeathModel"/>
+        <DeathActorModelLow value="Purifier_Defense_Tower_DeathModel"/>
+        <PlacementModel value="Purifier_Defense_Tower"/>
+        <BarOffset value="200"/>
+        <BarWidth value="120"/>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-protoss-buildingplating.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-purifier-defensetower.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-protoss-purifier-defensetower-shield00.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-purifier-defensetower-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-purifier-defensetower-shield02.dds"/>
+        </WireframeShield>
+        <PortraitModel value="Hologram_Portrait"/>
+        <UnitIcon value="Assets\Textures\BTN-Building-Purifier-DefenceTower.dds"/>
+        <HeroIcon value="Assets\Textures\BTN-Building-Purifier-DefenceTower.dds"/>
+    </CActorUnit>
+    <CActorSound id="CybrosEscortTower_Up_AS" parent="SoundOneShot">
+        <On Terms="AbilMorph.*.Start; MorphTo CybrosEscortTowerUp" Send="Create"/>
+        <On Terms="UnitBirth.CybrosEscortTowerUp" Send="Create"/>
+        <Sound value="CybrosEscortTower_Up"/>
+    </CActorSound>
+    <CActorSound id="CybrosEscortTower_Down_AS" parent="SoundOneShot">
+        <On Terms="AbilMorph.*.Start; MorphTo CybrosEscortTowerDown" Send="Create"/>
+        <Sound value="CybrosEscortTower_Down"/>
+    </CActorSound>
+    <CActorSound id="CybrosEscortTower_PwrLoop_AS" parent="SoundContinuous">
+        <Sound value="CybrosEscortTower_PwrLoop"/>
+        <On Terms="UnitBirth.CybrosEscortTowerUp" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphTo CybrosEscortTowerUp" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphTo CybrosEscortTowerDown" Send="Destroy"/>
+    </CActorSound>
+    <CActorAction id="CybrosEscortTowerGroundAttack" parent="GenericAttack" effectAttack="CybrosEscortTowerGroundMissileDamage">
+        <ImpactMap index="None" Sound="CybrosEscortTower_GroundAttack_Impact"/>
+        <LaunchAssets Sound="CybrosEscortTower_GroundAttack_Launch"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance SOpForwardLaunchGuide"/>
+        <ActionFlags index="AlignedImpactsAndDamages" value="1"/>
+    </CActorAction>
+    <CActorModel id="CybrosEscortTowerGroundMissileIndicator" parent="ModelAnimationStyleContinuous">
+        <Model value="VoidThrasherGroundMissileIndicator"/>
+        <On Terms="Effect.CybrosEscortTowerGroundMissileVolleyCreatePersistentDelay.Start" Send="Create"/>
+        <On Terms="Effect.CybrosEscortTowerGroundMissileVolleyCreatePersistentDelay.Stop; FromEffectTreeDescendant" Send="AnimBracketStop BSD"/>
+        <HostSiteOps Ops="SOpTargetPoint SOpShadow"/>
+    </CActorModel>
+    <CActorSound id="CybrosEscortTowerGroundMissileIndicator_AS" parent="SoundOneShot">
+        <On Terms="Effect.CybrosEscortTowerGroundMissileVolleyCreatePersistentDelay.Start" Send="Create"/>
+        <On Terms="Effect.CybrosEscortTowerGroundMissileVolleyCreatePersistentDelay.Stop" Send="Destroy"/>
+        <Sound value="CybrosEscortTowerGround_MissileIndicator"/>
+        <Layers Sound="CybrosEscortTowerGround_MissileIndicator_Loop">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+    </CActorSound>
+    <CActorAction id="CybrosEscortTowerAttack" parent="GenericAttack" effectAttack="CybrosEscortTowerMissileDamage">
+        <ImpactMap index="None" Sound="CybrosEscortTowerAttack_Impact"/>
+        <LaunchAssets Sound="CybrosEscortTowerAttack_Launch"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance SOpForwardLaunchGuide"/>
+        <ActionFlags index="AlignedImpactsAndDamages" value="1"/>
+    </CActorAction>
+    <CActorModel id="CybrosEscortTowerMultiAOEPersistentIndicator" parent="ModelAnimationStyleContinuous">
+        <On Terms="Effect.CybrosEscortTowerMultiAOESecondaryPersistent.Start" Send="Create"/>
+        <On Terms="ActorCreation" Send="Create CybrosEscortTowerMultiAOEPersistentTargetingBeam"/>
+        <On Terms="Effect.CybrosEscortTowerMultiAOESecondaryPersistent.Stop; FromEffectTreeDescendant" Send="AnimBracketStop BSD"/>
+        <HostSiteOps Ops="SOpTargetPoint SOpShadow"/>
+        <Model value="SuppressionTower_SuppressionBeam_Cursor"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModel>
+    <CActorSound id="CybrosEscort_SuppressionTower_SuppressionBeam_Cursor_AS" parent="SoundOneShot">
+        <On Terms="Effect.CybrosEscortTowerMultiAOESecondaryPersistent.Start" Send="Create"/>
+        <Sound value="CybrosEscortTower_PersistentTargetingBeam"/>
+    </CActorSound>
+    <CActorBeamSimple id="CybrosEscortTowerMultiAOEPersistentTargetingBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <On Terms="Effect.CybrosEscortTowerMultiAOESecondaryPersistent.Start" Send="Create"/>
+        <On Terms="Effect.CybrosEscortTowerMultiAOESecondaryPersistent.Stop; FromEffectTreeDescendant" Send="AnimBracketStop BSD"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostImpact Subject="::Creator"/>
+        <Model value="SuppressionTower_SuppressionBeam_Targeting"/>
+    </CActorBeamSimple>
+    <CActorSound id="CybrosEscortTowerMultiAOEPersistentTargetingBeam_AS" parent="SoundOneShot">
+        <On Terms="Effect.CybrosEscortTowerMultiAOESecondaryPersistent.Start" Send="Create"/>
+        <Sound value="CybrosEscortTower_PersistentTargetingBeam"/>
+    </CActorSound>
+    <CActorBeamSimple id="CybrosEscortTowerMultiAOEBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <On Terms="Effect.CybrosEscortTowerMultiAOELaserSearch.Start" Send="Create"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <HostLaunch Subject="_Unit"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
+        <HostImpactSiteOps Ops="SOpTargetPointStationary SOpShadow"/>
+        <Model value="SuppressionTower_SuppressionBeam"/>
+    </CActorBeamSimple>
+    <CActorModel id="CybrosEscortTowerMultiAOEBeamImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.CybrosEscortTowerMultiAOELaserSearch.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpTargetPointStationary SOpShadow"/>
+        <Model value="SuppressionTower_SuppressionBeam_Impact_Ground"/>
+    </CActorModel>
+    <CActorSound id="CybrosEscortTowerMultiAOEBeamImpactSound" parent="SoundOneShot">
+        <On Terms="Effect.CybrosEscortTowerMultiAOELaserSearch.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpTargetPointStationary SOpShadow"/>
+        <Sound value="CybrosEscortTowerMultiAOEBeam_Impact"/>
+        <Layers Sound="Blast_SubLow_GroundWarp">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+        <Layers Sound="CybrosEscort_Suppression_Explo_Deep">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+    </CActorSound>
+    <CActorSound id="CybrosEscortTowerSingleTargetLockOnPersistentStartSound" parent="SoundOneShot">
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnPersistent.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpTargetPoint"/>
+        <Sound value="CybrosEscortTower_TargetLock"/>
+    </CActorSound>
+    <CActorModel id="CybrosEscortTowerSlowDebuffModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="Behavior.CybrosEscortTowerMultiAOELaserSlow.On" Send="Create"/>
+        <On Terms="Behavior.CybrosEscortTowerMultiAOELaserSlow.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="ActorCreation; ValidateUnit IsThor" Send="SetScale 0.600000"/>
+        <On Terms="ActorCreation; ValidateUnit IsColossus" Send="SetScale 1.000000,1.000000,2.000000"/>
+        <HostSiteOps Ops="SOpAttachCenter SOpForwardNorth"/>
+        <Host Subject="_Unit"/>
+        <Inherits index="BaseModelScale" value="1"/>
+        <Inherits index="Scale" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
+    <CActorModelMaterial id="CybrosEscortBarrageHitTimerGlaze" parent="GlazeParent">
+        <On Terms="Behavior.CybrosEscortBarrageHitTimer.On" Send="Create"/>
+        <On Terms="ActorCreation" Send="ModelMaterialApplyTo ::Main"/>
+        <On Terms="ActorCreation" Send="Create CybrosPurifier_BarrageHit_AS"/>
+        <On Terms="Behavior.CybrosEscortBarrageHitTimer.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimDone; AnimName Death" Send="ModelMaterialRemoveFrom ::Main"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+        <On Terms="ActorDestruction" Target="CybrosPurifier_BarrageHit_AS" Send="Destroy"/>
+        <Model value="Glaze_SuppressionTower_LockdownBlast"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModelMaterial>
+    <CActorSound id="CybrosPurifier_BarrageHit_AS" parent="SoundContinuous">
+        <Sound value="Cybros_Purifier_BarrageGlitches"/>
+        <Layers Sound="Cybros_Purifier_BarrageSpikes">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+    </CActorSound>
+    <CActorBeamSimple id="CybrosEscortTowerSingleTargetLockOnPersistentBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnPersistent.Start" Send="Create"/>
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnPersistent.Stop" Send="HostSiteOpsSet ::HostImpact SOpAttachCenter 1 1"/>
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnActorKeepAlivePersistent.Stop; FromEffectTreeDescendant" Send="Destroy"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>
+        <Model value="SuppressionTower_PurificationLaser_Targeting"/>
+    </CActorBeamSimple>
+    <CActorSound id="CybrosEscort_PurificationLaser_Targeting_Loop_AS" parent="SoundContinuous">
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnPersistent.Start" Send="Create"/>
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnActorKeepAlivePersistent.Stop; FromEffectTreeDescendant" Send="Destroy"/>
+        <Sound value="CybrosEscort_PurificationLaser_TargetLock_Loop"/>
+        <Layers Sound="CybrosEscort_PurificationLaser_Targeting_LpStart">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+        <Layers Sound="CybrosEscort_PurificationLaser_Targeting_1Shot">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+    </CActorSound>
+    <CActorModel id="CybrosEscortTowerSingleTargetLockOnPersistentIndicator" parent="ModelAnimationStyleContinuous">
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnPersistent.Start" Send="Create"/>
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnPersistent.Stop" Send="HostSiteOpsSet ::Host {SOpShadow SOpForwardNorth} 1 1"/>
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnActorKeepAlivePersistent.Stop; FromEffectTreeDescendant" Send="Destroy"/>
+        <HostSiteOps Ops="SOpShadow SOpForwardNorth"/>
+        <Host Subject="_Unit" Scope="Target" Actor="Find"/>
+        <Model value="SuppressionTower_PurificationLaser_Cursor"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <Scale value="1.250000"/>
+    </CActorModel>
+    <CActorBeamSimple id="CybrosEscortTowerSingleTargetLockOnDamageBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnSearch.Start" Send="Create"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <HostLaunch Subject="_Unit"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
+        <HostImpactSiteOps Ops="SOpTargetPointStationary SOpShadow"/>
+        <Model value="SuppressionTower_PurificationLaser"/>
+    </CActorBeamSimple>
+    <CActorModel id="CybrosEscortTowerSingleTargetLockOnImpactModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnSearch.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpTargetPointStationary SOpShadow"/>
+        <Model value="SuppressionTower_PurificationLaser_Impact_Ground"/>
+    </CActorModel>
+    <CActorSound id="CybrosEscortTowerSingleTargetLockOnImpactSound" parent="SoundOneShot">
+        <On Terms="Effect.CybrosEscortTowerSingleTargetLockOnSearch.Start" Send="Create"/>
+        <HostSiteOps Ops="SOpTargetPointStationary SOpShadow"/>
+        <Sound value="CybrosEscortTowerSingleTarget_Impact"/>
+    </CActorSound>
+    <CActorModel id="Purifier_DataCore_Coop_Death" parent="UnitDeathModelWithDeathMotionGround">
+        <Macros index="0" removed="1"/>
+        <On Terms="ActorCreation" Send="TimerSet 1.000000 ExplodeEnd"/>
+        <On Terms="ActorCreation" Send="StatusSet Exploding 1"/>
+        <On Terms="TimerExpired; TimerName ExplodeEnd" Send="TimerKill Explode"/>
+        <On Terms="TimerExpired; TimerName ExplodeEnd" Send="StatusSet Exploding 0"/>
+        <On Terms="TimerExpired; TimerName Explode; IsStatus Exploding 1" Send="Create ExplosionRandomDamage"/>
+        <On Terms="TimerExpired; TimerName Explode; IsStatus Exploding 1" Send="TimerSet 0.000000,0.300000 Explode"/>
+        <On Terms="ActorCreation" Send="Create ExplosionRandomDamage"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.000000,0.300000 Explode"/>
+    </CActorModel>
+    <CActorBeamSimple id="Purifier_Guardian_VirusCure_Beam" parent="BeamSimpleAnimationStyleContinuous">
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+        <Supporter Subject="::Creator"/>
+        <On Terms="SupporterDestruction" Send="AnimBracketStop BSD"/>
+    </CActorBeamSimple>
+    <CActorAction id="VirusCureBeamAttack" parent="GenericAttackBase">
+        <Lifetime value="-1.000000"/>
+        <On Terms="Effect.VirusCureBeam.Start" Send="Create"/>
+        <On Terms="Effect.VirusCureBeamImpact.Start; FromEffectTreeDescendant" Send="ActionDamage"/>
+        <On Terms="Effect.VirusCureBeam.Stop" Send="Destroy"/>
+        <ImpactSiteOps Ops="SOpAttachHardPoint01"/>
+        <ActionFlags index="AlignedImpactsAndDamages" value="1"/>
+        <ActionFlags index="LaunchForceSite" value="1"/>
+        <LaunchAttachQuery Methods="AMFilterWeapon01"/>
+        <Beam value="Purifier_Guardian_VirusCure_Beam"/>
+        <BeamScope value="Caster"/>
+        <ImpactAttachQuery Methods="AMFilterHardpoint01"/>
+        <DamageMap index="None" ModelReaction="Purifier_Guardian_VirusCure_Beam_Impact"/>
+        <DamageAttachQuery Methods="AMFilterHardpoint01"/>
+        <ShieldFlashType value="None"/>
+        <DamageSiteOps Ops="SOpAttachHardPoint01"/>
+    </CActorAction>
+    <CActorSound id="VirusCureBeam_Loop" parent="SoundContinuous">
+        <EditorCategories value=""/>
+        <On Terms="Effect.VirusCureBeam.Start" Send="Create"/>
+        <On Terms="Effect.VirusCureBeam.Stop" Send="Destroy"/>
+        <Layers Sound="Purifier_CybrosLock_VirusBeam_Pulse1Shots">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+        <Layers Sound="Virus_Beam_Data_Lp">
+            <Chance value="100"/>
+            <Pitch value="0.000000,0.000000"/>
+            <PlayDelay value="0,0"/>
+            <Volume value="0.000000,0.000000"/>
+        </Layers>
+    </CActorSound>
+    <CActorSound id="VirusCureBeam_Start" parent="SoundOneShot">
+        <EditorCategories value=""/>
+        <On Terms="Effect.VirusCureBeamImpact.Start; FromEffectTreeDescendant" Send="ActionDamage"/>
+    </CActorSound>
+    <CActorSound id="VirusCureBeam_Stop" parent="SoundOneShot">
+        <EditorCategories value=""/>
+        <On Terms="Effect.VirusCureBeam.Stop" Send="Destroy"/>
+    </CActorSound>
+    <CActorModel id="UI_Screens_Mission_ProtossPurifierCalldownThree_Hologram" parent="CompositePortraitAddition">
+        <On Terms="Signal.*.WorkStart" Send="AnimGroupApply Work Work,Start Work,End"/>
+        <On Terms="Signal.*.WorkStop" Send="AnimGroupRemove Work"/>
+    </CActorModel>
+    <CActorBeamSimple id="CybrosEscortTowerAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <On Terms="AnimBracketState.*.AfterOpening; AnimName BSD" Send="AnimBracketStop BSD"/>
+        <Model value="SuppressionTower_LockdownBlast"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorBeamSimple>
+    <CActorBeamSimple id="CybrosEscortTowerGroundAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <On Terms="AnimBracketState.*.AfterOpening; AnimName BSD" Send="AnimBracketStop BSD"/>
+        <Model value="SuppressionTower_SuppressionBeam"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorBeamSimple>
+    <CActorUnit id="CybrosEscortDownloader" parent="ProtossBuilding" unitName="CybrosEscortDownloader">
+        <On Terms="ActorCreation" Send="Create CybrosEscortDownloader_PwrLoop_AS"/>
+        <Aliases value="_UnitHuge"/>
+        <Macros value="GlobalLoopMacro"/>
+        <Macros value="QueueAnim"/>
+        <Macros value="BuildingFlattenTerrainMacro"/>
+        <Model value="Purifier_DataCore_Coop"/>
+        <AnimBlendTime value="0.000000"/>
+        <ModelFlags index="AutomateGlobalLoops" value="0"/>
+        <EventDataSound Name="BuildingWarpIn" Actor="UnitSound" Sound="Protoss_BuildingWarpIn"/>
+        <CreepHeightClass value="Small"/>
+        <BuildModel value="Purifier_DataCore_Coop"/>
+        <DeathArray index="Normal" ModelLink="Purifier_DataCore_Coop_Death" SoundLink="RoboticsFacilty_Explode"/>
+        <DeathArray index="UnderConstruction" ModelLink="ProtossWarpInDeath" SoundLink="RoboticsFacilty_Explode"/>
+        <PlacementModel value="Purifier_DataCore_Coop"/>
+        <BarOffset value="120"/>
+        <BarWidth value="160"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-protoss-purifier-datacore.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-building-purifier-datacore.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-armor-protoss-buildingplating.dds"/>
+        <NameOffset value="110"/>
+        <SoundArray index="What" value="PurifierConclave_What"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <UnitIcon value="Assets\Textures\btn-building-purifier-datacore.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-purifier-datacore.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-protoss-purifier-datacore-shield00.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-purifier-datacore-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-purifier-datacore-shield02.dds"/>
+        </WireframeShield>
+        <DeathActorModel value="Purifier_DataCore_Coop_Death"/>
+        <DeathActorModelLow value="Purifier_DataCore_Coop_Death"/>
+        <PortraitModel value="Immortal_Purifier_Collection_Portrait"/>
+        <AbilSoundArray AbilCmd="CybrosEscortDownloader,Research1" Sound="CybrosEscortDownloader_DownloadStart"/>
+        <AbilSoundArray AbilCmd="CybrosEscortDownloader,Research2" Sound="CybrosEscortDownloader_DownloadStart"/>
+        <AbilSoundArray AbilCmd="CybrosEscortDownloader,Research3" Sound="CybrosEscortDownloader_DownloadStart"/>
+    </CActorUnit>
+    <CActorSound id="CybrosEscortDownloader_PwrLoop_AS" parent="SoundContinuous">
+        <Sound value="CybrosEscortDownloader_PwrLoop"/>
+    </CActorSound>
+    <CActorUnit id="RoguePurifier" parent="GenericUnitBase" unitName="RoguePurifier">
+        <Macros value="RemoveFlyerHelperMacro"/>
+        <DeathArray index="Normal" ModelLink="RoguePurifierDeath" SoundLink=""/>
+        <WalkAnimMoveSpeed value="2.1445"/>
+        <BarWidth value="140"/>
+        <BarOffset value="250"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-colossus.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-colossus.dds"/>
+        <WireframeShield>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai-shield01.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai-shield02.dds"/>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai-shield03.dds"/>
+        </WireframeShield>
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-protoss-rogueai.dds"/>
+        </Wireframe>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <HostSiteOps Ops="SOpBasicScopeFollow"/>
+        <PortraitModel value="RoguePurifierPortrait"/>
+        <PortraitActor value="RoguePurifierPortrait"/>
+        <StatusBarFlags index="Magazine" value="0"/>
+        <Aliases value="_UnitHuge"/>
+    </CActorUnit>
+    <CActorModel id="RoguePurifierPortraitAddition" parent="CompositePortraitAddition"/>
+    <CActorPortrait id="RoguePurifierPortrait" parent="CompositePortrait"/>
+    <CActorTurret id="RoguePurifierTurret">
+        <On Terms="TurretEnable.RoguePurifier" Send="Create"/>
+    </CActorTurret>
+    <CActorBeamSimple id="RoguePurifierAttackBeam">
+        <Terms value="Cap 1"/>
+        <On Terms="ActorCreation" Send="Create RoguePurifierAttackBeamImpact"/>
+        <On Terms="ActorCreation" Send="Create RoguePurifierAttackLaunchSound"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="Signal.*.Arrival" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterOpening; AnimName BSD" Target="RoguePurifierAttackImpactSite" Send="MoverMove"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <On Terms="Effect.RoguePurifierWeaponSearch.Impact" Send="Create"/>
+        <HostLaunch Subject="RoguePurifierAttackLaunchSite" Scope="Caster" Actor="Create"/>
+        <HostImpact Subject="RoguePurifierAttackImpactSite"/>
+    </CActorBeamSimple>
+    <CActorModel id="RoguePurifierAttackBeamImpact">
+        <Supporter Subject="::Creator"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="ActorCreation" Send="Create RoguePurifierAttackImpactSound"/>
+        <On Terms="SupporterDestruction" Send="AnimBracketStop BSD"/>
+        <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy"/>
+        <Host Subject="RoguePurifierAttackImpactSite"/>
+        <Model value="ColossusAttackBeamImpact"/>
+    </CActorModel>
+    <CActorSiteMover id="RoguePurifierAttackImpactSite">
+        <Terms value="Cap 1"/>
+        <Sharing value="PerEffectTree"/>
+        <On Terms="Effect.RoguePurifierWeaponSearch.Impact" Send="Create"/>
+        <On Terms="Effect.RoguePurifierWeaponSearch.Impact; At Effect" Send="MoverSetDestination2D"/>
+        <On Terms="MoverArrived" Target="RoguePurifierAttackBeam" Send="Signal Arrival"/>
+        <HostSiteOps Ops="SOpShadow"/>
+        <Acceleration value="40.000000"/>
+        <Deceleration value="40.000000"/>
+        <Speed value="2.000000"/>
+        <SpeedMax value="4.100000"/>
+    </CActorSiteMover>
+    <CActorSound id="RoguePurifierAttackImpactSound" parent="SoundOneShot">
+        <Host Subject="::Creator"/>
+        <Sound value="Colossus_AttackImpact"/>
+    </CActorSound>
+    <CActorSite id="RoguePurifierAttackLaunchSite" parent="SiteUNIT">
+        <Aliases value="_LaunchGuide"/>
+        <HostSiteOps Ops="SOpAttachWeapon"/>
+    </CActorSite>
+    <CActorSound id="RoguePurifierAttackLaunchSound" parent="SoundOneShot">
+        <Host Subject="RoguePurifier"/>
+        <Sound value="Colossus_AttackLaunch"/>
+    </CActorSound>
+    <CActorAction id="RoguePurifierAirWeaponAttack" parent="GenericAttack" effectImpact="RoguePurifierAirWeaponDamage" effectLaunch="RoguePurifierAirWeaponLM">
+        <LaunchAssets Sound="PhotonCannon_AttackLaunch"/>
+        <ImpactMap index="None" Model="RoguePurifierAirAttackWeaponImpact" Sound="PhotonCannon_AttackImpact"/>
+        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
+        <LaunchAttachQuery Methods="TurretZ"/>
+        <ImpactPhysics Name="PurifyImpact" MatchKeys="Basic" Physics="MothershipCoreAttackForce"/>
+        <Missile value="RoguePurifierAirWeapon"/>
+    </CActorAction>
+    <CActorMissile id="RoguePurifierAirWeapon" parent="GenericAttackMissile" unitName="RoguePurifierAirWeapon">
+        <On Terms="UnitBirth" Send="AnimSetTimeScaleAbsolute Lifetime 1.000000"/>
+        <Model value="RoguePurifierAirAttackWeapon"/>
+    </CActorMissile>
+    <CActorUnit id="RoguePurifierSupportDroneA" parent="GenericUnitStandard" unitName="RoguePurifierSupportDroneA">
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Observer_Land"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="Create RoguePurifierSupportDroneAPowerUp"/>
+        <On Terms="WeaponStart.*.AttackStart" Send="Create RoguePurifierSupportDroneAPowerUpSound"/>
+        <On Terms="WeaponStop.*.AttackStop" Target="RoguePurifierSupportDroneAPowerUp" Send="Destroy"/>
+        <On Terms="WeaponStop.*.AttackStop" Target="RoguePurifierSupportDroneAPowerUpSound" Send="Destroy"/>
+        <AnimBlendTime value="1.200000"/>
+        <DeathArray index="Normal" ModelLink="RoguePurifierSupportDroneADeath" SoundLink="Observer_Explode"/>
+        <PortraitModel value="WardenSupportAlphaPortrait"/>
+        <BarOffset value="40"/>
+        <BarWidth value="42"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <SoundArray index="Ready" value="Observer_Ready"/>
+        <SoundArray index="What" value="Observer_What"/>
+        <SoundArray index="Yes" value="Observer_Yes"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-observer.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorUnit id="RoguePurifierSupportDroneB" parent="GenericUnitStandard" unitName="RoguePurifierSupportDroneB">
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Observer_Land"/>
+        <AnimBlendTime value="1.200000"/>
+        <DeathArray index="Normal" ModelLink="RoguePurifierSupportDroneBDeath" SoundLink="Observer_Explode"/>
+        <PortraitModel value="WardenSupportOmegaPortrait"/>
+        <BarOffset value="40"/>
+        <BarWidth value="42"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone.dds"/>
+        </GroupIcon>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-airarmorlevel0.dds"/>
+        <SoundArray index="Ready" value="Observer_Ready"/>
+        <SoundArray index="What" value="Observer_What"/>
+        <SoundArray index="Yes" value="Observer_Yes"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-observer.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-PurifierWardenSupportDrone-Shield03.dds"/>
+        </WireframeShield>
+    </CActorUnit>
+    <CActorModel id="RoguePurifierSupportDroneAPowerUp" parent="ModelAnimationStyleContinuous">
+        <On Terms="ActorCreation" Send="AnimBracketStart GL_BSD GLbirth GLstand GLdeath"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="SetTintColor {128,255,0 3.000000}"/>
+        <On Terms="ActorCreation" Send="AnimGroupApply 02"/>
+        <On Terms="ActorCreation" Send="TimerSet 2.000000 ChargeUpModel"/>
+        <On Terms="TimerExpired; TimerName ChargeUpModel" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachWeapon"/>
+        <ModelFlags index="AllowHitTest" value="0"/>
+        <Model value="RoguePurifierSupportDroneAPowerUpModel"/>
+    </CActorModel>
+    <CActorSound id="RoguePurifierSupportDroneAPowerUpSound" parent="SoundContinuous">
+        <On Terms="ActorCreation" Send="SoundSetPitch Linear 0.000000@0.000000,20.000000@3000.000000"/>
+        <Host Subject="_Unit"/>
+    </CActorSound>
+    <CActorAction id="RoguePurifierSupportDroneABeamAttack" parent="GenericAttack" effectAttack="RoguePurifierSupportDroneADamage">
+        <LaunchAssets Sound="Archon_AttackLaunch"/>
+        <BeamScope value="Caster"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance"/>
+        <ImpactMap index="None" Model="" Sound="Archon_AttackImpact"/>
+        <Beam value="RoguePurifierSupportDroneAAttackBeam"/>
+    </CActorAction>
+    <CActorBeamSimple id="RoguePurifierSupportDroneAAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <On Terms="ActorCreation" Send="SetTintColor {255,255,0 3.000000}"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachTarget SOpMoveByDot5"/>
+        <HostLaunch Scope="Caster"/>
+    </CActorBeamSimple>
+    <CActorBeamSimple id="RoguePurifierSupportDroneBRepairBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="Effect.RoguePurifierSupportDroneBShieldRepair.TargetStart" Send="Create"/>
+        <On Terms="Effect.RoguePurifierSupportDroneBShieldRepair.TargetStop" Send="Destroy"/>
+        <HostForProps Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <Model value="NanoRepairBeam"/>
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
+        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+    </CActorBeamSimple>
+    <CActorModel id="RoguePurifierSupportDroneBRepairModel" parent="ModelAnimationStyleContinuous">
+        <On Terms="ActorCreation" Send="$Birth PlayForever"/>
+        <On Terms="Effect.RoguePurifierSupportDroneBShieldRepair.TargetStart; At Target" Send="Create"/>
+        <On Terms="Effect.RoguePurifierSupportDroneBShieldRepair.TargetStop; At Target" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Model value="NanoRepairBeamImpact"/>
+    </CActorModel>
+    <CActorSound id="RoguePurifierSupportDroneBRepairSoundLoop" parent="SoundContinuous">
+        <On Terms="Effect.RoguePurifierSupportDroneBShieldRepair.TargetStart; At Target" Send="Create"/>
+        <On Terms="Effect.RoguePurifierSupportDroneBShieldRepair.TargetStop; At Target" Send="Destroy"/>
+        <On Terms="ActorOrphan" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="Create RoguePurifierSupportDroneBRepairSoundStart"/>
+        <On Terms="ActorDestruction" Send="Create RoguePurifierSupportDroneBRepairSoundStop"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Sound value="Medivac_HealLoop"/>
+    </CActorSound>
+    <CActorSound id="RoguePurifierSupportDroneBRepairSoundStart" parent="SoundOneShot">
+        <Sound value="Medivac_HealStart"/>
+    </CActorSound>
+    <CActorSound id="RoguePurifierSupportDroneBRepairSoundStop" parent="SoundOneShot">
+        <Sound value="Medivac_HealEnd"/>
+    </CActorSound>
+    <CBehaviorBuff id="MegalithCutterBeam">
+        <EditorCategories value="AbilityorEffectType:Units,Race:Protoss"/>
+        <InfoFlags index="Hidden" value="1"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="MegalithDockComplete">
+        <InfoFlags index="Hidden" value="1"/>
+        <Duration value="10"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="MegalithCutterDockHide">
+        <InfoFlags index="Hidden" value="1"/>
+        <Modification>
+            <StateFlags index="Invulnerable" value="1"/>
+            <StateFlags index="Stun" value="1"/>
+            <StateFlags index="Uncommandable" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CButton id="MegalithCutterBeam">
+        <Icon value="Assets\Textures\btn-missing-kaeo.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CButton id="MegalithCutterDock">
+        <Icon value="Assets\Textures\btn-missing-kaeo.dds"/>
+    </CButton>
+    <CEffectCreatePersistent id="MegalithCutterBeam">
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicPeriodArray value="0.5"/>
+        <PeriodicEffectArray value="MegalithCutterBeamDummy"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="MegalithCutterBeamDummy"/>
+    <CEffectSet id="MegalithCutterDockInstant">
+        <EffectArray value="MegalithCutterDockInstantImpactCP"/>
+        <EffectArray value="MegalithCutterDockHideCaster"/>
+        <ValidatorArray value="IsCybrosLock"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="MegalithCutterDockInstantImpactCP">
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicPeriodArray value="1"/>
+        <PeriodicValidator value="NotHaveMegalithDockComplete"/>
+        <FinalEffect value="MegalithCutterDockInstantReturnCP"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="MegalithCutterDockInstantReturnCP">
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="MegalithCutterDockInstantReturnLM"/>
+        <PeriodicPeriodArray value="10"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="MegalithCutterDockInstantReturnLM">
+        <LaunchLocation Effect="MegalithCutterDockInstantImpactCP" Value="TargetUnit"/>
+        <ImpactLocation Value="OriginPoint"/>
+        <ImpactEffect value="MegalithCutterDockReturnInstantImpactSet"/>
+        <AmmoUnit value="MegalithCutterInstantReturnWeapon"/>
+        <Movers Link="MegalithCutterWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="MegalithCutterDockReturnInstantImpactSet">
+        <EffectArray value="MegalithCutterDockReturnInstantImpactDummy"/>
+        <EffectArray value="MegalithCutterDockShowCaster"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="MegalithCutterDockReturnInstantImpactDummy"/>
+    <CEffectSet id="MegalithCutterDock">
+        <EffectArray value="MegalithCutterDockStartLM"/>
+        <EffectArray value="MegalithCutterDockHideCaster"/>
+        <ValidatorArray value="IsCybrosLock"/>
+    </CEffectSet>
+    <CEffectLaunchMissile id="MegalithCutterDockStartLM">
+        <ImpactEffect value="MegalithCutterDockImpactCP"/>
+        <AmmoUnit value="MegalithCutterWeapon"/>
+        <Movers Link="MegalithCutterWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="MegalithCutterDockImpactCP">
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <PeriodicPeriodArray value="1"/>
+        <PeriodicValidator value="NotHaveMegalithDockComplete"/>
+        <FinalEffect value="MegalithCutterDockReturnCP"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="MegalithCutterDockReturnCP">
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="MegalithCutterDockReturnLM"/>
+        <PeriodicPeriodArray value="10"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="MegalithCutterDockReturnLM">
+        <LaunchLocation Effect="MegalithCutterDockStartLM" Value="TargetUnit"/>
+        <ImpactLocation Value="OriginPoint"/>
+        <ImpactEffect value="MegalithCutterDockReturnImpactSet"/>
+        <AmmoUnit value="MegalithCutterReturnWeapon"/>
+        <Movers Link="MegalithCutterWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="MegalithCutterDockReturnImpactSet">
+        <EffectArray value="MegalithCutterDockReturnImpactDummy"/>
+        <EffectArray value="MegalithCutterDockShowCaster"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="MegalithCutterDockReturnImpactDummy"/>
+    <CEffectApplyBehavior id="MegalithCutterDockHideCaster">
+        <Behavior value="MegalithCutterDockHide"/>
+        <WhichUnit Value="Caster"/>
+    </CEffectApplyBehavior>
+    <CEffectRemoveBehavior id="MegalithCutterDockShowCaster">
+        <EditorCategories value=""/>
+        <WhichUnit Value="Caster"/>
+        <BehaviorLink value="MegalithCutterDockHide"/>
+    </CEffectRemoveBehavior>
+    <CModel id="RoguePurifier" parent="Unit" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Purifier_RogueAI\Purifier_RogueAI.m3"/>
+        <Occlusion value="Show"/>
+        <SelectionRadius value="1.600000"/>
+        <SquibTypeDefault value="Metal"/>
+        <Radius value="1.000000"/>
+        <ShadowRadius value="0.400000"/>
+        <AttachProps Id="Ref_Center" RadiusShield="2.500000"/>
+        <ScaleMax value="0.850000,0.850000,0.850000"/>
+        <ScaleMin value="0.850000,0.850000,0.850000"/>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="RoguePurifier_Stand01"/>
+            <Type value="Sound"/>
+            <Time value="0.001000"/>
+            <Payload value="RoguePurifier_Stand01"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="RoguePurifier_Sparks"/>
+            <Type value="Sound"/>
+            <Time value="0.326000"/>
+            <Payload value="RoguePurifier_Sparks"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,01"/>
+            <Name value="RoguePurifier_Sparks"/>
+            <Type value="Sound"/>
+            <Time value="2.395000"/>
+            <Payload value="RoguePurifier_Sparks"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="RoguePurifier_Stand012"/>
+            <Type value="Sound"/>
+            <Time value="0.001000"/>
+            <Payload value="RoguePurifier_Stand012"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="RoguePurifier_Sparks"/>
+            <Type value="Sound"/>
+            <Time value="0.761000"/>
+            <Payload value="RoguePurifier_Sparks"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,02"/>
+            <Name value="RoguePurifier_Sparks"/>
+            <Type value="Sound"/>
+            <Time value="3.488000"/>
+            <Payload value="RoguePurifier_Sparks"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,03"/>
+            <Name value="RoguePurifier_Stand0122"/>
+            <Type value="Sound"/>
+            <Time value="0.001000"/>
+            <Payload value="RoguePurifier_Stand0122"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,03"/>
+            <Name value="RoguePurifier_Sparks"/>
+            <Type value="Sound"/>
+            <Time value="0.761000"/>
+            <Payload value="RoguePurifier_Sparks"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,03"/>
+            <Name value="RoguePurifier_Sparks"/>
+            <Type value="Sound"/>
+            <Time value="2.621000"/>
+            <Payload value="RoguePurifier_Sparks"/>
+        </Events>
+        <Events>
+            <Anim value="Portrait,Talk,00"/>
+            <Name value="RoguePurifier_PortraitTalk"/>
+            <Type value="Sound"/>
+            <Time value="0.001000"/>
+            <Payload value="RoguePurifier_PortraitTalk"/>
+        </Events>
+        <Events>
+            <Anim value="Portrait,Talk,01"/>
+            <Name value="RoguePurifier_PortraitTalk01"/>
+            <Type value="Sound"/>
+            <Time value="0.001000"/>
+            <Payload value="RoguePurifier_PortraitTalk01"/>
+        </Events>
+        <Events>
+            <Anim value="Birth,00"/>
+            <Name value="RoguePurifier_Birth"/>
+            <Type value="Sound"/>
+            <Time value="0.001000"/>
+            <Payload value="RoguePurifier_Birth"/>
+        </Events>
+    </CModel>
+    <CModel id="RoguePurifierDeath" parent="UnitDeath" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Purifier_RogueAI_Death\Purifier_RogueAI_Death.m3"/>
+        <Flags index="TeenSafe" value="1"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="RoguePurifier_Death_A"/>
+            <Type value="Sound"/>
+            <Time value="0.001000"/>
+            <Payload value="RoguePurifier_Death_A"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="RoguePurifier_Death_B"/>
+            <Type value="Sound"/>
+            <Time value="1.025000"/>
+            <Payload value="RoguePurifier_Death_B"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="RoguePurifier_Death_C"/>
+            <Type value="Sound"/>
+            <Time value="1.849000"/>
+            <Payload value="RoguePurifier_Death_C"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="RoguePurifier_Death_D"/>
+            <Type value="Sound"/>
+            <Time value="2.866000"/>
+            <Payload value="RoguePurifier_Death_D"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="RoguePurifier_Death_E"/>
+            <Type value="Sound"/>
+            <Time value="4.095000"/>
+            <Payload value="RoguePurifier_Death_E"/>
+        </Events>
+    </CModel>
+    <CModel id="RoguePurifierPortrait" parent="Portrait" Race="Protoss">
+        <Model value="Assets\Portraits\Protoss\RogueAIPortrait\RogueAIPortrait.m3"/>
+        <Image value="Assets\Textures\rogueportrait_static.dds"/>
+    </CModel>
+    <CModel id="RoguePurifierPortraitAddition" parent="Portrait" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Purifier_RogueAI\Purifier_RogueAI.m3"/>
+    </CModel>
+    <CModel id="WardenSupportAlphaPortrait" parent="Portrait" Race="Protoss">
+        <Model value="Assets\Portraits\Protoss\RogueAI_BotAttack_Portrait\RogueAI_BotAttack_Portrait.m3"/>
+        <Image value="Assets\Textures\rogueaibotattackportrait_static.dds"/>
+        <Lighting value="RogueAI_BotAttack_Portrait_Lighting"/>
+    </CModel>
+    <CModel id="WardenSupportOmegaPortrait" parent="Portrait" Race="Protoss">
+        <Model value="Assets\Portraits\Protoss\RogueAI_BotHeal_Portrait\RogueAI_BotHeal_Portrait.m3"/>
+        <Image value="Assets\Textures\rogueaibothealportrait_static.dds"/>
+        <Lighting value="RogueAI_BotHeal_Portrait"/>
+    </CModel>
+    <CModel id="RoguePurifierAttackBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\ColossusBeam\ColossusBeam.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <RadiusLoose value="1.000000"/>
+    </CModel>
+    <CModel id="RoguePurifierAirAttackWeapon" parent="MissileFX">
+        <Model value="Assets\Effects\Protoss\MothershipPurifyMissile\MothershipPurifyMissile.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Events>
+            <Anim value="Stand,00"/>
+            <Name value="MotherShip_Purify_AttackLaunch"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="MotherShip_Purify_AttackLaunch"/>
+        </Events>
+    </CModel>
+    <CModel id="RoguePurifierAirAttackWeaponImpact" parent="ImpactFX">
+        <Model value="Assets\Effects\Protoss\MothershipPurifyMissileImpact\MothershipPurifyMissileImpact.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="MotherShip_Purify_AttackImpact"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="MotherShip_Purify_AttackImpact"/>
+        </Events>
+    </CModel>
+    <CModel id="RoguePurifierSupportDroneA" parent="Unit" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Purifier_RogueAI_BotAttack\Purifier_RogueAI_BotAttack.m3"/>
+        <Occlusion value="Show"/>
+        <SquibTypeDefault value="Metal"/>
+        <AttachProps Id="Ref_Center" RadiusShield="1.000000"/>
+    </CModel>
+    <CModel id="RoguePurifierSupportDroneB" parent="Unit" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Purifier_RogueAI_BotHeal\Purifier_RogueAI_BotHeal.m3"/>
+        <Occlusion value="Show"/>
+        <SquibTypeDefault value="Metal"/>
+        <AttachProps Id="Ref_Center" RadiusShield="1.000000"/>
+    </CModel>
+    <CModel id="RoguePurifierSupportDroneADeath" parent="UnitDeath" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Purifier_RogueAI_BotAttack_Death\Purifier_RogueAI_BotAttack_Death.m3"/>
+    </CModel>
+    <CModel id="RoguePurifierSupportDroneBDeath" parent="UnitDeath" Race="Protoss">
+        <Model value="Assets\Units\Protoss\Purifier_RogueAI_BotHeal_Death\Purifier_RogueAI_BotHeal_Death.m3"/>
+    </CModel>
+    <CModel id="RoguePurifierSupportDroneAAttackBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\ArchonBeam\ArchonBeam.m3"/>
+        <LowQualityModel value="ArchonAttackBeamLow"/>
+        <EditorCategories value="Race:Protoss"/>
+        <RadiusLoose value="1.000000"/>
+    </CModel>
+    <CModel id="RoguePurifierSupportDroneAPowerUpModel" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\PsiStormImpact\PsiStormImpact.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <RadiusLoose value="1.000000"/>
+        <ScaleMax value="0.500000,0.500000,0.500000"/>
+        <ScaleMin value="0.500000,0.500000,0.500000"/>
+    </CModel>
+    <CMoverMissile id="MegalithCutterWeapon" parent="MissileDefault">
+        <MotionPhases index="0">
+            <Driver value="Guidance"/>
+            <Acceleration value="3200"/>
+            <MaxSpeed value="10"/>
+            <ClearanceAcceleration value="75"/>
+            <Outro value="-1"/>
+            <YawPitchRoll value="719.2968"/>
+        </MotionPhases>
+    </CMoverMissile>
+    <CMoverFlock id="MegalithCutter" parent="Fly">
+        <HeightMap value="Ground"/>
+    </CMoverFlock>
+
+
+
+    <CSound id="Megalith_PulseAmbient" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\MegalithLightPulse_1ch.wav" FacialGroup=""/>
+        <Volume value="-19.000000,-19.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortDownloader_DownloadStart" parent="UI">
+        <AssetArray File="Assets\Sounds\UI_DominationVisor_Select.wav" Offset="10000,10000" FacialGroup=""/>
+        <Pitch value="-3.000000,-3.000000"/>
+        <Flags index="Ignorable" value="0"/>
+    </CSound>
+    <CSound id="CybrosEscort_PurifierGuardian_Restore_PowerUp_EventTrig" parent="Other">
+        <AssetArray File="Assets\Sounds\Psi_Destroyer_ShieldPowerUp_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Psi_Destroyer_ShieldPowerUp_2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SystemGlitch_05_StartUp.wav" FacialGroup=""/>
+        <Pitch value="4.000000,4.000000"/>
+        <SpeakerMix index="Center" value="0.250000"/>
+        <SpeakerMix index="BackLeft" value="0.500000"/>
+        <SpeakerMix index="BackRight" value="0.500000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+        <Volume value="-12.000000,-12.000000"/>
+    </CSound>
+    <CSound id="CybrosEscort_TowerDestroyed_EventTrig" parent="Other">
+        <AssetArray File="Assets\Sounds\VoidCorruption_Death_0913ms_2ch.wav" FacialGroup=""/>
+        <Pitch value="-2.000000,0.000000"/>
+        <SpeakerMix index="Center" value="0.250000"/>
+        <SpeakerMix index="BackLeft" value="0.500000"/>
+        <SpeakerMix index="BackRight" value="0.500000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+        <Volume value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="CybrosEscort_SuppressionBeam_Launch" parent="Combat">
+        <AssetArray File="Assets\Sounds\HybridThrasher_ImpactElectric_Short_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\HybridThrasher_ImpactElectric_Short_02.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Spread value="20.000000"/>
+        <Volume value="-4.000000,-2.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="22.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortDownloader_AddData_Loop" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\TargetBeam_Lp_01.wav" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Volume value="-10.000000,-10.000000"/>
+        <Pitch value="-7.500000,-7.500000"/>
+    </CSound>
+    <CSound id="CybrosEscortDownloader_SWS_Download" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\ArtifactUlnarA_Crystal_Green_StandWorkStart_4180ms_1ch.wav" FacialGroup=""/>
+        <Pitch value="-2.500000,-2.500000"/>
+    </CSound>
+    <CSound id="CybrosEscortDownloader_SWE_Done" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\PUlnar01_CelestialLock_StandWorkStart01_2102ms_1ch.wav" FacialGroup=""/>
+        <Pitch value="-1.500000,-1.500000"/>
+    </CSound>
+    <CSound id="CybrosEscortDownloader_SWS_Actuate" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\CybrosLock_StandWorkStart_4790ms_1ch.wav" FacialGroup=""/>
+        <Pitch value="-2.500000,-2.500000"/>
+    </CSound>
+    <CSound id="CybrosEscortDownloader_Stand" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\ZhakuldasLibrary_Data_DreamyDelay_Os.wav" FacialGroup=""/>
+        <Pitch value="0.200000,2.200000"/>
+        <Volume value="-12.000000,-12.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTowerAttack_ImpactSwt" parent="Protoss_ExplosionMedium">
+        <AssetArray index="0" File="Assets\Sounds\Uni\UI\Impact_SwtStrike_01.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="1" File="Assets\Sounds\Uni\UI\Impact_SwtStrike_02.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="2" File="Assets\Sounds\Uni\UI\Impact_SwtStrike_03.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="3" removed="1"/>
+        <AssetArray index="4" removed="1"/>
+        <AssetArray index="5" removed="1"/>
+        <AssetArray index="6" removed="1"/>
+        <AssetArray index="7" removed="1"/>
+        <AssetArray index="8" removed="1"/>
+        <AssetArray index="9" removed="1"/>
+        <DupeDestroyCount value="6"/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="4"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-1.000000,1.000000"/>
+        <SustainFade index="1" Time="1000"/>
+        <Volume value="-6.000000,-4.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="20.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTowerMultiAOEBeam_ImpactSwt" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\Uni\UI\Impact_SwtStrike_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Uni\UI\Impact_SwtStrike_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Uni\UI\Impact_SwtStrike_03.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="4"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-4.000000,-2.000000"/>
+        <Volume value="-6.000000,-4.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_GroundAttack_Impact" parent="Protoss_ExplosionMedium">
+        <AssetArray index="0" File="Assets\Sounds\Thrasher_Missile_Impact_01.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="1" File="Assets\Sounds\Thrasher_Missile_Impact_02.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="2" File="Assets\Sounds\Thrasher_Missile_Impact_03.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="3" File="Assets\Sounds\Thrasher_Missile_Impact_04.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="4" File="Assets\Sounds\Thrasher_Missile_Impact_05.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="5" File="Assets\Sounds\Thrasher_Missile_Impact_06.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="6" File="Assets\Sounds\Thrasher_Missile_Impact_07.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="7" File="Assets\Sounds\Thrasher_Missile_Impact_08.wav" Pitch="0.000000,0.000000" FacialGroup=""/>
+        <AssetArray index="8" removed="1"/>
+        <AssetArray index="9" removed="1"/>
+        <DupeDestroyCount value="6"/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="4"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="2.000000,4.000000"/>
+        <SustainFade index="1" Time="1000"/>
+        <Volume value="-1.000000,1.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="20.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTowerAttack_Launch" parent="Combat">
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_01e.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_02e.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_03e.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_04e.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_05e.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PrimalFlyer_AttkMissile_1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PrimalFlyer_AttkMissile_2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PrimalFlyer_AttkMissile_3.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PrimalFlyer_AttkMissile_4.wav" FacialGroup=""/>
+        <Pitch value="-2.000000,1.000000"/>
+        <Volume value="-2.000000,0.000000"/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="2"/>
+        <DupePrioritization value="Oldest"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+        <Select value="Random"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_GroundAttack_Launch" parent="Combat">
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_01e.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_02e.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_03e.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_04e.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Cyclone_Missile_Launch_05e.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="4"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-4.000000,-2.000000"/>
+        <Select value="Random"/>
+        <Volume value="-1.000000,1.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTowerAttack_LaunchSwt" parent="Combat">
+        <AssetArray File="Assets\Sounds\CybrosEscort_Tower_LaserMulti_Swt_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CybrosEscort_Tower_LaserMulti_Swt_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CybrosEscort_Tower_LaserMulti_Swt_03.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="1"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="0.000000,2.000000"/>
+        <Volume value="-8.000000,-6.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTowerGround_Attack_Launch_Tail" parent="Combat">
+        <AssetArray File="Assets\Sounds\Kerrigan_St_BeamMissile_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kerrigan_St_BeamMissile_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Kerrigan_St_BeamMissile_03.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="1"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-6.000000,-4.000000"/>
+        <Spread value="30.000000"/>
+        <Volume value="-6.000000,-4.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="30.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortDownloader_PwrLoop" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\UI_WarChest_TO_Loop.wav" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Pitch value="-3.000000,-3.000000"/>
+        <Volume value="-6.000000,-6.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTowerGround_MissileIndicator" parent="Combat">
+        <AssetArray File="Assets\Sounds\TargetBeam_AOE_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\TargetBeam_AOE_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\TargetBeam_AOE_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\TargetBeam_AOE_04.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-4.000000,-2.000000"/>
+        <Spread value="10.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="30.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTowerGround_MissileIndicator_Loop" parent="Combat">
+        <AssetArray File="Assets\Sounds\TargetArea_Energy_Lp_01.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="2"/>
+        <DupePrioritization value="Oldest"/>
+        <LoopCount value="-1"/>
+        <Pitch value="-8.000000,-8.000000"/>
+        <Spread value="10.000000"/>
+        <Volume value="-3.000000,-3.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="30.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_Death" parent="Death">
+        <AssetArray File="Assets\Sounds\Taldarim01_St_TempleDeath_Implode_Alt.wav" FacialGroup=""/>
+        <Pitch value="-2.000000,-2.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_Death_Layer" parent="Death">
+        <AssetArray File="Assets\Sounds\Void_Temple_Erupt_2D_Swt_01.wav" FacialGroup=""/>
+        <Pitch value="-2.000000,-2.000000"/>
+        <PlayDelay value="1400,1600"/>
+        <Spread value="20.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_Up" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\CybrosEscort_Tower_PowerUp_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CybrosEscort_Tower_PowerUp_02.wav" FacialGroup=""/>
+        <Pitch value="3.500000,3.500000"/>
+        <Volume value="-3.000000,-2.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_PersistentTargetingBeam" parent="Spell">
+        <AssetArray File="Assets\Sounds\TargetBeam_OS_Tracker_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\TargetBeam_OS_Tracker_02.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-3.000000,-1.000000"/>
+        <Volume value="-6.000000,-6.000000"/>
+    </CSound>
+    <CSound id="CybrosEscort_PurificationLaser_TargetLock_Loop" parent="Combat">
+        <AssetArray File="Assets\Sounds\TargetSelect_Lock_Lp.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="2"/>
+        <DupePrioritization value="Oldest"/>
+        <LoopCount value="-1"/>
+        <Pitch value="-4.890000,-4.890000"/>
+        <Volume value="-8.000000,-8.000000"/>
+        <PlayDelay value="2000,3000"/>
+    </CSound>
+    <CSound id="CybrosEscort_SuppressionTower_LaunchTail" parent="Combat">
+        <AssetArray File="Assets\Sounds\Banshee_BlackOps_Airstrike_Impact_Tail_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Banshee_BlackOps_Airstrike_Impact_Tail_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Banshee_BlackOps_Airstrike_Impact_Tail_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Banshee_BlackOps_Airstrike_Impact_Tail_04.wav" FacialGroup=""/>
+        <Pitch value="-0.820000,1.180000"/>
+        <Volume value="-0.100000,2.900000"/>
+    </CSound>
+    <CSound id="CybrosEscort_PurifierGuardian_Disrupt_PowerDown_EventTrig" parent="Other">
+        <AssetArray File="Assets\Sounds\CybrosEscort_Tower_PowerDown_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CybrosEscort_Tower_PowerDown_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CybrosEscort_Tower_PowerDown_04.wav" FacialGroup=""/>
+        <Pitch value="-1.000000,0.000000"/>
+        <SpeakerMix index="Center" value="0.250000"/>
+        <SpeakerMix index="BackLeft" value="0.500000"/>
+        <SpeakerMix index="BackRight" value="0.500000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+        <Volume value="-6.000000,-6.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_PwrLoop" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\ZhakuldasLibrary_SlowMv_Mn_Comp_Loop.wav" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Volume value="-10.000000,-10.000000"/>
+        <FogFadeIn Volume="-96.000000"/>
+        <FogFadeIn Time="500"/>
+        <FogFadeOut/>
+        <FogFadeOut Time="500" Volume="-96.000000"/>
+        <Pitch value="-2.000000,-2.000000"/>
+        <VolumeRolloffFadeIn Volume="-96.000000"/>
+        <VolumeRolloffFadeIn Time="500"/>
+        <VolumeRolloffFadeOut/>
+        <VolumeRolloffFadeOut Time="500" Volume="-96.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="20.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_Down" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Uni\Units\XelNagaWatchtower\XelNagaTower_PowerDown00.wav" FacialGroup=""/>
+        <Pitch value="-3.500000,-3.500000"/>
+        <Volume value="-3.000000,-2.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_Up_PwrSwt" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Lightning_Strike03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike05.wav" FacialGroup=""/>
+        <Pitch value="-3.500000,-3.500000"/>
+        <Volume value="-3.000000,-2.000000"/>
+    </CSound>
+    <CSound id="CybrosEscortTower_Up_PwrArcs" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Lightning_Strike01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike05.wav" FacialGroup=""/>
+        <Pitch value="-1.500000,2.500000"/>
+        <Volume value="-21.000000,-14.000000"/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+    </CSound>
+    <CSound id="CybrosEscort_PurificationLaser_Targeting_LpStart" parent="Combat">
+        <AssetArray File="Assets\Sounds\TargetSelect_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\TargetSelect_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\TargetSelect_04.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-0.890000,0.110000"/>
+        <Volume value="-4.000000,-2.000000"/>
+    </CSound>
+    <CSound id="CybrosEscort_SuppressionTower_Launch" parent="Combat">
+        <AssetArray File="Assets\Sounds\Terran\Battlecruiser\Battlecruiser_AttackLaunch0.wav"/>
+        <AssetArray File="Assets\Sounds\Terran\Battlecruiser\Battlecruiser_AttackLaunch1.wav"/>
+        <AssetArray File="Assets\Sounds\Terran\Battlecruiser\Battlecruiser_AttackLaunch2.wav"/>
+        <Pitch value="-4.820000,-3.820000"/>
+        <Volume value="-3.100000,-2.520000"/>
+    </CSound>
+    <CSound id="CybrosEscortTowerLaser_LongBeam_SizzleLoop" parent="Spell">
+        <AssetArray File="Assets\Sounds\Kerrigan_QuantumRay_BeamLoop01.wav" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <OffsetFadeIn Volume="-96.000000"/>
+        <OffsetFadeIn Time="100"/>
+        <Pitch value="-0.300000,0.300000"/>
+        <PlayDelay value="100,100"/>
+        <Spread value="10.000000"/>
+        <Volume value="-3.000000,-3.000000"/>
+    </CSound>
+    <CSound id="CybrosEscort_PurifierDestroyed_EventTrig" parent="Other">
+        <AssetArray File="Assets\Sounds\Psi_Destroyer_Explosion_3.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Train_FreightCar_Death_01.wav" FacialGroup=""/>
+        <Pitch value="-2.000000,0.000000"/>
+        <SpeakerMix index="Center" value="0.250000"/>
+        <SpeakerMix index="BackLeft" value="0.500000"/>
+        <SpeakerMix index="BackRight" value="0.500000"/>
+        <SpeakerMix index="SideLeft" value="0.125000"/>
+        <SpeakerMix index="SideRight" value="0.125000"/>
+        <Volume value="-2.000000,-2.000000"/>
+    </CSound>
+    <CSound id="Virus_Beam_Data_Lp" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Purifier_Matrix_Base_Loop.ogg" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Spread value="12.000000"/>
+        <Volume value="-8.000000,-8.000000"/>
+    </CSound>
+    <CSound id="Cybros_Purifier_BarrageSpikes" parent="Combat">
+        <AssetArray File="Assets\Sounds\SystemGlitch_19.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SystemGlitch_20.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SystemGlitch_21.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SystemGlitch_23.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SystemGlitch_27.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Purifier_DataGlitches_14.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Purifier_DataGlitches_15.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Purifier_DataGlitches_16.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Purifier_DataGlitches_17.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Purifier_DataGlitches_04.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <LoopCount value="-1"/>
+        <Pitch value="-2.000000,2.000000"/>
+        <Volume value="-28.000000,-24.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="PurifierGuardian_MetalClunk" parent="Combat">
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy00.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy01.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy02.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy03.ogg" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PhysicsImpactSound_Metal_Terran_Heavy04.ogg" FacialGroup=""/>
+        <Pitch value="-3.000000,0.000000"/>
+        <Volume value="-2.000000,0.000000"/>
+        <VolumeRolloffPoints Distance="4.272152"/>
+        <VolumeRolloffPoints Distance="22.410999" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="Purifier_Guardian_Death_Sparks" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Lightning_Strike01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike05.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="1.000000,4.000000"/>
+        <Volume value="-16.000000,-12.000000"/>
+    </CSound>
+    <CSound id="Purifier_Guardian_Death_MetalTwist" parent="Scripted_2D_Multichannel">
+        <AssetArray File="Assets\Sounds\Event_Aiur_03_SoA_RollOut_Metal_Pt1.wav" Pitch="-3.000000,-3.000000" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Event_Aiur_03_SoA_RollOut_Metal_Pt2.wav" Pitch="-3.000000,-3.000000" FacialGroup=""/>
+        <Mode value="3DWorld"/>
+        <Pitch value="-2.000000,-1.000000"/>
+        <SpeakerMix index="FrontLeft" value="0.400000"/>
+        <SpeakerMix index="FrontRight" value="0.400000"/>
+        <SpeakerMix index="Center" value="1.000000"/>
+        <SpeakerMix index="BackLeft" value="0.100000"/>
+        <SpeakerMix index="BackRight" value="0.100000"/>
+        <SpeakerMix index="SideLeft" value="0.000000"/>
+        <SpeakerMix index="SideRight" value="0.000000"/>
+        <Spread value="12.000000"/>
+        <SustainFade index="1" Time="1000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="35.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="PurifierGuardian_Mv_SlowHover_01" parent="Movement">
+        <AssetArray File="Assets\Sounds\ProtossFrigate_Movement.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="1"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-4.000000,-4.000000"/>
+        <Select value="Random"/>
+        <SustainFade index="1" Time="1500"/>
+        <Volume value="-4.000000,-4.000000"/>
+    </CSound>
+    <CSound id="CybrosEscort_SuppressionTower_BeamCursor" parent="Spell">
+        <AssetArray File="Assets\Sounds\Eradicator_RailGun_TargetSweep_06.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-1.000000,0.000000"/>
+        <Volume value="-3.000000,-3.000000"/>
+    </CSound>
+    <CSound id="CybrosEscort_PurificationLaser_Targeting_1Shot" parent="Combat">
+        <AssetArray File="Assets\Sounds\Eradicator_RailGun_TargetSweep_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Eradicator_RailGun_TargetSweep_02.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="2"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-4.890000,-4.890000"/>
+        <Volume value="-8.000000,-8.000000"/>
+    </CSound>
+    <CSound id="PurifierGuardian_Mv_SlowHover_02" parent="Movement">
+        <AssetArray File="Assets\Sounds\Protoss_FireMedium_01.wav" Pitch="-10.000000,-10.000000" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss_FireMedium_02.wav" Pitch="-12.000000,-12.000000" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss_FireMedium_03.wav" Pitch="-11.000000,-11.000000" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="1"/>
+        <DupePrioritization value="Oldest"/>
+        <FogFadeIn Volume="-96.000000"/>
+        <FogFadeIn Time="1250"/>
+        <FogFadeOut/>
+        <FogFadeOut Time="1250" Volume="-96.000000"/>
+        <Pitch value="-6.000000,-6.000000"/>
+        <Select value="Random"/>
+        <SustainFade index="1" Time="1500"/>
+        <Volume value="-4.000000,-4.000000"/>
+        <VolumeRolloffFadeIn Volume="-96.000000"/>
+        <VolumeRolloffFadeIn Time="500"/>
+        <VolumeRolloffFadeOut/>
+        <VolumeRolloffFadeOut Time="1000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="PurifierGuardian_Mv_SlowHover_LightPulse" parent="Movement">
+        <AssetArray File="Assets\Sounds\MegalithLightPulse_1ch.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="2"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-4.000000,-4.000000"/>
+        <Select value="Random"/>
+        <Volume value="-12.000000,-12.000000"/>
+    </CSound>
+    <CSound id="Cybros_Purifier_BarrageGlitches" parent="Combat">
+        <AssetArray File="Assets\Sounds\SystemGlitch_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SystemGlitch_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\SystemGlitch_05_StartUp.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <LoopCount value="-1"/>
+        <Pitch value="-4.000000,2.000000"/>
+        <Volume value="-32.000000,-28.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+        <Select value="Random"/>
+    </CSound>
+    <CSound id="Purifier_Guardian_Death_C" parent="Death">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Death_2745ms_1ch.wav" FacialGroup=""/>
+        <Flags index="AutoUnload" value="1"/>
+        <Flags index="Ignorable" value="0"/>
+        <Flags index="Wait" value="1"/>
+        <PanLevel value="0.000000"/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="LFE" value="0.250000"/>
+        <SustainFade index="1" Time="250"/>
+        <Volume value="-3.000000,-3.000000"/>
+        <Spread value="10.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="40.000000" Volume="-96.000000"/>
+        <Pitch value="-1.000000,-1.000000"/>
+    </CSound>
+    <CSound id="Purifier_Guardian_Death_B" parent="Death">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Death_1690ms_1ch.wav" FacialGroup=""/>
+        <Flags index="AutoUnload" value="1"/>
+        <Flags index="Ignorable" value="0"/>
+        <Flags index="Wait" value="1"/>
+        <PanLevel value="0.000000"/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="LFE" value="0.250000"/>
+        <SustainFade index="1" Time="250"/>
+        <Volume value="-4.000000,-4.000000"/>
+        <Spread value="10.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="40.000000" Volume="-96.000000"/>
+        <Pitch value="-2.000000,-2.000000"/>
+    </CSound>
+    <CSound id="Purifier_Guardian_Death_A" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\Explosion_Decap_DelayVrb_3.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Explosion_Decap_DelayVrb_5.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Space_DoorExplosion_2.wav" FacialGroup=""/>
+        <Flags index="Stream" value="0"/>
+        <Category value="Death"/>
+        <Mode value="3DWorld"/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="Center" value="1.000000"/>
+        <SpeakerMix index="LFE" value="0.250000"/>
+        <SpeakerMix index="BackLeft" value="1.000000"/>
+        <SpeakerMix index="BackRight" value="1.000000"/>
+        <SpeakerMix index="SideLeft" value="1.000000"/>
+        <SpeakerMix index="SideRight" value="1.000000"/>
+        <Volume value="-3.000000,-3.000000"/>
+        <Pitch value="-6.000000,-6.000000"/>
+        <Spread value="20.000000"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="50.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="Purifier_CybrosLock_VirusBeam_Pulse1Shots" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\ForceField_Emitter_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ForceField_Emitter_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ForceField_Emitter_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\ForceField_Emitter_04.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="2"/>
+        <DupePrioritization value="Oldest"/>
+        <LoopCount value="-1"/>
+        <Pitch value="-2.000000,0.000000"/>
+        <Select value="Random"/>
+        <Spread value="20.000000"/>
+        <Volume value="-5.000000,-2.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="Purifier_CybrosLock_StandAngry" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Lightning_Strike01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Lightning_Strike05.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="3.000000,6.000000"/>
+        <Volume value="-20.000000,-14.000000"/>
+    </CSound>
+    <CSound id="Purifier_Guardian_Death_Utter" parent="Spell">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\Bot_Drone_Weapon_Start_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Bot_Drone_Weapon_Start_02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Bot_Drone_Weapon_Start_03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Bot_Drone_Weapon_Start_04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Bot_Drone_Weapon_Start_05.wav" FacialGroup=""/>
+        <DupeDestroyCount value="4"/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="2"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="-4.820000,-0.820000"/>
+        <Spread value="14.000000"/>
+        <VolumeRolloffPoints Distance="4.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+        <Volume value="2.000000,2.000000"/>
+    </CSound>
+    <CSound id="Purifier_Guardian_Explode" parent="ProtossDeath">
+
+        <EditorCategories value=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge0.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge1.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge2.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge3.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge4.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge5.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge6.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge7.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge8.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Protoss\SharedEffects\Explosions\Protoss_ExplosionLarge9.wav" FacialGroup=""/>
+        <Pitch value="-3.000000,0.000000"/>
+        <Volume value="-3.000000,-1.000000"/>
+    </CSound>
+    <CSound id="VirusCureTest_AssetCount" parent="Spell">
+        <AssetArray File="Assets\Sounds\CelestialBeam_Target_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\CelestialBeam_Target_02.wav" FacialGroup=""/>
+    </CSound>
+    <CSound id="VirusCureBeam_Start" parent="Spell">
+        <AssetArray File="Assets\Sounds\HybridNemesis_Beam_Start_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\HybridNemesis_Beam_Start_02.wav" FacialGroup=""/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="6"/>
+        <PanLevel value="0.900000"/>
+        <Pitch value="-3.000000,-3.000000"/>
+        <Spread value="30.000000"/>
+    </CSound>
+    <CSound id="VirusCureBeam_Stop" parent="Spell">
+        <AssetArray File="Assets\Sounds\HybridNemesis_Beam_End_01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\HybridNemesis_Beam_End_02.wav" FacialGroup=""/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="6"/>
+        <PanLevel value="0.900000"/>
+        <Pitch value="-4.000000,-4.000000"/>
+        <Spread value="30.000000"/>
+    </CSound>
+    <CSound id="VirusCureBeam_Loop" parent="Spell">
+        <AssetArray File="Assets\Sounds\HybridNemesis_Beam_Loop_01.wav" FacialGroup=""/>
+        <DupeDestroyCount value="4"/>
+        <DupeMuteCount value="3"/>
+        <LoopCount value="-1"/>
+        <PanLevel value="0.900000"/>
+        <Pitch value="-3.000000,-3.000000"/>
+        <Spread value="30.000000"/>
+        <Volume value="-18.000000,-18.000000"/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupePrioritization value="Oldest"/>
+        <VolumeRolloffPoints Distance="10.000000"/>
+        <VolumeRolloffPoints Distance="20.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="Doodad_PurificationDesert_HologramBeacon" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Purifier_Energy_Generator_InactiveLoop_1ch.wav" LoopCount="-1" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Purifier_Energy_Generator_InactiveLoop_1ch.wav" LoopCount="-1" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Purifier_Energy_Generator_InactiveLoop_1ch.wav" LoopCount="-1" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Pitch value="3.800000,4.800000"/>
+        <Volume value="-8.000000,-8.000000"/>
+        <FogFadeIn Volume="-96.000000"/>
+        <FogFadeIn Time="1250"/>
+        <FogFadeOut/>
+        <FogFadeOut Time="1250" Volume="-96.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="14.000000" Volume="-96.000000"/>
+    </CSound>
+    <CSound id="PPurifier01_PurifierVault_Core_Death" parent="Scripted_2D_Stereo">
+        <AssetArray File="Assets\Sounds\Purifier_Vault_Core_Death_2315ms_2ch.wav" FacialGroup=""/>
+        <Volume value="-4.000000,-4.000000"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_Death_B" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Death_1690ms_1ch.wav" FacialGroup=""/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="Center" value="0.300000"/>
+        <SpeakerMix index="BackLeft" value="0.500000"/>
+        <SpeakerMix index="BackRight" value="0.500000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_StandWorkStart_E" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_7479ms_2ch.wav" FacialGroup=""/>
+        <ReverbBalance Room="-10000"/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="Center" value="0.000000"/>
+        <SpeakerMix index="BackLeft" value="0.500000"/>
+        <SpeakerMix index="BackRight" value="0.500000"/>
+        <Volume value="-6.000000,-6.000000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_StandWorkStart_F" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_9368ms_2ch.wav" FacialGroup=""/>
+        <ReverbBalance Room="-10000"/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="Center" value="0.000000"/>
+        <SpeakerMix index="LFE" value="0.500000"/>
+        <SpeakerMix index="BackLeft" value="0.300000"/>
+        <SpeakerMix index="BackRight" value="0.300000"/>
+        <Volume value="-8.000000,-8.000000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_Death_C" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Death_2745ms_1ch.wav" FacialGroup=""/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="Center" value="0.200000"/>
+        <SpeakerMix index="LFE" value="1.000000"/>
+        <SpeakerMix index="BackLeft" value="0.500000"/>
+        <SpeakerMix index="BackRight" value="0.500000"/>
+        <SpeakerMix index="SideLeft" value="0.300000"/>
+        <SpeakerMix index="SideRight" value="0.300000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_StandWorkStart_Death_Sparks" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_Death_Sparks01_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_Death_Sparks02_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_Death_Sparks03_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_Death_Sparks04_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_Death_Sparks05_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_Death_Sparks06_1ch.wav" FacialGroup=""/>
+        <Pitch value="-1.000000,1.000000"/>
+        <ReverbBalance Room="-10000"/>
+        <SpeakerMix index="Center" value="0.000000"/>
+        <Volume value="-13.000000,-11.000000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_InactiveLoop" parent="Ambience_Object">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_InactiveLoop_1ch.wav" FacialGroup=""/>
+        <LoopCount value="-1"/>
+        <Select value="Sequential"/>
+        <Volume value="3.000000,3.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+        <Spread value="20.000000"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_Stand" parent="Ambience_Object">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Stand_0620ms01_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Stand_0620ms02_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Stand_0620ms03_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Stand_0620ms04_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Stand_0620ms05_1ch.wav" FacialGroup=""/>
+        <Select value="Sequential"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="25.000000" Volume="-96.000000"/>
+        <Volume value="2.000000,2.000000"/>
+        <SpeakerMix index="LFE" value="0.300000"/>
+        <Spread value="30.000000"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_StandWorkStart_D" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_4975ms_2ch.wav" FacialGroup=""/>
+        <ReverbBalance Room="-10000"/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="Center" value="0.000000"/>
+        <Volume value="-7.000000,-7.000000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_StandWorkStart_C" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_3487ms_2ch.wav" FacialGroup=""/>
+        <ReverbBalance Room="-10000"/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="Center" value="0.000000"/>
+        <SpeakerMix index="BackLeft" value="0.200000"/>
+        <SpeakerMix index="BackRight" value="0.200000"/>
+        <SpeakerMix index="SideLeft" value="0.200000"/>
+        <SpeakerMix index="SideRight" value="0.200000"/>
+        <Volume value="-5.000000,-5.000000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_StandWorkStart_A" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_0000ms_2ch.wav" FacialGroup=""/>
+        <ReverbBalance Room="-10000"/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="Center" value="0.000000"/>
+        <SpeakerMix index="BackLeft" value="0.500000"/>
+        <SpeakerMix index="BackRight" value="0.500000"/>
+        <Volume value="-3.000000,-3.000000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_StandWorkStart_B" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_StandWorkStart_1033ms_2ch.wav" FacialGroup=""/>
+        <ReverbBalance Room="-10000"/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="Center" value="0.000000"/>
+        <SpeakerMix index="LFE" value="0.500000"/>
+        <Volume value="-6.000000,-6.000000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="PurifierCoreMatrix_Death_A" parent="Scripted_2D_Stereo">
+        <EditorCategories value="Race:Protoss"/>
+        <AssetArray File="Assets\Sounds\PurifierCoreMatrix_Death_0000ms_2ch.wav" FacialGroup=""/>
+        <Select value="Sequential"/>
+        <SpeakerMix index="LFE" value="1.000000"/>
+        <Flags index="Stream" value="0"/>
+    </CSound>
+    <CSound id="Purifier_DisruptorCore_Hologram_ActiveLoop2" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Pulnar01_CelestialLock_WorkAnim_GreenLoop03_1ch.wav" FacialGroup=""/>
+        <DupeMuteCount value="3"/>
+        <LoopCount value="-1"/>
+        <OffsetFadeIn Volume="-96.000000"/>
+        <OffsetFadeIn Time="1500"/>
+        <Pitch value="10.000000,10.000000"/>
+        <Volume value="-18.000000,-18.000000"/>
+        <VolumeRolloffFadeIn Volume="-96.000000"/>
+        <VolumeRolloffFadeIn Time="250"/>
+        <VolumeRolloffFadeOut/>
+        <VolumeRolloffFadeOut Time="89" Volume="-7.080000"/>
+        <VolumeRolloffFadeOut Time="320" Volume="-47.079998"/>
+    </CSound>
+    <CUnit id="MegalithCutterWeapon" parent="MISSILE_INVULNERABLE"/>
+    <CUnit id="MegalithCutterReturnWeapon" parent="MISSILE_INVULNERABLE"/>
+    <CUnit id="MegalithCutterInstantReturnWeapon" parent="MISSILE_INVULNERABLE"/>
+    <CUnit id="MegalithCutter">
+        <DeathRevealRadius value="3"/>
+        <Race value="ProtCamp"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <PushPriority value="11"/>
+        <Response value="Nothing"/>
+        <Attributes index="Massive" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <Attributes index="MapBoss" value="1"/>
+        <LifeStart value="1250"/>
+        <LifeMax value="1250"/>
+        <LifeArmor value="3"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossArmor"/>
+        <ShieldsStart value="1250"/>
+        <ShieldsMax value="1250"/>
+        <ShieldRegenDelay value="10"/>
+        <ShieldRegenRate value="10"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+        <Collide index="FlyingImmobile" value="1"/>
+        <Mover value="MegalithCutter"/>
+        <Speed value="3"/>
+        <StationaryTurningRate value="599.9414"/>
+        <TurningRate value="599.9414"/>
+        <Acceleration value="8"/>
+        <LateralAcceleration value="46"/>
+        <Sight value="10"/>
+        <VisionHeight value="4"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="MegalithCutterBeam"/>
+        <AbilArray Link="MegalithCutterDock"/>
+        <AbilArray Link="MegalithCutterDockInstant"/>
+        <AbilArray Link="VirusCureBeam"/>
+        <AbilArray Link="VirusCureBeam"/>
+        <WeaponArray/>
+        <WeaponArray/>
+        <BehaviorArray Link="SuppressCloak"/>
+        <BehaviorArray Link="Unrepairable"/>
+        <BehaviorArray Link="TimeStopImmune"/>
+        <BehaviorArray Link="PreventKnockback"/>
+        <BehaviorArray Link="LavaDamageCoopImmune"/>
+        <BehaviorArray Link="Unmoved"/>
+        <BehaviorArray Link="Unrepairable"/>
+        <BehaviorArray Link="TimeStopImmune"/>
+        <BehaviorArray Link="PreventKnockback"/>
+        <BehaviorArray Link="LavaDamageCoopImmune"/>
+        <BehaviorArray Link="Unmoved"/>
+        <CardLayouts>
+            <LayoutButtons Face="MoveChampions" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="AttackChampions" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="MegalithCutterBeam" Type="AbilCmd" AbilCmd="MegalithCutterBeam,On" Row="2" Column="0"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="MegalithCutterBeam,Off" Row="2" Column="1"/>
+            <LayoutButtons Face="MegalithCutterDock" Type="AbilCmd" AbilCmd="MegalithCutterDock,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="MegalithCutterDock" Type="AbilCmd" AbilCmd="MegalithCutterDockInstant,Execute" Row="2" Column="3"/>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="VirusCureBeam,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="VirusCureBeam" Type="AbilCmd" AbilCmd="VirusCureBeam,Execute" Row="2" Column="4"/>
+        </CardLayouts>
+        <CardLayouts>
+            <LayoutButtons Face="Cancel" Type="AbilCmd" AbilCmd="VirusCureBeam,Cancel" Row="2" Column="4"/>
+            <LayoutButtons Face="VirusCureBeam" Type="AbilCmd" AbilCmd="VirusCureBeam,Execute" Row="2" Column="4"/>
+        </CardLayouts>
+        <Radius value="1.5"/>
+        <InnerRadius value="1"/>
+        <MinimapRadius value="0"/>
+        <CargoSize value="8"/>
+        <SubgroupPriority value="49"/>
+        <EditorCategories value="ObjectType:Unit"/>
+        <GlossaryCategory value="Unit/Category/ProtossUnits"/>
+        <GlossaryPriority value="390"/>
+        <KillDisplay value="Never"/>
+    </CUnit>
+    <CUnit id="CybrosLock">
+        <DeathTime value="-1"/>
+        <DeathRevealRadius value="3"/>
+        <Race value="ProtCamp"/>
+        <FlagArray index="CreateVisible" value="1"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Locust" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="500"/>
+        <LifeMax value="500"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossBuildingPlating"/>
+        <ShieldsStart value="500"/>
+        <ShieldsMax value="500"/>
+        <ShieldRegenDelay value="10"/>
+        <ShieldRegenRate value="2"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+        <Sight value="9"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <CardLayouts>
+            <LayoutButtons Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4"/>
+        </CardLayouts>
+        <Radius value="4.5"/>
+        <InnerRadius value="4"/>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectType:Structure"/>
+    </CUnit>
+    <CUnit id="CybrosEscortDownloader">
+        <DeathTime value="-1"/>
+        <DeathRevealRadius value="3"/>
+        <Facing value="135"/>
+        <Race value="ProtPuri"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="1000"/>
+        <LifeMax value="1000"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossBuildingPlating"/>
+        <ShieldsStart value="500"/>
+        <ShieldsMax value="500"/>
+        <ShieldRegenDelay value="10"/>
+        <ShieldRegenRate value="2"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+        <StationaryTurningRate value="719.4726"/>
+        <TurningRate value="719.4726"/>
+        <Sight value="9"/>
+        <CostCategory value="Technology"/>
+        <CostResource index="Minerals" value="150"/>
+        <CostResource index="Vespene" value="150"/>
+        <RepairTime value="30"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="CybrosEscortDownloader"/>
+        <AbilArray Link="ACGlobalShareUnitNoEnemy"/>
+        <BehaviorArray Link="RevealProgress"/>
+        <BehaviorArray Link="NoStukovInfestStructure"/>
+        <BehaviorArray Link="AttackWithNeutralScanUntargetable"/>
+        <BehaviorArray Link="LavaDamageCoopImmune"/>
+        <CardLayouts>
+            <LayoutButtons Face="DownloadBackupPart1" Type="AbilCmd" AbilCmd="CybrosEscortDownloader,Research1" Row="0" Column="0"/>
+            <LayoutButtons Face="DownloadBackupPart2" Type="AbilCmd" AbilCmd="CybrosEscortDownloader,Research2" Row="0" Column="1"/>
+            <LayoutButtons Face="DownloadBackupPart3" Type="AbilCmd" AbilCmd="CybrosEscortDownloader,Research3" Row="0" Column="2"/>
+        </CardLayouts>
+        <Radius value="1.75"/>
+        <SeparationRadius value="1.75"/>
+        <Footprint value="Footprint4x4ContourCreepNormalContour"/>
+        <DeadFootprint value="Footprint4x4ContourCreepNormalContour"/>
+        <PlacementFootprint value="Footprint4x4CreepNormal"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="2"/>
+        <MinimapRadius value="1.75"/>
+        <EditorCategories value="ObjectType:Structure"/>
+        <GlossaryPriority value="200"/>
+        <HotkeyCategory value="Unit/Category/ProtossPurifier"/>
+    </CUnit>
+    <CUnit id="CybrosEscortTowerDown">
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="ProtCamp"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="CreateVisible" value="1"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="Unradarable" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="2400"/>
+        <LifeMax value="2400"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossBuildingPlating"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="MorphToCybrosEscortTowerUp"/>
+        <BehaviorArray Link="NoStukovInfestStructure"/>
+        <CardLayouts>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="BurrowUp" Type="AbilCmd" AbilCmd="MorphToCybrosEscortTowerUp,Execute" Row="2" Column="4"/>
+        </CardLayouts>
+        <Radius value="3"/>
+        <SeparationRadius value="3"/>
+        <PlacementFootprint value="CybrosEscortTowerDown"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="2"/>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectType:Structure"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+    </CUnit>
+    <CUnit id="CybrosEscortTowerUp">
+        <DeathTime value="-1"/>
+        <DeathRevealRadius value="3"/>
+        <Facing value="315"/>
+        <Race value="ProtCamp"/>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="CreateVisible" value="1"/>
+        <FlagArray index="PreventDefeat" value="1"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="PenaltyRevealed" value="1"/>
+        <FlagArray index="TownAlert" value="1"/>
+        <FlagArray index="NoPortraitTalk" value="1"/>
+        <FlagArray index="ArmorDisabledWhileConstructing" value="1"/>
+        <FogVisibility value="Dimmed"/>
+        <PlaneArray index="Ground" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="RoachBurrow" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Structure" value="1"/>
+        <LifeStart value="2400"/>
+        <LifeMax value="2400"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossBuildingPlating"/>
+        <Sight value="14"/>
+        <AttackTargetPriority value="11"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="MorphToCybrosEscortTowerDown"/>
+        <AbilArray Link="CybrosEscortTowerMissileVolley"/>
+        <AbilArray Link="CybrosEscortTowerGroundMissileVolley"/>
+        <AbilArray Link="CybrosEscortTowerSingleTargetLockOn"/>
+        <AbilArray Link="CybrosEscortTowerMultiAOE"/>
+        <BehaviorArray Link="NoStukovInfestStructure"/>
+        <CardLayouts>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="BurrowDown" Type="AbilCmd" AbilCmd="MorphToCybrosEscortTowerDown,Execute" Row="2" Column="4"/>
+            <LayoutButtons Face="CybrosEscortTowerMissileVolley" Type="AbilCmd" AbilCmd="CybrosEscortTowerMissileVolley,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="CybrosEscortTowerGroundMissileVolley" Type="AbilCmd" AbilCmd="CybrosEscortTowerGroundMissileVolley,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="CybrosEscortTowerSingleTargetLockOn" Type="AbilCmd" AbilCmd="CybrosEscortTowerSingleTargetLockOn,Execute" Row="2" Column="2"/>
+            <LayoutButtons Face="CybrosEscortTowerMultiAOE" Type="AbilCmd" AbilCmd="CybrosEscortTowerMultiAOE,Execute" Row="2" Column="3"/>
+        </CardLayouts>
+        <Radius value="2"/>
+        <SeparationRadius value="2"/>
+        <Footprint value="CybrosEscortTowerUp"/>
+        <DeadFootprint value="CybrosEscortTowerUp"/>
+        <PlacementFootprint value="CybrosEscortTowerUp"/>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="2"/>
+        <MinimapRadius value="1.75"/>
+        <EditorCategories value="ObjectType:Structure"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+    </CUnit>
+    <CUnit id="CybrosEscortTowerGroundWeapon" parent="MISSILE_INVULNERABLE">
+        <FogVisibility value="Visible"/>
+        <Race value="ProtCamp"/>
+    </CUnit>
+    <CUnit id="CybrosEscortTowerWeapon" parent="MISSILE_INVULNERABLE">
+        <FogVisibility value="Visible"/>
+        <Race value="ProtCamp"/>
+    </CUnit>
+    <CAbilEffectTarget id="RoguePurifierSupportDroneBShieldRepair">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="NoDeceleration" value="1"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Flags index="Smart" value="1"/>
+        <TargetFilters value="Visible;Self,Enemy,Structure,Missile,Uncommandable,UnderConstruction,Dead,Hidden,Invulnerable"/>
+        <TargetSorts RequestCount="1">
+            <SortArray value="TSAlliancePassive"/>
+            <SortArray value="TSShieldsFraction"/>
+            <SortArray value="TSDistance"/>
+        </TargetSorts>
+        <Range value="3"/>
+        <Arc value="4.9987"/>
+        <SmartValidatorArray value="NotWarpingIn"/>
+        <AutoCastAcquireLevel value="Defensive"/>
+        <AutoCastFilters value="Visible;Neutral,Enemy,Missile,Stasis,Dead,Hallucination,Invulnerable"/>
+        <AutoCastRange value="6"/>
+        <AutoCastValidatorArray value="NotWarpingIn"/>
+        <AutoCastValidatorArray value="UnitOrAttackingStructure"/>
+        <AutoCastValidatorArray value="CasterHas10Energy"/>
+        <UseMarkerArray index="Approach" value="0"/>
+        <UseMarkerArray index="Prep" value="0"/>
+        <DefaultError value="RequiresHealTarget"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="VoidSentryShieldRepair"/>
+    </CAbilEffectTarget>
+    <CAbilArmMagazine id="RoguePurifierAssaultDroneHangar">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Launch value="ReleaseAtSource"/>
+        <Flags index="AutoCreate" value="1"/>
+        <Flags index="Retarget" value="1"/>
+        <Leash value="0.5"/>
+        <InfoArray index="Ammo1" Time="15" Distance="2" Manage="Recall" Unit="RoguePurifierSupportDroneA">
+            <Button DefaultButtonFace="RepairSupportDroneA"/>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="AutoBuildOn" value="1"/>
+            <Flags index="External" value="1"/>
+        </InfoArray>
+        <ExternalAngle value="35.9912"/>
+        <ExternalAngle value="323.9978"/>
+        <MaxCount value="1"/>
+    </CAbilArmMagazine>
+    <CAbilArmMagazine id="RoguePurifierShieldDroneHangar">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <Launch value="ReleaseAtSource"/>
+        <Flags index="AutoCreate" value="1"/>
+        <Flags index="Retarget" value="1"/>
+        <Leash value="0.5"/>
+        <InfoArray index="Ammo1" Time="15" Distance="1" Manage="Recall" Unit="RoguePurifierSupportDroneB">
+            <Button DefaultButtonFace="RepairSupportDroneB"/>
+            <Flags index="AutoBuild" value="1"/>
+            <Flags index="AutoBuildOn" value="1"/>
+            <Flags index="External" value="1"/>
+        </InfoArray>
+        <ExternalAngle value="90"/>
+        <ExternalAngle value="270"/>
+        <MaxCount value="1"/>
+    </CAbilArmMagazine>
+    <CButton id="RepairSupportDroneA">
+        <Icon value="Assets\Textures\btn-missing-kaeo.dds"/>
+        <AlertIcon value="Assets\Textures\btn-missing-kaeo.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CButton id="RepairSupportDroneB">
+        <Icon value="Assets\Textures\btn-missing-kaeo.dds"/>
+        <AlertIcon value="Assets\Textures\btn-missing-kaeo.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CEffectSet id="RoguePurifierWeaponInitialSet">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="RoguePurifierWeaponCP"/>
+        <EffectArray value="RoguePurifierWeaponFriendlyCP"/>
+    </CEffectSet>
+    <CEffectCreatePersistent id="RoguePurifierWeaponCP">
+        <EditorCategories value="Race:Protoss"/>
+        <Marker>
+            <MatchFlags index="Id" value="1"/>
+        </Marker>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <ExpireDelay value="0.73"/>
+        <ExpireEffect value="RoguePurifierWeaponDamage"/>
+        <PeriodCount value="11"/>
+        <PeriodicEffectArray value="RoguePurifierWeaponSearch"/>
+        <PeriodicOffsetArray value="-1.25,0,0"/>
+        <PeriodicOffsetArray value="-1,0,0"/>
+        <PeriodicOffsetArray value="-0.75,0,0"/>
+        <PeriodicOffsetArray value="-0.5,0,0"/>
+        <PeriodicOffsetArray value="-0.25,0,0"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="0.25,0,0"/>
+        <PeriodicOffsetArray value="0.5,0,0"/>
+        <PeriodicOffsetArray value="0.75,0,0"/>
+        <PeriodicOffsetArray value="1,0,0"/>
+        <PeriodicOffsetArray value="1.25,0,0"/>
+        <PeriodicPeriodArray value="0.025"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="RoguePurifierWeaponDamage" parent="DU_WEAP">
+        <ValidatorArray value="NotHidden"/>
+        <ValidatorArray value="noMarkers"/>
+        <EditorCategories value="Race:Protoss"/>
+        <Visibility value="Visible"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="45"/>
+        <Death value="Fire"/>
+    </CEffectDamage>
+    <CEffectEnumArea id="RoguePurifierWeaponSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="Ground;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.15" Effect="RoguePurifierWeaponDamageDelay"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="RoguePurifierWeaponDamageDelay">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetUnit"/>
+        <ExpireDelay value="0.25"/>
+        <FinalEffect value="RoguePurifierWeaponDamage"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="RoguePurifierWeaponFriendlyCP">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetUnit"/>
+        <TimeScaleSource Value="Caster"/>
+        <Flags index="Channeled" value="1"/>
+        <ExpireDelay value="0.2"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="RoguePurifierWeaponFriendlyDamage"/>
+        <PeriodicPeriodArray value="0.09"/>
+    </CEffectCreatePersistent>
+    <CEffectDamage id="RoguePurifierWeaponFriendlyDamage">
+        <ValidatorArray value="NotHidden"/>
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="FriendlyTarget"/>
+        <EditorCategories value="Race:Protoss"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <ArmorReduction value="1"/>
+        <Visibility value="Visible"/>
+        <Flags index="Notification" value="1"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="15"/>
+        <Death value="Fire"/>
+        <SearchFlags index="CallForHelp" value="1"/>
+        <SearchFlags index="OffsetByUnitRadius" value="1"/>
+        <SearchFlags index="OffsetAreaByAngle" value="1"/>
+    </CEffectDamage>
+    <CEffectLaunchMissile id="RoguePurifierAirWeaponLM">
+        <EditorCategories value="Race:Protoss"/>
+        <ImpactEffect value="RoguePurifierAirWeaponDamage"/>
+        <AmmoUnit value="RoguePurifierAirWeapon"/>
+        <Movers Link="RoguePurifierAirWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="RoguePurifierAirWeaponDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Kind value="Ranged"/>
+        <Amount value="45"/>
+        <Death value="Blast"/>
+    </CEffectDamage>
+    <CEffectDamage id="RoguePurifierSupportDroneADamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="75"/>
+        <ExcludeArray Value="Outer"/>
+        <ExcludeArray Value="Target"/>
+        <SearchFilters value="-;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <SearchFlags index="OffsetByUnitRadius" value="0"/>
+        <SearchFlags index="SameCliff" value="0"/>
+    </CEffectDamage>
+    <CEffectCreateHealer id="RoguePurifierSupportDroneBShieldRepair">
+        <ValidatorArray value="noMarkers"/>
+        <ValidatorArray value="ShieldsNotFull"/>
+        <ValidatorArray value="NotWarpingIn"/>
+        <ValidatorArray value="HiddenCompareAB"/>
+        <ValidatorArray value="HiddenCompareBA"/>
+        <ValidatorArray value="NotVortexd"/>
+        <ValidatorArray value="NotUncommandable"/>
+        <ValidatorArray value="SourceNotHidden"/>
+        <ValidatorArray value="NotInterceptor"/>
+        <EditorCategories value="Race:Protoss"/>
+        <PeriodicValidator value="ShieldsNotFull"/>
+        <DrainVital value="Energy"/>
+        <DrainVitalCostFactor value="0.33"/>
+        <RechargeVital value="Shields"/>
+        <RechargeVitalRate value="9"/>
+    </CEffectCreateHealer>
+    <CMoverFlock id="RoguePurifier" parent="Fly">
+        <HeightMap value="Ground"/>
+    </CMoverFlock>
+    <CMoverMissile id="RoguePurifierAirWeapon" parent="MissileDefault">
+        <MotionPhases index="0">
+            <Driver value="Guidance"/>
+            <Acceleration value="3200"/>
+            <MaxSpeed value="36"/>
+            <ClearanceAcceleration value="75"/>
+            <Outro value="-1"/>
+            <YawPitchRoll value="719.2968"/>
+        </MotionPhases>
+    </CMoverMissile>
+
+    <CSound id="RoguePurifier_Birth" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_Birth_1ch.wav" FacialGroup=""/>
+        <Volume value="-2.000000,-2.000000"/>
+    </CSound>
+    <CSound id="RoguePurifier_Death_A" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_Death_0000ms_1ch.wav" FacialGroup=""/>
+    </CSound>
+    <CSound id="RoguePurifier_PortraitTalk01" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_PortraitTalk01_01_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_PortraitTalk01_02_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_PortraitTalk01_03_1ch.wav" FacialGroup=""/>
+        <Volume value="-6.000000,-3.000000"/>
+    </CSound>
+    <CSound id="RoguePurifier_Death_B" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_Death_1025ms_1ch.wav" FacialGroup=""/>
+    </CSound>
+    <CSound id="RoguePurifier_PortraitTalk" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_PortraitTalk_01_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_PortraitTalk_02_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_PortraitTalk_03_1ch.wav" FacialGroup=""/>
+        <Volume value="-6.000000,-3.000000"/>
+    </CSound>
+    <CSound id="RoguePurifier_Stand01" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_Stand01_01_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_Stand01_02_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_Stand01_03_1ch.wav" FacialGroup=""/>
+        <Volume value="-8.000000,-4.000000"/>
+    </CSound>
+    <CSound id="RoguePurifier_Death_E" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_Death_4095ms_1ch.wav" FacialGroup=""/>
+        <Volume value="3.000000,3.000000"/>
+    </CSound>
+    <CSound id="RoguePurifier_Death_D" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_Death_2866ms_1ch.wav" FacialGroup=""/>
+        <Volume value="6.000000,6.000000"/>
+    </CSound>
+    <CSound id="RoguePurifier_Death_C" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_Death_1849ms_1ch.wav" FacialGroup=""/>
+        <Volume value="4.000000,4.000000"/>
+    </CSound>
+    <CSound id="RoguePurifier_Stand012" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_Stand02_01_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_Stand02_02_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_Stand02_03_1ch.wav" FacialGroup=""/>
+        <Volume value="-8.000000,-4.000000"/>
+    </CSound>
+    <CSound id="RoguePurifier_Stand0122" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\RoguePurifier_Stand03_01_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_Stand03_02_1ch.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\RoguePurifier_Stand03_03_1ch.wav" FacialGroup=""/>
+        <Volume value="-8.000000,-4.000000"/>
+    </CSound>
+    <CSound id="RoguePurifierSupportDroneAPowerUpSound" parent="Combat">
+        <AssetArray File="Assets\Sounds\Uni\Doodads\Doodad_DefilerBonesStandLoop0.wav" LoopCount="-1"/>
+        <AssetArray File="Assets\Sounds\Uni\Doodads\Doodad_DefilerBonesStandLoop1.wav" LoopCount="-1"/>
+        <AssetArray File="Assets\Sounds\Uni\Doodads\Doodad_DefilerBonesStandLoop2.wav" LoopCount="-1"/>
+        <AssetArray File="Assets\Sounds\Uni\Doodads\Doodad_DefilerBonesStandLoop3.wav" LoopCount="-1"/>
+        <Pitch value="0.000000,2.000000"/>
+        <Volume value="-8.000000,-8.000000"/>
+    </CSound>
+    <CSound id="RoguePurifier_Sparks" parent="Ambience_Object">
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap01.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap02.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap03.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap04.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap05.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap06.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap07.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap08.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap09.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap10.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap11.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap12.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap13.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap14.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap15.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap16.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap17.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap18.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap19.wav" FacialGroup=""/>
+        <AssetArray File="Assets\Sounds\Keystone_ElectricitySparkZap20.wav" FacialGroup=""/>
+        <DupeMaximumMethod value="Replace"/>
+        <DupeMuteCount value="3"/>
+        <DupePrioritization value="Oldest"/>
+        <Spread value="20.000000"/>
+        <VolumeRolloffPoints Distance="5.000000"/>
+        <VolumeRolloffPoints Distance="24.000000" Volume="-96.000000"/>
+        <Pitch value="-5.000000,4.000000"/>
+        <Volume value="-10.000000,-6.000000"/>
+    </CSound>
+    <CUnit id="RoguePurifierAirWeapon" parent="MISSILE">
+        <Race value="ProtPuri"/>
+    </CUnit>
+    <CUnit id="RoguePurifierSupportDroneA">
+        <Race value="ProtCamp"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="AISupport" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="ForceField" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="100"/>
+        <LifeMax value="100"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossPlating"/>
+        <ShieldsStart value="200"/>
+        <ShieldsMax value="200"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+        <Speed value="3"/>
+        <Acceleration value="2.125"/>
+        <CostCategory value="Army"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="attack"/>
+        <BehaviorArray Link="DarkArchonMindControlPrevention"/>
+        <WeaponArray Link="RoguePurifierSupportDroneAWeapon"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+        </CardLayouts>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="4"/>
+        <EditorCategories value="ObjectType:Unit"/>
+    </CUnit>
+    <CUnit id="RoguePurifierSupportDroneB">
+        <Race value="ProtCamp"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="AISupport" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="100"/>
+        <LifeMax value="100"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossPlating"/>
+        <EnergyStart value="250"/>
+        <EnergyMax value="250"/>
+        <EnergyRegenRate value="1.125"/>
+        <ShieldsStart value="200"/>
+        <ShieldsMax value="200"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+        <Mover value="Fly"/>
+        <Speed value="3"/>
+        <Acceleration value="2.125"/>
+        <Height value="5"/>
+        <CostCategory value="Army"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="RoguePurifierSupportDroneBShieldRepair"/>
+        <BehaviorArray Link="DarkArchonMindControlPrevention"/>
+        <CardLayouts>
+            <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="VoidSentryShieldRepair" Type="AbilCmd" AbilCmd="RoguePurifierSupportDroneBShieldRepair,Execute" Row="2" Column="0"/>
+        </CardLayouts>
+        <ScoreResult value="BuildOrder"/>
+        <SubgroupPriority value="4"/>
+        <EditorCategories value="ObjectType:Unit"/>
+    </CUnit>
+    <CUnit id="RoguePurifier">
+        <DeathRevealRadius value="3"/>
+        <Race value="ProtCamp"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Ground" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <PushPriority value="11"/>
+        <Response value="Nothing"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <Attributes index="Massive" value="1"/>
+        <Attributes index="Heroic" value="1"/>
+        <LifeStart value="2000"/>
+        <LifeMax value="2000"/>
+        <LifeArmor value="1"/>
+        <LifeArmorName value="Unit/LifeArmorName/ProtossArmor"/>
+        <ShieldsStart value="1000"/>
+        <ShieldsMax value="1000"/>
+        <ShieldRegenDelay value="10"/>
+        <ShieldRegenRate value="10"/>
+        <ShieldArmorName value="Unit/ShieldArmorName/ProtossPlasmaShields"/>
+        <Mover value="RoguePurifier"/>
+        <Speed value="2"/>
+        <Acceleration value="1000"/>
+        <LateralAcceleration value="46"/>
+        <Sight value="10"/>
+        <Height value="0.01"/>
+        <VisionHeight value="4"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="80"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="move"/>
+        <AbilArray Link="RoguePurifierAssaultDroneHangar"/>
+        <AbilArray Link="RoguePurifierShieldDroneHangar"/>
+        <AbilArray Link="HangarQueue5"/>
+        <WeaponArray Link="RoguePurifierWeapon"/>
+        <WeaponArray Link="RoguePurifierAirWeapon"/>
+        <CardLayouts>
+            <LayoutButtons Face="MoveChampions" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0"/>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3"/>
+            <LayoutButtons Face="RepairSupportDroneA" Type="AbilCmd" AbilCmd="RoguePurifierAssaultDroneHangar,Ammo1" Row="2" Column="0"/>
+            <LayoutButtons Face="RepairSupportDroneB" Type="AbilCmd" AbilCmd="RoguePurifierShieldDroneHangar,Ammo1" Row="2" Column="1"/>
+        </CardLayouts>
+        <Radius value="1.5"/>
+        <InnerRadius value="1"/>
+        <CargoSize value="8"/>
+        <ScoreKill value="1600"/>
+        <SubgroupPriority value="49"/>
+        <EditorCategories value="ObjectType:Unit"/>
+    </CUnit>
+    <CUpgrade id="RoguePurifierBotCountUpgrade">
+        <AffectedUnitArray value="RoguePurifier"/>
+        <EffectArray Reference="Abil,RoguePurifierAssaultDroneHangar,MaxCount" Value="1"/>
+        <EffectArray Reference="Abil,RoguePurifierShieldDroneHangar,MaxCount" Value="1"/>
+    </CUpgrade>
+    <CUpgrade id="RoguePurifierBotArmorShieldUpgrade">
+        <AffectedUnitArray value="RoguePurifier"/>
+        <AffectedUnitArray value="RoguePurifierSupportDroneA"/>
+        <AffectedUnitArray value="RoguePurifierSupportDroneB"/>
+        <EffectArray Reference="Unit,RoguePurifierSupportDroneA,LifeArmor" Value="1"/>
+        <EffectArray Reference="Unit,RoguePurifierSupportDroneA,ShieldArmor" Value="1"/>
+        <EffectArray Reference="Unit,RoguePurifierSupportDroneB,LifeArmor" Value="1"/>
+        <EffectArray Reference="Unit,RoguePurifierSupportDroneB,ShieldArmor" Value="1"/>
+        <EffectArray Reference="Unit,RoguePurifier,LifeArmor" Value="1"/>
+        <EffectArray Reference="Unit,RoguePurifier,ShieldArmor" Value="2"/>
+    </CUpgrade>
+
+    <CWeaponLegacy id="RoguePurifierWeapon">
+        <EditorCategories value="Race:Protoss"/>
+        <Icon value="Assets\Textures\btn-upgrade-protoss-groundweaponslevel0.dds"/>
+        <DisplayEffect value="RoguePurifierWeaponDamage"/>
+        <TargetFilters value="Ground,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AcquirePrioritization value="ByDistanceFromTarget"/>
+        <Range value="6"/>
+        <RangeSlop value="0"/>
+        <Arc value="90"/>
+        <Period value="1.65"/>
+        <DamagePoint value="0.0832"/>
+        <Effect value="RoguePurifierWeaponInitialSet"/>
+        <LegacyOptions index="KeepChanneling" value="1"/>
+        <MinScanRange value="6.5"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="RoguePurifierAirWeapon">
+        <EditorCategories value="Race:Protoss"/>
+        <DisplayEffect value="RoguePurifierAirWeaponDamage"/>
+        <TargetFilters value="Air,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="6"/>
+        <Period value="1.5"/>
+        <Effect value="RoguePurifierAirWeaponLM"/>
+        <Icon value="Assets\Textures\btn-upgrade-protoss-airweaponslevel0.dds"/>
+        <MinScanRange value="6.5"/>
+    </CWeaponLegacy>
+    <CWeaponLegacy id="RoguePurifierSupportDroneAWeapon">
+        <EditorCategories value="Race:Protoss"/>
+        <Options index="ContinuousScan" value="1"/>
+        <Icon value="Assets\Textures\btn-upgrade-protoss-groundweaponslevel0.dds"/>
+        <DisplayEffect value="RoguePurifierSupportDroneADamage"/>
+        <TargetFilters value="Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="2"/>
+        <Period value="5"/>
+        <Effect value="RoguePurifierSupportDroneADamage"/>
+        <DamagePoint value="2"/>
+    </CWeaponLegacy>
+
+
+
+
+
+
+
+
+
+    <CUnit id="ShrineGuardian">
+        <DeathRevealRadius value="3"/>
+        <Race value="ProtCamp"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="PreventDestroy" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="AIPressForwardDisabled" value="1"/>
+        <FlagArray index="ArmySelect" value="1"/>
+        <PlaneArray index="Air" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Attributes index="Light" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Psionic" value="1"/>
+        <LifeStart value="40"/>
+        <LifeMax value="40"/>
+        <ShieldsStart value="40"/>
+        <ShieldsMax value="40"/>
+        <ShieldRegenDelay value="10"/>
+        <ShieldRegenRate value="2"/>
+        <Mover value="Fly"/>
+        <Speed value="2"/>
+        <Acceleration value="1000"/>
+        <Deceleration value="1000"/>
+        <Height value="5"/>
+        <CostCategory value="Army"/>
+        <AttackTargetPriority value="20"/>
+        <DamageDealtXP value="1"/>
+        <DamageTakenXP value="1"/>
+        <KillXP value="40"/>
+        <AbilArray Link="stop"/>
+        <AbilArray Link="Warpable"/>
+        <AbilArray Link="ProgressRally"/>
+        <AbilArray Link="BuildInProgress"/>
+        <AbilArray Link="attack"/>
+        <AbilArray Link="ShrineGuardianAntiGrav"/>
+        <AbilArray Link="ShrineGuardianDeath"/>
+        <WeaponArray Link="ShrineGuardian"/>
+        <CardLayouts>
+            <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1"/>
+            <LayoutButtons Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4"/>
+            <LayoutButtons Face="AcquireMove" Type="AbilCmd" AbilCmd="move,AcquireMove" Row="0" Column="4"/>
+            <LayoutButtons Face="Rally" Type="AbilCmd" AbilCmd="ProgressRally,Rally1" Row="2" Column="4"/>
+            <LayoutButtons Face="ShrineGuardianAntiGrav" Type="AbilCmd" AbilCmd="ShrineGuardianAntiGrav,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="ShrineGuardianDeath" Type="AbilCmd" AbilCmd="ShrineGuardianDeath,Execute" Row="2" Column="3"/>
+        </CardLayouts>
+        <ScoreMake value="200"/>
+        <ScoreKill value="200"/>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectType:Unit"/>
+        <RankDisplay value="Never"/>
+    </CUnit>
+    <CAbilEffectTarget id="ShrineGuardianDeath">
+        <EditorCategories value="AbilityorEffectType:Units"/>
+        <Effect index="0" value="ShrineGuardianLaunchMissile"/>
+        <Flags index="Transient" value="1"/>
+        <Range value="500"/>
+        <Arc value="360"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ShrineGuardianDeath"/>
+    </CAbilEffectTarget>
+    <CAbilEffectTarget id="ShrineGuardianAntiGrav">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <TargetFilters value="Visible;Player,Ally,Neutral,Air,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="ShrineGuardianAntiGrav"/>
+        <Arc value="360"/>
+        <Range value="11"/>
+        <Cost>
+            <Cooldown TimeUse="3"/>
+        </Cost>
+    </CAbilEffectTarget>
+
+    <CActorMissile id="ShrineGuardian" parent="GenericUnitBase" unitName="ShrineGuardian">
+        <On Terms="WeaponStart.*.AttackStart" Send="AnimPlay Attack Spell,A 0 -1.000000 -1.000000 0.500000 AsTimeScale"/>
+        <On Terms="Signal.*.ChannelStart" Send="AnimBracketStart Channel Spell,B Channel Spell,A"/>
+        <On Terms="Signal.*.ChannelStart" Send="Create ShrineGuardianChannelStart"/>
+        <On Terms="AnimBracketStart.ShrineGuardian; AnimName Channel" Send="Create ShrineGuardianChannelEffect"/>
+        <On Terms="Signal.*.ChannelEnd" Send="AnimBracketStop Channel"/>
+        <On Terms="AnimBracketStop.ShrineGuardian; AnimName Channel" Target="ShrineGuardianChannelEffect" Send="AnimBracketStop BSD"/>
+        <On Terms="Abil.ShrineGuardianDeath.SourceCastStart" Send="AnimBracketStop Channel"/>
+        <On Terms="Abil.ShrineGuardianDeath.SourceCastStart" Target="ShrineGuardianChannelEffect" Send="AnimBracketStop BSD"/>
+        <On Terms="Effect.ShrineGuardianLaunchMissile.Start" Send="HostSiteOpsSet ::Host {ShrineGuardianDeathRotator ShrineGuardianDeathRotator2}"/>
+        <On Terms="Effect.ShrineGuardianLaunchMissile.Start" Send="AnimPlay Walk Walk PlayForever"/>
+        <Model value="DarkHighTemplar"/>
+        <AnimBlendTime value="0.450000"/>
+        <DeathArray index="Normal" ModelLink="DarkHighTemplarDeath" SoundLink="HighTemplar_DeathFX" VoiceLink="HighTemplar_Death"/>
+        <PortraitModel value="HighTemplarTaldarimPortrait"/>
+        <BarOffset value="70"/>
+        <BarWidth value="42"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-protoss-hightemplar.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-protoss-groundarmorlevel0.dds"/>
+        <MinimapRenderPriority value=""/>
+        <SoundArray index="Birth" value="HighTemplar_Birth"/>
+        <SoundArray index="Ready" value="HighTemplar_Ready"/>
+        <SoundArray index="Help" value="HighTemplar_Help"/>
+        <SoundArray index="What" value="HighTemplar_What"/>
+        <SoundArray index="Yes" value="HighTemplar_Yes"/>
+        <SoundArray index="Attack" value="HighTemplar_Attack"/>
+        <SoundArray index="Movement" value="HighTemplar_Movement"/>
+        <SoundArray index="Turning" value="HighTemplar_Turning"/>
+        <SoundArray index="Board" value="HighTemplar_Board"/>
+        <SoundArray index="Click" value="HighTemplar_Click"/>
+        <SoundArray index="ClickError" value="HighTemplar_ClickError"/>
+        <SoundArray index="Highlight" value="HighTemplar_Highlight"/>
+        <UnitIcon value="Assets\Textures\btn-unit-protoss-hightemplar.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar.dds"/>
+        </Wireframe>
+        <WireframeShield>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar-Shield01.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar-Shield02.dds"/>
+            <Image value="Assets\Textures\Wireframe-Protoss-HighTemplar-Shield03.dds"/>
+        </WireframeShield>
+        <Remove Terms="UnitHeightUpdate.*.Lift" Send="StatusSet InAir 1"/>
+    </CActorMissile>
+    <CActorModel id="ShrineGuardianChannelEffect" parent="ModelAnimationStyleContinuous">
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter" HoldRotation="1"/>
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorModel>
+    <CActorModel id="ShrineGuardianChannelStart" parent="ModelAnimationStyleOneShot">
+        <EditorCategories value=""/>
+        <HostSiteOps Ops="SOpAttachCenter" HoldRotation="1"/>
+        <Model value="SpearofAdunAOEBlastImpact"/>
+        <On Terms="ActorCreation" Send="SetTintColor {10,10,150 3.000000}"/>
+        <Host Subject="_Unit"/>
+        <Scale value="0.600000"/>
+    </CActorModel>
+    <CActorSiteOpRotator id="ShrineGuardianDeathRotator">
+        <LocalAxis value="1.000000,0.000000,0.000000"/>
+        <Rate value="-75.000000"/>
+    </CActorSiteOpRotator>
+    <CActorSiteOpRotator id="ShrineGuardianDeathRotator2">
+        <LocalAxis value="0.000000,0.000000,1.000000"/>
+        <Rate value="180.000000"/>
+    </CActorSiteOpRotator>
+    <CActorBeamSimple id="ShrineGuardianAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
+        <ModelFlags index="AutomateGlobalLoops" value="1"/>
+    </CActorBeamSimple>
+    <CActorAction id="ShrineGuardianAttack" parent="GenericAttack" effectAttack="ShrineGuardianDamage">
+        <BeamScope value="Caster"/>
+        <ImpactSiteOps Ops="SOpAttachHarness SOpAttachVolumeNoVizEnhance VoidRaySOpForwardLaunch"/>
+        <LaunchAssets Sound="Archon_AttackLaunch"/>
+        <ImpactMap index="None" Model="" Sound="Archon_AttackImpact"/>
+    </CActorAction>
+    <CActorRange id="ShrineGuardianAntiGravRange" parent="RangeAbil" abil="ShrineGuardianAntiGrav"/>
+    <CActorModel id="ShrineGuardianAntiGravRocks" parent="ModelAnimationStyleContinuous">
+        <Model value="GravitonBeamRocks"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachOrigin SOpShadow"/>
+        <On Terms="Effect.ShrineGuardianAntiGrav.Start; At Target" Send="Create"/>
+        <On Terms="Effect.ShrineGuardianAntiGrav.Stop" Send="AnimBracketStop BSD"/>
+    </CActorModel>
+    <CActorModel id="ShrineGuardianAntiGravImpact" parent="ModelAnimationStyleContinuous">
+        <Model value="GravitonBeamImpact"/>
+        <AutoScaleFactor value="0.700000"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.On" Send="Create"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="Create ShrineGuardianAntiGravImpactDeath"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="SetTintColor 255,0,255"/>
+    </CActorModel>
+    <CActorModel id="ShrineGuardianAntiGravImpactDeath">
+        <Flags index="SuppressSaveLoad" value="1"/>
+        <Model value="GravitonBeamImpact"/>
+        <AutoScaleFactor value="0.700000"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachCenterStationary"/>
+        <On Terms="ActorCreation" Send="$Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+    </CActorModel>
+    <CActorSiteRocker id="ShrineGuardianAntiGravRocker">
+        <Elevation value="0.100000,0.050000"/>
+        <ElevationPeriod value="2.500000,1.000000"/>
+        <Pitch value="11.997,5.9985"/>
+        <PitchPeriod value="3.500000,10.000000"/>
+        <Roll value="4.9987,4.9987"/>
+        <RollPeriod value="2.500000,1.000000"/>
+        <On Terms="ActorCreation" Target="::Main" Send="RefSetFromMsg ::Host ::Sender"/>
+        <On Terms="Behavior.ShrineGuardianAntiGravHeight.On" Send="Create"/>
+        <On Terms="Behavior.ShrineGuardianAntiGravHeight.Off" Send="Transition Out 1.000000"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="TimerSet 1.000000 DelayDestroy"/>
+        <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy"/>
+        <Macros value="MultiActorGravitonMacro"/>
+    </CActorSiteRocker>
+    <CActorSound id="ShrineGuardianAntiGravStart" parent="SoundOneShot">
+        <Sound value="Phoenix_GravitonBeamStart"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.On" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="ShrineGuardianAntiGravStop" parent="SoundOneShot">
+        <Sound value="Phoenix_GravitonBeamEnd"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="Create"/>
+    </CActorSound>
+    <CActorSound id="ShrineGuardianAntiGravLoop" parent="SoundContinuous">
+        <Sound value="Phoenix_GravitonBeamLoop"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.On" Send="Create"/>
+        <On Terms="Behavior.ShrineGuardianAntiGrav.Off" Send="Destroy"/>
+    </CActorSound>
+    <CBehaviorBuff id="ShrineGuardianAntiGrav">
+        <Alignment value="Negative"/>
+        <InfoIcon value="Assets\Textures\btn-ability-protoss-gravitonbeam.dds"/>
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <TimeScaleSource Value="Global"/>
+        <Duration value="8"/>
+        <Modification>
+            <ModifyFlags index="DisableAbils" value="1"/>
+            <ModifyFlags index="SuppressMoving" value="1"/>
+            <ModifyFlags index="SuppressTurning" value="1"/>
+            <StateFlags index="Stun" value="1"/>
+            <StateFlags index="SuppressAttack" value="1"/>
+            <StateFlags index="SuppressCloak" value="1"/>
+            <StateFlags index="SuppressCollision" value="1"/>
+            <StateFlags index="SuppressDetection" value="1"/>
+            <StateFlags index="SuppressRadar" value="1"/>
+            <StateFlags index="Uncommandable" value="1"/>
+            <AbilLinkEnableArray value="TerranBuild"/>
+            <BehaviorClassDisableArray index="CBehaviorCreepSource" value="1"/>
+            <BehaviorClassDisableArray index="CBehaviorPowerSource" value="1"/>
+            <BehaviorClassDisableArray index="CBehaviorResource" value="1"/>
+            <BehaviorClassDisableArray index="CBehaviorSpawn" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="ShrineGuardianAntiGravHeight">
+        <EditorCategories value="Race:Protoss,AbilityorEffectType:Units"/>
+        <InfoFlags index="Hidden" value="1"/>
+        <Duration value="7.75"/>
+        <Modification Height="3.75">
+            <HeightTime index="Start" value="1"/>
+            <HeightTime index="Stop" value="0.25"/>
+            <PlaneDelta index="Ground" value="-1"/>
+            <PlaneDelta index="Air" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CButton id="ShrineGuardianDeath">
+        <Icon value="Assets\Textures\btn-tips-fallenheroes.dds"/>
+    </CButton>
+    <CButton id="ShrineGuardianAntiGrav">
+        <Icon value="Assets\Textures\btn-ability-protoss-gravitonbeam-color.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-protoss-gravitonbeam-color.dds"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CButton>
+    <CEffectLaunchMissile id="ShrineGuardianLaunchMissile">
+        <EditorCategories value=""/>
+        <ImpactLocation Value="TargetPoint"/>
+        <Movers Link="YoinkMover"/>
+    </CEffectLaunchMissile>
+    <CEffectSet id="ShrineGuardianAntiGrav">
+        <EditorCategories value="Race:Protoss"/>
+        <EffectArray value="ShrineGuardianAntiGravHeightAB"/>
+        <EffectArray value="ShrineGuardianAntiGravAB"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="ShrineGuardianAntiGravHeightAB">
+        <Behavior value="ShrineGuardianAntiGravHeight"/>
+    </CEffectApplyBehavior>
+    <CEffectApplyBehavior id="ShrineGuardianAntiGravAB">
+        <Behavior value="ShrineGuardianAntiGrav"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="ShrineGuardianDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Protoss"/>
+        <Kind value="Ranged"/>
+        <KindSplash value="Splash"/>
+        <Amount value="25"/>
+        <SearchFilters value="Air;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="0.093" Fraction="1"/>
+        <AreaArray Radius="0.4" Fraction="0.5"/>
+        <AreaArray Radius="0.8" Fraction="0.25"/>
+        <ExcludeArray Value="Outer"/>
+        <ExcludeArray Value="Target"/>
+        <AttributeBonus index="Biological" value="10"/>
+        <SearchFlags index="OffsetByUnitRadius" value="0"/>
+    </CEffectDamage>
+    <CModel id="ShrineGuardianChannelEffect" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\MalashGuardian_Beam_Impact\MalashGuardian_Beam_Impact.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CModel>
+    <CModel id="ShrineGuardianAttackBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\MalashGuardian_Beam\MalashGuardian_Beam.m3"/>
+        <LowQualityModel value="ShrineGuardianAttackBeamLow"/>
+        <EditorCategories value="Race:Protoss"/>
+        <RadiusLoose value="1.000000"/>
+    </CModel>
+    <CModel id="ShrineGuardianAttackBeamLow" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\ArchonBeam\ArchonBeam_Low.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+        <RadiusLoose value="1.000000"/>
+    </CModel>
+    <CWeaponLegacy id="ShrineGuardian">
+        <EditorCategories value="Race:Protoss"/>
+        <Icon value="Assets\Textures\btn-upgrade-protoss-groundweaponslevel0.dds"/>
+        <DisplayEffect value="ShrineGuardianDamage"/>
+        <TargetFilters value="Air,Visible;Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <Range value="11"/>
+        <Cost>
+            <Cooldown Location="Unit"/>
+        </Cost>
+        <Period value="1.754"/>
+        <Effect value="ShrineGuardianDamage"/>
+        <MinScanRange value="11.5"/>
+    </CWeaponLegacy>
+
+
+
+
+
+    <CEffectCreatePersistent id="CybrosEscortTowerKnockbackCP">
+        <PeriodCount value="2"/>
+        <InitialEffect value="CybrosEscortTowerKnockbackSearch3"/>
+        <PeriodicEffectArray value="CybrosEscortTowerKnockbackSearch5"/>
+        <PeriodicEffectArray value="CybrosEscortTowerKnockbackSearch7"/>
+        <PeriodicPeriodArray value="1.3"/>
+        <PeriodicPeriodArray value="1.5"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="CybrosEscortTowerKnockbackSearch3">
+        <SearchFilters value="-;Self,Structure,Missile,Dead,Hidden"/>
+        <AreaArray Radius="2" Effect="UnitKnockbackBy3"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="CybrosEscortTowerKnockbackSearch5">
+        <SearchFilters value="-;Self,Structure,Missile,Dead,Hidden"/>
+        <AreaArray Radius="2" Effect="UnitKnockbackBy5"/>
+    </CEffectEnumArea>
+    <CEffectEnumArea id="CybrosEscortTowerKnockbackSearch7">
+        <SearchFilters value="-;Self,Structure,Missile,Dead,Hidden"/>
+        <AreaArray Radius="2" Effect="UnitKnockbackBy7"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="CybrosEscortTowerGroundMissileVolleyCreatePersistentDelay">
+        <EditorCategories value="Race:Zerg"/>
+        <PeriodCount value="1"/>
+        <PeriodicValidator value="CasterNotDead"/>
+        <PeriodicEffectArray value="CybrosEscortTowerGroundMissileVolleyPersistent"/>
+        <PeriodicPeriodArray value="3"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="CybrosEscortTowerGroundMissileVolleyPersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <PeriodCount value="5"/>
+        <PeriodicEffectArray value="CybrosEscortTowerGroundMissileDamage"/>
+        <PeriodicPeriodArray value="0.5"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="CybrosEscortTowerGroundMissileLaunch">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactLocation Value="TargetPoint"/>
+        <ImpactEffect value="CybrosEscortTowerGroundMissileDamage"/>
+        <AmmoUnit value="CybrosEscortTowerGroundWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="CybrosEscortTowerGroundMissileDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="20"/>
+        <Death value="Blast"/>
+        <AreaArray Radius="2.2" Fraction="1"/>
+        <SearchFilters value="-;Self,Player,Ally,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="CybrosEscortTowerMissilePersistent">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetUnit"/>
+        <PeriodCount value="4"/>
+        <PeriodicEffectArray value="CybrosEscortTowerMissileDamage"/>
+        <PeriodicPeriodArray value="0.3"/>
+    </CEffectCreatePersistent>
+    <CEffectLaunchMissile id="CybrosEscortTowerMissileLaunch">
+        <EditorCategories value="Race:Zerg"/>
+        <ImpactEffect value="CybrosEscortTowerMissileDamage"/>
+        <AmmoUnit value="CybrosEscortTowerWeapon"/>
+    </CEffectLaunchMissile>
+    <CEffectDamage id="CybrosEscortTowerMissileDamage">
+        <EditorCategories value="Race:Zerg"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <Flags index="Notification" value="1"/>
+        <Amount value="60"/>
+    </CEffectDamage>
+    <CEffectIssueOrder id="CybrosEscortTowerFatalIssueOrder">
+        <Abil value="MorphToCybrosEscortTowerDown"/>
+        <WhichUnit Value="Caster"/>
+        <Target Value="CasterUnit"/>
+        <Player Value="Caster"/>
+    </CEffectIssueOrder>
+    <CEffectCreatePersistent id="CybrosEscortTowerMultiAOEPersistent">
+        <PeriodCount value="1"/>
+        <PeriodicValidator value="CasterNotDead"/>
+        <PeriodicEffectArray value="CybrosEscortTowerMultiAOESecondaryPersistent"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicOffsetArray value="0,0,0"/>
+        <PeriodicOffsetArray value="-3,0,0"/>
+        <PeriodicOffsetArray value="3,0,0"/>
+        <Marker>
+            <MatchFlags index="Id" value="1"/>
+        </Marker>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="CybrosEscortTowerMultiAOESecondaryPersistent">
+        <PeriodCount value="1"/>
+        <PeriodicValidator value="CasterNotDead"/>
+        <PeriodicEffectArray value="CybrosEscortTowerMultiAOELaserSearch"/>
+        <PeriodicPeriodArray value="4"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="CybrosEscortTowerMultiAOELaserSearch">
+        <SearchFilters value="-;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.5" Effect="CybrosEscortTowerMultiAOELaserDamageSet"/>
+    </CEffectEnumArea>
+    <CEffectSet id="CybrosEscortTowerMultiAOELaserDamageSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="CybrosEscortTowerMultiAOELaserDamage"/>
+        <EffectArray value="CybrosEscortTowerMultiAOELaserSlow"/>
+    </CEffectSet>
+    <CEffectApplyBehavior id="CybrosEscortTowerMultiAOELaserSlow">
+        <EditorCategories value="Race:Zerg"/>
+    </CEffectApplyBehavior>
+    <CEffectDamage id="CybrosEscortTowerMultiAOELaserDamage" parent="DU_WEAP">
+        <Amount value="40"/>
+        <ValidatorArray value="noMarkers"/>
+    </CEffectDamage>
+    <CEffectCreatePersistent id="CybrosEscortTowerSingleTargetLockOnPersistent">
+        <PeriodCount value="2"/>
+        <PeriodicValidator value="CasterNotDead"/>
+        <PeriodicEffectArray value="CybrosEscortTowerSingleTargetLockOnActorKeepAlivePersistent"/>
+        <PeriodicEffectArray value="CybrosEscortTowerSingleTargetLockOnSecondaryPersistent"/>
+        <PeriodicPeriodArray value="0"/>
+        <PeriodicPeriodArray value="3.5"/>
+        <WhichLocation Value="TargetUnit"/>
+    </CEffectCreatePersistent>
+    <CEffectCreatePersistent id="CybrosEscortTowerSingleTargetLockOnActorKeepAlivePersistent">
+        <PeriodCount value="1"/>
+        <PeriodicValidator value="CasterNotDead"/>
+        <PeriodicEffectArray value="CybrosEscortTowerSingleTargetLockOnActorKeepAlivePersistentImpactDummy"/>
+        <PeriodicPeriodArray value="6.5"/>
+        <WhichLocation Value="TargetUnit"/>
+    </CEffectCreatePersistent>
+    <CEffectModifyUnit id="CybrosEscortTowerSingleTargetLockOnActorKeepAlivePersistentImpactDummy"/>
+    <CEffectCreatePersistent id="CybrosEscortTowerSingleTargetLockOnSecondaryPersistent">
+        <PeriodCount value="1"/>
+        <PeriodicValidator value="CasterNotDead"/>
+        <PeriodicEffectArray value="CybrosEscortTowerSingleTargetLockOnSearch"/>
+        <PeriodicPeriodArray value="3"/>
+    </CEffectCreatePersistent>
+    <CEffectEnumArea id="CybrosEscortTowerSingleTargetLockOnSearch">
+        <SearchFilters value="-;Player,Ally,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="1.25" Effect="CybrosEscortTowerSingleTargetLockOnDamage"/>
+    </CEffectEnumArea>
+    <CEffectDamage id="CybrosEscortTowerSingleTargetLockOnDamage" parent="DU_WEAP">
+        <Amount value="150"/>
+    </CEffectDamage>
+
+
+    <CModel id="CybrosEscortTowerDown" parent="Unit" Race="Protoss">
+        <Model value="Assets\Doodads\Shapes\ShapeCone\ShapeCone.m3"/>
+        <Occlusion value="Show"/>
+        <ScaleMax value="5.000000,5.000000,5.000000"/>
+        <ScaleMin value="5.000000,5.000000,5.000000"/>
+        <SelectionRadius value="0.437500"/>
+        <SquibTypeDefault value="Metal"/>
+        <Radius value="2.000000"/>
+        <ShadowRadius value="2.000000"/>
+    </CModel>
+    <CModel id="CybrosEscortTowerAddition" parent="Unit" Race="Protoss">
+        <Model value="Assets\Doodads\Purifier_Energy_Generator\Purifier_Energy_Generator.m3"/>
+        <Occlusion value="Show"/>
+        <ScaleMax value="0.500000,0.500000,0.500000"/>
+        <ScaleMin value="0.500000,0.500000,0.500000"/>
+        <SelectionRadius value="1.718700"/>
+        <SquibTypeDefault value="Metal"/>
+        <Radius value="1.375000"/>
+        <ShadowRadius value="1.718700"/>
+    </CModel>
+    <CModel id="CybrosEscortTowerGroundWeapon" parent="MissileFX">
+        <Model value="Assets\Effects\Protoss\PhoenixMissile\PhoenixMissile.m3"/>
+        <ScaleMax value="5.000000,5.000000,5.000000"/>
+        <ScaleMin value="5.000000,5.000000,5.000000"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="CybrosEscortTowerGroundAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Units\Test\InvisibleUnit\InvisibleUnit.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="CybrosEscortTowerWeapon" parent="MissileFX">
+        <Model value="Assets\Effects\Protoss\PhoenixMissile\PhoenixMissile.m3"/>
+        <ScaleMax value="5.000000,5.000000,5.000000"/>
+        <ScaleMin value="5.000000,5.000000,5.000000"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="CybrosEscortTowerAttackImpact" parent="ImpactFX">
+        <Model value="Assets\Units\Test\InvisibleUnit\InvisibleUnit.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CModel id="CybrosEscortTowerMultiAOEPersistentIndicator" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Zerg\Void_Thrasher_AOECursor\Void_Thrasher_AOECursor.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+        <ScaleMax value="1.500000,1.500000,1.500000"/>
+        <ScaleMin value="1.500000,1.500000,1.500000"/>
+    </CModel>
+    <CModel id="CybrosEscortTowerMultiAOEBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\ArchonBeam\ArchonBeam.m3"/>
+        <EditorCategories value="Race:Protoss"/>
+    </CModel>
+    <CModel id="SuppressionTower_SuppressionBeam_Cursor" parent="RacePersistentSpellFX" Race="Protoss">
+        <ScaleMax value="0.900000,0.900000,0.900000"/>
+        <ScaleMin value="0.900000,0.900000,0.900000"/>
+    </CModel>
+    <CModel id="SuppressionTower_PurificationLaser_Cursor" parent="RacePersistentSpellFX" Race="Protoss">
+        <ScaleMax value="0.600000,0.600000,0.600000"/>
+        <ScaleMin value="0.600000,0.600000,0.600000"/>
+    </CModel>
+    <CModel id="SuppressionTower_LockdownBlast" parent="RacePersistentSpellFX" Race="Protoss">
+        <Events>
+            <Anim value="Birth,00"/>
+            <Name value="CybrosEscortTowerAttack_LaunchSwt"/>
+            <Type value="Sound"/>
+            <Time value="0.007000"/>
+            <Payload value="CybrosEscortTowerAttack_LaunchSwt"/>
+        </Events>
+        <Events>
+            <Anim value="Birth,00"/>
+            <Name value="CybrosEscortTowerGround_Attack_Launch_Tail"/>
+            <Type value="Sound"/>
+            <Time value="0.025000"/>
+            <Payload value="CybrosEscortTowerGround_Attack_Launch_Tail"/>
+        </Events>
+    </CModel>
+    <CModel id="SuppressionTower_PurificationLaser" parent="RaceOneShotSpellFX" Race="Protoss">
+        <Events>
+            <Anim value="Birth,00"/>
+            <Name value="CybrosEscort_SuppressionTower_Launch"/>
+            <Type value="Sound"/>
+            <Time value="0.017000"/>
+            <Payload value="CybrosEscort_SuppressionTower_Launch"/>
+        </Events>
+        <Events>
+            <Anim value="Birth,00"/>
+            <Name value="CybrosEscort_SuppressionTower_LaunchTail"/>
+            <Type value="Sound"/>
+            <Time value="0.147000"/>
+            <Payload value="CybrosEscort_SuppressionTower_LaunchTail"/>
+        </Events>
+    </CModel>
+    <CModel id="SuppressionTower_PurificationLaser_Targeting" parent="RaceOneShotSpellFX" Race="Protoss"/>
+    <CModel id="SuppressionTower_PurificationLaser_Impact_Ground" parent="RaceOneShotSpellFX" Race="Protoss">
+        <ScaleMax value="0.400000,0.400000,1.000000"/>
+        <ScaleMin value="0.400000,0.400000,1.000000"/>
+    </CModel>
+    <CModel id="SuppressionTower_SuppressionBeam" parent="RacePersistentSpellFX" Race="Protoss"/>
+    <CModel id="SuppressionTower_SuppressionBeam_Targeting" parent="RacePersistentSpellFX" Race="Protoss"/>
+    <CModel id="SuppressionTower_SuppressionBeam_Impact_Ground" parent="RaceImpactFX" Race="Protoss">
+        <ScaleMax value="0.660000,0.660000,1.000000"/>
+        <ScaleMin value="0.660000,0.660000,1.000000"/>
+        <Events>
+            <Anim value="Birth,00"/>
+            <Name value="CybrosEscortTowerMultiAOEBeam_ImpactSwt"/>
+            <Type value="Sound"/>
+            <Time value="0.038000"/>
+            <Payload value="CybrosEscortTowerMultiAOEBeam_ImpactSwt"/>
+        </Events>
+    </CModel>
+    <CModel id="CybrosEscortTowerSlowDebuffModel" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Protoss\SuppressionTower_SuppressionBeam_Impact\SuppressionTower_SuppressionBeam_Impact.m3"/>
+        <ScaleMax value="0.500000,0.500000,0.500000"/>
+        <ScaleMin value="0.500000,0.500000,0.500000"/>
+    </CModel>
+    <CModel id="Purifier_Guardian" parent="MegalithCutter">
+        <Model value="Assets\Units\Protoss\Purifier_Guardian\Purifier_Guardian.m3"/>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="PurifierGuardian_Mv_SlowHover_02"/>
+            <Type value="Sound"/>
+            <Time value="0.015000"/>
+            <Payload value="PurifierGuardian_Mv_SlowHover_02"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="PurifierGuardian_Mv_SlowHover_01"/>
+            <Type value="Sound"/>
+            <Payload value="PurifierGuardian_Mv_SlowHover_01"/>
+        </Events>
+        <Events>
+            <Anim value="Walk,00"/>
+            <Name value="PurifierGuardian_Mv_SlowHover_LightPulse"/>
+            <Type value="Sound"/>
+            <Time value="1.655000"/>
+            <Payload value="PurifierGuardian_Mv_SlowHover_LightPulse"/>
+        </Events>
+    </CModel>
+    <CModel id="Purifier_Guardian_Death" parent="MegalithCutterDeath">
+        <Model value="Assets\Units\Protoss\Purifier_Guardian_Death\Purifier_Guardian_Death.m3"/>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Purifier_Guardian_Death_MetalTwist"/>
+            <Type value="Sound"/>
+            <Time value="1.656000"/>
+            <Payload value="Purifier_Guardian_Death_MetalTwist"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Purifier_Guardian_Death_C"/>
+            <Type value="Sound"/>
+            <Time value="0.477000"/>
+            <Payload value="Purifier_Guardian_Death_C"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Purifier_Guardian_Death_Utter"/>
+            <Type value="Sound"/>
+            <Time value="1.609000"/>
+            <Payload value="Purifier_Guardian_Death_Utter"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Purifier_Guardian_Death_A"/>
+            <Type value="Sound"/>
+            <Time value="3.961000"/>
+            <Payload value="Purifier_Guardian_Death_A"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Purifier_Guardian_Death_B"/>
+            <Type value="Sound"/>
+            <Time value="0.853000"/>
+            <Payload value="Purifier_Guardian_Death_B"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Purifier_Guardian_Death_Sparks"/>
+            <Type value="Sound"/>
+            <Time value="5.390000"/>
+            <Payload value="Purifier_Guardian_Death_Sparks"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Purifier_Guardian_Death_Sparks"/>
+            <Type value="Sound"/>
+            <Time value="6.751000"/>
+            <Payload value="Purifier_Guardian_Death_Sparks"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="Purifier_Guardian_Death_Sparks"/>
+            <Type value="Sound"/>
+            <Time value="8.075000"/>
+            <Payload value="Purifier_Guardian_Death_Sparks"/>
+        </Events>
+        <Events>
+            <Anim value="Death,00"/>
+            <Name value="PurifierGuardian_MetalClunk"/>
+            <Type value="Sound"/>
+            <Time value="0.694000"/>
+            <Payload value="PurifierGuardian_MetalClunk"/>
+        </Events>
+    </CModel>
+    <CModel id="Purifier_CybrosLock" parent="CybrosLock">
+        <Model value="Assets\Units\Protoss\Purifier_CybrosLock\Purifier_CybrosLock.m3"/>
+        <Events>
+            <Anim value="Stand,Angry,00"/>
+            <Name value="Purifier_CybrosLock_StandAngry"/>
+            <Type value="Sound"/>
+            <Time value="0.482000"/>
+            <Payload value="Purifier_CybrosLock_StandAngry"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Angry,00"/>
+            <Name value="Purifier_CybrosLock_StandAngry"/>
+            <Type value="Sound"/>
+            <Time value="1.304000"/>
+            <Payload value="Purifier_CybrosLock_StandAngry"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Angry,00"/>
+            <Name value="Purifier_CybrosLock_StandAngry"/>
+            <Type value="Sound"/>
+            <Time value="3.021000"/>
+            <Payload value="Purifier_CybrosLock_StandAngry"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Angry,00"/>
+            <Name value="Purifier_CybrosLock_StandAngry"/>
+            <Type value="Sound"/>
+            <Time value="4.469000"/>
+            <Payload value="Purifier_CybrosLock_StandAngry"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Angry,00"/>
+            <Name value="Purifier_CybrosLock_StandAngry"/>
+            <Type value="Sound"/>
+            <Time value="5.164000"/>
+            <Payload value="Purifier_CybrosLock_StandAngry"/>
+        </Events>
+    </CModel>
+    <CModel id="Purifier_Guardian_Portrait" parent="Portrait" Race="Protoss">
+        <Flags index="Download" value="1"/>
+    </CModel>
+    <CModel id="Glaze_SuppressionTower_LockdownBlast" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Glaze\Glaze_SuppressionTower_LockdownBlast\Glaze_SuppressionTower_LockdownBlast.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+    </CModel>
+    <CEffectEnumArea id="CybrosEscortTowerGroundMissileImpactSearch">
+        <EditorCategories value="Race:Protoss"/>
+        <AINotifyFlags index="HurtEnemy" value="1"/>
+        <ResponseFlags index="Acquire" value="1"/>
+        <ResponseFlags index="Flee" value="1"/>
+        <AreaArray Radius="2.2" Effect="CybrosEscortTowerGroundMissileDamage"/>
+        <SearchFilters value="-;Self,Player,Ally,Missile,Item,Stasis,Dead,Hidden,Invulnerable"/>
+    </CEffectEnumArea>
+    <CEffectCreatePersistent id="VirusCureBeam">
+        <EditorCategories value="Race:Protoss"/>
+        <WhichLocation Value="TargetUnit"/>
+        <Flags index="Channeled" value="1"/>
+        <Flags index="PersistUntilDestroyed" value="1"/>
+        <InitialEffect value="VirusCureBeamImpact"/>
+        <PeriodCount value="65535"/>
+        <PeriodicEffectArray value="VirusCureBeamImpact"/>
+        <PeriodicPeriodArray value="1"/>
+    </CEffectCreatePersistent>
+    <CEffectModifyUnit id="VirusCureBeamImpact">
+        <EditorCategories value="Race:Protoss"/>
+    </CEffectModifyUnit>
+</Catalog>

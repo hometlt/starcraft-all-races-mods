@@ -5,11 +5,10 @@ SCParser.SCGame.directories.mods = `C:\\Program Files (x86)\\StarCraft II\\mods\
 let mod = await SCParser.createMod({
     core: [
         '$mods/builtin/Core',
+        '$mods/dependencies/Base',
     ],
     mods: [
-        '$mods/dependencies/Base',
-        '$mods/bundles/VoidCoop',
-        '$mods/dependencies/Base'
+        '$mods/dependencies/VoidMulti'
     ]
 })
 
@@ -35,10 +34,11 @@ let mod = await SCParser.createMod({
 // mod.pick({race: ["Nafash"]})
 // mod.filter()
 
-mod.renameEntities("ARC@*")
+mod.renameEntities("MP@*")
+console.log(mod.matches)
 // mod.renamePickedEntities("ARC@")
 SCParser.config.binaryFolder = 'C:\\Program Files (x86)\\StarCraft II\\TOOLS\\parser\\binary'
-await mod.write( 'C:\\Program Files (x86)\\StarCraft II\\MODS\\all-races-mods\\bundles\\VoidCoopX.SC2Mod', {
+await mod.write( 'C:\\Program Files (x86)\\StarCraft II\\MODS\\all-races-mods\\bundles\\VoidMultiX.SC2Mod', {
     text: {
         Name: `mod name`,
         DescLong: `combined mod`,

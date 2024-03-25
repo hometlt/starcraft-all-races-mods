@@ -1,0 +1,212 @@
+<Catalog>
+
+    <CUnit id="HealthDispenserPickup" parent="ITEM">
+        <Facing value="315"/>
+        <FlagArray index="Untooltipable" value="0"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <EditorFlags index="NeutralDefault" value="1"/>
+        <FogVisibility value="Snapshot"/>
+        <AbilArray Link="HealthDispenserPickup"/>
+        <MinimapRadius value="0.375"/>
+        <EditorCategories value="ObjectType:Item"/>
+    </CUnit>
+    <CAbilEffectTarget id="HealthDispenserPickup">
+        <Flags index="AutoCast" value="1"/>
+        <Flags index="AutoCastOn" value="1"/>
+        <Flags index="ReExecutable" value="1"/>
+        <Flags index="RequireTargetVision" value="0"/>
+        <Effect index="0" value="HealthDispenserPickupSet"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="HealthDispenserPickup"/>
+        <Range value="1"/>
+        <AutoCastRange value="1"/>
+        <AutoCastFilters value="-;Structure,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable,Benign"/>
+        <AutoCastValidatorArray value="PickupCheck"/>
+        <AutoCastValidatorArray value="LifeNotFullOrEnergyNotFull"/>
+        <Cost>
+            <Cooldown TimeUse="0.5"/>
+        </Cost>
+        <FinishTime value="3"/>
+        <Arc value="360"/>
+    </CAbilEffectTarget>
+    <CAbilEffectInstant id="HealthDispenser">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <CmdButtonArray index="Execute" DefaultButtonFace="HealthDispenser"/>
+        <PrepTime value="25"/>
+        <UninterruptibleArray index="Prep" value="1"/>
+    </CAbilEffectInstant>
+    <CActorUnit id="HealthDispenserPickup" parent="GenericUnitStandardNoAutoSoundLinks" unitName="HealthDispenserPickup">
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <UnitIcon value="Assets\Textures\Wireframe-general-pickupmedicrecharge.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-general-pickupmedicrecharge.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-general-pickupmedicrecharge.dds"/>
+        </Wireframe>
+    </CActorUnit>
+    <CActorBeamSimple id="HealthDispenserBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <On Terms="Effect.HealthDispenserPickupBeam.Start; At Target" Send="Create"/>
+        <On Terms="ActorCreation" Send="TimerSet 1.500000 DelayDestroy"/>
+        <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy"/>
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostImpact Subject="_Unit" Scope="Target" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
+    </CActorBeamSimple>
+    <CActorModel id="HealthDispenserPickupHealModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.HealthDispenserLife500.Start; At Target" Send="Create"/>
+        <On Terms="Effect.HealthDispenserEnergy500.Start; At Target" Send="Create"/>
+        <On Terms="ActorCreation" Send="Create HealthDispenserPickupHealSound"/>
+        <Host Subject="_Selectable"/>
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="Visibility" value="1"/>
+        <HostSiteOps Ops="SOpAttachOverhead" HoldRotation="1"/>
+    </CActorModel>
+    <CActorSound id="HealthDispenserPickupHealSound" parent="SoundOneShot">
+        <Sound value="Medic_HealStart"/>
+    </CActorSound>
+    <CEffectCreatePersistent id="HealthDispenser">
+        <EditorCategories value="Race:Terran"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="HealthDispenserCU"/>
+        <PeriodicOffsetArray value="0,-1.5,0"/>
+        <PeriodicPeriodArray value="0"/>
+        <WhichLocation Value="CasterUnit"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="HealthDispenserCU">
+        <EditorCategories value="Race:Zerg"/>
+        <SpawnEffect value="HealthDispenserPickupBeam"/>
+        <SpawnUnit value="HealthDispenserPickup"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnRange value="2.5"/>
+    </CEffectCreateUnit>
+    <CEffectApplyBehavior id="HealthDispenserPickupBeam">
+        <EditorCategories value="Race:Terran"/>
+    </CEffectApplyBehavior>
+    <CEffectSet id="HealthDispenserPickupSet">
+        <EffectArray value="PickupRemoveDelay"/>
+        <EffectArray value="HealthDispenserPickupSearch"/>
+        <EffectArray value="HealthDispenserRestartSearch"/>
+    </CEffectSet>
+    <CEffectEnumArea id="HealthDispenserPickupSearch">
+        <EditorCategories value="Race:Zerg"/>
+        <SearchFilters value="-;Enemy,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"/>
+        <AreaArray Radius="8" Effect="HealthDispenserPickupImpactSet"/>
+    </CEffectEnumArea>
+    <CEffectSet id="HealthDispenserPickupImpactSet">
+        <EffectArray value="HealthDispenserLife500"/>
+        <EffectArray value="HealthDispenserEnergy500"/>
+    </CEffectSet>
+    <CEffectModifyUnit id="HealthDispenserLife500">
+        <VitalArray index="Life">
+            <Change value="500"/>
+        </VitalArray>
+        <ValidatorArray value="LifeNotFull"/>
+    </CEffectModifyUnit>
+    <CEffectModifyUnit id="HealthDispenserEnergy500">
+        <VitalArray index="Energy">
+            <Change value="500"/>
+        </VitalArray>
+        <ValidatorArray value="EnergyNotFull"/>
+    </CEffectModifyUnit>
+    <CEffectEnumArea id="HealthDispenserRestartSearch">
+        <EditorCategories value="Race:Zerg"/>
+        <SearchFilters value="Visible;Enemy,Missile,Stasis,Dead,Hidden"/>
+        <AreaArray Radius="4" Effect="HealthDispenserIssueOrder"/>
+    </CEffectEnumArea>
+    <CEffectIssueOrder id="HealthDispenserIssueOrder">
+        <EditorCategories value="Race:Terran"/>
+        <Abil value="HealthDispenser"/>
+    </CEffectIssueOrder>
+    <CModel id="HealthDispenserPickup" parent="Unit" Race="Terran">
+        <Model value="Assets\Doodads\PickupRestorationCharge\PickupRestorationCharge.m3"/>
+        <SelectionOffset value="0.000000,0.000000,0.100000"/>
+    </CModel>
+    <CModel id="HealthDispenserPickupHealModel" parent="OneShotSpellFX">
+        <Model value="Assets\Effects\Terran\MedicHeal\MedicHeal.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CModel id="HealthDispenserDeath" parent="UnitDeath">
+        <Model value="Assets\Units\Terran\UmojanLabHealingBot\UmojanLabHealingBot.m3"/>
+        <SelectionRadius value="0.625000"/>
+        <ShadowRadius value="0.625000"/>
+        <Occlusion value="Show"/>
+    </CModel>
+    <CModel id="HealthDispenserBeam" parent="PersistentSpellFX">
+        <Model value="Assets\Effects\Terran\MedivacBeam\MedivacBeam.m3"/>
+        <EditorCategories value="Race:Terran"/>
+    </CModel>
+    <CModel id="HealthDispenser" parent="Unit">
+        <Model value="Assets\Units\Terran\UmojanLabHealingBot\UmojanLabHealingBot.m3"/>
+        <SelectionRadius value="0.625000"/>
+        <ShadowRadius value="0.625000"/>
+        <Occlusion value="Show"/>
+        <Events>
+            <Anim value="Stand,Work,Start"/>
+            <Name value="StandWorkStart"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Doodad_UmojanLabHealingBot_StandWorkStart"/>
+        </Events>
+        <Events>
+            <Anim value="Stand,Work,End"/>
+            <Name value="StandWorkEnd"/>
+            <Type value="Sound"/>
+            <Time value="0.010000"/>
+            <Payload value="Doodad_UmojanLabHealingBot_StandWorkEnd"/>
+        </Events>
+    </CModel>
+
+    <CActorUnit id="HealthDispenser" parent="GenericUnitStandardNoAutoSoundLinks" unitName="HealthDispenser">
+        <PortraitModel value="HealerBotPortrait"/>
+        <WalkAnimMoveSpeed value="1.1992"/>
+        <DeathArray index="Normal" ModelLink="HealthDispenserDeath" SoundLink="Doodad_UmojanLabHealingBot_PowerDown"/>
+        <DeathActorModel value="UnitDeathModelPersistent"/>
+        <DeathActorModelLow value="UnitDeathModelPersistent"/>
+        <BarWidth value="36"/>
+        <BarOffset value="40"/>
+        <On Terms="Abil.HealthDispenser.SourcePrepStart" Send="AnimPlay WorkStart Stand,Work,Start 0 0.000000 2.000000 1.666000 AsDuration"/>
+        <On Terms="AnimDone; AnimName WorkStart" Send="AnimPlay Work Stand,Work 0 0.000000 2.000000 21.666000 AsDuration"/>
+        <On Terms="AnimDone; AnimName Work" Send="AnimPlay WorkEnd Stand,Work,End"/>
+        <On Terms="Effect.HealthDispenser.Start; At Caster" Send="$Spell"/>
+        <On Terms="Effect.HealthDispenser.Start; At Caster" Send="Create Doodad_UmojanLabHealingBot_HealStart"/>
+        <On Terms="Effect.HealthDispenser.Start; At Caster" Send="Create Doodad_UmojanLabHealingBot_HealLoop"/>
+        <On Terms="AnimDone; AnimName Spell" Send="Create Doodad_UmojanLabHealingBot_HealEnd"/>
+        <On Terms="AnimDone; AnimName Spell" Target="Doodad_UmojanLabHealingBot_HealLoop" Send="Destroy"/>
+        <UnitIcon value="Assets\Textures\Wireframe-terran-umojanlabhealingbot.dds"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-umojanlabhealingbot.dds"/>
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-umojanlabhealingbot.dds"/>
+        </Wireframe>
+        <SoundArray index="Yes" value="UtilityBot_What"/>
+        <SoundArray index="Attack" value="UtilityBot_What"/>
+        <MinimapIcon value="Assets\Textures\ui-editoricon-triggercategories_math.dds"/>
+        <MinimapTooltip value="Unit/Tooltip/HealthDispenser"/>
+    </CActorUnit>
+    <CBehaviorBuff id="HealthDispenserPickupBeam">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="2"/>
+        <Modification>
+            <StateFlags index="Stun" value="1"/>
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="HealthDispenser">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+        <Duration value="1"/>
+        <InitialEffect value="HealthDispenser"/>
+    </CBehaviorBuff>
+    <CButton id="HealthDispenserPickup">
+        <Icon value="Assets\Textures\btn-ability-terran-heal-color.dds"/>
+        <AlertIcon value="Assets\Textures\btn-ability-terran-heal-color.dds"/>
+        <EditorCategories value="Race:Terran"/>
+    </CButton>
+</Catalog>

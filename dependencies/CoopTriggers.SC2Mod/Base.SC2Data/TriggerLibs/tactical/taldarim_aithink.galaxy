@@ -1,0 +1,175 @@
+
+void TRC_AIThink_Ascendant(int player, unit ascendant, unitgroup scan_group) {
+    const int PsiOrbCooldownId = 0;
+    unitgroup enemies = UnitGroupFilterAlliance(scan_group, player, c_unitAllianceEnemy, 1);
+    if (UnitGroupCount(enemies, c_unitCountAlive) == 0) {
+        return;
+    }
+
+    if (AITactCooldownAllow(ascendant, PsiOrbCooldownId)) {
+        // Cast Psi Orb
+        if (AIEvalTacticalData(ascendant, "AscendantPsiOrb")) {        
+            AISetCooldown(ascendant, PsiOrbCooldownId, 5.0);
+            return;
+        }
+    }
+
+    //  If we already have a psi orb order, ignore any new orders since psi orb is more important.
+    //  If we already have a Mind Blast order, ignore any new Mind Blast orders.
+    if (UnitOrderHasAbil(ascendant, "VoidHighTemplarMindBlast") || UnitOrderHasAbil(ascendant, "VoidHighTemplarPsiOrb")) {
+        return;
+    }
+
+    // Cast Mind Blast
+    AIEvalTacticalData(ascendant, "AscendantMindBlast");
+}
+
+void TRC_AIThink_Havoc(int player, unit havoc, unitgroup scan_group) {
+    const fixed c_forceFieldMeleeRange      = 1.5;
+    const fixed c_forceFieldRadius          = 2.0;
+    const fixed c_forceFieldRange           = 8.0;
+    const fixed c_forceFieldFriendRange     = 9.0;
+
+    order force_field_order = AICreateOrder(player, "ForceFieldMonitor", 0);
+    point havoc_position = UnitGetPosition(havoc);
+    aifilter filter_ai;
+    unitgroup ground_enemies;
+    unitgroup melee_enemy_group;
+    unitgroup range_enemy_group;
+    unitfilter filter_unit;
+    unitgroup friendly_group;
+    int friendly_count = 0;
+    unit friendly_unit;
+    int friendly_vitality = 0;
+    bool friendly_has_melee = false;
+    int enemy_count = 0;
+    unit enemy_unit;
+    point enemy_position;
+    fixed enemy_distance;
+    int best_priority = 0;
+    point best_enemy_position = null;
+    point best_friend_position = null;
+    unit best_target_unit = null;
+    point force_field_target = null;
+
+
+    // Do not proceed if the order is invalid for some reason
+    if (!UnitOrderIsValid(havoc, force_field_order)) {
+        return;
+    }
+
+    // Filter out air units
+    filter_ai = AIFilter(player);
+    AISetFilterPlane(filter_ai, c_planeGround);
+    AISetFilterCanAttackAlly(filter_ai, c_groundAlliesNearby, false);
+    ground_enemies = AIGetFilterGroup(filter_ai, scan_group);
+
+    // Is there a threat in the area
+    enemy_count = UnitGroupCount(ground_enemies, c_unitCountAll);
+    if (enemy_count <= 0) {
+        return;
+    }
+    
+    // Get a list of only melee enemies
+    filter_ai = AIFilter(player);
+    AISetFilterMelee(filter_ai, c_onlyMelee);
+    melee_enemy_group = AIGetFilterGroup(filter_ai, ground_enemies);
+
+    // Setup a friendly filter
+    filter_unit = UnitFilter(0,0,0,0);
+    UnitFilterSetState(filter_unit, c_targetFilterUncommandable,             c_unitFilterExcluded);
+    UnitFilterSetState(filter_unit, c_targetFilterWorker,                    c_unitFilterExcluded);
+    UnitFilterSetState(filter_unit, c_targetFilterUnderConstruction,         c_unitFilterExcluded);
+    UnitFilterSetState(filter_unit, c_targetFilterStructure,                 c_unitFilterExcluded);
+
+    // *** Scan the area for the following, set priority unit when found *** (highest first)
+    // Priority 4: Melee enemy close to me
+    // Priority 3: A friendly unit close to death, who has a melee enemy close by
+    // Priority 2: A friendly ranged unit who has a melee enemy close by
+    // Priority 1: Large clump of enemies (if we have extra energy)
+    //
+
+    // First check only melee enemies
+    enemy_count = UnitGroupCount(melee_enemy_group, c_unitCountAll);
+    while (enemy_count > 0) {
+        enemy_unit = UnitGroupUnit(melee_enemy_group, enemy_count);
+        enemy_count = enemy_count - 1;
+
+        enemy_position = UnitGetPosition(enemy_unit);
+        enemy_distance = DistanceBetweenPoints(havoc_position, enemy_position);
+        if (enemy_distance <= c_forceFieldMeleeRange) {
+            best_target_unit = enemy_unit;
+            best_enemy_position = enemy_position;
+            best_friend_position = havoc_position;
+            best_priority = 4;
+            break;
+        }
+        
+        friendly_group = UnitGroupAlliance(player, c_unitAllianceAlly, RegionCircle(enemy_position, c_forceFieldMeleeRange), filter_unit, c_noMaxCount);
+        friendly_has_melee = AIUnitGroupHasMelee(friendly_group);
+        friendly_count = UnitGroupCount(friendly_group, c_unitCountAll);
+        while (friendly_count > 0) {
+            friendly_unit = UnitGroupUnit(friendly_group, friendly_count);
+            friendly_count = friendly_count - 1;
+
+            friendly_vitality = UnitGetPropertyInt(friendly_unit, c_unitPropVitalityPercent, c_unitPropCurrent);
+            if (friendly_vitality < 20) {
+                best_target_unit = enemy_unit;
+                best_enemy_position = enemy_position;
+                best_friend_position = UnitGetPosition(friendly_unit);
+                best_priority = 3;
+                break;                
+            }
+            else if (!friendly_has_melee) {
+                best_target_unit = enemy_unit;
+                best_enemy_position = enemy_position;
+                best_friend_position = UnitGetPosition(friendly_unit);
+                best_priority = 2;
+            }
+        }
+    }
+
+    if (best_priority == 0) {
+        // no dangerous melee units found, split large ranged groups
+
+        // filter only ranged units
+        filter_ai = AIFilter(player);
+        AISetFilterMelee(filter_ai, c_onlyRanged);
+        range_enemy_group = AIGetFilterGroup(filter_ai, ground_enemies);
+
+        // see if there is a large group nearby to split
+        force_field_target = AIBestTargetPoint(
+            range_enemy_group,
+            6, // min hits
+            1, // damage base
+            6.0, // min score
+            c_forceFieldRadius,
+            UnitGetPosition(havoc),
+            c_forceFieldRange, 
+            c_unitAttributeNone
+        );
+        if (force_field_target == null) {
+            return;
+        }
+    }
+    else {
+        // get a point a bit in front of the enemy to shove him away
+        enemy_distance = DistanceBetweenPoints(best_friend_position, best_enemy_position);
+        if (enemy_distance < 2.0) {
+            force_field_target = PointAlongLine(best_friend_position, best_enemy_position, enemy_distance/2.0);
+        } else {
+            force_field_target = PointAlongLine(best_friend_position, best_enemy_position, enemy_distance - 1.0);
+        }
+    }
+
+    OrderSetTargetPoint(force_field_order, force_field_target);
+    if (!UnitOrderIsValid(havoc, force_field_order)) {
+        return;
+    }
+
+    if (UnitGroupCount(AIFindUnits(player, "ForceField", force_field_target, 0.5, 1), c_unitCountAlive) > 0) {
+        return;
+    }
+
+    AICast(havoc, force_field_order, c_noMarker, c_castHold);
+}

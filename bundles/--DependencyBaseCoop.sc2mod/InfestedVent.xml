@@ -1,0 +1,436 @@
+<Catalog>
+    <CUnit id="SpacePlatformVentsUnit">
+        <DeathRevealRadius value="3"/>
+        <Race value="ZergCamp"/>
+        <Mob value="Campaign"/>
+        <FlagArray index="Uncommandable" value="1"/>
+        <FlagArray index="Unradarable" value="1"/>
+        <FlagArray index="UseLineOfSight" value="1"/>
+        <FlagArray index="KillCredit" value="0"/>
+        <FogVisibility value="Snapshot"/>
+        <PlaneArray index="Ground" value="1"/>
+        <Collide index="Burrow" value="1"/>
+        <Collide index="Ground" value="1"/>
+        <Collide index="Structure" value="1"/>
+        <Collide index="Small" value="1"/>
+        <Attributes index="Armored" value="1"/>
+        <Attributes index="Biological" value="1"/>
+        <Attributes index="Mechanical" value="1"/>
+        <LifeStart value="50"/>
+        <LifeMax value="50"/>
+        <LifeRegenRate value="0.2734"/>
+        <LifeArmorName value="Unit/LifeArmorName/ZergBuildingArmor"/>
+        <Sight value="6"/>
+        <AttackTargetPriority value="11"/>
+        <CardLayouts>
+            <LayoutButtons Face="LeviathanSpawnMutalisk" Type="AbilCmd" AbilCmd="InfestedVentSpawnMutalisk,Execute" Row="2" Column="0"/>
+            <LayoutButtons Face="SpawnCorruptor" Type="AbilCmd" AbilCmd="InfestedVentSpawnCorruptor,Execute" Row="2" Column="1"/>
+            <LayoutButtons Face="SpawnBroodLord" Type="AbilCmd" AbilCmd="InfestedVentSpawnBroodLord,Execute" Row="2" Column="2"/>
+        </CardLayouts>
+        <Radius value="1"/>
+        <SeparationRadius value="1"/>
+        <InnerRadius value="1"/>
+        <SubgroupPriority value="10"/>
+        <MinimapRadius value="1"/>
+        <EditorCategories value="ObjectType:Destructible"/>
+        <Footprint value="Footprint3x3CreepContour"/>
+        <PlacementFootprint value="Footprint3x3CreepContour"/>
+        <LeaderAlias value=""/>
+        <AbilArray Link="InfestedVentSpawnMutalisk"/>
+        <AbilArray Link="InfestedVentSpawnCorruptor"/>
+        <AbilArray Link="InfestedVentSpawnBroodLord"/>
+    </CUnit>
+
+    <CAbilEffectInstant id="InfestedVentSpawnMutalisk">
+        <CmdButtonArray index="Execute" DefaultButtonFace="LeviathanSpawnMutalisk" State="Restricted"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="InfestedVentSpawnMutaliskPersistentForRandomOffset"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Charge Link="Abil/LeviathanSpawnMutalisk"/>
+            <Cooldown Link="Abil/LeviathanSpawnMutalisk"/>
+        </Cost>
+        <AINotifyEffect value=""/>
+        <ProducedUnitArray value="Mutalisk"/>
+    </CAbilEffectInstant>
+    <CAbilEffectInstant id="InfestedVentSpawnBroodLord">
+        <CmdButtonArray index="Execute" DefaultButtonFace="SpawnBroodLord" State="Restricted"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="InfestedVentSpawnBroodLordPersistentForRandomOffset"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Charge Link=""/>
+            <Cooldown Link=""/>
+        </Cost>
+        <AINotifyEffect value=""/>
+        <ProducedUnitArray value="BroodLord"/>
+    </CAbilEffectInstant>
+    <CAbilEffectInstant id="InfestedVentSpawnCorruptor">
+        <CmdButtonArray index="Execute" DefaultButtonFace="SpawnCorruptor" State="Restricted"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Effect index="0" value="InfestedVentSpawnCorruptorPersistentForRandomOffset"/>
+        <Flags index="BestUnit" value="1"/>
+        <Flags index="Transient" value="1"/>
+        <Cost>
+            <Charge Link=""/>
+            <Cooldown Link=""/>
+        </Cost>
+        <AINotifyEffect value=""/>
+        <ProducedUnitArray value="Corruptor"/>
+    </CAbilEffectInstant>
+    <CActorAction id="InfestedVentSpawnEgg" parent="GenericAttack" effectImpact="RemovePrecursor" effectLaunch="SpawnEggLaunchMissile">
+        <LaunchAttachQuery Methods="AMFilterHardpoint"/>
+        <LaunchAssets Model="InfestedVentEggLaunch" Sound="ZergInfestedVent_SpawnEggLaunch"/>
+    </CActorAction>
+    <CActorMissile id="InfestedVentSpawnEggMissile" parent="GenericAttackMissile" unitName="InfestedVentEggMissile">
+        <On Terms="ActorCreation" Send="RefSet ::scope.EggMissile ::Self"/>
+    </CActorMissile>
+    <CActorUnit id="InfestedVentMutaliskEgg" parent="GenericUnitMinimal" unitName="InfestedVentMutaliskEgg">
+        <Model value="InfestedVentEgg"/>
+        <DeathArray index="Normal" AnimProps="Death" ModelLink="InfestedVentEgg" SoundLink="Zerg_ExplosionSmall"/>
+        <On Terms="ActorCreation" Send="SetRotationFrom ::scope.EggMissile"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+    </CActorUnit>
+    <CActorUnit id="InfestedVentCorruptorEgg" parent="GenericUnitMinimal" unitName="InfestedVentCorruptorEgg">
+        <Model value="InfestedVentEgg"/>
+        <DeathArray index="Normal" AnimProps="Death" ModelLink="InfestedVentEgg" SoundLink="Zerg_ExplosionSmall"/>
+        <On Terms="ActorCreation" Send="SetRotationFrom ::scope.EggMissile"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+    </CActorUnit>
+    <CActorUnit id="InfestedVentBroodLordEgg" parent="GenericUnitMinimal" unitName="InfestedVentBroodLordEgg">
+        <Model value="InfestedVentEgg"/>
+        <DeathArray index="Normal" AnimProps="Death" ModelLink="InfestedVentEgg" SoundLink="Zerg_ExplosionSmall"/>
+        <On Terms="ActorCreation" Send="SetRotationFrom ::scope.EggMissile"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death"/>
+        <On Terms="AnimDone; AnimName Death" Send="Destroy"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+    </CActorUnit>
+    <CEffectCreateUnit id="InfestedVentSpawnCorruptorCreateCorruptor">
+        <EditorCategories value="Race:Zerg"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <SpawnUnit value="Corruptor"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="InfestedVentSpawnBroodLordCreateBroodLord">
+        <EditorCategories value="Race:Zerg"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <SpawnUnit value="BroodLord"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="InfestedVentSpawnBroodLordCreateEggUnit">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="SpawnEggMissileSet"/>
+        <SpawnUnit value="InfestedVentBroodLordEgg"/>
+    </CEffectCreateUnit>
+    <CEffectCreatePersistent id="InfestedVentSpawnBroodLordPersistentForRandomOffset">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="CasterUnit"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="InfestedVentSpawnBroodLordCreateEggUnit"/>
+        <PeriodicOffsetArray value="2,0,0"/>
+        <PeriodicOffsetArray value="2,2,0"/>
+        <PeriodicOffsetArray value="0,2,0"/>
+        <PeriodicOffsetArray value="-2,2,0"/>
+        <PeriodicOffsetArray value="-2,0,0"/>
+        <PeriodicOffsetArray value="-2,-2,0"/>
+        <PeriodicOffsetArray value="0,-2,0"/>
+        <PeriodicOffsetArray value="2,-2,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="InfestedVentSpawnCorruptorSpawnSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="InfestedVentSpawnCorruptorCreateCorruptor"/>
+        <EffectArray value="Kill"/>
+    </CEffectSet>
+    <CEffectSet id="InfestedVentSpawnBroodLordSpawnSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="InfestedVentSpawnBroodLordCreateBroodLord"/>
+        <EffectArray value="Kill"/>
+    </CEffectSet>
+    <CEffectCreateUnit id="InfestedVentSpawnCorruptorCreateEggUnit">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="SpawnEggMissileSet"/>
+        <SpawnUnit value="InfestedVentCorruptorEgg"/>
+    </CEffectCreateUnit>
+    <CEffectCreatePersistent id="InfestedVentSpawnCorruptorPersistentForRandomOffset">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="CasterUnit"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="InfestedVentSpawnCorruptorCreateEggUnit"/>
+        <PeriodicOffsetArray value="2,0,0"/>
+        <PeriodicOffsetArray value="2,2,0"/>
+        <PeriodicOffsetArray value="0,2,0"/>
+        <PeriodicOffsetArray value="-2,2,0"/>
+        <PeriodicOffsetArray value="-2,0,0"/>
+        <PeriodicOffsetArray value="-2,-2,0"/>
+        <PeriodicOffsetArray value="0,-2,0"/>
+        <PeriodicOffsetArray value="2,-2,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectCreateUnit id="InfestedVentSpawnMutaliskCreateEggUnit">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="TargetPoint"/>
+        <SpawnEffect value="SpawnEggMissileSet"/>
+        <SpawnUnit value="InfestedVentMutaliskEgg"/>
+    </CEffectCreateUnit>
+    <CEffectCreateUnit id="InfestedVentSpawnMutaliskCreateMutalisk">
+        <EditorCategories value="Race:Zerg"/>
+        <CreateFlags index="Birth" value="0"/>
+        <CreateFlags index="Placement" value="0"/>
+        <SpawnUnit value="Mutalisk"/>
+    </CEffectCreateUnit>
+    <CEffectLaunchMissile id="SpawnEggLaunchMissile">
+        <ValidatorArray index="0" value=""/>
+        <EditorCategories value="Race:Zerg"/>
+        <LaunchLocation Value="CasterUnit"/>
+        <FinishEffect value="RemovePrecursor"/>
+        <AmmoUnit value="InfestedVentEggMissile"/>
+    </CEffectLaunchMissile>
+    <CEffectCreatePersistent id="InfestedVentSpawnMutaliskPersistentForRandomOffset">
+        <EditorCategories value="Race:Zerg"/>
+        <WhichLocation Value="CasterUnit"/>
+        <Flags index="RandomOffset" value="1"/>
+        <PeriodCount value="1"/>
+        <PeriodicEffectArray value="InfestedVentSpawnMutaliskCreateEggUnit"/>
+        <PeriodicOffsetArray value="2,0,0"/>
+        <PeriodicOffsetArray value="2,2,0"/>
+        <PeriodicOffsetArray value="0,2,0"/>
+        <PeriodicOffsetArray value="-2,2,0"/>
+        <PeriodicOffsetArray value="-2,0,0"/>
+        <PeriodicOffsetArray value="-2,-2,0"/>
+        <PeriodicOffsetArray value="0,-2,0"/>
+        <PeriodicOffsetArray value="2,-2,0"/>
+        <PeriodicPeriodArray value="0"/>
+    </CEffectCreatePersistent>
+    <CEffectSet id="InfestedVentSpawnMutaliskSpawnSet">
+        <EditorCategories value="Race:Zerg"/>
+        <EffectArray value="InfestedVentSpawnMutaliskCreateMutalisk"/>
+        <EffectArray value="Kill"/>
+    </CEffectSet>
+    <CModel id="InfestedVentEggLaunch" parent="LaunchFX">
+        <Model value="Assets\Effects\Zerg\LeviathanWeaponLaunch\LeviathanWeaponLaunch.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+        <Lighting value=""/>
+    </CModel>
+    <CModel id="InfestedVentEgg" parent="Unit" Race="Zerg">
+        <Model value="Assets\Effects\Zerg\LeviathanEggMissile\LeviathanEggMissile.m3"/>
+        <Lighting value=""/>
+    </CModel>
+    <CModel id="InfestedVentEggMissile" parent="MissileFX">
+        <Model value="Assets\Effects\Zerg\LeviathanEggMissile\LeviathanEggMissile.m3"/>
+        <EditorCategories value="Race:Zerg"/>
+        <Lighting value=""/>
+    </CModel>
+    <CMoverMissile id="ZergInfestedVentEgg">
+        <MotionPhases>
+            <Driver value="Ballistic"/>
+            <Speed value="1"/>
+            <Gravity value="16"/>
+            <FlightTime value="1.5"/>
+        </MotionPhases>
+    </CMoverMissile>
+    <CUnit id="InfestedVentMutaliskEgg">
+        <ReviveType value=""/>
+        <Race value="ZergCamp"/>
+        <FlagArray index="Uncommandable" value="1"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="Uncursorable" value="1"/>
+        <FlagArray index="Unradarable" value="1"/>
+        <FlagArray index="KillCredit" value="0"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Mover value="Fly"/>
+        <Height value="3.75"/>
+        <BehaviorArray Link="InfestedVentSpawnMutaliskCountdown"/>
+        <EditorCategories value="ObjectType:Unit"/>
+        <TacticalAI value=""/>
+    </CUnit>
+    <CUnit id="InfestedVentBroodLordEgg">
+        <ReviveType value=""/>
+        <Race value="ZergCamp"/>
+        <FlagArray index="Uncommandable" value="1"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="Uncursorable" value="1"/>
+        <FlagArray index="Unradarable" value="1"/>
+        <FlagArray index="KillCredit" value="0"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Mover value="Fly"/>
+        <Height value="3.75"/>
+        <BehaviorArray Link="InfestedVentSpawnBroodLordCountdown"/>
+        <EditorCategories value="ObjectType:Unit"/>
+        <TacticalAI value=""/>
+    </CUnit>
+    <CUnit id="InfestedVentEggMissile" parent="MISSILE_INVULNERABLE">
+        <ReviveType value=""/>
+        <Race value="ZergCamp"/>
+        <Mover value="ZergInfestedVentEgg"/>
+        <TacticalAI value=""/>
+        <SelectAlias value=""/>
+        <SubgroupAlias value=""/>
+        <AIEvaluateAlias value=""/>
+    </CUnit>
+    <CUnit id="InfestedVentCorruptorEgg">
+        <ReviveType value=""/>
+        <Race value="ZergCamp"/>
+        <FlagArray index="Uncommandable" value="1"/>
+        <FlagArray index="Unselectable" value="1"/>
+        <FlagArray index="Untargetable" value="1"/>
+        <FlagArray index="Uncursorable" value="1"/>
+        <FlagArray index="Unradarable" value="1"/>
+        <FlagArray index="KillCredit" value="0"/>
+        <FlagArray index="Invulnerable" value="1"/>
+        <FlagArray index="NoScore" value="1"/>
+        <Collide index="Flying" value="1"/>
+        <Mover value="Fly"/>
+        <Height value="3.75"/>
+        <BehaviorArray Link="InfestedVentSpawnCorruptorCountdown"/>
+        <EditorCategories value="ObjectType:Unit"/>
+        <TacticalAI value=""/>
+    </CUnit>
+
+
+
+    <CActorUnit id="BroodLord">
+    <On Terms="Effect.InfestedVentSpawnBroodLordCreateBroodLord.Create" Send="$Birth"/>
+    </CActorUnit>
+    <CActorUnit id="Corruptor">
+    <On Terms="Effect.InfestedVentSpawnCorruptorCreateCorruptor.Create" Send="$Birth 0 -1.000000 -1.000000 0.500000 AsDuration"/>
+    </CActorUnit>
+
+    <CActorUnit id="Mutalisk">
+    <On Terms="Effect.InfestedVentSpawnMutaliskCreateMutalisk.Create" Send="$Birth"/>
+    </CActorUnit>
+
+    <CActorUnit id="BroodLordStetmann">
+    <On Terms="Effect.InfestedVentSpawnBroodLordCreateBroodLord.Create" Send="$Birth"/>
+    </CActorUnit>
+    <CBehaviorBuff id="InfestedVentSpawnCorruptorCountdown">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="1.5"/>
+        <ExpireEffect value="InfestedVentSpawnCorruptorSpawnSet"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="InfestedVentSpawnBroodLordCountdown">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="1.5"/>
+        <ExpireEffect value="InfestedVentSpawnBroodLordSpawnSet"/>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="InfestedVentSpawnMutaliskCountdown">
+        <InfoFlags index="Hidden" value="1"/>
+        <EditorCategories value="Race:Zerg,AbilityorEffectType:Units"/>
+        <Duration value="1.5"/>
+        <ExpireEffect value="InfestedVentSpawnMutaliskSpawnSet"/>
+    </CBehaviorBuff>
+    <!--
+    GameStrings.txt
+Unit/Name/SpaceVentDestructibleUnit=Vent
+Button/Tooltip/SpacePlatformVentsUnit=This tunnel leads to the Mutalisk hatcheries deep within the platform. Destroy the platform to prevent Mutalisks from escaping to the surface.
+
+Abil/Name/InfestedVentSpawnBroodLord=Spawn Brood Lord
+Abil/Name/InfestedVentSpawnCorruptor=Spawn Corruptor
+Abil/Name/InfestedVentSpawnMutalisk=Spawn Mutalisk
+Button/Tooltip/InfestedVentBroodLordEgg=This cocoon contains a Corruptor that is morphing into a Brood Lord.
+Button/Tooltip/InfestedVentCorruptorEgg=This cocoon contains a Larva that is morphing into a Corruptor.
+Button/Tooltip/InfestedVentMutaliskEgg=This cocoon contains a Larva that is morphing into a Mutalisk.
+Unit/Name/InfestedVentBroodLordEgg=Brood Lord Cocoon
+Unit/Name/InfestedVentCorruptorEgg=Corruptor Cocoon
+Unit/Name/InfestedVentEggMissile=Egg Missile
+Unit/Name/InfestedVentMutaliskEgg=Mutalisk Cocoon
+    ObjectStrings.txt
+Sound/Name/Doodad_SpacePlatformVents=Doodad_SpacePlatformVents
+Sound/Name/Doodad_SpacePlatformVentsZergedBurst=Doodad_SpacePlatformVentsZergedBurst
+Sound/Name/Doodad_SpacePlatformVentsZergedSlime=Doodad_SpacePlatformVentsZergedSlime
+Sound/Name/Doodad_SpacePlatformVentsZergedVapor=Doodad_SpacePlatformVentsZergedVapor
+Model/Name/SpacePlatformVents=Space Platform Vents
+Model/Name/SpacePlatformVentsDeath=Space Platform Vents Death
+Model/Name/SpacePlatformVentsSpell=Space Platform Vents Spell
+Model/Name/SpacePlatformVentsUnit=Mutalisk Infested Vent
+Model/Name/SpacePlatformVentsZerged=Space Platform Vents Zerged
+Actor/Name/SpacePlatformVents=Space Platform Vents
+Actor/Name/SpacePlatformVentsDeath=Space Platform Vents Death
+Actor/Name/SpacePlatformVentsSpell=Space Platform Vents Spell
+Actor/Name/SpacePlatformVentsUnit=Mutalisk Infested Vent
+Actor/Name/SpacePlatformVentsZerged=Space Platform Vents Zerged
+Unit/EditorPrefix/InfestedVentBroodLordEgg=Zerg Tunnel Entrance -
+Unit/EditorPrefix/InfestedVentCorruptorEgg=Zerg Tunnel Entrance -
+Unit/EditorPrefix/InfestedVentEggMissile=Zerg Tunnel Entrance -
+Unit/EditorPrefix/InfestedVentMutaliskEgg=Zerg Tunnel Entrance -
+Abil/EditorPrefix/InfestedVentSpawnBroodLord=Zerg Tunnel Entrance -
+Abil/EditorPrefix/InfestedVentSpawnCorruptor=Zerg Tunnel Entrance -
+Abil/EditorPrefix/InfestedVentSpawnMutalisk=Zerg Tunnel Entrance -
+Actor/Name/InfestedVentBroodLordEgg=Infested Vent Brood Lord Egg
+Actor/Name/InfestedVentCorruptorEgg=Infested Vent Corruptor Egg
+Actor/Name/InfestedVentMutaliskEgg=Infested Vent Mutalisk Egg
+Actor/Name/InfestedVentSpawnEgg=Infested Vent Spawn Egg
+Actor/Name/InfestedVentSpawnEggMissile=Infested Vent Spawn Egg Missile
+Behavior/EditorPrefix/InfestedVentSpawnBroodLordCountdown=Zerg Tunnel Entrance -
+Behavior/EditorPrefix/InfestedVentSpawnCorruptorCountdown=Zerg Tunnel Entrance -
+Behavior/EditorPrefix/InfestedVentSpawnMutaliskCountdown=Zerg Tunnel Entrance -
+Behavior/Name/InfestedVentSpawnBroodLordCountdown=Spawn Brood Lord Countdown
+Behavior/Name/InfestedVentSpawnCorruptorCountdown=Spawn Corruptor Countdown
+Behavior/Name/InfestedVentSpawnMutaliskCountdown=Spawn Mutalisk Countdown
+Effect/EditorPrefix/InfestedVentSpawnBroodLordCreateBroodLord=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnBroodLordCreateEggUnit=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnBroodLordPersistentForRandomOffset=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnBroodLordSpawnSet=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnCorruptorCreateCorruptor=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnCorruptorCreateEggUnit=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnCorruptorPersistentForRandomOffset=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnCorruptorSpawnSet=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnMutaliskCreateEggUnit=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnMutaliskCreateMutalisk=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnMutaliskPersistentForRandomOffset=Zerg Tunnel Entrance -
+Effect/EditorPrefix/InfestedVentSpawnMutaliskSpawnSet=Zerg Tunnel Entrance -
+Effect/Name/InfestedVentSpawnBroodLordCreateBroodLord=Spawn Brood Lord (Create Brood Lord)
+Effect/Name/InfestedVentSpawnBroodLordCreateEggUnit=Spawn Brood Lord (Create Egg Unit)
+Effect/Name/InfestedVentSpawnBroodLordPersistentForRandomOffset=Spawn Brood Lord (Persistent For Random Offset)
+Effect/Name/InfestedVentSpawnBroodLordSpawnSet=Spawn Brood Lord (Spawn Set)
+Effect/Name/InfestedVentSpawnCorruptorCreateCorruptor=Spawn Corruptor (Create Corruptor)
+Effect/Name/InfestedVentSpawnCorruptorCreateEggUnit=Spawn Corruptor (Create Egg Unit)
+Effect/Name/InfestedVentSpawnCorruptorPersistentForRandomOffset=Spawn Corruptor (Persistent For Random Offset)
+Effect/Name/InfestedVentSpawnCorruptorSpawnSet=Spawn Corruptor (Spawn Set)
+Effect/Name/InfestedVentSpawnMutaliskCreateEggUnit=Spawn Mutalisk (Create Egg Unit)
+Effect/Name/InfestedVentSpawnMutaliskCreateMutalisk=Spawn Mutalisk (Create Mutalisk)
+Effect/Name/InfestedVentSpawnMutaliskPersistentForRandomOffset=Spawn Mutalisk (Persistent For Random Offset)
+Effect/Name/InfestedVentSpawnMutaliskSpawnSet=Spawn Mutalisk (Spawn Set)
+Model/EditorPrefix/InfestedVentEgg=Zerg Infested Vent -
+Model/EditorPrefix/InfestedVentEggLaunch=Zerg Infested Vent -
+Model/EditorPrefix/InfestedVentEggMissile=Zerg Infested Vent -
+Model/Name/InfestedVentEgg=Egg
+Model/Name/InfestedVentEggLaunch=Egg Launch
+Model/Name/InfestedVentEggMissile=Egg Missile
+Mover/Name/ZergInfestedVentEgg=Zerg Infested Vent Egg
+Sound/Name/ZergInfestedVent_SpawnEggLaunch=ZergInfestedVent_SpawnEggLaunch
+    -->
+</Catalog>
