@@ -1,5 +1,4 @@
 include "TriggerLibs/NativeLib"
-include "LibARRA"
 include "LibDDE92A83_h"
 include "Lib948F000A_h"
 include "Lib7A9A9B22_h"
@@ -24,7 +23,6 @@ include "Lib6F4447A1_h"
 // External Library Initialization
 void lib6F4447A1_InitLibraries () {
     libNtve_InitVariables();
-    libARRA_InitVariables();
     libDDE92A83_InitVariables();
     lib948F000A_InitVariables();
     lib7A9A9B22_InitVariables();
@@ -181,6 +179,69 @@ void lib6F4447A1_gf_TestStart (fixed lp_timescale, fixed lp_spawnPeriod, int lp_
 
 }
 
+void lib6F4447A1_gf_CreateUnitSet (int lp_palyer) {
+    // Variable Declarations
+    string lv_unit;
+    string lv_race;
+    const fixed lv_distance = 3.0;
+    int lv_i;
+
+    // Automatic Variable Declarations
+    int auto4484D184_i;
+    string auto1FBA976C_builder;
+    int auto1FBA976C_buttons;
+    int auto1FBA976C_j;
+    string auto1FBA976C_type;
+    string auto1FBA976C_s;
+    abilcmd auto1FBA976C_a;
+
+    // Variable Initialization
+
+    // Implementation
+    auto4484D184_i = 1;
+    for ( ; auto4484D184_i <= UserDataInstanceCount("CustomRaces"); auto4484D184_i += 1 ) {
+        lv_race = UserDataInstance("CustomRaces", auto4484D184_i);
+        if ((UserDataGetGameLink("CustomRaces", lv_race, "Race", 1) == PlayerRace(lp_palyer))) {
+            auto1FBA976C_builder = UserDataGetGameLink("CustomRaces", lv_race , "Builder", 1);
+            auto1FBA976C_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons", c_playerAny) - 1);
+            auto1FBA976C_j = 1;
+            for ( ; auto1FBA976C_j <= auto1FBA976C_buttons; auto1FBA976C_j += 1 ) {
+                auto1FBA976C_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].Type", c_playerAny);
+                auto1FBA976C_s = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[1].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny);
+
+                auto1FBA976C_a  = StringToAbilCmd(auto1FBA976C_s);
+
+                if ((auto1FBA976C_a != null) && (auto1FBA976C_type == "AbilCmd")) {
+                    if ((CatalogEntryIsValid(c_gameCatalogAbil, AbilityCommandGetAbility(auto1FBA976C_a)) == false)) {
+                        continue;
+                    }
+                    lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto1FBA976C_a)), "ProducedUnitArray[0]", c_playerAny));
+                    if ((lv_unit != "")) {
+                        UnitCreate(1, lv_unit, c_unitCreateIgnorePlacement, lp_palyer, RegionRandomPoint(RegionCircle(PointWithOffset(UnitGetPosition(UnitGroupUnit(UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreas(), lp_palyer, 0), 1)), lv_distance, (0.0 - lv_distance)), 5.0)), 225.0);
+                        UnitGroupAdd(lib7A9A9B22_gv_stagingAreaSpawners, UnitLastCreated());
+                        UnitCreateEffectUnit(UnitLastCreated(), "UnitSpawner", UnitLastCreated());
+                    }
+                }
+            }
+            //auto1FBA976C_buttons = (CatalogFieldValueCount(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons", c_playerAny) - 1);
+            //auto1FBA976C_j = 31;
+            //for ( ; auto1FBA976C_j <= auto1FBA976C_buttons && auto1FBA976C_j <= 34; auto1FBA976C_j += 1 ) {
+                //    auto1FBA976C_type     = CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].Type", c_playerAny);
+                //    auto1FBA976C_a  = StringToAbilCmd(CatalogFieldValueGet(c_gameCatalogUnit, auto1FBA976C_builder, "CardLayouts[0].LayoutButtons[" + IntToString(auto1FBA976C_j) + "].AbilCmd", c_playerAny));
+                //    if ((auto1FBA976C_a != null) && (auto1FBA976C_type == "AbilCmd")) {
+                    //        lv_unit = (CatalogFieldValueGet(c_gameCatalogAbil, (AbilityCommandGetAbility(auto1FBA976C_a)), "ProducedUnitArray[0]", c_playerAny));
+                    //        if ((lv_unit != "")) {
+                        //            UnitCreate(1, lv_unit, c_unitCreateIgnorePlacement, lp_palyer, RegionRandomPoint(RegionCircle(PointWithOffset(UnitGetPosition(UnitGroupUnit(UnitGroupFilterPlayer(lib7A9A9B22_gf_StagingAreas(), lp_palyer, 0), 1)), lv_distance, (0.0 - lv_distance)), 5.0)), 225.0);
+                        UnitGroupAdd(lib7A9A9B22_gv_stagingAreaSpawners, UnitLastCreated());
+                        UnitCreateEffectUnit(UnitLastCreated(), "UnitSpawner", UnitLastCreated());
+                        //        }
+                    //    }
+                //}
+        }
+
+    }
+}
+
 void lib6F4447A1_gf_EnemyRaceRepick (string lp_worker) {
     // Automatic Variable Declarations
     // Implementation
@@ -257,138 +318,52 @@ void lib6F4447A1_gf_EmoticonLoadAll () {
 
 // Triggers
 //--------------------------------------------------------------------------------------------------
-// Trigger: Deselection
+// Trigger: Test Mode
 //--------------------------------------------------------------------------------------------------
-bool lib6F4447A1_gt_Deselection_Func (bool testConds, bool runActions) {
+bool lib6F4447A1_gt_TestMode_Func (bool testConds, bool runActions) {
     // Variable Declarations
-    unit lv_unit;
-    int lv_player;
-    unitgroup lv_selection;
+    int lv_i;
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_unit = EventPlayerEffectUsedUnit(c_effectUnitCaster);
-    lv_player = UnitGetOwner(lv_unit);
-    lv_selection = UnitGroupSelected(lv_player);
+
+    // Conditions
+    if (testConds) {
+        if (!((GameIsTestMap(false) == true))) {
+            return false;
+        }
+    }
 
     // Actions
     if (!runActions) {
         return true;
     }
 
-    UnitGroupSelect(lv_selection, lv_player, false);
-    UnitGroupRemove(lv_selection, lv_unit);
-    UnitGroupSelect(lv_selection, lv_player, true);
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "IncludeStandardRacesInCommanderSelect", 1);
+    PlayerSetRace(1, "Keir");
+    PlayerSetRace(2, "Terr");
+    lib7550A90B_gf_TugofWarStartDefault(null, null);
+    libNtve_gf_SetUpgradeLevelForPlayer(2, "SandboxModeOverpoweredBase", 1);
+    lib16875C2F_gf_MutationAdd("ScionRaces");
+    lib16875C2F_gf_MutationAdd("PlayDefensive");
+    lib16875C2F_gf_MutationAdd("Switch");
+    lib16875C2F_gf_MutationCovenant(true);
+    lib16875C2F_gf_MutationExpandedArmaments(true);
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "StaticDefenses", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(2, "StaticDefenses", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(3, "StaticDefenses", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(4, "StaticDefenses", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(5, "StaticDefenses", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(6, "StaticDefenses", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "Tier2", 1);
+    lib64DC5B97_gf_AddVespene(1, 1000);
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-void lib6F4447A1_gt_Deselection_Init () {
-    lib6F4447A1_gt_Deselection = TriggerCreate("lib6F4447A1_gt_Deselection_Func");
-    TriggerAddEventPlayerEffectUsed(lib6F4447A1_gt_Deselection, c_playerAny, "VS_DeselectCasterAB");
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Spawn Unit Created
-//--------------------------------------------------------------------------------------------------
-bool lib6F4447A1_gt_SpawnUnitCreated_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_unit;
-    int lv_player;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_unit = EventUnitCreatedUnit();
-    lv_player = UnitGetOwner(lv_unit);
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    if ((TechTreeUpgradeCount(lv_player, "PlacementFacingNE", c_techCountQueuedOrBetter) == 1)) {
-        UnitSetFacing(lv_unit, 45.0, 0.0);
-    }
-    if ((TechTreeUpgradeCount(lv_player, "PlacementFacingSE", c_techCountQueuedOrBetter) == 1)) {
-        UnitSetFacing(lv_unit, 135.0, 0.0);
-    }
-    if ((TechTreeUpgradeCount(lv_player, "PlacementFacingSW", c_techCountQueuedOrBetter) == 1)) {
-        UnitSetFacing(lv_unit, 225.0, 0.0);
-    }
-    if ((TechTreeUpgradeCount(lv_player, "PlacementFacingNW", c_techCountQueuedOrBetter) == 1)) {
-        UnitSetFacing(lv_unit, 315.0, 0.0);
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void lib6F4447A1_gt_SpawnUnitCreated_Init () {
-    lib6F4447A1_gt_SpawnUnitCreated = TriggerCreate("lib6F4447A1_gt_SpawnUnitCreated_Func");
-    TriggerAddEventUnitCreated(lib6F4447A1_gt_SpawnUnitCreated, null, null, null);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Initialize
-//--------------------------------------------------------------------------------------------------
-bool lib6F4447A1_gt_MapInitialize_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    playergroup autoCE08396E_g;
-    int autoCE08396E_var;
-    int autoE1EFB00A_ae;
-    int autoE1EFB00A_var;
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    PlayerSetRace(1, "Zerg");
-    lib7550A90B_gf_TugofWarCustom(null, null);
-    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 5000);
-    autoCE08396E_g = PlayerGroupAll();
-    autoCE08396E_var = -1;
-    while (true) {
-        autoCE08396E_var = PlayerGroupNextPlayer(autoCE08396E_g, autoCE08396E_var);
-        if (autoCE08396E_var < 0) { break; }
-        autoE1EFB00A_ae = (CatalogFieldValueCount(c_gameCatalogAbil, "WorkerSelectCustom", "InfoArray", c_playerAny) - 1);
-        autoE1EFB00A_var = 0;
-        for ( ; autoE1EFB00A_var <= autoE1EFB00A_ae; autoE1EFB00A_var += 1 ) {
-            CatalogFieldValueSet(c_gameCatalogAbil, "WorkerSelectCustom", "InfoArray[" + IntToString(autoE1EFB00A_var) + "].Cooldown.TimeStart", autoCE08396E_var, IntToString(0));
-            CatalogFieldValueSet(c_gameCatalogAbil, "WorkerSelectCustom", "InfoArray[" + IntToString(autoE1EFB00A_var) + "].Cooldown.TimeUse", autoCE08396E_var, IntToString(0));
-        }
-        if (true) {
-            CatalogFieldValueSet(c_gameCatalogEffect, "ObjectiveNexusDamage", "AreaArray[" + IntToString(0) + "].Radius", autoCE08396E_var, IntToString(1));
-            CatalogFieldValueSet(c_gameCatalogEffect, "ObjectiveNexusDamage", "AreaArray[" + IntToString(1) + "].Radius", autoCE08396E_var, IntToString(2));
-            CatalogFieldValueSet(c_gameCatalogEffect, "ObjectiveNexusDamage", "AreaArray[" + IntToString(2) + "].Radius", autoCE08396E_var, IntToString(3));
-            CatalogFieldValueSet(c_gameCatalogEffect, "ObjectivePlanetaryFortressDamage", "AreaArray[" + IntToString(0) + "].Radius", autoCE08396E_var, IntToString(1));
-            CatalogFieldValueSet(c_gameCatalogEffect, "ObjectivePlanetaryFortressDamage", "AreaArray[" + IntToString(1) + "].Radius", autoCE08396E_var, IntToString(2));
-            CatalogFieldValueSet(c_gameCatalogEffect, "ObjectivePlanetaryFortressDamage", "AreaArray[" + IntToString(2) + "].Radius", autoCE08396E_var, IntToString(3));
-            CatalogFieldValueSet(c_gameCatalogEffect, "ObjectivePlanetaryFortressDamageAlt", "AreaArray[" + IntToString(0) + "].Radius", autoCE08396E_var, IntToString(1));
-            CatalogFieldValueSet(c_gameCatalogEffect, "ObjectivePlanetaryFortressDamageAlt", "AreaArray[" + IntToString(1) + "].Radius", autoCE08396E_var, IntToString(2));
-            CatalogFieldValueSet(c_gameCatalogEffect, "ObjectivePlanetaryFortressDamageAlt", "AreaArray[" + IntToString(2) + "].Radius", autoCE08396E_var, IntToString(3));
-            CatalogFieldValueSet(c_gameCatalogUnit, "ObjectiveNexus", "LifeRegenRate", autoCE08396E_var, IntToString(25));
-            CatalogFieldValueSet(c_gameCatalogUnit, "ObjectiveNexus", "ShieldRegenRate", autoCE08396E_var, IntToString(25));
-            CatalogFieldValueSet(c_gameCatalogUnit, "ObjectivePlanetaryFortress", "LifeRegenRate", autoCE08396E_var, IntToString(25));
-            CatalogFieldValueSet(c_gameCatalogUnit, "ObjectivePlanetaryFortress", "ShieldRegenRate", autoCE08396E_var, IntToString(25));
-            CatalogFieldValueSet(c_gameCatalogUnit, "ObjectivePhotonCannon", "LifeRegenRate", autoCE08396E_var, IntToString(25));
-            CatalogFieldValueSet(c_gameCatalogUnit, "ObjectivePhotonCannon", "ShieldRegenRate", autoCE08396E_var, IntToString(25));
-            CatalogFieldValueSet(c_gameCatalogUnit, "ObjectiveBunker", "LifeRegenRate", autoCE08396E_var, IntToString(25));
-            CatalogFieldValueSet(c_gameCatalogUnit, "ObjectiveBunker", "ShieldRegenRate", autoCE08396E_var, IntToString(25));
-        }
-
-        if (true) {
-            CatalogFieldValueSet(c_gameCatalogAbil, "NeutralUpgradesAutocast", "InfoArray[" + IntToString(0) + "].Time", autoCE08396E_var, IntToString(0));
-            CatalogFieldValueSet(c_gameCatalogAbil, "NeutralUpgradesAutocast", "InfoArray[" + IntToString(1) + "].Time", autoCE08396E_var, IntToString(0));
-        }
-
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void lib6F4447A1_gt_MapInitialize_Init () {
-    lib6F4447A1_gt_MapInitialize = TriggerCreate("lib6F4447A1_gt_MapInitialize_Func");
-    TriggerAddEventMapInit(lib6F4447A1_gt_MapInitialize);
+void lib6F4447A1_gt_TestMode_Init () {
+    lib6F4447A1_gt_TestMode = TriggerCreate("lib6F4447A1_gt_TestMode_Func");
+    TriggerAddEventMapInit(lib6F4447A1_gt_TestMode);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,6 +385,42 @@ bool lib6F4447A1_gt_UIFix_Func (bool testConds, bool runActions) {
 void lib6F4447A1_gt_UIFix_Init () {
     lib6F4447A1_gt_UIFix = TriggerCreate("lib6F4447A1_gt_UIFix_Func");
     TriggerAddEventMapInit(lib6F4447A1_gt_UIFix);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: NYI Unit Disabler
+//--------------------------------------------------------------------------------------------------
+bool lib6F4447A1_gt_NYIUnitDisabler_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto4D8028EF_g;
+    int auto4D8028EF_var;
+
+    // Conditions
+    if (testConds) {
+        if (!((GameIsTestMap(false) == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto4D8028EF_g = PlayerGroupAll();
+    auto4D8028EF_var = -1;
+    while (true) {
+        auto4D8028EF_var = PlayerGroupNextPlayer(auto4D8028EF_g, auto4D8028EF_var);
+        if (auto4D8028EF_var < 0) { break; }
+        TechTreeAbilityAllow(auto4D8028EF_var, AbilityCommand("DehakaDakrunPlace", 0), false);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib6F4447A1_gt_NYIUnitDisabler_Init () {
+    lib6F4447A1_gt_NYIUnitDisabler = TriggerCreate("lib6F4447A1_gt_NYIUnitDisabler_Func");
+    TriggerAddEventMapInit(lib6F4447A1_gt_NYIUnitDisabler);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -483,7 +494,7 @@ bool lib6F4447A1_gt_SandboxModeEffectRepick_Func (bool testConds, bool runAction
 
     UIDisplayMessage(PlayerGroupSingle(EventPlayer()), c_messageAreaChat, (StringToText("<c val=\"#ColorAttackInfo\">") + StringExternal("Param/Value/lib_6F4447A1_4A056852") + StringToText("</c> ")));
     libNtve_gf_SetUpgradeLevelForPlayer(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), "IncludeStandardRacesInCommanderSelect", 1);
-    TechTreeAbilityAllow(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), AbilityCommand("WorkerSelectRace", 22), false);
+    TechTreeAbilityAllow(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), AbilityCommand("WorkerSelect", 22), false);
     libDDE92A83_gf_ResetCommander(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster));
     return true;
 }
@@ -2047,10 +2058,9 @@ void lib6F4447A1_gt_SandboxModeChatEnemyZeratul_Init () {
 }
 
 void lib6F4447A1_InitTriggers () {
-    lib6F4447A1_gt_Deselection_Init();
-    lib6F4447A1_gt_SpawnUnitCreated_Init();
-    lib6F4447A1_gt_MapInitialize_Init();
+    lib6F4447A1_gt_TestMode_Init();
     lib6F4447A1_gt_UIFix_Init();
+    lib6F4447A1_gt_NYIUnitDisabler_Init();
     lib6F4447A1_gt_ResetCommander_Init();
     lib6F4447A1_gt_KerriganImmobilizationWaveCooldownFix_Init();
     lib6F4447A1_gt_SandboxModeEffectRepick_Init();

@@ -1,0 +1,513 @@
+include "TriggerLibs/NativeLib"
+include "LibARRA"
+include "Lib458E37E6_h"
+
+include "LibF095282B_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Objective Icon
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libF095282B_InitLibraries () {
+    libNtve_InitVariables();
+    libARRA_InitVariables();
+    lib458E37E6_InitVariables();
+}
+
+// Variable Initialization
+bool libF095282B_InitVariables_completed = false;
+
+void libF095282B_InitVariables () {
+    int init_i;
+    int init_j;
+
+    if (libF095282B_InitVariables_completed) {
+        return;
+    }
+
+    libF095282B_InitVariables_completed = true;
+
+    for (init_i = 0; init_i <= libF095282B_gv_iD; init_i += 1) {
+        libF095282B_gv_objectiveIconDialogMain[init_i] = c_invalidDialogId;
+    }
+    for (init_i = 0; init_i <= libF095282B_gv_iD; init_i += 1) {
+        libF095282B_gv_objectiveIconDialogSmall[init_i] = c_invalidDialogId;
+    }
+    for (init_i = 0; init_i <= libF095282B_gv_iD; init_i += 1) {
+        libF095282B_gv_objectiveIconButton[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= libF095282B_gv_iD; init_i += 1) {
+        libF095282B_gv_objectiveIconLife[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= libF095282B_gv_iD; init_i += 1) {
+        libF095282B_gv_objectiveIconShields[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= libF095282B_gv_iD; init_i += 1) {
+        libF095282B_gv_objectiveIconStatus[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= libF095282B_gv_iD; init_i += 1) {
+        for (init_j = 0; init_j <= libF095282B_gv_item; init_j += 1) {
+            libF095282B_gv_objectiveIconItem[init_i][init_j] = c_invalidDialogControlId;
+        }
+    }
+    for (init_i = 0; init_i <= 1; init_i += 1) {
+        libF095282B_gv_objectiveIconDialogDelayedRemoval[init_i] = c_invalidDialogId;
+    }
+}
+
+// Functions
+void libF095282B_gf_ObjectiveIconCreateModified (unit lp_unit, playergroup lp_players, int lp_iD, int lp_anchor, int lp_offsetX, int lp_offsetY, int lp_offsetBar, bool lp_birth, bool lp_automaticRefresh) {
+    // Variable Declarations
+    string lv_icon;
+    int lv_iconUnit;
+    int lv_iconBackground;
+    int lv_iconSize;
+    int lv_statusBarBorder;
+    int lv_dialogSmall;
+    color lv_colorLightFriendly;
+    color lv_colorLightEnemy;
+    color lv_colorDarkFriendly;
+    color lv_colorDarkEnemy;
+    string lv_statusBarTexture;
+    int lv_statusBarX;
+    int lv_statusBarY;
+    int lv_statusBarOffset;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_icon = (CatalogFieldValueGet(c_gameCatalogActor, libARRA_gf_MapStringGet(lib458E37E6_gv_objectiveIcons, (UnitGetType(lp_unit))), "UnitIcon", c_playerAny));
+    lv_iconUnit = c_invalidDialogControlId;
+    lv_iconBackground = c_invalidDialogControlId;
+    lv_iconSize = 76;
+    lv_statusBarBorder = c_invalidDialogControlId;
+    lv_dialogSmall = c_invalidDialogId;
+    lv_colorLightFriendly = Color(25.10, 100.00, 25.10);
+    lv_colorLightEnemy = Color(87.84, 25.10, 25.10);
+    lv_colorDarkFriendly = Color(0.00, 40.00, 0.00);
+    lv_colorDarkEnemy = Color(40.00, 0.00, 0.00);
+    lv_statusBarTexture = "Assets\\Textures\\ui_statusbarborder_single.dds";
+    lv_statusBarX = 100;
+    lv_statusBarY = 10;
+
+    // Implementation
+    if ((libF095282B_gv_objectiveIconCreated[lp_iD] == true)) {
+        libF095282B_gv_objectiveIconDialogDelayedRemoval[0] = libF095282B_gv_objectiveIconDialogMain[0];
+        libF095282B_gv_objectiveIconDialogDelayedRemoval[0] = libF095282B_gv_objectiveIconDialogMain[1];
+        TriggerExecute(libF095282B_gt_ObjectiveIconDelayedRemoval, true, false);
+    }
+
+    libF095282B_gv_objectiveIconUnit[lp_iD] = lp_unit;
+    libF095282B_gv_objectiveIconCreated[lp_iD] = true;
+    TriggerEnable(libF095282B_gt_ObjectiveIconRefresh, lp_automaticRefresh);
+    TriggerEnable(libF095282B_gt_ObjectiveIconDelayedRemoval, lp_automaticRefresh);
+    DialogCreate(128, 128, lp_anchor, lp_offsetX, lp_offsetY, true);
+    lv_dialogSmall = DialogLastCreated();
+    libF095282B_gv_objectiveIconDialogSmall[lp_iD] = DialogLastCreated();
+    DialogSetVisible(DialogLastCreated(), lp_players, true);
+    DialogSetImageVisible(DialogLastCreated(), false);
+    DialogCreate(1024, 1024, lp_anchor, lp_offsetX, lp_offsetY, true);
+    libF095282B_gv_objectiveIconDialogMain[lp_iD] = DialogLastCreated();
+    DialogSetPositionRelative(DialogLastCreated(), c_anchorCenter, lv_dialogSmall, c_anchorCenter, 0, 0);
+    DialogSetVisible(DialogLastCreated(), lp_players, true);
+    DialogSetImageVisible(DialogLastCreated(), false);
+    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeImage, "ImageBirthSpin/ImageBirthSpin");
+    DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, 0, 0);
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), (lv_iconSize + 6), (lv_iconSize + 6));
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), lv_icon, PlayerGroupAll());
+    if ((lp_birth == true)) {
+        DialogControlSendAnimationEvent(DialogControlLastCreated(), PlayerGroupAll(), "OnBirth");
+    }
+
+    lv_iconBackground = DialogControlLastCreated();
+    libF095282B_gv_objectiveIconItem[lp_iD][0] = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 390, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(0,0,0), PlayerGroupAll());
+    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeImage, "ImageBirthSpin/ImageBirthSpin");
+    DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, 0, 0);
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), lv_iconSize, lv_iconSize);
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), lv_icon, PlayerGroupAll());
+    if ((lp_birth == true)) {
+        DialogControlSendAnimationEvent(DialogControlLastCreated(), PlayerGroupAll(), "OnBirth");
+    }
+
+    lv_iconUnit = DialogControlLastCreated();
+    libF095282B_gv_objectiveIconItem[lp_iD][1] = DialogControlLastCreated();
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_iconBackground, c_anchorCenter, 0, 0);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 400, PlayerGroupAll());
+    DialogControlCreate(DialogLastCreated(), c_triggerControlTypeUnitTarget);
+    libF095282B_gv_objectiveIconItem[lp_iD][2] = DialogControlLastCreated();
+    libF095282B_gv_objectiveIconButton[lp_iD] = DialogControlLastCreated();
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_iconBackground, c_anchorCenter, 0, 0);
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 76, 76);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 380, PlayerGroupAll());
+    libNtve_gf_SetDialogItemUnit(DialogControlLastCreated(), lp_unit, PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\black.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_unitstatusicon_normaloverpressedover.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_colorLightFriendly, libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Ally, UnitGetOwner(lp_unit)));
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_colorLightEnemy, libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Enemy, UnitGetOwner(lp_unit)));
+    if ((UnitGetPropertyFixed(lp_unit, c_unitPropShieldsMax, c_unitPropCurrent) > 0.0)) {
+        lv_statusBarY += 10;
+        lv_statusBarOffset += 10;
+        lv_statusBarTexture = "Assets\\Textures\\ui_statusbarborder_double.dds";
+    }
+
+    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeImage, "ImageBirthSpin/ImageBirthSpin");
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), (lv_statusBarX + 18), (lv_statusBarY + 16));
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), lv_statusBarTexture, PlayerGroupAll());
+    if ((lp_birth == true)) {
+        DialogControlSendAnimationEvent(DialogControlLastCreated(), PlayerGroupAll(), "OnBirth");
+    }
+
+    libF095282B_gv_objectiveIconItem[lp_iD][3] = DialogControlLastCreated();
+    lv_statusBarBorder = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 600, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_colorLightFriendly, libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Ally, UnitGetOwner(lp_unit)));
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_colorLightEnemy, libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Enemy, UnitGetOwner(lp_unit)));
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorBottom, lv_iconUnit, c_anchorBottom, 0, (lp_offsetBar + lv_statusBarOffset));
+    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeImage, "ImageBirthSpin/ImageBirthSpin");
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), (lv_statusBarX + 20), (lv_statusBarY + 18));
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), lv_statusBarTexture, PlayerGroupAll());
+    if ((lp_birth == true)) {
+        DialogControlSendAnimationEvent(DialogControlLastCreated(), PlayerGroupAll(), "OnBirth");
+    }
+
+    libF095282B_gv_objectiveIconItem[lp_iD][4] = DialogControlLastCreated();
+    libF095282B_gv_objectiveIconItem[lp_iD][5] = DialogControlLastCreated();
+    libF095282B_gv_objectiveIconItem[lp_iD][6] = DialogControlLastCreated();
+    libF095282B_gv_objectiveIconShields[lp_iD] = DialogControlLastCreated();
+    DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), false);
+    DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), true);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 390, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(0,0,0), PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_statusBarBorder, c_anchorCenter, 0, 0);
+    if ((UnitGetPropertyFixed(lp_unit, c_unitPropShieldsMax, c_unitPropCurrent) > 0.0)) {
+        DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeUnitStatus, "UnitStatusShieldsBar/UnitStatusBarDefault");
+        libF095282B_gv_objectiveIconShields[lp_iD] = DialogControlLastCreated();
+        libF095282B_gv_objectiveIconItem[lp_iD][5] = DialogControlLastCreated();
+        if ((lp_birth == true)) {
+            DialogControlSendAnimationEvent(DialogControlLastCreated(), PlayerGroupAll(), "OnBirth");
+        }
+
+        DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), lv_statusBarX, 8);
+        libNtve_gf_SetDialogItemUnit(DialogControlLastCreated(), lp_unit, PlayerGroupAll());
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 540, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTopLeft, lv_statusBarBorder, c_anchorTopLeft, 9, 9);
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), lv_statusBarX, 10, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\cleanverticalgradient.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        libF095282B_gv_objectiveIconItem[lp_iD][6] = DialogControlLastCreated();
+        if ((lp_birth == true)) {
+            DialogControlSendAnimationEvent(DialogControlLastCreated(), PlayerGroupAll(), "OnBirth");
+        }
+
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 500, PlayerGroupAll());
+        libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(18.82, 50.20, 75.29), PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorTop, lv_statusBarBorder, c_anchorTop, 0, 9);
+    }
+
+    DialogControlCreate(DialogLastCreated(), c_triggerControlTypeUnitStatus);
+    libF095282B_gv_objectiveIconItem[lp_iD][7] = DialogControlLastCreated();
+    libF095282B_gv_objectiveIconLife[lp_iD] = DialogControlLastCreated();
+    if ((lp_birth == true)) {
+        DialogControlSendAnimationEvent(DialogControlLastCreated(), PlayerGroupAll(), "OnBirth");
+    }
+
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), lv_statusBarX, 10);
+    libNtve_gf_SetDialogItemUnit(DialogControlLastCreated(), lp_unit, PlayerGroupAll());
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 540, PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorBottom, lv_statusBarBorder, c_anchorBottom, 0, -7);
+    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), lv_statusBarX, 10, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\cleanverticalgradient.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+    libF095282B_gv_objectiveIconItem[lp_iD][8] = DialogControlLastCreated();
+    if ((lp_birth == true)) {
+        DialogControlSendAnimationEvent(DialogControlLastCreated(), PlayerGroupAll(), "OnBirth");
+    }
+
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 500, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_colorDarkFriendly, libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Ally, UnitGetOwner(lp_unit)));
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), lv_colorDarkEnemy, libNtve_gf_AlliesEnemiesOfPlayerCountInactiveAndSelf(libNtve_ge_PlayerRelation_Enemy, UnitGetOwner(lp_unit)));
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorBottom, lv_statusBarBorder, c_anchorBottom, 0, -7);
+    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeImage, "ImageBirthSpin/ImageBirthSpin");
+    DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, 32, -32);
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 32, 32);
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\black.dds", PlayerGroupAll());
+    libF095282B_gv_objectiveIconStatus[lp_iD] = DialogControlLastCreated();
+    libF095282B_gv_objectiveIconItem[lp_iD][9] = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 510, PlayerGroupAll());
+    libF095282B_gf_ObjectiveIconUpdate();
+}
+
+void libF095282B_gf_ObjectiveIconFade (playergroup lp_players, int lp_iD, bool lp_fade, fixed lp_fadeDuration) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    const int auto2352098D_ae = libF095282B_gv_item;
+    const int auto2352098D_ai = 1;
+    bool auto536B29ED_val;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libF095282B_gv_objectiveIconCreated[lp_iD] == true)) {
+        lv_i = 0;
+        for ( ; ( (auto2352098D_ai >= 0 && lv_i <= auto2352098D_ae) || (auto2352098D_ai < 0 && lv_i >= auto2352098D_ae) ) ; lv_i += auto2352098D_ai ) {
+            auto536B29ED_val = lp_fade;
+            if (auto536B29ED_val == true) {
+                DialogControlFadeTransparency(libF095282B_gv_objectiveIconItem[lp_iD][lv_i], lp_players, 0.0, 100.0);
+                DialogControlFadeTransparency(libF095282B_gv_objectiveIconItem[lp_iD][lv_i], lp_players, lp_fadeDuration, 0.0);
+                DialogControlSetVisible(libF095282B_gv_objectiveIconLife[lp_iD], lp_players, true);
+                DialogControlSetVisible(libF095282B_gv_objectiveIconButton[lp_iD], lp_players, true);
+                DialogControlSetVisible(libF095282B_gv_objectiveIconShields[lp_iD], lp_players, true);
+            }
+            else if (auto536B29ED_val == false) {
+                DialogControlFadeTransparency(libF095282B_gv_objectiveIconItem[lp_iD][lv_i], lp_players, 0.0, 0.0);
+                DialogControlFadeTransparency(libF095282B_gv_objectiveIconItem[lp_iD][lv_i], lp_players, lp_fadeDuration, 100.0);
+                DialogControlSetVisible(libF095282B_gv_objectiveIconLife[lp_iD], lp_players, false);
+                DialogControlSetVisible(libF095282B_gv_objectiveIconButton[lp_iD], lp_players, false);
+                DialogControlSetVisible(libF095282B_gv_objectiveIconShields[lp_iD], lp_players, false);
+            }
+            else {
+            }
+        }
+    }
+
+}
+
+void libF095282B_gf_ObjectiveIconDeath (int lp_iD) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    const int auto9093C1B1_ae = libF095282B_gv_item;
+    const int auto9093C1B1_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libF095282B_gv_objectiveIconCreated[lp_iD] == true)) {
+        libF095282B_gv_objectiveIconCreated[lp_iD] = false;
+        libF095282B_gv_objectiveIconDialogDelayedRemoval[0] = libF095282B_gv_objectiveIconDialogMain[0];
+        libF095282B_gv_objectiveIconDialogDelayedRemoval[0] = libF095282B_gv_objectiveIconDialogMain[1];
+        TriggerExecute(libF095282B_gt_ObjectiveIconDelayedRemoval, true, false);
+        lv_i = 0;
+        for ( ; ( (auto9093C1B1_ai >= 0 && lv_i <= auto9093C1B1_ae) || (auto9093C1B1_ai < 0 && lv_i >= auto9093C1B1_ae) ) ; lv_i += auto9093C1B1_ai ) {
+            DialogControlSendAnimationEvent(libF095282B_gv_objectiveIconItem[lp_iD][lv_i], PlayerGroupAll(), "OnDeath");
+            DialogControlFadeTransparency(libF095282B_gv_objectiveIconItem[lp_iD][lv_i], PlayerGroupAll(), 0.0, 0.0);
+            DialogControlFadeTransparency(libF095282B_gv_objectiveIconItem[lp_iD][lv_i], PlayerGroupAll(), RandomFixed(0.375, 0.625), 100.0);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconLife[lp_iD], PlayerGroupAll(), false);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconButton[lp_iD], PlayerGroupAll(), false);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconShields[lp_iD], PlayerGroupAll(), false);
+        }
+    }
+
+}
+
+void libF095282B_gf_ObjectiveIconRemove (int lp_iD) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    const int autoAFF2EF9C_ae = libF095282B_gv_item;
+    const int autoAFF2EF9C_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libF095282B_gv_objectiveIconCreated[lp_iD] == true)) {
+        libF095282B_gv_objectiveIconCreated[lp_iD] = false;
+        libF095282B_gv_objectiveIconDialogDelayedRemoval[0] = libF095282B_gv_objectiveIconDialogMain[0];
+        libF095282B_gv_objectiveIconDialogDelayedRemoval[0] = libF095282B_gv_objectiveIconDialogMain[1];
+        lv_i = 0;
+        for ( ; ( (autoAFF2EF9C_ai >= 0 && lv_i <= autoAFF2EF9C_ae) || (autoAFF2EF9C_ai < 0 && lv_i >= autoAFF2EF9C_ae) ) ; lv_i += autoAFF2EF9C_ai ) {
+            DialogControlSetVisible(libF095282B_gv_objectiveIconItem[lp_iD][lv_i], PlayerGroupAll(), false);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconLife[lp_iD], PlayerGroupAll(), false);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconButton[lp_iD], PlayerGroupAll(), false);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconShields[lp_iD], PlayerGroupAll(), false);
+        }
+    }
+
+}
+
+void libF095282B_gf_ObjectiveIconStatus (int lp_iD, string lp_icon, int lp_sizeX, int lp_sizeY) {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((libF095282B_gv_objectiveIconCreated[lp_iD] == true)) {
+        if ((lp_icon != null)) {
+            DialogControlSetVisible(libF095282B_gv_objectiveIconStatus[lp_iD], PlayerGroupAll(), true);
+            DialogControlSetSize(libF095282B_gv_objectiveIconStatus[lp_iD], PlayerGroupAll(), lp_sizeX, lp_sizeY);
+            libNtve_gf_SetDialogItemImage(libF095282B_gv_objectiveIconStatus[lp_iD], lp_icon, PlayerGroupAll());
+        }
+        else {
+            DialogControlSetVisible(libF095282B_gv_objectiveIconStatus[lp_iD], PlayerGroupAll(), false);
+        }
+    }
+
+}
+
+void libF095282B_gf_ObjectiveIconUpdate () {
+    // Variable Declarations
+    int lv_i;
+    int lv_x;
+    text lv_tooltipShields;
+    text lv_tooltipEnergy;
+
+    // Automatic Variable Declarations
+    const int auto857A8C89_ae = libF095282B_gv_iD;
+    const int auto857A8C89_ai = 1;
+    const int auto1A1CDE94_ae = libF095282B_gv_item;
+    const int auto1A1CDE94_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    lv_i = 0;
+    for ( ; ( (auto857A8C89_ai >= 0 && lv_i <= auto857A8C89_ae) || (auto857A8C89_ai < 0 && lv_i >= auto857A8C89_ae) ) ; lv_i += auto857A8C89_ai ) {
+        if ((libF095282B_gv_objectiveIconCreated[lv_i] == true)) {
+            if ((UnitIsAlive(libF095282B_gv_objectiveIconUnit[lv_i]) == true)) {
+                if ((UnitGetPropertyFixed(libF095282B_gv_objectiveIconUnit[lv_i], c_unitPropShieldsMax, c_unitPropCurrent) > 0.0)) {
+                    lv_tooltipShields = (StringToText("<s val=\"StandardTooltip\"></c>") + StringExternal("e_gameUIStringShields") + StringToText(": ") + TextWithColor((FixedToText(UnitGetPropertyFixed(libF095282B_gv_objectiveIconUnit[lv_i], c_unitPropShields, c_unitPropCurrent), 0) + StringToText("/") + FixedToText(UnitGetPropertyFixed(libF095282B_gv_objectiveIconUnit[lv_i], c_unitPropShieldsMax, c_unitPropCurrent), 0)), Color(28.24, 64.31, 100.00)) + StringToText("<n/>"));
+                }
+
+                if ((UnitGetPropertyFixed(libF095282B_gv_objectiveIconUnit[lv_i], c_unitPropEnergyMax, c_unitPropCurrent) > 0.0)) {
+                    lv_tooltipEnergy = (StringToText("<s val=\"StandardTooltip\"></c>") + StringExternal("e_gameUIStringEnergy") + StringToText("") + TextWithColor((FixedToText(UnitGetPropertyFixed(libF095282B_gv_objectiveIconUnit[lv_i], c_unitPropEnergy, c_unitPropCurrent), 0) + StringToText("/") + FixedToText(UnitGetPropertyFixed(libF095282B_gv_objectiveIconUnit[lv_i], c_unitPropEnergyMax, c_unitPropCurrent), 0)), Color(72.16, 43.92, 90.98)) + StringToText("<n/>"));
+                }
+
+                libNtve_gf_SetDialogItemTooltip(libF095282B_gv_objectiveIconButton[lv_i], ((StringToText("<s val=\"StandardTooltipHeader\"></c>") + UnitGetName(libF095282B_gv_objectiveIconUnit[lv_i]) + StringToText("</n></n>")) + lv_tooltipShields + (StringToText("<s val=\"StandardTooltip\"></c>") + StringExternal("e_gameUIStringLife") + StringToText(": ") + TextWithColor((FixedToText(libNtve_gf_ArithmeticRealClamp(UnitGetPropertyFixed(libF095282B_gv_objectiveIconUnit[lv_i], c_unitPropLife, c_unitPropCurrent), 1.0, UnitGetPropertyFixed(libF095282B_gv_objectiveIconUnit[lv_i], c_unitPropLifeMax, c_unitPropCurrent)), 0) + StringToText("/") + FixedToText(UnitGetPropertyFixed(libF095282B_gv_objectiveIconUnit[lv_i], c_unitPropLifeMax, c_unitPropCurrent), 0)), Color(8.63, 89.80, 0.00)) + StringToText("<n/>")) + lv_tooltipEnergy + (StringToText("<n/>") + StringExternal(CatalogFieldValueGet(c_gameCatalogUnit, UnitGetType(libF095282B_gv_objectiveIconUnit[lv_i]), "Description", c_playerAny)))), PlayerGroupAll());
+            }
+            else {
+                DialogControlSetVisible(libF095282B_gv_objectiveIconLife[lv_i], PlayerGroupAll(), false);
+                DialogControlSetVisible(libF095282B_gv_objectiveIconButton[lv_i], PlayerGroupAll(), false);
+                DialogControlSetVisible(libF095282B_gv_objectiveIconShields[lv_i], PlayerGroupAll(), false);
+                lv_x = 0;
+                for ( ; ( (auto1A1CDE94_ai >= 0 && lv_x <= auto1A1CDE94_ae) || (auto1A1CDE94_ai < 0 && lv_x >= auto1A1CDE94_ae) ) ; lv_x += auto1A1CDE94_ai ) {
+                    DialogControlSetEnabled(libF095282B_gv_objectiveIconItem[lv_i][lv_x], PlayerGroupAll(), false);
+                }
+            }
+        }
+
+    }
+}
+
+void libF095282B_gf_ObjectiveIconToggle (int lp_iD, bool lp_toggle) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    const int auto54FEC31E_ae = libF095282B_gv_item;
+    const int auto54FEC31E_ai = 1;
+    bool auto7C08C630_val;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((libF095282B_gv_objectiveIconCreated[lv_i] == true)) {
+        lv_i = 0;
+        for ( ; ( (auto54FEC31E_ai >= 0 && lv_i <= auto54FEC31E_ae) || (auto54FEC31E_ai < 0 && lv_i >= auto54FEC31E_ae) ) ; lv_i += auto54FEC31E_ai ) {
+            DialogControlSetEnabled(libF095282B_gv_objectiveIconItem[lp_iD][lv_i], PlayerGroupAll(), lp_toggle);
+        }
+        auto7C08C630_val = lp_toggle;
+        if (auto7C08C630_val == true) {
+            DialogControlSetVisible(libF095282B_gv_objectiveIconLife[lp_iD], PlayerGroupAll(), true);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconButton[lp_iD], PlayerGroupAll(), true);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconShields[lp_iD], PlayerGroupAll(), true);
+        }
+        else if (auto7C08C630_val == false) {
+            DialogControlSetVisible(libF095282B_gv_objectiveIconLife[lp_iD], PlayerGroupAll(), false);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconButton[lp_iD], PlayerGroupAll(), false);
+            DialogControlSetVisible(libF095282B_gv_objectiveIconShields[lp_iD], PlayerGroupAll(), false);
+        }
+        else {
+        }
+    }
+
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Objective Icon Delayed Removal
+//--------------------------------------------------------------------------------------------------
+bool libF095282B_gt_ObjectiveIconDelayedRemoval_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_dialog0;
+    int lv_dialog1;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_dialog0 = c_invalidDialogId;
+    lv_dialog1 = c_invalidDialogId;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(5.0, c_timeGame);
+    DialogDestroy(lv_dialog0);
+    DialogDestroy(lv_dialog1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libF095282B_gt_ObjectiveIconDelayedRemoval_Init () {
+    libF095282B_gt_ObjectiveIconDelayedRemoval = TriggerCreate("libF095282B_gt_ObjectiveIconDelayedRemoval_Func");
+    TriggerEnable(libF095282B_gt_ObjectiveIconDelayedRemoval, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Objective Icon Refresh
+//--------------------------------------------------------------------------------------------------
+bool libF095282B_gt_ObjectiveIconRefresh_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    const int autoF7B697AE_ae = libF095282B_gv_iD;
+    const int autoF7B697AE_ai = 1;
+
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_i = 0;
+    for ( ; ( (autoF7B697AE_ai >= 0 && lv_i <= autoF7B697AE_ae) || (autoF7B697AE_ai < 0 && lv_i >= autoF7B697AE_ae) ) ; lv_i += autoF7B697AE_ai ) {
+        if ((libF095282B_gv_objectiveIconCreated[lv_i] == true)) {
+            libF095282B_gf_ObjectiveIconUpdate();
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libF095282B_gt_ObjectiveIconRefresh_Init () {
+    libF095282B_gt_ObjectiveIconRefresh = TriggerCreate("libF095282B_gt_ObjectiveIconRefresh_Func");
+    TriggerEnable(libF095282B_gt_ObjectiveIconRefresh, false);
+    TriggerAddEventTimePeriodic(libF095282B_gt_ObjectiveIconRefresh, 0.5, c_timeGame);
+}
+
+void libF095282B_InitTriggers () {
+    libF095282B_gt_ObjectiveIconDelayedRemoval_Init();
+    libF095282B_gt_ObjectiveIconRefresh_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libF095282B_InitLib_completed = false;
+
+void libF095282B_InitLib () {
+    if (libF095282B_InitLib_completed) {
+        return;
+    }
+
+    libF095282B_InitLib_completed = true;
+
+    libF095282B_InitLibraries();
+    libF095282B_InitVariables();
+    libF095282B_InitTriggers();
+}
+
+include "Lib458E37E6"
+

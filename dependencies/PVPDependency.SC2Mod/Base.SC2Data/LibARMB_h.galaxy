@@ -1,0 +1,247 @@
+include "TriggerLibs/natives"
+
+//--------------------------------------------------------------------------------------------------
+// Library: MONOBATTLE
+//--------------------------------------------------------------------------------------------------
+// Preset Declarations
+const int libARMB_ge_RaceChoice_Observer = 0;
+const int libARMB_ge_RaceChoice_Random = 1;
+const int libARMB_ge_RaceChoice_RandomOther = 2;
+const int libARMB_ge_RaceChoice_RandomKoprulu = 3;
+const int libARMB_ge_RaceChoice_RandomScion = 4;
+const int libARMB_ge_RaceChoice_RandomExtra = 5;
+const int libARMB_ge_RaceChoice_Protoss = 6;
+const int libARMB_ge_RaceChoice_Zerg = 7;
+const int libARMB_ge_RaceChoice_Terran = 8;
+const int libARMB_ge_RaceChoice_Keiron = 9;
+const int libARMB_ge_RaceChoice_Genetron = 10;
+const int libARMB_ge_RaceChoice_Xayid = 11;
+const int libARMB_ge_RaceChoice_Hybrids = 12;
+const int libARMB_ge_RaceChoice_Dragon = 13;
+const int libARMB_ge_RaceChoice_UED = 14;
+const int libARMB_ge_RaceChoice_UPL = 15;
+const int libARMB_ge_RaceChoice_Umojan = 16;
+const int libARMB_ge_RaceChoice_Synoid = 17;
+const int libARMB_ge_MonobattleMode_None = 0;
+const int libARMB_ge_MonobattleMode_DraftSelection = 1;
+const int libARMB_ge_MonobattleMode_BlindRandom = 2;
+const int libARMB_ge_MonobattleMode_SingleDraft = 3;
+const int libARMB_ge_MonobattleMode_TierDraft = 4;
+const int libARMB_ge_MonobattleMode_InGameSimple = 5;
+const int libARMB_ge_MonobattleMode_RandomSimple = 6;
+const int libARMB_ge_MonobattleUnitGroup_Disabled = 0;
+const int libARMB_ge_MonobattleUnitGroup_Pacific = 1;
+const int libARMB_ge_MonobattleUnitGroup_Danger = 2;
+const int libARMB_ge_SearchMode_Agressive = 0;
+const int libARMB_ge_SearchMode_Detection = 1;
+const int libARMB_ge_SearchMode_Ability = 2;
+
+// Constants
+const int libARMB_gv_unitArrayCount = 200;
+const int libARMB_gv_mAX_UNITTYPES = 200;
+const int libARMB_gv_pLAYERS = 15;
+const int libARMB_gv_cONST_CACHE_SIZE = 1000;
+
+// Structures
+struct libARMB_gs_Races {
+    bool lv_protoss;
+    bool lv_zerg;
+    bool lv_terran;
+    bool lv_xayid;
+    bool lv_genetron;
+    bool lv_keiron;
+    bool lv_uED;
+    bool lv_hybrids;
+    bool lv_dragon;
+    bool lv_uPL;
+};
+
+struct libARMB_gs_UnitData {
+    string[libARMB_gv_mAX_UNITTYPES + 1] lv_thumbnail;
+    string[libARMB_gv_mAX_UNITTYPES + 1] lv_unitType;
+    text[libARMB_gv_mAX_UNITTYPES + 1] lv_unitName;
+    int[libARMB_gv_mAX_UNITTYPES + 1] lv_tier;
+    string[libARMB_gv_mAX_UNITTYPES + 1] lv_profile;
+    string[libARMB_gv_mAX_UNITTYPES + 1] lv_unitSound;
+    int[libARMB_gv_pLAYERS + 1] lv_playerUnitLink;
+};
+
+struct libARMB_gs_PlayerData {
+    bool lv_repick;
+};
+
+// Variable Declarations
+point[16] libARMB_gv_mBPoints;
+int[16] libARMB_gv_raceChoice;
+libARMB_gs_Races libARMB_gv___VRaces;
+bool libARMB_gv_acceptedSpecified;
+bool libARMB_gv_hybrids;
+bool libARMB_gv_dragons;
+bool libARMB_gv_uED;
+bool libARMB_gv_uPL;
+int libARMB_gv_monobattleMode;
+int libARMB_gv_monobattlesProfilesBriefDialog;
+int[libARMB_gv_pLAYERS + 1] libARMB_gv_dIALOG;
+int[libARMB_gv_pLAYERS + 1][21] libARMB_gv_dIALOG_BUTTONS;
+string[libARMB_gv_pLAYERS + 1][21] libARMB_gv_dIALOG_PROFILES;
+int[3] libARMB_gv__pointsCount;
+point[3][5] libARMB_gv_points;
+int libARMB_gv_unitDataCount;
+libARMB_gs_UnitData libARMB_gv_unitData;
+libARMB_gs_PlayerData[libARMB_gv_pLAYERS + 1] libARMB_gv_playerData;
+unitgroup libARMB_gv_hidden;
+int[libARMB_gv_pLAYERS + 1] libARMB_gv_playerraces;
+bool libARMB_gv_testing;
+int libARMB_gv_draftMode;
+bool libARMB_gv_meleeInitialized;
+int libARMB_gv_cAbilityArmMagazine;
+int libARMB_gv_cAbilityAugment;
+int libARMB_gv_cAbilityBehavior;
+int libARMB_gv_cAbilityBuild;
+int libARMB_gv_cAbilityEffectInstant;
+int libARMB_gv_cAbilityEffectTarget;
+int libARMB_gv_cAbilityMorph;
+int libARMB_gv_cAbilityRally;
+int libARMB_gv_cAbilityStop;
+int libARMB_gv_cAbilityAttack;
+int libARMB_gv_cAbilityMove;
+int libARMB_gv_cAbilityQueue;
+int libARMB_gv_cAbilityMerge;
+int libARMB_gv_cAbilityTrain;
+int libARMB_gv_cAbilityTransport;
+int libARMB_gv_cEffectApplyBehavior;
+int libARMB_gv_cEffectCreateHealer;
+int libARMB_gv_cEffectCreatePersistent;
+int libARMB_gv_cEffectCreateUnit;
+int libARMB_gv_cEffectDamage;
+int libARMB_gv_cEffectModifyUnit;
+int libARMB_gv_cEffectLaunchMissile;
+int libARMB_gv_cEffectSearchArea;
+int libARMB_gv_cEffectSet;
+int libARMB_gv_cEffectTeleport;
+int libARMB_gv_cEffectIssueOrder;
+int libARMB_gv_cEffectSwitch;
+int libARMB_gv_cValidatorCombine;
+int libARMB_gv_cValidatorPlayerReqirement;
+int libARMB_gv_cRequirementAnd;
+int libARMB_gv_cRequirementEq;
+int libARMB_gv_cRequirementOr;
+int libARMB_gv_cRequirementGTE;
+int libARMB_gv_cRequirementGT;
+int libARMB_gv_cRequirementCountUnit;
+int libARMB_gv_cRequirementCountUpgrade;
+int libARMB_gv_cBehaviorSpawn;
+int libARMB_gv_cBehaviorBuff;
+int libARMB_gv_cACHE_TMPEFFECTS_SIZE;
+string[1001] libARMB_gv_cACHE_TMPEFFECTS;
+int libARMB_gv_cACHESIZE_WEAPONS;
+int libARMB_gv_cACHESIZE_UPGRADES;
+int libARMB_gv_cACHESIZE_EFFECTS;
+int libARMB_gv_cACHESIZE_BEHAVIORS;
+int libARMB_gv_cACHESIZE_ABILITIES;
+int libARMB_gv_cACHESIZE_UNITS;
+int libARMB_gv_cACHESIZE_REQUIREMENT;
+string[libARMB_gv_cONST_CACHE_SIZE + 1] libARMB_gv_cACHE_WEAPONS;
+string[libARMB_gv_cONST_CACHE_SIZE + 1] libARMB_gv_cACHE_REQUIREMENT;
+string[libARMB_gv_cONST_CACHE_SIZE + 1] libARMB_gv_cACHE_UPGRADES;
+string[libARMB_gv_cONST_CACHE_SIZE + 1] libARMB_gv_cACHE_BEHAVIORS;
+string[libARMB_gv_cONST_CACHE_SIZE + 1] libARMB_gv_cACHE_EFFECTS;
+string[libARMB_gv_cONST_CACHE_SIZE + 1] libARMB_gv_cACHE_ABILITIES;
+string[libARMB_gv_cONST_CACHE_SIZE + 1] libARMB_gv_cACHE_UNITS;
+playergroup libARMB_gv_startactiveplayers;
+string[libARMB_gv_pLAYERS + 1] libARMB_gv_unitSelection;
+string[libARMB_gv_pLAYERS + 1] libARMB_gv_profiles;
+string[libARMB_gv_pLAYERS + 1] libARMB_gv_egxsaypdiavcxbna;
+abilcmd libARMB_gv_bYPASS_SEARCH_ABILITY_COMMAND;
+int libARMB_gv_sEARCHMODE;
+string[libARMB_gv_pLAYERS + 1] libARMB_gv_cACHE_DISARMED;
+string[libARMB_gv_pLAYERS + 1] libARMB_gv_cACHE_ARMED;
+string libARMB_gv_cACHE_DANGER_UNITS;
+string libARMB_gv_cACHE_DANGER_ABILITIES;
+string libARMB_gv_cACHE_DANGER_BEHAVIOR;
+string libARMB_gv_cACHE_SAFE_UNITS;
+string libARMB_gv_cACHE_SAFE_ABILITIES;
+string libARMB_gv_cACHE_SAFE_BEHAVIOR;
+int[16] libARMB_gv_enemyDefenseBuildingTickCount;
+bool[16] libARMB_gv_restrictedmovementofaerialbuildings;
+fixed[16] libARMB_gv_maximumdistancefromthebuildingstoppedsurfacetothenearestshoreline;
+
+// Function Declarations
+void libARMB_gf_InitializeMeleeGame ();
+void libARMB_gf_SetMonobattleMode (int lp_draftmode);
+void libARMB_gf_SetPlayerRaceChoice (int lp_player, int lp_race);
+void libARMB_gf_CreateMeleeStartingUnitsForTeams ();
+void libARMB_gf_CheckRaceTriggers (string lp_race);
+void libARMB_gf_ApplyChosenRace (int lp_player, int lp_preset);
+string libARMB_gf_GetPlayerRaceChoice (int lp_player);
+bool libARMB_gf_IsRandomRaceChoice (int lp_player);
+int libARMB_gf_GetRacesVariationCount ();
+void libARMB_gf_ApplyPlayerCustomRace (int lp_player, string lp_race);
+void libARMB_gf_Monobattle (int lp_mode);
+playergroup libARMB_gf_Aplayeronateamwithaplayer (int lp_index);
+int libARMB_gf_Numberofteamswithplayers ();
+void libARMB_gf_UnitSelectionPanel (int lp_player);
+void libARMB_gf_AddTeamStartPoint (int lp_team, point lp_point);
+void libARMB_gf_initUnitData ();
+void libARMB_gf_ShowTerrainObjects ();
+void libARMB_gf_ClearPreplacedBuildings ();
+void libARMB_gf_HideTerranObjects ();
+void libARMB_gf_RandomDraftSetrandomunitnumber (int lp_player);
+void libARMB_gf_AssignUnitAndRace (int lp_player);
+void libARMB_gf_ClearArmedCache (int lp_player);
+void libARMB_gf_Armunit (int lp_player, unit lp_unit);
+void libARMB_gf_Disarmunit (int lp_player, unit lp_unit);
+void libARMB_gf_ArmUnitType (int lp_player, string lp_unit);
+void libARMB_gf_Disarmunittype (int lp_player, string lp_unit);
+bool libARMB_gf_UnitTypeisArmed (int lp_player, string lp_unit);
+bool libARMB_gf_UnitTypeisDisArmed (int lp_player, string lp_unit);
+bool libARMB_gf_BehaviorisDetector (int lp_player, string lp_behavior);
+bool libARMB_gf_AbilityIsDetector (int lp_player, string lp_ability);
+bool libARMB_gf_FilterEnemyisExcluded (string lp_filter);
+bool libARMB_gf_UnitIsDanger (int lp_player, string lp_unit);
+bool libARMB_gf_AbilityIsDanger (int lp_player, string lp_ability);
+bool libARMB_gf_BehaviorisDanger (int lp_player, string lp_behavior);
+string libARMB_gf_GetUnitRace (string lp_unit);
+string libARMB_gf_GetUpgradeRace (string lp_upgrade);
+bool libARMB_gf_BehaviorUsesAbilityCommand (int lp_player, string lp_behavior, abilcmd lp_abil);
+bool libARMB_gf_ByPassBehavior (int lp_player, string lp_behavior);
+bool libARMB_gf_ByPassEffect (int lp_player, string lp_effect);
+bool libARMB_gf_ByPassAbility (int lp_player, string lp_ability);
+void libARMB_gf_ActivateMonobattleProfile (int lp_player, string lp_profile);
+string libARMB_gf_GetRandomProfile (string lp_race);
+void libARMB_gf_AllowCommonUnits (int lp_player);
+int libARMB_gf_AllowCommonUnit (int lp_player, string lp_unit);
+void libARMB_gf_DisallowAll (int lp_player);
+void libARMB_gf_ClearCache ();
+void libARMB_gf_CacheUnit (int lp_player, string lp_unit, bool lp_scan);
+void libARMB_gf_CheckAbilityCommand (int lp_player, string lp_ability, int lp_command);
+void libARMB_gf_CacheUpgrade (int lp_player, string lp_upgrade, bool lp_scan);
+void libARMB_gf_CacheAbility (int lp_player, string lp_ability, bool lp_scan);
+void libARMB_gf_CacheWeapon (int lp_player, string lp_weapon);
+void libARMB_gf_CacheBehavior (int lp_player, string lp_behavior);
+void libARMB_gf_CacheEffect (int lp_player, string lp_effect);
+void libARMB_gf_CacheValidator (int lp_player, string lp_validator);
+void libARMB_gf_CacheRequirement (int lp_player, string lp_requirement);
+void libARMB_gf_CacheRequirementNode (int lp_player, string lp_requirementNode);
+bool libARMB_gf_StructureIsFlying (unit lp_unit);
+bool libARMB_gf_UnitIsAntiAir (string lp_unit, int lp_player);
+bool libARMB_gf_UnitIsAir (string lp_unit, int lp_player);
+bool libARMB_gf_Canbebuilton (unit lp_unit, point lp_point);
+bool libARMB_gf_Canbebuiltonabranch (point lp_point, int lp_number);
+point libARMB_gf_Thenearestbuildablepointtothepoint (point lp_point, int lp_numberofscales);
+void libARMB_gf_Therangethataerialbuildingscanstay ();
+void libARMB_gf_MonobattleStart ();
+
+// Trigger Declarations
+trigger libARMB_gt_RunMonobattle;
+trigger libARMB_gt_showmonobattleprofiles;
+trigger libARMB_gt_CreateUnitBriefUI;
+trigger libARMB_gt_Unitselected;
+trigger libARMB_gt_MBForcingaerialbuildingstomove;
+trigger libARMB_gt_MBForcingastationaryaerialbuildingtomove;
+trigger libARMB_gt_MBUnitCreated;
+trigger libARMB_gt_MBUnitChanges;
+
+// Library Initialization
+void libARMB_InitVariables ();
+

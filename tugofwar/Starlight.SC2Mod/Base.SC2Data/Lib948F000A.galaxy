@@ -1,0 +1,1639 @@
+include "TriggerLibs/NativeLib"
+include "LibDDE92A83_h"
+include "Lib038F51B7_h"
+include "LibBBFED31C_h"
+include "Lib474957E9_h"
+include "Lib57FF8648_h"
+include "LibDBB0BE4A_h"
+include "Lib2A8CE4F7_h"
+include "LibCA960273_h"
+include "Lib479C7CBB_h"
+include "Lib64DC5B97_h"
+include "LibF58A3325_h"
+include "Lib39886FE6_h"
+include "LibD6A97973_h"
+
+include "Lib948F000A_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Worker Select
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void lib948F000A_InitLibraries () {
+    libNtve_InitVariables();
+    libDDE92A83_InitVariables();
+    lib038F51B7_InitVariables();
+    libBBFED31C_InitVariables();
+    lib474957E9_InitVariables();
+    lib57FF8648_InitVariables();
+    libDBB0BE4A_InitVariables();
+    lib2A8CE4F7_InitVariables();
+    libCA960273_InitVariables();
+    lib479C7CBB_InitVariables();
+    lib64DC5B97_InitVariables();
+    libF58A3325_InitVariables();
+    lib39886FE6_InitVariables();
+    libD6A97973_InitVariables();
+}
+
+// Variable Initialization
+bool lib948F000A_InitVariables_completed = false;
+
+void lib948F000A_InitVariables () {
+    int init_i;
+    int init_j;
+
+    if (lib948F000A_InitVariables_completed) {
+        return;
+    }
+
+    lib948F000A_InitVariables_completed = true;
+
+    for (init_i = 0; init_i <= lib948F000A_gv_tab; init_i += 1) {
+        lib948F000A_gv_workerDialog[init_i] = c_invalidDialogId;
+    }
+    lib948F000A_gv_raceDialog = c_invalidDialogId;
+    for (init_i = 0; init_i <= lib948F000A_gv_tab; init_i += 1) {
+        for (init_j = 0; init_j <= 2; init_j += 1) {
+            lib948F000A_gv_raceTab[init_i][init_j] = c_invalidDialogControlId;
+        }
+    }
+    for (init_i = 0; init_i <= lib948F000A_gv_tab; init_i += 1) {
+        lib948F000A_gv_tabBackground[init_i] = c_invalidDialogControlId;
+    }
+    lib948F000A_gv_workerButton = c_invalidDialogControlId;
+    for (init_i = 0; init_i <= 2; init_i += 1) {
+        lib948F000A_gv_workerIcon[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= lib948F000A_gv_tab; init_i += 1) {
+        lib948F000A_gv_workerCurrent[init_i] = c_invalidDialogControlId;
+    }
+    lib948F000A_gv_workerIconUnit = c_invalidDialogControlId;
+    lib948F000A_gv_workerAttentionMarker = c_invalidDialogControlId;
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lib948F000A_gv_workerDialogItem[init_i] = c_invalidDialogControlId;
+    }
+    for (init_i = 0; init_i <= lib948F000A_gv_maxWorkers; init_i += 1) {
+        for (init_j = 0; init_j <= 1; init_j += 1) {
+            lib948F000A_gv_button[init_i][init_j] = c_invalidDialogControlId;
+        }
+    }
+    for (init_i = 0; init_i <= 15; init_i += 1) {
+        lib948F000A_gv_playerLevel[init_i] = 1;
+    }
+    lib948F000A_gv_recentlyCreated = TimerCreate();
+}
+
+// Functions
+void lib948F000A_gf_WorkerSelectCreate () {
+    // Variable Declarations
+    int lv_i;
+    int lv_maxLevel;
+    const string lv_userData = "WorkerData";
+    int lv_offsetX;
+    int lv_offsetY;
+
+    // Automatic Variable Declarations
+    playergroup autoD2E8C7D5_g;
+    int autoD2E8C7D5_var;
+    const int auto988F132D_ae = lib948F000A_gv_tab;
+    const int auto988F132D_ai = 1;
+    playergroup auto24E77611_g;
+    int auto24E77611_var;
+    string autoCF61BC17_val;
+    int autoA2E0B5FD_ae;
+    const int autoA2E0B5FD_ai = 1;
+    playergroup autoCC8132D5_g;
+    int autoCC8132D5_var;
+    string autoFA4E2413_val;
+    const int autoE324302B_ae = lib948F000A_gv_tab;
+    const int autoE324302B_ai = 1;
+    playergroup auto04262BD8_g;
+    int auto04262BD8_var;
+
+    // Variable Initialization
+    lv_i = 2;
+    lv_offsetX = (76 + 1 + 10);
+    lv_offsetY = 380;
+
+    // Implementation
+    if ((lib948F000A_gv_created == false)) {
+        lib948F000A_gv_created = true;
+        autoD2E8C7D5_g = PlayerGroupActive();
+        autoD2E8C7D5_var = -1;
+        while (true) {
+            autoD2E8C7D5_var = PlayerGroupNextPlayer(autoD2E8C7D5_g, autoD2E8C7D5_var);
+            if (autoD2E8C7D5_var < 0) { break; }
+            libNtve_gf_SetUpgradeLevelForPlayer(autoD2E8C7D5_var, "WorkerSubmenuWorkerSelect", 1);
+        }
+        libDDE92A83_gf_DiscordMod();
+        lib948F000A_gf_CreateMainButtonModified();
+        TimerStart(lib948F000A_gv_recentlyCreated, 2.0, false, c_timeGame);
+        TriggerEnable(lib948F000A_gt_UseDialogItem, true);
+        TriggerEnable(lib948F000A_gt_MasteryBarLevelUp, true);
+        lv_i = 0;
+        for ( ; ( (auto988F132D_ai >= 0 && lv_i <= auto988F132D_ae) || (auto988F132D_ai < 0 && lv_i >= auto988F132D_ae) ) ; lv_i += auto988F132D_ai ) {
+            DialogCreate(100, 100, c_anchorBottomLeft, lv_offsetX, lv_offsetY, true);
+            lib948F000A_gv_workerDialog[lv_i] = DialogLastCreated();
+            DialogSetImageVisible(DialogLastCreated(), false);
+            DialogSetObservedType(DialogLastCreated(), c_triggerObservedTypeDefaultObservedPlayerId);
+            libNtve_gf_CreateDialogItemImage(DialogLastCreated(), DialogGetWidth(DialogLastCreated()), DialogGetHeight(DialogLastCreated()), c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_tooltip_frame_protoss.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+            lib948F000A_gv_tabBackground[lv_i] = DialogControlLastCreated();
+            libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeBorder, PlayerGroupAll());
+            auto24E77611_g = PlayerGroupActive();
+            auto24E77611_var = -1;
+            while (true) {
+                auto24E77611_var = PlayerGroupNextPlayer(auto24E77611_g, auto24E77611_var);
+                if (auto24E77611_var < 0) { break; }
+                autoCF61BC17_val = PlayerRace(auto24E77611_var);
+                if (autoCF61BC17_val == "Terr") {
+                    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_tooltip_frame_terran.dds", PlayerGroupSingle(auto24E77611_var));
+                }
+                else if (autoCF61BC17_val == "Zerg") {
+                    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_tooltip_frame_zerg.dds", PlayerGroupSingle(auto24E77611_var));
+                }
+                else {
+                }
+            }
+            libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 100, 100, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_workerbutton_highlight.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+            lib948F000A_gv_workerCurrent[lv_i] = DialogControlLastCreated();
+            libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+            DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), false);
+        }
+        lib948F000A_gf_CreateTabs();
+        lib948F000A_gf_CreateChoiceButton("WorkerProbe", 0, null);
+        lib948F000A_gf_CreateChoiceButton("WorkerSCV", 1, null);
+        lib948F000A_gf_CreateChoiceButton("WorkerDrone", 2, null);
+        lib948F000A_gf_CreateChoiceButton("WorkerConverter", 3, null);
+        lib948F000A_gf_CreateChoiceButton("WorkerScavenger", 3, null);
+        lib948F000A_gf_CreateChoiceButton("WorkerACR", 3, null);
+        autoA2E0B5FD_ae = UserDataInstanceCount(lv_userData);
+        lv_i = 2;
+        for ( ; ( (autoA2E0B5FD_ai >= 0 && lv_i <= autoA2E0B5FD_ae) || (autoA2E0B5FD_ai < 0 && lv_i >= autoA2E0B5FD_ae) ) ; lv_i += autoA2E0B5FD_ai ) {
+            if ((UserDataGetGameLink(lv_userData, UserDataInstance(lv_userData, lv_i), "Requirement", 1) != null)) {
+                lib948F000A_gf_CreateChoiceButton(UserDataGetGameLink(lv_userData, UserDataInstance(lv_userData, lv_i), "Behavior", 1), 4, UserDataGetGameLink(lv_userData, UserDataInstance(lv_userData, lv_i), "Requirement", 1));
+            }
+            else {
+                if ((((UserDataGetInt(lv_userData, UserDataInstance(lv_userData, lv_i), "Tab", 1) >= 0) && (UserDataGetInt(lv_userData, UserDataInstance(lv_userData, lv_i), "Tab", 1) <= lib948F000A_gv_tab)) == true)) {
+                    lib948F000A_gv_levelRewardBehavior[lv_maxLevel] = UserDataGetGameLink(lv_userData, UserDataInstance(lv_userData, lv_i), "Behavior", 1);
+                    lv_maxLevel += 1;
+                    lib948F000A_gf_CreateChoiceButton(UserDataGetGameLink(lv_userData, UserDataInstance(lv_userData, lv_i), "Behavior", 1), UserDataGetInt(lv_userData, UserDataInstance(lv_userData, lv_i), "Tab", 1), null);
+                }
+
+            }
+        }
+        autoCC8132D5_g = PlayerGroupActive();
+        autoCC8132D5_var = -1;
+        while (true) {
+            autoCC8132D5_var = PlayerGroupNextPlayer(autoCC8132D5_g, autoCC8132D5_var);
+            if (autoCC8132D5_var < 0) { break; }
+            lib948F000A_gf_UpdatePlayerLevel(autoCC8132D5_var);
+            autoFA4E2413_val = PlayerRace(autoCC8132D5_var);
+            if (autoFA4E2413_val == "Terr") {
+                DialogControlSetPositionRelative(lib948F000A_gv_workerCurrent[1], PlayerGroupSingle(autoCC8132D5_var), c_anchorCenter, lib948F000A_gv_button[1][0], c_anchorCenter, 0, 0);
+                DialogControlSetVisible(lib948F000A_gv_workerCurrent[1], PlayerGroupSingle(autoCC8132D5_var), true);
+            }
+            else if (autoFA4E2413_val == "Zerg") {
+                DialogControlSetPositionRelative(lib948F000A_gv_workerCurrent[2], PlayerGroupSingle(autoCC8132D5_var), c_anchorCenter, lib948F000A_gv_button[2][0], c_anchorCenter, 0, 0);
+                DialogControlSetVisible(lib948F000A_gv_workerCurrent[2], PlayerGroupSingle(autoCC8132D5_var), true);
+            }
+            else {
+                DialogControlSetPositionRelative(lib948F000A_gv_workerCurrent[0], PlayerGroupSingle(autoCC8132D5_var), c_anchorCenter, lib948F000A_gv_button[0][0], c_anchorCenter, 0, 0);
+                DialogControlSetVisible(lib948F000A_gv_workerCurrent[0], PlayerGroupSingle(autoCC8132D5_var), true);
+            }
+        }
+        lv_i = 0;
+        for ( ; ( (autoE324302B_ai >= 0 && lv_i <= autoE324302B_ae) || (autoE324302B_ai < 0 && lv_i >= autoE324302B_ae) ) ; lv_i += autoE324302B_ai ) {
+            DialogSetSize(lib948F000A_gv_workerDialog[lv_i], (((76 + 1) * 5) + (lib948F000A_gv_borderSize * 2)), (((76 + 1) * (lib948F000A_gv_buttonY[lv_i] + 1)) + lib948F000A_gv_buttonYOffset[lv_i] + (lib948F000A_gv_borderSize * 2)));
+            DialogControlSetSize(lib948F000A_gv_tabBackground[lv_i], PlayerGroupAll(), (((76 + 1) * 5) + (lib948F000A_gv_borderSize * 2)), (((76 + 1) * (lib948F000A_gv_buttonY[lv_i] + 1)) + lib948F000A_gv_buttonYOffset[lv_i] + (lib948F000A_gv_borderSize * 2)));
+        }
+        auto04262BD8_g = PlayerGroupActive();
+        auto04262BD8_var = -1;
+        while (true) {
+            auto04262BD8_var = PlayerGroupNextPlayer(auto04262BD8_g, auto04262BD8_var);
+            if (auto04262BD8_var < 0) { break; }
+            lib948F000A_gf_WorkerSelectLoadSettingsModified(auto04262BD8_var);
+        }
+    }
+
+}
+
+void lib948F000A_gf_WorkerSelectSetLevel (int lp_player, int lp_level) {
+    // Automatic Variable Declarations
+    // Implementation
+    lib948F000A_gv_playerLevel[lp_player] = libNtve_gf_ArithmeticIntClamp(lp_level, 1, (lib948F000A_gv_buttonTotal - 2));
+    lib948F000A_gf_UpdatePlayerLevel(lp_player);
+}
+
+trigger auto_lib948F000A_gf_WorkerSelectLevelUp_Trigger = null;
+int auto_lib948F000A_gf_WorkerSelectLevelUp_lp_player;
+
+void lib948F000A_gf_WorkerSelectLevelUp (int lp_player) {
+    auto_lib948F000A_gf_WorkerSelectLevelUp_lp_player = lp_player;
+
+    if (auto_lib948F000A_gf_WorkerSelectLevelUp_Trigger == null) {
+        auto_lib948F000A_gf_WorkerSelectLevelUp_Trigger = TriggerCreate("auto_lib948F000A_gf_WorkerSelectLevelUp_TriggerFunc");
+    }
+
+    TriggerExecute(auto_lib948F000A_gf_WorkerSelectLevelUp_Trigger, false, false);
+}
+
+bool auto_lib948F000A_gf_WorkerSelectLevelUp_TriggerFunc (bool testConds, bool runActions) {
+    int lp_player = auto_lib948F000A_gf_WorkerSelectLevelUp_lp_player;
+
+    // Automatic Variable Declarations
+    // Implementation
+    if ((GameGetMissionTime() >= 1.0) && (TimerGetRemaining(lib948F000A_gv_recentlyCreated) == 0.0) && (lib948F000A_gv_playerLevel[lp_player] < (lib948F000A_gv_buttonTotal - 2))) {
+        lib948F000A_gv_playerLevel[lp_player] = libNtve_gf_ArithmeticIntClamp((lib948F000A_gv_playerLevel[lp_player] + 1), 1, (lib948F000A_gv_buttonTotal - 2));
+        lib948F000A_gf_UpdatePlayerLevel(lp_player);
+        lib948F000A_gf_LevelFanfare(lp_player, lib948F000A_gv_levelRewardBehavior[(lib948F000A_gv_playerLevel[lp_player] - 2)]);
+    }
+
+    return true;
+}
+
+void lib948F000A_gf_WorkerSelectFade (playergroup lp_players, bool lp_fade, fixed lp_fadeTime) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    bool auto6F7424DF_val;
+    const int auto01462A1E_ae = lib948F000A_gv_tab;
+    const int auto01462A1E_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    auto6F7424DF_val = lp_fade;
+    if (auto6F7424DF_val == false) {
+        libNtve_gf_SetDialogItemAcceptMouse(lib948F000A_gv_workerButton, false, lp_players);
+        DialogControlFadeTransparency(lib948F000A_gv_workerButton, lp_players, lp_fadeTime, 100.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerIcon[0], lp_players, lp_fadeTime, 100.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerIcon[1], lp_players, lp_fadeTime, 100.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerIcon[2], lp_players, lp_fadeTime, 100.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerAttentionMarker, lp_players, lp_fadeTime, 100.0);
+        lv_i = 0;
+        for ( ; ( (auto01462A1E_ai >= 0 && lv_i <= auto01462A1E_ae) || (auto01462A1E_ai < 0 && lv_i >= auto01462A1E_ae) ) ; lv_i += auto01462A1E_ai ) {
+            DialogSetVisible(lib948F000A_gv_workerDialog[lv_i], lp_players, false);
+            libNtve_gf_SetDialogItemAcceptMouse(lib948F000A_gv_raceTab[lv_i][0], true, lp_players);
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][0], false, lp_players);
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][1], false, lp_players);
+        }
+        DialogSetVisible(lib948F000A_gv_raceDialog, lp_players, false);
+    }
+    else if (auto6F7424DF_val == true) {
+        libNtve_gf_SetDialogItemAcceptMouse(lib948F000A_gv_workerButton, true, lp_players);
+        DialogControlFadeTransparency(lib948F000A_gv_workerButton, lp_players, 0.0, 100.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerButton, lp_players, lp_fadeTime, 0.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerIcon[0], lp_players, 0.0, 100.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerIcon[0], lp_players, lp_fadeTime, 0.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerIcon[1], lp_players, 0.0, 100.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerIcon[1], lp_players, lp_fadeTime, 0.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerIcon[2], lp_players, 0.0, 100.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerIcon[2], lp_players, lp_fadeTime, 0.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerAttentionMarker, lp_players, 0.0, 100.0);
+        DialogControlFadeTransparency(lib948F000A_gv_workerAttentionMarker, lp_players, lp_fadeTime, 0.0);
+    }
+    else {
+    }
+}
+
+void lib948F000A_gf_WorkerSelectRefreshModified (unit lp_unit) {
+    // Variable Declarations
+    string lv_custom_race;
+    string lv_custom_race_string;
+
+    // Automatic Variable Declarations
+    int auto56C64072_ae;
+    int auto56C64072_var;
+    string autoF5C80EE3_val;
+
+    // Variable Initialization
+    lv_custom_race_string = "";
+
+    // Implementation
+    UnitBehaviorRemoveCategory(lp_unit, c_unitBehaviorFlagTemporary);
+    UnitBehaviorAdd(lp_unit, "WorkerSwapNoTransition", lp_unit, 1);
+    auto56C64072_ae = UserDataInstanceCount("Races");
+    auto56C64072_var = 1;
+    for ( ; auto56C64072_var <= auto56C64072_ae; auto56C64072_var += 1 ) {
+        lv_custom_race = UserDataGetGameLink("Races", UserDataInstance("Races", auto56C64072_var), "Race", 1);
+        lv_custom_race_string = (lv_custom_race);
+        if ((PlayerRace(UnitGetOwner(lp_unit)) == lv_custom_race)) {
+            UnitBehaviorAdd(lp_unit, "WorkerBirth" + lv_custom_race_string + "Instant", lp_unit, 1);
+        }
+
+    }
+    autoF5C80EE3_val = PlayerRace(UnitGetOwner(lp_unit));
+    if (autoF5C80EE3_val == "Terr") {
+        UnitBehaviorAdd(lp_unit, "WorkerBirthTerranInstant", lp_unit, 1);
+    }
+    else if (autoF5C80EE3_val == "Zerg") {
+        UnitBehaviorAdd(lp_unit, "WorkerBirthZergInstant", lp_unit, 1);
+    }
+    else if (autoF5C80EE3_val == "Prot") {
+        UnitBehaviorAdd(lp_unit, "WorkerBirthProtossInstant", lp_unit, 1);
+    }
+    else {
+    }
+    lib948F000A_gf_ApplyViaBehavior(UnitGetOwner(lp_unit), lib948F000A_gv_currentBehavior[UnitGetOwner(lp_unit)], false);
+    libDDE92A83_gf_SetWorkerAttributes(UnitGetOwner(lp_unit));
+}
+
+void lib948F000A_gf_WorkerSelectShowHide (int lp_player, bool lp_toggle, bool lp_sound) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    const int auto7362D4A3_ae = lib948F000A_gv_tab;
+    const int auto7362D4A3_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lib948F000A_gv_created == true)) {
+        if ((lp_toggle == true)) {
+            if ((DialogIsVisible(lib948F000A_gv_raceDialog, lp_player) == false) && (lp_sound == true)) {
+                SoundPlayForPlayer(SoundLink("UI_MenuSounds_WorkerMenu_Open", -1), c_maxPlayers, PlayerGroupSingle(lp_player), 100.0, 0.0);
+            }
+
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_workerButton, true, PlayerGroupSingle(lp_player));
+            DialogSetVisible(lib948F000A_gv_raceDialog, PlayerGroupSingle(lp_player), true);
+            DialogSetVisible(lib948F000A_gv_workerDialog[lib948F000A_gv_currentTab[lp_player]], PlayerGroupSingle(lp_player), true);
+            libNtve_gf_SetDialogItemAcceptMouse(lib948F000A_gv_raceTab[lib948F000A_gv_currentTab[lp_player]][0], false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lib948F000A_gv_currentTab[lp_player]][0], true, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lib948F000A_gv_currentTab[lp_player]][1], true, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lib948F000A_gv_currentTab[lp_player]][2], true, PlayerGroupSingle(lp_player));
+        }
+        else {
+            if ((DialogIsVisible(lib948F000A_gv_raceDialog, lp_player) == true) && (lp_sound == true)) {
+                SoundPlayForPlayer(SoundLink("UI_MenuSounds_WorkerMenu_Close", -1), c_maxPlayers, PlayerGroupSingle(lp_player), 100.0, 0.0);
+            }
+
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_workerButton, false, PlayerGroupSingle(lp_player));
+            lv_i = 0;
+            for ( ; ( (auto7362D4A3_ai >= 0 && lv_i <= auto7362D4A3_ae) || (auto7362D4A3_ai < 0 && lv_i >= auto7362D4A3_ae) ) ; lv_i += auto7362D4A3_ai ) {
+                DialogSetVisible(lib948F000A_gv_workerDialog[lv_i], PlayerGroupSingle(lp_player), false);
+                libNtve_gf_SetDialogItemAcceptMouse(lib948F000A_gv_raceTab[lv_i][0], true, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][0], false, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][1], false, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][2], false, PlayerGroupSingle(lp_player));
+            }
+            DialogSetVisible(lib948F000A_gv_raceDialog, PlayerGroupSingle(lp_player), false);
+        }
+    }
+
+}
+
+void lib948F000A_gf_ReplaceWorker (unit lp_unit, string lp_unitType) {
+    // Automatic Variable Declarations
+    string auto87DAD247_val;
+
+    // Implementation
+    libDDE92A83_gf_SkinStore(lp_unit);
+    if ((UnitGetType(lp_unit) != lp_unitType)) {
+        UnitBehaviorRemove(lp_unit, "WorkerSwappable", 1);
+        lib474957E9_gf_PlayerRewardsSave(UnitGetOwner(lp_unit));
+        libNtve_gf_ReplaceUnit(lp_unit, lp_unitType, libNtve_ge_ReplaceUnitOptions_OldUnitsRelative);
+        UnitSelect(libNtve_gf_LastReplacedUnit(), UnitGetOwner(libNtve_gf_LastReplacedUnit()), true);
+        UnitControlGroupAddUnit(UnitGetOwner(libNtve_gf_LastReplacedUnit()), 1, libNtve_gf_LastReplacedUnit());
+        lib474957E9_gf_PlayerRewardsLoad(UnitGetOwner(lp_unit));
+        libDDE92A83_gf_SkinRestore(libNtve_gf_LastReplacedUnit());
+        lib038F51B7_gf_AbilityControlEnable(true, PlayerGroupSingle(UnitGetOwner(lp_unit)));
+        lib038F51B7_gf_AbilityControlForceClose(UnitGetOwner(lp_unit));
+        lib948F000A_gf_WorkerSelectRefreshModified(libNtve_gf_LastReplacedUnit());
+        PlayerScoreValueSetFromInt(UnitGetOwner(lp_unit), "WorkersTotalCount", (PlayerScoreValueGetAsInt(UnitGetOwner(lp_unit), "WorkersTotalCount") - 1));
+        CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "Icon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), UserDataGetString("Races", libDDE92A83_gf_GetRaceUserData(PlayerRace(UnitGetOwner(libNtve_gf_LastReplacedUnit()))), "DecorationsContainerIcon", 1));
+        CatalogFieldValueSet(c_gameCatalogButton, "DecorationsContainer", "AlertIcon", UnitGetOwner(libNtve_gf_LastReplacedUnit()), UserDataGetString("Races", libDDE92A83_gf_GetRaceUserData(PlayerRace(UnitGetOwner(libNtve_gf_LastReplacedUnit()))), "DecorationsContainerIcon", 1));
+        auto87DAD247_val = lp_unitType;
+        if (auto87DAD247_val == "WorkerMengsk") {
+            if ((TechTreeUpgradeCount(UnitGetOwner(libNtve_gf_LastReplacedUnit()), "MutationKitchenSink", c_techCountCompleteOnly) == 0)) {
+                libDDE92A83_gf_PlayerAttributesUpdate(UnitGetOwner(libNtve_gf_LastReplacedUnit()));
+                UnitSetPropertyFixed(libNtve_gf_LastReplacedUnit(), c_unitPropEnergy, (UnitTypeGetProperty(UnitGetType(libNtve_gf_LastReplacedUnit()), c_unitPropEnergy) + ((libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogUnit, "WorkerMengsk", "EnergyRegenRate", 0) + libNtve_gf_CatalogFieldValueGetAsReal(c_gameCatalogBehavior, "MengskVeterancyPassiveWorker", "Modification.VitalRegenArray[" + IntToString(2) + "]", UnitGetOwner(libNtve_gf_LastReplacedUnit()))) * (GameGetMissionTime() / 1.4))));
+            }
+
+        }
+        else {
+        }
+        lib64DC5B97_gf_SkinSystemSetRace(UnitGetOwner(libNtve_gf_LastReplacedUnit()));
+        lib64DC5B97_gf_LoadCommanderSkins(UnitGetOwner(libNtve_gf_LastReplacedUnit()));
+        libCA960273_gf_UpdateMainButton(UnitGetOwner(libNtve_gf_LastReplacedUnit()));
+    }
+
+}
+
+void lib948F000A_gf_WorkerSelectValidateModified (int lp_player) {
+    // Variable Declarations
+    string lv_custom_race;
+
+    // Automatic Variable Declarations
+    int auto47AB232A_ae;
+    int auto47AB232A_var;
+    string autoB31AD51F_val;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lib39886FE6_gf_MasteryBarPlayerLevel(lp_player) < (StringToInt(libNtve_gf_DialogItemEditValue(lib948F000A_gv_workerDialogItem[lp_player], lib948F000A_gv_editValueLevelRequirement)) - 1))) {
+        auto47AB232A_ae = UserDataInstanceCount("Races");
+        auto47AB232A_var = 1;
+        for ( ; auto47AB232A_var <= auto47AB232A_ae; auto47AB232A_var += 1 ) {
+            lv_custom_race = UserDataGetGameLink("Races", UserDataInstance("Races", auto47AB232A_var), "Race", 1);
+            if ((PlayerRace(lp_player) == lv_custom_race)) {
+                lib948F000A_gf_ApplyViaBehavior(lp_player, (("Worker" + (UserDataGetGameLink("Races", UserDataInstance("Races", auto47AB232A_var), "Worker", 1)))), false);
+            }
+
+        }
+        autoB31AD51F_val = PlayerRace(lp_player);
+        if (autoB31AD51F_val == "Terr") {
+            lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerSCV", false);
+        }
+        else if (autoB31AD51F_val == "Zerg") {
+            lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerDrone", false);
+        }
+        else if (autoB31AD51F_val == "Prot") {
+            lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerProbe", false);
+        }
+        else {
+        }
+    }
+
+}
+
+void lib948F000A_gf_LevelFanfare (int lp_player, string lp_behavior) {
+    int init_i;
+
+    // Variable Declarations
+    int lv_i;
+    int lv_size;
+    int lv_heightOffset;
+    int lv_button;
+    fixed lv_fadeIn;
+    int[7] lv_dialogItem;
+    int lv_dialog;
+    const fixed lv_duration = 11.0;
+
+    // Automatic Variable Declarations
+    playergroup auto72D377C3_g;
+    int auto72D377C3_var;
+    string autoF63C1FEF_val;
+    const int auto13A276E3_ae = 6;
+    const int auto13A276E3_ai = 1;
+
+    // Variable Initialization
+    lv_size = 76;
+    lv_button = c_invalidDialogControlId;
+    lv_fadeIn = 0.25;
+    for (init_i = 0; init_i <= 6; init_i += 1) {
+        lv_dialogItem[init_i] = c_invalidDialogControlId;
+    }
+    lv_dialog = c_invalidDialogId;
+
+    // Implementation
+    if ((lib948F000A_gv_levelUpAnimationInProgress[lp_player] <= 5)) {
+        lv_heightOffset = (lib948F000A_gv_levelUpAnimationInProgress[lp_player] * 100);
+        lib948F000A_gv_levelUpAnimationInProgress[lp_player] += 1;
+        DialogCreate(1000, 1000, c_anchorBottomLeft, -200, (-50 + lv_heightOffset), true);
+        lv_dialog = DialogLastCreated();
+        DialogSetRenderPriority(DialogLastCreated(), 1000);
+        DialogSetVisible(DialogLastCreated(), PlayerGroupSingle(lp_player), true);
+        DialogSetImageVisible(DialogLastCreated(), false);
+        if ((DialogIsVisible(lib948F000A_gv_raceDialog, EventPlayer()) == false)) {
+            DialogControlSetVisible(lib948F000A_gv_workerAttentionMarker, PlayerGroupSingle(lp_player), true);
+        }
+
+        libNtve_gf_CreateDialogItemButton(DialogLastCreated(), lv_size, lv_size, c_anchorLeft, 300, 0, StringToText(""), StringToText(""), "");
+        lv_button = DialogControlLastCreated();
+        lv_dialogItem[0] = DialogControlLastCreated();
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 910, PlayerGroupAll());
+        libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+        libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(149*100/255,150*100/255,151*100/255), PlayerGroupAll());
+        libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), lv_fadeIn, 0.0);
+        auto72D377C3_g = PlayerGroupActive();
+        auto72D377C3_var = -1;
+        while (true) {
+            auto72D377C3_var = PlayerGroupNextPlayer(auto72D377C3_g, auto72D377C3_var);
+            if (auto72D377C3_var < 0) { break; }
+            autoF63C1FEF_val = PlayerRace(auto72D377C3_var);
+            if (autoF63C1FEF_val == "Terr") {
+                libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_terran_normalpressed.dds", PlayerGroupSingle(auto72D377C3_var));
+                libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_terran_normaloverpressedover.dds", PlayerGroupSingle(auto72D377C3_var));
+            }
+            else if (autoF63C1FEF_val == "Zerg") {
+                libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_zerg_normalpressed.dds", PlayerGroupSingle(auto72D377C3_var));
+                libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_zerg_normaloverpressedover.dds", PlayerGroupSingle(auto72D377C3_var));
+            }
+            else if (autoF63C1FEF_val == "Prot") {
+                libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupSingle(auto72D377C3_var));
+                libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupSingle(auto72D377C3_var));
+            }
+            else if (autoF63C1FEF_val == "Keir") {
+                libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupSingle(auto72D377C3_var));
+                libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupSingle(auto72D377C3_var));
+            }
+            else {
+                libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupSingle(auto72D377C3_var));
+                libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupSingle(auto72D377C3_var));
+            }
+        }
+        libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), (lv_size + 4), (lv_size + 4), c_anchorTopLeft, 0, 0, StringToText(""), (CatalogFieldValueGet(c_gameCatalogBehavior, lp_behavior, "InfoIcon", c_playerAny)), c_triggerImageTypeNormal, false, Color(0.39, 0.39, 0.39), c_triggerBlendModeNormal);
+        lv_dialogItem[1] = DialogControlLastCreated();
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 920, PlayerGroupAll());
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), lv_fadeIn, 0.0);
+        libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), lv_size, lv_size, c_anchorTopLeft, 0, 0, StringToText(""), (CatalogFieldValueGet(c_gameCatalogBehavior, lp_behavior, "InfoIcon", c_playerAny)), c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        lv_dialogItem[2] = DialogControlLastCreated();
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 930, PlayerGroupAll());
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+        libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), lv_fadeIn, 0.0);
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+        if ((TechTreeUpgradeCount(lp_player, "HighCapacityMode", c_techCountCompleteOnly) == 0)) {
+            libDDE92A83_gf_StarlightAnimation(PlayerGroupSingle(lp_player), DialogLastCreated(), DialogControlLastCreated(), (lv_duration - 1.0), 870, 512, "LevelUpAnimation", 5);
+            libDDE92A83_gf_StarlightAnimation(PlayerGroupSingle(lp_player), DialogLastCreated(), DialogControlLastCreated(), 0.0, 1000, 512, "LevelUpAnimation", 2);
+        }
+        else {
+            libDDE92A83_gf_StarlightAnimation(PlayerGroupSingle(lp_player), DialogLastCreated(), DialogControlLastCreated(), (lv_duration - 1.0), 870, 512, "LevelUpAnimation", 2);
+            libDDE92A83_gf_StarlightAnimation(PlayerGroupSingle(lp_player), DialogLastCreated(), DialogControlLastCreated(), 0.0, 1000, 512, "LevelUpAnimation", 1);
+        }
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 125, 125, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_abilitycontrol_background.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        lv_dialogItem[3] = DialogControlLastCreated();
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 890, PlayerGroupAll());
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), lv_fadeIn, 0.0);
+        libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+        libNtve_gf_CreateDialogItemLabel(DialogLastCreated(), 600, 50, c_anchorLeft, 0, 0, (StringExternal("Param/Value/lib_948F000A_C3072E3F") + StringExternal("UI/ScreenCollection/Unlockables/Earned") + StringExternal("Param/Value/lib_948F000A_D149AF5B") + StringExternal(CatalogFieldValueGet(c_gameCatalogBehavior, lp_behavior, "Name", c_playerAny))), ColorWithAlpha(0,0,0,0), true, 0.5);
+        lv_dialogItem[4] = DialogControlLastCreated();
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 900, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorLeft, lv_button, c_anchorRight, 15, 0);
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), lv_fadeIn, 0.0);
+        libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 256, 256, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\storm_hero_melee_impact3.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        lv_dialogItem[5] = DialogControlLastCreated();
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 880, PlayerGroupAll());
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), lv_fadeIn, 0.0);
+        libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 113, 113, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_glues_profileavatar_gold_medium.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        lv_dialogItem[6] = DialogControlLastCreated();
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 940, PlayerGroupAll());
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), 0.0, 100.0);
+        DialogControlFadeTransparency(DialogControlLastCreated(), PlayerGroupAll(), lv_fadeIn, 0.0);
+        libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+        Wait(lv_duration, c_timeGame);
+        lv_i = 0;
+        for ( ; ( (auto13A276E3_ai >= 0 && lv_i <= auto13A276E3_ae) || (auto13A276E3_ai < 0 && lv_i >= auto13A276E3_ae) ) ; lv_i += auto13A276E3_ai ) {
+            DialogControlFadeTransparency(lv_dialogItem[lv_i], PlayerGroupAll(), 1.0, 100.0);
+        }
+        Wait(1.5, c_timeGame);
+        DialogDestroy(lv_dialog);
+        lib948F000A_gv_levelUpAnimationInProgress[lp_player] -= 1;
+    }
+
+}
+
+void lib948F000A_gf_CreateMainButtonModified () {
+    // Variable Declarations
+    int lv_iconBackground;
+    const int lv_iconSize = 76;
+    int lv_dialogSmall;
+
+    // Automatic Variable Declarations
+    playergroup auto3CF7090E_g;
+    int auto3CF7090E_var;
+    string auto3B02D25B_val;
+    playergroup autoA40323F0_g;
+    int autoA40323F0_var;
+    string autoC8A293AD_val;
+    playergroup autoDFB29E59_g;
+    int autoDFB29E59_var;
+    playergroup auto7A807309_g;
+    int auto7A807309_var;
+    playergroup autoFFC499A9_g;
+    int autoFFC499A9_var;
+    unitgroup autoA8AD9B70_g;
+    int autoA8AD9B70_u;
+    unit autoA8AD9B70_var;
+
+    // Variable Initialization
+    lv_iconBackground = c_invalidDialogControlId;
+    lv_dialogSmall = c_invalidDialogId;
+
+    // Implementation
+    DialogCreate(200, 200, c_anchorBottomLeft, -53, 245, true);
+    DialogSetVisible(DialogLastCreated(), PlayerGroupActive(), true);
+    DialogSetRenderPriority(DialogLastCreated(), 600);
+    DialogSetImageVisible(DialogLastCreated(), false);
+    DialogSetObservedType(DialogLastCreated(), c_triggerObservedTypeDefaultObservedPlayerId);
+    libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 76, 46, c_anchorCenter, 0, 10, (StringExternal("Param/Value/lib_948F000A_1D2501D3") + StringExternal("Param/Value/lib_948F000A_C04F3D38") + StringExternal("Param/Value/lib_948F000A_2974133E") + StringExternal("Param/Value/lib_948F000A_7BEE3147") + StringExternal("Param/Value/lib_948F000A_1D0808EB") + StringExternal("Param/Value/lib_948F000A_B4B239A4") + StringExternal("Param/Value/lib_948F000A_B71FF8B9") + StringExternal("Param/Value/lib_948F000A_820F1188") + StringExternal("UI/ContentFeedPanel/RewardsPanelDescription")), StringToText(""), "");
+    lib948F000A_gv_workerButton = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 600, PlayerGroupAll());
+    auto3CF7090E_g = PlayerGroupActive();
+    auto3CF7090E_var = -1;
+    while (true) {
+        auto3CF7090E_var = PlayerGroupNextPlayer(auto3CF7090E_g, auto3CF7090E_var);
+        if (auto3CF7090E_var < 0) { break; }
+        auto3B02D25B_val = PlayerRace(auto3CF7090E_var);
+        if (auto3B02D25B_val == "Terr") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_terran_normalpressed.dds", PlayerGroupSingle(auto3CF7090E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_terran_normaloverpressedover.dds", PlayerGroupSingle(auto3CF7090E_var));
+            lib948F000A_gv_currentTab[auto3CF7090E_var] = 1;
+        }
+        else if (auto3B02D25B_val == "Zerg") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_zerg_normalpressed.dds", PlayerGroupSingle(auto3CF7090E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_zerg_normaloverpressedover.dds", PlayerGroupSingle(auto3CF7090E_var));
+            lib948F000A_gv_currentTab[auto3CF7090E_var] = 2;
+        }
+        else if (auto3B02D25B_val == "Prot") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_protoss_normalpressed.dds", PlayerGroupSingle(auto3CF7090E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_protoss_normaloverpressedover.dds", PlayerGroupSingle(auto3CF7090E_var));
+            lib948F000A_gv_currentTab[auto3CF7090E_var] = 0;
+        }
+        else if (auto3B02D25B_val == "Keir") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_protoss_normalpressed.dds", PlayerGroupSingle(auto3CF7090E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_protoss_normaloverpressedover.dds", PlayerGroupSingle(auto3CF7090E_var));
+            lib948F000A_gv_currentTab[auto3CF7090E_var] = 0;
+        }
+        else {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_protoss_normalpressed.dds", PlayerGroupSingle(auto3CF7090E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_workerbutton_protoss_normaloverpressedover.dds", PlayerGroupSingle(auto3CF7090E_var));
+            lib948F000A_gv_currentTab[auto3CF7090E_var] = 0;
+        }
+    }
+    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 92, 62, c_anchorCenter, 0, 0, StringToText(""), "Assets\\Textures\\ui_unitbuttons_frame_protoss.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+    lib948F000A_gv_workerIcon[2] = DialogControlLastCreated();
+    autoA40323F0_g = PlayerGroupActive();
+    autoA40323F0_var = -1;
+    while (true) {
+        autoA40323F0_var = PlayerGroupNextPlayer(autoA40323F0_g, autoA40323F0_var);
+        if (autoA40323F0_var < 0) { break; }
+        autoC8A293AD_val = PlayerRace(autoA40323F0_var);
+        if (autoC8A293AD_val == "Terr") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_unitbuttons_frame_terran.dds", PlayerGroupSingle(autoA40323F0_var));
+        }
+        else if (autoC8A293AD_val == "Zerg") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_unitbuttons_frame_zerg.dds", PlayerGroupSingle(autoA40323F0_var));
+        }
+        else if (autoC8A293AD_val == "Prot") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_unitbuttons_frame_protoss.dds", PlayerGroupSingle(autoA40323F0_var));
+        }
+        else if (autoC8A293AD_val == "Keir") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_unitbuttons_frame_protoss.dds", PlayerGroupSingle(autoA40323F0_var));
+        }
+        else {
+        }
+    }
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 590, PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lib948F000A_gv_workerButton, c_anchorCenter, 0, 2);
+    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeImage, "ImageBirthSpin/ImageBirthSpin");
+    lib948F000A_gv_workerIcon[0] = DialogControlLastCreated();
+    DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, 0, 0);
+    libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), (lv_iconSize + 6), (lv_iconSize + 6));
+    autoDFB29E59_g = PlayerGroupActive();
+    autoDFB29E59_var = -1;
+    while (true) {
+        autoDFB29E59_var = PlayerGroupNextPlayer(autoDFB29E59_g, autoDFB29E59_var);
+        if (autoDFB29E59_var < 0) { break; }
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), (CatalogFieldValueGet(c_gameCatalogActor, UserDataGetGameLink("Races", libDDE92A83_gf_GetRaceUserData(PlayerRace(autoDFB29E59_var)), "Worker", 1), "UnitIcon", c_playerAny)), PlayerGroupSingle(autoDFB29E59_var));
+    }
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 620, PlayerGroupAll());
+    libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(0,0,0), PlayerGroupAll());
+    DialogControlCreateFromTemplate(DialogLastCreated(), c_triggerControlTypeImage, "ImageBirthSpin/ImageBirthSpin");
+    lib948F000A_gv_workerIcon[1] = DialogControlLastCreated();
+    DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, 0, 0);
+    libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), lv_iconSize, lv_iconSize);
+    auto7A807309_g = PlayerGroupActive();
+    auto7A807309_var = -1;
+    while (true) {
+        auto7A807309_var = PlayerGroupNextPlayer(auto7A807309_g, auto7A807309_var);
+        if (auto7A807309_var < 0) { break; }
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), (CatalogFieldValueGet(c_gameCatalogActor, UserDataGetGameLink("Races", libDDE92A83_gf_GetRaceUserData(PlayerRace(auto7A807309_var)), "Worker", 1), "UnitIcon", c_playerAny)), PlayerGroupSingle(auto7A807309_var));
+    }
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_iconBackground, c_anchorCenter, 0, 0);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 630, PlayerGroupAll());
+    DialogControlCreate(DialogLastCreated(), c_triggerControlTypeUnitTarget);
+    lib948F000A_gv_workerIconUnit = DialogControlLastCreated();
+    DialogControlSetPosition(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, 0, 0);
+    libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+    DialogControlSetSize(DialogControlLastCreated(), PlayerGroupAll(), 76, 76);
+    libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\black.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_unitstatusicon_normaloverpressedover.dds", PlayerGroupAll());
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libNtve_gf_SetDialogItemHotkey(DialogControlLastCreated(), c_hotkeyIdleWorker, PlayerGroupAll());
+    autoFFC499A9_g = PlayerGroupActive();
+    autoFFC499A9_var = -1;
+    while (true) {
+        autoFFC499A9_var = PlayerGroupNextPlayer(autoFFC499A9_g, autoFFC499A9_var);
+        if (autoFFC499A9_var < 0) { break; }
+        if ((TechTreeBehaviorCount(autoFFC499A9_var, "WorkerSwappable", c_techCountCompleteOnly) == 1)) {
+            autoA8AD9B70_g = UnitGroup(null, autoFFC499A9_var, RegionEntireMap(), UnitFilter((1 << c_targetFilterWorker), (1 << (c_targetFilterInvulnerable - 32)), (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+            autoA8AD9B70_u = UnitGroupCount(autoA8AD9B70_g, c_unitCountAll);
+            for (;; autoA8AD9B70_u -= 1) {
+                autoA8AD9B70_var = UnitGroupUnitFromEnd(autoA8AD9B70_g, autoA8AD9B70_u);
+                if (autoA8AD9B70_var == null) { break; }
+                if ((UnitHasBehavior2(autoA8AD9B70_var, "WorkerSwappable") == true)) {
+                    libNtve_gf_SetDialogItemUnit(DialogControlLastCreated(), autoA8AD9B70_var, PlayerGroupSingle(autoFFC499A9_var));
+                }
+
+            }
+        }
+
+    }
+    libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 38, 38, c_anchorCenter, 30, -24, StringToText(""), "Assets\\Textures\\ui_attentionmarker.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+    lib948F000A_gv_workerAttentionMarker = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+    DialogControlSetVisible(DialogControlLastCreated(), PlayerGroupAll(), false);
+    libNtve_gf_SetDialogItemTooltip(lib948F000A_gv_workerButton, (StringExternal("Param/Value/lib_948F000A_F4337B4A") + StringExternal("Param/Value/lib_948F000A_FC0D0B0C") + StringExternal("Param/Value/lib_948F000A_8D4FEDCA") + StringExternal("Param/Value/lib_948F000A_8CD39FDA")), PlayerGroupAll());
+    DialogControlSetEnabled(lib948F000A_gv_workerIcon[0], PlayerGroupAll(), false);
+    DialogControlSetEnabled(lib948F000A_gv_workerIcon[1], PlayerGroupAll(), false);
+    DialogControlSetEnabled(lib948F000A_gv_workerIcon[2], PlayerGroupAll(), false);
+    DialogControlSetEnabled(lib948F000A_gv_workerButton, PlayerGroupAll(), false);
+}
+
+void lib948F000A_gf_CreateChoiceButton (string lp_behavior, int lp_tab, string lp_specialRequirement) {
+    // Variable Declarations
+    int lv_size;
+    int lv_button;
+
+    // Automatic Variable Declarations
+    playergroup auto09D790A7_g;
+    int auto09D790A7_var;
+    string auto32991339_val;
+    playergroup auto5445AE3E_g;
+    int auto5445AE3E_var;
+    string auto602E9ACE_val;
+
+    // Variable Initialization
+    lv_size = 76;
+    lv_button = c_invalidDialogControlId;
+
+    // Implementation
+    if ((lib948F000A_gv_buttonX[lp_tab] >= 5)) {
+        lib948F000A_gv_buttonX[lp_tab] = 0;
+        lib948F000A_gv_buttonY[lp_tab] += 1;
+    }
+
+    if ((lib948F000A_gv_buttonCategory[lp_tab] >= 10)) {
+        libNtve_gf_CreateDialogItemImage(lib948F000A_gv_workerDialog[lp_tab], ((76 * 5) + lib948F000A_gv_borderSize), 14, c_anchorTop, 0, ((9 + lib948F000A_gv_buttonYOffset[lp_tab]) + (lib948F000A_gv_buttonY[lp_tab] * (lv_size + 1))), StringToText(""), "Assets\\Textures\\ui_tooltip_frame_protoss_divider.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        auto09D790A7_g = PlayerGroupActive();
+        auto09D790A7_var = -1;
+        while (true) {
+            auto09D790A7_var = PlayerGroupNextPlayer(auto09D790A7_g, auto09D790A7_var);
+            if (auto09D790A7_var < 0) { break; }
+            auto32991339_val = PlayerRace(auto09D790A7_var);
+            if (auto32991339_val == "Terr") {
+                libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_tooltip_frame_terran_divider.dds", PlayerGroupSingle(auto09D790A7_var));
+            }
+            else if (auto32991339_val == "Zerg") {
+                libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_tooltip_frame_zerg_divider.dds", PlayerGroupSingle(auto09D790A7_var));
+            }
+            else if (auto32991339_val == "Prot") {
+                libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_tooltip_frame_protoss_divider.dds", PlayerGroupSingle(auto09D790A7_var));
+            }
+            else if (auto32991339_val == "Keir") {
+                libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_tooltip_frame_protoss_divider.dds", PlayerGroupSingle(auto09D790A7_var));
+            }
+            else {
+            }
+        }
+        lib948F000A_gv_buttonCategory[lp_tab] = 0;
+        lib948F000A_gv_buttonYOffset[lp_tab] += 12;
+    }
+
+    libNtve_gf_CreateDialogItemButton(lib948F000A_gv_workerDialog[lp_tab], lv_size, lv_size, c_anchorTopLeft, (lib948F000A_gv_borderSize + (lib948F000A_gv_buttonX[lp_tab] * (lv_size + 1))), ((lib948F000A_gv_borderSize + lib948F000A_gv_buttonYOffset[lp_tab]) + (lib948F000A_gv_buttonY[lp_tab] * (lv_size + 1))), StringToText(""), StringToText(""), "");
+    lv_button = DialogControlLastCreated();
+    lib948F000A_gv_button[lib948F000A_gv_buttonTotal][0] = DialogControlLastCreated();
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 610, PlayerGroupAll());
+    libNtve_gf_SetDialogItemDesaturationColor(DialogControlLastCreated(), Color(149*100/255,150*100/255,151*100/255), PlayerGroupAll());
+    libNtve_gf_SetDialogItemDesaturated(DialogControlLastCreated(), true, PlayerGroupAll());
+    if ((lp_specialRequirement == null)) {
+        libNtve_gf_SetDialogItemTooltip(DialogControlLastCreated(), (StringExternal("Param/Value/lib_948F000A_9BAFA3BE") + StringExternal(CatalogFieldValueGet(c_gameCatalogBehavior, lp_behavior, "Name", c_playerAny)) + StringExternal("Param/Value/lib_948F000A_7515BAC5") + StringExternal("Param/Value/lib_948F000A_5372A9E8") + StringExternal("e_gameUIStringRequirementsColon") + StringExternal("Param/Value/lib_948F000A_E9E1843E") + StringExternal("UI/ScreenUserProfile/SummaryCoop/MasteryLevel") + StringExternal("Param/Value/lib_948F000A_3DC8DEEF") + IntToText((lib948F000A_gv_levelRequirement - 1))), PlayerGroupAll());
+    }
+    else {
+        libNtve_gf_SetDialogItemTooltip(DialogControlLastCreated(), (StringExternal("Param/Value/lib_948F000A_8F4A34D0") + StringExternal(CatalogFieldValueGet(c_gameCatalogBehavior, lp_behavior, "Name", c_playerAny)) + StringExternal("Param/Value/lib_948F000A_307BB837") + StringExternal("Param/Value/lib_948F000A_34CF5C53") + StringExternal("e_gameUIStringRequirementsColon") + StringExternal("Param/Value/lib_948F000A_4FDEEE59") + StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, lp_specialRequirement, "Name", c_playerAny))), PlayerGroupAll());
+    }
+    libNtve_gf_SetDialogItemEditorValue(DialogControlLastCreated(), (lp_behavior), PlayerGroupSingle(0));
+    CatalogFieldValueSet(c_gameCatalogBehavior, lp_behavior, "Modification.AttributeChangeArray[" + IntToString(0) + "].Points", 0, IntToString(lib948F000A_gv_buttonTotal));
+    libNtve_gf_SetDialogItemEditorValue(DialogControlLastCreated(), IntToString(lp_tab), PlayerGroupSingle(1));
+    libNtve_gf_SetDialogItemEditorValue(DialogControlLastCreated(), IntToString(lib948F000A_gv_buttonTotal), PlayerGroupSingle(lib948F000A_gv_editValueIndex));
+    if ((lp_specialRequirement == null)) {
+        libNtve_gf_SetDialogItemEditorValue(DialogControlLastCreated(), IntToString(lib948F000A_gv_levelRequirement), PlayerGroupSingle(lib948F000A_gv_editValueLevelRequirement));
+        lib948F000A_gv_levelRequirement += 1;
+    }
+    else {
+        libNtve_gf_SetDialogItemEditorValue(DialogControlLastCreated(), IntToString(0), PlayerGroupSingle(lib948F000A_gv_editValueLevelRequirement));
+        libNtve_gf_SetDialogItemEditorValue(DialogControlLastCreated(), (lp_specialRequirement), PlayerGroupSingle(lib948F000A_gv_editValueUpgradeRequirement));
+    }
+    auto5445AE3E_g = PlayerGroupActive();
+    auto5445AE3E_var = -1;
+    while (true) {
+        auto5445AE3E_var = PlayerGroupNextPlayer(auto5445AE3E_g, auto5445AE3E_var);
+        if (auto5445AE3E_var < 0) { break; }
+        auto602E9ACE_val = PlayerRace(auto5445AE3E_var);
+        if (auto602E9ACE_val == "Terr") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_terran_normalpressed.dds", PlayerGroupSingle(auto5445AE3E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_terran_normaloverpressedover.dds", PlayerGroupSingle(auto5445AE3E_var));
+        }
+        else if (auto602E9ACE_val == "Zerg") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_zerg_normalpressed.dds", PlayerGroupSingle(auto5445AE3E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_zerg_normaloverpressedover.dds", PlayerGroupSingle(auto5445AE3E_var));
+        }
+        else if (auto602E9ACE_val == "Prot") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupSingle(auto5445AE3E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupSingle(auto5445AE3E_var));
+        }
+        else if (auto602E9ACE_val == "Keir") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupSingle(auto5445AE3E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupSingle(auto5445AE3E_var));
+        }
+        else {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupSingle(auto5445AE3E_var));
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupSingle(auto5445AE3E_var));
+        }
+    }
+    libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+    libNtve_gf_CreateDialogItemImage(lib948F000A_gv_workerDialog[lp_tab], (lv_size + 4), (lv_size + 4), c_anchorTopLeft, 0, 0, StringToText(""), (CatalogFieldValueGet(c_gameCatalogBehavior, lp_behavior, "InfoIcon", c_playerAny)), c_triggerImageTypeNormal, false, Color(0.39, 0.39, 0.39), c_triggerBlendModeNormal);
+    DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 620, PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+    libNtve_gf_CreateDialogItemImage(lib948F000A_gv_workerDialog[lp_tab], lv_size, lv_size, c_anchorTopLeft, 0, 0, StringToText(""), (CatalogFieldValueGet(c_gameCatalogBehavior, lp_behavior, "InfoIcon", c_playerAny)), c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+    lib948F000A_gv_button[lib948F000A_gv_buttonTotal][1] = DialogControlLastCreated();
+    DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 620, PlayerGroupAll());
+    libNtve_gf_SetDialogItemDesaturationColor(DialogControlLastCreated(), Color(149*100/255,150*100/255,151*100/255), PlayerGroupAll());
+    libNtve_gf_SetDialogItemDesaturated(DialogControlLastCreated(), true, PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+    libNtve_gf_CreateDialogItemImage(lib948F000A_gv_workerDialog[lp_tab], 100, 100, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_abilitycontrol_background.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+    DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+    libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 590, PlayerGroupAll());
+    DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_button, c_anchorCenter, 0, 0);
+    lib948F000A_gv_buttonX[lp_tab] += 1;
+    lib948F000A_gv_buttonTotal += 1;
+    lib948F000A_gv_buttonCategory[lp_tab] += 1;
+    lib948F000A_gv_buttonPerTab[lp_tab] += 1;
+}
+
+void lib948F000A_gf_UpdatePlayerLevel (int lp_player) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    int auto5BBD7E92_ae;
+    const int auto5BBD7E92_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    auto5BBD7E92_ae = (lib948F000A_gv_buttonTotal - 1);
+    lv_i = 0;
+    for ( ; ( (auto5BBD7E92_ai >= 0 && lv_i <= auto5BBD7E92_ae) || (auto5BBD7E92_ai < 0 && lv_i >= auto5BBD7E92_ae) ) ; lv_i += auto5BBD7E92_ai ) {
+        if ((libNtve_gf_DialogItemEditValue(lib948F000A_gv_button[lv_i][0], lib948F000A_gv_editValueUpgradeRequirement) == "") && (lib948F000A_gv_playerLevel[lp_player] > (StringToInt(libNtve_gf_DialogItemEditValue(lib948F000A_gv_button[lv_i][0], lib948F000A_gv_editValueLevelRequirement)) - 2))) {
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_button[lv_i][0], false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_button[lv_i][1], false, PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemTooltip(lib948F000A_gv_button[lv_i][0], (StringExternal("Param/Value/lib_948F000A_EDA8477F") + StringExternal(CatalogFieldValueGet(c_gameCatalogBehavior, (libNtve_gf_DialogItemEditValue(lib948F000A_gv_button[lv_i][0], 0)), "Name", c_playerAny))), PlayerGroupSingle(lp_player));
+        }
+
+    }
+}
+
+void lib948F000A_gf_UpdatePlayerUpgrades (int lp_player) {
+    // Variable Declarations
+    int lv_i;
+
+    // Automatic Variable Declarations
+    int auto8FC7B5D6_ae;
+    const int auto8FC7B5D6_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    auto8FC7B5D6_ae = (lib948F000A_gv_buttonTotal - 1);
+    lv_i = 0;
+    for ( ; ( (auto8FC7B5D6_ai >= 0 && lv_i <= auto8FC7B5D6_ae) || (auto8FC7B5D6_ai < 0 && lv_i >= auto8FC7B5D6_ae) ) ; lv_i += auto8FC7B5D6_ai ) {
+        if ((libNtve_gf_DialogItemEditValue(lib948F000A_gv_button[lv_i][0], lib948F000A_gv_editValueUpgradeRequirement) != "")) {
+            if ((TechTreeUpgradeCount(lp_player, (libNtve_gf_DialogItemEditValue(lib948F000A_gv_button[lv_i][0], lib948F000A_gv_editValueUpgradeRequirement)), c_techCountCompleteOnly) >= 1)) {
+                libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_button[lv_i][0], false, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_button[lv_i][1], false, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemTooltip(lib948F000A_gv_button[lv_i][0], (StringExternal("Param/Value/lib_948F000A_9BAABAB1") + StringExternal(CatalogFieldValueGet(c_gameCatalogBehavior, (libNtve_gf_DialogItemEditValue(lib948F000A_gv_button[lv_i][0], 0)), "Name", c_playerAny))), PlayerGroupSingle(lp_player));
+            }
+
+        }
+
+    }
+}
+
+void lib948F000A_gf_CreateTabs () {
+    // Variable Declarations
+    int lv_i;
+    string[lib948F000A_gv_tab + 1] lv_icon;
+    text[lib948F000A_gv_tab + 1] lv_name;
+    const int lv_separation = 82;
+
+    // Automatic Variable Declarations
+    const int auto044F4A50_ae = lib948F000A_gv_tab;
+    const int auto044F4A50_ai = 1;
+    playergroup auto0C3837CC_g;
+    int auto0C3837CC_var;
+    string autoCC37F004_val;
+    playergroup auto34A5C792_g;
+    int auto34A5C792_var;
+    string auto953D5598_val;
+    playergroup auto2B932ED1_g;
+    int auto2B932ED1_var;
+    string autoD4220EF6_val;
+
+    // Variable Initialization
+
+    // Implementation
+    DialogCreate(470, ((lv_separation * lib948F000A_gv_tab) + lv_separation + 16), c_anchorBottomLeft, 0, 380, true);
+    lib948F000A_gv_raceDialog = DialogLastCreated();
+    DialogSetImageVisible(DialogLastCreated(), false);
+    DialogSetObservedType(DialogLastCreated(), c_triggerObservedTypeDefaultObservedPlayerId);
+    lv_icon[0] = "Assets\\Textures\\ui_glues_help_armyicon_protoss.dds";
+    lv_icon[1] = "Assets\\Textures\\ui_glues_help_armyicon_terran.dds";
+    lv_icon[2] = "Assets\\Textures\\ui_glues_help_armyicon_zerg.dds";
+    lv_icon[3] = "Assets\\Textures\\btn-tips-richminerals.dds";
+    lv_icon[4] = "Assets\\Textures\\btn-menu-premium.dds";
+    lv_icon[5] = "Assets\\Textures\\sc2_ui_collection_warchest_esports_mainevent_icon_wcs_hover.dds";
+    lv_icon[6] = "Assets\\Textures\\sc2_ui_collection_warchest_esports_mainevent_icon_wcs_green.dds";
+    lv_icon[7] = "Assets\\Textures\\sc2_ui_collection_warchest_esports_mainevent_icon_wcs_purple.dds";
+    lv_icon[8] = "Assets\\Textures\\sc2_ui_collection_warchest_esports_mainevent_icon_wcs_red.dds";
+    lv_name[0] = StringExternal("UI/Race/Protoss");
+    lv_name[1] = StringExternal("UI/Race/Terran");
+    lv_name[2] = StringExternal("UI/Race/Zerg");
+    lv_name[3] = StringExternal("Race/Name/Neut");
+    lv_name[4] = StringExternal("UI/BattleMapProfilePanel/Premium");
+    lv_name[5] = StringExternal("WarChestSeason/Name/WARCHEST_SEASON_1");
+    lv_name[6] = StringExternal("WarChestSeason/Name/WARCHEST_SEASON_2");
+    lv_name[7] = StringExternal("WarChestSeason/Name/WARCHEST_SEASON_3");
+    lv_name[8] = StringExternal("WarChestSeason/Name/WARCHEST_SEASON_4");
+    lv_i = 0;
+    for ( ; ( (auto044F4A50_ai >= 0 && lv_i <= auto044F4A50_ae) || (auto044F4A50_ai < 0 && lv_i >= auto044F4A50_ae) ) ; lv_i += auto044F4A50_ai ) {
+        libNtve_gf_CreateDialogItemButton(DialogLastCreated(), 76, 76, c_anchorTopLeft, 8, ((lv_i * lv_separation) + 8), StringToText(""), StringToText(""), "");
+        lib948F000A_gv_raceTab[lv_i][0] = DialogControlLastCreated();
+        libNtve_gf_SetDialogItemDesaturationColor(DialogControlLastCreated(), Color(50.20, 50.20, 50.20), PlayerGroupAll());
+        libNtve_gf_SetDialogItemTooltip(DialogControlLastCreated(), (StringExternal("Param/Value/lib_948F000A_4FB01984") + lv_name[lv_i]), PlayerGroupAll());
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 810, PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\black.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_partyframe_buttonglow.dds", PlayerGroupAll());
+        libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+        libNtve_gf_SetDialogItemDesaturationColor(DialogControlLastCreated(), Color(149*100/255,150*100/255,151*100/255), PlayerGroupAll());
+        auto0C3837CC_g = PlayerGroupActive();
+        auto0C3837CC_var = -1;
+        while (true) {
+            auto0C3837CC_var = PlayerGroupNextPlayer(auto0C3837CC_g, auto0C3837CC_var);
+            if (auto0C3837CC_var < 0) { break; }
+            autoCC37F004_val = PlayerRace(auto0C3837CC_var);
+            if (autoCC37F004_val == "Terr") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(25.49, 70.59, 43.14), PlayerGroupSingle(auto0C3837CC_var));
+            }
+            else if (autoCC37F004_val == "Zerg") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(96.08, 54.90, 27.45), PlayerGroupSingle(auto0C3837CC_var));
+            }
+            else if (autoCC37F004_val == "Prot") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(35.29, 62.75, 94.12), PlayerGroupSingle(auto0C3837CC_var));
+            }
+            else if (autoCC37F004_val == "Keir") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(50.20, 50.20, 100.00), PlayerGroupSingle(auto0C3837CC_var));
+            }
+            else {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(35.29, 62.75, 94.12), PlayerGroupSingle(auto0C3837CC_var));
+            }
+        }
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), (76 + 28), (76 + 28), c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_whiteborderframe.dds", c_triggerImageTypeNineSlice, false, Color(100,100,100), c_triggerBlendModeNormal);
+        lib948F000A_gv_raceTab[lv_i][1] = DialogControlLastCreated();
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 800, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lib948F000A_gv_raceTab[lv_i][0], c_anchorCenter, 0, 0);
+        auto34A5C792_g = PlayerGroupActive();
+        auto34A5C792_var = -1;
+        while (true) {
+            auto34A5C792_var = PlayerGroupNextPlayer(auto34A5C792_g, auto34A5C792_var);
+            if (auto34A5C792_var < 0) { break; }
+            auto953D5598_val = PlayerRace(auto34A5C792_var);
+            if (auto953D5598_val == "Terr") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(25.49, 70.59, 43.14), PlayerGroupSingle(auto34A5C792_var));
+            }
+            else if (auto953D5598_val == "Zerg") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(96.08, 54.90, 27.45), PlayerGroupSingle(auto34A5C792_var));
+            }
+            else if (auto953D5598_val == "Prot") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(35.29, 62.75, 94.12), PlayerGroupSingle(auto34A5C792_var));
+            }
+            else if (auto953D5598_val == "Keir") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(50.20, 50.20, 100.00), PlayerGroupSingle(auto34A5C792_var));
+            }
+            else {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(35.29, 62.75, 94.12), PlayerGroupSingle(auto34A5C792_var));
+            }
+        }
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), (76 + 28), (76 + 28), c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_blackborderframe.dds", c_triggerImageTypeNineSlice, false, Color(100,100,100), c_triggerBlendModeNormal);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 790, PlayerGroupAll());
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lib948F000A_gv_raceTab[lv_i][0], c_anchorCenter, 0, 0);
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 76, 76, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\white.dds", c_triggerImageTypeNormal, false, Color(0,0,0), c_triggerBlendModeNormal);
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 770, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lib948F000A_gv_raceTab[lv_i][0], c_anchorCenter, 0, 0);
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 76, 76, c_anchorTopLeft, 0, 0, StringToText(""), lv_icon[lv_i], c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 780, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lib948F000A_gv_raceTab[lv_i][0], c_anchorCenter, 0, 0);
+        libNtve_gf_SetDialogItemDesaturationColor(DialogControlLastCreated(), Color(149*100/255,150*100/255,151*100/255), PlayerGroupAll());
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 119, 94, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_collection_tab_arrow_black.dds", c_triggerImageTypeNormal, false, Color(0.39, 0.39, 0.39), c_triggerBlendModeNormal);
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 690, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lib948F000A_gv_raceTab[lv_i][0], c_anchorCenter, 6, 0);
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 119, 94, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_collection_tab_arrow.dds", c_triggerImageTypeNormal, false, Color(0.39, 0.39, 0.39), c_triggerBlendModeNormal);
+        lib948F000A_gv_raceTab[lv_i][2] = DialogControlLastCreated();
+        DialogControlSetEnabled(DialogControlLastCreated(), PlayerGroupAll(), true);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lib948F000A_gv_raceTab[lv_i][0], c_anchorCenter, 6, 0);
+        auto2B932ED1_g = PlayerGroupActive();
+        auto2B932ED1_var = -1;
+        while (true) {
+            auto2B932ED1_var = PlayerGroupNextPlayer(auto2B932ED1_g, auto2B932ED1_var);
+            if (auto2B932ED1_var < 0) { break; }
+            autoD4220EF6_val = PlayerRace(auto2B932ED1_var);
+            if (autoD4220EF6_val == "Terr") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(25.49, 70.59, 43.14), PlayerGroupSingle(auto2B932ED1_var));
+            }
+            else if (autoD4220EF6_val == "Zerg") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(96.08, 54.90, 27.45), PlayerGroupSingle(auto2B932ED1_var));
+            }
+            else if (autoD4220EF6_val == "Prot") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(35.29, 62.75, 94.12), PlayerGroupSingle(auto2B932ED1_var));
+            }
+            else if (autoD4220EF6_val == "Keir") {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(50.20, 50.20, 100.00), PlayerGroupSingle(auto2B932ED1_var));
+            }
+            else {
+                libNtve_gf_SetDialogItemColor(DialogControlLastCreated(), Color(35.29, 62.75, 94.12), PlayerGroupSingle(auto2B932ED1_var));
+            }
+        }
+    }
+}
+
+trigger auto_lib948F000A_gf_ApplyViaBehavior_Trigger = null;
+int auto_lib948F000A_gf_ApplyViaBehavior_lp_player;
+string auto_lib948F000A_gf_ApplyViaBehavior_lp_behavior;
+bool auto_lib948F000A_gf_ApplyViaBehavior_lp_allowAnimation;
+
+void lib948F000A_gf_ApplyViaBehavior (int lp_player, string lp_behavior, bool lp_allowAnimation) {
+    auto_lib948F000A_gf_ApplyViaBehavior_lp_player = lp_player;
+    auto_lib948F000A_gf_ApplyViaBehavior_lp_behavior = lp_behavior;
+    auto_lib948F000A_gf_ApplyViaBehavior_lp_allowAnimation = lp_allowAnimation;
+
+    if (auto_lib948F000A_gf_ApplyViaBehavior_Trigger == null) {
+        auto_lib948F000A_gf_ApplyViaBehavior_Trigger = TriggerCreate("auto_lib948F000A_gf_ApplyViaBehavior_TriggerFunc");
+    }
+
+    TriggerExecute(auto_lib948F000A_gf_ApplyViaBehavior_Trigger, false, false);
+}
+
+bool auto_lib948F000A_gf_ApplyViaBehavior_TriggerFunc (bool testConds, bool runActions) {
+    int lp_player = auto_lib948F000A_gf_ApplyViaBehavior_lp_player;
+    string lp_behavior = auto_lib948F000A_gf_ApplyViaBehavior_lp_behavior;
+    bool lp_allowAnimation = auto_lib948F000A_gf_ApplyViaBehavior_lp_allowAnimation;
+
+    int init_i;
+
+    // Variable Declarations
+    int lv_i;
+    string lv_icon;
+    int lv_dialogItem;
+    int[5] lv_fadeImage;
+    int lv_fadeDialog;
+
+    // Automatic Variable Declarations
+    const int autoB3D38BE4_ae = lib948F000A_gv_tab;
+    const int autoB3D38BE4_ai = 1;
+    unitgroup autoD8955AE1_g;
+    int autoD8955AE1_u;
+    unit autoD8955AE1_var;
+    string autoEE0101D4_val;
+    const int auto09C12D14_ae = 4;
+    const int auto09C12D14_ai = 1;
+    unitgroup autoC0CA7871_g;
+    int autoC0CA7871_u;
+    unit autoC0CA7871_var;
+
+    // Variable Initialization
+    lv_icon = (CatalogFieldValueGet(c_gameCatalogBehavior, (lp_behavior), "InfoIcon", c_playerAny));
+    lv_dialogItem = lib948F000A_gv_button[CatalogFieldValueGetAsInt(c_gameCatalogBehavior, lp_behavior, "Modification.AttributeChangeArray[" + IntToString(0) + "].Points", 0)][0];
+    for (init_i = 0; init_i <= 4; init_i += 1) {
+        lv_fadeImage[init_i] = c_invalidDialogControlId;
+    }
+    lv_fadeDialog = c_invalidDialogId;
+
+    // Implementation
+    if ((lib948F000A_gv_created == true)) {
+        lv_i = 0;
+        for ( ; ( (autoB3D38BE4_ai >= 0 && lv_i <= autoB3D38BE4_ae) || (autoB3D38BE4_ai < 0 && lv_i >= autoB3D38BE4_ae) ) ; lv_i += autoB3D38BE4_ai ) {
+            DialogControlSetVisible(lib948F000A_gv_workerCurrent[lv_i], PlayerGroupSingle(lp_player), false);
+        }
+        DialogControlSetPositionRelative(lib948F000A_gv_workerCurrent[StringToInt(libNtve_gf_DialogItemEditValue(lv_dialogItem, 1))], PlayerGroupSingle(lp_player), c_anchorCenter, lv_dialogItem, c_anchorCenter, 0, 0);
+        DialogControlSetVisible(lib948F000A_gv_workerCurrent[StringToInt(libNtve_gf_DialogItemEditValue(lv_dialogItem, 1))], PlayerGroupSingle(lp_player), true);
+        lib948F000A_gv_workerDialogItem[lp_player] = lv_dialogItem;
+    }
+
+    autoD8955AE1_g = libDDE92A83_gf_PlayerWorkers(lp_player);
+    autoD8955AE1_u = UnitGroupCount(autoD8955AE1_g, c_unitCountAll);
+    for (;; autoD8955AE1_u -= 1) {
+        autoD8955AE1_var = UnitGroupUnitFromEnd(autoD8955AE1_g, autoD8955AE1_u);
+        if (autoD8955AE1_var == null) { break; }
+        if ((UnitHasBehavior2(autoD8955AE1_var, lp_behavior) == false)) {
+            UnitCreateEffectUnit(autoD8955AE1_var, "SkinRefresh", autoD8955AE1_var);
+            UnitBehaviorRemoveCategory(autoD8955AE1_var, c_unitBehaviorFlagTemporary);
+            UnitBehaviorAdd(autoD8955AE1_var, lp_behavior, autoD8955AE1_var, 1);
+            if ((lib948F000A_gv_created == true)) {
+                libNtve_gf_SetDialogItemImage(lib948F000A_gv_workerIcon[0], lv_icon, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemImage(lib948F000A_gv_workerIcon[1], lv_icon, PlayerGroupSingle(lp_player));
+                libNtve_gf_SetDialogItemUnit(lib948F000A_gv_workerIconUnit, autoD8955AE1_var, PlayerGroupSingle(lp_player));
+            }
+
+            CatalogFieldValueSet(c_gameCatalogButton, "WorkerSubmenuWorkerSelect", "Icon", lp_player, (lv_icon));
+            lib948F000A_gv_currentBehavior[lp_player] = lp_behavior;
+        }
+
+    }
+    libDDE92A83_gf_SetWorkerAttributes(lp_player);
+    if ((lib948F000A_gv_created == true) && (lp_allowAnimation == true) && (TimerGetRemaining(lib948F000A_gv_recentlyCreated) == 0.0)) {
+        SoundPlayForPlayer(SoundLink("UI_WorkerSelect_Equip", -1), c_maxPlayers, PlayerGroupSingle(lp_player), 100.0, 0.0);
+        DialogCreate(DialogGetWidth(DialogControlGetDialog(lv_dialogItem)), DialogGetHeight(DialogControlGetDialog(lv_dialogItem)), DialogGetAnchor(DialogControlGetDialog(lv_dialogItem)), DialogGetOffsetX(DialogControlGetDialog(lv_dialogItem)), DialogGetOffsetY(DialogControlGetDialog(lv_dialogItem)), true);
+        lv_fadeDialog = DialogLastCreated();
+        DialogSetVisible(DialogLastCreated(), PlayerGroupSingle(lp_player), true);
+        DialogSetImageVisible(DialogLastCreated(), false);
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), DialogControlGetWidth(lv_dialogItem, 0), DialogControlGetHeight(lv_dialogItem, 0), DialogControlGetAnchor(lv_dialogItem, 0), DialogControlGetOffsetX(lv_dialogItem, 0), DialogControlGetOffsetY(lv_dialogItem, 0), StringToText(""), lv_icon, c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        lv_fadeImage[0] = DialogControlLastCreated();
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 720, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 100, 100, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_workerbutton_highlight.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        lv_fadeImage[1] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_fadeImage[0], c_anchorCenter, 0, 0);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 730, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), (DialogControlGetWidth(lv_dialogItem, 0) + 4), (DialogControlGetHeight(lv_dialogItem, 0) + 4), c_anchorTopLeft, 0, 0, StringToText(""), lv_icon, c_triggerImageTypeNormal, false, Color(0.39, 0.39, 0.39), c_triggerBlendModeNormal);
+        lv_fadeImage[2] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_fadeImage[0], c_anchorCenter, 0, 0);
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 710, PlayerGroupAll());
+        libNtve_gf_CreateDialogItemButton(DialogLastCreated(), DialogControlGetWidth(lv_dialogItem, 0), DialogControlGetHeight(lv_dialogItem, 0), c_anchorTopLeft, 50, 50, StringToText(""), StringToText(""), "");
+        lv_fadeImage[3] = DialogControlLastCreated();
+        libNtve_gf_SetDialogItemRenderPriority(DialogControlLastCreated(), 700, PlayerGroupAll());
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_fadeImage[0], c_anchorCenter, 0, 0);
+        libNtve_gf_SetDialogItemImageType(DialogControlLastCreated(), c_triggerImageTypeNormal, PlayerGroupAll());
+        libNtve_gf_SetDialogItemAcceptMouse(DialogControlLastCreated(), false, PlayerGroupAll());
+        autoEE0101D4_val = PlayerRace(lp_player);
+        if (autoEE0101D4_val == "Terr") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_terran_normalpressed.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_terran_normaloverpressedover.dds", PlayerGroupAll());
+        }
+        else if (autoEE0101D4_val == "Zerg") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_zerg_normalpressed.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_zerg_normaloverpressedover.dds", PlayerGroupAll());
+        }
+        else if (autoEE0101D4_val == "Prot") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupAll());
+        }
+        else if (autoEE0101D4_val == "Keir") {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupAll());
+        }
+        else {
+            libNtve_gf_SetDialogItemImage(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normalpressed.dds", PlayerGroupAll());
+            libNtve_gf_SetDialogItemImage2(DialogControlLastCreated(), "Assets\\Textures\\ui_abilitycontrol_protoss_normaloverpressedover.dds", PlayerGroupAll());
+        }
+        libNtve_gf_CreateDialogItemImage(DialogLastCreated(), 100, 100, c_anchorTopLeft, 0, 0, StringToText(""), "Assets\\Textures\\ui_abilitycontrol_background.dds", c_triggerImageTypeNormal, false, Color(100,100,100), c_triggerBlendModeNormal);
+        lv_fadeImage[4] = DialogControlLastCreated();
+        DialogControlSetPositionRelative(DialogControlLastCreated(), PlayerGroupAll(), c_anchorCenter, lv_fadeImage[0], c_anchorCenter, 0, 0);
+        Wait(0.25, c_timeGame);
+        lv_i = 0;
+        for ( ; ( (auto09C12D14_ai >= 0 && lv_i <= auto09C12D14_ae) || (auto09C12D14_ai < 0 && lv_i >= auto09C12D14_ae) ) ; lv_i += auto09C12D14_ai ) {
+            DialogControlFadeTransparency(lv_fadeImage[lv_i], PlayerGroupAll(), 0.25, 100.0);
+        }
+        Wait(0.5, c_timeGame);
+        DialogDestroy(lv_fadeDialog);
+    }
+
+    autoC0CA7871_g = UnitGroup(null, lp_player, RegionEntireMap(), UnitFilter(0, (1 << (c_targetFilterInvulnerable - 32)), (1 << c_targetFilterStructure), (1 << (c_targetFilterRadar - 32))), 0);
+    autoC0CA7871_u = UnitGroupCount(autoC0CA7871_g, c_unitCountAll);
+    for (;; autoC0CA7871_u -= 1) {
+        autoC0CA7871_var = UnitGroupUnitFromEnd(autoC0CA7871_g, autoC0CA7871_u);
+        if (autoC0CA7871_var == null) { break; }
+        if ((UnitHasBehavior2(autoC0CA7871_var, "WorkerSwappable") == true) && (UnitFilterMatch(autoC0CA7871_var, 0, UnitFilter(0, 0, 0, (1 << (c_targetFilterRadar - 32)))) == false)) {
+            UnitBehaviorAdd(autoC0CA7871_var, "WorkerProbe", autoC0CA7871_var, 1);
+            libNtve_gf_SetDialogItemImage(lib948F000A_gv_workerIcon[0], "Assets\\Textures\\btn-unit-protoss-probe.dds", PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemImage(lib948F000A_gv_workerIcon[1], "Assets\\Textures\\btn-unit-protoss-probe.dds", PlayerGroupSingle(lp_player));
+            libNtve_gf_SetDialogItemUnit(lib948F000A_gv_workerIconUnit, autoC0CA7871_var, PlayerGroupSingle(lp_player));
+        }
+
+    }
+    return true;
+}
+
+void lib948F000A_gf_ApplyViaInteger (int lp_player, int lp_integer, bool lp_allowAnimation) {
+    // Automatic Variable Declarations
+    // Implementation
+    lib948F000A_gf_ApplyViaBehavior(lp_player, (libNtve_gf_DialogItemEditValue(lib948F000A_gv_button[libNtve_gf_ArithmeticIntClamp(lp_integer, 0, (lib948F000A_gv_buttonTotal - 1))][0], 0)), lp_allowAnimation);
+}
+
+void lib948F000A_gf_WorkerSelectSaveSettings (int lp_player) {
+    // Automatic Variable Declarations
+    // Implementation
+    libDBB0BE4A_gf_StarlightBankStart();
+    libDBB0BE4A_gf_StarlightSave(lp_player, lib948F000A_gv_bankSection, lib948F000A_gv_workerSelectSaveLoad[lp_player][0], lib948F000A_gv_workerSelectSaveLoad[lp_player][1], lib948F000A_gv_workerSelectSaveLoad[lp_player][2], lib948F000A_gv_workerSelectSaveLoad[lp_player][3], lib948F000A_gv_workerSelectSaveLoad[lp_player][4], lib948F000A_gv_workerSelectSaveLoad[lp_player][5], lib948F000A_gv_workerSelectSaveLoad[lp_player][6], lib948F000A_gv_workerSelectSaveLoad[lp_player][7], lib948F000A_gv_workerSelectSaveLoad[lp_player][8], lib948F000A_gv_workerSelectSaveLoad[lp_player][9]);
+}
+
+trigger auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_Trigger = null;
+int auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_lp_player;
+
+void lib948F000A_gf_WorkerSelectLoadSettingsModified (int lp_player) {
+    auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_lp_player = lp_player;
+
+    if (auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_Trigger == null) {
+        auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_Trigger = TriggerCreate("auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_TriggerFunc");
+    }
+
+    TriggerExecute(auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_Trigger, false, false);
+}
+
+bool auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_TriggerFunc (bool testConds, bool runActions) {
+    int lp_player = auto_lib948F000A_gf_WorkerSelectLoadSettingsModified_lp_player;
+
+    // Variable Declarations
+    int lv_i;
+    string lv_custom_race;
+
+    // Automatic Variable Declarations
+    const int autoD4491168_ae = 2;
+    const int autoD4491168_ai = 1;
+    string auto5A57BC8C_val;
+    int autoA87C8F34_ae;
+    int autoA87C8F34_var;
+    string auto89D1E2D2_val;
+
+    // Variable Initialization
+
+    // Implementation
+    if ((lib948F000A_gv_workerSelectLoaded[lp_player] == false)) {
+        lib948F000A_gv_workerSelectLoaded[lp_player] = true;
+        if ((GameGetMissionTime() < 1)) {
+            Wait(0.25, c_timeGame);
+        }
+
+        libDBB0BE4A_gf_StarlightBankStart();
+        libDBB0BE4A_gf_StarlightLoad(lp_player, lib948F000A_gv_bankSection);
+        lv_i = 0;
+        for ( ; ( (autoD4491168_ai >= 0 && lv_i <= autoD4491168_ae) || (autoD4491168_ai < 0 && lv_i >= autoD4491168_ae) ) ; lv_i += autoD4491168_ai ) {
+            lib948F000A_gv_workerSelectSaveLoad[lp_player][lv_i] = libDBB0BE4A_gv_starlightLoadOutput[lv_i];
+        }
+        auto5A57BC8C_val = PlayerRace(lp_player);
+        if (auto5A57BC8C_val == "Prot") {
+            lv_i = 0;
+        }
+        else if (auto5A57BC8C_val == "Terr") {
+            lv_i = 1;
+        }
+        else if (auto5A57BC8C_val == "Zerg") {
+            lv_i = 2;
+        }
+        else if (auto5A57BC8C_val == "Keir") {
+            lv_i = 0;
+        }
+        else {
+            lv_i = 0;
+        }
+        if ((lib948F000A_gv_workerSelectSaveLoad[lp_player][lv_i] > 0)) {
+            lib948F000A_gf_ApplyViaInteger(lp_player, (libDBB0BE4A_gv_starlightLoadOutput[lv_i] - 1), true);
+        }
+        else {
+            autoA87C8F34_ae = UserDataInstanceCount("Races");
+            autoA87C8F34_var = 1;
+            for ( ; autoA87C8F34_var <= autoA87C8F34_ae; autoA87C8F34_var += 1 ) {
+                lv_custom_race = UserDataGetGameLink("Races", UserDataInstance("Races", autoA87C8F34_var), "Race", 1);
+                if ((PlayerRace(lp_player) == lv_custom_race)) {
+                    lib948F000A_gf_ApplyViaBehavior(lp_player, (("Worker" + (UserDataGetGameLink("Races", UserDataInstance("Races", autoA87C8F34_var), "Worker", 1)))), false);
+                }
+
+            }
+            auto89D1E2D2_val = PlayerRace(lp_player);
+            if (auto89D1E2D2_val == "Terr") {
+                lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerSCV", false);
+            }
+            else if (auto89D1E2D2_val == "Zerg") {
+                lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerDrone", false);
+            }
+            else if (auto89D1E2D2_val == "Prot") {
+                lib948F000A_gf_ApplyViaBehavior(lp_player, "WorkerProbe", false);
+            }
+            else {
+            }
+        }
+    }
+
+    return true;
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Use Dialog Item
+//--------------------------------------------------------------------------------------------------
+bool lib948F000A_gt_UseDialogItem_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_i;
+    int lv_tab;
+
+    // Automatic Variable Declarations
+    const int autoCFFF26CC_ae = lib948F000A_gv_tab;
+    const int autoCFFF26CC_ai = 1;
+    const int autoF7DCF2B3_ae = lib948F000A_gv_tab;
+    const int autoF7DCF2B3_ai = 1;
+    string auto8C57D2A1_val;
+    string auto46E0E4A8_val;
+
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_workerButton, false, PlayerGroupSingle(EventPlayer()));
+    if ((EventDialogControl() == lib948F000A_gv_workerButton)) {
+        lib948F000A_gf_UpdatePlayerUpgrades(EventPlayer());
+        DialogControlSetVisible(lib948F000A_gv_workerAttentionMarker, PlayerGroupSingle(EventPlayer()), false);
+        UIClearMessages(PlayerGroupSingle(EventPlayer()), c_messageAreaError);
+        if ((DialogIsVisible(lib948F000A_gv_raceDialog, EventPlayer()) == false)) {
+            lib948F000A_gf_WorkerSelectShowHide(EventPlayer(), true, true);
+        }
+        else {
+            lib948F000A_gf_WorkerSelectShowHide(EventPlayer(), false, true);
+        }
+    }
+    else {
+        lv_i = 0;
+        for ( ; ( (autoCFFF26CC_ai >= 0 && lv_i <= autoCFFF26CC_ae) || (autoCFFF26CC_ai < 0 && lv_i >= autoCFFF26CC_ae) ) ; lv_i += autoCFFF26CC_ai ) {
+            DialogSetVisible(lib948F000A_gv_workerDialog[lv_i], PlayerGroupSingle(EventPlayer()), false);
+            libNtve_gf_SetDialogItemAcceptMouse(lib948F000A_gv_raceTab[lv_i][0], true, PlayerGroupSingle(EventPlayer()));
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][0], false, PlayerGroupSingle(EventPlayer()));
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][1], false, PlayerGroupSingle(EventPlayer()));
+            libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][2], false, PlayerGroupSingle(EventPlayer()));
+        }
+        DialogSetVisible(lib948F000A_gv_raceDialog, PlayerGroupSingle(EventPlayer()), false);
+    }
+    if ((DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_raceDialog)) {
+        lv_i = 0;
+        for ( ; ( (autoF7DCF2B3_ai >= 0 && lv_i <= autoF7DCF2B3_ae) || (autoF7DCF2B3_ai < 0 && lv_i >= autoF7DCF2B3_ae) ) ; lv_i += autoF7DCF2B3_ai ) {
+            if ((EventDialogControl() == lib948F000A_gv_raceTab[lv_i][0])) {
+                break;
+            }
+
+        }
+        libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_workerButton, true, PlayerGroupSingle(EventPlayer()));
+        lib948F000A_gv_currentTab[EventPlayer()] = lv_i;
+        DialogSetVisible(lib948F000A_gv_raceDialog, PlayerGroupSingle(EventPlayer()), true);
+        DialogSetVisible(lib948F000A_gv_workerDialog[lv_i], PlayerGroupSingle(EventPlayer()), true);
+        libNtve_gf_SetDialogItemAcceptMouse(lib948F000A_gv_raceTab[lv_i][0], false, PlayerGroupSingle(EventPlayer()));
+        libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][0], true, PlayerGroupSingle(EventPlayer()));
+        libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][1], true, PlayerGroupSingle(EventPlayer()));
+        libNtve_gf_SetDialogItemDesaturated(lib948F000A_gv_raceTab[lv_i][2], true, PlayerGroupSingle(EventPlayer()));
+        SoundPlayForPlayer(SoundLink("UI_MenuSounds_WorkerMenu_Tab", -1), c_maxPlayers, PlayerGroupSingle(EventPlayer()), 100.0, 0.0);
+    }
+
+    if (((DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_workerDialog[0]) || (DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_workerDialog[1]) || (DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_workerDialog[2]) || (DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_workerDialog[3]) || (DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_workerDialog[4]) || (DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_workerDialog[5]) || (DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_workerDialog[6]) || (DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_workerDialog[7]) || (DialogControlGetDialog(EventDialogControl()) == lib948F000A_gv_workerDialog[8]))) {
+        if ((StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueLevelRequirement)) >= 0) && (libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueUpgradeRequirement) == "")) {
+            if (((GameIsTestMap(false) == true) || (lib948F000A_gv_playerLevel[EventPlayer()] > (StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueLevelRequirement)) - 2)))) {
+                lib948F000A_gf_ApplyViaBehavior(EventPlayer(), (libNtve_gf_DialogItemEditValue(EventDialogControl(), 0)), true);
+                auto46E0E4A8_val = PlayerRace(EventPlayer());
+                if (auto46E0E4A8_val == "Terr") {
+                    lib948F000A_gv_workerSelectSaveLoad[EventPlayer()][1] = (StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueIndex)) + 1);
+                }
+                else if (auto46E0E4A8_val == "Zerg") {
+                    lib948F000A_gv_workerSelectSaveLoad[EventPlayer()][2] = (StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueIndex)) + 1);
+                }
+                else {
+                    lib948F000A_gv_workerSelectSaveLoad[EventPlayer()][0] = (StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueIndex)) + 1);
+                }
+                lib948F000A_gf_WorkerSelectSaveSettings(EventPlayer());
+            }
+            else {
+                if ((TimerGetRemaining(lib948F000A_gv_recentlyCreated) == 0.0)) {
+                    UIDisplayMessage(PlayerGroupSingle(EventPlayer()), c_messageAreaError, (StringExternal("UI/Requires_Colon") + StringExternal("Param/Value/lib_948F000A_881D42A6") + StringExternal("UI/ScreenUserProfile/SummaryCoop/MasteryLevel") + StringExternal("Param/Value/lib_948F000A_0B09D2D3") + IntToText((StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueLevelRequirement)) - 1))));
+                    SoundPlayForPlayer(SoundLink("UI_GenericError", -1), c_maxPlayers, PlayerGroupSingle(EventPlayer()), 100.0, 0.0);
+                }
+
+            }
+        }
+        else {
+            if ((TechTreeUpgradeCount(EventPlayer(), (libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueUpgradeRequirement)), c_techCountCompleteOnly) >= 1)) {
+                lib948F000A_gf_ApplyViaBehavior(EventPlayer(), (libNtve_gf_DialogItemEditValue(EventDialogControl(), 0)), true);
+                auto8C57D2A1_val = PlayerRace(EventPlayer());
+                if (auto8C57D2A1_val == "Terr") {
+                    lib948F000A_gv_workerSelectSaveLoad[EventPlayer()][1] = (StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueIndex)) + 1);
+                }
+                else if (auto8C57D2A1_val == "Zerg") {
+                    lib948F000A_gv_workerSelectSaveLoad[EventPlayer()][2] = (StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueIndex)) + 1);
+                }
+                else if (auto8C57D2A1_val == "Prot") {
+                    lib948F000A_gv_workerSelectSaveLoad[EventPlayer()][0] = (StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueIndex)) + 1);
+                }
+                else if (auto8C57D2A1_val == "Keir") {
+                    lib948F000A_gv_workerSelectSaveLoad[EventPlayer()][0] = (StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueIndex)) + 1);
+                }
+                else {
+                    lib948F000A_gv_workerSelectSaveLoad[EventPlayer()][0] = (StringToInt(libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueIndex)) + 1);
+                }
+                lib948F000A_gf_WorkerSelectSaveSettings(EventPlayer());
+            }
+            else {
+                if ((libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueUpgradeRequirement) == "PremiumReward")) {
+                    Wait(0.0, c_timeGame);
+                    libCA960273_gf_PremiumDialogShowHide(EventPlayer(), true, true, false);
+                }
+                else {
+                    UIDisplayMessage(PlayerGroupSingle(EventPlayer()), c_messageAreaError, (StringExternal("UI/Requires_Colon") + StringExternal("Param/Value/lib_948F000A_1926C30F") + StringExternal(CatalogFieldValueGet(c_gameCatalogUpgrade, libNtve_gf_DialogItemEditValue(EventDialogControl(), lib948F000A_gv_editValueUpgradeRequirement), "Name", EventPlayer()))));
+                    SoundPlayForPlayer(SoundLink("UI_GenericError", -1), c_maxPlayers, PlayerGroupSingle(EventPlayer()), 100.0, 0.0);
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib948F000A_gt_UseDialogItem_Init () {
+    lib948F000A_gt_UseDialogItem = TriggerCreate("lib948F000A_gt_UseDialogItem_Func");
+    TriggerEnable(lib948F000A_gt_UseDialogItem, false);
+    TriggerAddEventDialogControl(lib948F000A_gt_UseDialogItem, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Worker Model Fallback
+//--------------------------------------------------------------------------------------------------
+bool lib948F000A_gt_WorkerModelFallback_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitFilterMatch(EventPlayerEffectUsedUnit(c_effectUnitSource), 0, UnitFilter(0, 0, 0, (1 << (c_targetFilterRadar - 32)))) == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib948F000A_gf_WorkerSelectLoadSettingsModified(EventPlayerEffectUsedUnitOwner(c_effectPlayerSource));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib948F000A_gt_WorkerModelFallback_Init () {
+    lib948F000A_gt_WorkerModelFallback = TriggerCreate("lib948F000A_gt_WorkerModelFallback_Func");
+    TriggerAddEventPlayerEffectUsed(lib948F000A_gt_WorkerModelFallback, c_playerAny, "WorkerModelFallback");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Mastery Bar Level Up
+//--------------------------------------------------------------------------------------------------
+bool lib948F000A_gt_MasteryBarLevelUp_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((GameGetMissionTime() >= 1.0))) {
+            return false;
+        }
+
+        if (!((TimerGetRemaining(lib948F000A_gv_recentlyCreated) == 0.0))) {
+            return false;
+        }
+
+        if (!((PlayerType(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)) == c_playerTypeUser))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    Wait(0.0625, c_timeGame);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib948F000A_gt_MasteryBarLevelUp_Init () {
+    lib948F000A_gt_MasteryBarLevelUp = TriggerCreate("lib948F000A_gt_MasteryBarLevelUp_Func");
+    TriggerEnable(lib948F000A_gt_MasteryBarLevelUp, false);
+    TriggerAddEventPlayerEffectUsed(lib948F000A_gt_MasteryBarLevelUp, c_playerAny, "MasteryBarLevelUpTrigger");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Worker Submenu Worker Select
+//--------------------------------------------------------------------------------------------------
+bool lib948F000A_gt_WorkerSubmenuWorkerSelect_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((libDDE92A83_gv_gameOver == false))) {
+            return false;
+        }
+
+        if (!((lib948F000A_gv_created == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lib038F51B7_gf_AbilityControlShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libD6A97973_gf_MasteryPanelShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib479C7CBB_gf_LiveScoreboardShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libCA960273_gf_StagingAreaCustomizationShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libF58A3325_gf_MasteryCodeShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib57FF8648_gf_BlacklistShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    libCA960273_gf_PremiumDialogShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false, false);
+    libBBFED31C_gf_EndGameShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    lib2A8CE4F7_gf_StatsMenuShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, false);
+    if ((DialogIsVisible(lib948F000A_gv_raceDialog, EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster)) == true)) {
+        lib948F000A_gf_WorkerSelectShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), false, true);
+    }
+    else {
+        lib948F000A_gf_WorkerSelectShowHide(EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), true, true);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void lib948F000A_gt_WorkerSubmenuWorkerSelect_Init () {
+    lib948F000A_gt_WorkerSubmenuWorkerSelect = TriggerCreate("lib948F000A_gt_WorkerSubmenuWorkerSelect_Func");
+    TriggerAddEventPlayerEffectUsed(lib948F000A_gt_WorkerSubmenuWorkerSelect, c_playerAny, "WorkerSubmenuWorkerSelect");
+}
+
+void lib948F000A_InitTriggers () {
+    lib948F000A_gt_UseDialogItem_Init();
+    lib948F000A_gt_WorkerModelFallback_Init();
+    lib948F000A_gt_MasteryBarLevelUp_Init();
+    lib948F000A_gt_WorkerSubmenuWorkerSelect_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool lib948F000A_InitLib_completed = false;
+
+void lib948F000A_InitLib () {
+    if (lib948F000A_InitLib_completed) {
+        return;
+    }
+
+    lib948F000A_InitLib_completed = true;
+
+    lib948F000A_InitLibraries();
+    lib948F000A_InitVariables();
+    lib948F000A_InitTriggers();
+}
+
+include "LibDDE92A83"
+include "Lib038F51B7"
+include "LibBBFED31C"
+include "Lib474957E9"
+include "Lib57FF8648"
+include "LibDBB0BE4A"
+include "Lib2A8CE4F7"
+include "LibCA960273"
+include "Lib479C7CBB"
+include "Lib64DC5B97"
+include "LibF58A3325"
+include "Lib39886FE6"
+include "LibD6A97973"
+

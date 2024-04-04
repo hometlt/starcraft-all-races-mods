@@ -2113,6 +2113,7 @@
     </CActorAction>
     <CActorAction id="HellionAttack" parent="HellionAttackBase">
         <ImpactMap index="None" Model="HellionAttackDamageReaction" Sound="Hellion_AttackImpact"/>
+        <On Terms="Effect.InfernalFlameThrowerCP.Start; At Caster" Send="Create"/>
     </CActorAction>
     <CActorModel id="HellionAttackDamageReaction" parent="ModelAnimationStyleOneShot">
         <Host Subject="_Unit"/>
@@ -2205,7 +2206,7 @@
             <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLarge"/>
         </TerrainSquibs>
     </CActorUnit>
-    <CActorMissile id="F" parent="GenericAttackMissile" unitName="PunisherGrenadesLMWeapon">
+    <CActorMissile id="MarauderAttackMissile" parent="GenericAttackMissile" unitName="PunisherGrenadesLMWeapon">
         <On Terms="ActorCreation; ValidateUnit PunisherGrenadesResearched" Send="ModelSwap MarauderConcussiveShellMissile"/>
     </CActorMissile>
     <CActorAction id="MarauderAttack" parent="MarauderAttackBase" effectImpact="PunisherGrenadesU" effectLaunch="PunisherGrenadesLM">
@@ -3454,27 +3455,10 @@
         <ImpactMap index="None" Sound="Thor_AntiAirAttackImpact"/>
         <ImpactPhysics Name="JavelinImpact" MatchKeys="Basic" Physics="ThorAAAttackForce"/>
     </CActorAction>
-    <CActorSiteOpRandomPointInCircle id="ThorBarrageVariance">
-        <Radius value="0.500000"/>
-        <Mean value="0.200000"/>
-    </CActorSiteOpRandomPointInCircle>
-    <CActorRange id="250mmStrikeCannonsRange" parent="RangeAbil" abil="250mmStrikeCannons">
-        <Icon value="Assets\Textures\RadarIcon2.dds"/>
-        <IconArcLength value="3.250000"/>
-    </CActorRange>
-    <CActorModel id="250mmStrikeCannonsImpact" parent="ModelAnimationStyleOneShot">
-        <HostSiteOps Ops="SOpShadow ThorBarrageVariance"/>
-        <On Terms="Effect.250mmStrikeCannonsDamage.Start; At Target" Send="Create"/>
-    </CActorModel>
     <CActorSound id="250mmStrikeCannonsMorph" parent="SoundOneShot">
-        <On Terms="Abil.250mmStrikeCannons.SourceCastStart" Send="Create"/>
         <On Terms="Abil.ArmorpiercingMissiles.SourceCastStart" Send="Create"/>
     </CActorSound>
-    <CActorSound id="250mmStrikeCannonsSound" parent="SoundOneShot">
-        <On Terms="Effect.250mmStrikeCannonsDamage.Start; At Target" Send="Create"/>
-    </CActorSound>
     <CActorSound id="250mmStrikeCannonsUnMorph" parent="SoundOneShot">
-        <On Terms="Abil.250mmStrikeCannons.SourceFinishStart" Send="Create"/>
         <On Terms="Abil.ExplosiveMissiles.SourceCastStart" Send="Create"/>
     </CActorSound>
     <CActorUnit id="GenericSkinMorphPreview" parent="UnitModelFrameActor">
@@ -17171,4 +17155,48 @@
         <On Terms="Effect.VolatileBurstFriendlyBuildingDamage.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics"/>
         <On Terms="Effect.VolatileBurstFriendlyBuildingDamage.Start; At Caster" Send="Create"/>
     </CActorAction>
+
+
+    <CActorSound id="NexusShieldOverchargeActivateSound" parent="SoundOneShot">
+        <On Terms="Behavior.NexusShieldOvercharge.On" Send="Create"/>
+        <Sound value="NexusShieldRechargeOnPylonActivateSound"/>
+    </CActorSound>
+    <CActorModel id="NexusShieldOverchargeImpact" parent="ModelAnimationStyleOneShot">
+        <On Terms="ActorCreation" Send="Create NexusShieldRechargeOnPylonImpactSound"/>
+        <On Terms="Effect.NexusShieldOverchargeShield.Start; At Target" Send="Create"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Model value="RestoreShieldsImpactModel"/>
+        <AutoScaleFactor value="0.500000"/>
+    </CActorModel>
+    <CActorSound id="NexusShieldOverchargeImpactSound" parent="SoundOneShot">
+        <On Terms="Effect.NexusShieldOverchargeShield.Start" Send="Create"/>
+        <Sound value="NexusShieldRechargeOnPylonHealSoundStop"/>
+    </CActorSound>
+    <CActorModel id="NexusShieldOverchargeModel" parent="ModelAnimationStyleContinuous">
+        <Inherits index="CloakEffect" value="1"/>
+        <Inherits index="TeamColor" value="1"/>
+        <On Terms="Behavior.NexusShieldOvercharge.On" Send="Create"/>
+        <On Terms="Behavior.NexusShieldOvercharge.Off" Send="Destroy"/>
+        <On Terms="ActorCreation" Send="AnimBracketStart Work Stand,Work,Start Stand,Work Stand,Work,End"/>
+        <On Terms="ActorCreation" Send="SetTintColor 0,128,255"/>
+        <Host Subject="_Unit"/>
+        <HostSiteOps Ops="SOpAttachOverhead"/>
+        <Model value="NexusShieldRechargeOnPylonModel"/>
+    </CActorModel>
+    <CActorModel id="NexusShieldOverchargeNexusDrainEnergy" parent="ModelAnimationStyleOneShot">
+        <On Terms="Effect.NexusShieldOverchargeShield.Start; At Caster" Send="Create"/>
+        <On Terms="ActorCreation" Send="SetTintColor 255,0,0"/>
+        <Host Subject="_Selectable"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <Model value="RestoreShieldsImpactModel"/>
+        <AutoScaleFactor value="0.500000"/>
+    </CActorModel>
+    <CActorRange id="NexusShieldOverchargeRange">
+        <Inherits index="Visibility" value="0"/>
+        <FogVisibility value="Visible"/>
+        <On Terms="Behavior.NexusShieldOvercharge.On" Send="Create"/>
+        <On Terms="Behavior.NexusShieldOvercharge.Off" Send="Destroy"/>
+        <Range value="13.000000"/>
+    </CActorRange>
 </Catalog>
