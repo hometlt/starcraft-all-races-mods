@@ -26,6 +26,21 @@
         <On index="12" Terms="StateChange; !StateValid HeavySmoke" Target="UmojanFlameSetHeavySmokeTransition" Send="Destroy"/>
         <On Terms="StateChange; !StateValid Fire" Target="UmojanFlameSetFireTransition" Send="Destroy"/>
     </CActorStateMonitor>
+    <CActorRange id="UmojanCrowCloakingRange" parent="RangeBehavior" behavior="UmojanCloakField">
+        <EditorCategories value=""/>
+        <Behavior value=""/>
+        <Range value="5.000000"/>
+        <IconArcLength value="3.250000"/>
+    </CActorRange>
+    <CActorAction id="UmojanPathfinderGladiusMissileAttack" parent="GenericAttack" effectImpact="UmojanGladiusMissileDamage" effectLaunch="UmojanGladiusMissileLM">
+        <LaunchAttachQuery Methods="UmojanAMPatternPathfinder"/>
+        <LaunchAssets Sound="Banshee_AttackLaunch2"/>
+        <ImpactMap index="None" Model="UmojanGladiusAttackImpact" Sound="Banshee_AttackImpact2"/>
+        <ImpactPhysics Name="BacklashRocketsImpact" MatchKeys="Basic" Physics="BansheeAttackForce"/>
+    </CActorAction>
+    <CActorMissile id="UmojanPathfinderGladiusMissileAttackMissile" parent="GenericAttackMissile" unitName="UmojanWeaponUnitGladiusMissile">
+        <Model value="UmojanGladiusLMWeapon"/>
+    </CActorMissile>
     <CActorUnit id="UmojanMedic" parent="GenericUnitStandard" unitName="UmojanMedic">
         <Aliases value="_UnitSmall"/>
         <Macros value="UnloadDropAnim"/>
@@ -1385,12 +1400,13 @@
         </Wireframe>
         <PlacementActorModel value="UmojanSentryGunPlacementModel"/>
         <PlaceholderActorModel value="UmojanPlaceholderModel"/>
-        <BuildModel value="Invisible"/>
+        <BuildModel value="UmojanInvisible"/>
     </CActorUnit>
     <CActorAction id="UmojanSentryGunAttack" parent="GenericAttack" effectLaunch="UmojanSentryGun">
         <LaunchAttachQuery Methods="Weapon"/>
-        <LaunchAssets Sound="SentryGun_AttackLaunch"/>
-        <ImpactMap index="None" Sound="SentryGun_AttackImpact"/>
+        <LaunchAssets Sound="Nova_SniperRifle_AttackLaunch_Mechy"/>
+        <ImpactMap index="None" Sound="Nova_SniperRifle_AttackImpact" ModelReaction="GhostSnipeAttackImpact"/>
+        <ImpactPhysics Name="RailgunImpact" MatchKeys="Basic"/>
     </CActorAction>
     <CActorModel id="UmojanSentryGunPlacementModel" parent="UmojanPlacementModel">
         <On index="8" Terms="ActorCreation" Send="Create UmojanSentryGunRange"/>
@@ -1515,6 +1531,7 @@
             <Image value="Assets\Textures\wireframe-terran-d8charge.dds"/>
         </Wireframe>
         <BuildModel value="Invisible"/>
+        <PlacementActorModel value="UmojanPlacementModel"/>
     </CActorUnit>
     <CActorTurret id="UmojanVigilantTurret">
         <On Terms="TurretEnable.UmojanVigilantTurret" Send="Create"/>
@@ -1523,6 +1540,8 @@
         <LaunchAttachQuery Methods="UmojanBunkerTurretWeaponSet UmojanPatternBunker" Fallback="Weapon"/>
         <Beam value="UmojanBunkerK14RailrifleBeam"/>
         <ImpactPhysics Name="RailgunImpact" MatchKeys="Basic"/>
+        <LaunchAssets Sound="Nova_SniperRifle_AttackLaunch_Mechy"/>
+        <ImpactMap index="None" Sound="Ghost_SnipeImpact"/>
     </CActorAction>
     <CActorBeamSimple id="UmojanBunkerK14RailrifleBeam" parent="GenericAttackBeam">
         <Supporter Subject="_Unit" Scope="Caster" Actor="Find"/>
@@ -2553,6 +2572,7 @@
         <Beam value="UmojanK14RailgunBeam"/>
         <ImpactMap index="None" Sound="Nova_SniperRifle_AttackImpact"/>
         <ImpactPhysics Name="RailgunImpact" MatchKeys="Basic"/>
+        <LaunchAssets Sound="Nova_SniperRifle_AttackLaunch_Mechy"/>
     </CActorAction>
     <CActorBeamSimple id="UmojanK14RailgunBeam" parent="GenericAttackBeam">
         <Supporter Subject="_Unit" Scope="Caster" Actor="Find"/>
@@ -2561,41 +2581,21 @@
         <Scale value="0.500000"/>
     </CActorBeamSimple>
     <CActorUnit id="UmojanPathfinder" parent="GenericUnitBase" unitName="UmojanPathfinder">
-        <Aliases value="_UnitMedium"/>
+        <Macros value="UnloadDropAnim"/>
         <Macros value="UnloadDropAnim"/>
         <Macros value="TerrainSquibAnimations"/>
         <Macros value="PhysicsDeathsSwarmGround"/>
         <Macros value="PhysicsDeathsVoidGround"/>
-        <On Terms="UnitPortrait.*.Configure" Target="::PortraitGameSelf" Send="AnimClear Visor 0.000000"/>
+        <AbilSoundArray AbilCmd="VultureSpiderMines,Execute" Sound="Vulture_SpiderMinePlace"/>
+        <Aliases value="_UnitMedium"/>
         <On Terms="UnitHeightUpdate.*.Land" Send="Create Hellion_Land"/>
-        <Model value="Hellion_Umojan"/>
+        <Model value="UmojanVulture"/>
         <ModelFlags index="OutlineEmitter" value="1"/>
-        <BuildModel value="Hellion_Umojan"/>
-        <DeathArray index="Normal" ModelLink="HellionDeath" SoundLink="Hellion_Explode"/>
-        <DeathCustoms ModelLink="HellionDeathRagdoll" Name="RagdollBasic">
-            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
-        </DeathCustoms>
-        <DeathCustoms Name="RagdollSiegeTank" InheritsFrom="RagdollBasic"/>
-        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
-            <BodySquibs Name="Fire"/>
-        </DeathCustoms>
-        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
-            <BodySquibs Name="Fire"/>
-        </DeathCustoms>
-        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
-            <BodySquibs Name="Acid"/>
-        </DeathCustoms>
-        <DeathCustoms Name="RagdollBaneling" InheritsFrom="RagdollBasic">
-            <BodySquibs Name="Acid"/>
-        </DeathCustoms>
-        <DeathCustoms Name="RagdollUltraUnburrow" InheritsFrom="RagdollBasic"/>
-        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
-        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
-        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <BuildModel value="UmojanVulture"/>
+        <DeathArray index="Normal" ModelLink="UmojanVultureDeath" SoundLink="Hellion_Explode"/>
         <DeathActorModel value="UnitDeathModelWithDeathMotionGround"/>
-        <PlacementModel value="Hellion_Umojan"/>
-        <PortraitActor value="HellionPortrait"/>
-        <PortraitModel value="Hellion_Umojan_Portrait"/>
+        <PlacementModel value="UmojanVulture"/>
+        <PortraitModel value="UmojanVulturePortrait"/>
         <TerrainSquibs>
             <MovementDistance value="0.150000,0.150000"/>
             <IdlePeriod value="0.100000,0.250000"/>
@@ -2604,11 +2604,13 @@
             <AttachQuery Methods="AMFilterCenter"/>
             <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleLargeVehicle"/>
         </TerrainSquibs>
-        <BarOffset value="50"/>
+        <BarWidth value="102"/>
+        <BarOffset value="80"/>
+        <NameOffset value="40"/>
         <GroupIcon>
-            <Image value="Assets\Textures\Wireframe-Terran-hellionex1.dds"/>
+            <Image value="Assets\Textures\wireframe-terran-vulture-umojan.dds"/>
         </GroupIcon>
-        <HeroIcon value="Assets\Textures\btn-unit-terran-hellion-umojan.dds"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-vulture-umojan.dds"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
         <SoundArray index="Ready" value="Hellion_Ready"/>
         <SoundArray index="Help" value="Hellion_Help"/>
@@ -2618,9 +2620,9 @@
         <SoundArray index="Pissed" value="Hellion_Pissed"/>
         <SoundArray index="Movement" value="Hellion_Movement"/>
         <UnitFlags index="StandAnimBirthVariation" value="0"/>
-        <UnitIcon value="Assets\Textures\btn-unit-terran-hellion-umojan.dds"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-vulture-umojan.dds"/>
         <Wireframe>
-            <Image value="Assets\Textures\Wireframe-Terran-hellionex1.dds"/>
+            <Image value="Assets\Textures\wireframe-terran-vulture-umojan.dds"/>
         </Wireframe>
     </CActorUnit>
     <CActorMissile id="UmojanCommando" parent="GenericUnitBase" unitName="UmojanCommando">
@@ -2809,8 +2811,8 @@
     <CActorAction id="UmojanK14RailrifleAttack" parent="GenericAttack" effectAttack="UmojanK14Railrifle">
         <LaunchSite value="UmojanBattlecatRiderSite"/>
         <LaunchSiteFallback value="GenericAttackLaunchSite"/>
-        <LaunchAssets Sound="Ghost_AttackImpact"/>
-        <ContainerAssets Model="GhostBunkerAttackLaunch" Sound="Nova_SniperRifle_AttackLaunch_BoomySweetener"/>
+        <LaunchAssets Sound="Nova_SniperRifle_AttackLaunch_Boomy"/>
+        <ContainerAssets Model="GhostBunkerAttackLaunch" Sound="Nova_SniperRifle_AttackImpact"/>
         <Beam value="UmojanK14RailrifleBeam"/>
         <ImpactMap index="None" Sound="Nova_SniperRifle_AttackImpact"/>
         <ImpactPhysics Name="RailgunImpact" MatchKeys="Basic"/>
@@ -2818,8 +2820,8 @@
     <CActorAction id="UmojanShadowguardAttack" parent="GenericAttack" effectAttack="UmojanK1XCanisterRifle">
         <LaunchSite value="UmojanBattlecatRiderSite"/>
         <LaunchSiteFallback value="GenericAttackLaunchSite"/>
-        <LaunchAssets Model="GhostAttackLaunch" Sound="Ghost_AttackLaunch"/>
-        <ContainerAssets Model="GhostBunkerAttackLaunch" Sound="Ghost_BunkerAttackLaunch"/>
+        <LaunchAssets Model="GhostAttackLaunch" Sound="Nova_SniperRifle_AttackLaunch_Boomy"/>
+        <ContainerAssets Model="GhostBunkerAttackLaunch" Sound="Nova_SniperRifle_AttackLaunch_Boomy"/>
         <ImpactMap index="None" Model="GhostAttackImpact" Sound="Ghost_AttackImpact"/>
         <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
         <ImpactPhysics Name="CannisterRifleImpact" MatchKeys="Basic" Physics="GhostAttackDeathForce"/>
@@ -4079,14 +4081,11 @@
     </CActorModel>
     <CActorAction id="UmojanNornsAssaultAttackAG" parent="GenericAttack" effectAttack="UmojanTwinGatlingCannonsAG">
         <LaunchAttachQuery Methods="AMFilterWeaponSetA0"/>
-        <LaunchAssets Model="UmojanGoliathAirAttackLaunch" Sound="NornsAssaultAttackBeamPlusLaunch"/>
-        <ContainerAssets Sound="TwinGatlingCannonsBunkerAttackLaunch"/>
+        <LaunchAssets Model="UmojanGoliathAirAttackLaunch" Sound="Nova_SniperRifle_AttackLaunch_Mechy"/>
         <Beam value="UmojanNornsAssaultAttackBeam"/>
-        <ImpactMap index="None" Model="VikingAssaultAttackImpact" Sound="Viking_AssaultAttackImpact"/>
-        <ImpactMap index="Flesh" ModelReaction="BloodTargetImpact"/>
-        <ImpactMap index="Shield" Sound="VikingAssaultAttackImpactShield"/>
+        <ImpactMap index="None" Sound="Nova_SniperRifle_AttackImpact"/>
         <ImpactPhysics Name="GatlingCannonImpact" MatchKeys="Basic" Physics="VikingAssaultAttackForce"/>
-        <DamageMap index="None" Sound="VikingAssaultAttackDamage"/>
+        <DamageMap index="None" Sound="Nova_SniperRifle_AttackImpact"/>
         <DamageMap index="Shield" Sound="VikingAssaultAttackDamageShield"/>
     </CActorAction>
     <CActorSplat id="UmojanWhirlwindBarrageIndicator" parent="GenericUnitSplat">
