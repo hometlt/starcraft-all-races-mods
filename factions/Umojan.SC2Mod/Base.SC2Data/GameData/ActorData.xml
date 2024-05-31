@@ -26,13 +26,88 @@
         <On index="12" Terms="StateChange; !StateValid HeavySmoke" Target="UmojanFlameSetHeavySmokeTransition" Send="Destroy"/>
         <On Terms="StateChange; !StateValid Fire" Target="UmojanFlameSetFireTransition" Send="Destroy"/>
     </CActorStateMonitor>
+    <CActorModel id="UmojanPlasmabatCorrosiveBlastModel" parent="ModelAddition">
+        <On Terms="Behavior.UmojanPlasmaBurn.On" Send="Create"/>
+        <On Terms="Behavior.UmojanPlasmaBurn.Off" Send="AnimBracketStop BSD"/>
+        <On Terms="UnitDeath" Send="Destroy"/>
+        <HostSiteOps Ops="SOpAttachCenter"/>
+        <AutoScaleFactor value="1.000000"/>
+    </CActorModel>
+    <CActorUnit id="UmojanSpecOpsDropship" parent="GenericUnitStandard" unitName="UmojanSpecOpsDropship">
+        <Aliases value="_UnitLarge"/>
+        <Macros value="MedivacTransportAnim"/>
+        <Macros value="TerrainSquibAnimations"/>
+        <Macros value="PhysicsDeathsSwarmAir"/>
+        <Macros value="PhysicsDeathsVoidAir"/>
+        <On Terms="UnitHeightUpdate.*.Land" Send="Create Medivac_Land"/>
+        <On Terms="Behavior.UmojanDeepCloakEnergy.On" Send="SetOpacity 0.500000 1.000000"/>
+        <On Terms="Behavior.UmojanDeepCloakEnergy.Off" Send="SetOpacity 1.000000 1.000000"/>
+        <HostSiteOps Ops="SOpBankerMedivac"/>
+        <Model value="Medivac_Umojan"/>
+        <ModelFlags index="OutlineEmitter" value="1"/>
+        <Baselines index="Walk" BlendIn="1.500000" BlendOut="2.000000"/>
+        <BuildModel value="Medivac_Umojan"/>
+        <DeathArray index="Normal" ModelLink="Medivac_Umojan_Death" SoundLink="Medivac_Explode"/>
+        <DeathCustoms>
+            <ActorModel value="Medivac_Umojan_DeathRagdoll"/>
+            <ModelLink value="Medivac_Umojan_DeathRagdoll"/>
+            <Name value="RagdollBasic"/>
+            <PhysicsMatchKeysOrdered value="BasicAir,Basic"/>
+            <BodySquibs Name="Basic" Model="TerranSquibDeathRagdoll"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollNuke" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollFire" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Fire"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollAcid" InheritsFrom="RagdollBasic">
+            <BodySquibs Name="Acid"/>
+        </DeathCustoms>
+        <DeathCustoms Name="RagdollOverkillDPRH" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollOverkillDOI" InheritsFrom="RagdollBasic"/>
+        <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
+        <DeathActorModel value="UnitDeathModelWithDeathMotionFlier"/>
+        <PhysicsMatchKeysOrdered value="BasicAir,Basic"/>
+        <PlacementModel value="Medivac_Umojan"/>
+        <PortraitModel value="Medivac_Umojan_Portrait"/>
+        <TerrainSquibs>
+            <MovementDistance value="0.150000,0.150000"/>
+            <IdlePeriod value="0.250000,0.500000"/>
+            <RangeDown value="5.000000"/>
+            <RangeDownFade value="1.000000"/>
+            <AttachQuery Methods="AMFilterCenter"/>
+            <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleMassive15"/>
+        </TerrainSquibs>
+        <AbilSoundArray AbilCmd="UmojanSpecOpsDropshipLoadUnload,Load" Sound="Medivac_LoadVO"/>
+        <AbilSoundArray AbilCmd="UmojanSpecOpsDropshipLoadUnload,UnloadAt" Sound="Medivac_UnloadVO"/>
+        <BarOffset value="50"/>
+        <BarWidth value="80"/>
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds"/>
+        </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-medivac-umojan.dds"/>
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds"/>
+        <NameOffset value="50"/>
+        <SoundArray index="Ready" value="Medivac_Ready"/>
+        <SoundArray index="Help" value="Medivac_Help"/>
+        <SoundArray index="What" value="Medivac_What"/>
+        <SoundArray index="Yes" value="Medivac_Yes"/>
+        <SoundArray index="Attack" value="Medivac_Attack"/>
+        <SoundArray index="Pissed" value="Medivac_Pissed"/>
+        <SoundArray index="Movement" value="Medivac_Movement"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-medivac-umojan.dds"/>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Medivac.dds"/>
+        </Wireframe>
+    </CActorUnit>
     <CActorRange id="UmojanCrowCloakingRange" parent="RangeBehavior" behavior="UmojanCloakField">
         <EditorCategories value=""/>
         <Behavior value=""/>
         <Range value="5.000000"/>
         <IconArcLength value="3.250000"/>
     </CActorRange>
-    <CActorAction id="UmojanPathfinderGladiusMissileAttack" parent="GenericAttack" effectImpact="UmojanGladiusMissileDamage" effectLaunch="UmojanGladiusMissileLM">
+    <CActorAction id="UmojanPathfinderGladiusMissileAttack" parent="GenericAttack" effectImpact="UmojanPathfinderGladiusMissileDamage" effectLaunch="UmojanPathfinderGladiusMissileLM">
         <LaunchAttachQuery Methods="UmojanAMPatternPathfinder"/>
         <LaunchAssets Sound="Banshee_AttackLaunch2"/>
         <ImpactMap index="None" Model="UmojanGladiusAttackImpact" Sound="Banshee_AttackImpact2"/>
@@ -228,7 +303,7 @@
         <Host Subject="_Selectable"/>
         <Sound value="ArbiterMP_RecallStart"/>
     </CActorSound>
-    <CActorBeamSimple id="UmojanAloeSendReconLink" parent="BeamSimpleAnimationStyleContinuous">
+    <CActorBeamSimple id="UmojanHexaremeSendReconLink" parent="BeamSimpleAnimationStyleContinuous">
         <EditorCategories value=""/>
         <Supporter Subject="_Unit" Scope="Target" Actor="Find"/>
         <On Terms="Effect.UmojanAloeSendReconOrderReconCP.Start" Send="Create"/>
@@ -239,7 +314,7 @@
         <HostLaunch Subject="_Unit" Scope="Target" Actor="Find"/>
         <HostImpact Subject="_Unit" Scope="Caster" Actor="Find"/>
     </CActorBeamSimple>
-    <CActorRange id="UmojanAloeSendReconRange" parent="RangeAbil" abil="UmojanSendRecon">
+    <CActorRange id="UmojanHexaremeSendReconRange" parent="RangeAbil" abil="UmojanSendRecon">
         <Icon value="Assets\Textures\RadarIcon2.dds"/>
         <IconArcLength value="3.250000"/>
     </CActorRange>
@@ -251,7 +326,7 @@
         <On Terms="Effect.UmojanCrowTemporalFieldCreatePersistent.Start" Send="Create"/>
         <Sound value="Mothership_TimeWarpLaunch3"/>
     </CActorSound>
-    <CActorBeamSimple id="UmojanAloeTemporalFieldBeam" parent="BeamSimpleAnimationStyleOneShot">
+    <CActorBeamSimple id="UmojanCrowTemporalFieldBeam" parent="BeamSimpleAnimationStyleOneShot">
         <EditorCategories value=""/>
         <Remove Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce"/>
         <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death OpeningPlayForever"/>
@@ -263,7 +338,7 @@
         <HostImpact Subject="_Selectable"/>
         <HostImpactSiteOps Ops="SOpLowerBy375"/>
     </CActorBeamSimple>
-    <CActorSplat id="UmojanAloeTemporalFieldCursorSplat" parent="ProtossCursorSplat" abil="UmojanTimeBomb"/>
+    <CActorSplat id="UmojanCrowTemporalFieldCursorSplat" parent="ProtossCursorSplat" abil="UmojanTimeBomb"/>
     <CActorModel id="UmojanCrowTemporalFieldImpactModel" parent="ModelAnimationStyleOneShot">
         <Terms value="Cap 1"/>
         <Inherits index="CloakEffect" value="1"/>
@@ -445,7 +520,7 @@
         <StatusBarFlags index="Custom" value="0"/>
         <UnitFlags index="ShowBlobShadow" value="0"/>
     </CActorUnit>
-    <CActorSplat id="UmojanAloeSendBomberSplat" parent="TerranCursorSplat" abil="UmojanSendTimeBomber"/>
+    <CActorSplat id="UmojanHexaremeSendBomberSplat" parent="TerranCursorSplat" abil="UmojanSendTimeBomber"/>
     <CActorRange id="UmojanCrowSendBomberRange" parent="RangeAbil" abil="UmojanSendTimeBomber">
         <Icon value="Assets\Textures\RadarIcon2.dds"/>
         <IconArcLength value="3.250000"/>
@@ -642,45 +717,46 @@
         <HostSiteOps Ops="SOpAttachOverhead"/>
         <Sound value="Medivac_HealLoop"/>
     </CActorSound>
-    <CActorModel id="UmojanAloeTransportLoadModel" parent="ModelAnimationStyleOneShot">
-        <On Terms="AbilTransport.UmojanHexaremeLoadUnload.CargoLoad" Send="Create"/>
+    <CActorModel id="UmojanHexaremeTransportLoadModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="AbilTransport.UmojanSpecOpsDropshipLoadUnload.CargoLoad" Send="Create"/>
         <On Terms="ActorCreation" Send="Create UnitWarpIntoShuttle_ActorSound"/>
         <Host Subject="_Selectable"/>
         <HostSiteOps Ops="SOpAttachOriginStationary"/>
         <Model value="ShuttleTransportLoadModel"/>
     </CActorModel>
-    <CActorSound id="UmojanAloeTransportLoadSound" parent="SoundOneShot">
-        <On Terms="AbilTransport.UmojanHexaremeLoadUnload.TransportLoad" Send="Create"/>
+    <CActorSound id="UmojanHexaremeTransportLoadSound" parent="SoundOneShot">
+        <On Terms="AbilTransport.UmojanSpecOpsDropshipLoadUnload.TransportLoad" Send="Create"/>
         <Host Subject="_Selectable"/>
         <HostSiteOps Ops="SOpAttachOriginStationary"/>
         <Sound value="Shuttle_Load"/>
     </CActorSound>
-    <CActorModel id="UmojanAloeTransportUnloadModel" parent="ModelAnimationStyleOneShot">
-        <On Terms="Abil.UmojanHexaremeLoadUnload.CargoUnload" Send="Create"/>
+    <CActorModel id="UmojanHexaremeTransportUnloadModel" parent="ModelAnimationStyleOneShot">
+        <On Terms="Abil.UmojanSpecOpsDropshipLoadUnload.CargoUnload" Send="Create"/>
         <Host Subject="_Selectable"/>
         <HostSiteOps Ops="SOpAttachOrigin"/>
         <Model value="ShuttleTransportUnloadModel"/>
     </CActorModel>
-    <CActorSound id="UmojanAloeTransportUnloadSound" parent="SoundOneShot">
-        <On Terms="AbilTransport.UmojanHexaremeLoadUnload.TransportUnload" Send="Create"/>
+    <CActorSound id="UmojanHexaremeTransportUnloadSound" parent="SoundOneShot">
+        <On Terms="AbilTransport.UmojanSpecOpsDropshipLoadUnload.TransportUnload" Send="Create"/>
         <Host Subject="_Selectable"/>
         <HostSiteOps Ops="SOpAttachOrigin"/>
         <Sound value="Shuttle_Unload"/>
     </CActorSound>
-    <CActorUnit id="UmojanAloeMorphModel" parent="GenericUnitBaseMorphTransition" unitName="UmojanAloeMorphModel">
+    <CActorUnit id="UmojanHexaremeMorphModel" parent="GenericUnitBaseMorphTransition" unitName="UmojanAloeMorphModel">
         <Aliases value="_UnitLarge"/>
         <Macros value="PhysicsDeathsSwarmAir"/>
         <Macros value="PhysicsDeathsVoidAir"/>
-        <On Terms="AbilMorph.*.Start; MorphTo UmojanAloe" Send="Create"/>
-        <On Terms="AbilMorph.*.Start; MorphTo UmojanAloe" Send="AnimPlay End Work,End"/>
-        <On Terms="AbilMorph.*.Start; MorphTo UmojanAloe" Send="TimerSet 0.100000 StartDisengage"/>
+        <On Terms="AbilMorph.*.Start; MorphTo UmojanHexareme" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphTo UmojanHexareme" Send="AnimPlay End Work,End"/>
+        <On Terms="AbilMorph.*.Start; MorphTo UmojanHexareme" Send="TimerSet 0.100000 StartDisengage"/>
         <On Terms="TimerExpired; TimerName StartDisengage" Target="LiberatorAGTurret" Send="LookAtDisengage"/>
-        <On Terms="AbilMorph.*.Finish; MorphFrom UmojanAloe" Send="Destroy"/>
-        <On Terms="AbilMorph.*.Finish; MorphFrom UmojanAloeAG" Send="Destroy"/>
-        <On Terms="AbilMorph.*.Finish; MorphFrom UmojanAloeAG" Target="UmojanAloeAGTurret" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom UmojanHexareme" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom UmojanHexaremeAG" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphFrom UmojanHexaremeAG" Target="UmojanHexaremeAGTurret" Send="Destroy"/>
         <On Terms="UnitHeightUpdate.*.Land" Send="Create Liberator_Land"/>
         <On Terms="AbilMorph.*.Start; FlyerHelper All; !ScopeContains FlyerHelperSplat" Send="Create FlyerHelperSplat"/>
         <Model value="Liberator_Umojan"/>
+        <Scale value="1.200000"/>
         <BuildModel value="Liberator_Umojan"/>
         <DeathArray index="Normal" ModelLink="Liberator_Umojan_Death" SoundLink=""/>
         <DeathCustoms>
@@ -710,6 +786,8 @@
         <GroupIcon>
             <Image value="Assets\Textures\btn-unit-terran-liberator-umojan.dds"/>
         </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-liberator-umojan.dds"/>
+        <HighlightTooltip value="Unit/Name/UmojanHexaremeMorphModel"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds"/>
         <SoundArray index="Birth" value="Medivac_Birth"/>
         <SoundArray index="Ready" value="Medivac_Ready"/>
@@ -728,10 +806,8 @@
         <Wireframe>
             <Image value="Assets\Textures\wireframe-terran-liberator-aamode.dds"/>
         </Wireframe>
-        <HeroIcon value="Assets\Textures\btn-unit-terran-liberator-umojan.dds"/>
-        <Scale value="1.200000"/>
     </CActorUnit>
-    <CActorUnit id="UmojanAloeAGMorphModel" parent="UmojanAloeMorphModel" unitName="UmojanAloeAGMorphModel">
+    <CActorUnit id="UmojanHexaremeAGMorphModel" parent="UmojanHexaremeMorphModel" unitName="UmojanAloeAGMorphModel">
         <On index="0" Terms="UnitBirth.UmojanAloeAGMorphModel" Send="Create SoundEmitter UmojanAloeAGMorphModel_Ambience"/>
         <On index="1" Terms="UnitBirth.UmojanAloeAGMorphModel"/>
         <On index="2" Terms="UnitRevive.UmojanAloeAGMorphModel"/>
@@ -758,19 +834,19 @@
             <Image index="0" value="Assets\Textures\wireframe-terran-liberator-agmode.dds"/>
         </Wireframe>
     </CActorUnit>
-    <CActorLookAt id="UmojanAloeAGTurret" parent="UnitTurret">
-        <Type value="UmojanAloeAG"/>
+    <CActorLookAt id="UmojanHexaremeAGTurret" parent="UnitTurret">
+        <Type value="UmojanHexaremeAG"/>
     </CActorLookAt>
-    <CActorAction id="UmojanAloeAGAttack" parent="GenericAttack" effectImpact="UmojanAloeAGDamage" effectLaunch="UmojanAloeAGMissileLM">
+    <CActorAction id="UmojanHexaremeAGAttack" parent="GenericAttack" effectImpact="UmojanAloeAGDamage" effectLaunch="UmojanAloeAGMissileLM">
         <LaunchAssets Sound="Liberator_AG_Launch"/>
         <ImpactMap index="None" Model="LiberatorAGAttackImpact" Sound="Liberator_AG_Launch_Impact"/>
         <ImpactPhysics Name="RailgunImpact" MatchKeys="Basic" Physics="RailgunAttackDeathForce"/>
         <ActionFlags index="LaunchForceSite" value="1"/>
     </CActorAction>
-    <CActorMissile id="UmojanAloeAGAttackMissile" parent="GenericAttackMissile" unitName="UmojanAloeAGMissile">
+    <CActorMissile id="UmojanHexaremeAGAttackMissile" parent="GenericAttackMissile" unitName="UmojanAloeAGMissile">
         <Model value="Invisible"/>
     </CActorMissile>
-    <CActorBeamSimple id="UmojanAloeAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
+    <CActorBeamSimple id="UmojanHexaremeAttackBeam" parent="BeamSimpleAnimationStyleOneShot">
         <Inherits index="CloakEffect" value="1"/>
         <Inherits index="Visibility" value="1"/>
         <On Terms="Effect.UmojanAloeAGMissileLM.Start; At Caster" Send="Create"/>
@@ -782,7 +858,7 @@
         <HostLaunchSiteOps Ops="SOpAttachWeapon"/>
         <HostImpact Subject="_Missile" Actor="Find"/>
     </CActorBeamSimple>
-    <CActorUnit id="UmojanAloe" parent="GenericUnitBase" unitName="UmojanHexareme">
+    <CActorUnit id="UmojanHexareme" parent="GenericUnitBase" unitName="UmojanHexareme">
         <Aliases value="_UnitLarge"/>
         <Macros value="PhysicsDeathsSwarmAir"/>
         <Macros value="PhysicsDeathsVoidAir"/>
@@ -790,8 +866,8 @@
         <On Terms="WeaponStart.UmojanLutetiaRockets.AttackStart" Send="AnimBracketStart Attack Cover,Start Cover Cover,End"/>
         <On Terms="WeaponStop.UmojanLutetiaRockets.AttackStop" Send="TimerSet 2.000000 LiberatorAttack"/>
         <On Terms="TimerExpired; TimerName LiberatorAttack; ValidateUnitType CasterNotAttacking" Send="AnimBracketStop Attack"/>
-        <On Terms="AbilMorph.*.Finish; MorphTo UmojanAloe" Send="Create"/>
-        <On Terms="AbilMorph.*.Start; MorphFrom UmojanAloe" Send="Destroy"/>
+        <On Terms="AbilMorph.*.Finish; MorphTo UmojanHexareme" Send="Create"/>
+        <On Terms="AbilMorph.*.Start; MorphFrom UmojanHexareme" Send="Destroy"/>
         <On Terms="UnitPortrait.*.Configure" Target="::PortraitGameSelf" Send="AnimClear Visor 0.000000"/>
         <On Terms="ActorCreation" Send="AnimBlendTimeApply 0.000000"/>
         <On Terms="ActorCreation" Send="AnimBaselineStop"/>
@@ -801,6 +877,7 @@
         <On Terms="AbilMorph.*.Finish; FlyerHelper All; !ScopeContains FlyerHelperSplat" Send="Create FlyerHelperSplat"/>
         <HostSiteOps Ops="SOpBankerLiberator"/>
         <Model value="Liberator_Umojan"/>
+        <Scale value="1.200000"/>
         <ModelFlags index="OutlineEmitter" value="1"/>
         <BuildModel value="Liberator_Umojan"/>
         <DeathArray index="Normal" ModelLink="Liberator_Umojan_Death" SoundLink="Liberator_Death"/>
@@ -825,35 +902,33 @@
         <DeathCustoms Name="RagdollMidair" InheritsFrom="RagdollBasic"/>
         <PhysicsMatchKeysOrdered value="BasicAir,Basic"/>
         <PlacementModel value="Liberator_Umojan"/>
-        <PortraitModel value="Medivac_Umojan_Portrait"/>
+        <PortraitModel value="Liberator_Umojan_Portrait"/>
         <BarOffset value="50"/>
         <BarWidth value="70"/>
         <GroupIcon>
             <Image value="Assets\Textures\btn-unit-terran-liberator-umojan.dds"/>
         </GroupIcon>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-liberator-umojan.dds"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds"/>
-        <SoundArray index="Birth" value="Medivac_Birth"/>
-        <SoundArray index="Ready" value="Medivac_Ready"/>
-        <SoundArray index="Help" value="Medivac_Help"/>
-        <SoundArray index="What" value="Medivac_What"/>
-        <SoundArray index="Yes" value="Medivac_Yes"/>
-        <SoundArray index="Attack" value="Medivac_Attack"/>
-        <SoundArray index="Pissed" value="Medivac_Pissed"/>
-        <SoundArray index="Movement" value="Medivac_Movement"/>
-        <SoundArray index="Turning" value="Medivac_Turning"/>
-        <SoundArray index="Board" value="Medivac_Board"/>
-        <SoundArray index="Click" value="Medivac_Click"/>
-        <SoundArray index="ClickError" value="Medivac_ClickError"/>
-        <SoundArray index="Highlight" value="Medivac_Highlight"/>
+        <SoundArray index="Birth" value="Liberator_Birth"/>
+        <SoundArray index="Ready" value="TerranFlyer_Ready"/>
+        <SoundArray index="Help" value="TerranFlyer_Help"/>
+        <SoundArray index="What" value="TerranFlyer_What"/>
+        <SoundArray index="Yes" value="TerranFlyer_Yes"/>
+        <SoundArray index="Attack" value="TerranFlyer_Attack"/>
+        <SoundArray index="Pissed" value="TerranFlyer_Pissed"/>
+        <SoundArray index="Movement" value="Liberator_Move_Start"/>
+        <SoundArray index="Turning" value="Liberator_Turning"/>
+        <SoundArray index="Board" value="Liberator_Board"/>
+        <SoundArray index="Click" value="Liberator_Click"/>
+        <SoundArray index="ClickError" value="Liberator_ClickError"/>
+        <SoundArray index="Highlight" value="Liberator_Highlight"/>
         <UnitIcon value="Assets\Textures\btn-unit-terran-liberator-umojan.dds"/>
         <Wireframe>
             <Image value="Assets\Textures\wireframe-terran-liberator-aamode.dds"/>
         </Wireframe>
-        <HeroIcon value="Assets\Textures\btn-unit-terran-liberator-umojan.dds"/>
-        <Scale value="1.200000"/>
-        <HighlightTooltip value="Unit/Name/UmojanAloe"/>
     </CActorUnit>
-    <CActorUnit id="UmojanAloeAG" parent="UmojanAloe" unitName="UmojanHexaremeAG">
+    <CActorUnit id="UmojanHexaremeAG" parent="UmojanHexareme" unitName="UmojanHexaremeAG">
         <On index="0" Terms="UnitBirth.UmojanHexaremeAG" Send="Create SoundEmitter UmojanAloeAG_Ambience"/>
         <On index="1" Terms="UnitBirth.UmojanHexaremeAG"/>
         <On index="2" Terms="UnitRevive.UmojanHexaremeAG"/>
@@ -869,38 +944,52 @@
         <On index="70" Terms="WeaponStart.UmojanElysianCannon.AttackStart" Target="::PortraitGameSelf" Send="AnimBracketStart AttackA Attack,A"/>
         <On index="71" Terms="WeaponStop.UmojanElysianCannon.AttackStop" Send="AnimBracketStop AttackA"/>
         <On index="72" Terms="ActorCreation" Send="AnimBracketStart Work {} Stand,Work Stand,Work,End Instant"/>
-        <On index="73" Terms="AbilMorph.*.Finish; MorphTo UmojanAloeAG" Send="Create"/>
-        <On index="74" Terms="AbilMorph.*.Start; MorphFrom UmojanAloeAG" Send="Destroy"/>
+        <On index="73" Terms="AbilMorph.*.Finish; MorphTo UmojanHexaremeAG" Send="Create"/>
+        <On index="74" Terms="AbilMorph.*.Start; MorphFrom UmojanHexaremeAG" Send="Destroy"/>
         <On index="75" Terms="AbilMorph.*.Finish; FlyerHelper All; !ScopeContains FlyerHelperSplat" Send="Create FlyerHelperSplat"/>
         <On index="76" removed="1"/>
         <EventDataFootprint index="0" Actor="UnitFootprint" Model="UmojanAloeAGFootprint"/>
+        <DeathArray index="Normal" VoiceLink="UmojanAloeDeathVoice"/>
+        <PortraitModel value="Medivac_Umojan_Portrait"/>
         <GlossaryAnim value="Stand,Work"/>
         <GroupIcon>
             <Image index="0" value="Assets\Textures\btn-unit-terran-liberatormorph-umojan.dds"/>
         </GroupIcon>
-        <HeroIcon value="Assets\Textures\btn-unit-terran-liberatormorph-umojan.dds"/>
-        <HighlightTooltip value="Unit/Name/UmojanAloeAG"/>
-        <UnitIcon value="Assets\Textures\btn-unit-terran-liberatormorph-umojan.dds"/>
-        <Wireframe>
-            <Image index="0" value="Assets\Textures\wireframe-terran-liberator-agmode.dds"/>
-        </Wireframe>
-        <DeathArray index="Normal" VoiceLink="UmojanAloeDeathVoice"/>
         <GroupSoundArray index="What" value="UmojanAloe_GroupWhat"/>
         <GroupSoundArray index="Yes" value="UmojanAloe_GroupYes"/>
         <GroupSoundArray index="Attack" value="UmojanAloe_GroupAttack"/>
         <GroupSoundArray index="Board" value="UmojanAloe_GroupBoard"/>
+        <HeroIcon value="Assets\Textures\btn-unit-terran-liberatormorph-umojan.dds"/>
+        <HighlightTooltip value="Unit/Name/UmojanHexaremeAG"/>
+        <SoundArray index="Birth" value="Medivac_Birth"/>
+        <SoundArray index="Ready" value="Medivac_Ready"/>
+        <SoundArray index="Help" value="Medivac_Help"/>
+        <SoundArray index="What" value="Medivac_What"/>
+        <SoundArray index="Yes" value="Medivac_Yes"/>
+        <SoundArray index="Attack" value="Medivac_Attack"/>
+        <SoundArray index="Pissed" value="Medivac_Pissed"/>
+        <SoundArray index="Movement" value="Medivac_Movement"/>
+        <SoundArray index="Turning" value="Medivac_Turning"/>
+        <SoundArray index="Board" value="Medivac_Board"/>
+        <SoundArray index="Click" value="Medivac_Click"/>
+        <SoundArray index="ClickError" value="Medivac_ClickError"/>
+        <SoundArray index="Highlight" value="Medivac_Highlight"/>
+        <UnitIcon value="Assets\Textures\btn-unit-terran-liberatormorph-umojan.dds"/>
+        <Wireframe>
+            <Image index="0" value="Assets\Textures\wireframe-terran-liberator-agmode.dds"/>
+        </Wireframe>
     </CActorUnit>
-    <CActorAction id="UmojanAloeDamageAttack" parent="GenericAttack" effectImpact="UmojanAloeMissileDamage" effectLaunch="UmojanAloeDamageMissileLM">
+    <CActorAction id="UmojanHexaremeDamageAttack" parent="GenericAttack" effectImpact="UmojanAloeMissileDamage" effectLaunch="UmojanAloeDamageMissileLM">
         <LaunchAttachQuery Methods="AMFilterWeaponSetA0 UmojanAMPatternAloe"/>
         <LaunchAssets Sound="Liberator_AA_Launch"/>
         <ImpactSiteOps Ops="SOpAttachCenter SOpRandomPointInCircle1Dot5"/>
         <ImpactMap index="None" Model="LiberatorAttackImpact" Sound="Liberator_AA_Launch_Impact"/>
         <ShieldFlashType value="Full"/>
     </CActorAction>
-    <CActorMissile id="UmojanAloeDamageAttackMissile" parent="GenericAttackMissile" unitName="UmojanAloeDamageMissile">
+    <CActorMissile id="UmojanHexaremeDamageAttackMissile" parent="GenericAttackMissile" unitName="UmojanAloeDamageMissile">
         <Model value="LiberatorDamageMissile"/>
     </CActorMissile>
-    <CActorAction id="UmojanAloeShieldHitter" parent="AoESplashShieldHitter" effectHit="UmojanAloeMissileDamage"/>
+    <CActorAction id="UmojanHexaremeShieldHitter" parent="AoESplashShieldHitter" effectHit="UmojanAloeMissileDamage"/>
     <CActorRange id="UmojanHexaremeAGRange">
         <On Terms="AbilMorph.*.Start; MorphTo UmojanAloeAG" Send="Create"/>
         <On Terms="AbilMorph.*.Start; MorphTo UmojanAloe" Send="Destroy"/>
@@ -1784,8 +1873,19 @@
         </GroupIcon>
         <HeroIcon value="Assets\Textures\btn-building-terran-fusioncore.dds"/>
         <NameOffset value="100"/>
+        <SoundArray index="Birth" value="FusionCore_Birth"/>
         <SoundArray index="Ready" value="FusionCore_Ready"/>
+        <SoundArray index="Help" value="FusionCore_Help"/>
         <SoundArray index="What" value="FusionCore_What"/>
+        <SoundArray index="Yes" value="FusionCore_Yes"/>
+        <SoundArray index="Attack" value="FusionCore_Attack"/>
+        <SoundArray index="Pissed" value="FusionCore_Pissed"/>
+        <SoundArray index="Movement" value="FusionCore_Movement"/>
+        <SoundArray index="Turning" value="FusionCore_Turning"/>
+        <SoundArray index="Board" value="FusionCore_Board"/>
+        <SoundArray index="Click" value="FusionCore_Click"/>
+        <SoundArray index="ClickError" value="FusionCore_ClickError"/>
+        <SoundArray index="Highlight" value="FusionCore_Highlight"/>
         <UnitFlags index="ShowBlobShadow" value="0"/>
         <UnitIcon value="Assets\Textures\btn-building-terran-fusioncore.dds"/>
         <Wireframe>
@@ -2042,9 +2142,19 @@
         </GroupIcon>
         <HeroIcon value="Assets\Textures\btn-building-terran-Starport.dds"/>
         <NameOffset value="110"/>
+        <SoundArray index="Birth" value="Starport_Birth"/>
         <SoundArray index="Ready" value="Starport_Ready"/>
+        <SoundArray index="Help" value="Starport_Help"/>
         <SoundArray index="What" value="Starport_What"/>
+        <SoundArray index="Yes" value="Starport_Yes"/>
+        <SoundArray index="Attack" value="Starport_Attack"/>
+        <SoundArray index="Pissed" value="Starport_Pissed"/>
         <SoundArray index="Movement" value="Starport_Movement"/>
+        <SoundArray index="Turning" value="Starport_Turning"/>
+        <SoundArray index="Board" value="Starport_Board"/>
+        <SoundArray index="Click" value="Starport_Click"/>
+        <SoundArray index="ClickError" value="Starport_ClickError"/>
+        <SoundArray index="Highlight" value="Starport_Highlight"/>
         <UnitIcon value="Assets\Textures\btn-building-terran-Starport.dds"/>
         <Wireframe>
             <Image value="Assets\Textures\Wireframe-Terran-Starport.dds"/>
@@ -2080,9 +2190,19 @@
         </GroupIcon>
         <HeroIcon value="Assets\Textures\btn-building-terran-Factory.dds"/>
         <NameOffset value="110"/>
+        <SoundArray index="Birth" value="Factory_Birth"/>
         <SoundArray index="Ready" value="Factory_Ready"/>
+        <SoundArray index="Help" value="Factory_Help"/>
         <SoundArray index="What" value="Factory_What"/>
+        <SoundArray index="Yes" value="Factory_Yes"/>
+        <SoundArray index="Attack" value="Factory_Attack"/>
+        <SoundArray index="Pissed" value="Factory_Pissed"/>
         <SoundArray index="Movement" value="Factory_Movement"/>
+        <SoundArray index="Turning" value="Factory_Turning"/>
+        <SoundArray index="Board" value="Factory_Board"/>
+        <SoundArray index="Click" value="Factory_Click"/>
+        <SoundArray index="ClickError" value="Factory_ClickError"/>
+        <SoundArray index="Highlight" value="Factory_Highlight"/>
         <UnitIcon value="Assets\Textures\btn-building-terran-Factory.dds"/>
         <Wireframe>
             <Image value="Assets\Textures\Wireframe-Terran-Factory.dds"/>
@@ -2149,7 +2269,7 @@
     <CActorModel id="UmojanAATurretBuild" parent="TerranBuildingBuildSmall">
         <On index="4" Terms="ActorCreation" Send="Create UmojanConstructionAttachedSmall"/>
     </CActorModel>
-    <CActorAction id="UmojanBattleTankAAAttack" parent="GenericAttack" effectAttack="UmojanFocalisedRailCannonDamage">
+    <CActorAction id="UmojanBattleTankAAAttack" parent="GenericAttack" effectAttack="UmojanBattleTankFocalisedRailCannonDamageDisplay">
         <LaunchAttachQuery Methods="AMPatternRollingStripe"/>
         <LaunchAssets Model="UmojanBattleTankAttackLaunch" Sound="SiegeTank_AttackLaunch"/>
         <ImpactMap index="None" Model="UmojanBattleTankAttackImpact" Sound="SiegeTank_AttackImpact"/>
@@ -2292,7 +2412,7 @@
         <AutoScaleFactor value="1.000000"/>
         <ModelFlags index="AutomateGlobalLoops" value="1"/>
     </CActorModel>
-    <CActorAction id="UmojanBattleTankAttack" parent="GenericAttack" effectAttack="UmojanRailCannonDamage">
+    <CActorAction id="UmojanBattleTankAttack" parent="GenericAttack" effectAttack="UmojanBattleTankRailCannonDamageDisplay">
         <LaunchAttachQuery Methods="AMPatternRollingStripe"/>
         <LaunchAssets Sound="SiegeTank_AttackLaunch"/>
         <ImpactMap index="None" Sound="SiegeTank_AttackImpact"/>
@@ -2565,7 +2685,7 @@
         <IconArcLength value="3.250000"/>
         <RangeFlags index="Minimap" value="1"/>
     </CActorRange>
-    <CActorAction id="UmojanK24RailgunAttack" parent="GenericAttack" effectAttack="UmojanK24Railgun">
+    <CActorAction id="UmojanK24RailgunAttack" parent="GenericAttack" effectAttack="UmojanMistK24RailgunDamage">
         <LaunchSiteOps Ops="SOpAttachWeapon"/>
         <LaunchAttachQuery Methods="AMFilterWeapon" Fallback="Weapon"/>
         <ContainerAssets Model="GhostBunkerAttackLaunch" Sound="Nova_SniperRifle_AttackLaunch_BoomySweetener"/>
@@ -2962,9 +3082,19 @@
         </GroupIcon>
         <HeroIcon value="Assets\Textures\btn-building-terran-Barracks.dds"/>
         <NameOffset value="110"/>
+        <SoundArray index="Birth" value="Barracks_Birth"/>
         <SoundArray index="Ready" value="Barracks_Ready"/>
+        <SoundArray index="Help" value="Barracks_Help"/>
         <SoundArray index="What" value="Barracks_What"/>
+        <SoundArray index="Yes" value="Barracks_Yes"/>
+        <SoundArray index="Attack" value="Barracks_Attack"/>
+        <SoundArray index="Pissed" value="Barracks_Pissed"/>
         <SoundArray index="Movement" value="Barracks_Movement"/>
+        <SoundArray index="Turning" value="Barracks_Turning"/>
+        <SoundArray index="Board" value="Barracks_Board"/>
+        <SoundArray index="Click" value="Barracks_Click"/>
+        <SoundArray index="ClickError" value="Barracks_ClickError"/>
+        <SoundArray index="Highlight" value="Barracks_Highlight"/>
         <UnitIcon value="Assets\Textures\btn-building-terran-Barracks.dds"/>
         <Wireframe>
             <Image value="Assets\Textures\Wireframe-Terran-Barracks.dds"/>
@@ -3223,12 +3353,19 @@
         </GroupIcon>
         <HeroIcon value="Assets\Textures\btn-unit-terran-scv-umojan.dds"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
+        <SoundArray index="Birth" value="SCV_Birth"/>
         <SoundArray index="Ready" value="SCV_Ready"/>
         <SoundArray index="Help" value="Alert_TerranEconomyUnderAttack"/>
         <SoundArray index="What" value="SCV_What"/>
         <SoundArray index="Yes" value="SCV_Yes"/>
         <SoundArray index="Attack" value="SCV_Attack"/>
         <SoundArray index="Pissed" value="SCV_Pissed"/>
+        <SoundArray index="Movement" value="SCV_Movement"/>
+        <SoundArray index="Turning" value="SCV_Turning"/>
+        <SoundArray index="Board" value="SCV_Board"/>
+        <SoundArray index="Click" value="SCV_Click"/>
+        <SoundArray index="ClickError" value="SCV_ClickError"/>
+        <SoundArray index="Highlight" value="SCV_Highlight"/>
         <UnitIcon value="Assets\Textures\btn-unit-terran-scv-umojan.dds"/>
         <Wireframe>
             <Image value="Assets\Textures\Wireframe-Terran-SCV.dds"/>
@@ -3536,7 +3673,7 @@
         <HeroIcon value="Assets\Textures\btn-unit-terran-raven-umojan.dds"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds"/>
         <SoundArray index="Birth" value="Raven_Birth"/>
-        <SoundArray index="Ready" value=""/>
+        <SoundArray index="Ready" value="Raven_Ready"/>
         <SoundArray index="Help" value="Raven_Help"/>
         <SoundArray index="What" value="Raven_What"/>
         <SoundArray index="Yes" value="Raven_Yes"/>
@@ -3666,7 +3803,7 @@
         <HeroIcon value="Assets\Textures\btn-unit-terran-ghost-umojan.dds"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
         <SoundArray index="Birth" value="Ghost_Birth"/>
-        <SoundArray index="Ready" value=""/>
+        <SoundArray index="Ready" value="Ghost_Ready"/>
         <SoundArray index="Help" value="Ghost_Help"/>
         <SoundArray index="What" value="Ghost_What"/>
         <SoundArray index="Yes" value="Ghost_Yes"/>
@@ -3767,7 +3904,7 @@
         <HeroIcon value="Assets\Textures\btn-unit-terran-siegetank-umojan.dds"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
         <SoundArray index="Birth" value="SiegeTank_Birth"/>
-        <SoundArray index="Ready" value=""/>
+        <SoundArray index="Ready" value="SiegeTank_Ready"/>
         <SoundArray index="Help" value="SiegeTank_Help"/>
         <SoundArray index="What" value="SiegeTank_What"/>
         <SoundArray index="Yes" value="SiegeTank_Yes"/>
@@ -3859,19 +3996,19 @@
         <HeroIcon value="Assets\Textures\btn-unit-terran-siegetanksieged-umojan.dds"/>
         <HighlightTooltip value="Unit/Name/UmojanBattleTank"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
-        <SoundArray index="Birth" value="SiegeTankSieged_Birth"/>
+        <SoundArray index="Birth" value="SiegeTank_Birth"/>
         <SoundArray index="Ready" value="SiegeTank_Ready"/>
         <SoundArray index="Help" value="SiegeTank_Help"/>
         <SoundArray index="What" value="SiegeTank_What"/>
         <SoundArray index="Yes" value="SiegeTank_Yes"/>
         <SoundArray index="Attack" value="SiegeTank_Attack"/>
         <SoundArray index="Pissed" value="SiegeTank_Pissed"/>
-        <SoundArray index="Movement" value="SiegeTankSieged_Movement"/>
-        <SoundArray index="Turning" value="SiegeTankSieged_Turning"/>
-        <SoundArray index="Board" value="SiegeTankSieged_Board"/>
-        <SoundArray index="Click" value="SiegeTankSieged_Click"/>
-        <SoundArray index="ClickError" value="SiegeTankSieged_ClickError"/>
-        <SoundArray index="Highlight" value="SiegeTankSieged_Highlight"/>
+        <SoundArray index="Movement" value="SiegeTank_Movement"/>
+        <SoundArray index="Turning" value="SiegeTank_Turning"/>
+        <SoundArray index="Board" value="SiegeTank_Board"/>
+        <SoundArray index="Click" value="SiegeTank_Click"/>
+        <SoundArray index="ClickError" value="SiegeTank_ClickError"/>
+        <SoundArray index="Highlight" value="SiegeTank_Highlight"/>
         <UnitIcon value="Assets\Textures\btn-unit-terran-siegetanksieged-umojan.dds"/>
         <Wireframe>
             <Image value="Assets\Textures\Wireframe-Terran-SiegeTank-SiegeMode.dds"/>
@@ -4074,12 +4211,12 @@
     </CActorModel>
     <CActorModel id="UmojanImpactModelPlasma" parent="ModelAnimationStyleOneShot">
         <Terms value="Cap 1"/>
-        <On Terms="Effect.UmojanPlasmaThrowerDamage.Start; At Target" Send="Create"/>
+        <On Terms="Effect.UmojanPlasmabatPlasmaThrowerDamage.Start; At Target" Send="Create"/>
         <On Terms="ActorOrphan" Send="Destroy"/>
         <Host Subject="_Selectable"/>
         <HostSiteOps Ops="SOpAttachRandomDamage"/>
     </CActorModel>
-    <CActorAction id="UmojanNornsAssaultAttackAG" parent="GenericAttack" effectAttack="UmojanTwinGatlingCannonsAG">
+    <CActorAction id="UmojanNornsAssaultAttackAG" parent="GenericAttack" effectAttack="UmojanMoiraTwinGatlingCannonAGDamage">
         <LaunchAttachQuery Methods="AMFilterWeaponSetA0"/>
         <LaunchAssets Model="UmojanGoliathAirAttackLaunch" Sound="Nova_SniperRifle_AttackLaunch_Mechy"/>
         <Beam value="UmojanNornsAssaultAttackBeam"/>
@@ -4478,7 +4615,7 @@
         <HeroIcon value="Assets\Textures\btn-unit-terran-marine-umojan.dds"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds"/>
         <SoundArray index="Birth" value="Marine_Birth"/>
-        <SoundArray index="Ready" value=""/>
+        <SoundArray index="Ready" value="Marine_Ready"/>
         <SoundArray index="Help" value="Marine_Help"/>
         <SoundArray index="What" value="Marine_What"/>
         <SoundArray index="Yes" value="Marine_Yes"/>
@@ -4504,11 +4641,11 @@
         <Aliases value="_UnitLarge"/>
         <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready"/>
         <On Terms="WeaponStart.UmojanRomaMissiles.AttackStart" Send="AnimBracketStart Attack Attack,Superior"/>
-        <On Terms="WeaponStart.UmojanBurstLasers.AttackStart" Send="AnimBracketStart Attack Attack"/>
+        <On Terms="WeaponStart.UmojanK24LightRailgunMist.AttackStart" Send="AnimBracketStart Attack Attack"/>
         <On Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack"/>
         <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready"/>
-        <On Terms="Behavior.Hallucination.On" Send="Create HallucinationBirthSoundMedium"/>
-        <On Terms="UnitDeathCustomize; ValidateUnit IsHallucination" Send="DeathCustomize Hallucination"/>
+        <On Terms="Behavior.UmojanDeepCloakEnergy.On" Send="SetOpacity 0.500000 1.000000"/>
+        <On Terms="Behavior.UmojanDeepCloakEnergy.Off" Send="SetOpacity 1.000000 1.000000"/>
         <DeathCustoms ModelLink="HallucinationDeath" SoundLink="Sentry_HallucinationDeathMedium" Name="Hallucination"/>
         <DeathCustoms>
             <ModelLink value="DeathVoidShadowMedium"/>
@@ -4528,25 +4665,25 @@
         </GroupIcon>
         <HeroIcon value="Assets\Textures\btn-unit-terran-wraith-umojan.dds"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-shipplatinglevel0.dds"/>
-        <SoundArray index="Birth" value="Liberator_Birth"/>
-        <SoundArray index="Ready" value="TerranFlyer_Ready"/>
-        <SoundArray index="Help" value="TerranFlyer_Help"/>
-        <SoundArray index="What" value="TerranFlyer_What"/>
-        <SoundArray index="Yes" value="TerranFlyer_Yes"/>
-        <SoundArray index="Attack" value="TerranFlyer_Attack"/>
-        <SoundArray index="Pissed" value="TerranFlyer_Pissed"/>
-        <SoundArray index="Movement" value="Liberator_Move_Start"/>
-        <SoundArray index="Turning" value="Liberator_Turning"/>
-        <SoundArray index="Board" value="Liberator_Board"/>
-        <SoundArray index="Click" value="Liberator_Click"/>
-        <SoundArray index="ClickError" value="Liberator_ClickError"/>
-        <SoundArray index="Highlight" value="Liberator_Highlight"/>
+        <SoundArray index="Birth" value="HeroNovaMP1_Birth"/>
+        <SoundArray index="Ready" value="HeroNovaMP1_Ready"/>
+        <SoundArray index="Help" value="HeroNovaMP1_Help"/>
+        <SoundArray index="What" value="HeroNovaMP1_What_Umojan"/>
+        <SoundArray index="Yes" value="HeroNovaMP1_Yes"/>
+        <SoundArray index="Attack" value="HeroNovaMP1_Attack"/>
+        <SoundArray index="Pissed" value="HeroNovaMP1_Pissed_Umojan"/>
+        <SoundArray index="Movement" value="HeroNovaMP1_Move_Start"/>
+        <SoundArray index="Turning" value="HeroNovaMP1_Turning"/>
+        <SoundArray index="Board" value="HeroNovaMP1_Board"/>
+        <SoundArray index="Click" value="HeroNovaMP1_Click"/>
+        <SoundArray index="ClickError" value="HeroNovaMP1_ClickError"/>
+        <SoundArray index="Highlight" value="HeroNovaMP1_Highlight"/>
         <UnitIcon value="Assets\Textures\btn-unit-terran-wraith-umojan.dds"/>
         <Wireframe>
             <Image value="Assets\Textures\wireframe-terran-wraith-umojan.dds"/>
         </Wireframe>
     </CActorUnit>
-    <CActorAction id="UmojanMistAirAttackLeft" parent="GenericAttack" effectImpact="UmojanRomaMissiles" effectLaunch="UmojanRomaMissilesLaunchMissileLeft">
+    <CActorAction id="UmojanMistAirAttackLeft" parent="GenericAttack" effectImpact="UmojanMistRomaMissiles" effectLaunch="UmojanMistRomaMissilesLaunchMissileLeft">
         <LaunchAttachQuery Methods="AMFilterWeaponLeft"/>
         <LaunchAssets Sound="UmojanMistAirAttackLaunch"/>
         <ContainerAssets Model="" Sound=""/>
@@ -4555,7 +4692,7 @@
     <CActorMissile id="UmojanMistAirAttackLeftMissile" parent="GenericAttackMissile" unitName="UmojanMistAirLeft">
         <Model value="UmojanMistAirWeaponLeft"/>
     </CActorMissile>
-    <CActorAction id="UmojanMistAirAttackRight" parent="GenericAttack" effectImpact="UmojanRomaMissiles" effectLaunch="UmojanRomaMissilesLaunchMissileRight">
+    <CActorAction id="UmojanMistAirAttackRight" parent="GenericAttack" effectImpact="UmojanMistRomaMissiles" effectLaunch="UmojanMistRomaMissilesLaunchMissileRight">
         <LaunchAttachQuery Methods="AMFilterWeaponRight"/>
         <LaunchAssets Sound="UmojanMistAirAttackLaunch"/>
         <ContainerAssets Model="" Sound=""/>
@@ -4574,7 +4711,7 @@
         <On Terms="Abil.attack.ReadyStart" Send="Create UmojanStrikeMineSeekSound"/>
         <DeathArray index="Normal" ModelLink="UmojanStrikeMineExplosion" SoundLink="Terran_ExplosionSmall"/>
         <PlacementModel value="UmojanStrikeMinePlacement"/>
-        <PortraitModel value="AdjutantPortrait"/>
+        <PortraitModel value="UmojanAdjutantPortrait"/>
         <BarOffset value="10"/>
         <BarWidth value="36"/>
         <GroupIcon>
@@ -4746,7 +4883,7 @@
         <HostSiteOps Ops="SOpAttachWeapon"/>
     </CActorSite>
     <CActorModel id="UnloadFX">
-        <On Terms="AbilTransport.UmojanHexaremeLoadUnload.CargoUnload" Send="Create"/>
+        <On Terms="AbilTransport.UmojanSpecOpsDropshipLoadUnload.CargoUnload" Send="Create"/>
     </CActorModel>
     <!-- Nuke                                                                                    -->
     <CActorSplat id="nukeCursorSplat">
