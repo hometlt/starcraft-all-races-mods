@@ -26,6 +26,18 @@
         <On index="12" Terms="StateChange; !StateValid HeavySmoke" Target="UmojanFlameSetHeavySmokeTransition" Send="Destroy"/>
         <On Terms="StateChange; !StateValid Fire" Target="UmojanFlameSetFireTransition" Send="Destroy"/>
     </CActorStateMonitor>
+    <CActorUnit id="UmojanWeaponUnitWhirlwindSpot" parent="GenericUnitStandardNoAutoSoundLinks" unitName="UmojanWeaponUnitWhirlwindSpot">
+        <Model value="Invisible"/>
+        <EditorModel value="Sphere"/>
+        <WalkAnimMoveSpeed value="0"/>
+        <StatusBarFlags index="Shields" value="0"/>
+        <StatusBarFlags index="Life" value="0"/>
+        <StatusBarFlags index="Energy" value="0"/>
+        <StatusBarFlags index="Cargo" value="0"/>
+        <StatusBarFlags index="Progress" value="0"/>
+        <StatusBarFlags index="Duration" value="0"/>
+        <UnitFlags index="ShowBlobShadow" value="0"/>
+    </CActorUnit>
     <CActorModel id="UmojanPlasmabatCorrosiveBlastModel" parent="ModelAddition">
         <On Terms="Behavior.UmojanPlasmaBurn.On" Send="Create"/>
         <On Terms="Behavior.UmojanPlasmaBurn.Off" Send="AnimBracketStop BSD"/>
@@ -306,15 +318,17 @@
     <CActorBeamSimple id="UmojanHexaremeSendReconLink" parent="BeamSimpleAnimationStyleContinuous">
         <EditorCategories value=""/>
         <Supporter Subject="_Unit" Scope="Target" Actor="Find"/>
-        <On Terms="Effect.UmojanAloeSendReconOrderReconCP.Start" Send="Create"/>
-        <On Terms="Effect.UmojanAloeSendReconOrderReconCP.Stop" Send="Destroy"/>
+        <On Terms="Effect.UmojanWhirlwindSendReconOrderReconCP.Start" Send="Create"/>
+        <On Terms="Effect.UmojanWhirlwindSendReconOrderReconCP.Stop" Send="Destroy"/>
         <HostForProps Subject="_Unit" Scope="Target" Actor="Find"/>
         <Host Subject="_Unit" Scope="Target" Actor="Find"/>
         <Model value="ChannelSnipeTrackingBeam"/>
         <HostLaunch Subject="_Unit" Scope="Target" Actor="Find"/>
         <HostImpact Subject="_Unit" Scope="Caster" Actor="Find"/>
+        <HostLaunchSiteOps Ops="SOpAttachCenter"/>
+        <HostImpactSiteOps Ops="SOpAttachCenter"/>
     </CActorBeamSimple>
-    <CActorRange id="UmojanHexaremeSendReconRange" parent="RangeAbil" abil="UmojanSendRecon">
+    <CActorRange id="UmojanHexaremeSendReconRange" parent="RangeAbil" abil="UmojanSendSpotter">
         <Icon value="Assets\Textures\RadarIcon2.dds"/>
         <IconArcLength value="3.250000"/>
     </CActorRange>
@@ -564,7 +578,7 @@
         <Wireframe>
             <Image value="Assets\Textures\wireframe-terran-griffon.dds"/>
         </Wireframe>
-        <HostSiteOps Ops="UmojanSOpBankerMist"/>
+        <HostSiteOps Ops="SOpBankerBroodLord"/>
     </CActorUnit>
     <CActorAction id="UmojanRaptorAttack" parent="GenericAttackBase">
         <On Terms="Effect.UmojanRaptorBeamPersistent.Start; At Caster" Send="Create"/>
@@ -3267,6 +3281,51 @@
             <Image value="Assets\Textures\wireframe-terran-bunker.dds"/>
         </Wireframe>
     </CActorUnit>
+    <CActorSplat id="UmojanWhirlwindSendSpotterCursorSplat" parent="TerranCursorSplat" abil="UmojanSendSpotter">
+        <Aliases index="0" removed="1"/>
+        <Model value="LiberatorAGSearchIndicator"/>
+        <Scale value="1.400000"/>
+    </CActorSplat>
+    <CActorRange id="UmojanWhirlwindSpotRange">
+        <Inherits index="Visibility" value="0"/>
+        <AcceptedTransfers index="Position" value="0"/>
+        <AcceptedTransfers index="Rotation" value="0"/>
+        <EditorCategories value=""/>
+        <On index="0" Terms="UnitBirth.UmojanWeaponUnitWhirlwindSpot.Normal" Send="Create"/>
+        <On Terms="UnitDeath.UmojanWeaponUnitWhirlwindSpot" Send="Destroy"/>
+        <AddToProximitySystem value="0"/>
+        <Host Subject=""/>
+        <HostSiteOps Ops=""/>
+        <Range value="7.000000"/>
+        <IconScale value="0.006000,0.001000"/>
+    </CActorRange>
+    <CActorRange id="UmojanWhirlwindSpotRangeLong">
+        <Inherits index="Visibility" value="0"/>
+        <AcceptedTransfers index="Position" value="0"/>
+        <AcceptedTransfers index="Rotation" value="0"/>
+        <EditorCategories value=""/>
+        <On index="0" Terms="UnitBirth.UmojanWeaponUnitWhirlwindSpot.Normal" Send="Create"/>
+        <On Terms="UnitDeath.UmojanWeaponUnitWhirlwindSpot" Send="Destroy"/>
+        <AddToProximitySystem value="0"/>
+        <Host Subject=""/>
+        <HostSiteOps Ops=""/>
+        <Range value="9.000000"/>
+        <IconScale value="0.006000,0.001000"/>
+        <IconTint value="255,255,0,0"/>
+    </CActorRange>
+    <CActorSplat id="UmojanWhirlwindStrikeIndicator" parent="GenericUnitSplat">
+        <Inherits index="CloakEffect" value="0"/>
+        <Inherits index="Decal" value="0"/>
+        <Inherits index="Visibility" value="0"/>
+        <AcceptedTransfers index="Rotation" value="0"/>
+        <Supporter Subject=""/>
+        <On index="2" Terms="Effect.UmojanWhirlwindMissileStrikePersistent.Start; At Effect" Send="Create"/>
+        <On Terms="Effect.UmojanWhirlwindMissileStrikePersistent.Stop" Send="Destroy"/>
+        <Host Subject=""/>
+        <Layer value="AOELayer"/>
+        <Model value="LiberatorAGSearchIndicator"/>
+        <Scale value="0.400000"/>
+    </CActorSplat>
     <CActorRange id="UmojanWhirlwindTooCloseRange" parent="RangeAbil" abil="UmojanMissileBarrage">
         <On Terms="Abil.UmojanMissileStrike.TargetOn" Send="Create"/>
         <On Terms="Abil.UmojanMissileStrike.TargetOff" Send="Destroy"/>
@@ -4259,19 +4318,6 @@
         <Model value="TerranAOECursorSplat"/>
         <Scale value="1.500000"/>
     </CActorSplat>
-    <CActorSplat id="UmojanWhirlwindStrikeIndicator" parent="GenericUnitSplat">
-        <Inherits index="CloakEffect" value="0"/>
-        <Inherits index="Decal" value="0"/>
-        <Inherits index="Visibility" value="0"/>
-        <AcceptedTransfers index="Rotation" value="0"/>
-        <Supporter Subject=""/>
-        <On index="2" Terms="Effect.UmojanWhirlwindMissileStrikePersistent.Start; At Effect" Send="Create"/>
-        <On Terms="Effect.UmojanWhirlwindMissileStrikePersistent.Stop" Send="Destroy"/>
-        <Host Subject=""/>
-        <Layer value="AOELayer"/>
-        <Model value="LiberatorAGSearchIndicator"/>
-        <Scale value="0.400000"/>
-    </CActorSplat>
     <CActorRange id="UmojanWhirlwindBarrageRange" parent="RangeAbil" abil="UmojanMissileBarrage"/>
     <CActorUnit id="UmojanWhirlwind" parent="GenericUnitBase" unitName="UmojanWhirlwind">
         <Aliases value="_UnitLarge"/>
@@ -4281,8 +4327,8 @@
         <Macros value="PhysicsDeathsVoidGround"/>
         <On Terms="UnitHeightUpdate.*.Land" Send="Create Cyclone_Land"/>
         <On Terms="UnitHeightUpdate.*.Land" Send="Create Cyclone_Land2"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileLeft.Start; At Caster" Send="AnimPlay Attack Attack"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileRight.Start; At Caster" Send="AnimPlay Attack Attack"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileLeft.Start; At Caster" Send="AnimPlay Attack Attack"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileRight.Start; At Caster" Send="AnimPlay Attack Attack"/>
         <On Terms="ActorCreation" Send="StatusSet CoverOn 0"/>
         <On Terms="Abil.attack.ReadyStart; IsStatus CoverOn 0" Send="AnimBracketStart Cover Cover,Start Cover Cover,End"/>
         <On Terms="Abil.attack.ReadyStart; IsStatus CoverOn 0" Send="StatusSet CoverOn 1"/>
@@ -4296,25 +4342,16 @@
         <On Terms="TurretTarget.CycloneWeaponTurret.Clear" Target="CycloneWeaponTurretLookAt" Send="LookAtDisengage"/>
         <On Terms="TurretTarget.Cyclone.Set" Target="CycloneLockOnTurretLookAt" Send="LookAtEngage"/>
         <On Terms="TurretTarget.Cyclone.Clear" Target="CycloneLockOnTurretLookAt" Send="LookAtDisengage"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileLeft.Start; At Caster; IsStatus CoverOn 0" Send="AnimBracketStart Cover Cover,Start Cover Cover,End"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileLeft.Start; At Caster; IsStatus CoverOn 0" Send="StatusSet CoverOn 1"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileRight.Start; At Caster; IsStatus CoverOn 0" Send="AnimBracketStart Cover Cover,Start Cover Cover,End"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileRight.Start; At Caster; IsStatus CoverOn 0" Send="StatusSet CoverOn 1"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileLeft.Start; At Caster" Send="TimerKill CoverDelay"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileLeft.Start; At Caster" Send="TimerSet 3.000000 CoverDelay"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileRight.Start; At Caster" Send="TimerKill CoverDelay"/>
-        <On Terms="Effect.CycloneWeaponLaunchMissileRight.Start; At Caster" Send="TimerSet 3.000000 CoverDelay"/>
-        <On Terms="Effect.LockOnCP.Start; At Caster" Send="Create CycloneLockOnTrackingBeam"/>
-        <On Terms="Effect.LockOnAirCP.Start; At Caster" Send="Create CycloneLockOnTrackingBeam"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileLeft.Start; At Caster; IsStatus CoverOn 0" Send="AnimBracketStart Cover Cover,Start Cover Cover,End"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileLeft.Start; At Caster; IsStatus CoverOn 0" Send="StatusSet CoverOn 1"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileRight.Start; At Caster; IsStatus CoverOn 0" Send="AnimBracketStart Cover Cover,Start Cover Cover,End"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileRight.Start; At Caster; IsStatus CoverOn 0" Send="StatusSet CoverOn 1"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileLeft.Start; At Caster" Send="TimerKill CoverDelay"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileLeft.Start; At Caster" Send="TimerSet 3.000000 CoverDelay"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileRight.Start; At Caster" Send="TimerKill CoverDelay"/>
+        <On Terms="Effect.UmojanWhirlwindAttackWeaponLaunchMissileRight.Start; At Caster" Send="TimerSet 3.000000 CoverDelay"/>
         <On Terms="TimerExpired; TimerName CoverDelay" Send="AnimBracketStop Cover"/>
         <On Terms="TimerExpired; TimerName CoverDelay" Send="StatusSet CoverOn 0"/>
-        <On Terms="Behavior.LockOnDisableAttack.On" Target="::PortraitGameSelf" Send="AnimGroupApply Morph Morph,Start Morph,End"/>
-        <On Terms="Behavior.LockOnDisableAttack.Off" Target="::PortraitGameSelf" Send="AnimGroupRemove Morph"/>
-        <On Terms="UnitPortrait.*.Configure; ValidateUnit LockingOn" Target="::PortraitGameSelf" Send="AnimBracketStart Morph Morph,Start Morph,Stand Morph,End Instant"/>
-        <On Terms="UnitPortrait.*.Configure; ValidateUnit NotLockingOn" Target="::PortraitGameSelf" Send="AnimBracketStop Morph Instant"/>
-        <On Terms="AbilMorph.*.Finish; MorphTo Cyclone" Send="Create"/>
-        <On Terms="AbilMorph.*.Finish; MorphFrom CycloneWreckage" Send="ClearTintColor"/>
-        <On Terms="AbilMorph.*.Start; MorphFrom Cyclone" Send="Destroy"/>
         <ModelFlags index="OutlineEmitter" value="1"/>
         <LookAtPriorityList value="CycloneWeaponTurretLookAt"/>
         <DeathArray index="Normal" ModelLink="CycloneDeath" SoundLink="WarHound_Explode" VoiceLink="CycloneDeathVoice"/>
@@ -4350,7 +4387,7 @@
             <AttachQuery Methods="AMFilterCenter"/>
             <Visuals TerrainPhysicsMaterial="Water" ActorModel="TerrainSquibHarnessContinuous" ModelLink="WaterRippleSiegeTank"/>
         </TerrainSquibs>
-        <AbilSoundArray AbilCmd="UmojanMissileBarrage,255" Sound="Cyclone_LockOnVO"/>
+        <AbilSoundArray AbilCmd="UmojanMissileStrike,Execute" Sound="Cyclone_LockOnVO"/>
         <BarOffset value="75"/>
         <BarWidth value="75"/>
         <ErrorArray Error="CantSeeBuildLocation" Sound="UI_GenericError" GroupSound="UI_GenericError"/>
@@ -4361,10 +4398,6 @@
         <GroupIcon>
             <Image value="Assets\Textures\wireframe-terran-cyclone.dds"/>
         </GroupIcon>
-        <GroupSoundArray index="What" value="SiegeTank_GroupWhat"/>
-        <GroupSoundArray index="Yes" value="SiegeTank_GroupYes"/>
-        <GroupSoundArray index="Attack" value="SiegeTank_GroupAttack"/>
-        <GroupSoundArray index="Board" value="SiegeTank_GroupBoard"/>
         <HeroIcon value="Assets\Textures\btn-unit-terran-cyclone-umojan.dds"/>
         <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds"/>
         <SoundArray index="Birth" value="SiegeTank_Birth"/>
@@ -4653,7 +4686,7 @@
             <VoiceLink value="ShadowUnit_DeathVox"/>
             <Name value="Shadow"/>
         </DeathCustoms>
-        <HostSiteOps Ops="UmojanSOpBankerMist"/>
+        <HostSiteOps Ops="SOpBankerBroodLord"/>
         <AnimBlendTime value="0.300000"/>
         <ModelFlags index="OutlineEmitter" value="1"/>
         <DeathArray index="Normal" ModelLink="UmojanMistDeath" SoundLink="Wraith_Explode" VoiceLink="WraithDeathVoice"/>
