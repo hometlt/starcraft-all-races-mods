@@ -1,0 +1,89 @@
+include "TriggerLibs/NativeLib"
+
+include "LibFC9F84FF_h"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Umojan
+//--------------------------------------------------------------------------------------------------
+// External Library Initialization
+void libFC9F84FF_InitLibraries () {
+    libNtve_InitVariables();
+}
+
+// Triggers
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hexarem Stuck Raptor Fix
+//--------------------------------------------------------------------------------------------------
+bool libFC9F84FF_gt_HexaremStuckRaptorFix_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_hexarem;
+    unit lv_raptor;
+    int lv_int;
+    order[32] lv_orders;
+    int lv_orderCount;
+    unitgroup lv_nearbyAir;
+
+    // Automatic Variable Declarations
+    int auto691BDAC9_ae;
+    const int auto691BDAC9_ai = 1;
+    int autoD3219E6B_ae;
+    const int autoD3219E6B_ai = 1;
+
+    // Variable Initialization
+    lv_hexarem = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+    lv_raptor = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_orderCount = UnitOrderCount(lv_hexarem);
+    lv_nearbyAir = UnitGroupAlliance(UnitGetOwner(lv_hexarem), c_unitAllianceEnemy, RegionCircle(UnitGetPosition(lv_hexarem), (UnitGetPropertyFixed(lv_hexarem, c_unitPropRadius, c_unitPropCurrent)+UnitWeaponRange(lv_hexarem, 2)+2)), UnitFilter((1 << c_targetFilterAir) | (1 << c_targetFilterVisible), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterStasis - 32)) | (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32)) | (1 << (c_targetFilterInvulnerable - 32))), 0);
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    auto691BDAC9_ae = (lv_orderCount-1);
+    lv_int = 0;
+    for ( ; ( (auto691BDAC9_ai >= 0 && lv_int <= auto691BDAC9_ae) || (auto691BDAC9_ai < 0 && lv_int >= auto691BDAC9_ae) ) ; lv_int += auto691BDAC9_ai ) {
+        lv_orders[lv_int] = UnitOrder(lv_hexarem, 0);
+    }
+    if ((UnitGroupCount(lv_nearbyAir, c_unitCountAlive) == 0)) {
+        UnitIssueOrder(lv_hexarem, Order(AbilityCommand("stop", 0)), c_orderQueueReplace);
+        Wait(0.06, c_timeGame);
+        UnitIssueOrder(lv_hexarem, lv_orders[0], c_orderQueueReplace);
+        autoD3219E6B_ae = (lv_orderCount-1);
+        lv_int = 1;
+        for ( ; ( (autoD3219E6B_ai >= 0 && lv_int <= autoD3219E6B_ae) || (autoD3219E6B_ai < 0 && lv_int >= autoD3219E6B_ae) ) ; lv_int += autoD3219E6B_ai ) {
+            UnitIssueOrder(lv_hexarem, lv_orders[lv_int], c_orderQueueAddToEnd);
+        }
+    }
+    else {
+        UnitIssueOrder(lv_raptor, OrderTargetingUnit(AbilityCommand("attack", 0), UnitGroupClosestToPoint(lv_nearbyAir, UnitGetPosition(lv_hexarem))), c_orderQueueReplace);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libFC9F84FF_gt_HexaremStuckRaptorFix_Init () {
+    libFC9F84FF_gt_HexaremStuckRaptorFix = TriggerCreate("libFC9F84FF_gt_HexaremStuckRaptorFix_Func");
+    TriggerAddEventPlayerEffectUsed(libFC9F84FF_gt_HexaremStuckRaptorFix, c_playerAny, "UmojanHexaremRaptorDummyRecallMU");
+}
+
+void libFC9F84FF_InitTriggers () {
+    libFC9F84FF_gt_HexaremStuckRaptorFix_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+bool libFC9F84FF_InitLib_completed = false;
+
+void libFC9F84FF_InitLib () {
+    if (libFC9F84FF_InitLib_completed) {
+        return;
+    }
+
+    libFC9F84FF_InitLib_completed = true;
+
+    libFC9F84FF_InitLibraries();
+    libFC9F84FF_InitTriggers();
+}
+
